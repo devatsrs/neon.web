@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<h2>Customer Panel: Authentication Detail</h2>
+
+<div>Dear <?php echo $data['AccountName']; ?>,<br><br>
+
+    Following is your authentication detail for customer panel.
+
+    <h4>Authentication Detail</h4><br><br>
+    User Email: <?php echo $data['BillingEmail']; ?><br>
+    Password:  <?php echo $data['password']; ?><br />
+    Login Link:  <?php echo URL::to('/customer/login'); ?><br />
+    <br>
+    <br>
+    Regards
+</div>
+
+</body>
+</html>

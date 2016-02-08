@@ -1,0 +1,20 @@
+CREATE TABLE `tblPayment` (
+  `PaymentID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL,
+  `AccountID` int(11) NOT NULL,
+  `InvoiceNo` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PaymentDate` datetime NOT NULL,
+  `PaymentMethod` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `Currency` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `PaymentType` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `Notes` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Amount` decimal(18,8) NOT NULL,
+  `Status` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `ModifyBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `CreatedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `PaymentProof` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`PaymentID`),
+  KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`Status`,`CompanyID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

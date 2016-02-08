@@ -1,0 +1,21 @@
+CREATE TABLE `tblCronJob` (
+  `CronJobID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT NULL,
+  `CronJobCommandID` int(11) DEFAULT NULL,
+  `Settings` longtext COLLATE utf8_unicode_ci,
+  `Status` tinyint(3) unsigned NOT NULL,
+  `LastRunTime` datetime DEFAULT NULL,
+  `NextRunTime` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Active` int(11) DEFAULT '0',
+  `JobTitle` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `DownloadActive` int(11) DEFAULT NULL,
+  `PID` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `EmailSendTime` datetime DEFAULT NULL,
+  `CdrBehindEmailSendTime` datetime DEFAULT NULL,
+  `CdrBehindDuration` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CronJobID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

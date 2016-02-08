@@ -1,0 +1,39 @@
+<?php $txterrors = ""; ?>
+<?php if($errors->has()): ?>
+
+        <?php foreach($errors->all() as $error): ?>
+            <?php $txterrors .=  $error."<br />";?>
+        <?php endforeach; ?>
+        <script type="text/javascript">
+              jQuery(document).ready(function ($) {
+                toastr.error("<?php echo $txterrors; ?>", "Error", toastr_opts);
+            });    
+        </script>
+
+<?php endif; ?>
+<?php 
+$error_message = Session::get('error_message');
+?>
+ <?php if(!empty($error_message)): ?>
+<script type="text/javascript">
+
+    jQuery(document).ready(function ($) {
+
+
+        toastr.error("<?php echo $error_message; ?>", "Error", toastr_opts);
+});    
+</script>
+<?php endif; ?>
+<?php
+$info_message = Session::get('info_message');
+?>
+ <?php if(!empty($info_message)): ?>
+<script type="text/javascript">
+
+    jQuery(document).ready(function ($) {
+
+
+        toastr.info("<?php echo $info_message; ?>", "Note:", toastr_opts);
+});
+</script>
+<?php endif; ?>

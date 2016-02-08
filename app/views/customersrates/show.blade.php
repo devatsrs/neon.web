@@ -1,0 +1,1 @@
+I:\bk\www\projects\aamir\rm\laravel\rm\app/views/CustomersRates/show.blade.php

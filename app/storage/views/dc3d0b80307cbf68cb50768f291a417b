@@ -1,0 +1,284 @@
+<?php $__env->startSection('content'); ?>
+<ol class="breadcrumb bc-3">
+	<li>
+		<a href="<?php echo action('dashboard'); ?>"><i class="entypo-home"></i>Home</a>
+	</li>
+	<li>
+		<a href="<?php echo URL::to('accounts'); ?>">Accounts</a>
+	</li>
+    <li>
+        <?php echo customer_dropbox($id,["IsCustomer"=>1]); ?>
+
+    </li>
+	<li class="active">
+		<strong>Settings</strong>
+	</li>
+</ol>
+<h3>Settings</h3>
+<?php if(AccountApprovalList::isVerfiable($id) == false || $Account->VerificationStatus != Account::VERIFIED): ?>
+<div  class=" toast-container-fix toast-top-full-width">
+        <div class="toast toast-error" style="">
+        <div class="toast-title">Message</div>
+        <div class="toast-message">
+        <?php if($Account->VerificationStatus == Account::VERIFIED): ?>
+        Awaiting Account Verification Documents Upload.
+        <?php elseif($Account->VerificationStatus == Account::NOT_VERIFIED || $Account->VerificationStatus == Account::PENDING_VERIFICATION): ?>
+        Account Pending Verification.
+        <?php endif; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+    <li>
+        <a href="<?php echo URL::to('/customers_rates/'.$id); ?>" >
+             Customer Rate
+        </a>
+    </li>
+    <li class="active">
+        <a href="<?php echo URL::to('/customers_rates/settings/'.$id); ?>" >
+             Settings
+        </a>
+    </li>
+    <?php if(User::checkCategoryPermission('CustomersRates','Download')): ?>
+    <li>
+        <a href="<?php echo URL::to('/customers_rates/'.$id.'/download'); ?>" >
+             Download Rate sheet
+        </a>
+    </li>
+    <?php endif; ?>
+    <?php if(User::checkCategoryPermission('CustomersRates','History')): ?>
+    <li>
+        <a href="<?php echo URL::to('/customers_rates/'.$id.'/history'); ?>" >
+            History
+        </a>
+    </li>
+    <?php endif; ?>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="customer_rate_tab_content">
+        <div class="row">
+            <div class="col-md-12">
+                <form  id="CustomerTrunk-form" method="post" action="<?php echo URL::to('/customers_rates/update_trunks/'.$id); ?>" >
+                <div class="panel panel-primary" data-collapsed="0">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Trunks
+                        </div>
+                        <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-bordered datatable" id="table-4">
+                            <thead>
+                                <tr>
+                                    <th width="1%"><div class="checkbox "><input type="checkbox" id="selectall" name="checkbox[]" class="" ></div></th>
+                                    <th width="15%">Trunk</th>
+                                    <th width="15%">Prefix</th>
+                                    <th style="text-align:center" width="5%">Show Prefix in Ratesheet</th>
+                                    <th width="15%">Use Prefix In CDR</th>
+                                    <th style="text-align:center" width="5%">Enable Routing Plan</th>
+                                    <th width="20%">Gateway</th>
+                                    <th width="20%">CodeDeck</th>
+                                    <th width="20%">Base Rate Table</th>
+                                    <th width="4%">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            <?php if(isset($trunks) && count($trunks)>0): ?>
+                                <?php foreach($trunks as $trunk): ?>
+
+                                <tr class="odd gradeX  <?php if(isset($customer_trunks[$trunk->TrunkID]->Status) && $customer_trunks[$trunk->TrunkID]->Status == 1): ?> selected <?php endif; ?>">
+                                    <td><input type="checkbox" name="CustomerTrunk[<?php echo e($trunk->TrunkID); ?>][Status]" class="rowcheckbox" value="1" <?php if(isset($customer_trunks[$trunk->TrunkID]->Status) && $customer_trunks[$trunk->TrunkID]->Status == 1): ?> checked <?php endif; ?> ></td>
+                                    <td><?php echo $trunk->Trunk; ?></td>
+                                    <td><input type="text" class="form-control" name="CustomerTrunk[<?php echo e($trunk->TrunkID); ?>][Prefix]" value="<?php if(isset($customer_trunks[$trunk->TrunkID]->Prefix)): ?><?php echo $customer_trunks[$trunk->TrunkID]->Prefix; ?><?php endif; ?>"  /></td>
+                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[<?php echo e($trunk->TrunkID); ?>][IncludePrefix]" <?php if(isset($customer_trunks[$trunk->TrunkID]->IncludePrefix) && $customer_trunks[$trunk->TrunkID]->IncludePrefix == 1 ): ?> checked <?php endif; ?>  ></td>
+                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[<?php echo e($trunk->TrunkID); ?>][UseInBilling]" <?php if((isset($customer_trunks[$trunk->TrunkID]->UseInBilling) && $customer_trunks[$trunk->TrunkID]->UseInBilling == 1)  || CompanySetting::getKeyVal('UseInBilling') == 1): ?> checked <?php endif; ?>  ></td>
+                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[<?php echo e($trunk->TrunkID); ?>][RoutinePlanStatus]" <?php if(isset($customer_trunks[$trunk->TrunkID]->RoutinePlanStatus) && $customer_trunks[$trunk->TrunkID]->RoutinePlanStatus == 1 ): ?> checked <?php endif; ?>  ></td>
+                                    <td>
+                                        <?php echo Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][CompanyGatewayID][]', $companygateway, (isset($customer_trunks[$trunk->TrunkID]->CompanyGatewayIDs)? explode(',',$customer_trunks[$trunk->TrunkID]->CompanyGatewayIDs) : '' ), array("class"=>"select2",'multiple',"data-placeholder"=>"Select a Gateway")); ?>
+
+                                    </td>
+                                    <td  class="center">
+                                    <?php $CodeDeckId =  isset($customer_trunks[$trunk->TrunkID])? $customer_trunks[$trunk->TrunkID]->CodeDeckId:''?>
+                                        <?php echo Form::select('CustomerTrunk['.$trunk->TrunkID.'][CodeDeckId]', $codedecklist, $CodeDeckId , array("class"=>"select2 codedeckid")); ?>
+
+                                        <input type="hidden" name="trunkid" value="<?php echo $trunk->TrunkID; ?>">
+                                        <input type="hidden" name="codedeckid" value="<?php echo $CodeDeckId; ?>">
+                                    </td>
+
+                                    <td  class="center">
+                                        <?php
+                                        $rate_table = RateTable::getRateTableList(["TrunkID"=>$trunk->TrunkID,'CodeDeckId'=>$CodeDeckId,'CurrencyID'=>$Account->CurrencyId]);
+                                        $RateTableID = (isset($customer_trunks[$trunk->TrunkID]->RateTableID))?$customer_trunks[$trunk->TrunkID]->RateTableID:'';
+                                        ?>
+                                        <?php echo Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][RateTableID]'    , $rate_table, $RateTableID   , array("class"=>"selectboxit ratetableid","data-placeholder"=>"Select a Table")); ?>
+
+                                        <input type="hidden" name="ratetableid" value="<?php echo $RateTableID; ?>">
+                                    </td>
+                                    <td>
+                                        <?php if(isset($customer_trunks[$trunk->TrunkID]->Status) && ($customer_trunks[$trunk->TrunkID]->Status == 1)): ?> Active <?php else: ?> Inactive
+                                        <?php endif; ?>
+                                    </td>
+                                    <input type="hidden" name="CustomerTrunk[<?php echo e($trunk->TrunkID); ?>][CustomerTrunkID]" value="<?php if(isset($customer_trunks[$trunk->TrunkID]->CustomerTrunkID)): ?><?php echo $customer_trunks[$trunk->TrunkID]->CustomerTrunkID; ?><?php endif; ?>"  /></td>
+                                </tr>
+
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
+                        <p class="float-right " >
+                            <a href="#" id="customer-trunks-submit" class="btn save btn-primary btn-sm btn-icon icon-left">
+                                <i class="entypo-floppy"></i>
+                                Save
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+var ratabale = '<?php echo json_encode($rate_tables); ?>';
+    jQuery(document).ready(function ($) {
+        
+
+        $(".dataTables_wrapper select").select2({
+            minimumResultsForSearch: -1
+        });
+
+
+		 /* Highlight row */
+        $('#table-4 tbody .rowcheckbox').click(function () {
+
+            //$(this).parent().parent().toggleClass('selected');
+
+            if( $(this).prop("checked")){
+                $(this).parent().parent().addClass('selected');
+            }else{
+                $(this).parent().parent().removeClass('selected');
+            }
+             
+             /*if ($(this).parent().parent().hasClass("selected")) {
+                $(this).prop("checked", true);
+                $(this).parent().parent().addClass('selected');
+            } else {
+                $(this).prop("checked", false);
+                $(this).parent().parent().removeClass('selected');
+            }*/        
+            });
+
+        // Select all
+        $("#selectall").click(function (ev) {
+
+            var is_checked = $(this).is(':checked');
+
+            $('#table-4 tbody tr').each(function (i, el) {
+                if(is_checked){
+                    $(this).find('.rowcheckbox').prop("checked",true);
+                    $(this).addClass('selected');
+                }else{
+                    $(this).find('.rowcheckbox').prop("checked",false);
+                    $(this).removeClass('selected');
+                }
+            });
+        });
+
+	    $("#customer-trunks-submit").click(function () {
+	    	$("#CustomerTrunk-form").submit();
+            return false;
+	    });
+	    $(".ratetableid").bind('change',function (e) {
+	        var prev_val = $(this).parent().find('[name="ratetableid"]').val();
+	        if(prev_val > 0){
+                changeConfirmation = confirm("Are you sure?Effective dates will be changed");
+                if(changeConfirmation){
+
+               }else{
+                    $(this).val(prev_val);
+                    var select  = $(this).parent().find('.ratetableid');
+                     setTimeout(function() {
+                         select.find("option[value='"+prev_val+"']").attr('selected','selected');
+                         select.selectBoxIt().data("selectBox-selectBoxIt").refresh();
+                     },200);
+                }
+            }
+	    });
+
+	    $(".codedeckid").bind('change',function (e) {
+	        var prev_val = $(this).parent().find('[name="codedeckid"]').val()
+	        var trunkid = $(this).parent().find('[name="trunkid"]').val()
+	        var current_obj = $(this);
+	        var selectBox = current_obj.parent().next().find('.ratetableid').selectBoxIt().data("selectBox-selectBoxIt");
+	        selectBox.remove();
+            var json = JSON.parse(ratabale);
+            selectBox.add({'text':'Select a Rate Table','value':''})
+            if( typeof  json[trunkid] != 'undefined'){
+                selectBox.add(json[trunkid][current_obj.val()]);
+            }
+
+	        $.ajax({
+                    url:baseurl + '/customers_rates/delete_customerrates/<?php echo $id; ?>', //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response > 0){
+                            changeConfirmation = confirm("Are you sure? Realated Rates will be deleted");
+                            if(changeConfirmation){
+                                prev_val = current_obj.val();
+                                current_obj.prop('selected', prev_val);
+                                current_obj.parent().find('select.select2').select2().select2('val',prev_val);
+                                selectBox.selectOption("");
+                                current_obj.parent().find('[name="codedeckid"]').val(prev_val)
+                                current_obj.select2().select2('val',prev_val);
+                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/<?php echo $id; ?>','Trunkid='+trunkid)
+                            }else{
+                                current_obj.val(prev_val);
+                                current_obj.prop('selected', prev_val);
+                                current_obj.parent().find('select.select2').select2().select2('val',prev_val);
+                            }
+                        }
+
+                    },
+                    data: 'action=check_count&Trunkid='+trunkid,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false
+                });
+            return false;
+        });
+
+        $("#table-4 tbody input[type='text']").click(function (e) {
+            
+            return false;
+
+
+        });
+
+        // Replace Checboxes
+        $(".pagination a").click(function (ev) {
+            replaceCheckboxes();
+        });
+        <?php if(count($customer_trunks) == 0): ?>
+        $('.nav-tabs').find('a').each(function () {
+            if($.trim($(this).text()) != 'Settings'){
+                $(this).prop('disabled', true);
+                $(this).attr('disabled', 'disabled');
+            }
+        });
+        $('a').click(function(){
+            return ($(this).attr('disabled')) ? false : true;
+        });
+        <?php endif; ?>
+    });
+
+</script>
+    <?php echo $__env->make('includes.errors', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+    <?php echo $__env->make('includes.success', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<?php //@include('includes.ajax_submit_script', array('formID'=>'CustomerTrunk-form' , 'url' => 'customers_rates/update_trunks/'.$id )) ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layout.main', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

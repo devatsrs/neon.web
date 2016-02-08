@@ -1,0 +1,629 @@
+<?php
+
+Route::group(array('before' => 'auth'), function () {
+
+    Route::any('customer/dashboard', array("as" => "dashboardCustomer", "uses" => "DashboardCustomerController@home"));
+    Route::any('customer/invoice_expense_chart', 'DashboardCustomerController@invoice_expense_chart');
+    Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
+    Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
+    //Invoice
+    Route::any('customer/invoice', 'InvoicesCustomerController@index');
+    Route::any('customer/invoice/ajax_datagrid', 'InvoicesCustomerController@ajax_datagrid');
+    //Route::any('customer/invoice/{id}/print_preview', 'InvoicesCustomerController@print_preview'); Not in use.
+    //Route::any('customer/invoice/{id}/print', 'InvoicesCustomerController@pdf_view');
+    Route::any('customer/invoice/pay_now', 'InvoicesCustomerController@pay_now');
+
+    //payment
+    Route::any('customer/payments', 'PaymentsCustomerController@index');
+    Route::any('customer/payments/create', 'PaymentsCustomerController@create');
+    Route::any('customer/payments/ajax_datagrid', 'PaymentsCustomerController@ajax_datagrid');
+
+
+    //Account Statement
+
+    Route::any('customer/account_statement', 'AccountStatementCustomerController@index');
+    Route::any('customer/account_statement/payment', 'AccountStatementCustomerController@getPayment');
+    Route::any('customer/account_statement/ajax_datagrid', 'AccountStatementCustomerController@ajax_datagrid');
+    Route::any('customer/account_statement/exports', 'AccountStatementCustomerController@exports');
+
+    //credit card
+    Route::any('customer/PaymentMethodProfiles/paynow', 'PaymentProfileCustomerController@paynow');
+    Route::any('/customer/PaymentMethodProfiles', 'PaymentProfileCustomerController@index');
+    Route::any('/customer/PaymentMethodProfiles/create', 'PaymentProfileCustomerController@create');
+    Route::any('/customer/PaymentMethodProfiles/{id}/delete', 'PaymentProfileCustomerController@delete');
+    Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
+    Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
+    Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
+    Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
+
+    //Role
+    Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
+    Route::any('/roles/storerole', "RoleController@storerole");
+    Route::any('/roles/storepermission', "RoleController@storepermission");
+    Route::any('/roles/create', "RoleController@store");
+    Route::any('/roles/edit/{id}', array('as' => 'edit_role', 'uses' => 'RoleController@edit'));
+    Route::any('/roles/update', array('as' => 'role_update', 'uses' => 'RoleController@update'));
+    Route::any('/roles/{id}/delete/', array('as' => 'role_delete', 'uses' => 'RoleController@delete'));
+    Route::any('/roles/ajax_datagrid', 'RoleController@ajax_datagrid');
+    Route::any('/roles/ajax_user_list/{where}', array('as' => 'ajax_group_list', 'uses' => 'RoleController@ajax_user_list'))->where('where', '(user|role|resource)');
+    Route::any('/roles/ajax_role_list/{where}', array('as' => 'ajax_user_list', 'uses' => 'RoleController@ajax_role_list'))->where('where', '(user|role|resource)');
+    Route::any('/roles/ajax_resource_list/{where}', array('as' => 'ajax_actions_list', 'uses' => 'RoleController@ajax_resource_list'))->where('where', '(user|role|resource)');
+
+    //Profile
+    Route::any('customer/profile', array('as' => 'profile_show', 'uses' => 'ProfileController@show'));
+    Route::any('customer/profile/edit', array('as' => 'profile_edit', 'uses' => 'ProfileController@edit'));
+    Route::any('customer/profile/update', array('as' => 'profile_update', 'uses' => 'ProfileController@update'));
+	//User
+	Route::any('users', array("as" => "users", "uses" => "UsersController@index"));
+	Route::any('/users/add', "UsersController@add");
+	Route::any('/users/store', "UsersController@store");
+	Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
+	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
+	Route::any('/users/exports', 'UsersController@exports');
+	Route::any('users/ajax_datagrid', 'UsersController@ajax_datagrid');
+	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
+	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+
+
+	//DashBoard
+    Route::get('/process_redirect',"HomeController@process_redirect");
+	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
+	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
+    Route::any('/billingdashboard', "DashboardController@billingdashboard");
+    Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
+    Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
+    Route::any('/dashboard/ajax_get_jobs', "DashboardController@ajax_get_jobs");
+    Route::any('/dashboard/ajax_get_processed_files', "DashboardController@ajax_get_processed_files");
+    Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
+    Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
+	//Trunk
+	Route::any('trunk/edit/{id}', array('as' => 'edit_trunk', 'uses' => 'TrunkController@edit'));
+	Route::any('trunks/update/{id}', array('as' => 'update_trunk', 'uses' => 'TrunkController@update'));
+	Route::any('trunks/store', array('as' => 'store_trunk', 'uses' => 'TrunkController@store'));
+	Route::any('trunks/create', array('as' => 'create_trunk', 'uses' => 'TrunkController@create'));
+	Route::any('trunks/ajax_datagrid', 'TrunkController@ajax_datagrid');
+	Route::any('trunks/exports', 'TrunkController@exports');
+	Route::resource('trunks', 'TrunkController');
+	Route::controller('trunks', 'TrunkController');
+
+
+	//CodeDecks
+	Route::any('/codedecks/store', array('as' => 'codedecks_store', 'uses' => 'CodeDecksController@store'));
+	Route::any('/codedecks/update/{id}', array('as' => 'codedecks_update', 'uses' => 'CodeDecksController@update'));
+	Route::any('codedecks/upload', array('as' => 'codedecks_upload', 'uses' => 'CodeDecksController@upload'));
+	Route::any('codedecks/ajax_datagrid', 'CodeDecksController@ajax_datagrid');
+	Route::any('codedecks/exports', 'CodeDecksController@exports');
+	Route::any('codedecks/delete_all', 'CodeDecksController@delete_all');
+	Route::any('codedecks/delete_selected', 'CodeDecksController@delete_selected');
+	Route::any('codedecks/update_selected', 'CodeDecksController@update_selected');
+	Route::any('codedecks/download_sample_excel_file', 'CodeDecksController@download_sample_excel_file');
+	Route::any('codedecks/cretecodedeck', 'CodeDecksController@cretecodedeck');
+	Route::any('codedecks/{id}/delete', 'CodeDecksController@delete');
+	//base codedecks
+	Route::any('codedecks/base_datagrid', 'CodeDecksController@base_datagrid');
+	Route::any('codedecks/basecodedeck/{id}', 'CodeDecksController@basecodedeck');
+	Route::any('codedecks/updatecodedeck/{id}', 'CodeDecksController@updatecodedeck');
+	Route::any('codedecks/{id}/base_delete', 'CodeDecksController@base_delete');
+	Route::any('codedecks/base_exports', 'CodeDecksController@base_exports');
+	Route::resource('codedecks', 'CodeDecksController');
+	Route::controller('codedecks', 'CodeDecksController');
+
+	//Account
+	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
+	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));
+	Route::any('/accounts/{id}/show', array('as' => 'accounts_show', 'uses' => 'AccountsController@show'));
+	Route::any('/accounts/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'AccountsController@store_note'));
+	Route::any('/accounts/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'AccountsController@delete_note'));
+	Route::any('accounts/upload/{id}', 'AccountsController@upload');
+	Route::any('accounts/download_doc/{id}', 'AccountsController@download_doc');
+	Route::any('accounts/download_doc_file/{id}', 'AccountsController@download_doc_file');
+	Route::any('accounts/delete_doc/{id}', 'AccountsController@delete_doc');
+	Route::any('accounts/ajax_datagrid', 'AccountsController@ajax_datagrid');
+	Route::any('accounts/exports', 'AccountsController@exports');
+	Route::any('accounts/due_ratesheet', 'AccountsController@due_ratesheet');
+	Route::any('accounts/ajax_datagrid_sheet', 'AccountsController@ajax_datagrid_sheet');
+    Route::any('accounts/{id}/ajax_datagrid_PaymentProfiles', 'AccountsController@ajax_datagrid_PaymentProfiles');
+	Route::any('accounts/addbillingaccount', 'AccountsController@addbillingaccount');
+	Route::any('accounts/{id}/change_verifiaction_status/{status}', 'AccountsController@change_verifiaction_status')->where('status', '(.[09]*)+');;
+    Route::any('accounts/getoutstandingamount/{id}', 'AccountsController@get_outstanding_amount');
+    Route::any('accounts/paynow/{id}', 'AccountsController@paynow');
+    Route::any('accounts/{id}/ajax_template', 'AccountsController@ajax_template');
+    Route::any('accounts/{id}/ajax_getEmailTemplate/{template_type}', 'AccountsController@ajax_getEmailTemplate')->where('template_type', '(.[09]*)+');
+    Route::any('accounts/bulk_mail', 'AccountsController@bulk_mail');
+    Route::any('accounts/validate_cli', 'AccountsController@validate_cli');
+    Route::any('accounts/validate_ip', 'AccountsController@validate_ip');
+    Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
+	//Account Subscription
+	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
+	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
+	Route::any('accounts/{id}/subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
+	Route::any('accounts/{id}/subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
+
+    //Account One of charge
+    Route::any('accounts/{id}/oneofcharge/ajax_datagrid', 'AccountOneOffChargeController@ajax_datagrid');
+    Route::any('accounts/{id}/oneofcharge/store', 'AccountOneOffChargeController@store');
+    Route::any('accounts/{id}/oneofcharge/{oneofcharge_id}/update', 'AccountOneOffChargeController@update')->where('oneofcharge_id', '(.[09]*)+');
+    Route::any('accounts/{id}/oneofcharge/{oneofcharge_id}/delete', 'AccountOneOffChargeController@delete')->where('oneofcharge_id', '(.[09]*)+');
+    Route::any('accounts/{id}/oneofcharge/{oneofcharge_product_id}/ajax_getproductinfo', 'AccountOneOffChargeController@ajax_getProductInfo')->where('oneofcharge_id', '(.[09]*)+');
+
+    //Account Activity
+    Route::any('accounts/{id}/activities/ajax_datagrid', 'AccountActivityController@ajax_datagrid');
+
+    Route::any('accounts/{id}/activities/store', 'AccountActivityController@store');
+    Route::any('accounts/{id}/activities/{activity_id}/update', 'AccountActivityController@update')->where('activity_id', '(.[09]*)+');
+    Route::any('accounts/{id}/activities/{activity_id}/delete', 'AccountActivityController@delete')->where('activity_id', '(.[09]*)+');
+
+
+    //Account email log
+    Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
+    Route::any('accounts/{id}/activities/sendemail', 'AccountActivityController@sendMail');
+    Route::any('accounts/{id}/activities/{log_id}/view_email_log', 'AccountActivityController@view_email_log')->where('log_id', '(.[09]*)+');
+    Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
+
+
+    Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
+	Route::resource('accounts', 'AccountsController');
+	Route::controller('accounts', 'AccountsController');
+
+
+	//Account Statement
+
+	Route::any('account_statement', 'AccountStatementController@index');
+	Route::any('account_statement/payment', 'AccountStatementController@getPayment');
+	Route::any('account_statement/ajax_datagrid', 'AccountStatementController@ajax_datagrid');
+	Route::any('account_statement/exports', 'AccountStatementController@exports');
+
+    //EmailTemplate
+
+    Route::any('email_template', 'EmailTemplateController@index');
+	Route::any('email_template/{id}/update', 'EmailTemplateController@update');
+    Route::any('email_template/{id}/edit', 'EmailTemplateController@edit');
+    Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
+    Route::any('email_template/store', 'EmailTemplateController@store');
+	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
+	Route::any('email_template/exports', 'EmailTemplateController@exports');
+
+	//Leads
+	//Leads
+	Route::any('/leads/store', array('as' => 'leads_store', 'uses' => 'LeadsController@store'));
+	Route::any('/leads/update/{id}', array('as' => 'leads_update', 'uses' => 'LeadsController@update'));
+	Route::any('/leads/{id}/show', array('as' => 'accounts_show', 'uses' => 'LeadsController@show'));
+	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
+	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
+	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));
+    Route::any('/leads/{id}/ajax_template', 'LeadsController@ajax_template');
+    Route::any('/leads/bulk_mail', 'LeadsController@bulk_mail');
+    Route::any('/leads/bulk_tags', 'LeadsController@bulk_tags');
+    Route::any('/leads/{id}/clone', 'LeadsController@lead_clone');
+	Route::any('/leads/ajax_datagrid', 'LeadsController@ajax_datagrid');
+    Route::any('/leads/{id}/ajax_getEmailTemplate/{template_type}', 'LeadsController@ajax_getEmailTemplate')->where('template_type', '(.[09]*)+');
+	Route::any('leads/exports', 'LeadsController@exports');
+	Route::resource('leads', 'LeadsController');
+
+
+	//Contacts
+	Route::any('/contacts/create', array('as' => 'contacts_create', 'uses' => 'ContactsController@create'));
+	Route::any('/contacts/store', array('as' => 'contacts_store', 'uses' => 'ContactsController@store'));
+	Route::any('/contacts/store', array('as' => 'contacts_store', 'uses' => 'ContactsController@store'));
+	Route::any('/contacts/update/{id}', array('as' => 'contacts_update', 'uses' => 'ContactsController@update'));
+	Route::any('/contacts/{id}/show', array('as' => 'contacts_show', 'uses' => 'ContactsController@show'));
+	Route::any('/contacts/{id}/store_note', array('as' => 'contacts_storenote', 'uses' => 'ContactsController@store_note'));
+	Route::any('/contacts/{id}/delete_note', array('as' => 'contacts_delete_note', 'uses' => 'ContactsController@delete_note'));
+	Route::any('/contacts/{id}/convert', array('as' => 'contacts_convert', 'uses' => 'ContactsController@convert'));
+	Route::any('/contacts/{id}/delete', array('as' => 'contacts_delete', 'uses' => 'ContactsController@destroy'));
+	Route::any('contacts/ajax_datagrid', 'ContactsController@ajax_datagrid');
+	Route::any('contacts/exports', 'ContactsController@exports');
+	Route::resource('contacts', 'ContactsController');
+
+	//CustomersRates
+	Route::any('/customers_rates/{id}', array('as' => 'customer_rates', 'uses' => 'CustomersRatesController@index'));
+	Route::any('/customers_rates/{id}/search_ajax_datagrid', 'CustomersRatesController@search_ajax_datagrid');
+	Route::any('/customers_rates/{id}/search_customer_grid', 'CustomersRatesController@search_customer_grid');
+	Route::any('/customers_rates/{id}/download', array('as' => 'customer_rates_download', 'uses' => 'CustomersRatesController@download'));
+	Route::any('/customers_rates/{id}/process_download', array('as' => 'customer_rates_process_download', 'uses' => 'CustomersRatesController@process_download'));
+	Route::any('/customers_rates/update/{id}', array('as' => 'customer_rates_update', 'uses' => 'CustomersRatesController@update'));
+	Route::any('/customers_rates/process_bulk_rate_update/{id}', array('as' => 'process_bulk_rate_update', 'uses' => 'CustomersRatesController@process_bulk_rate_update'));
+	Route::any('/customers_rates/process_bulk_rate_clear/{id}', array('as' => 'process_bulk_rate_clear', 'uses' => 'CustomersRatesController@process_bulk_rate_clear'));
+	Route::any('/customers_rates/settings/{id}', array('as' => 'customer_rates_settings', 'uses' => 'CustomersRatesController@settings'));
+	Route::any('/customers_rates/update_trunks/{id}', array('as' => 'customer_rates_trunks_update', 'uses' => 'CustomersRatesController@update_trunks'));
+	Route::any('/customers_rates/delete_customerrates/{id}', array('as' => 'customer_rates_delete_customerrates', 'uses' => 'CustomersRatesController@delete_customerrates'));
+	Route::any('/customers_rates/bulk_update/{id}', array('as' => 'customer_rates_bulk_update', 'uses' => 'CustomersRatesController@bulk_update'));
+	Route::any('/customers_rates/ajax_datagrid_search_customer_rate/{id}', 'CustomersRatesController@ajax_datagrid_search_customer_rate');
+	Route::any('/customers_rates/clear_rate/{id}', array('as' => 'customer_clear_rate', 'uses' => 'CustomersRatesController@clear_rate'));
+	Route::any('/customers_rates/bulk_clear_rate/{id}', array('as' => 'customer_bulk_clear_rate', 'uses' => 'CustomersRatesController@bulk_clear_rate'));
+	Route::any('/customers_rates/{id}/history', array('as' => 'customer_rates_history', 'uses' => 'CustomersRatesController@history'));
+	Route::any('/customers_rates/{id}/history_ajax_datagrid', 'CustomersRatesController@history_ajax_datagrid');
+	Route::any('/customers_rates/{id}/history/{hid}/view', 'CustomersRatesController@show_history')->where('hid', '(.[09]*)+');
+	Route::any('/customers_rates/{id}/exports', 'CustomersRatesController@exports');
+	Route::any('/customers_rates/{id}/history_exports', 'CustomersRatesController@history_exports');
+	Route::any('/customers_rates/{id}/download_excel_file/{JobID}', 'CustomersRatesController@download_excel_file')->where('JobID', '(.[09]*)+');
+	Route::any('/vendor_merge', 'CustomersRatesController@vendor_merge');
+
+	Route::resource('customers_rates', 'CustomersRatesController');
+	Route::controller('customers_rates', 'CustomersRatesController');
+
+	//VendoerBlocking
+	Route::any('/vendor_blocking/{id}', array('as' => 'vendor_blocking', 'uses' => 'VendorBlockingsController@index'));
+	Route::any('/vendor_blocking/blockby_code/{id}',  'VendorBlockingsController@blockby_code');
+	Route::any('/vendor_blocking/block/{id}', array('as' => 'vendor_blocking_block', 'uses' => 'VendorBlockingsController@block'));
+	Route::any('/vendor_blocking/unblock/{id}', array('as' => 'vendor_blocking_unblock', 'uses' => 'VendorBlockingsController@unblock'));
+
+	Route::any('/vendor_blocking/index_blockby_code/{id}',  'VendorBlockingsController@index_blockby_code');
+
+	Route::any('/vendor_blocking/blockby_code/{id}', array('as' => 'vendor_blocking_block_blockby_code', 'uses' => 'VendorBlockingsController@blockby_code'));
+	Route::any('/vendor_blocking/unblockby_code/{id}', array('as' => 'vendor_blocking_unblockby_code', 'uses' => 'VendorBlockingsController@unblockby_code'));
+
+	Route::any('/vendor_blocking/{id}/ajax_datagrid_blockbycountry', 'VendorBlockingsController@ajax_datagrid_blockbycountry');
+	Route::any('/vendor_blocking/{id}/blockbycountry_exports', 'VendorBlockingsController@blockbycountry_exports');
+	Route::any('/vendor_blocking/{id}/ajax_datagrid_blockbycode', 'VendorBlockingsController@ajax_datagrid_blockbycode');
+	Route::any('/vendor_blocking/{id}/blockbycode_exports', 'VendorBlockingsController@blockbycode_exports');
+	Route::any('/vendor_blocking/blockbycountry/{id}',  'VendorBlockingsController@blockbycountry');
+	Route::any('/vendor_blocking/blockbycode/{id}',  'VendorBlockingsController@blockbycode');
+
+	Route::resource('vendor_blocking', 'VendorBlockingsController');
+	Route::controller('vendor_blocking', 'VendorBlockingsController');
+
+	//VendorRates
+	Route::any('/vendor_rates/download_sample_excel_file', 'VendorRatesController@download_sample_excel_file');
+	Route::any('/vendor_rates/{id}', array('as' => 'vendor_rates', 'uses' => 'VendorRatesController@index'));
+	Route::any('/vendor_rates/{id}/upload', array('as' => 'vendor_rates_upload', 'uses' => 'VendorRatesController@upload'));
+	Route::any('/vendor_rates/{id}/settings', array('as' => 'vendor_rates_settings', 'uses' => 'VendorRatesController@settings'));
+	Route::any('/vendor_rates/{id}/process_upload', array('as' => 'vendor_rates_process_upload', 'uses' => 'VendorRatesController@process_upload'));
+	Route::any('/vendor_rates/{id}/download', array('as' => 'vendor_rates_download', 'uses' => 'VendorRatesController@download'));
+	Route::any('/vendor_rates/{id}/process_download', array('as' => 'vendor_rates_process_download', 'uses' => 'VendorRatesController@process_download'));
+	Route::any('/vendor_rates/{id}/history', 'VendorRatesController@history');
+	Route::any('/vendor_rates/{id}/history_ajax_datagrid', 'VendorRatesController@history_ajax_datagrid');
+	Route::any('/vendor_rates/{id}/history/{hid}/view', 'VendorRatesController@show_history')->where('hid', '(.[09]*)+');
+	Route::any('/vendor_rates/{id}/history_exports', 'VendorRatesController@history_exports');
+	Route::any('/vendor_rates/{id}/search_ajax_datagrid', 'VendorRatesController@search_ajax_datagrid');
+	Route::any('/vendor_rates/{id}/exports', 'VendorRatesController@exports');
+	Route::any('/vendor_rates/{id}/delete_vendorrates', 'VendorRatesController@delete_vendorrates');
+	Route::any('/vendor_rates/{id}/update_settings', 'VendorRatesController@update_settings');
+	Route::any('/vendor_rates/{id}/download/download_excel_file/{JobID}', 'VendorRatesController@downloaded_excel_file_download')->where('JobID', '(.[09]*)+');
+	Route::any('/vendor_rates/{id}/upload/download_excel_file/{JobID}', 'VendorRatesController@uploaded_excel_file_download')->where('JobID', '(.[09]*)+');
+	Route::any('/vendor_rates/bulk_clear_rate/{id}', array('as' => 'vendor_bulk_clear_rate', 'uses' => 'VendorRatesController@bulk_clear_rate'));
+	Route::any('/vendor_rates/clear_all_vendorrate/{id}', array('as' => 'clear_all_vendorrate', 'uses' => 'VendorRatesController@clear_all_vendorrate'));
+	Route::any('/vendor_rates/bulk_update/{id}', array('as' => 'vendor_rates_bulk_update', 'uses' => 'VendorRatesController@bulk_update'));
+	Route::any('/vendor_rates/bulk_update_new/{id}', array('as' => 'vendor_rates_bulk_update_new', 'uses' => 'VendorRatesController@bulk_update_new'));
+	Route::any('/vendor_rates/vendor_preference/{id}', 'VendorRatesController@vendor_preference');
+	Route::any('/vendor_rates/{id}/search_ajax_datagrid_preference', 'VendorRatesController@search_ajax_datagrid_preference');
+	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
+    Route::any('/vendor_rates/{id}/check_upload', 'VendorRatesController@check_upload');
+    Route::any('/vendor_rates/{id}/ajaxfilegrid', 'VendorRatesController@ajaxfilegrid');
+    Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
+    Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
+
+	Route::resource('vendor_rates', 'VendorRatesController');
+	Route::controller('vendor_rates', 'VendorRatesController');
+
+	//Jobs
+	Route::any('/jobs', array('as' => 'jobs', 'uses' => 'JobsController@index'));
+	Route::any('/jobs/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'JobsController@ajax_datagrid'));
+	Route::any('/jobs/{id}/show', array('as' => 'jobs_view', 'uses' => 'JobsController@show'));
+	Route::any('/jobs/exports', array('as' => 'jobs_exports', 'uses' => 'JobsController@exports'));
+	Route::any('/jobs/{id}/download_excel', 'JobsController@download_rate_sheet_file');
+	Route::any('/jobs/loadDashboardJobsDropDown', 'JobsController@loadDashboardJobsDropDown');
+	Route::any('/jobs/reset', 'JobsController@resetJobsAlert');
+	Route::any('/jobs/{id}/jobRead', 'JobsController@jobRead');
+	Route::any('/jobs/{id}/downloaoutputfile', 'JobsController@downloaOutputFile');
+    Route::any('/activejob', 'JobsController@activejob');
+    Route::any('/jobs/jobactive_ajax_datagrid', 'JobsController@jobactive_ajax_datagrid');
+    Route::any('/jobs/activeprocessdelete/', 'JobsController@activeprocessdelete');
+	Route::resource('jobs', 'JobsController');
+	Route::controller('jobs', 'JobsController');
+
+	//RateGenerator
+	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
+	Route::any('/rategenerators/ajax_datagrid', array('as' => 'rategenerator_ajax_datagrid', 'uses' => 'RateGeneratorsController@ajax_datagrid'));
+	Route::any('/rategenerators/ajax_margin_datagrid', array('as' => 'rategenerator_ajax_margin_datagrid', 'uses' => 'RateGeneratorsController@ajax_margin_datagrid'));
+	Route::any('/rategenerators/{id}/delete', array('as' => 'rategenerator_delete', 'uses' => 'RateGeneratorsController@delete'));
+	Route::any('/rategenerators/create', array('as' => 'rategenerator_create', 'uses' => 'RateGeneratorsController@create'));
+	Route::any('/rategenerators/store', array('as' => 'rategenerator_store', 'uses' => 'RateGeneratorsController@store'));
+	Route::any('/rategenerators/{id}/update', array('as' => 'rategenerator_update', 'uses' => 'RateGeneratorsController@update'));
+	Route::any('/rategenerators/{id}/edit', array('as' => 'rategenerator_edit', 'uses' => 'RateGeneratorsController@edit'));
+	Route::any('/rategenerators/{id}/store_rule', array('as' => 'rategenerator_store_rule', 'uses' => 'RateGeneratorsController@store_rule'));
+	Route::any('/rategenerators/rules/{id}', array('as' => 'rategenerator_rules', 'uses' => 'RateGeneratorsController@rules'));
+	Route::any('/rategenerators/{id}/generate_rate_table/{create_update}', array('as' => 'rategenerator_rules', 'uses' => 'RateGeneratorsController@generate_rate_table'))->where('create_update', '(create|update)');
+	Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/delete/{rule_id}', 'RateGeneratorsController@delete_rule')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/edit_margin/{rule_id}', 'RateGeneratorsController@edit_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorsController@update_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/add_margin/{rule_id}', 'RateGeneratorsController@add_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{rule_id}/delete_margin/{id}', 'RateGeneratorsController@delete_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorsController@update_rule_source')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorsController@update_rule')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
+	Route::any('/rategenerators/exports', 'RateGeneratorsController@exports');
+	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
+	Route::resource('rategenerators', 'RateGeneratorsController');
+	Route::controller('rategenerators', 'RateGeneratorsController');
+
+	//RateTables
+    Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
+	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
+	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
+	Route::any('/rate_tables/{id}/edit_ajax_datagrid', 'RateTablesController@edit_ajax_datagrid');
+	Route::any('/rate_tables/store', 'RateTablesController@store');
+	Route::any('/rate_tables/{id}/delete', 'RateTablesController@delete');
+	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
+    Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
+	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
+	Route::any('/rate_tables/{id}/update_rate_table_rate/{RateTableRateID}', 'RateTablesController@update_rate_table_rate')->where('RateTableRateID', '(.[09]*)+');
+	Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
+	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
+	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');
+	Route::any('/rate_tables/exports', 'RateTablesController@exports');
+	Route::any('/rate_tables/{id}/rate_exports', 'RateTablesController@rate_exports');
+    Route::any('/rate_tables/download_sample_excel_file', 'RateTablesController@download_sample_excel_file');
+    Route::any('/rate_tables/{id}/upload', array('as' => 'rates_upload', 'uses' => 'RateTablesController@upload'));
+    Route::any('/rate_tables/{id}/check_upload', array('as' => 'check_upload', 'uses' => 'RateTablesController@check_upload'));
+    Route::any('/rate_tables/{id}/ajaxfilegrid', 'RateTablesController@ajaxfilegrid');
+    Route::any('/rate_tables/{id}/storeTemplate', 'RateTablesController@storeTemplate');
+    Route::resource('rate_tables', 'RateTablesController');
+	Route::controller('rate_tables', 'RateTablesController');
+
+	//LCR
+	Route::any('/lcr', 'LCRController@index');
+	Route::any('lcr/search_ajax_datagrid', 'LCRController@search_ajax_datagrid');
+	Route::any('lcr/exports', 'LCRController@exports');
+	Route::resource('lcr', 'LCRController');
+	Route::resource('lcr', 'LCRController');
+
+	//Pages
+	Route::any('/about', 'PagesController@about');
+	Route::resource('page', 'PagesController');
+	Route::controller('page', 'PagesController');
+
+	//Account Approval
+
+	Route::any('/accountapproval/ajax_datagrid', 'AccountApprovalController@ajax_datagrid');
+	Route::any('/accountapproval/create', 'AccountApprovalController@create');
+	Route::any('/accountapproval/update/{id}', 'AccountApprovalController@update');
+	Route::any('/accountapproval/delete/{id}', 'AccountApprovalController@delete');
+	Route::any('/accountapproval', 'AccountApprovalController@index');
+
+	//Gateway Management
+	Route::any('/gateway/ajax_datagrid', 'GatewayController@ajax_datagrid');
+	Route::any('/gateway/create', 'GatewayController@create');
+	Route::any('/gateway/update/{id}', 'GatewayController@update');
+	Route::any('/gateway/ajax_load_gateway_dropdown', 'GatewayController@ajax_load_gateway_dropdown');
+	Route::any('/gateway/delete/{id}', 'GatewayController@delete');
+	Route::any('/gateway/test_connetion/{id}', 'GatewayController@test_connetion');
+	Route::any('/gateway', 'GatewayController@index');
+
+	//summaryreport
+	Route::any('/summaryreport', 'SummaryController@index');
+	Route::any('/summaryreport/ajax_datagrid', 'SummaryController@ajax_datagrid');
+	Route::any('/summaryreport/list_accounts', 'SummaryController@list_accounts');
+	Route::any('/summaryreport/list_vendor', 'SummaryController@list_vendor');
+	Route::any('/summaryreport/summrybycountry', 'SummaryController@summrybycountry');
+	Route::any('/summaryreport/summrybycustomer', 'SummaryController@summrybycustomer');
+	Route::any('/summaryreport/temp_action', 'SummaryController@temp_action');
+	Route::any('/summaryreport/daily_sales_report', 'SummaryController@daily_sales_report');
+	Route::any('/summaryreport/daily_ajax_datagrid', 'SummaryController@daily_ajax_datagrid');
+
+	//cronjobs
+	Route::any('/cronjobs', 'CronJobController@index');
+	Route::any('/cronjobs/ajax_datagrid', 'CronJobController@ajax_datagrid');
+	Route::any('/cronjobs/create', 'CronJobController@create');
+	Route::any('/cronjobs/update/{id}', 'CronJobController@update');
+	Route::any('/cronjobs/delete/{id}', 'CronJobController@delete');
+	Route::any('/cronjobs/ajax_load_cron_dropdown', 'CronJobController@ajax_load_cron_dropdown');
+	Route::any('/cronjobs/history/{id}', 'CronJobController@history');
+	Route::any('/cronjobs/history_ajax_datagrid/{id}', 'CronJobController@history_ajax_datagrid');
+    Route::any('/activecronjob', 'CronJobController@activecronjob');
+    Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
+    Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+
+	//Company
+	Route::any('/company', 'CompaniesController@edit');
+	Route::any('/company/update', 'CompaniesController@update');
+	//Route::resource('Companies', 'CompaniesController');
+
+	//payment
+	Route::any('/payments', 'PaymentsController@index');
+    Route::any('/payments/upload', 'PaymentsController@upload');
+    Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
+	Route::any('/payments/create', 'PaymentsController@create');
+	Route::any('/payments/{id}/update', 'PaymentsController@update');
+	Route::any('/payments/{id}/delete', 'PaymentsController@delete');
+	Route::any('/payments/download_doc/{id}', 'PaymentsController@download_doc');
+	Route::any('/payments/ajax_datagrid', 'PaymentsController@ajax_datagrid');
+	Route::any('/payments/getcurrency/{id}', 'PaymentsController@getCurrency');
+	Route::any('/payments/{id}/payment_approve_reject/{approve_reject}', array('as' => 'payment_rules', 'uses' => 'PaymentsController@payment_approve_reject'))->where('approve_reject', '(approve|reject)');
+
+
+	//Currency
+	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
+	Route::any('/currency', 'CurrenciesController@index');
+	Route::any('/currency/create', 'CurrenciesController@create');
+	Route::any('/currency/update/{id}', 'CurrenciesController@update');
+	Route::any('/currency/{id}/delete', 'CurrenciesController@delete');
+
+    //currency_conversion
+    Route::any('/currency_conversion/ajax_datagrid', 'CurrencyConversionController@ajax_datagrid');
+    Route::any('/currency_conversion/ajax_datagrid_history', 'CurrencyConversionController@ajax_datagrid_history');
+    Route::any('/currency_conversion', 'CurrencyConversionController@index');
+    Route::any('/currency_conversion/create', 'CurrencyConversionController@create');
+    Route::any('/currency_conversion/update/{id}', 'CurrencyConversionController@update');
+    Route::any('/currency_conversion/{id}/delete', 'CurrencyConversionController@delete');
+
+
+	//TaxRate
+	Route::any('/taxrate/ajax_datagrid', 'TaxRatesController@ajax_datagrid');
+	Route::any('/taxrate', 'TaxRatesController@index');
+	Route::any('/taxrate/create', 'TaxRatesController@create');
+	Route::any('/taxrate/update/{id}', 'TaxRatesController@update');
+	Route::any('/taxrate/{id}/delete', 'TaxRatesController@delete');
+
+	//BilllingSubscription
+	Route::any('/billing_subscription/ajax_datagrid', 'BillingSubscriptionController@ajax_datagrid');
+	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
+	Route::any('/billing_subscription/create', 'BillingSubscriptionController@create');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');
+    Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
+
+	//InvoiceTemplate
+	Route::any('/invoice_template/ajax_datagrid', 'InvoiceTemplatesController@ajax_datagrid');
+	Route::any('/invoice_template', 'InvoiceTemplatesController@index');
+	Route::any('/invoice_template/create', 'InvoiceTemplatesController@create');
+	Route::any('/invoice_template/{id}/delete', 'InvoiceTemplatesController@delete');
+	Route::any('/invoice_template/{id}/view', 'InvoiceTemplatesController@view');
+	Route::any('/invoice_template/{id}/update', 'InvoiceTemplatesController@update');
+	Route::any('/invoice_template/{id}/print', 'InvoiceTemplatesController@print_preview');
+	Route::any('/invoice_template/{id}/pdf_download', 'InvoiceTemplatesController@pdf_download');
+    Route::any('/invoice_template/{id}/get_logo', 'InvoiceTemplatesController@get_logo');
+
+	//CDR Upload
+	Route::any('/cdr_upload', 'CDRController@index');
+	Route::any('/cdr_recal/bulk_recal', 'CDRController@bulk_recal');
+	Route::any('/cdr_recal', 'CDRController@cdr_recal');
+	Route::any('/cdr_upload/upload', 'CDRController@upload');
+	Route::any('/cdr_upload/bulk_upload', 'CDRController@bulk_upload');
+	Route::any('/cdr_upload/download_sample_excel_file/{type}', 'CDRController@download_sample_excel_file');
+	Route::any('/cdr_upload/get_accounts/{id}', 'CDRController@get_accounts');
+	Route::any('/cdr_show', 'CDRController@show');
+	//Route::any('/cdr_upload/delete', 'CDRController@delete'); // Temporary hidden
+	//Route::any('/cdr_upload/delete_cdr', 'CDRController@delete_cdr');// Temporary hidden
+	Route::any('/cdr_upload/ajax_datagrid', 'CDRController@ajax_datagrid');
+    Route::any('/cdr_upload/check_upload', 'CDRController@check_upload');
+    Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
+    Route::any('/cdr_upload/storeTemplate', 'CDRController@storeTemplate');
+    Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
+    Route::any('/rate_cdr', 'CDRController@rate_cdr');
+
+	//Invoice
+	Route::any('/invoice', 'InvoicesController@index');
+	Route::any('/invoice/create', 'InvoicesController@create');
+	Route::any('/invoice/store', 'InvoicesController@store');
+	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
+    Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
+	Route::any('/invoice/{id}/edit', 'InvoicesController@edit');
+	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
+	Route::any('/invoice/{id}/view', 'InvoicesController@view');
+	Route::any('/invoice/{id}/update', 'InvoicesController@update');
+	//Route::any('/invoice/{id}/print_preview', 'InvoicesController@print_preview'); Not in use
+	Route::any('/invoice/{id}/invoice_preview', 'InvoicesController@invoice_preview'); //Customer View
+	//Route::any('/invoice/{id}/print', 'InvoicesController@pdf_view');
+	Route::any('/invoice/{id}/send', 'InvoicesController@send');
+	Route::any('/invoice/{id}/ajax_getEmailTemplate', 'InvoicesController@ajax_getEmailTemplate');
+	Route::any('/invoice/{id}/invoice_email', 'InvoicesController@invoice_email');
+	Route::any('/invoice/invoice_change_Status', 'InvoicesController@invoice_change_Status');
+	Route::any('/invoice/{id}/download_usage', 'InvoicesController@downloadUsageFile');
+    Route::any('/invoice_log/{id}', 'TransactionLogController@log');
+    Route::any('/invoice_log/ajax_datagrid/{id}', 'TransactionLogController@ajax_datagrid');
+    Route::any('/invoice_log/ajax_invoice_datagrid/{id}', 'TransactionLogController@ajax_invoice_datagrid');
+    Route::any('/invoice/generate', 'InvoicesController@generate');
+
+
+
+	Route::any('/invoice/ajax_datagrid', 'InvoicesController@ajax_datagrid');
+	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
+	Route::any('/invoice/get_account_info', 'InvoicesController@getAccountInfo');
+	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
+	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
+	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
+	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
+	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
+	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
+
+	//Product
+
+	Route::any('/products', 'ProductsController@index');
+	Route::any('/products/create', 'ProductsController@create');
+	Route::any('/products/{id}/update', 'ProductsController@update');
+	Route::any('/products/{id}/delete', 'ProductsController@delete');
+	Route::any('/products/ajax_datagrid', 'ProductsController@ajax_datagrid');
+
+	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
+    Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
+
+
+    Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
+    Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
+
+    //AccountPaymentProfile
+    Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');
+    Route::any('/paymentprofile/{id}', 'AccountsPaymentProfileController@index');
+    Route::any('/paymentprofile/{id}/ajax_datagrid', 'AccountsPaymentProfileController@ajax_datagrid');
+
+    //VendorFileUploadTemplate
+    Route::any('/uploadtemplate','VendorFileUploadTemplateController@index');
+    Route::any('/uploadtemplate/ajax_datagrid','VendorFileUploadTemplateController@ajax_datagrid');
+    Route::any('/uploadtemplate/ajaxfilegrid','VendorFileUploadTemplateController@ajaxfilegrid');
+    Route::any('/uploadtemplate/create','VendorFileUploadTemplateController@create');
+    Route::any('/uploadtemplate/{id}/edit','VendorFileUploadTemplateController@edit');
+    Route::any('/uploadtemplate/update','VendorFileUploadTemplateController@update');
+    Route::any('/uploadtemplate/{id}/delete','VendorFileUploadTemplateController@delete');
+    Route::any('/uploadtemplate/store','VendorFileUploadTemplateController@store');
+
+    //VendorProfiling
+    Route::any('/vendor_profiling','VendorProfilingController@index');
+    Route::any('/active_deactivate_vendor','VendorProfilingController@active_deactivate_vendor');
+    Route::any('/vendor_profiling/ajax_datagrid','VendorProfilingController@ajax_datagrid');
+    Route::any('/vendor_profiling/{id}/ajax_vendor','VendorProfilingController@ajax_vendor');
+    Route::any('/vendor_profiling/block_unblockcode','VendorProfilingController@block_unblockcode');
+
+    //Wysihtml5Controller
+    Route::any('/Wysihtml5/getfiles','Wysihtml5Controller@getfiles');
+    Route::any('/Wysihtml5/file_upload','Wysihtml5Controller@file_upload');
+
+});
+
+Route::group(array('before' => 'global_admin'), function () {
+
+	Session::put('isGuest',true);
+    //Global User
+    Route::any('/global_user_select_company','GlobalAdminsController@select_company');
+    Route::any('/sa_get_user_dropdown/{id}','UsersController@get_users_dropdown');
+    Route::any('/do_login_for_super_admin','HomeController@do_login_for_super_admin');
+
+});
+
+Route::group(array('before' => 'guest'), function () {
+
+	Session::put('isGuest',true);
+    // Login
+    Route::get('/', array("as" => "home", "uses" => "HomeController@home"));
+    Route::get('/customer', array("as" => "home", "uses" => "HomeCustomerController@home"));
+    Route::get('customer/login', array("as" => "customerhome", "uses" => "HomeCustomerController@home"));
+    Route::any('customer/dologin', 'HomeCustomerController@dologin');
+    Route::get('customer/logout', array("as" => "logoutCustomer", "uses" => "HomeCustomerController@dologout"));
+    Route::get('/login', array("as" => "home", "uses" => "HomeController@home"));
+    Route::any('dologin', 'HomeController@dologin');
+    Route::get('/forgot_password', array("as" => "home", "uses" => "HomeController@forgot_password"));
+    Route::post('doforgot_password', 'HomeController@doforgot_password');
+    Route::post('doreset_password', 'HomeController@doreset_password');
+    Route::any('/reset_password', "HomeController@reset_password");
+    Route::get('/logout', array("as" => "logout", "uses" => "HomeController@dologout"));
+    Route::any('/registration', "HomeController@registration");
+    Route::any('/doRegistration', "HomeController@doRegistration");
+    Route::get('/super_admin', "HomeController@home");
+    Route::get('/l/{id}', function($id){
+        $user = User::find($id);
+        $redirect_to = URL::to('/process_redirect');
+        if(!empty($user) ){
+            Auth::login($user);
+			User::setUserPermission();
+            Session::set("admin", 1 );
+            return Redirect::to($redirect_to);
+        }
+        exit;
+    });
+    Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
+    //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
+    Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
+    Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');
+    Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
+    Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
+    Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
+    Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
+
+
+});
+
+/*
+ * save isGuest to skip routes/urls for user permission
+ * */

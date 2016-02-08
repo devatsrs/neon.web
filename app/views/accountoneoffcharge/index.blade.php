@@ -1,0 +1,351 @@
+<style>
+#table-oneofcharge_processing{
+    position: absolute;
+}
+</style>
+<div class="panel panel-primary" data-collapsed="0">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Additional Charges
+        </div>
+        <div class="panel-options">
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+    <div class="panel-body">
+         <div class="text-right">
+              <a  id="add-oneofcharge" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Additional Charge</a>
+              <div class="clear clearfix"><br></div>
+        </div>
+        <div id="oneofcharge_filter" method="get" action="#" >
+                                <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            Filter
+                                        </div>
+                                        <div class="panel-options">
+                                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-1 control-label">Item</label>
+                                            <div class="col-sm-2">
+                                               {{Form::select('OneOfCharge_ProductID',$products,'',array("class"=>"select2 OneOfCharge_product_dropdown"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-1 control-label">Description</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" name="OneOfCharge_Description" class="form-control" value="" />
+                                            </div>
+                                            <label for="field-1" class="col-sm-1 control-label">Date</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" name="OneOfCharge_Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                                            </div>
+                                        </div>
+                                        <p style="text-align: right;">
+                                            <button class="btn btn-primary btn-sm btn-icon icon-left" id="oneofcharge_submit">
+                                                <i class="entypo-search"></i>
+                                                Search
+                                            </button>
+                                        </p>
+                                    </div>
+                                </div>
+        </div>
+        <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
+            <thead>
+            <tr>
+                <th width="20%">Item</th>
+                <th width="20%">Description</th>
+                <th width="2%">Quantity</th>
+                <th width="5%">Price</th>
+                <th width="10%">Date</th>
+                <th width="2%">Tax Amount</th>
+                <th width="5%">Created Date</th>
+                <th width="15%">Created By</th>
+                <th width="20%">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    /**
+    * JQuery Plugin for dataTable
+    * */
+    //var list_fields_activity  = ['OneOfCharge_ProductID','OneOfCharge_Description'];
+    $("#oneofcharge_filter [name=OneOfCharge_ProductID]").val('');
+    $("#oneofcharge_filter").find('[name="OneOfCharge_Description"]').val('');
+    $("#oneofcharge_filter [name=OneOfCharge_Date]").val('');
+    var data_table_char;
+    var account_id={{$account->AccountID}};
+    var update_new_url;
+    var postdata;
+    var $search = {};
+
+    jQuery(document).ready(function ($) {
+       var data_table_char;
+       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID"];
+       var getProductInfo_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/ajax_getproductinfo";
+       var oneofcharge_add_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/store";
+       var oneofcharge_edit_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/update";
+       var oneofcharge_delete_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/delete";
+       var oneofcharge_datagrid_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/ajax_datagrid";
+
+        $search.OneOfCharge_ProductID = $("#oneofcharge_filter [name=OneOfCharge_ProductID]").val();
+        $search.OneOfCharge_Description = $("#oneofcharge_filter").find('[name="OneOfCharge_Description"]').val();
+        $search.OneOfCharge_Date = $("#oneofcharge_filter").find('[name="OneOfCharge_Date"]').val();
+
+        data_table_char = $("#table-oneofcharge").dataTable({
+            "bDestroy": true,
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": oneofcharge_datagrid_url,
+            "fnServerParams": function (aoData) {
+                        aoData.push({"name": "account_id", "value": account_id},
+                                {"name": "OneOfCharge_ProductID", "value": $search.OneOfCharge_ProductID},
+                                {"name": "OneOfCharge_Description", "value": $search.OneOfCharge_Description},
+                                {"name": "OneOfCharge_Date", "value": $search.OneOfCharge_Date});
+
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push({"name": "account_id", "value": account_id},
+                                {"name": "OneOfCharge_ProductID", "value": $search.OneOfCharge_ProductID},
+                                {"name": "OneOfCharge_Description", "value": $search.OneOfCharge_Description},
+                                {"name": "OneOfCharge_Date", "value": $search.OneOfCharge_Date});
+
+                    },
+            "bPaginate": false,
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "aaSorting": [[0, 'asc']],
+            "sDom": "<'row'r>",
+            "aoColumns": [
+                {"bSortable": true},  // 0 Name
+                {"bSortable": true},  // 1 Description
+                {"bSortable": true},  // 2 Qty
+                {"bSortable": true},  // 3 Price
+                {"bSortable": true,   // 4 date
+                    mRender: function (id, type, full) {
+                        var ar = id.split(' ');
+                        return ar[0];
+                    }
+                },
+                {"bSortable": true},  // 5 Tax Amount
+                {"bSortable": true},  // 6 Created at
+                {"bSortable": true},  // 7 CreatedBy
+                {                        // 9 Action
+                    "bSortable": false,
+                    mRender: function (id, type, full) {
+                        action = '<div class = "hiddenRowData" >';
+                        for (var i = 0; i < list_fields.length; i++) {
+                            var str = '';
+                            str = full[i];
+                            if(list_fields[i]=='Date'){
+                                var ar = str.split(' ');
+                                str = ar[0];
+                            }
+                            action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null ? str : '') + '" / >';
+                        }
+                        action += '</div>';
+                        action += ' <a href="' + oneofcharge_edit_url.replace("{id}", id) + '" class="edit-oneofcharge btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                        action += ' <a href="' + oneofcharge_delete_url.replace("{id}", id) + '" class="delete-oneofcharge btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                        return action;
+                    }
+                }
+            ],
+            "oTableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "Export Data",
+                        "sUrl": oneofcharge_datagrid_url,
+                        sButtonClass: "save-collection"
+                    }
+                ]
+            },
+            "fnDrawCallback": function () {
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
+            }
+        });
+        $("#oneofcharge_submit").click(function(e) {
+
+            e.preventDefault();
+            public_vars.$body = $("body");
+            $search.OneOfCharge_ProductID = $("#oneofcharge_filter [name=OneOfCharge_ProductID]").val();
+            $search.OneOfCharge_Description = $("#oneofcharge_filter").find('[name="OneOfCharge_Description"]').val();
+            $search.OneOfCharge_Date = $("#oneofcharge_filter").find('[name="OneOfCharge_Date"]').val();
+            data_table_char.fnFilter('', 0);
+            return false;
+        });
+                
+        $('#oneofcharge_submit').trigger('click');
+        //inst.myMethod('I am a method');
+        $('#add-oneofcharge').click(function(ev){
+                ev.preventDefault();
+                $('#oneofcharge-form').trigger("reset");
+                $('#modal-oneofcharge h4').html('Add Additional Charge');
+                $("#oneofcharge-form [name=ProductID]").select2().select2('val',"");
+                $("#oneofcharge-form [name='TaxRateID']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('0');
+                $('.tax').removeClass('hidden');
+
+                $('#oneofcharge-form').attr("action",oneofcharge_add_url);
+                $('#modal-oneofcharge').modal('show');
+        });
+        $('table tbody').on('click', '.edit-oneofcharge', function (ev) {
+                ev.preventDefault();
+                $('#oneofcharge-form').trigger("reset");
+                var edit_url  = $(this).attr("href");
+                $('#oneofcharge-form').attr("action",edit_url);
+                $('#modal-oneofcharge h4').html('Edit Additional Charge');
+                var cur_obj = $(this).prev("div.hiddenRowData");
+                for(var i = 0 ; i< list_fields.length; i++){
+                    $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    if(list_fields[i] == 'ProductID'){
+                        $("#oneofcharge-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    }else if(list_fields[i] == 'TaxRateID'){
+                        $("#oneofcharge-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    }
+                }
+                $('#modal-oneofcharge').modal('show');
+        });
+        $('table tbody').on('click', '.delete-oneofcharge', function (ev) {
+                ev.preventDefault();
+                result = confirm("Are you Sure?");
+               if(result){
+                   var delete_url  = $(this).attr("href");
+                   submit_ajax_datatable( delete_url,"",0,data_table_char);
+                   data_table_char.fnFilter('', 0);
+               }
+               return false;
+        });
+
+       $("#oneofcharge-form").submit(function(e){
+           e.preventDefault();
+           var _url  = $(this).attr("action");
+           var option = $("#oneofcharge-form [name='TaxRateID'] option:selected");
+           var Status = option.attr('data-status');
+           var Amount = option.attr('data-amount');
+           var TaxAmount = 0;
+           var TotalPrice = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(',','')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
+           if (Status == 1) {
+               TaxAmount = parseFloat(Amount);
+           } else {
+               TaxAmount = (TotalPrice * Amount)/100;
+           }
+           $('#oneofcharge-form [name="TaxAmount"]').val(TaxAmount);
+           submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+           data_table_char.fnFilter('', 0);
+       });
+       $('#oneofcharge-form [name="ProductID"]').change(function(e){
+           id = $(this).val();
+           getProductinfo(id);
+        });
+
+        function getProductinfo(id){
+            if(id>0) {
+                var url = getProductInfo_url.replace("{id}", id);
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#oneofcharge-form').find('[name="Description"]').val(response.Description);
+                        $('#oneofcharge-form').find('[name="Price"]').val(response.Amount);
+                    },
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false
+                });
+            }
+        }
+        function TotalPrice(){
+            var total = $('#oneofcharge-form').find('[name="productPrice"]').val() * $('#oneofcharge-form').find('[name="Qty"]').val();
+            $('#oneofcharge-form').find('[name="Price"]').val(total);
+        }
+
+    });
+</script>
+<!--@include('includes.ajax_data_grid')-->
+@section('footer_ext')
+@parent
+
+<div class="modal fade in" id="modal-oneofcharge">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="oneofcharge-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Additional Charges</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">One of charge</label>
+                            {{Form::select('ProductID',$products,'',array("class"=>"select2 product_dropdown"))}}
+
+                            <input type="hidden" name="AccountOneOffChargeID" />
+                            <input type="hidden" name="TaxAmount" />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Description</label>
+                            <input type="text" name="Description" class="form-control" value="" />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Qty</label>
+                            <input type="text" name="Qty" class="form-control" value="1" data-mask="decimal" data-min="1" />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Date</label>
+                            <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Price</label>
+                            <input type="text" name="Price" class="form-control" value="0" data-mask="fdecimal"  />
+                        </div>
+                    </div>
+                    <div class="col-md-12 tax">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Tax Rate </label>
+                            {{Form::SelectExt(
+                                        [
+                                        "name"=>"TaxRateID",
+                                        "data"=>$taxes,
+                                        "selected"=>'',
+                                        "value_key"=>"TaxRateID",
+                                        "title_key"=>"Title",
+                                        "data-title1"=>"data-amount",
+                                        "data-value1"=>"Amount",
+                                        "data-title2"=>"data-status",
+                                        "data-value2"=>"FlatStatus",
+                                        "class" =>"selectboxit TaxRateID",
+                                        ]
+                                )}}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                     <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                     </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@stop

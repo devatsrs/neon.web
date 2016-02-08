@@ -1,0 +1,76 @@
+<?php echo $__env->make('invoicetemplates.html', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php $__env->startSection('content'); ?>
+<style type="text/css">
+.invoice,
+.invoice table,.invoice table td,.invoice table th,
+.invoice ul li
+{ font-size: 12px; }
+.page_break{page-break-after: always;}
+#pdf_header, #pdf_footer{
+    position: fixed;
+}
+</style>
+<div class="invoice" style="max-height: 1050px;overflow-x: hidden;overflow-y: auto;">
+    <div class="row">
+            <div class="col-md-12">
+    		<?php echo $__env->yieldContent('logo'); ?>
+    		</div>
+
+    	</div>
+    	<div class="row">
+            <div class="col-md-12">
+            <?php echo $__env->yieldContent('invoice_from'); ?>
+            </div>
+        </div>
+        <br/><br/>
+    <?php if(Input::get('Type') == 1 ): ?>
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="invoice-left">
+                <?php echo $__env->yieldContent('usage_invoice_duration'); ?>
+                </div>
+            </div>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-5">
+            <div class="invoice-right">
+                <?php echo $__env->yieldContent('usage_invoice_prevbal'); ?>
+                </div>
+            </div>
+    </div>
+     <div class="row">
+        <div class="col-sm-12">
+            <?php echo $__env->yieldContent('subscriptiontotal'); ?>
+        </div>
+    </div>
+    <?php else: ?>
+        <?php echo $__env->yieldContent('items'); ?>
+    <?php endif; ?>
+
+    <div class="margin"></div>
+    <div class="row">
+
+        <div class="col-sm-7">
+
+            <div class="invoice-left">
+                <?php echo $__env->yieldContent('terms'); ?>
+            </div>
+
+        </div>
+
+        <div class="col-sm-5">
+
+            <div class="invoice-right">
+
+               <?php echo $__env->yieldContent('total'); ?>
+
+            </div>
+        </div>
+    </div>
+     <?php echo $__env->yieldContent('footerterms'); ?>
+             <?php if(Input::get('Type') == 1 ): ?>
+                 <?php echo $__env->yieldContent('sub_usage'); ?>
+             <?php endif; ?>
+
+</div>
+ <?php $__env->stopSection(); ?>
+<?php echo $__env->make('layout.blank', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

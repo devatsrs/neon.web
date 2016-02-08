@@ -1,0 +1,20 @@
+CREATE TABLE `tblVendorRate` (
+  `VendorRateID` int(11) NOT NULL AUTO_INCREMENT,
+  `AccountId` int(11) NOT NULL,
+  `TrunkID` int(11) NOT NULL,
+  `RateId` int(11) NOT NULL,
+  `Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+  `EffectiveDate` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Interval1` int(11) DEFAULT NULL,
+  `IntervalN` int(11) DEFAULT NULL,
+  `ConnectionFee` decimal(18,6) DEFAULT NULL,
+  `MinimumCost` decimal(18,6) DEFAULT NULL,
+  PRIMARY KEY (`VendorRateID`),
+  KEY `IX_tblVendorRate_RateId_TrunkID_EffectiveDate` (`AccountId`,`Rate`,`TrunkID`,`RateId`,`EffectiveDate`),
+  KEY `IX_tblVendorRate_AccountId_TrunkID_9BBE2` (`AccountId`,`TrunkID`,`VendorRateID`,`RateId`,`Rate`,`EffectiveDate`,`updated_at`,`created_at`,`created_by`,`updated_by`,`Interval1`,`IntervalN`),
+  KEY `IX_VendorRate_RateID` (`RateId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
