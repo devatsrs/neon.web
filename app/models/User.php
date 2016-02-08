@@ -283,7 +283,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         $user = User::where($where);
         if($select==0){
             $user->where('AdminUser','!=',1);
-            $user->orWhereNull('AdminUser');
         }
         $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
         if(!empty($row) & $select==1){
