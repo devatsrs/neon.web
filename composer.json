@@ -4,16 +4,32 @@
 	"keywords": ["framework", "laravel"],
 	"license": "MIT",
 	"require": {
-		"laravel/framework": "4.2.*"
+		"laravel/framework": "4.2.*",
+		"barryvdh/laravel-debugbar": "1.*",
+		"bllim/datatables": "*",
+		"nesbot/Carbon": "*",
+		"nathanmac/laravel-guid": "dev-master",
+		"aws/aws-sdk-php": "2.*",
+		"vlucas/phpdotenv": "~1.1",
+		"curl/curl": "1.*",
+		"phpmailer/phpmailer": "~5.2",
+		"barryvdh/laravel-dompdf": "0.4.*",
+		"intervention/image": "^2.2",
+		"symfony/intl": "^2.7",
+		"authorizenet/authorizenet": "~1.8",
+		"inacho/php-credit-card-validator": "1.*"
+	},
+	"require-dev": {
+		"maatwebsite/excel": "~1.3.0",
+		"way/generators": "~2.0"
 	},
 	"autoload": {
 		"classmap": [
 			"app/commands",
 			"app/controllers",
 			"app/models",
-			"app/database/migrations",
-			"app/database/seeds",
-			"app/tests/TestCase.php"
+			"app/tests/TestCase.php",
+			"app/lib"
 		]
 	},
 	"scripts": {
