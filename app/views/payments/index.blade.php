@@ -214,7 +214,7 @@
 
                                             //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
 
-                                        @if(User::is('BillingAdmin') || User::checkCategoryPermission('Payments','Recall'))
+                                        @if(User::checkCategoryPermission('Payments','Recall'))
                                             if(full[13]==0 && full[7]!='Rejected' ){
                                                 action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
                                             }
