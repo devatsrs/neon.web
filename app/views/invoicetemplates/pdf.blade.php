@@ -5,7 +5,7 @@
 <style>
 *{
     font-family: Arial;
-    font-size: 12px;
+    font-size: 10px;
     line-height: normal;
 }
 p{ line-height: 20px;}

@@ -74,7 +74,7 @@ class PaymentsController extends \BaseController {
             }
 
             $save['Status'] = 'Pending Approval';
-            if(User::is('BillingAdmin')) {
+            if(User::is('BillingAdmin') || User::is_admin() ) {
                 $save['Status'] = 'Approved';
             }
             if (Payment::create($save)) {
@@ -177,14 +177,14 @@ class PaymentsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
-    public function delete($id) {
+    public function recall($id) {
         if( intval($id) > 0){
             try {
-                $result = Payment::find($id)->delete();
+                $result = Payment::find($id)->update(['Recall'=>1]);
                 if ($result) {
-                    return Response::json(array("status" => "success", "message" => "Payment Successfully Deleted"));
+                    return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Payment."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
                 }
             } catch (Exception $ex) {
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -195,7 +195,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function payment_approve_reject($id,$action){
-        if(User::is('BillingAdmin')) {
+        if(User::is('BillingAdmin') || User::is_admin()) {
             if ($id && $action) {
                 $Payment = Payment::findOrFail($id);
                 $save = array();

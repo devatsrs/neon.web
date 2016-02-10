@@ -184,31 +184,31 @@
 
                                     "bSortable": false,
                                     mRender: function (id, type, full) {
-                                        var action, edit_, show_, delete_;
+                                        var action, edit_, show_, recall_;
                                         var Approve_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/approve')}}";
                                         var Reject_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/reject')}}";
-                                        var delete_ = "{{ URL::to('payments/{id}/delete')}}";
+                                        var recall_ = "{{ URL::to('payments/{id}/recall')}}";
                                         Approve_Payment = Approve_Payment.replace('{id}', full[0]);
                                         Reject_Payment = Reject_Payment.replace('{id}', full[0]);
-                                        delete_  = delete_ .replace( '{id}', full[0]);
+                                        recall_  = recall_ .replace( '{id}', full[0]);
                                         action = '<div class = "hiddenRowData" >';
                                         for(var i = 0 ; i< list_fields.length; i++){
                                             action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                         }
                                         action += '</div>';
                                         action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
-                                        @if(User::is('BillingAdmin'))
+                                        @if(User::is('BillingAdmin') || User::is_admin() )
                                         if(full[7] != "Approved"){
                                             action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
                                             action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
                                         }
                                         @endif
-                                        @if(User::checkCategoryPermission('Payments','Edit'))
+                                        {{--@if(User::checkCategoryPermission('Payments','Edit'))
                                             action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                         @endif
-                                        @if(User::checkCategoryPermission('Payments','Delete'))
-                                            action += '<a href="'+delete_+'" data-redirect="{{ URL::to('payments')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
-                                        @endif
+                                        @if(User::checkCategoryPermission('Payments','Recall'))
+                                            action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-default btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
+                                        @endif --}}
                                         if(full[9]!= null){
                                             action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                         }
@@ -279,7 +279,7 @@
                         $('#add-edit-modal-payment').modal('show');
                     });
 
-                    $('body').on('click', '.btn.delete', function (e) {
+                    $('body').on('click', '.btn.recall', function (e) {
                         e.preventDefault();
 
                         response = confirm('Are you sure?');

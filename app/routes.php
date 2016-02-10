@@ -427,7 +427,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 	Route::any('/payments/create', 'PaymentsController@create');
 	Route::any('/payments/{id}/update', 'PaymentsController@update');
-	Route::any('/payments/{id}/delete', 'PaymentsController@delete');
+	Route::any('/payments/{id}/recall', 'PaymentsController@recall');
 	Route::any('/payments/download_doc/{id}', 'PaymentsController@download_doc');
 	Route::any('/payments/ajax_datagrid', 'PaymentsController@ajax_datagrid');
 	Route::any('/payments/getcurrency/{id}', 'PaymentsController@getCurrency');
