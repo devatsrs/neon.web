@@ -312,14 +312,8 @@
                     });
 
                     $("#payment-status-form").submit(function(e){
-                       e.preventDefault();
-                       if($(this).find("input[name='Notes']").val().trim() == ''){
-                            toastr.error("Please Enter a Notes", "Error", toastr_opts);
-                            return false;
-                       }
-                       if($(this).find("input[name='Notes']").val().trim() !== ''){
-                            submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize())
-                       }
+                        e.preventDefault();
+                        submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize());
                    });
 
                     $("#form-upload").submit(function () {
@@ -686,9 +680,9 @@
                 </div>
                 </div>
                 <div class="modal-footer">
-                     <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                     <input type="hidden" name="URL" value="">
+                     <button type="submit" class="btn save btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
-                        <input type="hidden" name="URL" value="">
                         Save
                      </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">

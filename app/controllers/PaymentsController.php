@@ -205,6 +205,13 @@ class PaymentsController extends \BaseController {
                     $save['Status'] = 'Rejected';
                 }
                 $data = Input::all();
+
+                $rules = ['Notes' => 'required'];
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
                 $Payment->Notes .= '<br/>'.$data['Notes'];
                 if ($Payment->update($save)) {
                     $managerinfo =  Account::getAccountManager($Payment->AccountID);
