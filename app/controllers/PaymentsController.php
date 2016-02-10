@@ -12,9 +12,10 @@ class PaymentsController extends \BaseController {
         $data['Status'] = $data['Status'] != ''?"'".$data['Status']."'":'null';
         $data['type'] = $data['type'] != ''?"'".$data['type']."'":'null';
         $data['paymentmethod'] = $data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
+        $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -74,7 +75,7 @@ class PaymentsController extends \BaseController {
             }
 
             $save['Status'] = 'Pending Approval';
-            if(User::is('BillingAdmin') || User::is_admin() ) {
+            if(User::is('BillingAdmin')) {
                 $save['Status'] = 'Approved';
             }
             if (Payment::create($save)) {
@@ -179,8 +180,16 @@ class PaymentsController extends \BaseController {
      */
     public function recall($id) {
         if( intval($id) > 0){
+            $data = Input::all();
+            $rules['RecallReasoan'] = 'required';
+            $validator = Validator::make($data, $rules);
+            $data['RecallBy'] =  User::get_user_full_name();
+            $data['Recall'] = 1;
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
             try {
-                $result = Payment::find($id)->update(['Recall'=>1]);
+                $result = Payment::find($id)->update($data);
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
                 } else {
@@ -195,7 +204,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function payment_approve_reject($id,$action){
-        if(User::is('BillingAdmin') || User::is_admin()) {
+        if(User::is('BillingAdmin')) {
             if ($id && $action) {
                 $Payment = Payment::findOrFail($id);
                 $save = array();
@@ -205,13 +214,6 @@ class PaymentsController extends \BaseController {
                     $save['Status'] = 'Rejected';
                 }
                 $data = Input::all();
-
-                $rules = ['Notes' => 'required'];
-                $validator = Validator::make($data, $rules);
-
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }
                 $Payment->Notes .= '<br/>'.$data['Notes'];
                 if ($Payment->update($save)) {
                     $managerinfo =  Account::getAccountManager($Payment->AccountID);
@@ -238,12 +240,34 @@ class PaymentsController extends \BaseController {
         }
     }
 
+    public function check_upload() {
+        try {
+            $data = Input::all();
+            if (Input::hasFile('excel')) {
+                $upload_path = getenv('TEMP_PATH');
+                $excel = Input::file('excel');
+                $ext = $excel->getClientOriginalExtension();
+                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                    $file_name_without_ext = GUID::generate();
+                    $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
+                    $excel->move($upload_path, $file_name);
+                    $file_name = $upload_path . '/' . $file_name;
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+                }
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select a file."));
+            }
+        }catch(Exception $ex) {
+            Log::info($ex);
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
     public function upload() {
 
         \Debugbar::disable();
 
-        //   $total_records = $this->import("I:\bk\www\projects\aamir\rm\laravel\rm\public\uploads\fxHv86yN\Snq4Obmf0XlJNFz2.csv");
-        //   exit;
         ini_set('max_execution_time', 0);
         $data = Input::all();
 
@@ -252,18 +276,31 @@ class PaymentsController extends \BaseController {
             $id = User::get_companyID();
             $excel = Input::file('excel'); // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
+            $upload_path = getenv('TEMP_PATH');
 
             if (in_array($ext, array("csv", "xls", "xlsx"))) {
                 $file_name = "Payments_". GUID::generate() . '.' . $ext;
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']) ;
+                $excel->move($upload_path, $file_name);
+                $file_name = $upload_path . '/' . $file_name;
+
+                $status = Payment::upload_check($file_name);
+                if($status['status']==0){
+                    return Response::json(array("status" => "failed", "message" => $status['message'],'payments'=>$status['payments']));
+                }
+
+
+                $file_name = basename($file_name);
+                $temp_path = getenv('TEMP_PATH').'/' ;
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-                $excel->move($destinationPath, $file_name);
-                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                copy($temp_path . $file_name, $destinationPath . $file_name);
+
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
                 }
                 $fullPath = $amazonPath . $file_name;
                 $data['full_path'] = $fullPath;
-
                 try {
                     DB::beginTransaction();
                     unset($data['excel']); //remove unnecesarry object.

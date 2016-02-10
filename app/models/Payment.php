@@ -1,5 +1,5 @@
 <?php
-
+use Webpatser\Uuid\Uuid;
 class Payment extends \Eloquent {
 	protected $fillable = [];
     protected $connection = 'sqlsrv2';
@@ -113,6 +113,90 @@ class Payment extends \Eloquent {
         $valid['valid'] = 1;
         $valid['data'] = $data;
         return $valid;
+    }
+
+    public static function upload_check($file_name){
+        $status = array('status' => 0, 'message' => 'Something wrong with Payments.','payments'=>'');
+        $CompanyID = User::get_companyID();
+        $where = ['CompanyId'=>$CompanyID];
+        if(!User::is_admin()){
+            $where['Owner']=User::get_userID();
+        }
+        $Accounts = Account::where($where)->select(['AccountName','AccountID'])->lists('AccountID','AccountName');
+        //$file_name = 'C:\\uploads\\1\\PaymentUpload\\2016\\02\\05\\Payments_8A15D299-4B46-48C6-B5C9-7935888C87A9.csv';
+        if (!empty($file_name)) {
+            $results =  Excel::load($file_name, function ($reader){
+                $reader->formatDates(true, 'Y-m-d');
+            })->get();
+            $results = json_decode(json_encode($results), true);
+            $lineno = 2;
+            $obj = Uuid::generate();
+            $ProcessID=$obj;
+            $batchinsert = [];
+            $batchinsertpayment = [];
+            for($i=0;$i<count($results);$i++){
+                if (empty($results[$i]['Account Name'])) {
+                    $status['message'] = 'Account Name is empty at line no' . $lineno;;
+                    break;
+                }
+                if(!in_array($results[$i]['Account Name'], $Accounts)){
+                    $status['message'] = $results[$i]['Account Name'].' is not exist in system against '.User::get_user_full_name().' at line no '.$lineno;
+                    break;
+                }
+                if(empty($results[$i]['Payment Date'])){
+                    $status['message'] = 'Payment Date is empty at line no ' . $lineno;;
+                    break;
+                }
+                $date = formatSmallDate($results[$i]['Payment Date']);
+                if(empty($date)) {
+                    $status['message'] = 'Payment Date is not valid at line no ' . $lineno;;
+                    break;
+                }
+                if(empty($results[$i]['Payment Method'])){
+                    $status['message'] = 'Payment Method is empty at line no '.$lineno;;
+                    break;
+                }
+                if(empty($results[$i]['Action'])){
+                    $status['message'] = 'Action is empty at line no '.$lineno;;
+                    break;
+                }
+                if(empty($results[$i]['Amount'])){
+                    $status['message'] = 'Amount is empty at line no '.$lineno;;
+                    break;
+                }
+                if(Payment::where(['PaymentDate'=>$date,'AccountID'=>$Accounts[$results[$i]['Account Name']],'Amount'=>$results[$i]['Amount']])->count()){
+                    $status['message'] = 'Payment already exist at line no '.$lineno;
+                    break;
+                }
+                $batchinsert[$i] = array('CompanyID'=>$CompanyID,
+                    'ProcessID'=>$ProcessID,
+                    'AccountID'=>$Accounts[$results[$i]['Account Name']],
+                    'PaymentDate'=>$results[$i]['Payment Date'],
+                    'PaymentMethod'=>$results[$i]['Payment Method'],
+                    'PaymentType'=>$results[$i]['Action'],
+                    'Amount'=>$results[$i]['Amount'],
+                    'Notes'=>$results[$i]['Note']);
+                $batchinsertpayment[$i] = array('CompanyID'=>$CompanyID,
+                    'AccountID'=>$Accounts[$results[$i]['Account Name']],
+                    'PaymentDate'=>$results[$i]['Payment Date'],
+                    'PaymentMethod'=>$results[$i]['Payment Method'],
+                    'PaymentType'=>$results[$i]['Action'],
+                    'Amount'=>$results[$i]['Amount'],
+                    'Notes'=>$results[$i]['Note']);
+            }
+            if(!PaymentTemp::insert($batchinsert)){
+                $status['message'] = 'Some thing wrong with database';
+                return $status;
+            }
+            $result = DB::connection('sqlsrv2')->select("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."')");
+            if(count($result)>0){
+                $status['message'] = 'Record Already exist';
+                $status['payments'] = $result;
+                return $status;
+            }
+            $status['status'] = 1;
+            return $status;
+        }
     }
 
 }
