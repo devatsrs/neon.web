@@ -152,7 +152,7 @@ class Account extends \Eloquent {
         }
     }
     public static function getAccountManager($AccountID){
-        $managerinfo = Account::join('tblUser', 'tblUser.UserID', '=', 'tblAccount.Owner')->where(array('AccountID'=>$AccountID))->first(['tblUser.FirstName','tblUser.LastName','tblUser.EmailAddress','tblaccount.AccountName']);
+        $managerinfo = Account::join('tblUser', 'tblUser.UserID', '=', 'tblAccount.Owner')->where(array('AccountID'=>$AccountID))->first(['tblUser.FirstName','tblUser.LastName','tblUser.EmailAddress','tblAccount.AccountName']);
         return $managerinfo;
 
     }
