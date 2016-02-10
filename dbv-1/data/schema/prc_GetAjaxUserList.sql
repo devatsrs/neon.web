@@ -29,7 +29,7 @@ BEGIN
 	IF p_action = 2
 	THEN
 
-	SELECT distinct u.UserID,(CONCAT(u.FirstName,' ',u.LastName)) as UserName,perm.Checked, uperm.AddRemove
+	SELECT distinct u.UserID,(CONCAT(u.FirstName,' ',u.LastName)) as UserName,Perm.Checked, UPerm.AddRemove
 		FROM tblUser u
 		LEFT OUTER JOIN
 		(SELECT distinct u.userid,'true' as Checked,tblResourceCategories.ResourceCategoryName as permname
@@ -39,16 +39,16 @@ BEGIN
 		inner join tblRolePermission rp on r.RoleID = rp.roleID
 		inner join tblResourceCategories on rp.resourceID = tblResourceCategories.ResourceCategoryID
 		WHERE  FIND_IN_SET(tblResourceCategories.ResourceCategoryID,p_ResourceCategoryID) != 0 ) Perm
-		ON u.UserID = perm.UserID
+		ON u.UserID = Perm.UserID
 		LEFT OUTER JOIN
 		(SELECT distinct u.userid, up.AddRemove,tblResourceCategories.ResourceCategoryName as permname
 		FROM tblUser u
 		inner join tblUserPermission up on u.UserID = up.UserID
 		inner join tblResourceCategories on up.resourceID = tblResourceCategories.ResourceCategoryID
 		WHERE FIND_IN_SET(tblResourceCategories.ResourceCategoryID ,p_ResourceCategoryID) != 0 ) UPerm
-		on u.userid = uperm.userid
+		on u.userid = UPerm.userid
 		where u.CompanyID = p_CompanyID and u.AdminUser != 1 or u.AdminUser is null
-		order by perm.Checked desc, uperm.AddRemove desc,UserName asc;
+		order by Perm.Checked desc, UPerm.AddRemove desc,UserName asc;
 
 	END IF;
 	

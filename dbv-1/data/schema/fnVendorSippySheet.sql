@@ -1,6 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnVendorSippySheet`(IN `p_AccountID` int, IN `p_Trunks` longtext)
 BEGIN
-    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorSippySheet_(
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorSippySheet_(
             RateID int,
             `Action [A|D|U|S|SA` varchar(50),
             id varchar(10),
@@ -22,7 +22,7 @@ BEGIN
     );
     
 
-    call vwVendorCurrentRates(); 
+    call vwVendorCurrentRates(p_AccountID,p_Trunks); 
     
         SELECT NULL AS RateID,
                'A' AS `Action [A|D|U|S|SA]`,

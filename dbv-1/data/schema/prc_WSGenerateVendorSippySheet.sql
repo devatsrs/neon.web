@@ -3,7 +3,7 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
          
-        call vwVendorSippySheet(); 
+        call vwVendorSippySheet(p_VendorID,p_Trunks); 
         SELECT 
 				 `Action [A|D|U|S|SA`,
                 id ,

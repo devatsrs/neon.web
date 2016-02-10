@@ -31,6 +31,7 @@ BEGIN
             from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
+            AND(tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -92,6 +93,7 @@ BEGIN
             from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
+            AND(tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -120,6 +122,7 @@ BEGIN
 			from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
+            AND(tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))

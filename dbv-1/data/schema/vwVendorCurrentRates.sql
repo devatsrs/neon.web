@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorCurrentRates`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorCurrentRates`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT)
 BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
@@ -56,6 +56,8 @@ FROM
             MAX(EffectiveDate) AS EffectiveDate
         FROM tblVendorRate
         WHERE (EffectiveDate <= NOW())
+        AND tblVendorRate.AccountId = p_AccountID
+        AND FIND_IN_SET(tblVendorRate.TrunkID,p_Trunks)
         GROUP BY AccountId,
                  TrunkID,
                  RateId

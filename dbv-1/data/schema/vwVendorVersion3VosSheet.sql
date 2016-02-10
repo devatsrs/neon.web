@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorVersion3VosSheet`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorVersion3VosSheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT)
 BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorVersion3VosSheet_;
@@ -18,7 +18,7 @@ BEGIN
 			AccountID int,
 			TrunkID int
 	);
-	 Call vwVendorCurrentRates();	
+	 Call vwVendorCurrentRates(p_AccountID,p_Trunks);	
 	 
 	 
 INSERT INTO tmp_VendorVersion3VosSheet_	 

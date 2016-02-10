@@ -15,7 +15,7 @@ BEGIN
         ( CONCAT(ltrim(rtrim(it.InvoiceNumberPrefix)), ltrim(rtrim(inv.InvoiceNumber)))) as InvoiceNumber,
         inv.IssueDate,
         inv.GrandTotal,
-		  CONCAT(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6)) as `PendingAmount`,
+		  CONCAT(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND (p.Recall IS NULL OR p.Recall !=1)),6),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6)) as `PendingAmount`,
         inv.InvoiceStatus,
         inv.InvoiceID,
         inv.Description,

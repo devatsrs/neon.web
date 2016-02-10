@@ -281,14 +281,13 @@ INSERT INTO `tblCronJobCommand` (`CronJobCommandID`, `CompanyID`, `GatewayID`, `
 	(3, 1, 2, 'Download Porta CDR', 'portaaccountusage', '[[{"title":"Porta Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"CDR Behind Duration (Minute)","type":"text","value":"","name":"CdrBehindDuration"},{"title":"CDR Behind Duration Email (Minute)","type":"text","value":"","name":"CdrBehindDurationEmail"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-05-01 15:38:30', 'RateManagementSystem'),
 	(7, 1, 3, 'Download VOS  CDR', 'vosaccountusage', '[[{"title":"Files Max Proccess","type":"text","value":"","name":"FilesMaxProccess"},{"title":"CDR Behind Duration (Minute)","type":"text","value":"","name":"CdrBehindDuration"},{"title":"CDR Behind Duration Email (Minute)","type":"text","value":"","name":"CdrBehindDurationEmail"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-05-29 13:05:56', 'RateManagementSystem'),
 	(8, 1, 4, 'Download PBX CDR', 'pbxaccountusage', '[[{"title":"PBX Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"CDR Behind Duration (Minute)","type":"text","value":"","name":"CdrBehindDuration"},{"title":"CDR Behind Duration Email (Minute)","type":"text","value":"","name":"CdrBehindDurationEmail"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-07-09 13:56:13', 'RateManagementSystem'),
-	(9, 1, NULL, 'Invoice Generator', 'bulkinvoicegenerator', NULL, 0, '2015-11-19 06:02:05', 'RateManagementSystem'),
-	(10, 1, NULL, 'CDRS Database CleanUP', 'dbfixing', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:05', 'RateManagementSystem'),
-	(11, 1, NULL, 'Invoice Generator', 'invoicegenerator', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:05', 'RateManagementSystem'),
-	(12, 1, NULL, 'Bulk Auto Payment Capture', 'bulkautopaymentcapture', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:05', 'RateManagementSystem'),
-	(13, 1, NULL, 'Transaction Log Email', 'transactionlogemail', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:06', 'RateManagementSystem'),
-	(14, 1, NULL, 'Activity Reminder', 'accountactivityreminder', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:06', 'RateManagementSystem'),
-	(15, 1, NULL, 'Active Cron Job Email', 'activecronjobemail', '[[{"title":"Alert Active Email Time (Minute)","type":"text","value":"","name":"AlertEmailInterval"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-27 11:01:44', 'RateManagementSystem'),
-	(16, 1, NULL, 'Create Daily Summary', 'createdailysummary', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-12-01 10:11:09', 'RateManagementSystem');
+	(9, 1, NULL, 'CDRS Database CleanUP', 'dbfixing', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:05', 'RateManagementSystem'),
+	(10, 1, NULL, 'Invoice Generator', 'invoicegenerator', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:05', 'RateManagementSystem'),
+	(11, 1, NULL, 'Bulk Auto Payment Capture', 'bulkautopaymentcapture', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:05', 'RateManagementSystem'),
+	(12, 1, NULL, 'Transaction Log Email', 'transactionlogemail', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:06', 'RateManagementSystem'),
+	(13, 1, NULL, 'Activity Reminder', 'accountactivityreminder', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-19 06:02:06', 'RateManagementSystem'),
+	(14, 1, NULL, 'Active Cron Job Email', 'activecronjobemail', '[[{"title":"Alert Active Email Time (Minute)","type":"text","value":"","name":"AlertEmailInterval"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-11-27 11:01:44', 'RateManagementSystem'),
+	(15, 1, NULL, 'Create Daily Summary', 'createdailysummary', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-12-01 10:11:09', 'RateManagementSystem');
 /*!40000 ALTER TABLE `tblCronJobCommand` ENABLE KEYS */;
 
 
@@ -447,20 +446,7 @@ INSERT IGNORE INTO `tblPermission` (`PermissionID`, `role`, `action`, `resource`
 /*!40000 ALTER TABLE `tblPermission` ENABLE KEYS */;
 
 
--- Dumping structure for table PBXManagement4.tblResource
-CREATE TABLE IF NOT EXISTS `tblResource` (
-  `ResourceID` int(11) NOT NULL AUTO_INCREMENT,
-  `ResourceName` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ResourceValue` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `CompanyID` int(11) NOT NULL,
-  `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `CategoryID` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ResourceID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1645 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
+ 
 -- Dumping data for table PBXManagement4.tblResource: ~648 rows (approximately)
 /*!40000 ALTER TABLE `tblResource` DISABLE KEYS */;
 INSERT IGNORE INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES
@@ -1113,16 +1099,7 @@ INSERT IGNORE INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`,
 	(1643, 'RateTables.ajaxfilegrid', 'RateTablesController.ajaxfilegrid', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', NULL),
 	(1644, 'RateTables.storeTemplate', 'RateTablesController.storeTemplate', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', NULL);
 /*!40000 ALTER TABLE `tblResource` ENABLE KEYS */;
-
-
--- Dumping structure for table PBXManagement4.tblResourceCategories
-CREATE TABLE IF NOT EXISTS `tblResourceCategories` (
-  `ResourceCategoryID` int(11) NOT NULL AUTO_INCREMENT,
-  `ResourceCategoryName` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `CompanyID` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ResourceCategoryID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1147 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
+ 
 -- Dumping data for table PBXManagement4.tblResourceCategories: ~148 rows (approximately)
 /*!40000 ALTER TABLE `tblResourceCategories` DISABLE KEYS */;
 INSERT IGNORE INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`) VALUES
@@ -1276,6 +1253,4 @@ INSERT IGNORE INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCateg
 	(1146, 'CRM', 1);
 /*!40000 ALTER TABLE `tblResourceCategories` ENABLE KEYS */;
 
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+ 

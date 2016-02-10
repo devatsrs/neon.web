@@ -2,7 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVendorVersion3VosShee
 BEGIN
          SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
          
-        call vwVendorVersion3VosSheet();
+        call vwVendorVersion3VosSheet(p_VendorID,p_Trunks);
         SELECT  `Rate Prefix` ,
                 `Area Prefix` ,
                 `Rate Type` ,
