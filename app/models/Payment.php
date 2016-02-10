@@ -1,5 +1,4 @@
 <?php
-use Webpatser\Uuid\Uuid;
 class Payment extends \Eloquent {
 	protected $fillable = [];
     protected $connection = 'sqlsrv2';
@@ -130,8 +129,7 @@ class Payment extends \Eloquent {
             })->get();
             $results = json_decode(json_encode($results), true);
             $lineno = 2;
-            $obj = Uuid::generate();
-            $ProcessID=$obj;
+            $ProcessID = GUID::generate();
             $batchinsert = [];
             $batchinsertpayment = [];
             for($i=0;$i<count($results);$i++){
