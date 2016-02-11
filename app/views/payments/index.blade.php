@@ -81,6 +81,162 @@
                 </div>
             </div>
             <div class="clear"></div>
+
+            <div class="row hidden" id="add-template">
+                <div class="col-md-12">
+                    <form id="add-template-form" method="post">
+                        <div class="panel panel-primary" data-collapsed="0">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    Payment Mapping
+                                </div>
+
+                                <div class="panel-options">
+                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            Payments CSV Importer
+                                        </div>
+
+                                        <div class="panel-options">
+                                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Delimiter:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" class="form-control" name="option[Delimiter]" value="," />
+                                                <input type="hidden" name="TemplateFile" value="" />
+                                                <input type="hidden" name="TempFileName" value="" />
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Enclosure:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" class="form-control" name="option[Enclosure]" value="" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <br />
+                                            <br />
+                                            <label class="col-sm-2 control-label">Escape:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" class="form-control" name="option[Escape]" value="" />
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">First row:</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <p style="text-align: right;">
+                                            <br />
+                                            <br />
+                                            <button class="check btn btn-primary btn-sm btn-icon icon-left">
+                                                <i class="entypo-floppy"></i>
+                                                Check
+                                            </button>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            Field Remapping
+                                        </div>
+
+                                        <div class="panel-options">
+                                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel-body" id="mapping">
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+
+                                            <label for="field-1" class="col-sm-2 control-label">Payment Date*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[PaymentDate]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <br />
+                                            <br />
+                                            <label for="field-1" class="col-sm-2 control-label">Payment Method*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[PaymentMethod]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+
+                                            <label for="field-1" class="col-sm-2 control-label">Action*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[PaymentType]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <br />
+                                            <br />
+                                            <label for="field-1" class="col-sm-2 control-label">Amount*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Amount]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Invoice*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[InvoiceNo]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <br />
+                                            <br />
+                                            <label for="field-1" class="col-sm-2 control-label">Note*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Notes]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            CSV File to be loaded
+                                        </div>
+
+                                        <div class="panel-options">
+                                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel-body">
+                                        <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
+                                        <table class="table table-bordered datatable" id="tablemapping">
+                                            <thead>
+                                            <tr>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <p style="text-align: right;">
+
+                                    <button id="payments-upload" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                        <i class="entypo-floppy"></i>
+                                        Save
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
             <br>
             @if(User::is_admin() or User::is('AccountManager'))
                 <p style="text-align: right;">
@@ -107,6 +263,7 @@
 
                 </tbody>
             </table>
+
             <script type="text/javascript">
                 var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
                 var $searchFilter = {};
@@ -329,53 +486,71 @@
                        }
                    });
 
-                    $("#form-upload").submit(function () {
-                        // return false;
-                        var formData = new FormData($('#form-upload')[0]);
-                        show_loading_bar(100);
+                    $("#payments-upload , #confirm-payments").click(function(e){
+                        e.preventDefault();
+                        var url = '';
+                        if($(this).attr('id')=='payments-upload'){
+                            url = '{{URL::to('payments/0/upload')}}';
+                        }else{
+                            url = '{{URL::to('payments/1/upload')}}';
+                        }
+                        var formData = new FormData($('#add-template-form')[0]);
                         $.ajax({
-                            url: baseurl + '/payments/upload',  //Server script to process data
+                            url:url, //Server script to process data
                             type: 'POST',
                             dataType: 'json',
-                            /* xhr: function() {  // Custom XMLHttpRequest
-                             var myXhr = $.ajaxSettings.xhr();
-                             if(myXhr.upload){ // Check if upload property exists
-                             myXhr.upload.addEventListener('progress',function(e){
-                             if (e.lengthComputable) {
-                             //$('progress').attr({value:e.loaded,max:e.total});
-                             }
-                             }, false); // For handling the progress of the upload
-                             }
-                             return myXhr;
-                             },*/
-                            //Ajax events
                             beforeSend: function(){
-                                $('.btn.upload').button('loading');
+                                $('.btn.save').button('loading');
                             },
-                            afterSend: function(){
-                                console.log("Afer Send");
-                            },
-                            success: function (response) {
-
-                                if(response.status =='success'){
+                            success: function(response) {
+                                $(".btn.save").button('reset');
+                                if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
-                                    $('#upload-modal-payments').modal('hide');
                                     reloadJobsDrodown(0);
-
-                                }else{
-                                    toastr.error(response.message, "Error", toastr_opts);
+                                    location.reload();
+                                } else {
+                                    if(response.messagestatus==1){
+                                        $('#confirm-modal-payment').modal('show');
+                                        $('#confirm-payment-form [name="warnings"]').html(response.message[0].ErrorMessage.replace('\r\n','<br>'));
+                                    }else {
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                    }
                                 }
-                                $('.btn.upload').button('reset');
                             },
-                            // Form data
                             data: formData,
                             //Options to tell jQuery not to process data or worry about content-type.
                             cache: false,
                             contentType: false,
                             processData: false
                         });
-                        return false;
+                    });
 
+                    $('.btn.check').click(function(e){
+                        e.preventDefault();
+                        $('#table-4_processing').removeClass('hidden');
+                        var formData = new FormData($('#add-template-form')[0]);
+                        $.ajax({
+                            url:'{{URL::to('payments/ajaxfilegrid')}}',
+                            type: 'POST',
+                            dataType: 'json',
+                            beforeSend: function(){
+                                $('.btn.check').button('loading');
+                            },
+                            success: function(response) {
+                                $('.btn.check').button('reset');
+                                if (response.status == 'success') {
+                                    var data = response.data;
+                                    createGrid(data);
+                                } else {
+                                    toastr.error(response.message, "Error", toastr_opts);
+                                }
+                                $('#table-4_processing').addClass('hidden');
+                            },
+                            data: formData,
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        });
                     });
 
                     $('table tbody').on('click', '.approvepayment , .rejectpayment', function (e) {
@@ -438,6 +613,119 @@
                                 }
                          }
                      })
+
+                    $("#form-upload").submit(function (e) {
+                        e.preventDefault();
+                        //if($('#form-upload').find('select[name="uploadtemplate"]').val()>0){
+                        //$("#form-upload").submit();
+                        //}else{
+                        var formData = new FormData($('#form-upload')[0]);
+                        show_loading_bar(0);
+                        $.ajax({
+                            url:  '{{URL::to('payments/check_upload')}}',  //Server script to process data
+                            type: 'POST',
+                            dataType: 'json',
+                            beforeSend: function(){
+                                $('.btn.upload').button('loading');
+                                show_loading_bar({
+                                    pct: 50,
+                                    delay: 5
+                                });
+
+                            },
+                            afterSend: function(){
+                                console.log("Afer Send");
+                            },
+                            success: function (response) {
+                                show_loading_bar({
+                                    pct: 100,
+                                    delay: 2
+                                });
+
+                                if (response.status == 'success') {
+                                    $('#upload-modal-payments').modal('hide');
+                                    var data = response.data;
+                                    createGrid(data);
+                                    $('#add-template').removeClass('hidden');
+                                    var scrollTo = $('#add-template').offset().top;
+                                    $('html, body').animate({scrollTop:scrollTo}, 1000);
+                                } else {
+                                    toastr.error(response.message, "Error", toastr_opts);
+                                }
+                                //alert(response.message);
+                                $('.btn.upload').button('reset');
+                            },
+                            // Form data
+                            data: formData,
+                            //Options to tell jQuery not to process data or worry about content-type.
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        });
+                        //}
+                    });
+
+                    function createGrid(data){
+                        var tr = $('#tablemapping thead tr');
+                        var body = $('#tablemapping tbody');
+                        tr.empty();
+                        body.empty();
+                        $.each( data.columns, function( key, value ) {
+                            tr.append('<th>'+value+'</th>');
+                        });
+
+                        $.each( data.rows, function(key, row) {
+                            var tr = '<tr>';
+                            $.each( row, function(key, item) {
+                                if(typeof item == 'object' && item != null ){
+                                    tr+='<td>'+item.date+'</td>';
+                                }else{
+                                    tr+='<td>'+item+'</td>';
+                                }
+                            });
+                            tr += '</tr>';
+                            body.append(tr);
+                        });
+                        $("#mapping select").each(function(i, el){
+                            if(el.name !='selection[DateFormat]'){
+                                $(el).data("selectBox-selectBoxIt").remove();
+                                $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
+                                $.each(data.columns,function(key,value){
+                                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
+                                });
+                            }
+                        });
+                        if(data.VendorFileUploadTemplate){
+                            $.each( data.VendorFileUploadTemplate, function( optionskey, option_value ) {
+                                if(optionskey == 'Title'){
+                                    $('#add-template-form').find('[name="TemplateName"]').val(option_value)
+                                }
+                                if(optionskey == 'Options'){
+                                    $.each( option_value.option, function( key, value ) {
+
+                                        if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
+                                            $('#add-template-form').find('[name="option['+key+']"]').val(value)
+                                            if(key == 'Firstrow'){
+                                                $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                            }
+                                        }
+
+                                    });
+                                    $.each( option_value.selection, function( key, value ) {
+                                        if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
+                                            $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
+                                        }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
+                                            $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
+                        $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
+                    }
+
 
                 });
 
@@ -512,8 +800,6 @@
                 $(".pagination a").click(function (ev) {
                     replaceCheckboxes();
                 });
-
-
             </script>
             <style>
                 .dataTables_filter label{
@@ -842,9 +1128,42 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button type="submit" id="payment-recall"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Recall
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirm-modal-payment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="confirm-payment-form" action="{{URL::to('payments/recall')}}" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Confirm Payment</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Warnings</label>
+                                    <div class="col-sm-12" name="warnings"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="confirm-payments"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Confirm
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>

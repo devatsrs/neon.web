@@ -114,8 +114,9 @@ class Payment extends \Eloquent {
         return $valid;
     }
 
-    public static function upload_check($file_name){
-        $status = array('status' => 1, 'message' => 'Payments are valid.','payments'=>'');
+    public static function upload_check($file_name,$data){
+        $selection = $data['selection'];
+        $status = array('status' => 1, 'message' => 'Payments are valid.');
         $CompanyID = User::get_companyID();
         $where = ['CompanyId'=>$CompanyID];
         if(!User::is_admin()){
@@ -133,86 +134,82 @@ class Payment extends \Eloquent {
             $batchinsert = [];
             $counter = 0;
             foreach($results as $row){
-                if(isset($row['Account Name'])) {
-                    if (empty($row['Account Name'])) {
+                if(isset($row[$selection['AccountName']])) {
+                    if (empty($row[$selection['AccountName']])) {
                         $status['message'] = 'Account Name is empty at line no' . $lineno;
                         $status['status'] = 0;
                         return $status;
                     }
                 }else{
-                    $status['message'] = 'Account Name header is wrong';
+                    $status['message'] = 'Not valid';
                     $status['status'] = 0;
                     return $status;
                 }
-                if(!in_array($row['Account Name'], $Accounts)){
-                    $status['message'] = $row['Account Name'].' is not exist in system against '.User::get_user_full_name().' at line no '.$lineno;
+
+                if(!in_array($row[$selection['AccountName']], $Accounts)){
+                    $status['message'] = $row[$selection['AccountName']].' is not exist in system at line no '.$lineno;
                     $status['status'] = 0;
                     return $status;
                 }
-                if(isset($row['Payment Date'])) {
+                if(isset($row[$selection['PaymentDate']])) {
                     if (empty($row['Payment Date'])) {
                         $status['message'] = 'Payment Date is empty at line no ' . $lineno;
                         $status['status'] = 0;
                         return $status;
+                    }else{
+                        $date = formatSmallDate($row[$selection['PaymentDate']]);
+                        if (empty($date)) {
+                            $status['message'] = 'Payment Date is not valid at line no ' . $lineno;
+                            $status['status'] = 0;
+                            return $status;
+                        }
                     }
                 }else{
-                    $status['message'] = 'Account Name header is wrong';
+                    $status['message'] = 'Not valid';
                     $status['status'] = 0;
                     return $status;
                 }
-                if(isset($row['Payment Date'])) {
-                    $date = formatSmallDate($row['Payment Date']);
-                    if (empty($date)) {
-                        $status['message'] = 'Payment Date is not valid at line no ' . $lineno;
-                        $status['status'] = 0;
-                        break;
-                    }
-                }else{
-                    $status['message'] = 'Payment Date header is wrong';
-                    $status['status'] = 0;
-                    return $status;
-                }
-                if(isset($row['Payment Method'])) {
-                    if (empty($row['Payment Method'])) {
+                if(isset($row[$selection['PaymentMethod']])) {
+                    if (empty($row[$selection['PaymentMethod']])) {
                         $status['message'] = 'Payment Method is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        break;
+                        return $status;
                     }
                 }else{
-                    $status['message'] = 'Payment Method header is wrong';
+                    $status['message'] = 'Not valid';
                     $status['status'] = 0;
-                    break;
+                    return $status;
                 }
-                if(isset($row['Action'])) {
-                    if (empty($row['Action'])) {
+                if(isset($row[$selection['PaymentType']])) {
+                    if (empty($row[$selection['PaymentType']])) {
                         $status['message'] = 'Action is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        break;
+                        return $status;
                     }
                 }else{
-                    $status['message'] = 'Action header is wrong';
+                    $status['message'] = 'Not valid';
                     $status['status'] = 0;
-                    break;
+                    return $status;
                 }
-                if(isset($row['Amount'])) {
-                    if (empty($row['Amount'])) {
+                if(isset($row[$selection['Amount']])) {
+                    if (empty($row[$selection['Amount']])) {
                         $status['message'] = 'Amount is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        break;
+                        return $status;
                     }
                 }else{
-                    $status['message'] = 'Amount header is wrong';
+                    $status['message'] = 'Not valid';
                     $status['status'] = 0;
-                    break;
+                    return $status;
                 }
                 $batchinsert[$counter] = array('CompanyID'=>$CompanyID,
                     'ProcessID'=>$ProcessID,
-                    'AccountID'=>$Accounts[$row['Account Name']],
-                    'PaymentDate'=>$row['Payment Date'],
-                    'PaymentMethod'=>$row['Payment Method'],
-                    'PaymentType'=>$row['Action'],
-                    'Amount'=>$row['Amount'],
-                    'Notes'=>$row['Note']);
+                    'AccountID'=>$Accounts[$row[$selection['AccountName']]],
+                    'PaymentDate'=>$row[$selection['PaymentDate']],
+                    'PaymentMethod'=>$row[$selection['PaymentMethod']],
+                    'PaymentType'=>$row[$selection['PaymentType']],
+                    'Amount'=>$row[$selection['Amount']],
+                    'Notes'=>$row[$selection['Notes']]);
                 $counter++;
             }
             if($status['status'] == 1) {
@@ -221,14 +218,13 @@ class Payment extends \Eloquent {
                     return $status;
                 }
             }
-            $result = DB::connection('sqlsrv2')->select("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."')");
-            if(count($result)>0){
-                $status['message'] = 'Record Already exist';
-                $status['status'] = 0;
-                $status['payments'] = $result;
+            $result = DB::connection('sqlsrv2')->select("CALL  prc_validatePayments ('" . $CompanyID . "','".$ProcessID."')");
+            if(!empty($result)>0){
+                $status['message'] = $result;
+                $status['status'] = 1;
                 return $status;
             }
-            $status['status'] = 1;
+            $status['status'] = 2;
             return $status;
         }
     }

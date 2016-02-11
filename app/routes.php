@@ -423,7 +423,9 @@ Route::group(array('before' => 'auth'), function () {
 
 	//payment
 	Route::any('/payments', 'PaymentsController@index');
-    Route::any('/payments/upload', 'PaymentsController@upload');
+    Route::any('/payments/{id}/upload', 'PaymentsController@upload');
+    Route::any('/payments/check_upload', 'PaymentsController@check_upload');
+    Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
     Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 	Route::any('/payments/create', 'PaymentsController@create');
 	Route::any('/payments/{id}/update', 'PaymentsController@update');

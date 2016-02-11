@@ -240,6 +240,22 @@ class PaymentsController extends \BaseController {
         }
     }
 
+    function ajaxfilegrid(){
+        try {
+            $data = Input::all();
+            $file_name = $data['TempFileName'];
+            $grid = getFileContent($file_name, $data);
+            $grid['filename'] = $data['TemplateFile'];
+            $grid['tempfilename'] = $data['TempFileName'];
+            $grid['VendorFileUploadTemplate']['Options'] = array();
+            $grid['VendorFileUploadTemplate']['Options']['option'] = $data['option'];
+            $grid['VendorFileUploadTemplate']['Options']['selection'] = $data['selection'];
+            return Response::json(array("status" => "success", "data" => $grid));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
     public function check_upload() {
         try {
             $data = Input::all();
@@ -255,8 +271,16 @@ class PaymentsController extends \BaseController {
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
                 }
+            } else if (isset($data['TemplateFile'])) {
+                $file_name = $data['TemplateFile'];
             } else {
                 return Response::json(array("status" => "failed", "message" => "Please select a file."));
+            }
+            if (!empty($file_name)) {
+                $grid = getFileContent($file_name, $data);
+                $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
+                $grid['filename'] = $file_name;
+                return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
             Log::info($ex);
@@ -264,61 +288,61 @@ class PaymentsController extends \BaseController {
         }
     }
 
-    public function upload() {
-
-        \Debugbar::disable();
-
-        ini_set('max_execution_time', 0);
+    public function Upload($id) {
         $data = Input::all();
+        $file_name = $data['TemplateFile'];
+        if($id==0) {
+            $CompanyID = User::get_companyID();
+            $rules['selection.AccountName'] = 'required';
+            $rules['selection.PaymentDate'] = 'required';
+            $rules['selection.PaymentMethod'] = 'required';
+            $rules['selection.PaymentType'] = 'required';
+            $rules['selection.Amount'] = 'required';
+            $rules['selection.InvoiceNo'] = 'required';
+            $rules['selection.Notes'] = 'required';
+            $validator = Validator::make($data, $rules);
 
-        if (Input::hasFile('excel')) {
-
-            $id = User::get_companyID();
-            $excel = Input::file('excel'); // ->move($destinationPath);
-            $ext = $excel->getClientOriginalExtension();
-            $upload_path = getenv('TEMP_PATH');
-
-            if (in_array($ext, array("csv", "xls", "xlsx"))) {
-                $file_name = "Payments_". GUID::generate() . '.' . $ext;
-                $excel->move($upload_path, $file_name);
-                $file_name = $upload_path . '/' . $file_name;
-                $status = Payment::upload_check($file_name);
-                if($status['status']==0){
-                    return Response::json(array("status" => "failed", "message" => $status['message'],'payments'=>$status['payments']));
-                }
-
-                $file_name = basename($file_name);
-                $temp_path = getenv('TEMP_PATH').'/' ;
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
-
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-                copy($temp_path . $file_name, $destinationPath . $file_name);
-
-                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload payments file."));
-                }
-                $fullPath = $amazonPath . $file_name;
-                $data['full_path'] = $fullPath;
-                try {
-                    DB::beginTransaction();
-                    unset($data['excel']); //remove unnecesarry object.
-                    $result = Job::logJob("PU", $data);
-                    if ($result['status'] != "success") {
-                        DB::rollback();
-                        return Response::json(["status" => "failed", "message" => $result['message']]);
-                    }
-                    DB::commit();
-                    return Response::json(["status" => "success", "message" => "File Uploaded, Job Added in queue to process. You will be informed once Job Done. "]);
-                } catch (Exception $ex) {
-                    DB::rollback();
-                    return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
-                }
-
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Allowed Extension .xls, .xlxs, .csv."));
+            if ($validator->fails()) {
+                return json_validator_response($validator);
             }
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
+
+            $status = Payment::upload_check($file_name,$data);
+            if ($status['status'] != 2) {
+                return Response::json(array("status" => "failed",'messagestatus'=> $status['status'],"message" => $status['message']));
+            }
+        }
+        $file_name = basename($file_name);
+        $temp_path = getenv('TEMP_PATH').'/' ;
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+
+        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        copy($temp_path . $file_name, $destinationPath . $file_name);
+
+        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+            return Response::json(array("status" => "failed", "message" => "Failed to upload payments file."));
+        }
+
+        $save = array();
+        $option["option"]=  $data['option'];
+        $option["selection"] = $data['selection'];
+        $save['Options'] = json_encode($option);
+        $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
+        $save['full_path'] = $fullPath;
+
+        try {
+            DB::beginTransaction();
+            unset($data['excel']); //remove unnecesarry object.
+            $result = Job::logJob("PU", $save);
+            if ($result['status'] != "success") {
+                DB::rollback();
+                return Response::json(["status" => "failed", "message" => $result['message']]);
+            }
+            DB::commit();
+            @unlink($temp_path . $file_name);
+            return Response::json(["status" => "success", "message" => "File Uploaded, Job Added in queue to process. You will be informed once Job Done. "]);
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
     }
 
