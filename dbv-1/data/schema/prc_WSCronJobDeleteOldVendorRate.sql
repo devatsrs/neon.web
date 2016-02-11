@@ -1,64 +1,67 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSCronJobDeleteOldVendorRate`()
 BEGIN
-     
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;	
+ 	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+  
+   DELETE vr
+      FROM tblVendorRate vr
+      INNER JOIN tblVendorRate vr2
+      ON vr2.AccountId = vr.AccountId
+      AND vr2.TrunkID = vr.TrunkID
+      AND vr2.RateID = vr.RateID
+      WHERE   vr.EffectiveDate <= NOW()
+			AND  vr2.EffectiveDate <= NOW()
+         AND vr.EffectiveDate < vr2.EffectiveDate;
+	
+   DROP TEMPORARY TABLE IF EXISTS _tmp_ArchiveOldEffectiveRates;
+   CREATE TEMPORARY TABLE _tmp_ArchiveOldEffectiveRates (
+    	  RowID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+     	  VendorRateID INT,
+        RateID INT,
+        CustomerID INT,
+        TrunkId INT,
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATETIME,
+        INDEX _tmp_ArchiveOldEffectiveRates_VendorRateID (`VendorRateID`,`RateID`,`TrunkId`,`CustomerID`)
+	);
+	DROP TEMPORARY TABLE IF EXISTS _tmp_ArchiveOldEffectiveRates2;
+	CREATE TEMPORARY TABLE _tmp_ArchiveOldEffectiveRates2 (
+    	  RowID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+     	  VendorRateID INT,
+        RateID INT,
+        CustomerID INT,
+        TrunkId INT,
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATETIME,
+       INDEX _tmp_ArchiveOldEffectiveRates_VendorRateID (`VendorRateID`,`RateID`,`TrunkId`,`CustomerID`)
+	);
+
+    
+   INSERT INTO _tmp_ArchiveOldEffectiveRates (VendorRateID,RateID,CustomerID,TrunkID,Rate,EffectiveDate)	
+	SELECT
+	   VendorRateID,
+	   RateID,
+	   AccountId,
+	   TrunkID,
+	   Rate,
+	   EffectiveDate
+	FROM tblVendorRate 
+ 	ORDER BY AccountId ASC,TrunkID ,RateID ASC,EffectiveDate ASC;
+	
+	INSERT INTO _tmp_ArchiveOldEffectiveRates2
+	SELECT * FROM _tmp_ArchiveOldEffectiveRates;
 
     DELETE tblVendorRate
         FROM tblVendorRate
-        INNER JOIN (SELECT
-                VendorRateID
-            FROM (SELECT
-                    VendorRateID,
-                    @row_num := IF(@prev_AccountId = vr.AccountId AND @prev_TrunkId = vr.TrunkId AND @prev_RateID=vr.RateId AND  @prev_effectivedate >= vr.effectivedate ,@row_num+1,1) AS RowID,
-						  @prev_RateID  := vr.RateId,
-						  @prev_effectivedate  := vr.effectivedate,
-						  @prev_TrunkId := vr.TrunkId,
-						  @prev_AccountId := vr.AccountId
-                FROM tblVendorRate vr,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z,(SELECT @prev_AccountId := '') v,(SELECT @prev_TrunkId := '') u
-                WHERE effectivedate <= NOW()
-					 ORDER BY vr.AccountId,vr.TrunkId,vr.RateID, vr.effectivedate DESC
-					 ) tbl
-            WHERE RowID > 1) arc
-            ON arc.VendorRateID = tblVendorRate.VendorRateID;
+        INNER JOIN(
+        SELECT
+            tt.VendorRateID
+        FROM _tmp_ArchiveOldEffectiveRates t
+        INNER JOIN _tmp_ArchiveOldEffectiveRates2 tt
+            ON tt.RowID = t.RowID + 1
+            AND  t.CustomerID = tt.CustomerID
+			   AND  t.TrunkId = tt.TrunkId
+            AND t.RateID = tt.RateID
+            AND t.Rate = tt.Rate) aold on aold.VendorRateID = tblVendorRate.VendorRateID;
+    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-    DELETE tblVendorRate
-        FROM tblVendorRate
-        INNER JOIN (SELECT
-                tt.VendorRateID
-            FROM (SELECT
-                    vr.VendorRateID,
-                    vr.RateID,
-                    vr.AccountId,
-                    vr.TrunkID,
-                    vr.Rate,
-						  @row_num := IF(@prev_AccountId = vr.AccountId AND @prev_TrunkId = vr.TrunkId AND @prev_RateID=vr.RateId AND  @prev_effectivedate >= vr.effectivedate ,@row_num+1,1) AS RowID2,
-						  @prev_RateID  := vr.RateId,
-						  @prev_effectivedate  := vr.effectivedate,
-						  @prev_TrunkId := vr.TrunkId,
-						  @prev_AccountId := vr.AccountId
-                FROM tblVendorRate vr,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z,(SELECT @prev_AccountId := '') v,(SELECT @prev_TrunkId := '') u
-					 ORDER BY vr.AccountId,vr.TrunkId,vr.RateID, vr.effectivedate DESC
-					 ) t
-            INNER JOIN (SELECT
-                    vr.VendorRateID,
-                    vr.RateID,
-                    vr.AccountId,
-                    vr.TrunkID,
-                    vr.Rate,
-					  	  @row_num := IF(@prev_AccountId = vr.AccountId AND @prev_TrunkId = vr.TrunkId AND @prev_RateID=vr.RateId AND  @prev_effectivedate >= vr.effectivedate ,@row_num+1,1) AS RowID2,
-						  @prev_RateID  := vr.RateId,
-						  @prev_effectivedate  := vr.effectivedate,
-						  @prev_TrunkId := vr.TrunkId,
-						  @prev_AccountId := vr.AccountId
-                FROM tblVendorRate vr,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z,(SELECT @prev_AccountId := '') v,(SELECT @prev_TrunkId := '') u
-                ORDER BY vr.AccountId,vr.TrunkId,vr.RateID, vr.effectivedate DESC
-					 ) tt
-                ON tt.RowID2 = t.RowID2 + 1
-                AND t.AccountId = tt.AccountId
-                AND t.TrunkId = tt.TrunkId
-                AND t.RateID = tt.RateID
-                AND t.Rate = tt.Rate) aold
-            ON aold.VendorRateID = tblVendorRate.VendorRateID;
-      
-      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
