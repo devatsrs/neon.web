@@ -511,7 +511,7 @@
                                 } else {
                                     if(response.messagestatus==1){
                                         $('#confirm-modal-payment').modal('show');
-                                        $('#confirm-payment-form [name="warnings"]').html(response.message[0].ErrorMessage.replace('\r\n','<br>'));
+                                        $('#confirm-payment-form [name="warnings"]').html(response.message[0].ErrorMessage.replace(new RegExp('\n\r', 'g'), '<br>'));
                                     }else {
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }
