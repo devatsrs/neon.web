@@ -688,7 +688,7 @@
                                 if(typeof item == 'object' && item != null ){
                                     tr+='<td>'+item.date+'</td>';
                                 }else{
-                                    tr+='<td>'+item+'</td>';
+                                    tr+='<td>'+(!item?'':item)+'</td>';
                                 }
                             });
                             tr += '</tr>';
