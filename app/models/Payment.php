@@ -198,6 +198,9 @@ class Payment extends \Eloquent {
                     if (empty($row[$selection['Amount']])) {
                         $status['message'] .= ' \n\rAmount is empty at line no ' . $lineno;
                         $status['status'] = 0;
+                    }elseif(!is_numeric($row[$selection['Amount']])){
+                        $status['message'] .= ' \n\rAmount is not valid at line no ' . $lineno;
+                        $status['status'] = 0;
                     }
                 }else{
                     $status['message'] = 'Not valid';
