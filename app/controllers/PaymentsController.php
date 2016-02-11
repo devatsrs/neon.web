@@ -282,12 +282,10 @@ class PaymentsController extends \BaseController {
                 $file_name = "Payments_". GUID::generate() . '.' . $ext;
                 $excel->move($upload_path, $file_name);
                 $file_name = $upload_path . '/' . $file_name;
-
                 $status = Payment::upload_check($file_name);
                 if($status['status']==0){
                     return Response::json(array("status" => "failed", "message" => $status['message'],'payments'=>$status['payments']));
                 }
-
 
                 $file_name = basename($file_name);
                 $temp_path = getenv('TEMP_PATH').'/' ;
@@ -297,7 +295,7 @@ class PaymentsController extends \BaseController {
                 copy($temp_path . $file_name, $destinationPath . $file_name);
 
                 if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload payments file."));
                 }
                 $fullPath = $amazonPath . $file_name;
                 $data['full_path'] = $fullPath;
