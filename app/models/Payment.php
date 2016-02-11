@@ -116,7 +116,7 @@ class Payment extends \Eloquent {
 
     public static function upload_check($file_name,$data){
         $selection = $data['selection'];
-        $status = array('status' => 1, 'message' => 'Payments are valid.');
+        $status = array('status' => 1, 'message' => '');
         $CompanyID = User::get_companyID();
         $where = ['CompanyId'=>$CompanyID];
         if(!User::is_admin()){
@@ -134,34 +134,29 @@ class Payment extends \Eloquent {
             $batchinsert = [];
             $counter = 0;
             foreach($results as $row){
-                if(isset($row[$selection['AccountName']])) {
+                if(isset($selection['AccountName'])) {
                     if (empty($row[$selection['AccountName']])) {
-                        $status['message'] = 'Account Name is empty at line no' . $lineno;
+                        $status['message'] .= ' \n\rAccount Name is empty at line no' . $lineno;
                         $status['status'] = 0;
-                        return $status;
                     }
                 }else{
                     $status['message'] = 'Not valid';
                     $status['status'] = 0;
                     return $status;
                 }
-
                 if(!in_array($row[$selection['AccountName']], $Accounts)){
-                    $status['message'] = $row[$selection['AccountName']].' is not exist in system at line no '.$lineno;
+                    $status['message'] .= ' \n\r'.$row[$selection['AccountName']].' is not exist in system at line no '.$lineno;
                     $status['status'] = 0;
-                    return $status;
                 }
-                if(isset($row[$selection['PaymentDate']])) {
+                if(isset($selection['PaymentDate'])) {
                     if (empty($row['Payment Date'])) {
-                        $status['message'] = 'Payment Date is empty at line no ' . $lineno;
+                        $status['message'] .= ' \n\rPayment Date is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        return $status;
                     }else{
                         $date = formatSmallDate($row[$selection['PaymentDate']]);
                         if (empty($date)) {
-                            $status['message'] = 'Payment Date is not valid at line no ' . $lineno;
+                            $status['message'] .= '\n\rPayment Date is not valid at line no ' . $lineno;
                             $status['status'] = 0;
-                            return $status;
                         }
                     }
                 }else{
@@ -169,47 +164,62 @@ class Payment extends \Eloquent {
                     $status['status'] = 0;
                     return $status;
                 }
-                if(isset($row[$selection['PaymentMethod']])) {
+                if(isset($selection['PaymentMethod'])) {
                     if (empty($row[$selection['PaymentMethod']])) {
-                        $status['message'] = 'Payment Method is empty at line no ' . $lineno;
+                        $status['message'] .= ' \n\rPayment Method is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        return $status;
                     }
                 }else{
                     $status['message'] = 'Not valid';
                     $status['status'] = 0;
                     return $status;
                 }
-                if(isset($row[$selection['PaymentType']])) {
+                if(!in_array($row[$selection['PaymentMethod']], Payment::$method)){
+                    $status['message'] .= ' \n\rInvalid Payment Method : '.$row[$selection['PaymentMethod']].' at line no '.$lineno;
+                    $status['status'] = 0;
+                    return $status;
+                }
+                if(isset($selection['PaymentType'])) {
                     if (empty($row[$selection['PaymentType']])) {
-                        $status['message'] = 'Action is empty at line no ' . $lineno;
+                        $status['message'] .= ' \n\rAction is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        return $status;
                     }
                 }else{
                     $status['message'] = 'Not valid';
                     $status['status'] = 0;
                     return $status;
                 }
-                if(isset($row[$selection['Amount']])) {
+                if(!in_array($row[$selection['PaymentType']], Payment::$action)){
+                    $status['message'] .= ' \n\rInvalid Payment Type : '.$row[$selection['PaymentType']].' at line no '.$lineno;
+                    $status['status'] = 0;
+                    return $status;
+                }
+                if(isset($selection['Amount'])) {
                     if (empty($row[$selection['Amount']])) {
-                        $status['message'] = 'Amount is empty at line no ' . $lineno;
+                        $status['message'] .= ' \n\rAmount is empty at line no ' . $lineno;
                         $status['status'] = 0;
-                        return $status;
                     }
                 }else{
                     $status['message'] = 'Not valid';
                     $status['status'] = 0;
                     return $status;
                 }
-                $batchinsert[$counter] = array('CompanyID'=>$CompanyID,
-                    'ProcessID'=>$ProcessID,
-                    'AccountID'=>$Accounts[$row[$selection['AccountName']]],
-                    'PaymentDate'=>$row[$selection['PaymentDate']],
-                    'PaymentMethod'=>$row[$selection['PaymentMethod']],
-                    'PaymentType'=>$row[$selection['PaymentType']],
-                    'Amount'=>$row[$selection['Amount']],
-                    'Notes'=>$row[$selection['Notes']]);
+                if(isset($Accounts[$row[$selection['AccountName']]])) {
+                    $temp = array('CompanyID' => $CompanyID,
+                        'ProcessID' => $ProcessID,
+                        'AccountID' => $Accounts[$row[$selection['AccountName']]],
+                        'PaymentDate' => $row[$selection['PaymentDate']],
+                        'PaymentMethod' => $row[$selection['PaymentMethod']],
+                        'PaymentType' => $row[$selection['PaymentType']],
+                        'Amount' => $row[$selection['Amount']]);
+                    if (isset($selection['InvoiceNo'])) {
+                        $temp['InvoiceNo'] = $row[$selection['InvoiceNo']];
+                    }
+                    if (isset($selection['Notes'])) {
+                        $temp['Notes'] = $row[$selection['Notes']];
+                    }
+                    $batchinsert[$counter] = $temp;
+                }
                 $counter++;
             }
             if($status['status'] == 1) {

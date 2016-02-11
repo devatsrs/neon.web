@@ -298,8 +298,6 @@ class PaymentsController extends \BaseController {
             $rules['selection.PaymentMethod'] = 'required';
             $rules['selection.PaymentType'] = 'required';
             $rules['selection.Amount'] = 'required';
-            $rules['selection.InvoiceNo'] = 'required';
-            $rules['selection.Notes'] = 'required';
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {

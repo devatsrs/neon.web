@@ -509,12 +509,16 @@
                                     reloadJobsDrodown(0);
                                     location.reload();
                                 } else {
-                                    if(response.messagestatus==1){
-                                        $('#confirm-modal-payment').modal('show');
-                                        $('#confirm-payment-form [name="warnings"]').html(response.message[0].ErrorMessage.replace(new RegExp('\n\r', 'g'), '<br>'));
-                                    }else {
-                                        toastr.error(response.message, "Error", toastr_opts);
+                                    var message;
+                                    if(response.messagestatus==0){
+                                        $('#confirm-payments').addClass('hidden');
+                                        message = response.message.replace(new RegExp('\n\r', 'g'), '<br>');
+                                    }else{
+                                        message = response.message[0].ErrorMessage.replace(new RegExp('\n\r', 'g'), '<br>');
                                     }
+                                    $('#confirm-modal-payment').modal('show');
+                                    $('#confirm-payment-form [name="warnings"]').html(message);
+
                                 }
                             },
                             data: formData,
@@ -523,6 +527,10 @@
                             contentType: false,
                             processData: false
                         });
+                    });
+
+                    $('#confirm-modal-payment').on('hidden.bs.modal', function(event){
+                        $('#confirm-payments').removeClass('hidden');
                     });
 
                     $('.btn.check').click(function(e){
