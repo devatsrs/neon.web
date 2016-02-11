@@ -1,0 +1,3 @@
+Account Name,Payment Date,Payment Method,Action,Amount,Invoice,Note
+abc,21-05-13,CASH,Payment In,500,INV-1,
+abc,21-05-13,CASH,Payment Out,500,INV-2,

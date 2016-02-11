@@ -213,7 +213,6 @@
                                         @endif
 
                                             //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-
                                         @if(User::checkCategoryPermission('Payments','Recall'))
                                             if(full[13]==0 && full[7]!='Rejected' ){
                                                 action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
@@ -732,7 +731,7 @@
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Code Decks File Format</h4>
+                <h4 class="modal-title">Payment File Format</h4>
             </div>
 
 
@@ -747,14 +746,14 @@
                         <th>Payment Method</th>
                         <th>Action</th>
                         <th>Amount</th>
-                        <th>Invoice</th>
-                        <th>Note</th>
+                        <th>Invoice(opt)</th>
+                        <th>Note(opt)</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td class="hide_country">abc</td>
-                        <td>2013-05-21 14:41:00 </td>
+                        <td>2013-05-21</td>
                         <td><span data-original-title="Payment Method" data-content="CASH, PAYPAL, CHEQUE, CREDIT CARD, BANK TRANSFER" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         <td>Payment In</td>
                         <td>500.00</td>
@@ -763,7 +762,7 @@
                     </tr>
                     <tr>
                         <td class="hide_country">abc</td>
-                        <td>2013-05-21 14:41:00 </td>
+                        <td>2013-05-21</td>
                         <td><span data-original-title="Payment Method" data-content="CASH, PAYPAL, CHEQUE, CREDIT CARD, BANK TRANSFER" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         <td>Payment Out</td>
                         <td>500.00</td>
