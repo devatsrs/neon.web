@@ -14,6 +14,7 @@ CREATE TABLE `tblUsageDetails` (
   `ProcessID` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ID` int(11) DEFAULT NULL,
   `DailySummaryStatus` tinyint(1) DEFAULT NULL,
+  `pincode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`UsageDetailID`),
   KEY `IXUsageDetailCMP_GaTGatACPrID` (`UsageHeaderID`),
   KEY `Index_ID` (`ID`),

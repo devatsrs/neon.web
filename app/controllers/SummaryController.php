@@ -18,6 +18,11 @@ class SummaryController extends \BaseController {
            $pr_name = 'call prc_getSummaryReportByCountry (';
             $export_sheet = 'Country';
             $extra_field = ",'".intval($data['CountryID'])."'";
+        }elseif(isset($data['report']) && $data['report'] == 'pincode'){
+            $columns = array('AccountName','Pincode','NoOfCalls','TotalDuration','TotalDuration','TotalCharges');
+            $pr_name = 'call prc_getSummaryReportByPincode (';
+            $export_sheet = 'Pincode';
+            $extra_field = ",'".$data['Pincode']."'";
         }elseif(isset($data['report']) && $data['report'] == 'customer'){
             $columns = array('AccountName','NoOfCalls','TotalDuration','TotalDuration','TotalCharges');
             $pr_name = 'call prc_getSummaryReportByCustomer (';
@@ -58,6 +63,12 @@ class SummaryController extends \BaseController {
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $account = Account::getAccountIDList();
         return View::make('summary.bycustomer', compact('gateway','account'));
+
+    }
+    public function summrybypincode(){
+        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $account = Account::getAccountIDList();
+        return View::make('summary.bypincode', compact('gateway','account'));
 
     }
 

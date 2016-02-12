@@ -45,4 +45,39 @@ class BillingDashboard extends \BaseController {
         return View::make('billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
 
     }
+    public function ajax_top_pincode(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $report_label = 'Pin Cost';
+        if($data['Type'] == 2){
+            $report_label = 'Pin Duration (in Sec) ';
+        }
+        $query = "call prc_getDashBoardPinCodes ('". $companyID  . "',  '". $data['Startdate']  . "','". $data['Enddate']  . "','0','". $data['Type']  . "','". $data['Limit']  . "')";
+        $top_pincode_data = DB::connection('sqlsrv2')->select($query);
+
+        return View::make('billingdashboard.pin_expense_chart',compact('top_pincode_data','report_label','data'));
+    }
+    public function ajaxgrid_top_pincode(){
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+        $companyID = User::get_companyID();
+        $columns = ['DestinationNumber','TotalCharges','NoOfCalls'];
+        $data['Startdate'] = empty($data['Startdate'])?'0000-00-00 00:00:00':$data['Startdate'];
+        $data['Enddate'] = empty($data['Enddate'])?'0000-00-00 00:00:00':$data['Enddate'];
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getPincodesGrid (".$companyID.",'".$data['Pincode']."','".$data['Startdate']."','".$data['Enddate']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('Pincode Detail Report', function ($excel) use ($excel_data) {
+                $excel->sheet('Pincode Detail Report', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        $query .= ',0)';
+        //echo $query;exit;
+        return DataTableSql::of($query,'sqlsrv2')->make();
+
+    }
 }

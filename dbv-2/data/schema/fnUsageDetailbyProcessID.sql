@@ -1,5 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetailbyProcessID`( 
-	p_ProcessID VARCHAR(200)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetailbyProcessID`(IN `p_ProcessID` VARCHAR(200)
 
 )
 BEGIN
@@ -10,6 +9,7 @@ BEGIN
 			AccountID int,
 			trunk varchar(50),			
 			area_prefix varchar(50),			
+			pincode varchar(50),
 			UsageDetailID int,
 			duration int,
 			billed_duration int,
@@ -26,6 +26,7 @@ BEGIN
 		uh.AccountID,
 		trunk,
 		area_prefix,
+		pincode,
 		UsageDetailID,
 		duration,
 		billed_duration,

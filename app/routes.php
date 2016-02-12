@@ -399,6 +399,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/summaryreport/list_vendor', 'SummaryController@list_vendor');
 	Route::any('/summaryreport/summrybycountry', 'SummaryController@summrybycountry');
 	Route::any('/summaryreport/summrybycustomer', 'SummaryController@summrybycustomer');
+	Route::any('/summaryreport/summrybypincode', 'SummaryController@summrybycustomer');
 	Route::any('/summaryreport/temp_action', 'SummaryController@temp_action');
 	Route::any('/summaryreport/daily_sales_report', 'SummaryController@daily_sales_report');
 	Route::any('/summaryreport/daily_ajax_datagrid', 'SummaryController@daily_ajax_datagrid');
@@ -543,6 +544,9 @@ Route::group(array('before' => 'auth'), function () {
 
     Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
     Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
+	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
+	Route::any('/billing_dashboard/ajaxgrid_top_pincode', 'BillingDashboard@ajaxgrid_top_pincode');
+
 
     //AccountPaymentProfile
     Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');

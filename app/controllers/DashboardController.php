@@ -134,7 +134,9 @@ class DashboardController extends BaseController {
 
        $companyID = User::get_companyID();
        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-       return View::make('dashboard.billing',compact('DefaultCurrencyID'));
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate'));
 
     }
 
