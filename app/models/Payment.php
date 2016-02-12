@@ -116,7 +116,9 @@ class Payment extends \Eloquent {
 
     public static function upload_check($file_name,$data){
         $selection = $data['selection'];
-        $status = array('status' => 1, 'message' => '');
+        $status = array('status' => 1,
+                        'message' => '',
+                        'ProcessID'=>'');
         $CompanyID = User::get_companyID();
         $where = ['CompanyId'=>$CompanyID];
         if(!User::is_admin()){
@@ -130,6 +132,7 @@ class Payment extends \Eloquent {
             $results = json_decode(json_encode($results), true);
             $lineno = 2;
             $ProcessID = GUID::generate();
+            $status['ProcessID'] = $ProcessID;
             $batchinsert = [];
             $counter = 0;
             foreach($results as $row){
@@ -173,12 +176,17 @@ class Payment extends \Eloquent {
                     $status['status'] = 0;
                 }
                 if ($status['status'] != 0) {
+                    $PaymentStatus = 'Pending Approval';
+                    if(User::is('BillingAdmin') || User::is_admin()){
+                        $PaymentStatus = 'Approved';
+                    }
                     $temp = array('CompanyID' => $CompanyID,
                         'ProcessID' => $ProcessID,
                         'AccountID' => $Accounts[$row[$selection['AccountName']]],
                         'PaymentDate' => $row[$selection['PaymentDate']],
                         'PaymentMethod' => $row[$selection['PaymentMethod']],
                         'PaymentType' => $row[$selection['PaymentType']],
+                        'Status' => $PaymentStatus,
                         'Amount' => $row[$selection['Amount']]);
                     if (!empty($row[$selection['InvoiceNo']])) {
                         $temp['InvoiceNo'] = $row[$selection['InvoiceNo']];

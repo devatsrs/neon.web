@@ -310,7 +310,9 @@ class PaymentsController extends \BaseController {
 
     public function Upload($id) {
         $data = Input::all();
+        $CompanyID = User::get_companyID();
         $file_name = $data['TemplateFile'];
+        $ProcessID='';
         if($id==0) {
             $CompanyID = User::get_companyID();
             $rules['selection.AccountName'] = 'required';
@@ -328,6 +330,10 @@ class PaymentsController extends \BaseController {
             if ($status['status'] != 2) {
                 return Response::json(array("status" => "failed",'messagestatus'=> $status['status'],"message" => $status['message']));
             }
+            $ProcessID = $status['ProcessID'];
+        }
+        if(empty($ProcessID)){
+            $ProcessID = $data['ProcessID'];
         }
         $file_name = basename($data['TemplateFile']);
         $temp_path = getenv('TEMP_PATH').'/' ;
@@ -346,6 +352,7 @@ class PaymentsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
+
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
@@ -354,34 +361,11 @@ class PaymentsController extends \BaseController {
             }
             $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
         }
-
-        $save = array();
-        $option["option"]=  $data['option'];
-        $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
-        $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
-        $save['full_path'] = $fullPath;
-        $save['Status'] = 'Pending Approval';
-        if(isset($data['uploadtemplate'])) {
-            $save['uploadtemplate'] = $data['uploadtemplate'];
-        }
-        if(User::is('BillingAdmin') || User::is_admin()){
-            $save['Status'] = 'Approved';
-        }
-        try {
-            DB::beginTransaction();
-            unset($data['excel']); //remove unnecesarry object.
-            $result = Job::logJob("PU", $save);
-            if ($result['status'] != "success") {
-                DB::rollback();
-                return Response::json(["status" => "failed", "message" => $result['message']]);
-            }
-            DB::commit();
-            @unlink($temp_path . $file_name);
-            return Response::json(["status" => "success", "message" => "File Uploaded, Job Added in queue to process. You will be informed once Job Done. "]);
-        } catch (Exception $ex) {
-            DB::rollback();
-            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        $UserID = User::get_userID();
+        //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
+        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+        if($result){
+            return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }
     }
 

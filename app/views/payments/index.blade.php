@@ -122,6 +122,7 @@
                                                 <input type="text" class="form-control" name="option[Delimiter]" value="," />
                                                 <input type="hidden" name="TemplateFile" value="" />
                                                 <input type="hidden" name="TempFileName" value="" />
+                                                <input type="hidden" name="ProcessID" value="" />
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Enclosure:</label>
                                             <div class="col-sm-4">
@@ -527,11 +528,15 @@
                                         $('#confirm-payments').addClass('hidden');
                                         $('#confirm-modal-payment h4').text('File validation');
                                         message = response.message.replace(new RegExp('\n\r', 'g'), '<br>');
+                                        var ProcessID = response.ProcessID;
+                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                         $('#confirm-modal-payment').modal('show');
                                         $('#confirm-payment-form [name="warnings"]').html(message);
                                     }else if(response.messagestatus==1){
                                         $('#confirm-modal-payment h4').text('Confirm Payment');
                                         message = response.message[0].ErrorMessage.replace(new RegExp('\r\n', 'g'), '<br>');
+                                        var ProcessID = response.ProcessID;
+                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                         $('#confirm-modal-payment').modal('show');
                                         $('#confirm-payment-form [name="warnings"]').html(message);
                                     }else{
@@ -646,7 +651,7 @@
                         //$("#form-upload").submit();
                         //}else{
                         var uploadtemplate = $(this).find('[name="uploadtemplate"]').val();
-                        $('#uploadtemplate').find('[name="uploadtemplate"]').val(uploadtemplate);
+                        $('#add-template').find('[name="uploadtemplate"]').val(uploadtemplate);
                         var formData = new FormData($('#form-upload')[0]);
                         show_loading_bar(0);
                         $.ajax({
