@@ -181,6 +181,7 @@ $(function() {
         data = $('#billing_filter').serialize()+'&'+$('#filter-form').serialize();
         $.get( get_url, data , function(response){
             $("#filter-pin").modal('hide');
+            $(".save.btn").button('reset');
             $("#pin_expense_bar_chart").html(response);
         }, "html" );
         return false;
@@ -268,7 +269,7 @@ $(function() {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button  type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                    <button  type="submit" class="btn save btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="fa fa-filter"></i>
                         Filter
                     </button>
