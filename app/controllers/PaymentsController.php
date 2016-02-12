@@ -38,6 +38,7 @@ class PaymentsController extends \BaseController {
 	{
         $id=0;
         $companyID = User::get_companyID();
+        $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList();
         $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
         $InvoiceNoarray = array();
@@ -46,7 +47,7 @@ class PaymentsController extends \BaseController {
         }
         $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice'));
+        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','uploadtemplate'));
 	}
 
 	/**
@@ -247,6 +248,11 @@ class PaymentsController extends \BaseController {
             $grid = getFileContent($file_name, $data);
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
+            if ($data['uploadtemplate'] > 0) {
+                $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
+                //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
+            }
             $grid['VendorFileUploadTemplate']['Options'] = array();
             $grid['VendorFileUploadTemplate']['Options']['option'] = $data['option'];
             $grid['VendorFileUploadTemplate']['Options']['selection'] = $data['selection'];
@@ -277,9 +283,23 @@ class PaymentsController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Please select a file."));
             }
             if (!empty($file_name)) {
+
+                if ($data['uploadtemplate'] > 0) {
+                    $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                    $options = json_decode($VendorFileUploadTemplate->Options, true);
+                    $data['Delimiter'] = $options['option']['Delimiter'];
+                    $data['Enclosure'] = $options['option']['Enclosure'];
+                    $data['Escape'] = $options['option']['Escape'];
+                    $data['Firstrow'] = $options['option']['Firstrow'];
+                }
+
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;
+                if (!empty($VendorFileUploadTemplate)) {
+                    $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
+                    $grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options, true);
+                }
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
@@ -309,7 +329,7 @@ class PaymentsController extends \BaseController {
                 return Response::json(array("status" => "failed",'messagestatus'=> $status['status'],"message" => $status['message']));
             }
         }
-        $file_name = basename($file_name);
+        $file_name = basename($data['TemplateFile']);
         $temp_path = getenv('TEMP_PATH').'/' ;
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
 
@@ -320,13 +340,34 @@ class PaymentsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Failed to upload payments file."));
         }
 
+        if(!empty($data['TemplateName'])){
+            $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
+            $save['created_by'] = User::get_user_full_name();
+            $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
+            $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+            $save['Options'] = json_encode($option);
+            if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
+                $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $template->update($save);
+            } else {
+                $template = VendorFileUploadTemplate::create($save);
+            }
+            $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
+        }
+
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
         $save['Options'] = json_encode($option);
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
-
+        $save['Status'] = 'Pending Approval';
+        if(isset($data['uploadtemplate'])) {
+            $save['uploadtemplate'] = $data['uploadtemplate'];
+        }
+        if(User::is('BillingAdmin') || User::is_admin()){
+            $save['Status'] = 'Approved';
+        }
         try {
             DB::beginTransaction();
             unset($data['excel']); //remove unnecesarry object.

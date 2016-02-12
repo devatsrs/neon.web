@@ -96,6 +96,15 @@
                                 </div>
                             </div>
                             <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Template Name:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" name="TemplateName" value="" />
+                                        <input type="hidden" name="uploadtemplate" />
+                                    </div>
+                                </div>
+                                <br />
+                                <br />
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
@@ -184,7 +193,7 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Amount]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Invoice*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Invoice</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[InvoiceNo]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
@@ -193,9 +202,13 @@
                                         <div class="form-group">
                                             <br />
                                             <br />
-                                            <label for="field-1" class="col-sm-2 control-label">Note*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Note</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Notes]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                     </div>
@@ -370,11 +383,11 @@
                                         @endif
 
                                             //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                        @if(User::checkCategoryPermission('Payments','Recall'))
+                                        <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
                                             if(full[13]==0 && full[7]!='Rejected' ){
                                                 action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
                                             }
-                                        @endif
+                                        <?php } ?>
                                         if(full[9]!= null){
                                             action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                         }
@@ -512,13 +525,18 @@
                                     var message;
                                     if(response.messagestatus==0){
                                         $('#confirm-payments').addClass('hidden');
+                                        $('#confirm-modal-payment h4').text('File validation');
                                         message = response.message.replace(new RegExp('\n\r', 'g'), '<br>');
+                                        $('#confirm-modal-payment').modal('show');
+                                        $('#confirm-payment-form [name="warnings"]').html(message);
+                                    }else if(response.messagestatus==1){
+                                        $('#confirm-modal-payment h4').text('Confirm Payment');
+                                        message = response.message[0].ErrorMessage.replace(new RegExp('\r\n', 'g'), '<br>');
+                                        $('#confirm-modal-payment').modal('show');
+                                        $('#confirm-payment-form [name="warnings"]').html(message);
                                     }else{
-                                        message = response.message[0].ErrorMessage.replace(new RegExp('\n\r', 'g'), '<br>');
+                                        toastr.error(response.message, "Error", toastr_opts);
                                     }
-                                    $('#confirm-modal-payment').modal('show');
-                                    $('#confirm-payment-form [name="warnings"]').html(message);
-
                                 }
                             },
                             data: formData,
@@ -627,6 +645,8 @@
                         //if($('#form-upload').find('select[name="uploadtemplate"]').val()>0){
                         //$("#form-upload").submit();
                         //}else{
+                        var uploadtemplate = $(this).find('[name="uploadtemplate"]').val();
+                        $('#uploadtemplate').find('[name="uploadtemplate"]').val(uploadtemplate);
                         var formData = new FormData($('#form-upload')[0]);
                         show_loading_bar(0);
                         $.ajax({
@@ -1086,10 +1106,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Upload Template</label>
+                        <div class="col-sm-5">
+                            {{ Form::select('uploadtemplate', $uploadtemplate, '' , array("class"=>"select2")) }}
+
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-3 control-label">File Select</label>
                         <div class="col-sm-5">
                             <input type="file" id="excel" type="file" name="excel" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                            <input name="codedeckid" value="{{$id}}" type="hidden" >
                         </div>
                     </div>
                     <div class="form-group">
