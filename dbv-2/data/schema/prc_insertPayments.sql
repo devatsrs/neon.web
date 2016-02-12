@@ -1,6 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertPayments`(IN `p_CompanyID` INT, IN `p_ProcessID` INT, IN `p_UserID` INT)
 BEGIN
 
+	
 	DECLARE v_UserName varchar(30);
  	
  	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
@@ -18,8 +19,11 @@ BEGIN
 			 Recall,
 			 `Status`,
 			 created_at,
+			 updated_at,
 			 CreatedBy,
-			 ModifyBy)
+			 ModifyBy,
+			 RecallReasoan,
+			 RecallBy)
  	select distinct tp.CompanyID,
 	 		 tp.AccountID,
 			 tp.InvoiceNo,
@@ -35,9 +39,12 @@ BEGIN
 			 0 as Recall,
 			 tp.Status,
 			 Now() as created_at,
+			 Now() as updated_at,
 			 v_UserName as CreatedBy,
-			 '' as ModifyBy
+			 '' as ModifyBy,
+			 '' as RecallReasoan,
+			 '' as RecallBy
 	from tblTempPayment tp
 	where tp.ProcessID = p_ProcessID
-			AND tp.CompanyID = p_CompanyID;	
+			AND tp.CompanyID = p_CompanyID;
 END
