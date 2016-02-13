@@ -92,7 +92,7 @@
         <div class="pin_expsense panel panel-primary panel-table">
             <div class="panel-heading">
                 <div class="panel-title">
-                    <h3>Top Pincode</h3>
+                    <h3>Top Pincodes</h3>
                     <div class="pull-right">
                         <button class="btn btn-default btn-xs btn-filter" id="pin_fiter"><span class="glyphicon glyphicon-filter"></span> Filter</button>
                     </div>
@@ -107,17 +107,14 @@
                 <div class="col-md-11" id="filter-pin">
                     <div class="form-group">
                         <form id="filter-form" name="filter-form">
-                            <div class="col-md-1">
-                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array()) }}
+                            <div class="col-sm-2">
+                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt')) }}
+                                &nbsp;
                             </div>
-                            <div class="col-md-1">
-                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array()) }}
-                            </div>
-                            <div class="col-md-1">
-                                <button  type="submit" class="btn save btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                    <i class="fa fa-filter"></i>
-                                    &nbsp;
-                                </button>
+
+                            <div class="col-sm-2">
+                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type')) }}
+                                &nbsp;
                             </div>
                         </form>
                     </div>
@@ -131,11 +128,10 @@
 </div>
 <div class="row hidden" id="pin_grid_main">
     <div class="col-sm-12">
-        <div class="pin_expsense panel panel-primary" style="position: static;">
+        <div class="pin_expsense_report panel panel-primary" style="position: static;">
             <div class="panel-heading">
                 <div class="panel-title">
-                    <h3>Pincode</h3>
-                    <span>Detail Report</span>
+                    <h3>Pincodes Detail Report</h3>
                 </div>
 
                 <div class="panel-options">
@@ -188,10 +184,13 @@ function reload_invoice_expense(){
 
 function pin_title(){
     if($("#filter-form [name='PinExt']").val() == 'pincode'){
-        $('.pin_expsense').find('h3').html('Top Pincode');
+        $('.pin_expsense').find('h3').html('Top Pincodes');
+        $('.pin_expsense_report').find('h3').html('Top Pincodes Detail Report');
     }
     if($("#filter-form [name='PinExt']").val() == 'extension'){
-        $('.pin_expsense').find('h3').html('Top Extension');
+        $('.pin_expsense').find('h3').html('Top Extensions ');
+        $('.pin_expsense_report').find('h3').html('Top Extensions Detail Report');
+
     }
 }
 function loadingUnload(table,bit){
@@ -237,6 +236,12 @@ $(function() {
         $("#filter-pin").slideToggle();
     });
     $("#pin_size").change(function(){
+        pin_report();
+    });
+    $("#Type").change(function(){
+        pin_report();
+    });
+    $("#PinExt").change(function(){
         pin_report();
     });
 });
