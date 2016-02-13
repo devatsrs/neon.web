@@ -140,15 +140,15 @@ class Payment extends \Eloquent {
                 if (empty($row[$selection['AccountName']])) {
                     $status['message'].= ' <br>Account Name is empty at line no' . $lineno;
                     $status['status'] = 0;
-                }elseif (!in_array(strtolower($row[$selection['AccountName']]), $Accounts)) {
-                    $status['message'].= " <br>Account Name '" . $row[$selection['AccountName']] . "' is not exist in system at line no " . $lineno;
+                }elseif (!in_array(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
+                    $status['message'].= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
                     $status['status'] = 0;
                 }
                 if (empty($row[$selection['PaymentDate']])) {
                     $status['message'].= ' <br>Payment Date is empty at line no ' . $lineno;
                     $status['status'] = 0;
                 }else{
-                    $date = formatSmallDate($row[$selection['PaymentDate']],$selection['DateFormat']);
+                    $date = formatSmallDate(trim($row[$selection['PaymentDate']]),$selection['DateFormat']);
                     if (empty($date)) {
                         $status['message'].= '<br>Invalid Payment Date at line no ' . $lineno;
                         $status['status'] = 0;
@@ -157,14 +157,14 @@ class Payment extends \Eloquent {
                 if (empty($row[$selection['PaymentMethod']])) {
                     $status['message'].= ' <br>Payment Method is empty at line no ' . $lineno;
                     $status['status'] = 0;
-                }elseif (!in_array(strtolower($row[$selection['PaymentMethod']]), array_map('strtolower', Payment::$method))) {
+                }elseif (!in_array(strtolower(trim($row[$selection['PaymentMethod']])), array_map('strtolower', Payment::$method))) {
                     $status['message'] .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
                     $status['status'] = 0;
                 }
                 if (empty($row[$selection['PaymentType']])) {
                     $status['message'].= ' <br>Action is empty at line no ' . $lineno;
                     $status['status'] = 0;
-                }elseif(!in_array(strtolower($row[$selection['PaymentType']]), array_map('strtolower', Payment::$action) )){
+                }elseif(!in_array(strtolower(trim($row[$selection['PaymentType']])), array_map('strtolower', Payment::$action) )){
                     $status['message'] .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
                     $status['status'] = 0;
                 }
@@ -184,16 +184,16 @@ class Payment extends \Eloquent {
                     $temp = array('CompanyID' => $CompanyID,
                         'ProcessID' => $ProcessID,
                         'AccountID' => $Accounts[strtolower(trim($row[$selection['AccountName']]))],
-                        'PaymentDate' => $row[$selection['PaymentDate']],
-                        'PaymentMethod' => strtoupper($row[$selection['PaymentMethod']]),
-                        'PaymentType' => ucfirst($row[$selection['PaymentType']]),
+                        'PaymentDate' => trim($row[$selection['PaymentDate']]),
+                        'PaymentMethod' => trim(strtoupper($row[$selection['PaymentMethod']])),
+                        'PaymentType' => trim(ucfirst($row[$selection['PaymentType']])),
                         'Status' => $PaymentStatus,
-                        'Amount' => $row[$selection['Amount']]);
+                        'Amount' => trim($row[$selection['Amount']]);
                     if (!empty($row[$selection['InvoiceNo']])) {
-                        $temp['InvoiceNo'] = $row[$selection['InvoiceNo']];
+                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
                     }
                     if (!empty($row[$selection['Notes']])) {
-                        $temp['Notes'] = $row[$selection['Notes']];
+                        $temp['Notes'] = trim($row[$selection['Notes']]);
                     }
                     $batchinsert[$counter] = $temp;
                 }
