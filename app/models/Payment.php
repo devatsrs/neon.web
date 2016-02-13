@@ -188,7 +188,8 @@ class Payment extends \Eloquent {
                         'PaymentMethod' => trim(strtoupper($row[$selection['PaymentMethod']])),
                         'PaymentType' => trim(ucfirst($row[$selection['PaymentType']])),
                         'Status' => $PaymentStatus,
-                        'Amount' => trim($row[$selection['Amount']]);
+                        'Amount' => trim($row[$selection['Amount']])
+                    );
                     if (!empty($row[$selection['InvoiceNo']])) {
                         $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
                     }
