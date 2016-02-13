@@ -121,10 +121,11 @@ class Payment extends \Eloquent {
                         'ProcessID'=>'');
         $CompanyID = User::get_companyID();
         $where = ['CompanyId'=>$CompanyID];
-        if(!User::is_admin()){
+        if(User::is("AccountManager") ){
             $where['Owner']=User::get_userID();
         }
         $Accounts = Account::where($where)->select(['AccountName','AccountID'])->lists('AccountID','AccountName');
+        $Accounts = array_change_key_case($Accounts);
         if (!empty($file_name)) {
             $results =  Excel::load($file_name, function ($reader){
                 $reader->formatDates(true, 'Y-m-d');
@@ -139,7 +140,7 @@ class Payment extends \Eloquent {
                 if (empty($row[$selection['AccountName']])) {
                     $status['message'].= ' <br>Account Name is empty at line no' . $lineno;
                     $status['status'] = 0;
-                }elseif (!in_array($row[$selection['AccountName']], $Accounts)) {
+                }elseif (!in_array(strtolower($row[$selection['AccountName']]), $Accounts)) {
                     $status['message'].= " <br>Account Name '" . $row[$selection['AccountName']] . "' is not exist in system at line no " . $lineno;
                     $status['status'] = 0;
                 }
@@ -156,14 +157,14 @@ class Payment extends \Eloquent {
                 if (empty($row[$selection['PaymentMethod']])) {
                     $status['message'].= ' <br>Payment Method is empty at line no ' . $lineno;
                     $status['status'] = 0;
-                }elseif (!in_array($row[$selection['PaymentMethod']], Payment::$method)) {
+                }elseif (!in_array(strtolower($row[$selection['PaymentMethod']]), array_map('strtolower', Payment::$method))) {
                     $status['message'] .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
                     $status['status'] = 0;
                 }
                 if (empty($row[$selection['PaymentType']])) {
                     $status['message'].= ' <br>Action is empty at line no ' . $lineno;
                     $status['status'] = 0;
-                }elseif(!in_array($row[$selection['PaymentType']], Payment::$action)){
+                }elseif(!in_array(strtolower($row[$selection['PaymentType']]), array_map('strtolower', Payment::$action) )){
                     $status['message'] .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
                     $status['status'] = 0;
                 }
@@ -182,10 +183,10 @@ class Payment extends \Eloquent {
                     }
                     $temp = array('CompanyID' => $CompanyID,
                         'ProcessID' => $ProcessID,
-                        'AccountID' => $Accounts[$row[$selection['AccountName']]],
+                        'AccountID' => $Accounts[strtolower(trim($row[$selection['AccountName']]))],
                         'PaymentDate' => $row[$selection['PaymentDate']],
-                        'PaymentMethod' => $row[$selection['PaymentMethod']],
-                        'PaymentType' => $row[$selection['PaymentType']],
+                        'PaymentMethod' => strtoupper($row[$selection['PaymentMethod']]),
+                        'PaymentType' => ucfirst($row[$selection['PaymentType']]),
                         'Status' => $PaymentStatus,
                         'Amount' => $row[$selection['Amount']]);
                     if (!empty($row[$selection['InvoiceNo']])) {
