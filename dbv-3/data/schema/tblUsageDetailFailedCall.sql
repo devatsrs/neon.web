@@ -6,6 +6,7 @@ CREATE TABLE `tblUsageDetailFailedCall` (
   `billed_duration` int(11) DEFAULT NULL,
   `area_prefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `pincode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `extension` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `cli` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `cld` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `cost` double DEFAULT NULL,

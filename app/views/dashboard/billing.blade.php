@@ -86,6 +86,7 @@
     </div>
 
 </div>
+@if(CompanySetting::getKeyVal('PincodeWidget') == 1)
 <div class="row">
     <div class="col-sm-12">
         <div class="pin_expsense panel panel-primary panel-table">
@@ -96,10 +97,30 @@
                         <button class="btn btn-default btn-xs btn-filter" id="pin_fiter"><span class="glyphicon glyphicon-filter"></span> Filter</button>
                     </div>
                 </div>
+
                 <div class="panel-options">
+                    {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size')) }}
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
                     <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                </div>
+                <div class="col-md-11" id="filter-pin">
+                    <div class="form-group">
+                        <form id="filter-form" name="filter-form">
+                            <div class="col-md-1">
+                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array()) }}
+                            </div>
+                            <div class="col-md-1">
+                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array()) }}
+                            </div>
+                            <div class="col-md-1">
+                                <button  type="submit" class="btn save btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                    <i class="fa fa-filter"></i>
+                                    &nbsp;
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div class="panel-body">
@@ -110,17 +131,16 @@
 </div>
 <div class="row hidden" id="pin_grid_main">
     <div class="col-sm-12">
-        <div class="panel panel-primary" style="position: static;">
+        <div class="pin_expsense panel panel-primary" style="position: static;">
             <div class="panel-heading">
                 <div class="panel-title">
                     <h3>Pincode</h3>
-                    <span>Pincode Detail Report</span>
+                    <span>Detail Report</span>
                 </div>
 
                 <div class="panel-options">
                     <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                     <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
-                    <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
                 </div>
             </div>
             <div class="panel-body">
@@ -140,36 +160,69 @@
     </div>
 
 </div>
+@endif
 
 <script type="text/javascript">
 function reload_invoice_expense(){
 
      var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
     data = $('#billing_filter').serialize()+'&'+$('#filter-form').serialize();
-
+        loadingUnload('#invoice_expense_bar_chart',1);
     $.get( get_url, data , function(response){
             $(".search.btn").button('reset');
+        loadingUnload('#invoice_expense_bar_chart',0);
             $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
     }, "html" );
 
     var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
+    loadingUnload('#invoice_expense_total',1);
     $.get( get_url, data , function(response){
+        loadingUnload('#invoice_expense_total',0);
             $(".search.btn").button('reset');
             $("#invoice_expense_total").html(response);
     }, "html" );
+    pin_report();
+
+}
+
+
+function pin_title(){
+    if($("#filter-form [name='PinExt']").val() == 'pincode'){
+        $('.pin_expsense').find('h3').html('Top Pincode');
+    }
+    if($("#filter-form [name='PinExt']").val() == 'extension'){
+        $('.pin_expsense').find('h3').html('Top Extension');
+    }
+}
+function loadingUnload(table,bit){
+    var panel = jQuery(table).closest('.panel');
+    if(bit==1){
+        blockUI(panel);
+        panel.addClass('reloading');
+    }else{
+        unblockUI(panel)
+        panel.removeClass('reloading');
+    }
+}
+
+function pin_report() {
+    @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
     $("#pin_grid_main").addClass('hidden');
+    loadingUnload('#pin_expense_bar_chart', 1);
+    data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() + '&Limit=' + $("#pin_size").val();
+    pin_title();
     var get_url = baseurl + "/billing_dashboard/ajax_top_pincode";
-    $.get( get_url, data , function(response){
-        $(".search.btn").button('reset');
+    $.get(get_url, data, function (response) {
+        loadingUnload('#pin_expense_bar_chart', 0);
+        $(".save.btn").button('reset');
         $("#pin_expense_bar_chart").html(response);
-    }, "html" );
-
-
+    }, "html");
+    @endif
 }
 
 $(function() {
      reload_invoice_expense();
-
+    $("#filter-pin").hide();
     $('#billing_filter').submit(function(e){
         e.preventDefault();
         reload_invoice_expense();
@@ -177,20 +230,17 @@ $(function() {
      });
     $('#filter-form').submit(function(e){
         e.preventDefault();
-        var get_url = baseurl + "/billing_dashboard/ajax_top_pincode";
-        data = $('#billing_filter').serialize()+'&'+$('#filter-form').serialize();
-        $.get( get_url, data , function(response){
-            $("#filter-pin").modal('hide');
-            $(".save.btn").button('reset');
-            $("#pin_expense_bar_chart").html(response);
-        }, "html" );
+        pin_report();
         return false;
     });
     $("#pin_fiter").click(function(){
-        $("#filter-pin").modal('show');
+        $("#filter-pin").slideToggle();
     });
-})
-    function dataGrid(Pincode,Startdate,Enddate){
+    $("#pin_size").change(function(){
+        pin_report();
+    });
+});
+    function dataGrid(Pincode,Startdate,Enddate,PinExt){
         $("#pin_grid_main").removeClass('hidden');
         data_table = $("#pin_grid").dataTable({
             "bDestroy": true,
@@ -201,7 +251,8 @@ $(function() {
                 aoData.push(
                         {"name": "Pincode", "value": Pincode},
                         {"name": "Startdate", "value": Startdate},
-                        {"name": "Enddate", "value": Enddate}
+                        {"name": "Enddate", "value": Enddate},
+                        {"name": "PinExt", "value": PinExt}
                 );
 
                 data_table_extra_params.length = 0;
@@ -209,6 +260,7 @@ $(function() {
                         {"name": "Pincode", "value": Pincode},
                         {"name": "Startdate", "value": Startdate},
                         {"name": "Enddate", "value": Enddate},
+                        {"name": "PinExt", "value": PinExt},
                         {"name":"Export","value":1}
                 );
 
@@ -241,45 +293,4 @@ $(function() {
         });
     }
 </script>
-@stop
-@section('footer_ext')
-@parent
-<div class="modal fade" id="filter-pin">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="filter-form" method="post" class="form-horizontal form-groups-bordered">
-                <div class="modal-header">
-                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-                    <h4 class="modal-title">
-                        Filter Top Pincode Options
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="field-5" class="col-sm-4 control-label">Limit</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('Limit', array(5=>5,10=>10,15=>15,20=>20,25=>25), 5, array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Limit")) }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-5" class="col-sm-4 control-label">Pincode By Cost or Duration</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button  type="submit" class="btn save btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="fa fa-filter"></i>
-                        Filter
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 @stop

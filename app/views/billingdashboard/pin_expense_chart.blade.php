@@ -35,7 +35,7 @@ $(function() {
 
                     }).on('click', function(i, row){
                             if(sales_data_3[i].x) {
-                                dataGrid(sales_data_3[i].x,'{{$data['Startdate']}}','{{$data['Enddate']}}');
+                                dataGrid(sales_data_3[i].x,'{{$data['Startdate']}}','{{$data['Enddate']}}','{{$data['PinExt']}}');
                             }
                     });
     line_chart_demo_3.parent().attr('style', '');

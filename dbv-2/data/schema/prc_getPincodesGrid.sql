@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
     COMMENT 'Pincodes Grid For DashBorad'
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -17,7 +17,7 @@ BEGIN
          SUM(cost) AS TotalCharges,
  			COUNT(UsageDetailID) AS NoOfCalls
 		FROM tmp_tblUsageDetails_ uh
-      WHERE uh.pincode = p_Pincode AND uh.cost>0
+      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
 		GROUP BY uh.cld
 		ORDER BY
                 CASE
@@ -43,7 +43,7 @@ BEGIN
 		SELECT COUNT(*) as totalcount FROM(SELECT
       	DISTINCT cld 
 		FROM tmp_tblUsageDetails_ uh
-      WHERE uh.pincode = p_Pincode AND uh.cost>0
+      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
 		GROUP BY uh.cld) tbl;
 		
 	END IF;
@@ -55,7 +55,7 @@ BEGIN
          SUM(cost) AS `Total Cost`,
  			COUNT(UsageDetailID) AS `Number of Times Dialed`
 		FROM tmp_tblUsageDetails_ uh
-      WHERE uh.pincode = p_Pincode AND uh.cost>0
+      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
 		GROUP BY uh.cld;
 	
 	END IF;

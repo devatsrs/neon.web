@@ -26,8 +26,8 @@ BEGIN
     
 
 	set @stm3 = CONCAT('
-	insert into tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID)
-	select UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID
+	insert into tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID)
+	select UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID
 		 from  `' , p_tbltempusagedetail_name , '` d left join tblUsageHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
@@ -50,8 +50,8 @@ BEGIN
     DEALLOCATE PREPARE stmt4;
 
 	set @stm5 = CONCAT(' 
-	insert into tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID)
-	select UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID
+	insert into tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID)
+	select UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID
 		 from  `' , p_tbltempusagedetail_name , '` d left join tblUsageHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
