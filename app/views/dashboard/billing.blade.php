@@ -93,36 +93,20 @@
             <div class="panel-heading">
                 <div class="panel-title">
                     <h3>Top Pincodes</h3>
-                    <div class="pull-right">
-                        <button class="btn btn-default btn-xs btn-filter" id="pin_fiter"><span class="glyphicon glyphicon-filter"></span> Filter</button>
-                    </div>
                 </div>
 
                 <div class="panel-options">
-                    {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
+                    <form id="filter-form" name="filter-form" style="display: inline" >
+                        {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
+                        {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
+                        {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
+                    </form>
+
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
                     <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
                 </div>
-                <div class="col-md-11" id="filter-pin">
-                    <div class="col-md-2">
-                        <form id="filter-form" name="filter-form">
-                            <div class="form-group">
-                            <div class="col-sm-12">
-                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
-                                &nbsp;
-                            </div>
-                                </div>
-                            <div class="form-group">
-                            <div class="col-sm-12">
-                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
-                                &nbsp;
-                            </div>
-                                </div>
-                        </form>
-                    </div>
-                    </div>
-                </div>
+
             </div>
             <div class="panel-body">
                 <div id="pin_expense_bar_chart"></div>
@@ -212,7 +196,7 @@ function pin_report() {
     @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
     $("#pin_grid_main").addClass('hidden');
     loadingUnload('#pin_expense_bar_chart', 1);
-    data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() + '&Limit=' + $("#pin_size").val();
+    data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() ;
     pin_title();
     var get_url = baseurl + "/billing_dashboard/ajax_top_pincode";
     $.get(get_url, data, function (response) {
