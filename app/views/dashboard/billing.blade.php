@@ -247,6 +247,13 @@ $(function() {
 });
     function dataGrid(Pincode,Startdate,Enddate,PinExt){
         $("#pin_grid_main").removeClass('hidden');
+        if(PinExt == 'pincode'){
+            $('.pin_expsense_report').find('h3').html('Pincode '+Pincode+' Detail Report');
+        }
+        if(PinExt == 'extension'){
+            $('.pin_expsense_report').find('h3').html('Extension'+Pincode+' Detail Report');
+
+        }
         data_table = $("#pin_grid").dataTable({
             "bDestroy": true,
             "bProcessing": true,
