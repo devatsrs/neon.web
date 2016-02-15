@@ -99,24 +99,28 @@
                 </div>
 
                 <div class="panel-options">
-                    {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size')) }}
+                    {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
                     <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
                 </div>
                 <div class="col-md-11" id="filter-pin">
-                    <div class="form-group">
+                    <div class="col-md-2">
                         <form id="filter-form" name="filter-form">
-                            <div class="col-sm-2">
-                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt')) }}
+                            <div class="form-group">
+                            <div class="col-sm-12">
+                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
                                 &nbsp;
                             </div>
-
-                            <div class="col-sm-2">
-                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type')) }}
+                                </div>
+                            <div class="form-group">
+                            <div class="col-sm-12">
+                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
                                 &nbsp;
                             </div>
+                                </div>
                         </form>
+                    </div>
                     </div>
                 </div>
             </div>
