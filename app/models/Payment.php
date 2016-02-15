@@ -115,4 +115,145 @@ class Payment extends \Eloquent {
         return $valid;
     }
 
+
+    /*
+     * Validate Payments for Bulk Upload and insert data into temp table.
+     * */
+    public static function validate_payments($data){
+
+        $selection = $data['selection'];
+        $file = $data['TemplateFile'];
+        $CompanyID = User::get_companyID();
+        $where = ['CompanyId'=>$CompanyID];
+        if(User::is("AccountManager") ){
+            $where['Owner']=User::get_userID();
+        }
+        $Accounts = Account::where($where)->select(['AccountName','AccountID'])->lists('AccountID','AccountName');
+        $Accounts = array_change_key_case($Accounts);
+        if (!empty($file)) {
+
+            $results =  Excel::load($file, function ($reader) {
+                $reader->formatDates(true, 'Y-m-d');
+            })->get();
+
+            $results = json_decode(json_encode($results), true);
+
+
+            $ProcessID =  GUID::generate();
+
+            Log::info("ProcessID " . $ProcessID );
+            $lineno = 2;$counter = 0;
+            $batch_insert = [];
+
+
+            $has_Error = false;
+            $response_message = "";
+            $response_status = "";
+
+            foreach($results as $row){
+                if (empty($row[$selection['AccountName']])) {
+                    $response_message  .= ' <br>Account Name is empty at line no' . $lineno;
+                    $has_Error = true;
+                }elseif (!in_array(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
+                    $response_message .= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
+                    $has_Error = true;
+                }
+                if (empty($row[$selection['PaymentDate']])) {
+                    $response_message .= ' <br>Payment Date is empty at line no ' . $lineno;
+                    $has_Error = true;
+                }else{
+                    $date = formatSmallDate(trim($row[$selection['PaymentDate']]),$selection['DateFormat']);
+                    if (empty($date)) {
+                        $response_message .= '<br>Invalid Payment Date at line no ' . $lineno;
+                        $has_Error = true;
+                    }else{
+                        $row[$selection['PaymentDate']] = $date;
+                    }
+                }
+                if (empty($row[$selection['PaymentMethod']])) {
+                    $response_message .= ' <br>Payment Method is empty at line no ' . $lineno;
+                    $has_Error = true;
+                }elseif (!in_array(strtolower(trim($row[$selection['PaymentMethod']])), array_map('strtolower', Payment::$method))) {
+                    $response_message  .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
+                    $has_Error = true;
+                }
+                if (empty($row[$selection['PaymentType']])) {
+                    $response_message .= ' <br>Action is empty at line no ' . $lineno;
+                    $has_Error = true;
+                }elseif(!in_array(strtolower(trim($row[$selection['PaymentType']])), array_map('strtolower', Payment::$action) )){
+                    $response_message  .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
+                    $has_Error = true;
+                }
+
+                if (empty($row[$selection['Amount']])) {
+                    $response_message .= ' <br>Amount is empty at line no ' . $lineno;
+                    $has_Error = true;
+                }elseif(!is_numeric($row[$selection['Amount']])){
+                    $response_message .= ' <br>Invalid Amount at line no ' . $lineno;
+                    $has_Error = true;
+                }
+                if (!$has_Error) {
+                    $PaymentStatus = 'Pending Approval';
+                    if(User::is('BillingAdmin') || User::is_admin()){
+                        $PaymentStatus = 'Approved';
+                    }
+                    $temp = array('CompanyID' => $CompanyID,
+                        'ProcessID' => $ProcessID,
+                        'AccountID' => $Accounts[strtolower(trim($row[$selection['AccountName']]))],
+                        'PaymentDate' => trim($row[$selection['PaymentDate']]),
+                        'PaymentMethod' => trim(strtoupper($row[$selection['PaymentMethod']])),
+                        'PaymentType' => trim(ucfirst($row[$selection['PaymentType']])),
+                        'Status' => $PaymentStatus,
+                        'Amount' => trim($row[$selection['Amount']])
+                    );
+                    if (!empty($row[$selection['InvoiceNo']])) {
+                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                    }
+                    if (!empty($row[$selection['Notes']])) {
+                        $temp['Notes'] = trim($row[$selection['Notes']]);
+                    }
+                    $batch_insert[] = $temp;
+                }
+                $counter++;
+                $lineno++;
+
+            } // loop over
+
+
+            if ( $has_Error ) {
+
+                Log::info("Opps error  " . $response_message );
+                $response_status = 'Error';
+
+            } else {
+
+                Log::info("Inserted into PaymentTemp with  Processid = " . $ProcessID );
+                $insert_response =  DB::connection('sqlsrv2')->table("tblTempPayment")->insert($batch_insert);
+                if (!$insert_response) {
+                    $response_message  = 'Some thing wrong with database';
+                    $response_status = 'Error';
+                }
+
+
+                if(empty($response_status)) { // when no error
+                    //Validate Payment entries and return error
+
+                    $validation_Errors = DB::connection('sqlsrv2')->select("CALL  prc_validatePayments ('" . $CompanyID . "','" . $ProcessID . "')");
+
+                    if (!empty($validation_Errors)) { // if any error.
+                        $response_message = $validation_Errors[0]->ErrorMessage;
+                        $response_status = 'Error';
+
+                    }else{
+                        $response_message = "";
+                        $response_status = 'Success';
+                    }
+                }
+            }
+
+            return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status];
+
+        }
+    }
+
 }

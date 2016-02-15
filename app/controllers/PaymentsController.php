@@ -12,9 +12,10 @@ class PaymentsController extends \BaseController {
         $data['Status'] = $data['Status'] != ''?"'".$data['Status']."'":'null';
         $data['type'] = $data['type'] != ''?"'".$data['type']."'":'null';
         $data['paymentmethod'] = $data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
+        $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -37,6 +38,7 @@ class PaymentsController extends \BaseController {
 	{
         $id=0;
         $companyID = User::get_companyID();
+        $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList();
         $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
         $InvoiceNoarray = array();
@@ -45,7 +47,7 @@ class PaymentsController extends \BaseController {
         }
         $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice'));
+        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates'));
 	}
 
 	/**
@@ -74,7 +76,7 @@ class PaymentsController extends \BaseController {
             }
 
             $save['Status'] = 'Pending Approval';
-            if(User::is('BillingAdmin') || User::is_admin() ) {
+            if(User::is('BillingAdmin')) {
                 $save['Status'] = 'Approved';
             }
             if (Payment::create($save)) {
@@ -179,8 +181,16 @@ class PaymentsController extends \BaseController {
      */
     public function recall($id) {
         if( intval($id) > 0){
+            $data = Input::all();
+            $rules['RecallReasoan'] = 'required';
+            $validator = Validator::make($data, $rules);
+            $data['RecallBy'] =  User::get_user_full_name();
+            $data['Recall'] = 1;
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
             try {
-                $result = Payment::find($id)->update(['Recall'=>1]);
+                $result = Payment::find($id)->update($data);
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
                 } else {
@@ -195,7 +205,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function payment_approve_reject($id,$action){
-        if(User::is('BillingAdmin') || User::is_admin()) {
+        if(User::is('BillingAdmin')) {
             if ($id && $action) {
                 $Payment = Payment::findOrFail($id);
                 $save = array();
@@ -205,13 +215,6 @@ class PaymentsController extends \BaseController {
                     $save['Status'] = 'Rejected';
                 }
                 $data = Input::all();
-
-                $rules = ['Notes' => 'required'];
-                $validator = Validator::make($data, $rules);
-
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }
                 $Payment->Notes .= '<br/>'.$data['Notes'];
                 if ($Payment->update($save)) {
                     $managerinfo =  Account::getAccountManager($Payment->AccountID);
@@ -238,52 +241,208 @@ class PaymentsController extends \BaseController {
         }
     }
 
-    public function upload() {
+    /* Refill Datagrid against File options changed once Check button clicked
+     * */
+    function ajaxfilegrid(){
+        try {
+            $data = Input::all();
+            $file_name = $data['TempFileName'];
+            $grid = getFileContent($file_name, $data);
+            $grid['filename'] = $data['TemplateFile'];
+            $grid['tempfilename'] = $data['TempFileName'];
+            if ($data['PaymentUploadTemplateID'] > 0) {
+                $PaymentUploadTemplate = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                $grid['PaymentUploadTemplate'] = json_decode(json_encode($PaymentUploadTemplate), true);
+                //$grid['PaymentUploadTemplate']['Options'] = json_decode($PaymentUploadTemplate->Options,true);
+            }
+            $grid['PaymentUploadTemplate']['Options'] = array();
+            $grid['PaymentUploadTemplate']['Options']['option'] = $data['option'];
+            $grid['PaymentUploadTemplate']['Options']['selection'] = $data['selection'];
+            return Response::json(array("status" => "success", "data" => $grid));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
 
-        \Debugbar::disable();
+    /* When File uploads
+     * Upload file to server to temp location path
+     * Send File top 10 data to show in grid.
+     * */
+    public function check_upload() {
+        try {
+            $data = Input::all();
+            if (Input::hasFile('excel')) {
+                $upload_path = getenv('TEMP_PATH');
+                $excel = Input::file('excel');
+                $ext = $excel->getClientOriginalExtension();
+                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                    $file_name_without_ext = GUID::generate();
+                    $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
+                    $excel->move($upload_path, $file_name);
+                    $file_name = $upload_path . '/' . $file_name;
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+                }
+            } else if (isset($data['TemplateFile'])) {
+                $file_name = $data['TemplateFile'];
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select a file."));
+            }
+            if (!empty($file_name)) {
 
-        //   $total_records = $this->import("I:\bk\www\projects\aamir\rm\laravel\rm\public\uploads\fxHv86yN\Snq4Obmf0XlJNFz2.csv");
-        //   exit;
-        ini_set('max_execution_time', 0);
+                if ($data['PaymentUploadTemplateID'] > 0) {
+                    $PaymentUploadTemplate = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                    $options = json_decode($PaymentUploadTemplate->Options, true);
+                    $data['Delimiter'] = $options['option']['Delimiter'];
+                    $data['Enclosure'] = $options['option']['Enclosure'];
+                    $data['Escape'] = $options['option']['Escape'];
+                    $data['Firstrow'] = $options['option']['Firstrow'];
+                }
+
+                $grid = getFileContent($file_name, $data);
+                $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
+                $grid['filename'] = $file_name;
+                if (!empty($PaymentUploadTemplate)) {
+                    $grid['PaymentUploadTemplate'] = json_decode(json_encode($PaymentUploadTemplate), true);
+                    $grid['PaymentUploadTemplate']['Options'] = json_decode($PaymentUploadTemplate->Options, true);
+                }
+                return Response::json(array("status" => "success", "data" => $grid));
+            }
+        }catch(Exception $ex) {
+            Log::info($ex);
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
+    /*
+     * Validate Bulk Payment Column Mapping on file.
+     * */
+    public function validate_column_mapping() {
         $data = Input::all();
 
-        if (Input::hasFile('excel')) {
+        $rules['selection.AccountName'] = 'required';
+        $rules['selection.PaymentDate'] = 'required';
+        $rules['selection.PaymentMethod'] = 'required';
+        $rules['selection.PaymentType'] = 'required';
+        $rules['selection.Amount'] = 'required';
+        $validator = Validator::make($data, $rules);
 
-            $id = User::get_companyID();
-            $excel = Input::file('excel'); // ->move($destinationPath);
-            $ext = $excel->getClientOriginalExtension();
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 
-            if (in_array($ext, array("csv", "xls", "xlsx"))) {
-                $file_name = "Payments_". GUID::generate() . '.' . $ext;
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']) ;
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-                $excel->move($destinationPath, $file_name);
-                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
-                }
-                $fullPath = $amazonPath . $file_name;
-                $data['full_path'] = $fullPath;
+        $response = Payment::validate_payments($data);
 
-                try {
-                    DB::beginTransaction();
-                    unset($data['excel']); //remove unnecesarry object.
-                    $result = Job::logJob("PU", $data);
-                    if ($result['status'] != "success") {
-                        DB::rollback();
-                        return Response::json(["status" => "failed", "message" => $result['message']]);
-                    }
-                    DB::commit();
-                    return Response::json(["status" => "success", "message" => "File Uploaded, Job Added in queue to process. You will be informed once Job Done. "]);
-                } catch (Exception $ex) {
-                    DB::rollback();
-                    return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
-                }
+        if ( $response['status'] != 'Success' ) {
+            return Response::json(array("status" => "failed", "message" => $response['message']  ,"ProcessID" => $response["ProcessID"] ));
+        }else{
+            return Response::json(array("status" => "success", "message" => $response['message'] ,"ProcessID" => $response["ProcessID"] ));
+        }
 
+    }
+
+    public function confirm_bulk_upload() {
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $file_name = $data['TemplateFile'];
+        $ProcessID = $data['ProcessID'];
+
+        $file_name = basename($data['TemplateFile']);
+        $temp_path = getenv('TEMP_PATH').'/' ;
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+
+        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        copy($temp_path . $file_name, $destinationPath . $file_name);
+
+        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+            return Response::json(array("status" => "failed", "message" => "Failed to upload payments file." ));
+        }
+
+        if(!empty($data['TemplateName'])) {
+            $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
+            $save['created_by'] = User::get_user_full_name();
+            $option["option"] = $data['option'];
+            $option["selection"] = $data['selection'];
+            $save['Options'] = json_encode($option);
+
+            if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
+                $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                $template->update($save);
             } else {
-                return Response::json(array("status" => "failed", "message" => "Allowed Extension .xls, .xlxs, .csv."));
+                $template = PaymentUploadTemplate::create($save);
             }
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
+            $data['PaymentUploadTemplateID'] = $template->PaymentUploadTemplateID;
+        }
+        $UserID = User::get_userID();
+        //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
+        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+        if($result){
+            return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
+        }else{
+            return Response::json(array("status" => "failure", "message" => "Error in Uploading Payments."));
+        }
+    }
+
+    /* not in use */
+    public function Upload($id) {
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $file_name = $data['TemplateFile'];
+        $ProcessID='';
+        if( $id == 0 ) {   // After Column Mapping
+            $CompanyID = User::get_companyID();
+            $rules['selection.AccountName'] = 'required';
+            $rules['selection.PaymentDate'] = 'required';
+            $rules['selection.PaymentMethod'] = 'required';
+            $rules['selection.PaymentType'] = 'required';
+            $rules['selection.Amount'] = 'required';
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+
+            $response = Payment::prc_insertPayments($data);
+            if ( $response['status'] != 2 ) {
+                return Response::json(array("status" => "failed",'messagestatus'=> $response['status'],"message" => $response['message']));
+            }
+            $ProcessID = $response['ProcessID'];
+        }
+
+        if(empty($ProcessID)){
+            $ProcessID = $data['ProcessID'];
+        }
+        $file_name = basename($data['TemplateFile']);
+        $temp_path = getenv('TEMP_PATH').'/' ;
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+
+        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        copy($temp_path . $file_name, $destinationPath . $file_name);
+
+        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+            return Response::json(array("status" => "failed", "message" => "Failed to upload payments file."));
+        }
+
+        if(!empty($data['TemplateName'])){
+            $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
+            $save['created_by'] = User::get_user_full_name();
+            $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
+            $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+            $save['Options'] = json_encode($option);
+
+            if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
+                $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                $template->update($save);
+            } else {
+                $template = PaymentUploadTemplate::create($save);
+            }
+            $data['PaymentUploadTemplateID'] = $template->PaymentUploadTemplateID;
+        }
+        $UserID = User::get_userID();
+        //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
+        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+        if($result){
+            return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }
     }
 

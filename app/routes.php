@@ -425,7 +425,6 @@ Route::group(array('before' => 'auth'), function () {
 	//payment
 	Route::any('/payments', 'PaymentsController@index');
     Route::any('/payments/upload', 'PaymentsController@upload');
-    Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 	Route::any('/payments/create', 'PaymentsController@create');
 	Route::any('/payments/{id}/update', 'PaymentsController@update');
 	Route::any('/payments/{id}/recall', 'PaymentsController@recall');
@@ -434,6 +433,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/getcurrency/{id}', 'PaymentsController@getCurrency');
 	Route::any('/payments/{id}/payment_approve_reject/{approve_reject}', array('as' => 'payment_rules', 'uses' => 'PaymentsController@payment_approve_reject'))->where('approve_reject', '(approve|reject)');
 
+	#Route::any('/payments/{id}/upload', 'PaymentsController@upload'); not in use
+	Route::any('/payments/upload/validate_column_mapping', 'PaymentsController@validate_column_mapping');
+	Route::any('/payments/upload/confirm_bulk_upload', 'PaymentsController@confirm_bulk_upload');
+	Route::any('/payments/check_upload', 'PaymentsController@check_upload');
+	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
+	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');

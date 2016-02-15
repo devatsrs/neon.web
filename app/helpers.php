@@ -655,3 +655,58 @@ function getDashBoardController($key){
     return $DashBoards[$key];
 }
 
+function formatSmallDate($date,$dateformat='d-m-y') {
+    if(ctype_digit($date) && strlen($date)==5){
+        $UNIX_DATE = ($date - 25569) * 86400;
+        $datetime = gmdate("Y-m-d", $UNIX_DATE);
+    }else {
+        $m_d_y='((?:[0]?[1-9]|[1][012])[-:\\/.](?:(?:[0-2]?\\d{1})|(?:[3][01]{1}))[-:\\/.](?:(?:\\d{1}\\d{1})))(?![\\d])'; // for	m-d-y when converted from british
+        $d_m_y = '((?:(?:[0-2]?\\d{1})|(?:[3][01]{1}))[-:\\/.](?:[0]?[1-9]|[1][012])[-:\\/.](?:(?:\\d{1}\\d{1})))(?![\\d])';// for d-m-y british
+        if ($c = preg_match_all("/" . $d_m_y . "/is", $date, $matches)) {
+            $date_obj = \DateTime::createFromFormat('d-m-y', $date);
+            if (!empty($date_obj)) {
+                $datetime = $date_obj->format('Y-m-d');
+            }
+        }elseif($c = preg_match_all("/" . $m_d_y . "/is", $date, $matches)) {
+            $date_obj = \DateTime::createFromFormat('m-d-y', $date);
+            if (!empty($date_obj)) {
+                $datetime = $date_obj->format('Y-m-d');
+            }
+        }
+        if (!isset($datetime)|| empty($datetime)){
+            $date_obj = date_create($date);
+            if (is_object($date_obj)) {
+                $datetime = date_format($date_obj, "Y-m-d");
+            } else {
+                $date_arr = date_parse($date);
+                if (!empty($date_arr['year']) && !empty($date_arr['month']) && !empty($date_arr['day'])) {
+                    $datetime = date("Y-m-d", mktime(0, 0, 0, $date_arr['month'], $date_arr['day'], $date_arr['year']));
+                } else {
+                    if (strpos($date, '.') !== false) {
+                        $date = str_replace('.', '-', $date);
+                    }
+                    if (strpos($date, '/') !== false) {
+                        $date = str_replace('/', '-', $date);
+                    }
+                    /*if (strpos($date, ' ') !== false) {
+                        $date = str_replace(' ', '-', $date);
+                    }*/
+                    if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
+                        $date = str_replace('/', '-', $date);
+                        $datetime = date('Y-m-d', strtotime($date));
+                    } else if ($dateformat == 'm-d-Y' && strpos($date, '-') !== false) {
+                        $date = str_replace('-', '/', $date);
+                        $datetime = date('Y-m-d', strtotime($date));
+                    } else {
+                        $datetime = date('Y-m-d', strtotime($date));
+                    }
+                }
+            }
+        }
+    }
+
+    if ($datetime == '1970-01-01') {
+        $datetime = '';
+    }
+    return $datetime;
+}
