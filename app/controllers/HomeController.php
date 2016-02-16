@@ -142,6 +142,9 @@ class HomeController extends BaseController {
 
     public function doLogin() {
 
+        // Remove old session
+        Session::flush();
+        Auth::logout();
 
         if (Request::ajax()) {
             $data = Input::all();
