@@ -611,7 +611,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
     Route::get('/l/{id}', function($id){
-        $user = User::find($id);
+		Session::flush();
+		Auth::logout();
+		$user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
         if(!empty($user) ){
             Auth::login($user);
