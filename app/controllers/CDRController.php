@@ -399,6 +399,31 @@ class CDRController extends BaseController {
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
         }
     }
+    public function vendorcdr_show(){
+        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        return View::make('cdrupload.vendorcdr',compact('gateway'));
+    }
+    public function ajax_datagrid_vendorcdr(){
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+        $companyID = User::get_companyID();
+        $columns = array('AccountName','connect_time','disconnect_time','billed_duration','selling_cost','cli','cld');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('Vendor CDR', function ($excel) use ($excel_data) {
+                $excel->sheet('Vendor CDR', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        $query .=',0)';
+
+        return DataTableSql::of($query, 'sqlsrv2')->make();
+    }
 
 
 }

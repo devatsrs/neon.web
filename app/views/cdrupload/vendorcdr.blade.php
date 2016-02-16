@@ -7,10 +7,10 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>CDR</strong>
+        <strong>Vendor CDR</strong>
     </li>
 </ol>
-<h3>CDR</h3>
+<h3>Vendor CDR</h3>
 
 @include('includes.errors')
 @include('includes.success')
@@ -65,12 +65,6 @@
         </form>
     </div>
 </div>
-<p style="text-align: right;">
-    <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary hidden">
-        <i class="entypo-check"></i>
-        <span>CDR Rerate</span>
-    </a>
-</p>
 <!--
 <div class="row">
 <div  class="col-md-12">
@@ -91,12 +85,13 @@
     <thead>
     <tr>
         <th width="15%" >Account Name</th>
-        <th width="10%" >Connect Time</th>
+        <th width="15%" >Connect Time</th>
         <th width="10%" >Disconnect Time</th>
-        <th width="10%" >Duration</th>
-        <th width="10%" >Cost</th>
-        <th width="10%" >CLI</th>
-        <th width="10%" >CLD</th>
+        <th width="10%" >Billed Duration</th>
+        <th width="10%" >Selling Cost</th>
+        <th width="10%" >Buying Cost</th>
+        <th width="15%" >CLI</th>
+        <th width="15%" >CLD</th>
 
     </tr>
     </thead>
@@ -108,7 +103,7 @@
 var $searchFilter = {};
 var update_new_url;
 var postdata;
-var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
+
     jQuery(document).ready(function ($) {
         $('input[name="StartTime"]').click();
         public_vars.$body = $("body");
@@ -128,15 +123,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 //Options to tell jQuery not to process data or worry about content-type.
                 cache: false
             });
-            $.each(rate_cdr, function(key, value) {
-                 if(key == $('#bluk_CompanyGatewayID').val()){
-                    if(value == 1){
-                        $('#cdr_rerate').removeClass('hidden')
-                    }else{
-                        $('#cdr_rerate').addClass('hidden')
-                    }
-                 }
-            });
+
         }
         });
         $('#bluk_CompanyGatewayID').trigger('change');
@@ -171,7 +158,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
-                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid",
+                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
@@ -187,13 +174,14 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                         {
                             "sExtends": "download",
                             "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr",
                             sButtonClass: "save-collection"
                         }
                     ]
                 },
                 "aoColumns":
                 [
+                    { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
@@ -241,29 +229,6 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                    submit_ajax(baseurl + "/cdr_upload/delete_cdr",$.param($searchFilter))
                 }
             });
-            $('#cdr_rerate').on('click',function (e) {
-                if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
-                   toastr.error("Please Select a Start date then search", "Error", toastr_opts);
-                   return false;
-                }
-                if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
-                   toastr.error("Please Select a End date then search", "Error", toastr_opts);
-                   return false;
-                }
-                if(typeof $searchFilter.CompanyGatewayID  == 'undefined' || $searchFilter.CompanyGatewayID.trim() == ''){
-                   toastr.error("Please Select a Gateway then search", "Error", toastr_opts);
-                   return false;
-                }
-                if($("#table-4 tbody tr").html().indexOf("No data available in table") > 0){
-                    toastr.error("No data available To ReRate", "Error", toastr_opts);
-                    return false;
-                }
-                response = confirm('Are you sure?');
-                if (response) {
-                   submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter))
-                }
-            });
-
 
             });
 
