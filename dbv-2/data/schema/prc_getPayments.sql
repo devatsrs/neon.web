@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_isExport` INT )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_isExport` INT )
 BEGIN
 
 
@@ -27,11 +27,14 @@ BEGIN
             tblPayment.PaymentProof,
             tblPayment.InvoiceNo,
             tblPayment.PaymentMethod,
-            tblPayment.Notes
+            tblPayment.Notes,
+            tblPayment.Recall,
+            tblPayment.RecallReasoan,
+            tblPayment.RecallBy
             from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
-            AND(tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+            AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -93,7 +96,7 @@ BEGIN
             from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
-            AND(tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+            AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -122,7 +125,7 @@ BEGIN
 			from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
-            AND(tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+            AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
