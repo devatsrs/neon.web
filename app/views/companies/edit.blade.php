@@ -108,7 +108,7 @@
                         <div class="col-sm-4">
                             {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Pincode Widget</label>
+                        <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
                         <p class="make-switch switch-small">
                             <input id="PincodeWidget" name="PincodeWidget" type="checkbox" value="1" @if($PincodeWidget == 1) checked="checked" @endif>

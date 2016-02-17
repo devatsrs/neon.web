@@ -1,3 +1,5 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateRateSheet`(IN `p_CustomerID` INT, IN `p_Trunk` VARCHAR(100)
+)
 BEGIN
     DECLARE v_trunkDescription_ VARCHAR(50);
     DECLARE v_lastRateSheetID_ INT ;

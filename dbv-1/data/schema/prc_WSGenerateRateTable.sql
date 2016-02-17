@@ -54,15 +54,6 @@ GenerateRateTable:BEGIN
 		  ConnectionFee DECIMAL(18, 6),
 		  INDEX tmp_Rates_code (`code`) 
 		);
-		DROP TEMPORARY TABLE IF EXISTS tmp_Rates2_;
-		CREATE TEMPORARY TABLE tmp_Rates2_  (
-		  code VARCHAR(50) ,
-		  rate DECIMAL(18, 6),
-		  ConnectionFee DECIMAL(18, 6),
-		  INDEX tmp_Rates2_code (`code`) 
-		);
-		
-		
 		DROP TEMPORARY TABLE IF EXISTS tmp_Codedecks_;
 		CREATE TEMPORARY TABLE tmp_Codedecks_ (
         CodeDeckId INT
@@ -70,12 +61,11 @@ GenerateRateTable:BEGIN
      	DROP TEMPORARY TABLE IF EXISTS tmp_Raterules_;
      
      	CREATE TEMPORARY TABLE tmp_Raterules_  (
+	     RowNo INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
         rateruleid INT,
         code VARCHAR(50),
-        RowNo INT,
         INDEX tmp_Raterules_code (`code`),
-        INDEX tmp_Raterules_rateruleid (`rateruleid`),
-        INDEX tmp_Raterules_RowNo (`RowNo`)
+        INDEX tmp_Raterules_rateruleid (`rateruleid`)
     	);
      	DROP TEMPORARY TABLE IF EXISTS tmp_Vendorrates_;
      	CREATE TEMPORARY TABLE tmp_Vendorrates_  (
@@ -93,8 +83,7 @@ GenerateRateTable:BEGIN
         code VARCHAR(50),
         rateid INT,
         countryid INT,
-        INDEX tmp_code_code (`code`),
-        INDEX tmp_code_rateid (`rateid`)
+        INDEX tmp_code_code (`code`)
     	);
     	DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorRate_;
      	CREATE TEMPORARY TABLE tmp_tblVendorRate_  (
@@ -104,7 +93,6 @@ GenerateRateTable:BEGIN
 	      ConnectionFee FLOAT,
 	      TrunkId INT,
 	      EffectiveDate DATE,
-			RowID INT,
 			INDEX tmp_tblVendorRate_AccountId (`AccountId`,`TrunkId`,`RateID`),
 			INDEX tmp_tblVendorRate_EffectiveDate (`EffectiveDate`),
 			INDEX tmp_tblVendorRate_Rate (`Rate`)
@@ -130,9 +118,8 @@ GenerateRateTable:BEGIN
     	INSERT INTO tmp_Raterules_
 			SELECT
             rateruleid,
-            tblRateRule.code,
-            @row_num := @row_num+1 AS RowID
-        FROM tblRateRule,(SELECT @row_num := 0) x
+            tblRateRule.code
+        FROM tblRateRule
         WHERE rategeneratorid = p_RateGeneratorId
         ORDER BY rateruleid;
 
@@ -182,22 +169,16 @@ GenerateRateTable:BEGIN
 	          Rate,
 	          ConnectionFee,
 	          TrunkId,
-	          EffectiveDate,
-				 RowID
-				 FROM(SELECT AccountId,
-	          RateID,
-	          Rate,
-	          ConnectionFee,
-	          TrunkId,
-	          EffectiveDate,
-				 @row_num := IF(@prev_RateId=tblVendorRate.RateId AND @prev_TrunkID=tblVendorRate.TrunkID AND @prev_AccountId=tblVendorRate.AccountId and @prev_EffectiveDate >= tblVendorRate.EffectiveDate ,@row_num+1,1) AS RowID,
-				 @prev_RateId  := tblVendorRate.RateId,
-				 @prev_TrunkID  := tblVendorRate.TrunkID,
-				 @prev_AccountId  := tblVendorRate.AccountId,
-				 @prev_EffectiveDate  := tblVendorRate.EffectiveDate
-	          FROM tblVendorRate ,(SELECT @row_num := 1) x,(SELECT @prev_RateId := '') y,(SELECT @prev_TrunkID := '') z ,(SELECT @prev_AccountId := '') v ,(SELECT @prev_EffectiveDate := '') u
+	          EffectiveDate
+	          FROM tblVendorRate 
 	          WHERE TrunkId = v_trunk_ 
-				 ORDER BY tblVendorRate.AccountId , tblVendorRate.TrunkID, tblVendorRate.RateId, tblVendorRate.EffectiveDate DESC) TBLVENDOR;
+				 ORDER BY tblVendorRate.AccountId , tblVendorRate.TrunkID, tblVendorRate.RateId, tblVendorRate.EffectiveDate DESC;
+				 
+				CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblVendorRate4_ as (select * from tmp_tblVendorRate_);	        
+	         DELETE n1 FROM tmp_tblVendorRate_ n1, tmp_tblVendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+		 	   AND n1.AccountId = n2.AccountId
+		 	   AND n1.TrunkID = n2.TrunkID
+			   AND  n1.RateId = n2.RateId;
  
 	       INSERT INTO tmp_Vendorrates_   (code ,rate ,  ConnectionFee , AccountId ,RowNo ,PreferenceRank ) 
 			  SELECT code,rate,ConnectionFee,AccountId,RowNo,PreferenceRank FROM(SELECT *,          
@@ -229,7 +210,7 @@ GenerateRateTable:BEGIN
 	                ON tblAccount.AccountId = tblRateRuleSource.AccountId
 	            JOIN tmp_tblVendorRate_
 	                ON tblAccount.AccountId = tmp_tblVendorRate_.AccountId
-	                AND tmp_tblVendorRate_.TrunkId = v_trunk_ and RowID = 1
+	                AND tmp_tblVendorRate_.TrunkId = v_trunk_
 	
 	            JOIN tblVendorTrunk 
 	                ON tmp_tblVendorRate_.AccountId = tblVendorTrunk.AccountID
@@ -259,9 +240,8 @@ GenerateRateTable:BEGIN
 			 ORDER BY code,Preference desc,rate) LASTTBL;
 	       
 	       DELETE FROM tmp_tblVendorRate_;
-			 
-			 INSERT INTO tmp_Rates2_ (code,rate,ConnectionFee) 
-			 select  code,rate,ConnectionFee from tmp_Rates_;
+			 DROP TEMPORARY TABLE IF EXISTS tmp_Rates2_;
+			 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Rates2_ as (select * from tmp_Rates_);
  
 	        IF v_Average_ = 0 
 	        THEN
