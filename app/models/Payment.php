@@ -154,7 +154,7 @@ class Payment extends \Eloquent {
                 if (empty($row[$selection['AccountName']])) {
                     $response_message  .= ' <br>Account Name is empty at line no' . $lineno;
                     $has_Error = true;
-                }elseif (!in_array(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
+                }elseif (!array_key_exists(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
                     $response_message .= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
                     $has_Error = true;
                 }
