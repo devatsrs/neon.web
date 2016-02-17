@@ -17,7 +17,8 @@ BEGIN
             Trunk VARCHAR(50) ,
             IncludePrefix TINYINT,
             RatePrefix VARCHAR(50),
-            AreaPrefix VARCHAR(50)
+            AreaPrefix VARCHAR(50),
+            INDEX tmp_RateTable_RateId (`RateId`)  
         );
         DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRate_;
         CREATE TEMPORARY TABLE tmp_CustomerRate_ (
@@ -30,7 +31,8 @@ BEGIN
             Trunk VARCHAR(50),
             IncludePrefix TINYINT,
             RatePrefix VARCHAR(50),
-            AreaPrefix VARCHAR(50)
+            AreaPrefix VARCHAR(50),
+            INDEX tmp_CustomerRate_RateId (`RateId`)
         );
         DROP TEMPORARY TABLE IF EXISTS tmp_tbltblRate_;
         CREATE TEMPORARY TABLE tmp_tbltblRate_ (
@@ -47,77 +49,47 @@ BEGIN
         AND tblCustomerTrunk.Status = 1
 		  LIMIT 1;
         
-         SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
-	 	SELECT *,  
-		 @row_num := IF(@prev_RateID=tblRateTableRate.RateID and @prev_effectivedate >= tblRateTableRate.effectivedate ,@row_num+1,1) AS RowID,
-		 @prev_RateID  := tblRateTableRate.RateID,
-		 @prev_effectivedate  := tblRateTableRate.effectivedate
+      SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+	 	SELECT MAX(EffectiveDate) as EffectiveDate
 		FROM 
-		tblRateTableRate,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z
+		tblRateTableRate
 		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
 		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	 	)tbl WHERE RowID =1;
+	 	)tbl;
 	 
     
         INSERT INTO tmp_RateTable_
-         SELECT RateId ,
-                Rate ,
-                EffectiveDate ,
-                Interval1,
-                IntervalN,
-                ConnectionFee ,
-                Trunk ,
-                IncludePrefix ,
-                RatePrefix ,
-                AreaPrefix
-        from    (
-                SELECT  RateId ,
-                        tblRateTableRate.Rate ,
-                        CASE WHEN v_NewA2ZAssign_ = 1 THEN
-                            v_RateTableAssignDate_  
-                        ELSE
-                            tblRateTableRate.EffectiveDate
-                        END  AS EffectiveDate,
-                        tblRateTableRate.Interval1,
-                        tblRateTableRate.IntervalN,
-                        ConnectionFee ,
-                        tblTrunk.Trunk ,
-                        tblCustomerTrunk.IncludePrefix ,
-                        tblTrunk.RatePrefix ,
-                        tblTrunk.AreaPrefix,
-                        @row_num := IF(@prev_RateTableId  = tblRateTableRate.RateTableId AND @prev_RateID=tblRateTableRate.RateID and @prev_effectivedate >= tblRateTableRate.effectivedate ,@row_num+1,1) AS RowID,
- 				 				@prev_RateID  := tblRateTableRate.RateID,
-							   @prev_effectivedate  := tblRateTableRate.effectivedate,
-							   @prev_RateTableId  := tblRateTableRate.RateTableId
-                FROM    tblAccount
-                        JOIN tblCustomerTrunk ON tblCustomerTrunk.AccountId = tblAccount.AccountID
-                        JOIN tblRateTable ON tblCustomerTrunk.RateTableId = tblRateTable.RateTableId
-                        JOIN tblRateTableRate ON tblRateTableRate.RateTableId = tblRateTable.RateTableId
-                        JOIN tblTrunk ON tblTrunk.TrunkId = tblCustomerTrunk.TrunkId
-                        ,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z,(SELECT @prev_RateTableId := '') v
-                WHERE   tblAccount.AccountID = p_CustomerID
-                        AND tblRateTableRate.Rate > 0
-                        And FIND_IN_SET(tblTrunk.TrunkID,p_trunks)!= 0
-                        AND ( EffectiveDate <= now() or ( v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW()) )
-               ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-                ) as TBL
-        where RowID = 1;
+             SELECT  RateId ,
+                     tblRateTableRate.Rate ,
+                     CASE WHEN v_NewA2ZAssign_ = 1 THEN
+                         v_RateTableAssignDate_  
+                     ELSE
+                         tblRateTableRate.EffectiveDate
+                     END  AS EffectiveDate,
+                     tblRateTableRate.Interval1,
+                     tblRateTableRate.IntervalN,
+                     ConnectionFee ,
+                     tblTrunk.Trunk ,
+                     tblCustomerTrunk.IncludePrefix ,
+                     tblTrunk.RatePrefix ,
+                     tblTrunk.AreaPrefix
+             FROM    tblAccount
+                     JOIN tblCustomerTrunk ON tblCustomerTrunk.AccountId = tblAccount.AccountID
+                     JOIN tblRateTable ON tblCustomerTrunk.RateTableId = tblRateTable.RateTableId
+                     JOIN tblRateTableRate ON tblRateTableRate.RateTableId = tblRateTable.RateTableId
+                     JOIN tblTrunk ON tblTrunk.TrunkId = tblCustomerTrunk.TrunkId
+             WHERE   tblAccount.AccountID = p_CustomerID
+                     AND tblRateTableRate.Rate > 0
+                     And FIND_IN_SET(tblTrunk.TrunkID,p_trunks)!= 0
+                     AND ( EffectiveDate <= now() or ( v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW()) )
+            ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC;
     
-    
+    		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTable4_ as (select * from tmp_RateTable_);	        
+         DELETE n1 FROM tmp_RateTable_ n1, tmp_RateTable4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+	 	   AND n1.Trunk = n2.Trunk
+		   AND  n1.RateId = n2.RateId;
     
         INSERT INTO tmp_CustomerRate_
-        SELECT 
-                RateId ,
-                Rate ,
-                EffectiveDate ,
-                Interval1,
-                IntervalN,
-                ConnectionFee ,
-                Trunk ,
-                IncludePrefix ,
-                RatePrefix ,
-                AreaPrefix
-        from    (
                 SELECT  RateId ,
                         tblCustomerRate.Rate ,
                         EffectiveDate ,
@@ -137,11 +109,7 @@ BEGIN
                             t.AreaPrefix
                         ELSE
                             tblTrunk.AreaPrefix
-                        END AS AreaPrefix,
-                        @row_num := IF(@prev_RateID=tblCustomerRate.RateID and @prev_effectivedate >= tblCustomerRate.effectivedate AND @prev_TrunkId  = tblCustomerRate.TrunkId ,@row_num+1,1) AS RowID,
- 				 				@prev_RateID  := tblCustomerRate.RateID,
-							   @prev_effectivedate  := tblCustomerRate.effectivedate,
-							   @prev_TrunkId  := tblCustomerRate.TrunkId
+                        END AS AreaPrefix
                 FROM    tblAccount
                         JOIN tblCustomerRate ON tblAccount.AccountID = tblCustomerRate.CustomerID
                         JOIN tblTrunk ON tblTrunk.TrunkId = tblCustomerRate.TrunkId
@@ -149,14 +117,17 @@ BEGIN
                             AND tblCustomerTrunk.TrunkId = tblTrunk.TrunkId
                         LEFT JOIN tblCustomerTrunk ct ON ct.AccountId = tblCustomerRate.CustomerID and ct.TrunkID =tblCustomerRate.RoutinePlan AND ct.RoutinePlanStatus = 1
                         LEFT JOIN tblTrunk t ON t.TrunkID = tblCustomerRate.RoutinePlan 
-                        ,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z,(SELECT @prev_TrunkId := '') v
+                        
                 WHERE   tblAccount.AccountID = p_CustomerID
                         AND tblCustomerRate.Rate > 0 
                         And FIND_IN_SET(tblTrunk.TrunkID,p_trunks)!= 0
                         AND EffectiveDate <= now()
-               ORDER BY tblCustomerRate.CustomerId,tblCustomerRate.TrunkId,tblCustomerRate.RateID,tblCustomerRate.effectivedate DESC
-                ) TBL2
-        where RowID = 1;
+               ORDER BY tblCustomerRate.CustomerId,tblCustomerRate.TrunkId,tblCustomerRate.RateID,tblCustomerRate.effectivedate DESC;
+               
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRate_);	        
+         DELETE n1 FROM tmp_CustomerRate_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+	 	   AND n1.Trunk = n2.Trunk
+		   AND  n1.RateId = n2.RateId;
     
 
     		INSERT INTO tmp_tbltblRate_

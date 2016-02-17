@@ -23,35 +23,30 @@ BEGIN
 	 
 	 DROP TEMPORARY TABLE IF EXISTS tmp_criteria_;
     CREATE TEMPORARY TABLE tmp_criteria_ (
-      RateTableRateID INT
+      RateTableRateID INT,
+      INDEX tmp_criteria_RateTableRateID (`RateTableRateID`)
     );
 	 	if(p_action=1 or p_action=2)
 	THEN
-		INSERT INTO tmp_criteria_
-		SELECT
-			RateTableRateID
-
-        FROM (SELECT
-				tblRateTableRate.RateTableRateID,
-                Code,
-                Description,
-                tblRateTableRate.Interval1,
-                tblRateTableRate.IntervalN,
-                IFNULL(tblRateTableRate.Rate, 0) as Rate,
+	
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTable_;
+      CREATE TEMPORARY TABLE tmp_RateTable_ (
+         RateId INT,
+         EffectiveDate DATE,
+         RateTableRateID INT,
+			INDEX tmp_RateTable_RateId (`RateId`)  
+     );
+		INSERT INTO tmp_RateTable_
+				SELECT
+					 tblRateTableRate.RateID,
                 IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
-                tblRateTableRate.updated_at,
-                tblRateTableRate.ModifiedBy,
-                @row_num := IF(@prev_RateID=tblRateTableRate.RateID and @prev_effectivedate >= tblRateTableRate.EffectiveDate ,@row_num+1,1) AS RowID,
-                @prev_RateID  := tblRateTableRate.RateID,
-					 @prev_effectivedate  := tblRateTableRate.EffectiveDate,
-					 @prev_RateTableId := tblRateTableRate.RateTableId
+                tblRateTableRate.RateTableRateID
             FROM tblRate
             LEFT JOIN tblRateTableRate
                 ON tblRateTableRate.RateID = tblRate.RateID
                 AND tblRateTableRate.RateTableId = p_RateTableId
             INNER JOIN tblRateTable
                 ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
-         	,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z,(SELECT @prev_RateTableId := '') a
             WHERE		(tblRate.CompanyID = p_companyid)
 					AND (p_contryID = '' OR CountryID = p_contryID)
 					AND (p_code = '' OR Code LIKE REPLACE(p_code, '*', '%'))
@@ -61,13 +56,21 @@ BEGIN
 							p_effective = 'All' 
 						OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
 						OR (p_effective = 'Future' AND EffectiveDate > NOW())
-						)
-			) TBL
-        WHERE	(
-						p_effective = 'All' 
-					OR (p_effective = 'Now' AND EffectiveDate <= NOW() AND RowID = 1) 
-					OR (p_effective = 'Future' AND EffectiveDate > NOW())
-				);
+						);
+		 
+		  IF p_effective = 'Now'
+		  THEN 
+			 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTable4_ as (select * from tmp_RateTable_);	        
+          DELETE n1 FROM tmp_RateTable_ n1, tmp_RateTable4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+	 	   AND  n1.RateId = n2.RateId;
+		  
+		  END IF;
+		  
+		  INSERT INTO tmp_criteria_
+		  SELECT RateTableRateID FROM tmp_RateTable_;
+		  
+		  
+		   
 	END IF;                  
      
                     

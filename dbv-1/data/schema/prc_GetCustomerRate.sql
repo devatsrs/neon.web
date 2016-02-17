@@ -1,6 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(IN `p_companyid` INT, IN `p_AccountID` INT, IN `p_trunkID` INT, IN `p_contryID` INT, IN `p_code` VARCHAR(50), IN `p_description` VARCHAR(50), IN `p_Effective` VARCHAR(50), IN `p_effectedRates` INT, IN `p_RoutinePlan` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
 BEGIN
-	DECLARE v_codedeckid_ INT;
+   DECLARE v_codedeckid_ INT;
    DECLARE v_ratetableid_ INT;
    DECLARE v_RateTableAssignDate_ DATETIME;
    DECLARE v_NewA2ZAssign_ INT;
@@ -31,7 +31,10 @@ BEGIN
         CustomerRateId INT,
         RateTableRateID INT,
         TrunkID INT,
-        RoutinePlan INT
+        RoutinePlan INT,
+        INDEX tmp_CustomerRates__RateID (`RateID`),
+        INDEX tmp_CustomerRates__TrunkID (`TrunkID`),
+        INDEX tmp_CustomerRates__EffectiveDate (`EffectiveDate`)
     );
     DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
     CREATE TEMPORARY TABLE tmp_RateTableRate_ (
@@ -45,7 +48,11 @@ BEGIN
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
         RateTableRateID INT,
-        TrunkID INT
+        TrunkID INT,
+        INDEX tmp_RateTableRate__RateID (`RateID`),
+        INDEX tmp_RateTableRate__TrunkID (`TrunkID`),
+        INDEX tmp_RateTableRate__EffectiveDate (`EffectiveDate`)
+
     );
 
      
@@ -91,16 +98,13 @@ BEGIN
 		
                 
             
-    SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
-        SELECT *,  
-         @row_num := IF(@prev_RateID=tblRateTableRate.RateID and @prev_effectivedate >= tblRateTableRate.effectivedate ,@row_num+1,1) AS RowID,
-         @prev_RateID  := tblRateTableRate.RateID,
-         @prev_effectivedate  := tblRateTableRate.effectivedate
-        FROM 
-        tblRateTableRate,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z
-        WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() AND p_Effective = 'Now' 
-        ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-     )tbl WHERE RowID =1;
+    	SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+	 	SELECT MAX(EffectiveDate) as EffectiveDate
+		FROM 
+		tblRateTableRate
+		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
+		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
+	 	)tbl;
 
     INSERT INTO tmp_RateTableRate_
             SELECT
@@ -141,18 +145,18 @@ BEGIN
 		IF p_Effective = 'Now'
 		THEN
 			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);	        
-         DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-	 	   AND n1.TrunkId = n2.TrunkId
-		   AND  n1.RateID = n2.RateID;
+			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+			AND n1.TrunkId = n2.TrunkId
+			AND  n1.RateID = n2.RateID;
 		  
-		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);	        
-         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-	 	   AND n1.TrunkId = n2.TrunkId
-		   AND  n1.RateID = n2.RateID;
+		  CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);	        
+        DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+	 	  AND n1.TrunkId = n2.TrunkId
+		  AND  n1.RateID = n2.RateID;
 		END IF;
 
-	  CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
-	  CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
+	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
 
    
     
@@ -487,5 +491,4 @@ BEGIN
     END IF;
  
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
 END
