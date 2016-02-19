@@ -203,21 +203,21 @@ $(document).ready(function(){
         $('#InvoiceTable tbody tr td .TaxAmount').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
-                total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(',','')));
+                total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(',/g','')));
             }
         });
         $('#InvoiceTable tbody tr td .LineTotal').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
                 //decimal_places = get_decimal_places($this.val())
-                grand_total = eval(parseFloat(grand_total) + parseFloat($this.val().replace(',','')));
+                grand_total = eval(parseFloat(grand_total) + parseFloat($this.val().replace(/,/g,'')));
             }
         });
 
         $('#InvoiceTable tbody tr td .Discount').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
-                total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(',','')));
+                total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
             }
         });
 
@@ -232,12 +232,12 @@ $(document).ready(function(){
     function cal_line_total(obj){
 
 
-        var price = parseFloat(obj.find(".Price").val().replace(',',''));
+        var price = parseFloat(obj.find(".Price").val().replace(/,/g,''));
         //decimal_places = get_decimal_places(price);
 
         var qty = parseInt(obj.find(".Qty").val());
-        var discount = parseFloat(obj.find(".Discount").val().replace(',',''));
-        var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(',',''));
+        var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
+        var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
         var tax = parseFloat( (price * qty * taxAmount)/100 );
         obj.find('.TaxAmount').val(tax.toFixed(decimal_places));
         var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;

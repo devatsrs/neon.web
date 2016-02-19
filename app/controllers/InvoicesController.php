@@ -365,7 +365,7 @@ class InvoicesController extends \BaseController {
                         if (!empty($Product)) {
 
                             $Account = Account::find($data['account_id']);
-                            $ProductAmount = number_format($Product->Amount, $decimal_places);
+                            $ProductAmount = number_format($Product->Amount, $decimal_places,".","");
                             $ProductDescription = $Product->Description;
 
                             $TaxRates = array();
@@ -387,8 +387,8 @@ class InvoicesController extends \BaseController {
 
                             }
 
-                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places);
-                            $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places); //number_format(($ProductAmount + $TotalTax) , 2);
+                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+                            $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
 
                             $response = [
                                 "status" => "success",
