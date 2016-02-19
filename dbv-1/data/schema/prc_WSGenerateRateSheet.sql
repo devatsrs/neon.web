@@ -169,9 +169,9 @@ BEGIN
       SELECT ratesheetdetailsid,
                      RateID,
                      RateSheetID,
-                     Rate,
-                     Code,
                      Destination,
+                     Code,
+                     Rate,
                      `change`,
                      effectivedate
               FROM   tblRateSheetDetails
