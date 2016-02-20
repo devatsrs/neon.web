@@ -117,7 +117,9 @@
                                 }, {
                                     "name": "paymentmethod",
                                     "value": $searchFilter.paymentmethod
-                                });
+                                },
+                                        {"name":"Export","value":1}
+                                );
 
                             },
                             "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -206,7 +208,7 @@
                                     {
                                         "sExtends": "download",
                                         "sButtonText": "Export Data",
-                                        "sUrl": baseurl + "/customer/payments/exports", //baseurl + "/generate_xls.php",
+                                        "sUrl": baseurl + "/customer/payments/ajax_datagrid", //baseurl + "/generate_xls.php",
                                         sButtonClass: "save-collection"
                                     }
                                 ]

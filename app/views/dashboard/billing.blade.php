@@ -187,7 +187,7 @@ function loadingUnload(table,bit){
         blockUI(panel);
         panel.addClass('reloading');
     }else{
-        unblockUI(panel)
+        unblockUI(panel);
         panel.removeClass('reloading');
     }
 }
