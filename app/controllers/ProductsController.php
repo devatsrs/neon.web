@@ -50,9 +50,12 @@ class ProductsController extends \BaseController {
 
         $data = Input::all();
         $companyID = User::get_companyID();
+        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
         $data ["CompanyID"] = $companyID;
         $data['Active'] = isset($data['Active']) ? 1 : 0;
         $data["CreatedBy"] = User::get_user_full_name();
+        $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
+
         unset($data['ProductID']);
         if($error = Product::validate($data)){
             return $error;
@@ -77,11 +80,14 @@ class ProductsController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $Product = Product::findOrFail($id);
+            $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
 
             $companyID = User::get_companyID();
             $data["CompanyID"] = $companyID;
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data["ModifiedBy"] = User::get_user_full_name();
+            $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
+
             if($error = Product::validate($data)){
                 return $error;
             }

@@ -124,7 +124,7 @@ class Invoice extends \Eloquent {
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
-                $as3url =  base_path().'\public\assets\images\250x100.png';
+                $as3url =  base_path().'/public/assets/images/250x100.png';
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
