@@ -162,6 +162,8 @@ Route::group(array('before' => 'auth'), function () {
 
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
+	Route::any('/accounts/{id}/update_inbound_rate_table',  'AccountsController@update_inbound_rate_table');
+
 	Route::resource('accounts', 'AccountsController');
 	Route::controller('accounts', 'AccountsController');
 

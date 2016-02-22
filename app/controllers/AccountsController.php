@@ -718,4 +718,28 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
             }
     }
+
+    /**
+     * Update InboutRateTable
+     */
+    public function update_inbound_rate_table($AccountID){
+
+        $data = Input::all();
+
+        if(isset($data['InboudRateTableID'])) {
+
+            $update = ["InboudRateTableID" => $data['InboudRateTableID']];
+            if (empty($AccountID)) {
+                return Response::json(array("status" => "failed", "message" => "Invalid Account"));
+            }
+            if (Account::find($AccountID)->update($update)) {
+                return Response::json(array("status" => "success", "message" => "Inbound Rate Table Successfully Updated"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Inbound Rate Table."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Found Updating Rate Table."));
+        }
+
+    }
 }

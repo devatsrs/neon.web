@@ -63,7 +63,7 @@
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
-                            Trunks
+                            Outgoing
                         </div>
                         <div class="panel-options">
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -132,6 +132,48 @@
                                 Save
                             </a>
                         </p>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <form  id="inbound-ratetable-form" class="form-horizontal " method="post" action="" >
+                <div class="panel panel-primary" data-collapsed="0">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Incomming
+                        </div>
+                        <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="col-md-12">
+
+
+
+
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Inboud Rate Table</label>
+                                <div class="col-md-4">
+                                    <?php
+                                    $rate_table = RateTable::getRateTableList(['CurrencyID'=>$Account->CurrencyId]);
+                                    ?>
+                                    {{ Form::select( 'InboudRateTableID'    , $rate_table, $Account->InboudRateTableID , array("class"=>"selectboxit ratetableid","data-placeholder"=>"Select a Rate Table")) }}
+
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+
                     </div>
                 </div>
                 </form>
@@ -270,6 +312,40 @@ var ratabale = '{{json_encode($rate_tables)}}';
             return ($(this).attr('disabled')) ? false : true;
         });
         @endif
+
+        /**
+         On Inbound Rate Table changed
+         */
+        $("select[name=InboudRateTableID]").bind('change',function (e) {
+
+            var InboudRateTableID = $(this).val();
+
+            changeConfirmation = confirm("Are you sure to change inbound rate table?");
+
+            if(changeConfirmation) {
+
+                $.ajax({
+                    url: baseurl + '/accounts/{{$id}}/update_inbound_rate_table', //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    },
+                    data: 'InboudRateTableID=' + InboudRateTableID,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false
+                });
+            }
+
+            return false;
+        });
     });
 
 </script>
