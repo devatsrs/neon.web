@@ -375,7 +375,7 @@
                                     }
                                     action += '</div>';
                                     action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
-                                    @if(User::is('BillingAdmin'))
+                                    @if(User::is('BillingAdmin') || User::is_admin())
                                     if(full[7] != "Approved"){
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
