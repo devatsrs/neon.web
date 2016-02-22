@@ -16,7 +16,7 @@
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
             <br>
-            @if( User::is_admin() or User::is('BillingAdmin'))
+            @if( User::is_admin() || User::is('BillingAdmin'))
                 <p style="text-align: right;">
                     <a href="#" id="add-new-product" class="btn btn-primary ">
                         <i class="entypo-plus"></i>

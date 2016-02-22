@@ -76,7 +76,7 @@ class PaymentsController extends \BaseController {
             }
 
             $save['Status'] = 'Pending Approval';
-            if(User::is('BillingAdmin')) {
+            if(User::is('BillingAdmin') || User::is_admin() ) {
                 $save['Status'] = 'Approved';
             }
             if (Payment::create($save)) {
@@ -205,7 +205,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function payment_approve_reject($id,$action){
-        if(User::is('BillingAdmin')) {
+        if(User::is('BillingAdmin')  || User::is_admin() ) {
             if ($id && $action) {
                 $Payment = Payment::findOrFail($id);
                 $save = array();
