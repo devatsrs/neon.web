@@ -21,7 +21,8 @@ BEGIN
             Trunk VARCHAR(50),
             IncludePrefix TINYINT,
             RatePrefix VARCHAR(50),
-            AreaPrefix VARCHAR(50)
+            AreaPrefix VARCHAR(50),
+            INDEX tmp_RateTable_RateID (`RateID`)
         );
         DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRate_;
         CREATE TEMPORARY TABLE tmp_CustomerRate_ (
@@ -35,7 +36,8 @@ BEGIN
             Trunk VARCHAR(50),
             IncludePrefix TINYINT,
             RatePrefix VARCHAR(50),
-            AreaPrefix VARCHAR(50)
+            AreaPrefix VARCHAR(50),
+            INDEX tmp_CustomerRate_RateID (`RateID`)
         );
         DROP TEMPORARY TABLE IF EXISTS tmp_tbltblRate_;
         CREATE TEMPORARY TABLE tmp_tbltblRate_ (

@@ -15,12 +15,12 @@
 @include('includes.errors')
 @include('includes.success')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li class="active">
+    <li >
         <a href="{{ URL::to('/cdr_upload') }}" >
             <span class="hidden-xs">Customer CDR Upload</span>
         </a>
     </li>
-    <li >
+    <li class="active">
         <a href="{{ URL::to('/vendorcdr_upload') }}" >
             <span class="hidden-xs">Vendor CDR Upload</span>
         </a>
@@ -34,7 +34,7 @@
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Bulk CDR Upload
+                        Bulk Vendor CDR Upload
                     </div>
                 </div>
                 <div class="panel-body">
@@ -56,12 +56,6 @@
                             {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                         </div>
                     </div>
-                    <div id="rate_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Rerate Format</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('RateFormat',Company::$rerate_format,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
                         <div class="col-sm-4">
@@ -78,11 +72,6 @@
                                 <label>
                                 <input type="hidden" name="RateCDR" value="0" >
                                 <input type="checkbox" id="RateCDR" name="RateCDR" value="1" > Rate CDR</label>
-
-                            </div>
-                            <div class="checkbox ">
-                                <input type="hidden" name="CheckCustomerCLI" value="0" >
-                                <label><input type="checkbox" id="rd-1" name="CheckCustomerCLI" value="1">   CLI verification</label>
                             </div>
                         </div>
                     </div>
@@ -108,6 +97,7 @@
         </form>
     </div>
 </div>
+
 <div class="row hidden" id="add-template">
     <div class="col-md-12">
         <form id="add-template-form" method="post">
@@ -159,7 +149,7 @@
                         <p style="text-align: right;">
                             <br />
                             <br />
-                            <button id="check_upload" class="check btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button id="check_vendorupload" class="check btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-floppy"></i>
                                 Check
                             </button>
@@ -235,9 +225,9 @@
                                 {{Form::select('selection[Account]', array(),'',array("class"=>"selectboxit"))}}
                             </div>
 
-                            <label for=" field-1" class="col-sm-2 control-label">Cost</label>
+                            <label for=" field-1" class="col-sm-2 control-label">Selling Cost</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[cost]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[sellcost]', array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -247,9 +237,17 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Charge Code</label>
+                            <label for=" field-1" class="col-sm-2 control-label">Buying Cost</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[buycost]',array(),'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label for=" field-1" class="col-sm-2 control-label">Area Prefix</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[area_prefix]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                     </div>
@@ -344,7 +342,7 @@ var click_btn;
         });
         $('#bulk_upload').submit(function(e){
             e.preventDefault();
-            update_new_url = '{{URL::to('cdr_upload/check_upload')}}';
+            update_new_url = '{{URL::to('cdr_upload/check_vendorupload')}}';
 
             var formData = new FormData($('#bulk_upload')[0]);
              show_loading_bar(0);
@@ -422,7 +420,7 @@ var click_btn;
                    $('html, body').animate({scrollTop:scrollTo}, 1000);
                 }
             });
-        $('#check_upload').click(function(e){
+        $('#check_vendorupload').click(function(e){
 
                 var btn = $(this);
                 btn.button('loading');
@@ -451,7 +449,7 @@ var click_btn;
                 e.preventDefault();
             });
             $("#save_template").click(function(e){
-                update_new_url = '{{URL::to('cdr_upload/storeTemplate')}}';
+                update_new_url = '{{URL::to('cdr_upload/storeVendorTemplate')}}';
                 click_btn = $(this);
             });
             $('#add-template-form').submit(function(e){
@@ -459,7 +457,6 @@ var click_btn;
                 submit_ajaxbtn(update_new_url,$('#add-template-form').serialize()+'&'+$('#bulk_upload').serialize(),'',click_btn,1);
                 return false;
             });
-
         $('#RateCDR').change(function(){
             if($('#RateCDR').is(":checked")){
                 $('select[name=TrunkID]').select2("val","");
@@ -472,6 +469,7 @@ var click_btn;
             }
         });
         $('#RateCDR').trigger('click');
+
     });
     function createGrid(data){
         var tr = $('#table-4 thead tr');

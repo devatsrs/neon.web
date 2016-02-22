@@ -389,7 +389,9 @@ INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedD
 	(15, 'TLE', 'Transactions Log Email', 'Transactions Log Email By Daily,Weekly,Monthly', '2015-10-07 09:02:43', 'RateManagementSystem', NULL, NULL),
 	(16, 'IR', 'Invoice Reminder', NULL, '2015-10-30 08:54:45', 'RateManagementSystem', NULL, NULL),
 	(17, 'AAE', 'Account Activity Email Send', 'Account Activity Email Send By Daily', '2015-10-30 08:55:33', 'RateManagementSystem', NULL, NULL),
-	(18, 'RTU', 'Rate Table Upload', NULL, '2016-01-27 14:29:35', 'RateManagementSystem', NULL, NULL);
+	(18, 'RTU', 'Rate Table Upload', NULL, '2016-01-27 14:29:35', 'RateManagementSystem', NULL, NULL),
+	(19, 'PU', 'Payment Upload', NULL, '2016-02-05 12:40:29', 'RateManagementSystem', NULL, NULL),
+	(20, 'VDR', 'Vendor CDR Upload', NULL, '2016-02-17 15:30:04', 'RateManagementSystem', NULL, NULL);
 /*!40000 ALTER TABLE `tblJobType` ENABLE KEYS */;
 
 

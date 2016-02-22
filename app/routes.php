@@ -501,6 +501,11 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/rate_cdr', 'CDRController@rate_cdr');
 	Route::any('/vendorcdr_show', 'CDRController@vendorcdr_show');
 	Route::any('/cdr_upload/ajax_datagrid_vendorcdr', 'CDRController@ajax_datagrid_vendorcdr');
+	Route::any('/vendorcdr_upload', 'CDRController@vendorcdr_upload');
+	Route::any('/cdr_upload/check_vendorupload', 'CDRController@check_vendorupload');
+	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
+
+
 
 
 	//Invoice

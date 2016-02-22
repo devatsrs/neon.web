@@ -64,7 +64,14 @@ class Currency extends \Eloquent {
     }
 
     public static function getCurrencySymbol($symbol){
-        return Intl::getCurrencyBundle()->getCurrencySymbol($symbol);
+
+        switch(strtolower($symbol)){
+            case "zar":
+                return 'R';
+            default:
+                return Intl::getCurrencyBundle()->getCurrencySymbol($symbol);
+        }
+
     }
 
     public static function clearCache(){
