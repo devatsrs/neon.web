@@ -439,8 +439,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
                     <div class="col-sm-4">
-                        <?php $BillingCycleType = array( ""=>"Please Select an Option","weekly"=>"Weekly", "monthly"=>"Monthly" , "daily"=>"Daily", "in_specific_days"=>"In Specific days", "monthly_anniversary"=>"Monthly anniversary");?>
-                        {{Form::select('BillingCycleType', $BillingCycleType, ($account->BillingCycleType != ''?$account->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2"))}}
+                        {{Form::select('BillingCycleType', Company::$BillingCycleType, ($account->BillingCycleType != ''?$account->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2"))}}
                     </div>
                     <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                         <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>

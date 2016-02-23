@@ -106,6 +106,26 @@ class Invoice extends \Eloquent {
                 case 'monthly_anniversary':
                         $NextInvoiceDate = date("Y-m-d", strtotime("+1 month +1 Day",$BillingStartDate));
                     break;
+                case 'fortnightly':
+                    $fortnightly_day = date("d", $BillingStartDate);
+                    if($fortnightly_day > 15){
+                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
+                    }else{
+                        $NextInvoiceDate = date("Y-m-16", $BillingStartDate);
+                    }
+                    break;
+                case 'quarterly':
+                    $quarterly_month = date("m", $BillingStartDate);
+                    if($quarterly_month < 4){
+                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of april ",$BillingStartDate));
+                    }else if($quarterly_month > 3 && $quarterly_month < 7) {
+                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of july ",$BillingStartDate));
+                    }else if($quarterly_month > 6 && $quarterly_month < 10) {
+                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of october ",$BillingStartDate));
+                    }else if($quarterly_month > 9){
+                        $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
+                    }
+                    break;
             }
 
             date_default_timezone_set(Config::get("app.timezone"));
