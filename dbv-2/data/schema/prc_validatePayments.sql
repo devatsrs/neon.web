@@ -2,6 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_validatePayments`(IN `p_Company
 BEGIN
 
 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+SET SESSION group_concat_max_len=5000;
 
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_error_;
