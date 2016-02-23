@@ -132,7 +132,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/bulk_mail', 'AccountsController@bulk_mail');
     Route::any('accounts/validate_cli', 'AccountsController@validate_cli');
     Route::any('accounts/validate_ip', 'AccountsController@validate_ip');
-    Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
+	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
+	Route::any('accounts/authenticate/{id}', 'AccountsController@authenticate');
+	Route::any('accounts/authenticate_store', 'AccountsController@authenticate_store');
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');

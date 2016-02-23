@@ -115,7 +115,7 @@ GenerateRateTable:BEGIN
 
 		SELECT CurrencyId INTO v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = v_CompanyId_;
 
-    	INSERT INTO tmp_Raterules_
+    	INSERT INTO tmp_Raterules_ (rateruleid,code)
 			SELECT
             rateruleid,
             tblRateRule.code

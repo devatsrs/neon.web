@@ -16,20 +16,7 @@
 </ol>
 <h3>Vendor Rate Sheet Upload/Download History</h3>
 
-@if(AccountApprovalList::isVerfiable($id) == false || $Account->VerificationStatus != Account::VERIFIED)
-<div  class=" toast-container-fix toast-top-full-width">
-        <div class="toast toast-error" style="">
-        <div class="toast-title">Message</div>
-        <div class="toast-message">
-        @if($Account->VerificationStatus == Account::VERIFIED)
-        Awaiting Account Verification Documents Upload.
-        @elseif($Account->VerificationStatus == Account::NOT_VERIFIED || $Account->VerificationStatus == Account::PENDING_VERIFICATION)
-        Account Pending Verification.
-        @endif
-        </div>
-    </div>
-</div>
-@endif
+@include('accounts.errormessage');
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
 <li>
     <a href="{{ URL::to('vendor_rates/'.$id) }}" >
