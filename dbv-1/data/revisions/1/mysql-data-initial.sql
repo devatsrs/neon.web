@@ -1100,8 +1100,8 @@ INSERT IGNORE INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`,
 	(650, 'RateTables.check_upload', 'RateTablesController.check_upload', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', NULL),
 	(651, 'RateTables.ajaxfilegrid', 'RateTablesController.ajaxfilegrid', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', NULL),
 	(652, 'RateTables.storeTemplate', 'RateTablesController.storeTemplate', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', NULL),
-	(653, 'Accounts.authenticate', 'AccountsController.authenticate', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', 152),
-	(654, 'Accounts.authenticate_store', 'AccountsController.authenticate_store', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', 153)
+	(653, 'Authentication.authenticate', 'AuthenticationController.authenticate', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', 152),
+	(654, 'Authentication.authenticate_store', 'AuthenticationController.authenticate_store', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', 153)
 	;
 /*!40000 ALTER TABLE `tblResource` ENABLE KEYS */;
  
