@@ -14,7 +14,20 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+<ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+    <li class="active">
+        <a href="{{ URL::to('/cdr_upload') }}" >
+            <span class="hidden-xs">Customer CDR Upload</span>
+        </a>
+    </li>
+    <li >
+        <a href="{{ URL::to('/vendorcdr_upload') }}" >
+            <span class="hidden-xs">Vendor CDR Upload</span>
+        </a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active">
 <div class="row">
     <div class="col-md-12">
         <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="bulk_upload" enctype="multipart/form-data">
@@ -276,6 +289,8 @@
             </form>
     </div>
 </div>
+    </div>
+</div>
 <script type="text/javascript">
 var $searchFilter = {};
 var update_new_url;
@@ -445,7 +460,18 @@ var click_btn;
                 return false;
             });
 
-
+        $('#RateCDR').change(function(){
+            if($('#RateCDR').is(":checked")){
+                $('select[name=TrunkID]').select2("val","");
+                $('select[name=RateFormat]').select2("val","");
+                $("#trunk_dropdown").removeClass("hidden");
+                $("#rate_dropdown").removeClass("hidden");
+            }else{
+                $("#trunk_dropdown").addClass("hidden");
+                $("#rate_dropdown").addClass("hidden");
+            }
+        });
+        $('#RateCDR').trigger('click');
     });
     function createGrid(data){
         var tr = $('#table-4 thead tr');
@@ -505,17 +531,7 @@ var click_btn;
         $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
         $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
     }
-      $('#RateCDR').change(function(){
-            if($('#RateCDR').is(":checked")){
-                $('select[name=TrunkID]').select2("val","");
-                $('select[name=RateFormat]').select2("val","");
-                $("#trunk_dropdown").removeClass("hidden");
-                $("#rate_dropdown").removeClass("hidden");
-            }else{
-                $("#trunk_dropdown").addClass("hidden");
-                $("#rate_dropdown").addClass("hidden");
-            }
-      });
+
 </script>
 <style>
 .dataTables_filter label{

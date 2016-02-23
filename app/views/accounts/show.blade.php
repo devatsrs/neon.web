@@ -40,20 +40,8 @@
 <p style="text-align: right;">
 
 </p>
-@if($verificationflag == false || $account->VerificationStatus != Account::VERIFIED)
-<div  class=" toast-container-fix toast-top-full-width">
-        <div class="toast toast-error" style="">
-        <div class="toast-title">Message</div>
-        <div class="toast-message">
-        @if($account->VerificationStatus == Account::VERIFIED)
-        Awaiting Account Verification Documents Upload.
-        @elseif($account->VerificationStatus == Account::NOT_VERIFIED || $account->VerificationStatus == Account::PENDING_VERIFICATION)
-        Account Pending Verification.
-        @endif
-        </div>
-    </div>
-</div>
-@endif
+<?php $Account = $account;?>
+@include('accounts.errormessage');
 @if($outstanding>0)
 <div  class=" toast-container-fix toast-top-full-width">
         <div class="toast toast-error" style="">

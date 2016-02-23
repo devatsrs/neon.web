@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_validatePayments`(IN `p_CompanyID` INT, IN `p_ProcessID` VARCHAR(50), IN `p_UserID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_validatePayments`(IN `p_CompanyID` INT, IN `p_ProcessID` VARCHAR(50))
 BEGIN
 
 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -20,7 +20,8 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 		AND tp.PaymentMethod = pt.PaymentMethod
 	WHERE pt.CompanyID = p_CompanyID
 		AND pt.ProcessID = p_ProcessID
- 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount having count(*)>=2;
+ 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount 
+	HAVING COUNT(*)>1;
  	
 	INSERT INTO tmp_error_	
 	SELECT

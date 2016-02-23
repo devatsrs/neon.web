@@ -10,7 +10,7 @@ class BaseController extends Controller {
     protected function setupLayout()
     {
         $route = Route::currentRouteAction();
-        if(!Auth::guest()){
+        if(!Auth::guest() && Session::get("customer") != 1){
             $controller = explode('@',$route);
             if(isset($controller[0]) && isset($controller[1])){
                 $action = $controller[1];

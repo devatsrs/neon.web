@@ -222,4 +222,27 @@ class Account extends \Eloquent {
             return true;
         }
     }
+    public static function AuthIP($account){
+        $reponse_return = false;
+        $companyID  = User::get_companyID();
+        $ipcount = CompanyGateway::where(array('CompanyID'=>$companyID))->where('Settings','like','%"NameFormat":"IP"%')->count();
+        if($ipcount > 0) {
+            $AccountAuthenticate = AccountAuthenticate::where(array('AccountID' => $account->AccountID))->first();
+            $AccountAuthenticateIP = AccountAuthenticate::where(array('AccountID' => $account->AccountID))->where(
+
+                function ($query) {
+                    $query->where('CustomerAuthRule', '=', 'IP')
+                        ->orwhere('VendorAuthRule', '=', 'IP');
+                }
+            )->first();
+            if (empty($AccountAuthenticate) || empty($AccountAuthenticateIP)) {
+                /** if Authentication Rule Not Set as IP */
+                $reponse_return = true;
+            } else if (empty($AccountAuthenticateIP->CustomerAuthRule) && empty($AccountAuthenticateIP->VendorAuthRule)) {
+                /** if Authentication Rule Set as IP and No IP Saved */
+                $reponse_return = true;
+            }
+        }
+        return $reponse_return;
+    }
 }

@@ -36,9 +36,10 @@ class CompaniesController extends \BaseController {
         $RateGenerationEmail = CompanySetting::getKeyVal('RateGenerationEmail')== 'Invalid Key'?'':CompanySetting::getKeyVal('RateGenerationEmail');
         $InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail')== 'Invalid Key'?'':CompanySetting::getKeyVal('InvoiceGenerationEmail');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
+        $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget')=='Invalid Key'?'':CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard'));
+        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget'));
 
     }
 
@@ -55,6 +56,7 @@ class CompaniesController extends \BaseController {
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+        $data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $rules = array(
             'CompanyName' => 'required|min:3|unique:tblCompany,CompanyName,'.$companyID.',CompanyID',
@@ -94,6 +96,8 @@ class CompaniesController extends \BaseController {
         unset($data['InvoiceGenerationEmail']);
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
         unset($data['DefaultDashboard']);
+        CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
+        unset($data['PincodeWidget']);
 
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);

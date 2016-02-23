@@ -1,6 +1,7 @@
 <?php
+
 class Payment extends \Eloquent {
-	protected $fillable = [];
+    protected $fillable = [];
     protected $connection = 'sqlsrv2';
     protected $guarded = array('PaymentID');
     protected $table = 'tblPayment';
@@ -114,11 +115,14 @@ class Payment extends \Eloquent {
         return $valid;
     }
 
-    public static function upload_check($file_name,$data){
+
+    /*
+     * Validate Payments for Bulk Upload and insert data into temp table.
+     * */
+    public static function validate_payments($data){
+
         $selection = $data['selection'];
-        $status = array('status' => 1,
-                        'message' => '',
-                        'ProcessID'=>'');
+        $file = $data['TemplateFile'];
         $CompanyID = User::get_companyID();
         $where = ['CompanyId'=>$CompanyID];
         if(User::is("AccountManager") ){
@@ -126,57 +130,69 @@ class Payment extends \Eloquent {
         }
         $Accounts = Account::where($where)->select(['AccountName','AccountID'])->lists('AccountID','AccountName');
         $Accounts = array_change_key_case($Accounts);
-        if (!empty($file_name)) {
-            $results =  Excel::load($file_name, function ($reader){
+        if (!empty($file)) {
+
+            $results =  Excel::load($file, function ($reader) {
                 $reader->formatDates(true, 'Y-m-d');
             })->get();
+
             $results = json_decode(json_encode($results), true);
-            $lineno = 2;
-            $ProcessID = GUID::generate();
-            $status['ProcessID'] = $ProcessID;
-            $batchinsert = [];
-            $counter = 0;
+
+
+            $ProcessID =  GUID::generate();
+
+            Log::info("ProcessID " . $ProcessID );
+            $lineno = 2;$counter = 0;
+            $batch_insert = [];
+
+
+            $has_Error = false;
+            $response_message = "";
+            $response_status = "";
+
             foreach($results as $row){
                 if (empty($row[$selection['AccountName']])) {
-                    $status['message'].= ' <br>Account Name is empty at line no' . $lineno;
-                    $status['status'] = 0;
-                }elseif (!in_array(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
-                    $status['message'].= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
-                    $status['status'] = 0;
+                    $response_message  .= ' <br>Account Name is empty at line no' . $lineno;
+                    $has_Error = true;
+                }elseif (!array_key_exists(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
+                    $response_message .= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
+                    $has_Error = true;
                 }
                 if (empty($row[$selection['PaymentDate']])) {
-                    $status['message'].= ' <br>Payment Date is empty at line no ' . $lineno;
-                    $status['status'] = 0;
+                    $response_message .= ' <br>Payment Date is empty at line no ' . $lineno;
+                    $has_Error = true;
                 }else{
                     $date = formatSmallDate(trim($row[$selection['PaymentDate']]),$selection['DateFormat']);
                     if (empty($date)) {
-                        $status['message'].= '<br>Invalid Payment Date at line no ' . $lineno;
-                        $status['status'] = 0;
+                        $response_message .= '<br>Invalid Payment Date at line no ' . $lineno;
+                        $has_Error = true;
+                    }else{
+                        $row[$selection['PaymentDate']] = $date;
                     }
                 }
                 if (empty($row[$selection['PaymentMethod']])) {
-                    $status['message'].= ' <br>Payment Method is empty at line no ' . $lineno;
-                    $status['status'] = 0;
+                    $response_message .= ' <br>Payment Method is empty at line no ' . $lineno;
+                    $has_Error = true;
                 }elseif (!in_array(strtolower(trim($row[$selection['PaymentMethod']])), array_map('strtolower', Payment::$method))) {
-                    $status['message'] .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
-                    $status['status'] = 0;
+                    $response_message  .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
+                    $has_Error = true;
                 }
                 if (empty($row[$selection['PaymentType']])) {
-                    $status['message'].= ' <br>Action is empty at line no ' . $lineno;
-                    $status['status'] = 0;
+                    $response_message .= ' <br>Action is empty at line no ' . $lineno;
+                    $has_Error = true;
                 }elseif(!in_array(strtolower(trim($row[$selection['PaymentType']])), array_map('strtolower', Payment::$action) )){
-                    $status['message'] .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
-                    $status['status'] = 0;
+                    $response_message  .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
+                    $has_Error = true;
                 }
 
                 if (empty($row[$selection['Amount']])) {
-                    $status['message'].= ' <br>Amount is empty at line no ' . $lineno;
-                    $status['status'] = 0;
+                    $response_message .= ' <br>Amount is empty at line no ' . $lineno;
+                    $has_Error = true;
                 }elseif(!is_numeric($row[$selection['Amount']])){
-                    $status['message'].= ' <br>Invalid Amount at line no ' . $lineno;
-                    $status['status'] = 0;
+                    $response_message .= ' <br>Invalid Amount at line no ' . $lineno;
+                    $has_Error = true;
                 }
-                if ($status['status'] != 0) {
+                if (!$has_Error) {
                     $PaymentStatus = 'Pending Approval';
                     if(User::is('BillingAdmin') || User::is_admin()){
                         $PaymentStatus = 'Approved';
@@ -196,28 +212,47 @@ class Payment extends \Eloquent {
                     if (!empty($row[$selection['Notes']])) {
                         $temp['Notes'] = trim($row[$selection['Notes']]);
                     }
-                    $batchinsert[$counter] = $temp;
+                    $batch_insert[] = $temp;
                 }
                 $counter++;
                 $lineno++;
-            }
-            if($status['status'] == 0){
-                return $status;
-            }
-            if($status['status'] == 1) {
-                if (!PaymentTemp::insert($batchinsert)) {
-                    $status['message'] = 'Some thing wrong with database';
-                    return $status;
+
+            } // loop over
+
+
+            if ( $has_Error ) {
+
+                Log::info("Opps error  " . $response_message );
+                $response_status = 'Error';
+
+            } else {
+
+                Log::info("Inserted into PaymentTemp with  Processid = " . $ProcessID );
+                $insert_response =  DB::connection('sqlsrv2')->table("tblTempPayment")->insert($batch_insert);
+                if (!$insert_response) {
+                    $response_message  = 'Some thing wrong with database';
+                    $response_status = 'Error';
+                }
+
+
+                if(empty($response_status)) { // when no error
+                    //Validate Payment entries and return error
+
+                    $validation_Errors = DB::connection('sqlsrv2')->select("CALL  prc_validatePayments ('" . $CompanyID . "','" . $ProcessID . "')");
+
+                    if (!empty($validation_Errors)) { // if any error.
+                        $response_message = $validation_Errors[0]->ErrorMessage;
+                        $response_status = 'Error';
+
+                    }else{
+                        $response_message = "";
+                        $response_status = 'Success';
+                    }
                 }
             }
-            $result = DB::connection('sqlsrv2')->select("CALL  prc_validatePayments ('" . $CompanyID . "','".$ProcessID."')");
-            if(!empty($result)>0){
-                $status['message'] = $result;
-                $status['status'] = 1;
-                return $status;
-            }
-            $status['status'] = 2;
-            return $status;
+
+            return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status];
+
         }
     }
 

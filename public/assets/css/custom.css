@@ -494,3 +494,7 @@ em {
     font-size: 0.9em;
     text-align: center;
 }
+
+.select_gray{
+    color: #949494;
+}

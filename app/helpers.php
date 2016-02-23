@@ -655,8 +655,8 @@ function getDashBoardController($key){
     return $DashBoards[$key];
 }
 
-function formatSmallDate($date,$dateformat='d-m-y')
-{
+function formatSmallDate($date,$dateformat='d-m-y') {
+
     if(ctype_digit($date) && strlen($date)==5){
         $UNIX_DATE = ($date - 25569) * 86400;
         $datetime = gmdate("Y-m-d", $UNIX_DATE);
@@ -711,4 +711,3 @@ function formatSmallDate($date,$dateformat='d-m-y')
     }
     return $datetime;
 }
-

@@ -6,65 +6,18 @@
     <li>
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
+    <li>
+        <a>CDR</a>
+    </li>
     <li class="active">
-        <strong>CDR</strong>
+        <strong>Customer CDR</strong>
     </li>
 </ol>
-<h3>CDR</h3>
+<h3>Customer CDR</h3>
 
 @include('includes.errors')
 @include('includes.success')
-<div class="row">
-    <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-            <div data-collapsed="0" class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Start Date</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
-                        </div>
-                        <div class="col-sm-2">
-                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-                        </div>
-                         <label class="col-sm-2 control-label" for="field-1">End Date</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
-                        </div>
-                        <div class="col-sm-2">
-                            <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Gateway</label>
-                        <div class="col-sm-2">
-                            {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
-                        </div>
-                        <label class="col-sm-2 control-label" for="field-1">Account</label>
-                        <div class="col-sm-2">
-                            {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                        </div>
 
-                    </div>
-                    <p style="text-align: right;">
-                        <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 <p style="text-align: right;">
     <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary hidden">
         <i class="entypo-check"></i>
@@ -87,22 +40,94 @@
 <!--</div>
 <div class="clear"></div>
 </div>-->
-<table class="table table-bordered datatable" id="table-4">
-    <thead>
-    <tr>
-        <th width="15%" >Account Name</th>
-        <th width="10%" >Connect Time</th>
-        <th width="10%" >Disconnect Ttime</th>
-        <th width="10%" >Duration</th>
-        <th width="10%" >Cost</th>
-        <th width="10%" >CLI</th>
-        <th width="10%" >CLD</th>
+<ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+    <li class="active">
+        <a href="{{ URL::to('cdr_show') }}" >
+            <span class="hidden-xs">Customer CDR</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{ URL::to('/vendorcdr_show') }}" >
+            <span class="hidden-xs">Vendor CDR</span>
+        </a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active">
+        <div class="row">
+            <div class="col-md-12">
+                <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
+                    <div data-collapsed="0" class="panel panel-primary">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Filter
+                            </div>
+                            <div class="panel-options">
+                                <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="field-1">Start Date</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                                </div>
+                                <div class="col-sm-2">
+                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                                </div>
+                                <label class="col-sm-2 control-label" for="field-1">End Date</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                </div>
+                                <div class="col-sm-2">
+                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="field-1">Gateway</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                                </div>
+                                <label class="col-sm-2 control-label" for="field-1">Account</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
 
-    </tr>
-    </thead>
-    <tbody>
-   </tbody>
-</table>
+                            </div>
+                            <p style="text-align: right;">
+                                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
+                                    <i class="entypo-search"></i>
+                                    Search
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered datatable" id="table-4">
+                    <thead>
+                    <tr>
+                        <th width="15%" >Account Name</th>
+                        <th width="10%" >Connect Time</th>
+                        <th width="10%" >Disconnect Time</th>
+                        <th width="10%" >Duration</th>
+                        <th width="10%" >Cost</th>
+                        <th width="10%" >CLI</th>
+                        <th width="10%" >CLD</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <script type="text/javascript">
 var $searchFilter = {};

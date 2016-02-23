@@ -230,7 +230,7 @@
            var Status = option.attr('data-status');
            var Amount = option.attr('data-amount');
            var TaxAmount = 0;
-           var TotalPrice = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(',','')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
+           var TotalPrice = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
            if (Status == 1) {
                TaxAmount = parseFloat(Amount);
            } else {

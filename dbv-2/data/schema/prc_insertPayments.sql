@@ -1,7 +1,5 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertPayments`(IN `p_CompanyID` INT, IN `p_ProcessID` INT, IN `p_UserID` INT)
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertPayments`(IN `p_CompanyID` INT, IN `p_ProcessID` VARCHAR(100), IN `p_UserID` INT)
 
-	
 	DECLARE v_UserName varchar(30);
  	
  	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
@@ -46,5 +44,5 @@ BEGIN
 			 '' as RecallBy
 	from tblTempPayment tp
 	where tp.ProcessID = p_ProcessID
-			AND tp.CompanyID = p_CompanyID;
+			AND tp.CompanyID = p_CompanyID;	
 END

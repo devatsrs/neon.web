@@ -9,6 +9,8 @@ BEGIN
 			AccountID int,
 			trunk varchar(50),			
 			area_prefix varchar(50),			
+			pincode varchar(50),
+			extension VARCHAR(50),
 			TotalCharges float,
 			TotalDuration int,
 			TotalBilledDuration int,
@@ -25,6 +27,8 @@ BEGIN
 		ud.AccountID,
 		ud.trunk,
 		ud.area_prefix,
+		ud.pincode,
+		ud.extension,
 		SUM(ud.cost) AS TotalCharges,
 		SUM(duration) AS TotalDuration,
 		SUM(billed_duration) AS TotalBilledDuration,
@@ -35,6 +39,8 @@ BEGIN
 		AccountID,
 		trunk,
 		area_prefix,
+		pincode,
+		extension,
 		cost,
 		duration,
 		billed_duration,
@@ -44,11 +50,13 @@ BEGIN
 		ud
 	GROUP BY ud.trunk,
 				area_prefix,
+				pincode,
+				extension,
 				DATE_FORMAT(connect_time, '%Y-%m-%d'),
 				ud.AccountID,
 				ud.CompanyID,
 				ud.CompanyGatewayID;
-	INSERT INTO tblUsageDaily (CompanyID,CompanyGatewayID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalDuration,TotalBilledDuration,NoOfCalls,DailyDate) 
+	INSERT INTO tblUsageDaily (CompanyID,CompanyGatewayID,AccountID,Trunk,AreaPrefix,Pincode,Extension,TotalCharges,TotalDuration,TotalBilledDuration,NoOfCalls,DailyDate) 
 		SELECT ds.*
 		FROM tmp_DetailSummery_ ds LEFT JOIN 
 		tblUsageDaily dd  ON 
@@ -69,11 +77,13 @@ BEGIN
 	AND dd.CompanyGatewayID = ds.CompanyGatewayID
 	AND dd.Trunk = ds.trunk
 	AND dd.AreaPrefix = ds.area_prefix
+	AND dd.Pincode = ds.pincode
+	AND dd.Extension = ds.extension
 	AND dd.DailyDate = ds.DailyDate
-SET dd.TotalCharges = ds.TotalCharges,
-	dd.TotalDuration = ds.TotalDuration,
-	dd.TotalBilledDuration = ds.TotalBilledDuration,
-	dd.NoOfCalls = ds.NoOfCalls
+SET dd.TotalCharges =  dd.TotalCharges + ds.TotalCharges,
+	dd.TotalDuration = dd.TotalDuration + ds.TotalDuration,
+	dd.TotalBilledDuration = dd.TotalBilledDuration +  ds.TotalBilledDuration,
+	dd.NoOfCalls = dd.NoOfCalls + ds.NoOfCalls
 	WHERE (
 		ds.TotalDuration != dd.TotalDuration
 	OR  ds.TotalBilledDuration != dd.TotalBilledDuration

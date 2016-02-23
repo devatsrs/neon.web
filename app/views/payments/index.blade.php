@@ -13,10 +13,10 @@
 
     <h3>Payments</h3>
     <p style="text-align: right;">
-            <a href="javascript:;" id="upload-payments" class="btn upload btn-primary ">
-                <i class="entypo-upload"></i>
-                Upload
-            </a>
+        <a href="javascript:;" id="upload-payments" class="btn upload btn-primary ">
+            <i class="entypo-upload"></i>
+            Upload
+        </a>
     </p>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
@@ -100,7 +100,6 @@
                                     <label for="field-1" class="col-sm-2 control-label">Template Name:</label>
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" name="TemplateName" value="" />
-                                        <input type="hidden" name="uploadtemplate" />
                                     </div>
                                 </div>
                                 <br />
@@ -120,9 +119,6 @@
                                             <label for="field-1" class="col-sm-2 control-label">Delimiter:</label>
                                             <div class="col-sm-4">
                                                 <input type="text" class="form-control" name="option[Delimiter]" value="," />
-                                                <input type="hidden" name="TemplateFile" value="" />
-                                                <input type="hidden" name="TempFileName" value="" />
-                                                <input type="hidden" name="ProcessID" value="" />
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Enclosure:</label>
                                             <div class="col-sm-4">
@@ -238,6 +234,10 @@
                                     </div>
                                 </div>
                                 <p style="text-align: right;">
+                                    <input type="hidden" name="PaymentUploadTemplateID" />
+                                    <input type="hidden" name="TemplateFile" value="" />
+                                    <input type="hidden" name="TempFileName" value="" />
+                                    <input type="hidden" name="ProcessID" value="" />
 
                                     <button id="payments-upload" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                         <i class="entypo-floppy"></i>
@@ -277,148 +277,147 @@
 
                 </tbody>
             </table>
-
             <script type="text/javascript">
                 var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
                 jQuery(document).ready(function ($) {
-                        data_table = $("#table-4").dataTable({
-                            "bDestroy": true,
-                            "bProcessing": true,
-                            "bServerSide": true,
-                            "sAjaxSource": baseurl + "/payments/ajax_datagrid",
-                            "fnServerParams": function (aoData) {
-                                aoData.push(
-                                        {"name": "AccountID", "value": $searchFilter.AccountID},
-                                        {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
-                                        {"name": "Status","value": $searchFilter.Status},
-                                        {"name": "type","value": $searchFilter.type},
-                                        {"name": "paymentmethod","value": $searchFilter.paymentmethod},
-                                        {"name": "recall_on_off","value": $searchFilter.recall_on_off}
-                                    );
-                                data_table_extra_params.length = 0;
-                                data_table_extra_params.push(
-                                        {"name": "AccountID", "value": $searchFilter.AccountID},
-                                        {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
-                                        {"name": "Status","value": $searchFilter.Status},
-                                        {"name": "type","value": $searchFilter.type},
-                                        {"name": "paymentmethod","value": $searchFilter.paymentmethod},
-                                        {"name": "recall_on_off","value": $searchFilter.recall_on_off},
-                                        {"name":"Export","value":1});
+                    data_table = $("#table-4").dataTable({
+                        "bDestroy": true,
+                        "bProcessing": true,
+                        "bServerSide": true,
+                        "sAjaxSource": baseurl + "/payments/ajax_datagrid",
+                        "fnServerParams": function (aoData) {
+                            aoData.push(
+                                    {"name": "AccountID", "value": $searchFilter.AccountID},
+                                    {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
+                                    {"name": "Status","value": $searchFilter.Status},
+                                    {"name": "type","value": $searchFilter.type},
+                                    {"name": "paymentmethod","value": $searchFilter.paymentmethod},
+                                    {"name": "recall_on_off","value": $searchFilter.recall_on_off}
+                            );
+                            data_table_extra_params.length = 0;
+                            data_table_extra_params.push(
+                                    {"name": "AccountID", "value": $searchFilter.AccountID},
+                                    {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
+                                    {"name": "Status","value": $searchFilter.Status},
+                                    {"name": "type","value": $searchFilter.type},
+                                    {"name": "paymentmethod","value": $searchFilter.paymentmethod},
+                                    {"name": "recall_on_off","value": $searchFilter.recall_on_off},
+                                    {"name":"Export","value":1});
 
-                            },
-                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
-                            "sPaginationType": "bootstrap",
-                            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                            "aaSorting": [[5, 'desc']],
-                            "aoColumns": [
-                                {
-                                    "bSortable": true, //Account
-                                    mRender: function (id, type, full) {
-                                        return full[1]
-                                    }
-                                }, //1   CurrencyDescription
-                                {
-                                    "bSortable": true, //Account
-                                    mRender: function (id, type, full) {
-                                        return full[10]
-                                    }
-                                }, //1   CurrencyDescription
-                                {
-                                    "bSortable": true, //Amount
-                                    mRender: function (id, type, full) {
-                                        var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
-                                        a = a.toString();
-                                        return a + ' ' + full[5]
-                                    }
-                                },
-                                {
-                                    "bSortable": true, //Type
-                                    mRender: function (id, type, full) {
-                                        return full[4]
-                                    }
-                                },
-
-                                {
-                                    "bSortable": true, //paymentDate
-                                    mRender: function (id, type, full) {
-                                        return full[6]
-                                    }
-                                },
-                                {
-                                    "bSortable": true, //status
-                                    mRender: function (id, type, full) {
-                                        return full[7]
-                                    }
-                                },
-                                {
-                                    "bSortable": true, //Created by
-                                    mRender: function (id, type, full) {
-                                        return full[8]
-                                    }
-                                },
-                                {                       //3  Action
-
-                                    "bSortable": false,
-                                    mRender: function (id, type, full) {
-                                        var action, edit_, show_, recall_;
-                                        var Approve_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/approve')}}";
-                                        var Reject_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/reject')}}";
-                                        var recall_ = "{{ URL::to('payments/{id}/recall')}}";
-                                        Approve_Payment = Approve_Payment.replace('{id}', full[0]);
-                                        Reject_Payment = Reject_Payment.replace('{id}', full[0]);
-                                        recall_  = recall_ .replace( '{id}', full[0]);
-                                        action = '<div class = "hiddenRowData" >';
-                                        for(var i = 0 ; i< list_fields.length; i++){
-                                            action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
-                                        }
-                                        action += '</div>';
-                                        action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
-                                        @if(User::is('BillingAdmin'))
-                                        if(full[7] != "Approved"){
-                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
-                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
-                                        }
-                                        @endif
-
-                                            //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                        <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
-                                            if(full[13]==0 && full[7]!='Rejected' ){
-                                                action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
-                                            }
-                                        <?php } ?>
-                                        if(full[9]!= null){
-                                            action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
-                                        }
-                                        return action;
-                                    }
+                        },
+                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "sPaginationType": "bootstrap",
+                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "aaSorting": [[5, 'desc']],
+                        "aoColumns": [
+                            {
+                                "bSortable": true, //Account
+                                mRender: function (id, type, full) {
+                                    return full[1]
                                 }
-                            ],
-                            "oTableTools": {
-                                "aButtons": [
-                                    {
-                                        "sExtends": "download",
-                                        "sButtonText": "Export Data",
-                                        "sUrl": baseurl + "/payments/ajax_datagrid", //baseurl + "/generate_xls.php",
-                                        sButtonClass: "save-collection"
-                                    }
-                                ]
+                            }, //1   CurrencyDescription
+                            {
+                                "bSortable": true, //Account
+                                mRender: function (id, type, full) {
+                                    return full[10]
+                                }
+                            }, //1   CurrencyDescription
+                            {
+                                "bSortable": true, //Amount
+                                mRender: function (id, type, full) {
+                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
+                                    a = a.toString();
+                                    return a + ' ' + full[5]
+                                }
                             },
-                            "fnDrawCallback": function () {
-                                $(".dataTables_wrapper select").select2({
-                                    minimumResultsForSearch: -1
-                                });
+                            {
+                                "bSortable": true, //Type
+                                mRender: function (id, type, full) {
+                                    return full[4]
+                                }
+                            },
+
+                            {
+                                "bSortable": true, //paymentDate
+                                mRender: function (id, type, full) {
+                                    return full[6]
+                                }
+                            },
+                            {
+                                "bSortable": true, //status
+                                mRender: function (id, type, full) {
+                                    return full[7]
+                                }
+                            },
+                            {
+                                "bSortable": true, //Created by
+                                mRender: function (id, type, full) {
+                                    return full[8]
+                                }
+                            },
+                            {                       //3  Action
+
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    var action, edit_, show_, recall_;
+                                    var Approve_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/approve')}}";
+                                    var Reject_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/reject')}}";
+                                    var recall_ = "{{ URL::to('payments/{id}/recall')}}";
+                                    Approve_Payment = Approve_Payment.replace('{id}', full[0]);
+                                    Reject_Payment = Reject_Payment.replace('{id}', full[0]);
+                                    recall_  = recall_ .replace( '{id}', full[0]);
+                                    action = '<div class = "hiddenRowData" >';
+                                    for(var i = 0 ; i< list_fields.length; i++){
+                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                    }
+                                    action += '</div>';
+                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                    @if(User::is('BillingAdmin') || User::is_admin())
+                                    if(full[7] != "Approved"){
+                                        action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
+                                        action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                    }
+                                    @endif
+
+                                    //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                    <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
+                                    if(full[13]==0 && full[7]!='Rejected' ){
+                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
+                                    }
+                                    <?php } ?>
+                                    if(full[9]!= null){
+                                        action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
+                                    }
+                                    return action;
+                                }
                             }
+                        ],
+                        "oTableTools": {
+                            "aButtons": [
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "Export Data",
+                                    "sUrl": baseurl + "/payments/ajax_datagrid", //baseurl + "/generate_xls.php",
+                                    sButtonClass: "save-collection"
+                                }
+                            ]
+                        },
+                        "fnDrawCallback": function () {
+                            $(".dataTables_wrapper select").select2({
+                                minimumResultsForSearch: -1
+                            });
+                        }
 
-                        });
+                    });
 
 
-                        // Replace Checboxes
-                        $(".pagination a").click(function (ev) {
-                            replaceCheckboxes();
-                        });
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
 
                     $('#upload-payments').click(function(ev){
                         ev.preventDefault();
@@ -490,24 +489,65 @@
                     });
 
                     $("#payment-status-form").submit(function(e){
-                       e.preventDefault();
-                       if($(this).find("input[name='Notes']").val().trim() == ''){
+                        e.preventDefault();
+                        if($(this).find("input[name='Notes']").val().trim() == ''){
                             toastr.error("Please Enter a Notes", "Error", toastr_opts);
                             return false;
-                       }
-                       if($(this).find("input[name='Notes']").val().trim() !== ''){
-                            submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize())
-                       }
-                   });
-
-                    $("#payments-upload , #confirm-payments").click(function(e){
-                        e.preventDefault();
-                        var url = '';
-                        if($(this).attr('id')=='payments-upload'){
-                            url = '{{URL::to('payments/0/upload')}}';
-                        }else{
-                            url = '{{URL::to('payments/1/upload')}}';
                         }
+                        if($(this).find("input[name='Notes']").val().trim() !== ''){
+                            submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize())
+                        }
+                    });
+
+                    $("#payments-upload").click(function(e){
+                        e.preventDefault();
+                        var url = '{{URL::to('payments/upload/validate_column_mapping')}}';  // 0 Validate maping
+                        var formData = new FormData($('#add-template-form')[0]);
+
+                        $.ajax({
+                            url:url, //Server script to process data
+                            type: 'POST',
+                            dataType: 'json',
+                            beforeSend: function(){
+                                $('.btn.save').button('loading');
+                            },
+                            success: function(response) {
+                                $(".btn.save").button('reset');
+                                if (response.status == 'success') {
+
+                                    //toastr.success(response.message, "Success", toastr_opts);
+
+                                    $('#confirm-modal-payment h4').text('Confirm Payment');
+                                    message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
+                                    var ProcessID = response.ProcessID;
+                                    $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                    $('#confirm-modal-payment').modal('show');
+                                    $('#confirm-payment-form .warnings').html(message);
+
+                                } else {
+
+                                    $('#confirm-modal-payment h4').text('File validation');
+                                    message = '<b>Warnings</b><br/>'+ response.message.replace(new RegExp('\r\n', 'g'), '<br>');
+                                    var ProcessID = response.ProcessID;
+                                    $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                    $('#confirm-modal-payment').modal('show');
+                                    $('#confirm-payment-form .warnings').html(message);
+
+                                }
+                            },
+                            data: formData,
+                            //Options to tell jQuery not to process data or worry about content-type.
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        });
+                    });
+
+
+                    $("#confirm-payments").click(function(e){
+                        e.preventDefault();
+                        var url = '{{URL::to('payments/upload/confirm_bulk_upload')}}';  // Confirm Upload Payment.
+
                         var formData = new FormData($('#add-template-form')[0]);
                         $.ajax({
                             url:url, //Server script to process data
@@ -520,26 +560,22 @@
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
-                                    reloadJobsDrodown(0);
                                     location.reload();
                                 } else {
                                     var message;
-                                    if(response.messagestatus==0){
+                                    if( response.messagestatus == 'Error' ){   // Column maping - File validation
+
                                         $('#confirm-payments').addClass('hidden');
-                                        $('#confirm-modal-payment h4').text('File validation');
-                                        message = response.message.replace(new RegExp('\n\r', 'g'), '<br>');
-                                        var ProcessID = response.ProcessID;
-                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
-                                        $('#confirm-modal-payment').modal('show');
-                                        $('#confirm-payment-form [name="warnings"]').html(message);
-                                    }else if(response.messagestatus==1){
                                         $('#confirm-modal-payment h4').text('Confirm Payment');
-                                        message = response.message[0].ErrorMessage.replace(new RegExp('\r\n', 'g'), '<br>');
+                                        message = '<b>Warnings</b><br/>' + response.message.replace(new RegExp('\n\r', 'g'), '<br>');
                                         var ProcessID = response.ProcessID;
                                         $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                         $('#confirm-modal-payment').modal('show');
                                         $('#confirm-payment-form [name="warnings"]').html(message);
-                                    }else{
+
+                                    }else if(response.messagestatus == 'Success' ){   //
+
+                                    }else{                                      // Error
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }
                                 }
@@ -629,29 +665,29 @@
                         ajax_Add_update(update_new_url);
                     });
                     $("#payment-table-search").submit();
-                     $('#PaymentTypeAuto').change(function (ev) {
-                         if($(this).val() == 'Payment In'){
+                    $('#PaymentTypeAuto').change(function (ev) {
+                        if($(this).val() == 'Payment In'){
                             //$('#InvoiceAuto').addClass('typeahead');
                             var typeahead_opts = {
-                                                    name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
-                                                };
+                                name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
+                            };
                             if ($("#InvoiceAuto").attr('data-local'))
-                                {
-                                    var local = $("#InvoiceAuto").attr('data-local');
-                                    local = local.replace(/\s*,\s*/g, ',').split(',');
-                                    typeahead_opts['local'] = local;
-                                    $('#InvoiceAuto').typeahead(typeahead_opts);
-                                }
-                         }
-                     })
+                            {
+                                var local = $("#InvoiceAuto").attr('data-local');
+                                local = local.replace(/\s*,\s*/g, ',').split(',');
+                                typeahead_opts['local'] = local;
+                                $('#InvoiceAuto').typeahead(typeahead_opts);
+                            }
+                        }
+                    })
 
                     $("#form-upload").submit(function (e) {
                         e.preventDefault();
                         //if($('#form-upload').find('select[name="uploadtemplate"]').val()>0){
                         //$("#form-upload").submit();
                         //}else{
-                        var uploadtemplate = $(this).find('[name="uploadtemplate"]').val();
-                        $('#add-template').find('[name="uploadtemplate"]').val(uploadtemplate);
+                        var PaymentUploadTemplateID = $(this).find('[name="PaymentUploadTemplateID"]').val();
+                        $('#add-template').find('[name="PaymentUploadTemplateID"]').val(PaymentUploadTemplateID);
                         var formData = new FormData($('#form-upload')[0]);
                         show_loading_bar(0);
                         $.ajax({
@@ -728,8 +764,8 @@
                                 });
                             }
                         });
-                        if(data.VendorFileUploadTemplate){
-                            $.each( data.VendorFileUploadTemplate, function( optionskey, option_value ) {
+                        if ( data.PaymentUploadTemplate ) {
+                            $.each( data.PaymentUploadTemplate, function( optionskey, option_value ) {
                                 if(optionskey == 'Title'){
                                     $('#add-template-form').find('[name="TemplateName"]').val(option_value)
                                 }
@@ -779,7 +815,7 @@
                     data_table.fnFilter('', 0);
                     return false;
                 });
-                
+
                 function ajax_Add_update(fullurl){
                     var data = new FormData($('#add-edit-payment-form')[0]);
                     //show_loading_bar(0);
@@ -790,10 +826,10 @@
                         dataType: 'json',
                         beforeSend: function(){
                             /*$('.btn.upload').button('loading');
-                            show_loading_bar({
-                                pct: 50,
-                                delay: 5
-                            });*/
+                             show_loading_bar({
+                             pct: 50,
+                             delay: 5
+                             });*/
 
                         },
                         afterSend: function(){
@@ -833,6 +869,8 @@
                 $(".pagination a").click(function (ev) {
                     replaceCheckboxes();
                 });
+
+
             </script>
             <style>
                 .dataTables_filter label{
@@ -1010,142 +1048,142 @@
             </div>
         </div>
     </div>
-<div class="modal fade in" id="payment-status">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="payment-status-form" method="post">
+    <div class="modal fade in" id="payment-status">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="payment-status-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Payment Notes</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="text-boxes" class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Notes</label>
+                                    <input type="text" name="Notes" class="form-control"  value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            <input type="hidden" name="URL" value="">
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-fileformat">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Payment Notes</h4>
+                    <h4 class="modal-title">Payment File Format</h4>
                 </div>
+
+
+
                 <div class="modal-body">
-                <div id="text-boxes" class="row">
-                    <div class="col-md-12">
+                    <p>All columns are mandatory except Invoice and Note and the first line should have the column headings.</p>
+                    <table class="table responsive">
+                        <thead>
+                        <tr>
+                            <th class="hide_country">Account Name</th>
+                            <th>Payment Date</th>
+                            <th>Payment Method</th>
+                            <th>Action</th>
+                            <th>Amount</th>
+                            <th>Invoice(opt)</th>
+                            <th>Note(opt)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="hide_country">abc</td>
+                            <td>2013-05-21</td>
+                            <td><span data-original-title="Payment Method" data-content="CASH, PAYPAL, CHEQUE, CREDIT CARD, BANK TRANSFER" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
+                            <td>Payment In</td>
+                            <td>500.00</td>
+                            <td>INV-1</td>
+                            <td>NOTE</td>
+                        </tr>
+                        <tr>
+                            <td class="hide_country">abc</td>
+                            <td>2013-05-21</td>
+                            <td><span data-original-title="Payment Method" data-content="CASH, PAYPAL, CHEQUE, CREDIT CARD, BANK TRANSFER" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
+                            <td>Payment Out</td>
+                            <td>500.00</td>
+                            <td>INV-2</td>
+                            <td>NOTE</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="upload-modal-payments" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form role="form" id="form-upload" method="post" action="{{URL::to('payments/upload')}}"
+                      class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Upload Payments</h4>
+                    </div>
+                    <div class="modal-body">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Notes</label>
-                            <input type="text" name="Notes" class="form-control"  value="" />
+                            <label for="field-1" class="col-sm-3 control-label">Upload Template</label>
+                            <div class="col-sm-5">
+                                {{ Form::select('PaymentUploadTemplateID', $PaymentUploadTemplates, '' , array("class"=>"select2")) }}
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">File Select</label>
+                            <div class="col-sm-5">
+                                <input type="file" id="excel" type="file" name="excel" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Note</label>
+                            <div class="col-sm-5">
+                                <p>Allowed Extension .xls, .xlxs, .csv</p>
+                                <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');jQuery('#modal-fileformat').css('z-index',1999)" class="label label-info">Format</span></p>
+                                <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('payments/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                </div>
-                <div class="modal-footer">
-                     <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        <input type="hidden" name="URL" value="">
-                        Save
-                     </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modal-fileformat">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Payment File Format</h4>
-            </div>
-
-
-
-            <div class="modal-body">
-                <p>All columns are mandatory except Invoice and Note and the first line should have the column headings.</p>
-                <table class="table responsive">
-                    <thead>
-                    <tr>
-                        <th class="hide_country">Account Name</th>
-                        <th>Payment Date</th>
-                        <th>Payment Method</th>
-                        <th>Action</th>
-                        <th>Amount</th>
-                        <th>Invoice(opt)</th>
-                        <th>Note(opt)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="hide_country">abc</td>
-                        <td>2013-05-21</td>
-                        <td><span data-original-title="Payment Method" data-content="CASH, PAYPAL, CHEQUE, CREDIT CARD, BANK TRANSFER" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
-                        <td>Payment In</td>
-                        <td>500.00</td>
-                        <td>INV-1</td>
-                        <td>NOTE</td>
-                    </tr>
-                    <tr>
-                        <td class="hide_country">abc</td>
-                        <td>2013-05-21</td>
-                        <td><span data-original-title="Payment Method" data-content="CASH, PAYPAL, CHEQUE, CREDIT CARD, BANK TRANSFER" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
-                        <td>Payment Out</td>
-                        <td>500.00</td>
-                        <td>INV-2</td>
-                        <td>NOTE</td>
-                    </tr>
-                    </tbody>
-                </table>
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <div class="modal-footer">
+                        <button type="submit" id="codedeck-update"  class="btn upload btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-upload"></i>
+                            Upload
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="upload-modal-payments" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form role="form" id="form-upload" method="post" action="{{URL::to('payments/upload')}}"
-                  class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Upload Payments</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label">Upload Template</label>
-                        <div class="col-sm-5">
-                            {{ Form::select('uploadtemplate', $uploadtemplate, '' , array("class"=>"select2")) }}
-
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">File Select</label>
-                        <div class="col-sm-5">
-                            <input type="file" id="excel" type="file" name="excel" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Note</label>
-                        <div class="col-sm-5">
-                            <p>Allowed Extension .xls, .xlxs, .csv</p>
-                            <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');jQuery('#modal-fileformat').css('z-index',1999)" class="label label-info">Format</span></p>
-                            <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('payments/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" id="codedeck-update"  class="btn upload btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-upload"></i>
-                        Upload
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
     <div class="modal fade" id="recall-modal-payment">
         <div class="modal-dialog">
@@ -1184,7 +1222,7 @@
     <div class="modal fade" id="confirm-modal-payment">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="confirm-payment-form" action="{{URL::to('payments/recall')}}" method="post">
+                <form id="confirm-payment-form" action="" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Confirm Payment</h4>
@@ -1192,9 +1230,7 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Warnings</label>
-                                    <div class="col-sm-12" name="warnings"></div>
+                                <div class="form-group warnings">
                                 </div>
                             </div>
                         </div>

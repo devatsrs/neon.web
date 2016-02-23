@@ -28,17 +28,17 @@ class PaymentsController extends \BaseController {
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
-	/**
-	 * Display a listing of the resource.
-	 * GET /payments
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
+    /**
+     * Display a listing of the resource.
+     * GET /payments
+     *
+     * @return Response
+     */
+    public function index()
+    {
         $id=0;
         $companyID = User::get_companyID();
-        $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
+        $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList();
         $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
         $InvoiceNoarray = array();
@@ -47,15 +47,15 @@ class PaymentsController extends \BaseController {
         }
         $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','uploadtemplate'));
-	}
+        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates'));
+    }
 
-	/**
-	 * Show the form for creating a new resource.
-	 * GET /payments/create
-	 *
-	 * @return Response
-	 */
+    /**
+     * Show the form for creating a new resource.
+     * GET /payments/create
+     *
+     * @return Response
+     */
     public function create()
     {
         $isvalid = Payment::validate();
@@ -76,7 +76,7 @@ class PaymentsController extends \BaseController {
             }
 
             $save['Status'] = 'Pending Approval';
-            if(User::is('BillingAdmin')) {
+            if(User::is('BillingAdmin') || User::is_admin() ) {
                 $save['Status'] = 'Approved';
             }
             if (Payment::create($save)) {
@@ -144,13 +144,13 @@ class PaymentsController extends \BaseController {
     }
 
 
-	/**
-	 * Update the specified resource in storage.
-	 * PUT /payments/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Update the specified resource in storage.
+     * PUT /payments/{id}
+     *
+     * @param  int  $id
+     * @return Response
+     */
     public function update($id)
     {
         if( $id > 0 ) {
@@ -205,7 +205,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function payment_approve_reject($id,$action){
-        if(User::is('BillingAdmin')) {
+        if(User::is('BillingAdmin')  || User::is_admin() ) {
             if ($id && $action) {
                 $Payment = Payment::findOrFail($id);
                 $save = array();
@@ -241,6 +241,8 @@ class PaymentsController extends \BaseController {
         }
     }
 
+    /* Refill Datagrid against File options changed once Check button clicked
+     * */
     function ajaxfilegrid(){
         try {
             $data = Input::all();
@@ -248,20 +250,24 @@ class PaymentsController extends \BaseController {
             $grid = getFileContent($file_name, $data);
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
-            if ($data['uploadtemplate'] > 0) {
-                $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
-                $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
-                //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
+            if ($data['PaymentUploadTemplateID'] > 0) {
+                $PaymentUploadTemplate = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                $grid['PaymentUploadTemplate'] = json_decode(json_encode($PaymentUploadTemplate), true);
+                //$grid['PaymentUploadTemplate']['Options'] = json_decode($PaymentUploadTemplate->Options,true);
             }
-            $grid['VendorFileUploadTemplate']['Options'] = array();
-            $grid['VendorFileUploadTemplate']['Options']['option'] = $data['option'];
-            $grid['VendorFileUploadTemplate']['Options']['selection'] = $data['selection'];
+            $grid['PaymentUploadTemplate']['Options'] = array();
+            $grid['PaymentUploadTemplate']['Options']['option'] = $data['option'];
+            $grid['PaymentUploadTemplate']['Options']['selection'] = $data['selection'];
             return Response::json(array("status" => "success", "data" => $grid));
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
 
+    /* When File uploads
+     * Upload file to server to temp location path
+     * Send File top 10 data to show in grid.
+     * */
     public function check_upload() {
         try {
             $data = Input::all();
@@ -284,9 +290,9 @@ class PaymentsController extends \BaseController {
             }
             if (!empty($file_name)) {
 
-                if ($data['uploadtemplate'] > 0) {
-                    $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
-                    $options = json_decode($VendorFileUploadTemplate->Options, true);
+                if ($data['PaymentUploadTemplateID'] > 0) {
+                    $PaymentUploadTemplate = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                    $options = json_decode($PaymentUploadTemplate->Options, true);
                     $data['Delimiter'] = $options['option']['Delimiter'];
                     $data['Enclosure'] = $options['option']['Enclosure'];
                     $data['Escape'] = $options['option']['Escape'];
@@ -296,9 +302,9 @@ class PaymentsController extends \BaseController {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;
-                if (!empty($VendorFileUploadTemplate)) {
-                    $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
-                    $grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options, true);
+                if (!empty($PaymentUploadTemplate)) {
+                    $grid['PaymentUploadTemplate'] = json_decode(json_encode($PaymentUploadTemplate), true);
+                    $grid['PaymentUploadTemplate']['Options'] = json_decode($PaymentUploadTemplate->Options, true);
                 }
                 return Response::json(array("status" => "success", "data" => $grid));
             }
@@ -308,12 +314,82 @@ class PaymentsController extends \BaseController {
         }
     }
 
+    /*
+     * Validate Bulk Payment Column Mapping on file.
+     * */
+    public function validate_column_mapping() {
+        $data = Input::all();
+
+        $rules['selection.AccountName'] = 'required';
+        $rules['selection.PaymentDate'] = 'required';
+        $rules['selection.PaymentMethod'] = 'required';
+        $rules['selection.PaymentType'] = 'required';
+        $rules['selection.Amount'] = 'required';
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $response = Payment::validate_payments($data);
+
+        if ( $response['status'] != 'Success' ) {
+            return Response::json(array("status" => "failed", "message" => $response['message']  ,"ProcessID" => $response["ProcessID"] ));
+        }else{
+            return Response::json(array("status" => "success", "message" => $response['message'] ,"ProcessID" => $response["ProcessID"] ));
+        }
+
+    }
+
+    public function confirm_bulk_upload() {
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $file_name = $data['TemplateFile'];
+        $ProcessID = $data['ProcessID'];
+
+        $file_name = basename($data['TemplateFile']);
+        $temp_path = getenv('TEMP_PATH').'/' ;
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+
+        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        copy($temp_path . $file_name, $destinationPath . $file_name);
+
+        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+            return Response::json(array("status" => "failed", "message" => "Failed to upload payments file." ));
+        }
+
+        if(!empty($data['TemplateName'])) {
+            $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
+            $save['created_by'] = User::get_user_full_name();
+            $option["option"] = $data['option'];
+            $option["selection"] = $data['selection'];
+            $save['Options'] = json_encode($option);
+
+            if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
+                $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
+                $template->update($save);
+            } else {
+                $template = PaymentUploadTemplate::create($save);
+            }
+            $data['PaymentUploadTemplateID'] = $template->PaymentUploadTemplateID;
+        }
+        $UserID = User::get_userID();
+        //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
+        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+        if($result){
+            return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
+        }else{
+            return Response::json(array("status" => "failure", "message" => "Error in Uploading Payments."));
+        }
+    }
+
+    /* not in use */
     public function Upload($id) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $file_name = $data['TemplateFile'];
         $ProcessID='';
-        if($id==0) {
+        if( $id == 0 ) {   // After Column Mapping
             $CompanyID = User::get_companyID();
             $rules['selection.AccountName'] = 'required';
             $rules['selection.PaymentDate'] = 'required';
@@ -326,12 +402,13 @@ class PaymentsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            $status = Payment::upload_check($file_name,$data);
-            if ($status['status'] != 2) {
-                return Response::json(array("status" => "failed",'messagestatus'=> $status['status'],"message" => $status['message']));
+            $response = Payment::prc_insertPayments($data);
+            if ( $response['status'] != 2 ) {
+                return Response::json(array("status" => "failed",'messagestatus'=> $response['status'],"message" => $response['message']));
             }
-            $ProcessID = $status['ProcessID'];
+            $ProcessID = $response['ProcessID'];
         }
+
         if(empty($ProcessID)){
             $ProcessID = $data['ProcessID'];
         }
@@ -353,13 +430,13 @@ class PaymentsController extends \BaseController {
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
 
-            if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
-                $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
+            if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
+                $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
                 $template->update($save);
             } else {
-                $template = VendorFileUploadTemplate::create($save);
+                $template = PaymentUploadTemplate::create($save);
             }
-            $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
+            $data['PaymentUploadTemplateID'] = $template->PaymentUploadTemplateID;
         }
         $UserID = User::get_userID();
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();

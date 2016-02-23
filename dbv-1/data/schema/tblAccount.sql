@@ -75,6 +75,7 @@ CREATE TABLE `tblAccount` (
   `Autopay` tinyint(3) unsigned DEFAULT NULL,
   `CustomerCLI` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `NominalAnalysisNominalAccountNumber` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `InboudRateTableID` int(11) DEFAULT NULL,
   PRIMARY KEY (`AccountID`),
   KEY `IX_tblAccount_AccountType_CompanyId_IsVendor_Status_Verificati10` (`AccountType`,`CompanyId`,`IsVendor`,`Status`,`VerificationStatus`,`AccountName`),
   KEY `CurrencyId` (`CurrencyId`),

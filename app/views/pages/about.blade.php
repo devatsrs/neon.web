@@ -13,14 +13,35 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.00</h1>
+    <h1>NEON - 4.01</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.00</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.01</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.01</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+<ul class="version-highlights full-width">
+    <li>
+        <div class="notes full-width ">
+                <h3>ChangeLog</h3>
+                1. Payment Recall<br>
+                2. Payment Bulk Upload<br>
+                3. Dashboard Report Top Pin Used<br>
+        </div>
+    </li>
+</ul>
+ </div>
+
+ </div>
+
+
 
 <h2>
     <span class="label label-success">4.00</span> &nbsp; Version Highlights

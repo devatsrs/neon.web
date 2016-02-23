@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_CronJobAllPending`(IN `p_CompanyID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CronJobAllPending`(IN `p_CompanyID` INT)
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 	/**PendingUploadCDR**/
@@ -921,8 +921,13 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
+<<<<<<< HEAD
 		/** Payment Upload **/
 	SELECT
+=======
+	/**VendorUploadCDR**/
+    SELECT
+>>>>>>> 22fd467b9526b04fd20be7ade73238b974574462
 		TBL1.JobID,
 		TBL1.Options,
 		TBL1.AccountID
@@ -942,10 +947,10 @@ BEGIN
 		INNER JOIN tblJobStatus js
 			ON j.JobStatusID = js.JobStatusID
 		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
-		WHERE jt.Code = 'PU'
-        AND js.Code = 'P'
+		WHERE jt.Code = 'VDR'
+		AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
 	(
@@ -956,14 +961,13 @@ BEGIN
 			ON j.JobTypeID = jt.JobTypeID
 		INNER JOIN tblJobStatus js
 			ON j.JobStatusID = js.JobStatusID
-		WHERE jt.Code = 'PU'
-        AND js.Code = 'I'
+		WHERE jt.Code = 'VDR'
+		AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END

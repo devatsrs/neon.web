@@ -5,6 +5,8 @@ CREATE TABLE `tblUsageDaily` (
   `CompanyGatewayID` int(11) DEFAULT NULL,
   `Trunk` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AreaPrefix` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Pincode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Extension` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `TotalCharges` double DEFAULT NULL,
   `TotalBilledDuration` int(11) DEFAULT NULL,
   `TotalDuration` int(11) DEFAULT NULL,

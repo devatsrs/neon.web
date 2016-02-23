@@ -15,9 +15,9 @@ CREATE TABLE `tblPayment` (
   `ModifyBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `PaymentProof` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Recall` tinyint(4) DEFAULT NULL,
+  `Recall` int(11) DEFAULT '0',
   `RecallReasoan` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `RecallBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT '0',
+  `RecallBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`PaymentID`),
   KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`Status`,`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
