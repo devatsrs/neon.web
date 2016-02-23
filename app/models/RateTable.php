@@ -51,7 +51,7 @@ class RateTable extends \Eloquent
         $data['CompanyID']=User::get_companyID();
         $data['Status'] = 1;
         $row = RateTable::where($data)->lists("RateTableName", "RateTableId");
-        $row = array(""=> "Select an Rate Table")+$row;
+        $row = array(""=> "Select a Rate Table")+$row;
         return $row;
     }
     public static function getCurrencyCode($RateTableId){
