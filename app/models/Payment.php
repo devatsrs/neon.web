@@ -132,7 +132,7 @@ class Payment extends \Eloquent {
         $Accounts = array_change_key_case($Accounts);
         if (!empty($file)) {
 
-            $results =  Excel::load($file, function ($reader) {
+            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {
                 $reader->formatDates(true, 'Y-m-d');
             })->get();
 
