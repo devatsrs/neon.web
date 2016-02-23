@@ -460,6 +460,7 @@
 
                     $('body').on('click', '.btn.recall', function (e) {
                         e.preventDefault();
+                        $('#recall-payment-form').trigger("reset");
                         $('#recall-payment-form').attr("action",$(this).attr('href'));
                         $('#recall-modal-payment').modal('show');
                     });
@@ -475,6 +476,7 @@
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
+                                    $('#recall-modal-payment').modal('hide');
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
@@ -531,6 +533,9 @@
                                     message = '<b>Warnings</b><br/>'+ response.message.replace(new RegExp('\r\n', 'g'), '<br>');
                                     var ProcessID = response.ProcessID;
                                     $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                    if(!response.confirmshow){
+                                        $('#confirm-payments').addClass('hidden');
+                                    }
                                     $('#confirm-modal-payment').modal('show');
                                     $('#confirm-payment-form .warnings').html(message);
 
@@ -576,7 +581,7 @@
                                         $('#confirm-payment-form [name="warnings"]').html(message);
 
                                     }else if(response.messagestatus == 'Success' ){   //
-
+                                        $('#confirm-modal-payment').modal('hide');
                                     }else{                                      // Error
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }

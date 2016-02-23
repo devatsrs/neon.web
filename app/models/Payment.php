@@ -147,6 +147,7 @@ class Payment extends \Eloquent {
 
 
             $has_Error = false;
+            $confirm_show  = false;
             $response_message = "";
             $response_status = "";
 
@@ -247,6 +248,7 @@ class Payment extends \Eloquent {
                     if (!empty($validation_Errors)) { // if any error.
                         $response_message = $validation_Errors[0]->ErrorMessage;
                         $response_status = 'Error';
+                        $confirm_show = true;
 
                     }else{
                         $response_message = "";
@@ -255,7 +257,7 @@ class Payment extends \Eloquent {
                 }
             }
 
-            return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status];
+            return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status,'confirmshow'=>$confirm_show];
 
         }
     }

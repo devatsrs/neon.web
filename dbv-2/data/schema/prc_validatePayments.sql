@@ -11,7 +11,7 @@ SET SESSION group_concat_max_len=5000;
 	);
 
 	INSERT INTO tmp_error_
-	SELECT  CONCAT('Duplicate Payment in file Against Account ',IFNULL(ac.AccountName,''),' Invoice Number:' ,IFNULL(pt.InvoiceNo,''),' Payment Date:',IFNULL(pt.PaymentDate,'')) as ErrorMessage  FROM tblTempPayment pt
+	SELECT  CONCAT('Duplicate Payment in file Against Account ',IFNULL(ac.AccountName,''),' Action:' ,IFNULL(pt.PaymentType,''),' Payment Date:',IFNULL(pt.PaymentDate,''),' Amount:',pt.Amount) as ErrorMessage  FROM tblTempPayment pt
 	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
 	INNER JOIN tblTempPayment tp on tp.ProcessID = pt.ProcessID
 		AND tp.AccountID = pt.AccountID
@@ -21,12 +21,11 @@ SET SESSION group_concat_max_len=5000;
 		AND tp.PaymentMethod = pt.PaymentMethod
 	WHERE pt.CompanyID = p_CompanyID
 		AND pt.ProcessID = p_ProcessID
- 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount 
-	HAVING COUNT(*)>1;
+ 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount having count(*)>=2;
  	
 	INSERT INTO tmp_error_	
 	SELECT
-		CONCAT('Duplicate Payment in system Against Account ',IFNULL(ac.AccountName,''),' Invoice Number:' ,IFNULL(pt.InvoiceNo,''),' Payment Date:',IFNULL(pt.PaymentDate,'')) as  ErrorMessage
+		CONCAT('Duplicate Payment in System Against Account ',IFNULL(ac.AccountName,''),' Action:' ,IFNULL(pt.PaymentType,''),' Payment Date:',IFNULL(pt.PaymentDate,''),' Amount:',pt.Amount) as ErrorMessage
 	FROM tblTempPayment pt
 	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
 	INNER JOIN tblPayment p on p.CompanyID = pt.CompanyID 
@@ -34,6 +33,7 @@ SET SESSION group_concat_max_len=5000;
 		AND p.PaymentDate = pt.PaymentDate
 		AND p.Amount = pt.Amount
 		AND p.PaymentType = pt.PaymentType
+		AND p.Recall = 0
 	WHERE pt.CompanyID = p_CompanyID
 		AND pt.ProcessID = p_ProcessID;
 	
