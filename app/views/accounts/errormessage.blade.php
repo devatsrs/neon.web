@@ -17,7 +17,7 @@
         <div class="toast toast-warning" style="">
             <div class="toast-title">Warning Message</div>
             <div class="toast-message">
-                No IPs are provided under authentication.Please Provice IPs.
+                No IPs are provided under authentication.
             </div>
         </div>
     </div>
