@@ -12,7 +12,7 @@ CREATE TABLE `tblCronJob` (
   `updated_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Active` int(11) DEFAULT '0',
   `JobTitle` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `DownloadActive` int(11) DEFAULT NULL,
+  `DownloadActive` int(11) DEFAULT '0',
   `PID` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `EmailSendTime` datetime DEFAULT NULL,
   `CdrBehindEmailSendTime` datetime DEFAULT NULL,
