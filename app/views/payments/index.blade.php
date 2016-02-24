@@ -252,7 +252,7 @@
 
 
             <br>
-            @if(User::is_admin() or User::is('AccountManager'))
+            @if(User::is_admin() or User::has('Payment','Add'))
                 <p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
@@ -945,17 +945,15 @@
                                     <input type="hidden" name="PaymentID" >
                                 </div>
                             </div>
-                            @if(User::is_admin() OR User::is('AccountManager'))
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-                                        <div class="col-sm-6">
-                                            <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                                        </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+                                    <div class="col-sm-6">
+                                        <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                                     </div>
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
