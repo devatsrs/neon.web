@@ -394,7 +394,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             return true;
         }
 
-        if(User::is($ResourceCategoryName.$ResourceCategoryAction) || User::is($ResourceCategoryName.'*')) {
+        if(User::is($ResourceCategoryName.'.'.$ResourceCategoryAction) || User::is($ResourceCategoryName.'.*')) {
             return true;
         }
         return false;

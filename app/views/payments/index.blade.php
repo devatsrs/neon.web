@@ -252,7 +252,7 @@
 
 
             <br>
-            @if(User::is_admin() or User::can('Payment','Add'))
+            @if(User::is_admin() || User::can('Payments','Add'))
                 <p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
