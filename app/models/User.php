@@ -384,4 +384,21 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
     }
 
+    /**
+     * User::has("Payment","Add")  will check Payment.Add or Paymente.*
+     * check Permission - For Buttons
+     */
+    public static function can($ResourceCategoryName ,$ResourceCategoryAction = '*'){
+
+        if(User::is_admin()){
+            return true;
+        }
+
+        if(User::is($ResourceCategoryName.'.'.$ResourceCategoryAction) || User::is($ResourceCategoryName.'.*')) {
+            return true;
+        }
+        return false;
+
+    }
+
 }
