@@ -41,4 +41,15 @@ class Lead extends \Eloquent {
         return $lead_owners;
     }
 
+    public static  function getLeadList(){
+        $companyID  = User::get_companyID();
+        $leads = Account::Where(["AccountType"=> 0,"CompanyID"=>$companyID,"Status"=>1])
+            ->select(['AccountID','AccountName'])->lists('AccountName','AccountID');
+        if(!empty($leads)){
+            $row = array(""=> "Select a Lead")+$leads;
+        }
+        return $row;
+        return $leads;
+    }
+
 }

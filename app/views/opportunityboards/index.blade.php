@@ -1,0 +1,327 @@
+@extends('layout.main')
+
+@section('content')
+    <ol class="breadcrumb bc-3">
+        <li>
+            <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+        </li>
+        <li>
+            <a href="javascript:void(0)">Opportunity</a>
+        </li>
+        <li class="active">
+            <strong>Board</strong>
+        </li>
+    </ol>
+
+    <div class="tab-content">
+        <div class="tab-pane active">
+            <div class="row">
+                <div class="col-md-12 clearfix">
+                    <h2>Opportunity Boards
+                    </h2>
+                </div>
+            </div>
+            <div class="clear"></div>
+            <br>
+            <p style="text-align: right;">
+                <a href="#" id="add-new-opportunityboard" class="btn btn-primary ">
+                    <i class="entypo-plus"></i>
+                    Add New Opportunity Board
+                </a>
+            </p>
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="opportunityboard_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                        <div class="panel panel-primary" data-collapsed="0">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    Filter
+                                </div>
+                                <div class="panel-options">
+                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Opportunity Board Name</label>
+                                    <div class="col-sm-2">
+                                        {{ Form::text('OpportunityBoardName', '', array("class"=>"form-control")) }}
+                                    </div>
+                                    <label for="field-1" class="col-sm-2 control-label">Active</label>
+                                    <div class="col-sm-2">
+                                        <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+                                        {{ Form::select('Active', $active, '', array("class"=>"form-control selectboxit")) }}
+                                    </div>
+                                </div>
+                                <p style="text-align: right;">
+                                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                        <i class="entypo-search"></i>
+                                        Search
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <table class="table table-bordered datatable" id="table-4">
+                <thead>
+                <tr>
+                    <th width="30%">Opportunity Board Name</th>
+                    <th width="10%">Active</th>
+                    <th width="10%">Created By</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <script type="text/javascript">
+                var list_fields  = ['OpportunityBoardName' ,'Status','CreatedBy','OpportunityBoardID'];
+                var $searchFilter = {};
+                var update_new_url;
+                var postdata;
+                jQuery(document).ready(function ($) {
+                    public_vars.$body = $("body");
+                    $searchFilter.OpportunityBoardName = $("#opportunityboard_filter [name='OpportunityBoardName']").val();
+                    $searchFilter.Active = $("#opportunityboard_filter select[name='Active']").val();
+                    data_table = $("#table-4").dataTable({
+                        "bDestroy": true,
+                        "bProcessing": true,
+                        "bServerSide": true,
+                        "sAjaxSource": baseurl + "/opportunityboards/ajax_datagrid",
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "OpportunityBoardName", "value": $searchFilter.OpportunityBoardName },
+                                    { "name": "Active", "value": $searchFilter.Active });
+
+                            data_table_extra_params.length = 0;
+                            data_table_extra_params.push({ "name": "OpportunityBoardName", "value": $searchFilter.OpportunityBoardName },
+                                    { "name": "Active", "value": $searchFilter.Active },{ "name": "Export", "value": 1});
+
+                        },
+                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "sPaginationType": "bootstrap",
+                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "aaSorting": [[0, 'asc']],
+                        "aoColumns": [
+                            {  "bSortable": true ,
+                                mRender:function(val,type,full){
+                                    var manage =baseurl + '/opportunityboards/{id}/manage';
+                                    manage = manage.replace('{id}',full[3]);
+                                    return ' <a href="'+manage+'">'+val+'</a>';
+                                }
+                            },  // 1 Opportunity Board Name
+                            {  "bSortable": true,
+                                mRender: function (val){
+                                    if(val==1){
+                                        return   '<i class="entypo-check" style="font-size:22px;color:green"></i>'
+                                    }else {
+                                        return '<i class="entypo-cancel" style="font-size:22px;color:red"></i>'
+                                    }
+                                }
+
+                            },  // 2 Active
+                            {  "bSortable": true },  // 3 Created By
+                            {                       //  5  Action
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    var configure = baseurl + '/opportunityboards/{id}/configure';
+                                    configure = configure.replace('{id}',id);
+                                    action = '<div class = "hiddenRowData" >';
+                                    for(var i = 0 ; i< list_fields.length; i++){
+                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                    }
+                                    action += '</div>';
+                                    @if(User::checkCategoryPermission('opportunityboards','Edit'))
+                                        action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" class="edit-opportunitybaord btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                        action += ' <a class="manage-deal-board" href="'+configure+'"><i class="entypo-cog"></i> Configure Board</a>';
+                                    @endif
+                                    return action;
+                                }
+                            }
+                        ],
+                        "oTableTools": {
+                            "aButtons": [
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "Export Data",
+                                    "sUrl": baseurl + "/opportunityboards/ajax_datagrid", //baseurl + "/generate_xls.php",
+                                    sButtonClass: "save-collection"
+                                }
+                            ]
+                        },
+                        "fnDrawCallback": function () {
+                            $(".dataTables_wrapper select").select2({
+                                minimumResultsForSearch: -1
+                            });
+                        }
+
+                    });
+                    $("#opportunityboard_filter").submit(function(e){
+                        e.preventDefault();
+                        $searchFilter.OpportunityBoardName = $("#opportunityboard_filter [name='OpportunityBoardName']").val();
+                        $searchFilter.Active = $("#opportunityboard_filter select[name='Active']").val();
+                        data_table.fnFilter('', 0);
+                        return false;
+                    });
+
+
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
+
+                    $('table tbody').on('click', '.edit-opportunitybaord', function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        $('#add-edit-opportunitybaord-form').trigger("reset");
+                        var cur_obj = $(this).prev("div.hiddenRowData");
+                        for(var i = 0 ; i< list_fields.length; i++){
+
+                            if(list_fields[i] == 'Status'){
+                                if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
+                                    $('#add-edit-opportunitybaord-form [name="Status"]').prop('checked',true)
+                                }else{
+                                    $('#add-edit-opportunitybaord-form [name="Status"]').prop('checked',false)
+                                }
+                            }else{
+                                $("#add-edit-opportunitybaord-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            }
+                        }
+                        $('#add-edit-modal-opportunity-board h4').html('Edit Opportunity Board');
+                        $('#add-edit-modal-opportunity-board').modal('show');
+                    });
+
+                    $('#add-new-opportunityboard').click(function (ev) {
+                        ev.preventDefault();
+                        $('#add-edit-opportunitybaord-form').trigger("reset");
+                        $("#add-edit-opportunitybaord-form [name='OpportunityBoardID']").val('');
+                        $('#add-edit-modal-opportunity-board h4').html('Add New Opportunity Board');
+                        $('#add-edit-modal-opportunity-board').modal('show');
+                    });
+
+                    $('#add-edit-opportunitybaord-form').submit(function(e){
+                        e.preventDefault();
+                        var OpportunityBoardID = $("#add-edit-opportunitybaord-form [name='OpportunityBoardID']").val()
+                        if( typeof OpportunityBoardID != 'undefined' && OpportunityBoardID != ''){
+                            update_new_url = baseurl + '/opportunityboards/'+OpportunityBoardID+'/update';
+                        }else{
+                            update_new_url = baseurl + '/opportunityboards/create';
+                        }
+                        var formData = new FormData($('#add-edit-opportunitybaord-form')[0]);
+                        $.ajax({
+                            url: update_new_url,  //Server script to process data
+                            type: 'POST',
+                            dataType: 'json',
+                            success: function (response) {
+                                if(response.status =='success'){
+                                    toastr.success(response.message, "Success", toastr_opts);
+                                    $('#add-edit-modal-opportunity-board').modal('hide');
+                                    data_table.fnFilter('', 0);
+                                }else{
+                                    toastr.error(response.message, "Error", toastr_opts);
+                                }
+                                $("#opportunityboard-update").button('reset');
+                            },
+                            // Form data
+                            data: formData,
+                            //Options to tell jQuery not to process data or worry about content-type.
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        });
+                    });
+
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
+
+                    $('body').on('click', '.btn.delete', function (e) {
+                        e.preventDefault();
+
+                        response = confirm('Are you sure?');
+                        if( typeof $(this).attr("data-redirect")=='undefined'){
+                            $(this).attr("data-redirect",'{{ URL::previous() }}')
+                        }
+                        redirect = $(this).attr("data-redirect");
+                        if (response) {
+
+                            $.ajax({
+                                url: $(this).attr("href"),
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function (response) {
+                                    $(".btn.delete").button('reset');
+                                    if (response.status == 'success') {
+                                        toastr.success(response.message, "Success", toastr_opts);
+                                        data_table.fnFilter('', 0);
+                                    } else {
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                    }
+                                },
+                                // Form data
+                                //data: {},
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }
+                        return false;
+                    });
+
+                });
+            </script>
+
+            @include('includes.errors')
+            @include('includes.success')
+
+        </div>
+    </div>
+@stop
+@section('footer_ext')
+    @parent
+    <div class="modal fade" id="add-edit-modal-opportunity-board">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-edit-opportunitybaord-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New Opportunity Board</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Opportunity Board Name *</label>
+                                    <input type="text" name="OpportunityBoardName" class="form-control" id="field-5" placeholder="">
+                                    <input type="hidden" name="OpportunityBoardID" />
+                                </div>
+                            </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Active</label>
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" name="Status" checked="" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="opportunityboard-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@stop

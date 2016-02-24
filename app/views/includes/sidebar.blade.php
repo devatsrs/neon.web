@@ -207,6 +207,20 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </li>
             @endif
         @endif
+        <li>
+            <a href="#">
+                <i class="entypo-layout"></i>
+                <span>CRM</span>
+            </a>
+            <ul>
+                <li>
+                    <a href="{{URL::to('/opportunityboards')}}">
+                        <i class="entypo-pencil"></i>
+                        <span>Opportunity Board</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
         @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
             @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
                 User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||

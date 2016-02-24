@@ -552,6 +552,43 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 
+    //Opportunity boards
+
+    Route::any('/opportunityboards', 'OpportunityBoardController@index');
+    Route::any('/opportunityboards/create', 'OpportunityBoardController@create');
+    Route::any('/opportunityboards/{id}/configure', 'OpportunityBoardController@configure');
+    Route::any('/opportunityboards/{id}/manage/', 'OpportunityBoardController@manage');
+    Route::any('/opportunityboards/{id}/update', 'OpportunityBoardController@update');
+    Route::any('/opportunityboards/{id}/delete', 'OpportunityBoardController@delete');
+    Route::any('/opportunityboards/ajax_datagrid', 'OpportunityBoardController@ajax_datagrid');
+
+
+    //opportunity boards column
+
+    Route::any('/opportunityboardcolumn', 'OpportunityBoardColumnController@index');
+    Route::any('/opportunityboardcolumn/create', 'OpportunityBoardColumnController@create');
+    Route::any('/opportunityboardcolumn/{id}/update', 'OpportunityBoardColumnController@update');
+    Route::any('/opportunityboardcolumn/{id}/delete', 'OpportunityBoardColumnController@delete');
+    Route::any('/opportunityboardcolumn/{id}/ajax_datacolumn', 'OpportunityBoardColumnController@ajax_datacolumn');
+    Route::any('/opportunityboardcolumn/{id}/updateColumnOrder', 'OpportunityBoardColumnController@updateColumnOrder');
+
+    //Opportunity
+
+    Route::any('/opportunity/create', 'OpportunityController@create');
+    Route::any('/opportunity/{id}/saveattachment', 'OpportunityController@saveattachment');
+    Route::any('/opportunity/{id}/getlead', 'OpportunityController@getLead');
+    Route::any('/opportunity/{id}/getopportunity', 'OpportunityController@getopportunity');
+    Route::any('/opportunity/{id}/update', 'OpportunityController@update');
+    Route::any('/opportunity/{id}/deleteattachment/{attachmentid}', 'OpportunityController@deleteAttachment');
+    Route::any('/opportunity/{id}/updateColumnOrder', 'OpportunityController@updateColumnOrder');
+    Route::any('/opportunity/{id}/ajax_opportunity', 'OpportunityController@ajax_opportunity');
+    Route::any('/opportunity/{id}/ajax_getattachments', 'OpportunityController@ajax_getattachments');
+
+    //Opportunity Comments
+
+    Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');
+    Route::any('/opportunitycomments/{id}/ajax_opportunitycomments', 'OpportunityCommentsController@ajax_opportunityComments');
+
 	//Product
 
 	Route::any('/products', 'ProductsController@index');

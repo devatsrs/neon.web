@@ -68,6 +68,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/fileinput.js",
         "assets/js/icheck/icheck.min.js",
         "assets/js/typeahead.min.js",
+        "assets/js/bootstrap-colorpicker.min.js"
 
     ];
 }

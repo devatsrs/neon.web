@@ -711,3 +711,14 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     }
     return $datetime;
 }
+
+function validfilepath($path){
+    $path = AmazonS3::unSignedUrl($path);
+    if (!is_numeric(strpos($path, "https://"))) {
+        $path = str_replace('/', '\\', $path);
+        if (copy($path, './uploads/' . basename($path))) {
+            $path = URL::to('/') . '/uploads/' . basename($path);
+        }
+    }
+    return $path;
+}
