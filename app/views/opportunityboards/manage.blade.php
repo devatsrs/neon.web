@@ -280,7 +280,6 @@
                 });
             });
             $(document).on('change','#add-opportunity-attachment-form input[type="file"]',function(){
-                $(this).button('Loading..');
                 var opportunityID = $('#add-opportunity-attachment-form [name="OpportunityID"]').val();
                 var formData = new FormData($('#add-opportunity-attachment-form')[0]);
                 var url = baseurl + '/opportunity/'+opportunityID+'/saveattachment';
@@ -295,7 +294,6 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        $(this).buttons('reset');
                         $('#add-opportunity-attachment-form').trigger("reset");
                         $('#addattachmentop .file-input-name').empty();
                         getOpportunityAttachment();

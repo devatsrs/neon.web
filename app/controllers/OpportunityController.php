@@ -129,13 +129,12 @@ class OpportunityController extends \BaseController {
             unset($data['Email']);
         }
         // place new opp. in first column of board
-        $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID']])->first()->pluck('OpportunityBoardColumnID');
+        $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID'],'Order'=>0])->pluck('OpportunityBoardColumnID');
         $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
         $data['Order'] = $count;
         $data["CreatedBy"] = User::get_user_full_name();
         unset($data['OppertunityID']);
         unset($data['leadcheck']);
-
         if (Opportunity::create($data)) {
             return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
         } else {
