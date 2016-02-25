@@ -86,7 +86,7 @@ class OpportunityController extends \BaseController {
     public function deleteAttachment($opportunityID,$attachmentID){
         $attachmentPaths = Opportunity::find($opportunityID)->AttachmentPaths;
         if(!empty($attachmentPaths)){
-            $attachmentPaths = json_decode($attachmentPaths);
+            $attachmentPaths = json_decode($attachmentPaths,true);
             unset($attachmentPaths[$attachmentID]);
             $data = ['AttachmentPaths'=>json_encode($attachmentPaths)];
             $result = Opportunity::where(['opportunityID'=>$opportunityID])->update($data);
