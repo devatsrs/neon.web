@@ -243,6 +243,7 @@
 
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
+                $('#allComments,#attachments').empty();
                 var opportunityID = $(this).attr('data-id');
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
@@ -283,6 +284,10 @@
                 var opportunityID = $('#add-opportunity-attachment-form [name="OpportunityID"]').val();
                 var formData = new FormData($('#add-opportunity-attachment-form')[0]);
                 var url = baseurl + '/opportunity/'+opportunityID+'/saveattachment';
+                var top = $(this).offset().top;
+                top = top-300;
+                $('#attachment_processing').css('top',top);
+                $('#attachment_processing').removeClass('hidden');
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -291,6 +296,7 @@
                         if(response.status =='success'){
                             toastr.success(response.message, "Success", toastr_opts);
                             $('#add-opportunity-attachment-form').trigger("reset");
+                            $('#attachment_processing').addClass('hidden');
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
@@ -613,6 +619,7 @@
                         </div>
                         <div id="attachments" class="form-group">
                         </div>
+                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <div class="col-md-12">
