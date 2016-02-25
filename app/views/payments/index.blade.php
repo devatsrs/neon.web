@@ -252,8 +252,8 @@
 
 
             <br>
-            @if(User::is_admin() || User::can('Payments','Add'))
-                <p style="text-align: right;">
+            @if(User::can('Payments','Add'))
+				<p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
                         Add New Payment Request
