@@ -277,7 +277,7 @@
                                 <div class="form-group">
                                                     <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
                                                     <div class="col-sm-4">
-                                                        {{Form::select('BillingCycleType', Company::$BillingCycleType, $BillingCycleType,array("class"=>"form-control select2"))}}
+                                                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType,array("class"=>"form-control select2"))}}
                                                     </div>
                                                     <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                                                         <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>
