@@ -722,3 +722,7 @@ function validfilepath($path){
     }
     return $path;
 }
+function SortBillingType(){
+    ksort(Company::$BillingCycleType);
+    return Company::$BillingCycleType;
+}

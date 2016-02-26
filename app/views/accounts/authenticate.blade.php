@@ -46,7 +46,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <?php $AccountNameFormat = array(''=>'Select An Authentication Rule')+GatewayConfig::$AccountNameFormat;?>
+                        <?php $AccountNameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$AccountNameFormat;?>
                         <label for="field-1" class="col-sm-2 control-label">Authentication Rule
 
                         </label>
@@ -319,7 +319,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label">AccountIP</label>
+                        <label class="col-sm-3 control-label">Account IP</label>
                         <div class="col-sm-5">
                             <input name="AccountIP" type="text" class="form-control">
                         </div>

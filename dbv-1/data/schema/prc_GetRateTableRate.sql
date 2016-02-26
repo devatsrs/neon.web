@@ -18,7 +18,8 @@ BEGIN
         updated_at DATETIME,
         ModifiedBy VARCHAR(50),
         RateTableRateID INT,
-        RateID INT
+        RateID INT,
+        INDEX tmp_RateTableRate_RateID (`RateID`)
     );
     
     

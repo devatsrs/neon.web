@@ -15,6 +15,17 @@ class Company extends \Eloquent {
     const LICENCE_RM = 1;
 
     public static $billing_time = array(''=>'select a time',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time');
+    public static $BillingCycleType =
+        array(
+             ""=>"Please Select an Option",
+            "weekly"=>"Weekly",
+            "fortnightly"=>"Fortnightly",
+            "monthly"=>"Monthly" ,
+            "quarterly"=>"Quarterly",
+            "daily"=>"Daily",
+            "in_specific_days"=>"In Specific days",
+            "monthly_anniversary"=>"Monthly anniversary"
+        );
 
     // CDR Rerate Based on Charge code or Prefix
     const CHARGECODE =1;
