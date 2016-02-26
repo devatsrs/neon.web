@@ -32,20 +32,15 @@ BEGIN
 
 			
     PREPARE stmt1 FROM @stm1;
-    select @stm1 ;
     EXECUTE stmt1;
     DEALLOCATE PREPARE stmt1;
-   
-	 select * from tmp_TempUsageDetail_;
-	 
-	  
-    SET @uids := null;
+   	 
+    
     set @stm2 = CONCAT('UPDATE ' , p_tbltempusagedetail_name , ' tbl2
     INNER JOIN tmp_TempUsageDetail_ tbl
         ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
     SET tbl2.area_prefix = tbl.prefix 
-    WHERE tbl2.processId = "' , p_processid , '" and tbl2.is_inbound = 1 and ( SELECT @uids := CONCAT_WS(",", tbl2.TempUsageDetailID, @uids) );
-
+    WHERE tbl2.processId = "' , p_processid , '" and tbl2.is_inbound = 1 ;
 	 ');
    	
 
@@ -53,8 +48,6 @@ BEGIN
     EXECUTE stmt2;
     DEALLOCATE PREPARE stmt2;
     
-    select  @uids;
-
 /* Update Inbound Rate  */
 	
 	set @stm3 = CONCAT('update  ' , p_tbltempusagedetail_name  , ' ud
