@@ -3,7 +3,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_salesDashboard`(IN `p_CompanyID
 BEGIN
    DECLARE v_Round_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-   SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount';
+   SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 	SELECT
         ROUND(ifNull(CAST(SUM(TotalCharges) as DECIMAL(16,5)),0),v_Round_) AS TotalCharges
     FROM tblUsageDaily ud

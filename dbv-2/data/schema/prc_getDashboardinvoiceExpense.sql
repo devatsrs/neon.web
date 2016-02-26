@@ -22,7 +22,7 @@ BEGIN
 			
 		);
 
-		SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount';
+		SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 	 INSERT INTO tmp_MonthlyTotalDue_
     SELECT YEAR(created_at) as Year, MONTH(created_at) as Month,MONTHNAME(MAX(created_at)) as  MonthName, ROUND(SUM(IFNULL(GrandTotal,0)),v_Round_) as TotalAmount,CurrencyID
     from tblInvoice

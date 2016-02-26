@@ -4,7 +4,7 @@ BEGIN
 
 	DECLARE v_Round_ int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount';
+	SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,0,p_StartDate,p_EndDate,0,1,1);
 	
 	IF p_Type =1 AND  p_PinExt = 'pincode' /* Top Pincodes by cost*/
