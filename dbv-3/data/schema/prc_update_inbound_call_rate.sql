@@ -86,6 +86,6 @@ BEGIN
    EXECUTE stmt5;
    DEALLOCATE PREPARE stmt5;
 
-	select * from tmp_Message_;
+	select distinct Message from tmp_Message_;
 		 
 END
