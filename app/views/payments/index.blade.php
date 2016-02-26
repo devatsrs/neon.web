@@ -516,15 +516,16 @@
                             success: function(response) {
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
-
-                                    //toastr.success(response.message, "Success", toastr_opts);
-
-                                    $('#confirm-modal-payment h4').text('Confirm Payment');
-                                    message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
-                                    var ProcessID = response.ProcessID;
-                                    $('#add-template').find('[name="ProcessID"]').val(ProcessID);
-                                    $('#confirm-modal-payment').modal('show');
-                                    $('#confirm-payment-form .warnings').html(message);
+                                    if(response.message) {
+                                        $('#confirm-modal-payment h4').text('Confirm Payment');
+                                        message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
+                                        var ProcessID = response.ProcessID;
+                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                        $('#confirm-modal-payment').modal('show');
+                                        $('#confirm-payment-form .warnings').html(message);
+                                    }else{
+                                        $("#confirm-payments").click();
+                                    }
 
                                 } else {
 
@@ -564,6 +565,7 @@
                             success: function(response) {
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
+                                    $('#confirm-modal-payment').modal('hide');
                                     toastr.success(response.message, "Success", toastr_opts);
                                     location.reload();
                                 } else {
@@ -579,7 +581,7 @@
                                         $('#confirm-payment-form [name="warnings"]').html(message);
 
                                     }else if(response.messagestatus == 'Success' ){   //
-                                        $('#confirm-modal-payment').modal('hide');
+
                                     }else{                                      // Error
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }
