@@ -92,6 +92,10 @@
                                 <div class="col-sm-2">
                                     {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
+                                <label class="col-sm-2 control-label" for="field-1">CDR Type</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "OutBound" ),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
 
                             </div>
                             <p style="text-align: right;">
@@ -172,7 +176,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
-            var list_fields  =['AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date'];
+            var list_fields  =['AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
             var starttime = $("#cdr_filter [name='StartTime']").val();
             if(starttime =='0:00:01'){
                 starttime = '0:00:00';
@@ -181,6 +185,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.EndDate = $("#cdr_filter [name='EndDate']").val();
             $searchFilter.CompanyGatewayID = $("#cdr_filter [name='CompanyGatewayID']").val();
             $searchFilter.AccountID = $("#cdr_filter [name='AccountID']").val();
+            $searchFilter.CDRType = $("#cdr_filter [name='CDRType']").val();
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
                toastr.error("Please Select a Start date", "Error", toastr_opts);
                return false;
@@ -200,9 +205,9 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID});
+                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"Export","value":1});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[0, 'asc']],
