@@ -16,7 +16,7 @@
 </ol>
 <h3>Vendor Rate Sheet Upload/Download History</h3>
 
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
 <li>
     <a href="{{ URL::to('vendor_rates/'.$id) }}" >

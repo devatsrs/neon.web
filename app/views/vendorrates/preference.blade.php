@@ -15,7 +15,7 @@
     </li>
 </ol>
 <h3>Vendor Preference</h3>
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
 <li >
     <a href="{{ URL::to('vendor_rates/'.$id) }}" >

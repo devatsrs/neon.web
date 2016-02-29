@@ -41,7 +41,7 @@
 
 </p>
 <?php $Account = $account;?>
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 @if($outstanding>0)
 <div  class=" toast-container-fix toast-top-full-width">
         <div class="toast toast-error" style="">
