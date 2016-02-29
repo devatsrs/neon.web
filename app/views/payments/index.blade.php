@@ -490,13 +490,7 @@
 
                     $("#payment-status-form").submit(function(e){
                         e.preventDefault();
-                        if($(this).find("input[name='Notes']").val().trim() == ''){
-                            toastr.error("Please Enter a Notes", "Error", toastr_opts);
-                            return false;
-                        }
-                        if($(this).find("input[name='Notes']").val().trim() !== ''){
-                            submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize())
-                        }
+                        submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize());
                     });
 
                     $("#payments-upload").click(function(e){
@@ -1065,7 +1059,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button type="submit" id="payment-status" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             <input type="hidden" name="URL" value="">
                             Save
