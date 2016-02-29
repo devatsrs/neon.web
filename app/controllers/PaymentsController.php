@@ -207,6 +207,12 @@ class PaymentsController extends \BaseController {
     public function payment_approve_reject($id,$action){
         if(User::is('BillingAdmin')  || User::is_admin() ) {
             if ($id && $action) {
+                $data = Input::all();
+                $rules['Notes'] = 'required';
+                $validator = Validator::make($data, $rules);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
                 $Payment = Payment::findOrFail($id);
                 $save = array();
                 if ($action == 'approve') {
@@ -214,7 +220,7 @@ class PaymentsController extends \BaseController {
                 } else if ($action == 'reject') {
                     $save['Status'] = 'Rejected';
                 }
-                $data = Input::all();
+
                 $Payment->Notes .= '<br/>'.$data['Notes'];
                 if ($Payment->update($save)) {
                     $managerinfo =  Account::getAccountManager($Payment->AccountID);
