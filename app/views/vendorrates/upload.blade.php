@@ -267,7 +267,7 @@
                             {{Form::select('selection[Rate]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">EffectiveDate*</label>
+                        <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
                         <div class="col-sm-4">
                             {{Form::select('selection[EffectiveDate]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
