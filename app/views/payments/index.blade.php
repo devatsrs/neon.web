@@ -581,7 +581,7 @@
                                         $('#confirm-payment-form [name="warnings"]').html(message);
 
                                     }else if(response.messagestatus == 'Success' ){   //
-
+                                        $('#confirm-modal-payment').modal('hide');
                                     }else{                                      // Error
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }

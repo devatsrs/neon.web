@@ -540,7 +540,7 @@ class VendorRatesController extends \BaseController
         $rules['selection.Code'] = 'required';
         $rules['selection.Description'] = 'required';
         $rules['selection.Rate'] = 'required';
-        $rules['selection.EffectiveDate'] = 'required';
+        //$rules['selection.EffectiveDate'] = 'required';
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
