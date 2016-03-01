@@ -1,4 +1,4 @@
-@extends('layout.Customer.main')
+@extends('layout.customer.main')
 
 @section('content')
 
