@@ -76,7 +76,7 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="15%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
             <div class="pull-right"> Sent/Receive</div></th>
         <th width="20%">Account Name</th>
         <th width="10%">Invoice Number</th>
@@ -84,7 +84,7 @@
         <th width="10%">Grand Total</th>
         <th width="10%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
-        <th width="10%">Action</th>
+        <th width="15%">Action</th>
     </tr>
     </thead>
     <tbody>
