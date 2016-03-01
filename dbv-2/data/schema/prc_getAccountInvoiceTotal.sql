@@ -13,7 +13,7 @@ BEGIN
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_); 
+	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,''); 
 	
 	IF p_checkDuplicate = 1 THEN
 	

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(IN `p_company_id` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT , IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(IN `p_company_id` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT , IN `p_CDRType` CHAR(1), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
 BEGIN 
 
 	   DECLARE v_OffSet_ int;
@@ -17,7 +17,8 @@ BEGIN
 		SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
     
     
-    	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_);
+    	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CDRType);
+
 
 	IF p_isExport = 0
 	THEN 
@@ -32,7 +33,8 @@ BEGIN
 		        AccountID,
 		        p_CompanyGatewayID as CompanyGatewayID,
 		        p_start_date as StartDate,
-		        p_end_date as EndDate  from(
+		        p_end_date as EndDate,
+				  is_inbound as CDRType  from(
 		        SELECT
 		        		Distinct
 		            uh.AccountName as AccountName,           
@@ -42,9 +44,8 @@ BEGIN
 		            uh.cli,
 		            uh.cld,
 						format(uh.cost,6) as cost,
-						AccountID
-		            
-		        
+						AccountID,
+						is_inbound
 		        FROM tmp_tblUsageDetails_ uh
 		         
 		        
@@ -108,7 +109,8 @@ BEGIN
 		        duration,
 		        cost,
 		        cli,
-		        cld
+		        cld,
+		        is_inbound
 			from(
 		        SELECT
 		        		Distinct
@@ -119,7 +121,8 @@ BEGIN
 		            uh.cli,
 		            uh.cld,
 						format(uh.cost,6) as cost,
-						AccountID
+						AccountID,
+						is_inbound
 		        FROM tmp_tblUsageDetails_ uh
 		    ) AS TBL;
 		

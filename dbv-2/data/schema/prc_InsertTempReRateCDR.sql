@@ -10,7 +10,7 @@ BEGIN
 
     SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
     
-    CALL fnUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_); 
+    CALL fnUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,''); 
     
     set @stm1 = CONCAT('
 
