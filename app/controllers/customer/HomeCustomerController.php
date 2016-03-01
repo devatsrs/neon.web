@@ -1,7 +1,5 @@
 <?php
 
-Use \DebugBar;
-
 class HomeCustomerController extends BaseController {
 
     public function __construct() {
