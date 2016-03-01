@@ -24,7 +24,7 @@ BEGIN
 	        EffectiveDate DATE,
 	        updated_at DATETIME,
 	        updated_by VARCHAR(50),
-	        INDEX tmp_VendorRate_RateID (`RateID`)
+	        INDEX tmp_VendorRate_RateID (`Code`)
 
 	    );
 	    
