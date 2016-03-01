@@ -114,6 +114,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/{id}/show', array('as' => 'accounts_show', 'uses' => 'AccountsController@show'));
 	Route::any('/accounts/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'AccountsController@store_note'));
 	Route::any('/accounts/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'AccountsController@delete_note'));
+    Route::any('/accounts/{id}/createOpportunity', array('as' => 'opportunity_create', 'uses' => 'AccountsController@createOpportunity'));
 	Route::any('accounts/upload/{id}', 'AccountsController@upload');
 	Route::any('accounts/download_doc/{id}', 'AccountsController@download_doc');
 	Route::any('accounts/download_doc_file/{id}', 'AccountsController@download_doc_file');
@@ -195,6 +196,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
 	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
 	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));
+    Route::any('/leads/{id}/createOpportunity', array('as' => 'opportunity_create', 'uses' => 'LeadsController@createOpportunity'));
     Route::any('/leads/{id}/ajax_template', 'LeadsController@ajax_template');
     Route::any('/leads/bulk_mail', 'LeadsController@bulk_mail');
     Route::any('/leads/bulk_tags', 'LeadsController@bulk_tags');
@@ -577,6 +579,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/create', 'OpportunityController@create');
     Route::any('/opportunity/{id}/saveattachment', 'OpportunityController@saveattachment');
     Route::any('/opportunity/{id}/getlead', 'OpportunityController@getLead');
+    Route::any('/opportunity/{id}/getDropdownLeadAccount', 'OpportunityController@getDropdownLeadAccount');
     Route::any('/opportunity/{id}/getopportunity', 'OpportunityController@getopportunity');
     Route::any('/opportunity/{id}/update', 'OpportunityController@update');
     Route::any('/opportunity/{id}/deleteattachment/{attachmentid}', 'OpportunityController@deleteAttachment');

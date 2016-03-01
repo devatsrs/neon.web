@@ -256,6 +256,7 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 
         //["tblAccount.Number",
@@ -328,7 +329,9 @@
                                 action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
                                 action += '&nbsp;<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
-
+                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                action += '&nbsp;<a href="javascript:void(0)" data-id="'+full[0]+'" class="btn btn-default btn-sm btn-icon icon-left opportunity"><i class="entypo-users"></i>Add Opportunity </a>';
+                                <?php } ?>
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -768,6 +771,29 @@
             });
         });
 
+        $(document).on('click','.opportunity',function(){
+            var accountID = $(this).attr('data-id');
+            $('#add-edit-opportunity-form').trigger('reset');
+            $('#add-edit-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+            if(accountID) {
+                var url = baseurl + '/opportunity/' + accountID + '/getlead';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        setunsetreadonly(response[0],true);
+                        $('#add-edit-modal-opportunity').modal('show');
+                    },
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+
+
         $("#test").click(function(e){
             e.preventDefault();
             $("#BulkMail-form").find('[name="test"]').val(1);
@@ -807,7 +833,7 @@
             var el = $('#account_filter').find('[name="tags"]');
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$accountTags}}});
         });
 
         $("#bulk-tags").click(function() {
@@ -815,7 +841,7 @@
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
             el.val('');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$accountTags}}});
             $('#modal-BulkTags').find('[name="SelectedIDs"]').val('');
             $('.save').button('reset');
             $('#modal-BulkTags').modal('show');
@@ -846,6 +872,25 @@
             $('#table-4').toggleClass('hidden');
         });
 
+        $('#add-edit-modal-opportunity .reset').click(function(){
+            var colorPicker = $(this).parents('.form-group').find('[type="text"].colorpicker');
+            var color = $(this).attr('data-color');
+            setcolor(colorPicker,color);
+        });
+
+        $(document).on('mouseover','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            setrating(currentrateid);
+        });
+        $(document).on('click','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            $('#rating input[name="Rating"]').val(currentrateid);
+            setrating(currentrateid);
+        });
+        $(document).on('mouseleave','#rating',function(){
+            var defultrateid = $('#rating input[name="Rating"]').val();
+            setrating(defultrateid);
+        });
 
         $("#BulkTag-form").submit(function(e){
             e.preventDefault();
@@ -887,8 +932,40 @@
             }
         });
 
-        $(".tags").select2({
-            tags:{{$tags}}
+        $('#add-edit-opportunity-form').submit(function(e){
+            e.preventDefault();
+            var AccountID = $('#add-edit-opportunity-form [name="AccountID"]').val();
+            var url = baseurl + '/accounts/'+AccountID+'/createOpportunity';
+            var formData = new FormData($('#add-edit-opportunity-form')[0]);
+            $.ajax({
+                url: url,  //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if(response.status =='success'){
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('#add-edit-modal-opportunity').modal('hide');
+                    }else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                    $("#opportunity-update").button('reset');
+                },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
+
+        $(".accountTags").select2({
+            tags:{{$accountTags}}
+        });
+
+        $('.opportunityTags').select2({
+            tags:{{$opportunityTags}}
         });
 
         function drodown_reset(){
@@ -935,6 +1012,34 @@
                 parser: function(html) {
                     return html;
                 }
+            });
+        }
+
+        function setunsetreadonly(data,status){
+            for(var i = 0 ; i< readonly.length; i++){
+                $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val('');
+                $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
+                if(data){
+                    $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val(data[readonly[i]]);
+                }
+            }
+        }
+
+        function setcolor(elem,color){
+            elem.colorpicker('destroy');
+            elem.val(color);
+            elem.colorpicker({color:color});
+            elem.siblings('.input-group-addon').find('.color-preview').css('background-color', color);
+        }
+
+        function setrating(currentrateid){
+            $('#rating i').css('color','black');
+            $('#rating i').each(function(){
+                var rateid = $(this).attr('rate-id');
+                if(currentrateid<rateid){
+                    return false;
+                }
+                $(this).css('color','red');
             });
         }
     });
@@ -1172,6 +1277,142 @@
                     </div>
                     <div class="modal-footer">
                         <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-edit-modal-opportunity">
+        <div class="modal-dialog" style="width: 70%;">
+            <div class="modal-content">
+                <form id="add-edit-opportunity-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New Opportunity</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Account Owner *</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('UserID',$account_owners,User::get_userID(),array("class"=>"selectboxit",'disabled'))}}
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Opportunity Name *</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="leads">
+                                        <label for="field-5" class="control-label col-sm-2">Account</label>
+                                        <div class="col-sm-4">
+                                            {{Form::select('AccountID',$accounts,'',array("class"=>"selectboxit",'disabled'))}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Company</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="Company" class="form-control" id="field-5">
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Contact Name</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="ContactName" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Phone Number</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="Phone" class="form-control" id="field-5">
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Email Address</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="Email" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Select Board</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Select Background</label>
+                                    <div class="col-sm-3 input-group">
+                                        <input name="BackGroundColour" type="text" class="form-control colorpicker" value="#303641" />
+                                        <div class="input-group-addon">
+                                            <i class="color-preview"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-xs btn-danger reset" data-color="#303641" type="button">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Text Color</label>
+                                    <div class="col-sm-3 input-group">
+                                        <input name="TextColour" type="text" class="form-control colorpicker" value="#ffffff" />
+                                        <div class="input-group-addon">
+                                            <i class="color-preview"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
+                                    <div class="col-sm-4 input-group">
+                                        <input class="form-control opportunityTags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="input-1" class="control-label col-sm-2">Rate This</label>
+                                    <div id="rating" class="col-sm-4">
+                                        <i rate-id="1" class="entypo-star"></i>
+                                        <i rate-id="2" class="entypo-star"></i>
+                                        <i rate-id="3" class="entypo-star"></i>
+                                        <i rate-id="4" class="entypo-star"></i>
+                                        <i rate-id="5" class="entypo-star"></i>
+                                        <input type="hidden" name="Rating" value="1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="OpportunityID">
+                        <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
                         </button>

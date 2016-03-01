@@ -42,7 +42,8 @@ class OpportunityBoardController extends \BaseController {
         $account_owners = User::getOwnerUsersbyRole();
         $leads = Lead::getLeadList();
         $boards = OpportunityBoard::getBoards();
-        return View::make('opportunityboards.manage', compact('id','OpportunityBoard','account_owners','leads','boards'));
+        $tags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('opportunityboards.manage', compact('id','OpportunityBoard','account_owners','leads','boards','tags'));
     }
 
 	/**

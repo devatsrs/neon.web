@@ -128,6 +128,8 @@ class OpportunityController extends \BaseController {
             unset($data['PhoneNumber']);
             unset($data['Email']);
         }
+        //Add new tags to db against opportunity
+        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
         // place new opp. in first column of board
         $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID'],'Order'=>0])->pluck('OpportunityBoardColumnID');
         $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
@@ -135,6 +137,7 @@ class OpportunityController extends \BaseController {
         $data["CreatedBy"] = User::get_user_full_name();
         unset($data['OppertunityID']);
         unset($data['leadcheck']);
+        unset($data['leadOrAccount']);
         if (Opportunity::create($data)) {
             return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
         } else {
@@ -173,14 +176,16 @@ class OpportunityController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-/*
+
             if($data['leadcheck']=='Yes'){
                 unset($data['Company']);
                 unset($data['PhoneNumber']);
                 unset($data['Email']);
-            }*/
+            }
+            Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
             unset($data['leadcheck']);
             unset($data['OpportunityID']);
+            unset($data['leadOrAccount']);
             if (Opportunity::where(['OpportunityID'=>$id])->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Opportunity Successfully Updated"));
             } else {
@@ -204,10 +209,19 @@ class OpportunityController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
-
+    //@TODO: convert into procedure
     public function getLead($id){
-        return Lead::where(['tblAccount.AccountID'=>$id])->select(['AccountName','tblAccount.Phone','tblAccount.Email',DB::raw("concat(tblContact.FirstName,' ', tblContact.LastName) as ContactName")])
+        return Lead::where(['tblAccount.AccountID'=>$id])->select(['AccountName as Company','tblAccount.Phone','tblAccount.Email','tblAccount.AccountType',DB::raw("concat(tblContact.FirstName,' ', tblContact.LastName) as ContactName")])
             ->leftjoin('tblContact', 'tblContact.Owner', '=', 'tblAccount.AccountID')->get();
+    }
+
+    public function getDropdownLeadAccount($accountLeadCheck){
+        $data = Input::all();
+        if($accountLeadCheck==1) {
+            return json_encode(['result'=>Lead::getLeadList(['Owner'=>$data['UserID']])]);
+        }else {
+            return json_encode(['result'=>Account::getAccountIDList(['Owner'=>$data['UserID']])]);
+        }
     }
 
 }

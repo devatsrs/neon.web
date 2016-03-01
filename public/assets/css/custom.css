@@ -572,7 +572,7 @@ dialog {
 .board-column {
     position: relative;
     background: #f1f1f1;
-    width: 208px;
+    width: 195px;
     height: 100%;
     -ms-flex-negative: 0;
     -webkit-flex-shrink: 0;
@@ -638,8 +638,9 @@ ul.board-column-list {
     background-color:#f1f1f1;
 }
 #manage-board .manage-board-main {
-    /*border:1px solid #dee3e4;*/
+    border:1px solid #dee3e4;
     height: 200px;
+    padding-left: 8px;
 }
 #manage-board .manage-board-inner {
     margin-top:10px;

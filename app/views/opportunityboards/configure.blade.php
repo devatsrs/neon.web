@@ -8,11 +8,8 @@
             <li>
                 <a href="index.html"><i class="entypo-home"></i>Home</a>
             </li>
-            <li>
-                <a href="#">Opportunity</a>
-            </li>
             <li class="active">
-                <a href="{{URL::to('opportunityboards')}}">Board</a>
+                <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
             </li>
             <li class="active">
                 <strong>{{$OpportunityBoard->OpportunityBoardName}}</strong>
@@ -22,26 +19,27 @@
 
     <h3>Manage Opportunity Board</h3>
     <div id="manage-board">
+        <p style="text-align: right;">
+            <a href="{{URL::to('/opportunityboards')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+                <i class="entypo-cancel"></i>
+                Close
+            </a>
+            <a href="javascript:void(0)" id="add-colomn" class="btn btn-primary btn-sm btn-icon icon-left">
+                <i class="entypo-plus"></i>Add Column</a>
+        </p>
         <div class="row">
-            <div class="col-md-6 pull-left">
-
-            </div>
-            <div class="col-md-3 pull-right">
-                <a href="{{URL::to('/opportunityboards')}}" class="btn btn-primary"><i class="entypo-plus"></i>Close</a>
-                <a href="javascript:void(0)" id="add-colomn" class="btn btn-primary"><i class="entypo-plus"></i>Add Column</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="deals-board">
-                <div id="board-start" class="board manage-board-main">
-                    <ul id="deals-dashboard" class="no-select manage-board-inner ui-sortable">
-                    </ul>
-                    <div class="clearer">&nbsp;</div>
+            <div class="col-md-12">
+                <div class="deals-board">
+                    <div id="board-start" class="board manage-board-main">
+                        <ul id="deals-dashboard" class="no-select manage-board-inner ui-sortable">
+                        </ul>
+                        <div class="clearer">&nbsp;</div>
+                    </div>
                 </div>
+                <form id="columnorder" method="POST" />
+                    <input type="hidden" name="columnorder" />
+                </form>
             </div>
-            <form id="columnorder" method="POST" />
-                <input type="hidden" name="columnorder" />
-            </form>
         </div>
     </div>
 

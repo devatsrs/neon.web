@@ -5,11 +5,8 @@
         <li>
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
-        <li>
-            <a href="javascript:void(0)">Opportunity</a>
-        </li>
         <li class="active">
-            <strong>Board</strong>
+            <strong>Opportunity Board</strong>
         </li>
     </ol>
 
@@ -17,7 +14,7 @@
         <div class="tab-pane active">
             <div class="row">
                 <div class="col-md-12 clearfix">
-                    <h2>Opportunity Boards
+                    <h2>Boards
                     </h2>
                 </div>
             </div>
@@ -26,7 +23,7 @@
             <p style="text-align: right;">
                 <a href="#" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
-                    Add New Opportunity Board
+                    Add New Board
                 </a>
             </p>
             <div class="row">
@@ -43,7 +40,7 @@
                             </div>
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Opportunity Board Name</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Board Name</label>
                                     <div class="col-sm-2">
                                         {{ Form::text('OpportunityBoardName', '', array("class"=>"form-control")) }}
                                     </div>
@@ -67,7 +64,7 @@
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="30%">Opportunity Board Name</th>
+                    <th width="30%">Board Name</th>
                     <th width="10%">Active</th>
                     <th width="10%">Created By</th>
                     <th width="20%">Action</th>
@@ -134,7 +131,7 @@
                                     action += '</div>';
                                     @if(User::checkCategoryPermission('opportunityboards','Edit'))
                                         action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" class="edit-opportunitybaord btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                        action += ' <a class="manage-deal-board" href="'+configure+'"><i class="entypo-cog"></i> Configure Board</a>';
+                                        action += ' <a class="manage-deal-board btn btn-default btn-sm btn-icon icon-left" href="'+configure+'"><i class="entypo-cog"></i> Configure Board</a>';
                                     @endif
                                     return action;
                                 }
@@ -188,7 +185,7 @@
                                 $("#add-edit-opportunitybaord-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }
                         }
-                        $('#add-edit-modal-opportunity-board h4').html('Edit Opportunity Board');
+                        $('#add-edit-modal-opportunity-board h4').html('Edit Board');
                         $('#add-edit-modal-opportunity-board').modal('show');
                     });
 
@@ -287,13 +284,13 @@
                 <form id="add-edit-opportunitybaord-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Opportunity Board</h4>
+                        <h4 class="modal-title">Add New Board</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Opportunity Board Name *</label>
+                                    <label for="field-5" class="control-label">Board Name *</label>
                                     <input type="text" name="OpportunityBoardName" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="OpportunityBoardID" />
                                 </div>

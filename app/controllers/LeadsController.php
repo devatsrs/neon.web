@@ -68,24 +68,24 @@ class LeadsController extends \BaseController {
      */
     public function index()
     {
-            $companyID = User::get_companyID();
-            $userID = User::get_userID();
-            $tags = json_encode(Tags::getTagsArray());
-            $account_owners = User::getOwnerUsersbyRole();
-            $emailTemplates = array();
-            $templateoption = ['' => 'Select', 1 => 'New Create', 2 => 'Update'];
-            $accounts = Account::getAccountIDList(array("AccountType" => 0));
-            $privacy = EmailTemplate::$privacy;
-            $type = EmailTemplate::$Type;
-            //$leads = DB::table('tblAccount')->where([ "AccountType"=>0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
-            $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
-            if (User::is('AccountManager')) { // Account Manager
-                $leads = DB::table('tblAccount')->where(["AccountType" => 0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
-            } else {
-                $leads = DB::table('tblAccount')->where(["AccountType" => 0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
-            }
+        $companyID = User::get_companyID();
+        $userID = User::get_userID();
+        $account_owners = User::getOwnerUsersbyRole();
+        $emailTemplates = array();
+        $templateoption = ['' => 'Select', 1 => 'New Create', 2 => 'Update'];
+        $accounts = Account::getAccountIDList(array("AccountType" => 0));
+        $privacy = EmailTemplate::$privacy;
+        $type = EmailTemplate::$Type;
+        //$leads = DB::table('tblAccount')->where([ "AccountType"=>0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
+        $leadTags = json_encode(Tags::getTagsArray(Tags::Lead_tag));
 
-            return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'tags', 'accounts', 'privacy', 'tags', 'type'));
+        $boards = OpportunityBoard::getBoards();
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+
+        $leads = Lead::getLeadList();
+
+
+        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads'));
     }
 
     /**
@@ -385,6 +385,54 @@ class LeadsController extends \BaseController {
             $url = URL::to('leads/store');
             $url2 = 'leads/store';
             return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags','text','url','url2'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * POST /Opportunity
+     *
+     * @return Response
+     */
+    public function createOpportunity($id){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data ["CompanyID"] = $companyID;
+        $rules = array(
+            'CompanyID' => 'required',
+            'OpportunityName' => 'required',
+            'Company'=>'required',
+            'Email'=>'required',
+            'Phone'=>'required',
+            'OpportunityBoardID'=>'required'
+        );
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+
+        unset($data['Company']);
+        unset($data['PhoneNumber']);
+        unset($data['Email']);
+
+        //Add new tags to db against opportunity
+        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
+        // place new opp. in first column of board
+        $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID'],'Order'=>0])->pluck('OpportunityBoardColumnID');
+        $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
+        $data['Order'] = $count;
+        $data["CreatedBy"] = User::get_user_full_name();
+        $data['AccountID'] = $id;
+        $data['UserID'] = User::get_userID();
+        unset($data['OppertunityID']);
+        unset($data['leadcheck']);
+        unset($data['leadOrAccount']);
+        if (Opportunity::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Opportunity."));
+        }
     }
 
 }

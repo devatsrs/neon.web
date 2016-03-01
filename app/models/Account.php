@@ -91,6 +91,10 @@ class Account extends \Eloquent {
         if(User::is('AccountManager')){
             $data['Owner'] = User::get_userID();
         }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
         $data['Status'] = 1;
         if(!isset($data['AccountType'])) {
             $data['AccountType'] = 1;
