@@ -10,10 +10,13 @@ class InvoicesCustomerController extends \BaseController {
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['AccountID'] = User::get_userID();
         $data['InvoiceStatus'] = '';
+        $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
+        $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getInvoice (".$companyID.",'".$data['AccountID']."','".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['InvoiceType']."','".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,""');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
             $excel_data = json_decode(json_encode($excel_data),true);
             Excel::create('Invoice', function ($excel) use ($excel_data) {
                 $excel->sheet('Invoice', function ($sheet) use ($excel_data) {
