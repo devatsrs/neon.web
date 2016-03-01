@@ -45,7 +45,9 @@ SELECT
 				
 		END as Email,
 		b.OpportunityBoardID,
-		o.AccountID
+		o.AccountID,
+		o.Tags,
+		o.Rating
 FROM tblOpportunityBoards b
 INNER JOIN tblOpportunityBoardColumn bc on bc.OpportunityBoardID = b.OpportunityBoardID
 			AND b.OpportunityBoardID = p_BoardID
