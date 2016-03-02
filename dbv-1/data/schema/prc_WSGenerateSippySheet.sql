@@ -49,16 +49,13 @@ BEGIN
         AND tblCustomerTrunk.Status = 1
 		  LIMIT 1;
 
-        SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
-	 	SELECT *,  
-		 @row_num := IF(@prev_RateID=tblRateTableRate.RateID and @prev_effectivedate >= tblRateTableRate.effectivedate ,@row_num+1,1) AS RowID,
-		 @prev_RateID  := tblRateTableRate.RateID,
-		 @prev_effectivedate  := tblRateTableRate.effectivedate
-		FROM 
-		tblRateTableRate,(SELECT @row_num := 1) x,(SELECT @prev_RateID := '') y,(SELECT @prev_effectivedate := '') z
-		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW()  
-		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	 )tbl WHERE RowID =1;
+       SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+		 	SELECT MAX(EffectiveDate) as EffectiveDate
+			FROM 
+			tblRateTableRate
+			WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
+			ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
+		)tbl;
         
         INSERT INTO tmp_RateTable_
         

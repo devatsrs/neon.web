@@ -713,3 +713,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     }
     return $datetime;
 }
+function SortBillingType(){
+    ksort(Company::$BillingCycleType);
+    return Company::$BillingCycleType;
+}

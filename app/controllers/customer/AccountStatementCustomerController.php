@@ -117,7 +117,7 @@ class AccountStatementCustomerController extends \BaseController {
         $account_statement['outInvoices'] = $outInvoices;
         $account_statement['firstCompany'] = Company::getName($CompanyID);
         $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
-        AccountStatementController::generateExcel($account_statement);
+        self::generateExcel($account_statement);
     }
 
     static function generateExcel($account_statement){

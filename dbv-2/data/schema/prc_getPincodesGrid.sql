@@ -1,20 +1,21 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AccountID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
     COMMENT 'Pincodes Grid For DashBorad'
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,0,p_StartDate,p_EndDate,0,1,1);
+	SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	CALL fnUsageDetail(p_CompanyID,0,0,p_StartDate,p_EndDate,0,1,1,'');
 	
 	
 	IF p_isExport = 0
 	THEN
 		SELECT
       	cld as DestinationNumber,
-         SUM(cost) AS TotalCharges,
+         ROUND(SUM(cost),v_Round_) AS TotalCharges,
  			COUNT(UsageDetailID) AS NoOfCalls
 		FROM tmp_tblUsageDetails_ uh
       WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
@@ -52,7 +53,7 @@ BEGIN
 	THEN
 		SELECT
       	cld as `Destination Number`,
-         SUM(cost) AS `Total Cost`,
+         ROUND(SUM(cost),v_Round_) AS `Total Cost`,
  			COUNT(UsageDetailID) AS `Number of Times Dialed`
 		FROM tmp_tblUsageDetails_ uh
       WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0

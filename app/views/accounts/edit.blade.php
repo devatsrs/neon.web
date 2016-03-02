@@ -19,6 +19,10 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+    <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+        <i class="entypo-cancel"></i>
+        Authentication Rule
+    </a>
     <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
@@ -29,20 +33,8 @@
         Close
     </a>
 </p>
-@if($verificationflag == false || $account->VerificationStatus != Account::VERIFIED)
-<div  class=" toast-container-fix toast-top-full-width">
-        <div class="toast toast-error" style="">
-        <div class="toast-title">Message</div>
-        <div class="toast-message">
-        @if($account->VerificationStatus == Account::VERIFIED)
-        Awaiting Account Verification Documents Upload.
-        @elseif($account->VerificationStatus == Account::NOT_VERIFIED || $account->VerificationStatus == Account::PENDING_VERIFICATION)
-        Account Pending Verification.
-        @endif
-        </div>
-    </div>
-</div>
-@endif
+<?php $Account = $account;?>
+@include('accounts.errormessage')
 <br>
 <div class="row">
 <div class="col-md-12">
@@ -208,37 +200,7 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Authentication Rule</label>
-                    <?php  $AccountIPList = array_filter(explode(',',$account->AccountIP));?>
-                    <div class="desc col-sm-4 table_{{count($AccountIPList)}}" >
 
-                        <table class="table table-bordered datatable dataTable acountiptable ">
-                        <thead>
-                        <tr>
-
-                        <th>IP</th><th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if(count($AccountIPList))
-                        @foreach($AccountIPList as $row2)
-                            <tr>
-                                <td>
-                                    {{$row2}}
-                                </td>
-                                <td>
-                                    <a class="btn  btn-danger btn-sm btn-icon icon-left delete-ip"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @endif
-                        </tbody>
-                        </table>
-
-
-                    <a class="btn btn-primary  btn-sm btn-icon icon-left add-ip"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
-                    </div>
-                    <input type="hidden" class="form-control"  name="AccountIP" id="field-1" placeholder="" value="{{$account->AccountIP}}" />
 
                 </div>
                 <script>
@@ -477,8 +439,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
                     <div class="col-sm-4">
-                        <?php $BillingCycleType = array( ""=>"Please Select an Option","weekly"=>"Weekly", "monthly"=>"Monthly" , "daily"=>"Daily", "in_specific_days"=>"In Specific days", "monthly_anniversary"=>"Monthly anniversary");?>
-                        {{Form::select('BillingCycleType', $BillingCycleType, ($account->BillingCycleType != ''?$account->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2"))}}
+                        {{Form::select('BillingCycleType', SortBillingType(), ($account->BillingCycleType != ''?$account->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2"))}}
                     </div>
                     <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                         <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>
@@ -737,17 +698,7 @@
                     $(this).parent().parent('tr').remove();
                 }
             });
-            $('body').on('click', '.delete-ip', function(e) {
-                e.preventDefault();
-                result = confirm("Are you Sure?");
-                if(result){
-                    $(this).parent().parent('tr').remove();
-                    var nameIDs = $('table.acountiptable tr td:first-child').map(function () {
-                                                                          return this.innerHTML.trim();
-                                                                      }).get().join(',');
-                    $("#account-from [name='AccountIP']").val(nameIDs);
-                }
-            });
+
             $('body').on('click', '.delete-cli', function(e) {
                 e.preventDefault();
                 result = confirm("Are you Sure?");
@@ -759,49 +710,12 @@
                     $("#account-from [name='CustomerCLI']").val(nameIDs);
                 }
             });
-            $('body').on('click', '.add-ip', function(e) {
-                $('#form-addip-modal').find("[name='AccountIP']").val('');
-                $("#addip-modal").modal('show');
-            });
+
             $('body').on('click', '.add-cli', function(e) {
                 $("#form-addcli-modal")[0].reset();
                 $("#addcli-modal").modal('show');
             });
-            $("#form-addip-modal").submit(function(e){
-                e.preventDefault();
-                var ip=$(this).find("[name='AccountIP']").val().trim();
-                var val_ip=0;
-                $('table.acountiptable tr td:first-child').each(function (){
-                    if(this.innerHTML.trim()==ip){
-                     //   toastr.error("Already IP exits.", "Error", toastr_opts);
-                      //  val_ip=1;
-                    }
-                });
-                if(val_ip==0){
-                    $.ajax({
-                        url: baseurl + '/accounts/validate_ip',
-                        type:'POST',
-                        data:{ip:ip},
-                        datatype:'json',
-                        success: function(response) {
-                              if (response.status == 'success') {
-                                var accoutiphtml = '<tr><td>'+ip+'</td><td><a class="btn  btn-danger btn-sm btn-icon icon-left delete-ip"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
-                                $('.acountiptable').children('tbody').append(accoutiphtml);
-                                var nameIDs = $('table.acountiptable tr td:first-child').map(function () {
-                                                                      return this.innerHTML.trim();
-                                                                 }).get().join(',');
-                                 $("#account-from [name='AccountIP']").val(nameIDs);
-                                 $('.acountiptable').children('tbody').children('tr').children('td');
-                                 $("#addip-modal").modal('hide');
-                              }else{
-                                toastr.error(response.message, "Error", toastr_opts);
-                              }
 
-                        }
-                    });
-
-                }
-            });
             $("#form-addcli-modal").submit(function(e){
                 e.preventDefault();
                 var cli=$(this).find("[name='CustomerCLI']").val();
@@ -897,36 +811,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="addip-modal" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <form role="form" id="form-addip-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add IP</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">AccountIP</label>
-                    <div class="col-sm-5">
-                        <input name="AccountIP" type="text" class="form-control">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left">
-                    <i class="entypo-floppy"></i>
-                     Add
-                </button>
-                <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                     <i class="entypo-cancel"></i>
-                     Close
-                </button>
-             </div>
-        </form>
-        </div>
-    </div>
-</div>
+
 <div class="modal fade" id="addcli-modal" >
     <div class="modal-dialog">
         <div class="modal-content">

@@ -159,7 +159,7 @@ class AccountsController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            $data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
+            //$data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
 
             if ($account = Account::create($data)) {
                 if (trim(Input::get('Number')) == '') {
@@ -304,7 +304,7 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        $data['AccountIP'] = implode(',',array_unique(explode(',',$data['AccountIP'])));
+        //$data['AccountIP'] = implode(',',array_unique(explode(',',$data['AccountIP'])));
         $data['CustomerCLI'] = implode(',',array_unique(explode(',',$data['CustomerCLI'])));
 
         if ($account->update($data)) {
@@ -717,5 +717,28 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
             }
+    }
+    /**
+     * Update InboutRateTable
+     */
+    public function update_inbound_rate_table($AccountID){
+
+        $data = Input::all();
+
+        if(isset($data['InboudRateTableID'])) {
+
+            $update = ["InboudRateTableID" => $data['InboudRateTableID']];
+            if (empty($AccountID)) {
+                return Response::json(array("status" => "failed", "message" => "Invalid Account"));
+            }
+            if (Account::find($AccountID)->update($update)) {
+                return Response::json(array("status" => "success", "message" => "Inbound Rate Table Successfully Updated"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Inbound Rate Table."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Found Updating Rate Table."));
+        }
+
     }
 }

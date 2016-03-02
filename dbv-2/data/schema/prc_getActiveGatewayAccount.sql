@@ -3,6 +3,8 @@ BEGIN
 
     DECLARE v_NameFormat_ VARCHAR(10);
     DECLARE v_RTR_ INT;
+    DECLARE v_pointer_ INT ;
+    DECLARE v_rowCount_ INT ;
     SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
     
@@ -15,7 +17,12 @@ BEGIN
         CDRType INT
     );
   
-    
+	DROP TEMPORARY TABLE IF EXISTS tmp_AuthenticateRules_;
+	CREATE TEMPORARY TABLE tmp_AuthenticateRules_ (
+		RowNo INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AuthRule VARCHAR(50)
+	);
+    	 INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 	  	 SELECT  case when Settings like '%"NameFormat":"NAMENUB"%'
 			  then 'NAMENUB'
 			  else
@@ -34,18 +41,28 @@ BEGIN
 			  case when Settings like '%"NameFormat":"NAME"%'
 			  then 'NAME'
 			   
-			else 'NAME' end end end end end end   as  NameFormat into v_NameFormat_
+			else 'NAME' end end end end end end   as  NameFormat 
         FROM Ratemanagement3.tblCompanyGateway
         WHERE Settings LIKE '%NameFormat%' AND
         CompanyGatewayID = p_gatewayid
         limit 1;
+       
+		 INSERT INTO tmp_AuthenticateRules_  (AuthRule)  
+       SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL
+		 UNION 
+		 SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL;
 
 
- 
+		 SET v_pointer_ = 1;
+	    SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AuthenticateRules_);
 
          
  
-
+		WHILE v_pointer_ <= v_rowCount_ 
+		DO
+		
+		SET v_NameFormat_ = ( SELECT AuthRule FROM tmp_AuthenticateRules_  WHERE RowNo = v_pointer_ );
+		
         IF  v_NameFormat_ = 'NAMENUB'
         THEN
             INSERT INTO tmp_ActiveAccount
@@ -111,13 +128,15 @@ BEGIN
                     a.AccountName,
                     a.CDRType
                 FROM Ratemanagement3.tblAccount  a
+                INNER JOIN Ratemanagement3.tblAccountAuthenticate aa ON 
+                	a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
                 INNER JOIN tblGatewayAccount ga
-                    ON  FIND_IN_SET(a.AccountIP,ga.AccountName) != 0
-	                AND a.Status = 1 	
+                    ON   a.Status = 1 	
                 WHERE GatewayAccountID IS NOT NULL
                 AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
                 AND a.CompanyId = p_company_id
-                AND ga.CompanyGatewayID = p_gatewayid;
+                AND ga.CompanyGatewayID = p_gatewayid
+					 AND ( FIND_IN_SET(ga.AccountName,aa.CustomerAuthValue) != 0 OR FIND_IN_SET(ga.AccountName,aa.VendorAuthValue) != 0 );
         END IF;
  
  
@@ -152,16 +171,20 @@ BEGIN
                     a.AccountName,
                     a.CDRType
                 FROM Ratemanagement3.tblAccount  a
+                LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa ON 
+              			a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
                 INNER JOIN tblGatewayAccount ga
-                    ON a.AccountName = ga.AccountName
-                    AND a.Status = 1 
-
+                    ON    a.Status = 1
                 WHERE GatewayAccountID IS NOT NULL
                 AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
                 AND a.CompanyId = p_company_id
-                AND ga.CompanyGatewayID = p_gatewayid;
+                AND ga.CompanyGatewayID = p_gatewayid
+					 AND ((aa.AccountAuthenticateID IS NOT NULL AND (aa.VendorAuthValue = ga.AccountName OR aa.CustomerAuthValue = ga.AccountName  )) OR (aa.AccountAuthenticateID IS NULL AND a.AccountName = ga.AccountName));
         END IF;
         
+     SET v_pointer_ = v_pointer_ + 1;
+     END WHILE;
+   
     SELECT DISTINCT
         GatewayAccountID,AccountID,AccountName,CDRType
     FROM tmp_ActiveAccount;

@@ -5,7 +5,7 @@ BEGIN
     -- Insert state... *** SQLINES FOR EVALUATION USE ONLY *** 
 	SELECT cg.Title,ga.AccountName from tblGatewayAccount ga
 	inner join Ratemanagement3.tblCompanyGateway cg on ga.CompanyGatewayID = cg.CompanyGatewayID
-	where ga.GatewayAccountID is not null and ga.CompanyID =p_CompanyID and ga.AccountID is null;
+	where ga.GatewayAccountID is not null and ga.CompanyID =p_CompanyID and ga.AccountID is null AND cg.`Status` =1 ;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

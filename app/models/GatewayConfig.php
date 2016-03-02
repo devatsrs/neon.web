@@ -10,6 +10,7 @@ class GatewayConfig extends \Eloquent {
     protected  $primaryKey = "GatewayConfigID";
 
     public static $NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number','IP'=>'IP','CLI'=>'CLI');
+    public static $AccountNameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number','IP'=>'IP','Other'=>'Other');
     public static $CallType = array('OUT'=>'Outbound','INOUT'=>'Inbond+Outbound');
 
     public static function getConfigTitle($GatewayConfigID){

@@ -14,7 +14,7 @@ BEGIN
         AND UseInBilling = 0 and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-	 SET ud.trunk = t.Trunk
+	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
     ud.processId = "' , p_processId , '"
     AND ud.CompanyID = "' , p_CompanyID , '"
@@ -39,7 +39,7 @@ BEGIN
         AND UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
     LEFT JOIN Ratemanagement3.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-	 SET ud.trunk = t.Trunk
+	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
     ud.processId = "' , p_processId , '"
 	 AND  ud.CompanyID = "' , p_CompanyID , '"
