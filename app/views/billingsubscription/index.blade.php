@@ -320,19 +320,19 @@ right: 30px !important;
                          </div>
                         <label for="field-1" class="col-sm-2 control-label">Monthly Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="MonthlyFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" id="field-1" placeholder="" value="" />
+                            <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                          </div>
 
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Weekly Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="WeeklyFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" id="field-1" placeholder="" value="" />
+                            <input type="text" name="WeeklyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                          </div>
 
                          <label for="field-1" class="col-sm-2 control-label">Daily Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="DailyFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" id="field-1" placeholder="" value="" />
+                            <input type="text" name="DailyFee" class="form-control" maxlength="10" id="field-1" placeholder="" value="" />
                          </div>
 
                     </div>
