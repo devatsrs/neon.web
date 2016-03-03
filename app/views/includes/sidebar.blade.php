@@ -87,22 +87,6 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </ul>
             </li>
         @endif
-        @if(User::checkCategoryPermission('Leads','View'))
-            <li>
-                <a href="{{Url::to('/leads')}}">
-                    <i class="entypo-layout"></i>
-                    <span>Leads</span>
-                </a>
-            </li>
-        @endif
-        @if( User::checkCategoryPermission('Contacts','View'))
-            <li>
-                <a href="{{Url::to('/contacts')}}">
-                    <i class="entypo-layout"></i>
-                    <span>Contacts</span>
-                </a>
-            </li>
-        @endif
         @if( User::checkCategoryPermission('Account','View'))
             <li>
                 <a href="{{URL::to('/accounts')}}">
