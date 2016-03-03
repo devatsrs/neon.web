@@ -38,12 +38,12 @@ class BillingSubscriptionController extends \BaseController {
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required|unique:tblBillingSubscription,Name,NULL,SubscriptionID,CompanyID,'.$data['CompanyID'],
-            'MonthlyFee' => 'required',
-            'WeeklyFee' => 'required',
-            'DailyFee' => 'required',
+            'MonthlyFee' => 'required|numeric',
+            'WeeklyFee' => 'required|numeric',
+            'DailyFee' => 'required|numeric',
             'CurrencyID' => 'required',
             'InvoiceLineDescription' => 'required',
-            'ActivationFee' => 'required',
+            'ActivationFee' => 'required|numeric',
         );
         $data['Advance'] = isset($data['Advance']) ? 1 : 0;
         $verifier = App::make('validation.presence');
@@ -76,12 +76,12 @@ class BillingSubscriptionController extends \BaseController {
             $rules = array(
                 'CompanyID' => 'required',
                 'Name' => 'required|unique:tblBillingSubscription,Name,'.$id.',SubscriptionID,CompanyID,'.$data['CompanyID'],
-                'MonthlyFee' => 'required',
-                'WeeklyFee' => 'required',
-                'DailyFee' => 'required',
+                'MonthlyFee' => 'required|numeric',
+                'WeeklyFee' => 'required|numeric',
+                'DailyFee' => 'required|numeric',
                 'CurrencyID' => 'required',
                 'InvoiceLineDescription' => 'required',
-                'ActivationFee' => 'required',
+                'ActivationFee' => 'required|numeric',
             );
             $data['Advance'] = isset($data['Advance']) ? 1 : 0;
             $verifier = App::make('validation.presence');

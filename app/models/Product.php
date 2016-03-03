@@ -49,7 +49,7 @@ class Product extends \Eloquent {
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required',
-            'Amount' => 'required',
+            'Amount' => 'required|numeric',
             'Description' => 'required',
             'Code' => 'required'
         );
