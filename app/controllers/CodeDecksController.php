@@ -75,7 +75,7 @@ class CodeDecksController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        if ($codedesk = Codedeck::create($data)) {
+        if ($codedesk = CodeDeck::create($data)) {
             return Response::json(array("status" => "success", "message" => "Code Decks Successfully Created",'LastID'=>$codedesk->RateID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Code Decks."));
@@ -89,7 +89,7 @@ class CodeDecksController extends \BaseController {
      * @return Response
      */
     public function show($id) {
-            $codedeck = Codedeck::findOrFail($id);
+            $codedeck = CodeDeck::findOrFail($id);
 
             return View::make('codedecks.show', compact('codedeck'));
     }
@@ -101,7 +101,7 @@ class CodeDecksController extends \BaseController {
      * @return Response
      */
     public function edit($id) {
-            $codedeck = Codedeck::find($id);
+            $codedeck = CodeDeck::find($id);
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $countries = $this->countries;
             return View::make('codedecks.edit', compact('countries', 'codedeck','codedecklist'));
@@ -116,7 +116,7 @@ class CodeDecksController extends \BaseController {
      */
     public function update($id) {
         $data = Input::all();
-        $codedeck = Codedeck::findOrFail($id);
+        $codedeck = CodeDeck::findOrFail($id);
         $companyID = User::get_companyID();
         $data['Code'] = str_replace("_", "", $data['Code']);
         $data['CompanyID'] = $companyID;
@@ -202,7 +202,7 @@ class CodeDecksController extends \BaseController {
      * @return Response
      */
     public function destroy($id) {
-        Codedeck::destroy($id);
+        CodeDeck::destroy($id);
 
         return Redirect::route('codedecks.index');
     }
