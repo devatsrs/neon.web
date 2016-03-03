@@ -94,7 +94,7 @@
                                 </div>
                                 <label class="col-sm-2 control-label" for="field-1">CDR Type</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "OutBound" ),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
                             </div>
