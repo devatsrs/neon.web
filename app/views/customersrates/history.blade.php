@@ -15,7 +15,7 @@
     </li>
 </ol>
 <h3>Customer Rate Sheet Download History</h3>
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id) }}" >

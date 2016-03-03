@@ -46,7 +46,7 @@ class AccountOneOffChargeController extends \BaseController {
             'ProductID'    =>  'required',
             'Date'               =>'required',
             'Qty'               =>'required',
-            'Price'               =>'required'
+            'Price'               =>'required|numeric'
         );
         $validator = Validator::make($data, $rules);
         $validator->setPresenceVerifier($verifier);
@@ -81,7 +81,7 @@ class AccountOneOffChargeController extends \BaseController {
                 'ProductID'    =>  'required',
                 'Date'               =>'required',
                 'Qty'               =>'required',
-                'Price'               =>'required'
+                'Price'               =>'required|numeric'
             );
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);

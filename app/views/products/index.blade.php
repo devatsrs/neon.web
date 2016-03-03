@@ -316,7 +316,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Unit Cost *</label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" maxlength="10" data-mask="fdecimal">
+                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" maxlength="10">
                                 </div>
                             </div>
                             <div class="col-md-12">

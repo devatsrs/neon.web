@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`122.129.78.153` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
 BEGIN
 	DECLARE v_AffectedRecords_ INT DEFAULT 0;
 	 DECLARE     v_CodeDeckId_ INT ;
@@ -128,7 +128,7 @@ BEGIN
 					             AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
                         WHERE tblRate.RateID IS NULL
                         AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) vc
-                    INNER JOIN
+                    LEFT JOIN
                     (
                         SELECT DISTINCT
                             tblTempRateTableRate2.Code,
@@ -156,19 +156,19 @@ BEGIN
                                 )
                                 )
                         WHERE tblTempRateTableRate2.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) c
-                        ON vc.Code = c.Code
-                        AND c.CountryID IS NOT NULL;
+                        ON vc.Code = c.Code;
+                        /* AND c.CountryID IS NOT NULL*/
 
 
                 INSERT INTO tmp_JobLog_ (Message)
                     SELECT DISTINCT
                         CONCAT(tblTempRateTableRate.Code , ' INVALID CODE - COUNTRY NOT FOUND ')
                     FROM tmp_TempRateTableRate_  as tblTempRateTableRate 
-                    LEFT JOIN tblRate
+                    INNER JOIN tblRate
 				             ON tblRate.Code = tblTempRateTableRate.Code
 				             AND tblRate.CompanyID = p_companyId
 				             AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
-						  WHERE tblRate.RateID IS NULL
+						  WHERE tblRate.CountryID IS NULL
                     AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
             ELSE
                 INSERT INTO tmp_JobLog_ (Message)

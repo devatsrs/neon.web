@@ -62,7 +62,7 @@ BEGIN
     EXECUTE stmt5;
     DEALLOCATE PREPARE stmt5;
 
- 	set @stm6 = CONCAT(' 
+ 	set @stm6 = CONCAT('
 	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '" ;
 	');
     PREPARE stmt6 FROM @stm6;

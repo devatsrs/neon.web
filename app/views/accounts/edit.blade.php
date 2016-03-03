@@ -34,7 +34,7 @@
     </a>
 </p>
 <?php $Account = $account;?>
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 <br>
 <div class="row">
 <div class="col-md-12">

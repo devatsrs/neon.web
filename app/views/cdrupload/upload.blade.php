@@ -252,6 +252,30 @@
                                 {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label for=" field-1" class="col-sm-2 control-label">ID</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[ID]',array() ,'',array("class"=>"selectboxit"))}}
+                            </div>
+                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label for=" field-1" class="col-sm-2 control-label">Extension</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[extension]',array() ,'',array("class"=>"selectboxit"))}}
+                            </div>
+                            <label for=" field-1" class="col-sm-2 control-label">Pincode</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[pincode]',array(),'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="panel panel-primary" data-collapsed="0">

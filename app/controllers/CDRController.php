@@ -8,12 +8,16 @@ class CDRController extends BaseController {
     }
 
 
+    /** CDR Upload
+     * @return mixed
+     * @TODO: name need to fix for upload and show
+     */
     public function index() {
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
-        return View::make('cdrupload.index',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
+        return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
     }
     public function upload(){
             $data = Input::all();
@@ -173,7 +177,7 @@ class CDRController extends BaseController {
                 $rate_cdr[$CompanyGatewayID] =0;
             }
         }
-        return View::make('cdrupload.delete',compact('dashboardData','account','gateway','rate_cdr'));
+        return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr'));
     }
     public function ajax_datagrid(){
         $data = Input::all();
@@ -181,7 +185,7 @@ class CDRController extends BaseController {
         $companyID = User::get_companyID();
         $columns = array('AccountName','connect_time','disconnect_time','duration','cost','cli','cld');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');

@@ -82,18 +82,14 @@ class AccountsController extends \BaseController {
      */
     public function index() {
 
-        $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
-        $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
-        $account_owners = User::getOwnerUsersbyRole();
-        $accounts = Account::getAccountIDList();
-        $emailTemplates = array();
-        $privacy = EmailTemplate::$privacy;
-
-        $boards = OpportunityBoard::getBoards();
-        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $accounts = Account::getAccountIDList();
-        $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts'));
+            $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
+            $tags = json_encode(Tags::getTagsArray());
+            $account_owners = User::getOwnerUsersbyRole();
+            $accounts = Account::getAccountIDList();
+            $emailTemplates = array();
+            $privacy = EmailTemplate::$privacy;
+            $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
+            return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'tags', 'privacy', 'type', 'trunks', 'rate_sheet_formates'));
     }
 
     /**
@@ -103,21 +99,21 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function create() {
-        $account_owners = User::getOwnerUsersbyRole();
-        $countries = $this->countries;
+            $account_owners = User::getOwnerUsersbyRole();
+            $countries = $this->countries;
 
-        $currencies = Currency::getCurrencyDropdownIDList();
-        $taxrates = TaxRate::getTaxRateDropdownIDList();
-        if(isset($taxrates[""])){unset($taxrates[""]);}
-        $timezones = TimeZone::getTimeZoneDropdownList();
-        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-        $BillingStartDate=date('Y-m-d');
-        $LastAccountNo =  '';
-        $doc_status = Account::$doc_status;
-        if(!User::is_admin()){
-            unset($doc_status[Account::VERIFIED]);
-        }
-        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate'));
+            $currencies = Currency::getCurrencyDropdownIDList();
+            $taxrates = TaxRate::getTaxRateDropdownIDList();
+            if(isset($taxrates[""])){unset($taxrates[""]);}
+            $timezones = TimeZone::getTimeZoneDropdownList();
+            $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+            $BillingStartDate=date('Y-m-d');
+            $LastAccountNo =  '';
+            $doc_status = Account::$doc_status;
+            if(!User::is_admin()){
+                unset($doc_status[Account::VERIFIED]);
+            }
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate'));
     }
 
     /**
@@ -127,57 +123,57 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function store() {
-        $data = Input::all();
-        $companyID = User::get_companyID();
-        $data['CompanyID'] = $companyID;
-        $data['AccountType'] = 1;
-        $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
-        $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
-        $data['created_by'] = User::get_user_full_name();
-        $data['AccountType'] = 1;
-        $data['AccountName'] = trim($data['AccountName']);
-        if (isset($data['TaxRateId'])) {
-            $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
-        }
-        if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
-        }
-        $data['Status'] = isset($data['Status']) ? 1 : 0;
-
-        if (empty($data['Number'])) {
-            $data['Number'] = Account::getLastAccountNo();
-        }
-        $data['Number'] = trim($data['Number']);
-
-    if(Company::isBillingLicence()) {
-        Account::$rules['BillingType'] = 'required';
-        Account::$rules['BillingTimezone'] = 'required';
-        //Account::$rules['InvoiceTemplateID'] = 'required';
-    }
-
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
-        Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
-
-        $validator = Validator::make($data, Account::$rules, Account::$messages);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        //$data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
-
-        if ($account = Account::create($data)) {
-            if (trim(Input::get('Number')) == '') {
-                CompanySetting::setKeyVal('LastAccountNo', $account->Number);
+            $data = Input::all();
+            $companyID = User::get_companyID();
+            $data['CompanyID'] = $companyID;
+            $data['AccountType'] = 1;
+            $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
+            $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+            $data['created_by'] = User::get_user_full_name();
+            $data['AccountType'] = 1;
+            $data['AccountName'] = trim($data['AccountName']);
+            if (isset($data['TaxRateId'])) {
+                $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
             }
-            $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($account->AccountID);
-            $account->update($data);
-            return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
+            if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
+                return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+            }
+            $data['Status'] = isset($data['Status']) ? 1 : 0;
+
+            if (empty($data['Number'])) {
+                $data['Number'] = Account::getLastAccountNo();
+            }
+            $data['Number'] = trim($data['Number']);
+
+        if(Company::isBillingLicence()) {
+            Account::$rules['BillingType'] = 'required';
+            Account::$rules['BillingTimezone'] = 'required';
+            //Account::$rules['InvoiceTemplateID'] = 'required';
         }
 
+            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
+            Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
 
-        //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
+            $validator = Validator::make($data, Account::$rules, Account::$messages);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+            //$data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
+
+            if ($account = Account::create($data)) {
+                if (trim(Input::get('Number')) == '') {
+                    CompanySetting::setKeyVal('LastAccountNo', $account->Number);
+                }
+                $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($account->AccountID);
+                $account->update($data);
+                return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
+            }
+
+
+            //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
     }
 
     /**
@@ -188,17 +184,18 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function show($id) {
-        $account = Account::find($id);
-        $companyID = User::get_companyID();
-        $account_owner = User::find($account->Owner);
-        $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
-        $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-        $verificationflag = AccountApprovalList::isVerfiable($id);
-        $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
-        $currency = Currency::getCurrency($account->CurrencyId);
-        $activity_type = AccountActivity::$activity_type;
-        $activity_status = [1 => 'Open', 2 => 'Closed'];
-        return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
+
+            $account = Account::find($id);
+            $companyID = User::get_companyID();
+            $account_owner = User::find($account->Owner);
+            $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
+            $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+            $verificationflag = AccountApprovalList::isVerfiable($id);
+            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $currency = Currency::getCurrency($account->CurrencyId);
+            $activity_type = AccountActivity::$activity_type;
+            $activity_status = [1 => 'Open', 2 => 'Closed'];
+            return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
     }
 
     /**
@@ -209,27 +206,27 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function edit($id) {
-        $account = Account::find($id);
-        $companyID = User::get_companyID();
-        $account_owners = User::getOwnerUsersbyRole();
-        $countries = $this->countries;
-        $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
-        $products = Product::getProductDropdownList();
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
-        $currencies = Currency::getCurrencyDropdownIDList();
-        $taxrates = TaxRate::getTaxRateDropdownIDList();
-        if(isset($taxrates[""])){unset($taxrates[""]);}
-        $timezones = TimeZone::getTimeZoneDropdownList();
-        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+            $account = Account::find($id);
+            $companyID = User::get_companyID();
+            $account_owners = User::getOwnerUsersbyRole();
+            $countries = $this->countries;
+            $tags = json_encode(Tags::getTagsArray());
+            $products = Product::getProductDropdownList();
+            $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
+            $currencies = Currency::getCurrencyDropdownIDList();
+            $taxrates = TaxRate::getTaxRateDropdownIDList();
+            if(isset($taxrates[""])){unset($taxrates[""]);}
+            $timezones = TimeZone::getTimeZoneDropdownList();
+            $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
 
-        $AccountApproval = AccountApproval::getList($id);
-        $doc_status = Account::$doc_status;
-        $verificationflag = AccountApprovalList::isVerfiable($id);
-        $invoice_count = Account::getInvoiceCount($id);
-        if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
-            unset($doc_status[Account::VERIFIED]);
-        }
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes'));
+            $AccountApproval = AccountApproval::getList($id);
+            $doc_status = Account::$doc_status;
+            $verificationflag = AccountApprovalList::isVerfiable($id);
+            $invoice_count = Account::getInvoiceCount($id);
+            if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
+                unset($doc_status[Account::VERIFIED]);
+            }
+            return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes'));
     }
 
     /**
@@ -242,7 +239,12 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $data = Input::all();
         $account = Account::find($id);
-        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Account_tag]);
+        $newTags = array_diff(explode(',',$data['tags']),Tags::getTagsArray());
+        if(count($newTags)>0){
+            foreach($newTags as $tag){
+                Tags::create(array('TagName'=>$tag,'CompanyID'=>User::get_companyID(),'TagType'=>Tags::Account_tag));
+            }
+        }
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -293,7 +295,7 @@ class AccountsController extends \BaseController {
             }
         }
 
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
+        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'].',AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
 
         $validator = Validator::make($data, Account::$rules,Account::$messages);
@@ -702,7 +704,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 return json_validator_response($validator);
             }
 
-        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Account_tag]);
+            $newTags = array_diff(explode(',', $data['tags']), Tags::getTagsArray());
+            if (count($newTags) > 0) {
+                foreach ($newTags as $tag) {
+                    Tags::create(array('TagName' => $tag, 'CompanyID' => User::get_companyID(), 'TagType' => Tags::Account_tag));
+                }
+            }
             $SelectedIDs = $data['SelectedIDs'];
             unset($data['SelectedIDs']);
             if (Account::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
@@ -733,53 +740,5 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "failed", "message" => "Problem Found Updating Rate Table."));
         }
 
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     * POST /Opportunity
-     *
-     * @return Response
-     */
-    public function createOpportunity($id){
-        $data = Input::all();
-        $companyID = User::get_companyID();
-        $data ["CompanyID"] = $companyID;
-        $rules = array(
-            'CompanyID' => 'required',
-            'OpportunityName' => 'required',
-            'Company'=>'required',
-            'Email'=>'required',
-            'Phone'=>'required',
-            'OpportunityBoardID'=>'required'
-        );
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-
-        unset($data['Company']);
-        unset($data['PhoneNumber']);
-        unset($data['Email']);
-
-        //Add new tags to db against opportunity
-        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
-        // place new opp. in first column of board
-        $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID'],'Order'=>0])->pluck('OpportunityBoardColumnID');
-        $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
-        $data['Order'] = $count;
-        $data["CreatedBy"] = User::get_user_full_name();
-        $data['AccountID'] = $id;
-        $data['UserID'] = User::get_userID();
-        unset($data['OppertunityID']);
-        unset($data['leadcheck']);
-        unset($data['leadOrAccount']);
-        if (Opportunity::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Opportunity."));
-        }
     }
 }

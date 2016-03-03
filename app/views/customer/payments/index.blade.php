@@ -1,4 +1,4 @@
-@extends('layout.Customer.main')
+@extends('layout.customer.main')
 
 @section('content')
 
@@ -364,85 +364,9 @@
     </div>
 @stop
 @section('footer_ext')
-    @parent
+@parent
 
-    <div class="modal fade" id="add-edit-modal-payment">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="add-edit-payment-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New payment Request</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Date *</label>
-                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"selectboxit")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', $action, '', array("class"=>"selectboxit")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Amount *</label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
-                                    <input type="hidden" name="PaymentID" >
-                                    <input type="hidden" name="Currency" value="{{$currency}}" >
-                                    <input type="hidden" name="AccountID" value="{{$AccountID}}"
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Invoice</label>
-                                    <input type="text" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Notes</label>
-                                    <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
-                                    <input type="hidden" name="PaymentID" >
-                                </div>
-                            </div>
-                            @if(User::is_admin() OR User::is('AccountManager'))
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-                                        <div class="col-sm-6">
-                                            <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+
 
     <div class="modal fade" id="view-modal-payment">
         <div class="modal-dialog">
@@ -540,4 +464,81 @@
         </div>
     </div>
 </div>
+    <div class="modal fade" id="add-edit-modal-payment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-edit-payment-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New payment Request</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Payment Date *</label>
+                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Payment Method *</label>
+                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"selectboxit")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Action *</label>
+                                    {{ Form::select('PaymentType', $action, '', array("class"=>"selectboxit")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Amount *</label>
+                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+                                    <input type="hidden" name="PaymentID" >
+                                    <input type="hidden" name="Currency" value="{{$currency}}" >
+                                    <input type="hidden" name="AccountID" value="{{$AccountID}}"
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Invoice</label>
+                                    <input type="text" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Notes</label>
+                                    <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
+                                    <input type="hidden" name="PaymentID" >
+                                </div>
+                            </div>
+                            @if(User::is_admin() OR User::is('AccountManager'))
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+                                        <div class="col-sm-6">
+                                            <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop

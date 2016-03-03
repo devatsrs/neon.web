@@ -15,7 +15,7 @@
 	</li>
 </ol>
 <h3>Settings</h3>
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id) }}" >
@@ -132,7 +132,7 @@
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
-                            Incomming
+                            Incoming
                         </div>
                         <div class="panel-options">
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -146,7 +146,7 @@
 
 
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Inboud Rate Table</label>
+                                <label for="field-1" class="col-sm-2 control-label">Inbound Rate Table</label>
                                 <div class="col-md-4">
                                     <?php
                                     $rate_table = RateTable::getRateTableList(['CurrencyID'=>$Account->CurrencyId]);

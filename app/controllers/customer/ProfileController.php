@@ -72,7 +72,7 @@ class ProfileController extends \BaseController {
 
             $extension = '.'. Input::file('Picture')->getClientOriginalExtension();
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['CUSTOMER_PROFILE_IMAGE'],User::get_companyID(),User::get_userID()) ;
-            $destinationPath = getenv('UPLOAD_PATH') . "\\". $amazonPath;
+            $destinationPath = getenv('UPLOAD_PATH') . "/". $amazonPath;
             $fileName = \Illuminate\Support\Str::slug($account->AccountName .'_'. str_random(4)) .$extension;
             $CustomerPicture->move($destinationPath,$fileName);
 

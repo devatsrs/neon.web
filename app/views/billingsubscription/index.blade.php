@@ -109,7 +109,7 @@ jQuery(document).ready(function ($) {
         "fnServerParams": function(aoData) {
             aoData.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance});
+            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"Export","value":1});
         },
         "aoColumns":
         [
@@ -142,7 +142,7 @@ jQuery(document).ready(function ($) {
                 {
                     "sExtends": "download",
                     "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/billing_subscription/base_exports", //baseurl + "/generate_xls.php",
+                    "sUrl": baseurl + "/billing_subscription/ajax_datagrid", //baseurl + "/generate_xls.php",
                     sButtonClass: "save-collection"
                 }
             ]
@@ -320,19 +320,19 @@ right: 30px !important;
                          </div>
                         <label for="field-1" class="col-sm-2 control-label">Monthly Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="MonthlyFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" id="field-1" placeholder="" value="" />
+                            <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                          </div>
 
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Weekly Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="WeeklyFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" id="field-1" placeholder="" value="" />
+                            <input type="text" name="WeeklyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                          </div>
 
                          <label for="field-1" class="col-sm-2 control-label">Daily Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="DailyFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" id="field-1" placeholder="" value="" />
+                            <input type="text" name="DailyFee" class="form-control" maxlength="10" id="field-1" placeholder="" value="" />
                          </div>
 
                     </div>
@@ -344,7 +344,7 @@ right: 30px !important;
 
                         <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>
                         <div class="col-sm-4">
-                            <input type="text" name="ActivationFee" class="form-control" data-mask="fdecimal" data-rad="." maxlength="10" placeholder="" value=""  />
+                            <input type="text" name="ActivationFee" class="form-control" maxlength="10" placeholder="" value=""  />
                         </div>
                     </div>
                     <div class="form-group">

@@ -18,7 +18,7 @@
 <h3>Customer Rate Sheet Download</h3>
 
 
-@include('accounts.errormessage');
+@include('accounts.errormessage')
 
 <ul class="nav nav-tabs bordered">
     <li >
