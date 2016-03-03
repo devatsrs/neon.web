@@ -8,42 +8,12 @@ SELECT
 		o.OpportunityName,
 		o.BackGroundColour,
 		o.TextColour,
-		CASE 
-			WHEN
-			o.AccountID = 0
-			THEN
-				o.Company
-			ELSE
-				ac.AccountName
-		END as Company,
-		CASE 
-			WHEN
-			o.AccountID = 0
-			THEN
-				o.ContactName
-			ELSE
-				concat(con.FirstName,concat(' ',con.LastName))
-		END as ContactName,
+		ac.AccountName as Company,
+		(select con.FirstName from tblContact con where con.AccountID=o.AccountID limit 1) ContactName,
 		concat(u.FirstName,concat(' ',u.LastName)) as Owner,
 		o.UserID,
-		CASE 
-			WHEN
-			o.AccountID = 0
-			THEN
-				o.Phone
-			ELSE
-				ac.Phone
-				
-		END as Phone,
-		CASE 
-			WHEN
-			o.AccountID = 0
-			THEN
-				o.Email
-			ELSE
-				ac.Email
-				
-		END as Email,
+		ac.Phone,
+		ac.Email,
 		b.OpportunityBoardID,
 		o.AccountID,
 		o.Tags,
@@ -58,8 +28,6 @@ LEFT JOIN tblOpportunity o on o.OpportunityBoardID = b.OpportunityBoardID
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
-			AND ac.AccountType = 0
-			AND ac.`Status` = 1
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
 LEFT JOIN tblUser u on u.UserID = o.UserID
 ORDER BY bc.`Order`,o.`Order`;

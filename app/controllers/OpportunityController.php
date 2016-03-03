@@ -108,6 +108,7 @@ class OpportunityController extends \BaseController {
     public function create(){
         $data = Input::all();
         $companyID = User::get_companyID();
+        $message = '';
         $data ["CompanyID"] = $companyID;
         $rules = array(
             'CompanyID' => 'required',
@@ -115,18 +116,44 @@ class OpportunityController extends \BaseController {
             'Company'=>'required',
             'Email'=>'required',
             'Phone'=>'required',
-            'OpportunityBoardID'=>'required'
+            'OpportunityBoardID'=>'required',
         );
+        if($data['leadcheck']=='No') {
+            $rules['Company'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $companyID . '';
+        }
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
-        if($data['leadcheck']=='Yes'){
-            unset($data['Company']);
-            unset($data['PhoneNumber']);
-            unset($data['Email']);
+        if($data['leadcheck']=='No'){
+            $AccountType = $data['leadOrAccount']=='Lead'?0:1;
+            $tobeinsert = ['CompanyID'=>$companyID,
+                            'Owner'=>$data['UserID'],
+                            'AccountName'=>$data['Company'],
+                            'Email'=>$data['Email'],
+                            'Phone'=>$data['Phone'],
+                            'AccountType'=>$AccountType,
+                            'Status' => 1,
+                            'created_by'=>User::get_user_full_name(),
+                            'created_at'=>DB::raw('Now()')
+                            ];
+            if($AccountType==0){
+                $AccountID = Lead::insertGetId($tobeinsert);
+                $contact = ['CompanyId'=>$companyID,
+                            'AccountID'=>$AccountID,
+                            'FirstName'=>$data['ContactName']];
+                Contact::create($contact);
+                $message = 'and lead is created successfully.';
+            }else{
+                $AccountID = Account::insertGetId($tobeinsert);
+                $contact = ['CompanyId'=>$companyID,
+                    'AccountID'=>$AccountID,
+                    'FirstName'=>$data['ContactName']];
+                Contact::create($contact);
+                $message = 'and Account is created successfully.';
+            }
+            $data['AccountID'] = $AccountID;
         }
         //Add new tags to db against opportunity
         Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
@@ -135,11 +162,16 @@ class OpportunityController extends \BaseController {
         $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
         $data['Order'] = $count;
         $data["CreatedBy"] = User::get_user_full_name();
+
+        unset($data['Company']);
+        unset($data['PhoneNumber']);
+        unset($data['Email']);
+
         unset($data['OppertunityID']);
         unset($data['leadcheck']);
         unset($data['leadOrAccount']);
         if (Opportunity::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
+            return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created ".$message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Opportunity."));
         }
@@ -217,10 +249,14 @@ class OpportunityController extends \BaseController {
 
     public function getDropdownLeadAccount($accountLeadCheck){
         $data = Input::all();
+        $filter = [];
+        if(!empty($data['UserID'])){
+            $filter['Owner'] = $data['UserID'];
+        }
         if($accountLeadCheck==1) {
-            return json_encode(['result'=>Lead::getLeadList(['Owner'=>$data['UserID']])]);
+            return json_encode(['result'=>Lead::getLeadList($filter)]);
         }else {
-            return json_encode(['result'=>Account::getAccountIDList(['Owner'=>$data['UserID']])]);
+            return json_encode(['result'=>Account::getAccountList($filter)]);
         }
     }
 

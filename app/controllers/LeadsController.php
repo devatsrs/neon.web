@@ -170,10 +170,13 @@ class LeadsController extends \BaseController {
             $companyID = User::get_companyID();
             $account_owners = User::getOwnerUsersbyRole();
             $countries = $this->countries;
+            $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+            $leads = Lead::getLeadList();
+            $boards = OpportunityBoard::getBoards();
             $text = 'Edit Lead';
             $url = URL::to('leads/update/' . $lead->AccountID);
             $url2 = 'leads/update/' . $lead->AccountID;
-            return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2'));
+        return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2','opportunityTags','leads','boards'));
     }
 
     /**
@@ -187,12 +190,7 @@ class LeadsController extends \BaseController {
     {
         $data = Input::all();
         $lead = Lead::find($id);
-        $newTags = array_diff(explode(',',$data['tags']),Tags::getTagsArray());
-        if(count($newTags)>0){
-            foreach($newTags as $tag){
-                Tags::create(array('TagName'=>$tag,'CompanyID'=>User::get_companyID(),'TagType'=>Tags::Account_tag));
-            }
-        }
+        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Lead_tag]);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;

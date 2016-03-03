@@ -81,15 +81,16 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function index() {
-
-            $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
-            $tags = json_encode(Tags::getTagsArray());
-            $account_owners = User::getOwnerUsersbyRole();
-            $accounts = Account::getAccountIDList();
-            $emailTemplates = array();
-            $privacy = EmailTemplate::$privacy;
-            $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
-            return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'tags', 'privacy', 'type', 'trunks', 'rate_sheet_formates'));
+        $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
+        $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
+        $account_owners = User::getOwnerUsersbyRole();
+        $emailTemplates = array();
+        $privacy = EmailTemplate::$privacy;
+        $boards = OpportunityBoard::getBoards();
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $accounts = Account::getAccountIDList();
+        $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts'));
     }
 
     /**
@@ -219,6 +220,10 @@ class AccountsController extends \BaseController {
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
 
+            $boards = OpportunityBoard::getBoards();
+            $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+            $accounts = Account::getAccountList();
+
             $AccountApproval = AccountApproval::getList($id);
             $doc_status = Account::$doc_status;
             $verificationflag = AccountApprovalList::isVerfiable($id);
@@ -226,7 +231,7 @@ class AccountsController extends \BaseController {
             if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts'));
     }
 
     /**
@@ -239,12 +244,7 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $data = Input::all();
         $account = Account::find($id);
-        $newTags = array_diff(explode(',',$data['tags']),Tags::getTagsArray());
-        if(count($newTags)>0){
-            foreach($newTags as $tag){
-                Tags::create(array('TagName'=>$tag,'CompanyID'=>User::get_companyID(),'TagType'=>Tags::Account_tag));
-            }
-        }
+        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -740,5 +740,53 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "failed", "message" => "Problem Found Updating Rate Table."));
         }
 
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * POST /Opportunity
+     *
+     * @return Response
+     */
+    public function createOpportunity($id){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data ["CompanyID"] = $companyID;
+        $rules = array(
+            'CompanyID' => 'required',
+            'OpportunityName' => 'required',
+            'Company'=>'required',
+            'Email'=>'required',
+            'Phone'=>'required',
+            'OpportunityBoardID'=>'required'
+        );
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+
+        unset($data['Company']);
+        unset($data['PhoneNumber']);
+        unset($data['Email']);
+
+        //Add new tags to db against opportunity
+        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
+        // place new opp. in first column of board
+        $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID'],'Order'=>0])->pluck('OpportunityBoardColumnID');
+        $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
+        $data['Order'] = $count;
+        $data["CreatedBy"] = User::get_user_full_name();
+        $data['AccountID'] = $id;
+        $data['UserID'] = User::get_userID();
+        unset($data['OppertunityID']);
+        unset($data['leadcheck']);
+        unset($data['leadOrAccount']);
+        if (Opportunity::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Opportunity."));
+        }
     }
 }

@@ -85,6 +85,7 @@
     <script>
         var $searchFilter = {};
         var currentDrageable = '';
+        var isEdit = false;
         $(document).ready(function ($) {
             var opportunity = [
                                 'OpportunityBoardColumnID',
@@ -109,6 +110,7 @@
             var usetId = "{{User::get_userID()}}";
             getOpportunities();
             $('#add-opportunity').click(function(){
+                isEdit = false;
                 $('#add-edit-opportunity-form').trigger("reset");
                 var select = ['UserID','AccountID','OpportunityBoardID'];
                 for(var i = 0 ; i< opportunity.length; i++){
@@ -136,60 +138,42 @@
             });
 
             $('#add-edit-opportunity-form [name="leadcheck"]').change(function(){
-                var lead = $('#add-edit-modal-opportunity').find('.leads');
-                if($(this).val()=='Yes') {
-                    lead.removeClass('hidden');
-                    setunsetreadonly('',true);
-                }else{
-                    lead.addClass('hidden');
-                    setunsetreadonly('',false);
-                }
+                    var lead = $('#add-edit-modal-opportunity').find('.leads');
+                    if ($(this).val() == 'Yes') {
+                        lead.removeClass('hidden');
+                        setunsetreadonly('', true);
+                    } else {
+                        lead.addClass('hidden');
+                        setunsetreadonly('', false);
+                    }
             });
 
             $('#add-edit-opportunity-form [name="AccountID"]').change(function(){
                 var AccountID = $(this).val();
-                if(AccountID) {
-                    var url = baseurl + '/opportunity/' + AccountID + '/getlead';
-                    $.ajax({
-                        url: url,  //Server script to process data
-                        type: 'POST',
-                        dataType: 'json',
-                        success: function (response) {
-                            setunsetreadonly(response[0],true);
-                            var state = response[0].AccountType==0?true:false;
-                            $('#add-edit-opportunity-form [name="leadOrAccount"]').bootstrapSwitch('setState', state, false);
-                            //$('#add-edit-opportunity-form [name="leadOrAccount"]').prop('checked', checked);
-                        },
-                        //Options to tell jQuery not to process data or worry about content-type.
-                        cache: false,
-                        contentType: false,
-                        processData: false
-                    });
-                }else{
-                    if($('#add-edit-opportunity-form [name="leadcheck"]').val()=='Yes'){
-                        setunsetreadonly('',true);
-                    }else{
-                        setunsetreadonly('',false);
-                    }
+                if(!isEdit){
+                    getLeadorAccountInstance(AccountID);
                 }
             });
-            //@ToDO:fix button change issue.
-            $('#add-edit-opportunity-form [name="leadOrAccount"]').on('change',function(){
-                var check=1;
-                if($(this).prop("checked")){
-                    $('#leadlable').text('Existing lead');
-                    $('.leads label').text('Lead');
-                }else{
-                    $('#leadlable').text('Existing Account');
-                    $('.leads label').text('Account');
-                    check = 2;
+
+            $('#add-edit-opportunity-form [name="UserID"]').change(function(){
+                if(!isEdit){
+                    check = 1;
+                    if($('#add-edit-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
+                        $('#leadlable').text('Existing lead');
+                        $('.leads label').text('Lead');
+                    }else{
+                        $('#leadlable').text('Existing Account');
+                        $('.leads label').text('Account');
+                        check = 2;
+                    }
+                    var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
+                    getLeadOrAccount(url);
                 }
-                var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
-                getLeadOrAccount(url);
-                if($('#add-edit-opportunity-form [name="leadcheck"]').val()=='Yes'){
-                    setunsetreadonly('',true);
-                }else{
-                    setunsetreadonly('',false);
+            });
+
+            $('#add-edit-opportunity-form [name="leadOrAccount"]').on('change',function(){
+                if(!isEdit) {
+                    changelableanddropdown();
                 }
             });
 
@@ -233,35 +217,15 @@
 
             $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
                 e.stopPropagation();
-                var rowHidden = $(this).parents('.tile-stats').siblings('.row-hidden');
-                var select = ['UserID','AccountID','OpportunityBoardID'];
-                var color = ['BackGroundColour','TextColour'];
-                for(var i = 0 ; i< opportunity.length; i++){
-                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
-                    var elem = $('#add-edit-opportunity-form [name="'+opportunity[i]+'"]');
-                    if(select.indexOf(opportunity[i])!=-1){
-                        if(opportunity[i]=='AccountID'){
-                            if(val>0) {
-                                $('#add-edit-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Yes');
-                            }else{
-                                $('#add-edit-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
-                                val = '';
-                            }
-                        }
-                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
-                    } else{
-                        elem.val(val);
-                        if(color.indexOf(opportunity[i])!=-1){
-                            setcolor(elem,val);
-                        }else if(opportunity[i]=='Rating'){
-                            setrating(val);
-                        }else if(opportunity[i]=='Tags'){
-                            elem.val(val).trigger("change");
-                        }
-                    }
-                }
-                $('#add-edit-modal-opportunity h4').text('Edit Opportunity');
-                $('#add-edit-modal-opportunity').modal('show');
+                isEdit = true;
+                $('#add-edit-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Yes');
+                $('#add-edit-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                var rowHidden = $(this).parents('.tile-stats').prev('div.row-hidden');
+                var UserID = rowHidden.find('input[name="UserID"]').val();
+                var AccountID = rowHidden.find('input[name="AccountID"]').val();
+                $('#add-edit-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(UserID);
+                getLeadorAccountInstance(AccountID);
+                setTimeout(loadOpportunity, 2000, rowHidden);
             });
 
             $(document).on('mousedown','#board-start ul.sortable-list li',function(e){
@@ -567,7 +531,7 @@
                     if(currentrateid<rateid){
                         return false;
                     }
-                    $(this).css('color','red');
+                    $(this).css('color','#e9dc3c');
                 });
             }
 
@@ -586,6 +550,81 @@
                 elem.val(color);
                 elem.colorpicker({color:color});
                 elem.siblings('.input-group-addon').find('.color-preview').css('background-color', color);
+            }
+
+            function getLeadorAccountInstance(AccountID){
+                if(AccountID) {
+                    var url = baseurl + '/opportunity/' + AccountID + '/getlead';
+                    $.ajax({
+                        url: url,  //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (response) {
+                            if(isEdit){
+                                $('#add-edit-opportunity-form [name="leadOrAccount"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(response[0].AccountType==0?'Lead':'Account');
+                                changelableanddropdown();
+                            }
+                            setunsetreadonly(response[0],true);
+                        },
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }else{
+                    if(!isEdit) {
+                        if ($('#add-edit-opportunity-form [name="leadcheck"]').val() == 'Yes') {
+                            setunsetreadonly('', true);
+                        } else {
+                            setunsetreadonly('', false);
+                        }
+                    }
+                }
+            }
+
+            function changelableanddropdown(){
+                var check=1;
+                if($('#add-edit-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
+                    $('#leadlable').text('Existing lead');
+                    $('.leads label').text('Lead');
+                }else{
+                    $('#leadlable').text('Existing Account');
+                    $('.leads label').text('Account');
+                    check = 2;
+                }
+                var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
+                getLeadOrAccount(url);
+                if(!isEdit) {
+                    if ($('#add-edit-opportunity-form [name="leadcheck"]').val() == 'Yes') {
+                        setunsetreadonly('', true);
+                    } else {
+                        setunsetreadonly('', false);
+                    }
+                }
+            }
+            function loadOpportunity(rowHidden){
+                var select = ['UserID','AccountID','OpportunityBoardID'];
+                var color = ['BackGroundColour','TextColour'];
+                for(var i = 0 ; i< opportunity.length; i++){
+                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
+                    var elem = $('#add-edit-opportunity-form [name="'+opportunity[i]+'"]');
+                    //console.log(opportunity[i]+' '+val);
+                    if(select.indexOf(opportunity[i])!=-1){
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                    } else{
+                        elem.val(val);
+                        if(color.indexOf(opportunity[i])!=-1){
+                            setcolor(elem,val);
+                        }else if(opportunity[i]=='Rating'){
+                            setrating(val);
+                        }else if(opportunity[i]=='Tags'){
+                            elem.val(val).trigger("change");
+                        }
+                    }
+                }
+                isEdit = false;
+                $('#add-edit-modal-opportunity h4').text('Edit Opportunity');
+                $('#add-edit-modal-opportunity').modal('show');
             }
 
         });
@@ -623,9 +662,8 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-2">Lead/Account</label>
                                     <div class="col-sm-4">
-                                        <div class="make-switch switch-small" data-text-label="<i class='entypo-user'></i>" data-on-label="Lead" data-off-label="Account">
-                                            <input type="checkbox" name="leadOrAccount" checked>
-                                        </div>
+                                        <?php $leadaccount = ['Lead'=>'Lead','Account'=>'Account']; ?>
+                                        {{Form::select('leadOrAccount',$leadaccount,'',array("class"=>"selectboxit"))}}
                                     </div>
                                     <label id="leadlable" for="field-5" class="control-label col-sm-2">Existing Lead</label>
                                     <div class="col-sm-4">

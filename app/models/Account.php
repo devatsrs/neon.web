@@ -108,6 +108,28 @@ class Account extends \Eloquent {
         return $row;
     }
 
+    public static function getAccountList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+        }
+        $data['CompanyID']=User::get_companyID();
+        $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        $row = array(""=> "Select an Account");
+        if(!empty($result)){
+            $row = array(""=> "Select an Account")+$result;
+        }
+        return $row;
+    }
+
     public static function getCustomersGridPopup($opt = array()){
 
         if(isset($opt["CompanyID"]) && $opt["CompanyID"] > 0) {

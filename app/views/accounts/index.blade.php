@@ -1039,7 +1039,7 @@
                 if(currentrateid<rateid){
                     return false;
                 }
-                $(this).css('color','red');
+                $(this).css('color','#e9dc3c');
             });
         }
     });
