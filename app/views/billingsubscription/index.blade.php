@@ -109,7 +109,7 @@ jQuery(document).ready(function ($) {
         "fnServerParams": function(aoData) {
             aoData.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance});
+            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"Export","value":1});
         },
         "aoColumns":
         [
@@ -142,7 +142,7 @@ jQuery(document).ready(function ($) {
                 {
                     "sExtends": "download",
                     "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/billing_subscription/base_exports", //baseurl + "/generate_xls.php",
+                    "sUrl": baseurl + "/billing_subscription/ajax_datagrid", //baseurl + "/generate_xls.php",
                     sButtonClass: "save-collection"
                 }
             ]
