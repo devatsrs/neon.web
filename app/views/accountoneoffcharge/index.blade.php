@@ -311,7 +311,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Price</label>
-                            <input type="text" name="Price" class="form-control" value="0" data-mask="fdecimal"  />
+                            <input type="text" name="Price" class="form-control" value="0"   />
                         </div>
                     </div>
                     <div class="col-md-12 tax">
