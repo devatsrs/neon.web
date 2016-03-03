@@ -338,7 +338,6 @@ class PaymentsController extends \BaseController {
         }
 
         $response = Payment::validate_payments($data);
-
         if ( $response['status'] != 'Success' ) {
             return Response::json(array("status" => "failed", "message" => $response['message']  ,"ProcessID" => $response["ProcessID"],'confirmshow'=>$response["confirmshow"] ));
         }else{
@@ -350,7 +349,6 @@ class PaymentsController extends \BaseController {
     public function confirm_bulk_upload() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $file_name = $data['TemplateFile'];
         $ProcessID = $data['ProcessID'];
 
         $file_name = basename($data['TemplateFile']);
