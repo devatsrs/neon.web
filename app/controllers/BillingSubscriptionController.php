@@ -8,7 +8,7 @@ class BillingSubscriptionController extends \BaseController {
         $data = Input::all();                
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
-        $billingSubscription = BillingSubscription::select("Name", "MonthlyFee", "WeeklyFee", "DailyFee", "SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","Advance")->where("CompanyID", $CompanyID);
+        $billingSubscription = BillingSubscription::where("CompanyID", $CompanyID);
         if(isset($data['FilterAdvance']) && $data['FilterAdvance']!=''){
             $billingSubscription->where("Advance",$data['FilterAdvance']);
         }
@@ -18,6 +18,15 @@ class BillingSubscriptionController extends \BaseController {
         if(!empty($data['FilterCurrencyID'])){
             $billingSubscription->where('CurrencyID','=',$data['FilterCurrencyID']);
         }
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $billexports = $billingSubscription->select("Name", "MonthlyFee", "WeeklyFee", "DailyFee", "ActivationFee","InvoiceLineDescription","Description","Advance")->get();
+            Excel::create('Billing Subscription', function ($excel) use ($billexports) {
+                $excel->sheet('Billing Subscription', function ($sheet) use ($billexports) {
+                    $sheet->fromArray($billexports);
+                });
+            })->download('xls');
+        }
+        $billingSubscription->select("Name", "MonthlyFee", "WeeklyFee", "DailyFee", "SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","Advance");
         return Datatables::of($billingSubscription)->make();
     }
 
