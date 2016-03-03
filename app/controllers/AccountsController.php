@@ -151,7 +151,7 @@ class AccountsController extends \BaseController {
             //Account::$rules['InvoiceTemplateID'] = 'required';
         }
 
-            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
+            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
             Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
 
             $validator = Validator::make($data, Account::$rules, Account::$messages);
@@ -295,7 +295,7 @@ class AccountsController extends \BaseController {
             }
         }
 
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
+        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'].',AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
 
         $validator = Validator::make($data, Account::$rules,Account::$messages);
