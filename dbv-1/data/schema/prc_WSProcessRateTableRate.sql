@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`122.129.78.153` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
 BEGIN
 	DECLARE v_AffectedRecords_ INT DEFAULT 0;
 	 DECLARE     v_CodeDeckId_ INT ;
