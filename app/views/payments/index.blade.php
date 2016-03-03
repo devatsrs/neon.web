@@ -510,14 +510,15 @@
                             success: function(response) {
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
+                                    var ProcessID = response.ProcessID;
                                     if(response.message) {
                                         $('#confirm-modal-payment h4').text('Confirm Payment');
                                         message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
-                                        var ProcessID = response.ProcessID;
                                         $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                         $('#confirm-modal-payment').modal('show');
                                         $('#confirm-payment-form .warnings').html(message);
                                     }else{
+                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                         $("#confirm-payments").click();
                                     }
 
