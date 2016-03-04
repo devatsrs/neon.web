@@ -221,7 +221,7 @@ class PaymentsController extends \BaseController {
                     $save['Status'] = 'Rejected';
                 }
 
-                $Payment->Notes .= '<br/>'.$data['Notes'];
+                $Payment->Notes .= ' '.$data['Notes'];
                 if ($Payment->update($save)) {
                     $managerinfo =  Account::getAccountManager($Payment->AccountID);
                     if(!empty($managerinfo)) {

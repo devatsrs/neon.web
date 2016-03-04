@@ -47,6 +47,12 @@
 
                     <div class="panel-body">
                         <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">Template Name</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="TemplateName" class="form-control"  value="{{$TemplateName}}" />
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Load File:</label>
                             <div class="col-sm-4">
                                 <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
@@ -123,29 +129,29 @@
                             <br />
                             <label for="field-1" class="col-sm-2 control-label">Code*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Code]', $columns,$attrselection->Code,array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Code]', $columns,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"selectboxit"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">Description*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Description]', $columns,$attrselection->Description,array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Rate*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Rate]', $columns,$attrselection->Rate,array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Rate]', $columns,(isset($attrselection->Rate)?$attrselection->Rate:''),array("class"=>"selectboxit"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">EffectiveDate*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[EffectiveDate]', $columns,$attrselection->EffectiveDate,array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Action</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Action]', $columns,$attrselection->Action,array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Action]', $columns,(isset($attrselection->Action)?$attrselection->Action:''),array("class"=>"selectboxit"))}}
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
                             <div class="col-sm-4">
@@ -231,13 +237,13 @@
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
             {{$message}}
-            $("#btn-save").click(function(e){
+            /*$("#btn-save").click(function(e){
                 $("#add-template").modal("show");
-            });
-            $("#add-template-form").submit(function(e){
+            });*/
+            $("#btn-save").click(function(e){
                 e.preventDefault();
                 var fullurl = '';
-                $("#csvimporter-form").find('[name="TemplateName"]').val($("#add-template-form").find('[name="TemplateName"]').val());
+                $("#csvimporter-form").find('[name="TemplateName"]').val($("#file-form").find('[name="TemplateName"]').val());
                 if($('#csvimporter-form').find('[name="VendorFileUploadTemplateID"]').val()>0) {
                     fullurl = baseurl + '/uploadtemplate/update';
                 }else{
