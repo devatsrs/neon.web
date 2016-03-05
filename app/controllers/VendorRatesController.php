@@ -37,8 +37,9 @@ class VendorRatesController extends \BaseController
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
+        $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
             $countries = $this->countries;
-            return View::make('vendorrates.index', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
+            return View::make('vendorrates.index', compact('id', 'trunks', 'trunk_keys', 'countries','Account','CurrencySymbol'));
     }
 
      

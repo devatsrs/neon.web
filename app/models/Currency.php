@@ -63,15 +63,10 @@ class Currency extends \Eloquent {
         return self::$cache['currency_dropdown2_cache'];
     }
 
-    public static function getCurrencySymbol($symbol){
-
-        switch(strtolower($symbol)){
-            case "zar":
-                return 'R';
-            default:
-                return Intl::getCurrencyBundle()->getCurrencySymbol($symbol);
+    public static function getCurrencySymbol($CurrencyID){
+        if($CurrencyID>0){
+            return Currency::where("CurrencyId",$CurrencyID)->pluck('Symbol');
         }
-
     }
 
     public static function clearCache(){

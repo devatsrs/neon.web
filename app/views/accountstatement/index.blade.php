@@ -158,6 +158,7 @@
                                     var PaymentDate='';
                                     var PaymentDates='';
                                     var roundplaces = data[i]['roundplaces'];
+                                    var CurencySymbol = data[i]['CurencySymbol'];
                                     if(data[i]['InvoiceAmount']!= null){
                                         InvoiceAmount = parseFloat(Math.round(data[i]['InvoiceAmount'] * 100) / 100).toFixed(roundplaces);
                                     }
@@ -237,22 +238,22 @@
                                 newRow = '<tr>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(InvoiceOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(PaymentsInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+Ballance1+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+CurencySymbol+Ballance1+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(InvoiceInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(PaymentsOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+ Ballance2+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+Ballance2+'</td>' +
                                 '</tr>'+
                                 '<tr><td colspan="15"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td colspan="13">'+TotalBallance+'</td></tr>';
+                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td colspan="13">'+CurencySymbol+TotalBallance+'</td></tr>';
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();

@@ -24,7 +24,7 @@ class BillingDashboard extends \BaseController {
         if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
             $CurrencyID = $data["CurrencyID"];
             $CurrencyCode = Currency::getCurrency($CurrencyID);
-            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyCode);
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
 

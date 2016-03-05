@@ -129,7 +129,7 @@ table{
                                                         </tr>
                                                         @endif
                                                         <tr>
-                                                                <td class="text-right"><strong>Invoice Total ({{$CurrencyCode}})</strong></td>
+                                                                <td class="text-right"><strong>Invoice Total ({{$CurrencySymbol}})</strong></td>
                                                                 <td class="text-right">{{number_format($Invoice->GrandTotal,$Account->RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>

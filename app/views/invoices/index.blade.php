@@ -188,7 +188,7 @@ var postdata;
         //show_loading_bar(40);
         var invoicestatus = {{$invoice_status_json}};
         var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail'];
+        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
         $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
         $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
         $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val();
@@ -248,11 +248,16 @@ var postdata;
                 {  "bSortable": true,
 
                 mRender:function( id, type, full){
+
                                                         var output , account_url;
-                                                        output = '<a href="{url}" target="_blank"> ' +id + '</a>';
-                                                        account_url = baseurl + "/invoice/"+ full[7] + "/invoice_preview";
-                                                        output = output.replace("{url}",account_url);
-                                                        output = output.replace("{account_name}",id);
+                    if (full[0] != '{{Invoice::INVOICE_IN}}') {
+                        output = '<a href="{url}" target="_blank"> ' + id + '</a>';
+                        account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
+                        output = output.replace("{url}", account_url);
+                        output = output.replace("{account_name}", id);
+                    }else{
+                        output = id;
+                    }
                                                         return output;
                                                      }
 
@@ -1137,7 +1142,7 @@ var postdata;
                 <div class="modal-body">
 
                     <div class="form-group">
-                        <label for="field-5" class="col-sm-2 control-label">Account Name<span id="currency"></span></label>
+                        <label for="field-5" class="col-sm-2 control-label">Account Name</label>
                         <div class="col-sm-4">
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                             <input type="hidden" name="Currency" >
@@ -1175,7 +1180,7 @@ var postdata;
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Grand Total</label>
+                        <label class="col-sm-2 control-label" for="field-1">Grand Total<span id="currency"></span></label>
                         <div class="col-sm-4">
                             <input type="text" name="GrandTotal" class="form-control"  value="" />
                         </div>
@@ -1221,7 +1226,7 @@ var postdata;
                 <div class="modal-body">
 
                     <div class="form-group">
-                        <label for="field-5" class="col-sm-2 control-label">Account Name<span id="currency"></span></label>
+                        <label for="field-5" class="col-sm-2 control-label">Account Name</label>
                         <div class="col-sm-4 control-label">
                         <span data-id="AccountName">abcs</span>
                         </div>
@@ -1239,7 +1244,7 @@ var postdata;
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Grand Total</label>
+                        <label class="col-sm-2 control-label" for="field-1">Grand Total<span id="currency"></span></label>
                         <div class="col-sm-4 control-label">
                             <span data-id="GrandTotal"></span>
                         </div>

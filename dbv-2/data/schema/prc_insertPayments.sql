@@ -26,7 +26,7 @@ BEGIN
 			 RecallBy)
  	select tp.CompanyID,
 	 		 tp.AccountID,
-			 tp.InvoiceNo,
+			 COALESCE(tp.InvoiceNo,''),
 			 tp.PaymentDate,
 			 tp.PaymentMethod,
 			 tp.PaymentType,

@@ -493,7 +493,8 @@ class InvoicesController extends \BaseController {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo'));
+            $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'));
         }
     }
 
@@ -1134,7 +1135,7 @@ class InvoicesController extends \BaseController {
             $Account = Account::where(['AccountID'=>$AccountID])->first();
             if (count($Invoice) > 0) {
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
-                $CurrencySymbol =  Currency::getCurrencySymbol($CurrencyCode);
+                $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
                 return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode'));
             }
         }
