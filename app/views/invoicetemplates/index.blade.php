@@ -60,6 +60,10 @@ var postdata;
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
+            "fnServerParams": function(aoData) {
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"Export","value":1});
+            },
              "aoColumns":
             [
                 {  "bSortable": true },  //1  [CompanyName]', '', '', '
@@ -95,7 +99,7 @@ var postdata;
                     {
                         "sExtends": "download",
                         "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/invoice_template/base_exports", //baseurl + "/generate_xls.php",
+                        "sUrl": baseurl + "/invoice_template/ajax_datagrid", //baseurl + "/generate_xls.php",
                         sButtonClass: "save-collection"
                     }
                 ]
@@ -299,7 +303,7 @@ function ajax_update(fullurl,data){
                                     <input id="picture" type="file" name="CompanyLogo" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                                 </div>
                                 <div class="col-sm-6">
-                                    <img name="CompanyLogoUrl" src="http://placehold.it/250x100" width="100"> (Only Upload .JPG file)
+                                    <img name="CompanyLogoUrl" src="http://placehold.it/250x100" width="100"> (Only Upload .jpg file)
                                 </div>
                             </div>
 

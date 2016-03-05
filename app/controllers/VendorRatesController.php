@@ -480,7 +480,8 @@ class VendorRatesController extends \BaseController
     public function bulk_update_preference($id){
         $data = Input::all();
         if(empty($data['Preference'])){
-            return Response::json(array("status" => "failed", "message" => "Please Insert Preference."));
+            $data['Preference']='0';
+         //   return Response::json(array("status" => "failed", "message" => "Please Insert Preference."));
         }
         $company_id = User::get_companyID();
         $username = User::get_user_full_name();

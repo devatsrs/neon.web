@@ -452,6 +452,7 @@ var postdata;
                 $('#modal-invoice-in h4').html('Add Invoice');
                 $("#add-invoice_in_template-form [name='AccountID']").select2().select2('val','');
                 $("#add-invoice_in_template-form [name='InvoiceID']").val('');
+                $('.file-input-name').text('');
                 $('#modal-invoice-in').modal('show');
         });
          $("#add-invoice_in_template-form [name='AccountID']").change(function(){
@@ -475,6 +476,7 @@ var postdata;
        });
         $('table tbody').on('click', '.edit-invoice-in', function (ev) {
             $('#add-invoice_in_template-form').trigger("reset");
+            $('.file-input-name').text('');
             $('#modal-invoice-in h4').html('Edit Invoice');
             //var cur_obj = $(this).prev("div.hiddenRowData");
              var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
@@ -1202,7 +1204,7 @@ var postdata;
                     </div>
                 </div>
                 <div class="modal-footer">
-                     <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
+                     <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
                          <i class="entypo-pencil"></i>
                          Save Invoice
                      </button>

@@ -252,8 +252,8 @@
 
 
             <br>
-            @if(User::can('Payments','Add'))
-				<p style="text-align: right;">
+            @if(User::checkCategoryPermission('Payments','Add'))
+            <p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
                         Add New Payment Request
@@ -657,6 +657,7 @@
                         $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
+                        $('.file-input-name').text('');
                         $('#add-edit-modal-payment').modal('show');
                     });
 

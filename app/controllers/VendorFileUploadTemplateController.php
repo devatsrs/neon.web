@@ -40,24 +40,29 @@ class VendorFileUploadTemplateController extends \BaseController {
         $message = $file_name = '';
         if (Request::isMethod('post')) {
             $data = Input::all();
-            if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
-                $excel = Input::file('excel');
-                $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("csv", "xls", "xlsx"))) {
-                    $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
-                    $excel->move($upload_path, $file_name);
-                    $file_name = $upload_path.'/'.$file_name;
+            if(!empty($data['TemplateName'])){
+                if (Input::hasFile('excel')) {
+                    $upload_path = getenv('TEMP_PATH');
+                    $excel = Input::file('excel');
+                    $ext = $excel->getClientOriginalExtension();
+                    if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                        $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
+                        $excel->move($upload_path, $file_name);
+                        $file_name = $upload_path.'/'.$file_name;
+                    }
+                }else if(isset($data['TemplateFile']) && isset($data['TemplateName'])) {
+                    $file_name = $data['TemplateFile'];
+                }else{
+                    $message = 'toastr.error("Please and select a file", "Error", toastr_opts);';
                 }
-            }else if(isset($data['TemplateFile'])) {
-                $file_name = $data['TemplateFile'];
             }else{
-                $message = 'toastr.error("Please select a file", "Error", toastr_opts);';
+                $message = 'toastr.error("Please insert template name", "Error", toastr_opts);';
             }
             if(!empty($file_name)){
                 $grid = getFileContent($file_name,$data);
                 $columns = array(""=> "Skip loading") + $grid['columns'];
                 $rows = $grid['rows'];
+                $TemplateName = $data['TemplateName'];
             }
         }
         $heading = 'New Template';
