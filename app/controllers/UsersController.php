@@ -198,7 +198,7 @@ class UsersController extends BaseController {
 
             //Delete old picture
             if(!empty($user_profile->Picture)){
-                $delete_previous_file =  $destinationPath . "\\" . $user_profile->Picture;
+                $delete_previous_file =  $destinationPath . "/" . $user_profile->Picture;
                 if(file_exists($delete_previous_file)){
                     @unlink($delete_previous_file);
                 }

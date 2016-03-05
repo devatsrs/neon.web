@@ -132,7 +132,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/bulk_mail', 'AccountsController@bulk_mail');
     Route::any('accounts/validate_cli', 'AccountsController@validate_cli');
     Route::any('accounts/validate_ip', 'AccountsController@validate_ip');
-    Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
+	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
+	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
+	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
@@ -162,6 +164,8 @@ Route::group(array('before' => 'auth'), function () {
 
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
+	Route::any('/accounts/{id}/update_inbound_rate_table',  'AccountsController@update_inbound_rate_table');
+
 	Route::resource('accounts', 'AccountsController');
 	Route::controller('accounts', 'AccountsController');
 
@@ -499,6 +503,14 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/cdr_upload/storeTemplate', 'CDRController@storeTemplate');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
     Route::any('/rate_cdr', 'CDRController@rate_cdr');
+	Route::any('/vendorcdr_show', 'CDRController@vendorcdr_show');
+	Route::any('/cdr_upload/ajax_datagrid_vendorcdr', 'CDRController@ajax_datagrid_vendorcdr');
+	Route::any('/vendorcdr_upload', 'CDRController@vendorcdr_upload');
+	Route::any('/cdr_upload/check_vendorupload', 'CDRController@check_vendorupload');
+	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
+
+
+
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');

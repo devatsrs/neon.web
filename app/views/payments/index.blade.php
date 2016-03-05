@@ -252,6 +252,7 @@
 
 
             <br>
+
             @if(User::checkCategoryPermission('Payments','Add'))
             <p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
@@ -460,6 +461,7 @@
 
                     $('body').on('click', '.btn.recall', function (e) {
                         e.preventDefault();
+                        $('#recall-payment-form').trigger("reset");
                         $('#recall-payment-form').attr("action",$(this).attr('href'));
                         $('#recall-modal-payment').modal('show');
                     });
@@ -475,6 +477,7 @@
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
+                                    $('#recall-modal-payment').modal('hide');
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
@@ -508,15 +511,17 @@
                             success: function(response) {
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
-
-                                    //toastr.success(response.message, "Success", toastr_opts);
-
-                                    $('#confirm-modal-payment h4').text('Confirm Payment');
-                                    message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
                                     var ProcessID = response.ProcessID;
-                                    $('#add-template').find('[name="ProcessID"]').val(ProcessID);
-                                    $('#confirm-modal-payment').modal('show');
-                                    $('#confirm-payment-form .warnings').html(message);
+                                    if(response.message) {
+                                        $('#confirm-modal-payment h4').text('Confirm Payment');
+                                        message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
+                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                        $('#confirm-modal-payment').modal('show');
+                                        $('#confirm-payment-form .warnings').html(message);
+                                    }else{
+                                        $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                        $("#confirm-payments").click();
+                                    }
 
                                 } else {
 
@@ -524,6 +529,9 @@
                                     message = '<b>Warnings</b><br/>'+ response.message.replace(new RegExp('\r\n', 'g'), '<br>');
                                     var ProcessID = response.ProcessID;
                                     $('#add-template').find('[name="ProcessID"]').val(ProcessID);
+                                    if(!response.confirmshow){
+                                        $('#confirm-payments').addClass('hidden');
+                                    }
                                     $('#confirm-modal-payment').modal('show');
                                     $('#confirm-payment-form .warnings').html(message);
 
@@ -553,6 +561,7 @@
                             success: function(response) {
                                 $(".btn.save").button('reset');
                                 if (response.status == 'success') {
+                                    $('#confirm-modal-payment').modal('hide');
                                     toastr.success(response.message, "Success", toastr_opts);
                                     location.reload();
                                 } else {
@@ -568,7 +577,7 @@
                                         $('#confirm-payment-form [name="warnings"]').html(message);
 
                                     }else if(response.messagestatus == 'Success' ){   //
-
+                                        $('#confirm-modal-payment').modal('hide');
                                     }else{                                      // Error
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }

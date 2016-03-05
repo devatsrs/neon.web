@@ -7,17 +7,14 @@ BEGIN
     FROM tblRateSheetDetails
     INNER JOIN
     (
-        SELECT
-            RateSheetID,
-            CustomerID,
-            @row_num := IF(@prev_customerid = customerid AND @prev_ratesheetid >= ratesheetid ,@row_num+1,1) AS RowID,
-            @prev_customerid  := customerid,
-				@prev_ratesheetid  := ratesheetid
-        FROM tblRateSheet,(SELECT @row_num := 1) x,(SELECT @prev_customerid := '') y ,(SELECT @prev_ratesheetid := '') z
-         ORDER BY customerid,ratesheetid DESC
-    ) tbl
-        ON RowID > 1
-        AND tblRateSheetDetails.RateSheetID = tbl.RateSheetID;
+       SELECT
+				DISTINCT
+            rs.RateSheetID
+         FROM tblRateSheet rs,tblRateSheet rs2
+         WHERE rs.CustomerID = rs2.CustomerID
+         AND rs.`Level` = rs2.`Level`
+         AND rs.RateSheetID < rs2.RateSheetID 
+    ) tbl ON tblRateSheetDetails.RateSheetID = tbl.RateSheetID;
         
    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
  

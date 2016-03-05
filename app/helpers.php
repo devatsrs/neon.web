@@ -329,6 +329,9 @@ function getFileContent($file_name,$data){
     if (!empty($data['Escape'])) {
         Config::set('excel::csv.line_ending', $data['Escape']);
     }
+    if(!empty($data['Firstrow'])){
+        $data['option']['Firstrow'] = $data['Firstrow'];
+    }
 
     if (!empty($data['option']['Firstrow'])) {
         if ($data['option']['Firstrow'] == 'data') {
@@ -709,4 +712,8 @@ function formatSmallDate($date,$dateformat='d-m-y') {
         $datetime = '';
     }
     return $datetime;
+}
+function SortBillingType(){
+    ksort(Company::$BillingCycleType);
+    return Company::$BillingCycleType;
 }

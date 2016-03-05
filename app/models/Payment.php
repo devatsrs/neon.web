@@ -132,7 +132,7 @@ class Payment extends \Eloquent {
         $Accounts = array_change_key_case($Accounts);
         if (!empty($file)) {
 
-            $results =  Excel::load($file, function ($reader) {
+            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {
                 $reader->formatDates(true, 'Y-m-d');
             })->get();
 
@@ -147,6 +147,7 @@ class Payment extends \Eloquent {
 
 
             $has_Error = false;
+            $confirm_show  = false;
             $response_message = "";
             $response_status = "";
 
@@ -206,11 +207,15 @@ class Payment extends \Eloquent {
                         'Status' => $PaymentStatus,
                         'Amount' => trim($row[$selection['Amount']])
                     );
-                    if (!empty($row[$selection['InvoiceNo']])) {
-                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                    if(isset($selection['InvoiceNo'])) {
+                        if (!empty($row[$selection['InvoiceNo']])) {
+                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                        }
                     }
-                    if (!empty($row[$selection['Notes']])) {
-                        $temp['Notes'] = trim($row[$selection['Notes']]);
+                    if(isset($selection['Notes'])) {
+                        if (!empty($row[$selection['Notes']])) {
+                            $temp['Notes'] = trim($row[$selection['Notes']]);
+                        }
                     }
                     $batch_insert[] = $temp;
                 }
@@ -243,6 +248,7 @@ class Payment extends \Eloquent {
                     if (!empty($validation_Errors)) { // if any error.
                         $response_message = $validation_Errors[0]->ErrorMessage;
                         $response_status = 'Error';
+                        $confirm_show = true;
 
                     }else{
                         $response_message = "";
@@ -251,7 +257,7 @@ class Payment extends \Eloquent {
                 }
             }
 
-            return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status];
+            return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status,'confirmshow'=>$confirm_show];
 
         }
     }

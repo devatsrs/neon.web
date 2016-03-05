@@ -79,7 +79,7 @@ class BillingDashboard extends \BaseController {
         $data['Enddate'] = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPincodesGrid (".$companyID.",'".$data['Pincode']."','".$data['PinExt']."','".$data['Startdate']."','".$data['AccountID']."','".$data['Enddate']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getPincodesGrid (".$companyID.",'".$data['Pincode']."','".$data['PinExt']."','".$data['Startdate']."','".$data['Enddate']."','".$data['AccountID']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

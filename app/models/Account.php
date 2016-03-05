@@ -152,7 +152,7 @@ class Account extends \Eloquent {
         }
     }
     public static function getAccountManager($AccountID){
-        $managerinfo = Account::join('tblUser', 'tblUser.UserID', '=', 'tblAccount.Owner')->where(array('AccountID'=>$AccountID))->first(['tblUser.FirstName','tblUser.LastName','tblUser.EmailAddress','tblaccount.AccountName']);
+        $managerinfo = Account::join('tblUser', 'tblUser.UserID', '=', 'tblAccount.Owner')->where(array('AccountID'=>$AccountID))->first(['tblUser.FirstName','tblUser.LastName','tblUser.EmailAddress','tblAccount.AccountName']);
         return $managerinfo;
 
     }
@@ -221,5 +221,28 @@ class Account extends \Eloquent {
         }else{
             return true;
         }
+    }
+    public static function AuthIP($account){
+        $reponse_return = false;
+        $companyID  = User::get_companyID();
+        $ipcount = CompanyGateway::where(array('CompanyID'=>$companyID))->where('Settings','like','%"NameFormat":"IP"%')->count();
+        if($ipcount > 0) {
+            $AccountAuthenticate = AccountAuthenticate::where(array('AccountID' => $account->AccountID))->first();
+            $AccountAuthenticateIP = AccountAuthenticate::where(array('AccountID' => $account->AccountID))->where(
+
+                function ($query) {
+                    $query->where('CustomerAuthRule', '=', 'IP')
+                        ->orwhere('VendorAuthRule', '=', 'IP');
+                }
+            )->first();
+            if (empty($AccountAuthenticate) || empty($AccountAuthenticateIP)) {
+                /** if Authentication Rule Not Set as IP */
+                $reponse_return = true;
+            } else if (empty($AccountAuthenticateIP->CustomerAuthRule) && empty($AccountAuthenticateIP->VendorAuthRule)) {
+                /** if Authentication Rule Set as IP and No IP Saved */
+                $reponse_return = true;
+            }
+        }
+        return $reponse_return;
     }
 }

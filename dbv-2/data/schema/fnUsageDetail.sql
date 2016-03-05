@@ -1,6 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT   
 
-)
+, IN `p_cdr_type` CHAR(2))
 BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
@@ -17,7 +17,8 @@ BEGIN
 			cld varchar(100),
 			cost decimal(18,6),
 			connect_time datetime,
-			disconnect_time datetime
+			disconnect_time datetime,
+			is_inbound tinyint(1) default 0
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -36,13 +37,16 @@ BEGIN
 		cld,
 		cost,
 		connect_time,
-		disconnect_time
+		disconnect_time,
+		ud.is_inbound
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
-	LEFT JOIN Ratemanagement3.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON uh.AccountID = a.AccountID
-	WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
+	WHERE
+	(p_cdr_type = '' OR  ud.is_inbound = p_cdr_type)
+	AND  StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 	AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
 	AND uh.CompanyID = p_CompanyID
 	AND uh.AccountID is not null
@@ -51,7 +55,6 @@ BEGIN
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
 	) tbl
 	WHERE 
-	
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)
 	OR 
 	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)

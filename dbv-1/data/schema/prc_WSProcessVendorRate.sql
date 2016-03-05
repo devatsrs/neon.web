@@ -136,7 +136,7 @@ BEGIN
 					             AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
                         WHERE tblRate.RateID IS NULL
                         AND tblTempVendorRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) vc
-                    INNER JOIN
+                    LEFT JOIN
                     (
                         SELECT DISTINCT
                             tblTempVendorRate2.Code,
@@ -164,19 +164,20 @@ BEGIN
                                 )
                                 )
                         WHERE tblTempVendorRate2.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) c
-                        ON vc.Code = c.Code
-                        AND c.CountryID IS NOT NULL;
+                        ON vc.Code = c.Code;
+                        /* AND c.CountryID IS NOT NULL*/
+								
 
 
                 INSERT INTO tmp_JobLog_ (Message)
                     SELECT DISTINCT
                         CONCAT(tblTempVendorRate.Code , ' INVALID CODE - COUNTRY NOT FOUND ')
                     FROM tmp_TempVendorRate_  as tblTempVendorRate 
-                    LEFT JOIN tblRate
+                    INNER JOIN tblRate
 				             ON tblRate.Code = tblTempVendorRate.Code
 				             AND tblRate.CompanyID = p_companyId
 				             AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
-						  WHERE tblRate.RateID IS NULL
+						  WHERE tblRate.CountryID IS NULL
                     AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
             ELSE
                 INSERT INTO tmp_JobLog_ (Message)

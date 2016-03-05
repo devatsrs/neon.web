@@ -77,8 +77,8 @@ BEGIN
 	AND dd.CompanyGatewayID = ds.CompanyGatewayID
 	AND dd.Trunk = ds.trunk
 	AND dd.AreaPrefix = ds.area_prefix
-	AND dd.Pincode = ds.pincode
-	AND dd.Extension = ds.extension
+	AND (dd.Pincode = ds.pincode OR (dd.Pincode IS NULL AND ds.pincode IS NULL))
+   AND (dd.Extension = ds.extension OR (dd.Extension IS NULL AND ds.extension IS NULL))
 	AND dd.DailyDate = ds.DailyDate
 SET dd.TotalCharges =  dd.TotalCharges + ds.TotalCharges,
 	dd.TotalDuration = dd.TotalDuration + ds.TotalDuration,

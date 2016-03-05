@@ -1,4 +1,4 @@
-@extends('layout.Customer.main')
+@extends('layout.customer.main')
 
 @section('content')
 
@@ -60,7 +60,9 @@
 <div class="row">
  <div  class="col-md-12">
         <div class="text-right">
-        <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >Pay Now</button>
+            @if(is_authorize())
+                <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >Pay Now</button>
+            @endif
         </div>
         <div class="input-group-btn pull-right" style="width:70px;">
             <form id="clear-bulk-rate-form" >
@@ -74,12 +76,15 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div><div class="pull-right"> Sent/Receive</div></th>
-        <th width="20%">Invoice Number</th>
-        <th width="20%">Issue Date</th>
+        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+            <div class="pull-right"> Sent/Receive</div></th>
+        <th width="20%">Account Name</th>
+        <th width="10%">Invoice Number</th>
+        <th width="10%">Issue Date</th>
         <th width="10%">Grand Total</th>
+        <th width="10%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
-        <th width="30%">Action</th>
+        <th width="15%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -96,7 +101,8 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
         var invoicestatus = JSON.parse('{{$invoice_status_json}}');
-        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal','InvoiceStatus','InvoiceID','Description','Attachment','AccountID'];
+        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail'];
+
         $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
         $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
@@ -117,69 +123,61 @@ var postdata;
                 data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1});
             },
              "aoColumns":
-            [
-                {  "bSortable": false,
-                                                mRender: function ( id, type, full ) {
-                                                     var action , action = '<div class = "hiddenRowData" >';
-                                                     if (id !== '{{Invoice::INVOICE_IN}}'){
-                                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Sent"><i class="entypo-left-bold"></i>SNT</a>';
-                                                      }else{
-                                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Received"><i class="entypo-right-bold"></i>RCV</a>';
-                                                      }
-                                                      if (full[0] !== '{{Invoice::INVOICE_IN}}' && (full[5] != '{{Invoice::PAID}}' && full[5] != '{{Invoice::PARTIALLY_PAID}}')){
-                                                        action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[6]+'" name="InvoiceID[]"></div>';
-                                                      }
-                                                        action += invoiceType;
-                                                        return action;
-                                                     }
+                     [
+                         {  "bSortable": false,
+                             mRender: function ( id, type, full ) {
+                                 var action , action = '<div class = "hiddenRowData" >';
+                                 if (id != '{{Invoice::INVOICE_IN}}'){
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Sent"><i class="entypo-left-bold"></i>RCV</a>';
+                                 }else{
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Received"><i class="entypo-right-bold"></i>SNT</a>';
+                                 }
+                                 if (full[0] != '{{Invoice::INVOICE_IN}}'){
+                                     action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
+                                 }
+                                 action += invoiceType;
+                                 return action;
+                             }
 
-                                                    },  // 0 AccountName
-                {  "bSortable": true,
-                    mRender:function(id,type,full){
-                        return full[2];
-                    }
-                },  // 1 InvoiceNumber
-                {  "bSortable": true,
-                    mRender:function(id,type,full){
-                        return full[3];
-                    }
-                },  // 3 IssueDate
-                {  "bSortable": true,
-                    mRender:function(id,type,full){
-                        return full[4];
-                    }
-                },  // 4 GrandTotal
-                {  "bSortable": true,
-                    mRender:function(id,type,full){
-                        return invoicestatus[full[5]];
-                    }
-                },  // 4 Invoice Status
-                {
-                   "bSortable": false,
-                    mRender: function ( id, type, full ) {
-                        var action , edit_ , show_ , delete_,view_url,edit_url,download_url;
-                         action = '<div class = "hiddenRowData" >';
-                        if (full[0] !== '{{Invoice::INVOICE_IN}}'){
-                            edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}",id);
-                         }else{
-                            download_url = baseurl+'/invoice/download_doc_file/'+id
-                         }
+                         },  // 0 AccountName
+                         {  "bSortable": true},  // 1 AccountName
+                         {  "bSortable": true
+                         },  // 2 IssueDate
+                         {  "bSortable": true },  // 3 IssueDate
+                         {  "bSortable": true },  // 4 GrandTotal
+                         {  "bSortable": true },  // 4 GrandTotal
+                         {  "bSortable": true,
+                             mRender:function( id, type, full){
+                                 return invoicestatus[full[6]];
+                             }
 
-                         for(var i = 0 ; i< list_fields.length; i++){
-                            action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
-                         }
-                         action += '</div>';
-                        if (edit_url){
-                            action += ' <a href="' + edit_url +'"></a>'
-                            action += ' <a class="view-invoice-sent btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Print </a>';
-                         }else{
-                            action += ' <a></a>';
-                            action += ' <a class="view-invoice-in btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Print </a>';
-                         }
-                        return action;
-                      }
-                  },
-            ],
+                         },  // 5 InvoiceStatus
+                         {
+                             "bSortable": false,
+                             mRender: function ( id, type, full ) {
+                                 var action , edit_ , show_ , delete_,view_url,edit_url,download_url,invoice_preview,invoice_log;
+                                 action = '<div class = "hiddenRowData" >';
+                                 if (full[0] != '{{Invoice::INVOICE_IN}}'){
+                                     invoice_preview = (baseurl + "/invoice/{id}/cview").replace("{id}",full[10] +'-'+id);
+                                 }else{
+                                     download_url = baseurl+'/invoice/download_doc_file/'+id;
+                                 }
+
+                                 for(var i = 0 ; i< list_fields.length; i++){
+                                     action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                 }
+                                 action += '</div>';
+                                 if (full[0] == '{{Invoice::INVOICE_OUT}}'){
+                                     action += ' <a href="'+invoice_preview+'" class="view-invoice-sent btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Print </a>';
+                                 }else{
+                                     action += ' <a></a>';
+                                     action += ' <a class="view-invoice-in btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Print </a>';
+                                 }
+
+                                 return action;
+                             }
+                         },
+                     ],
             "oTableTools": {
                 "aButtons": [
                     {
@@ -228,7 +226,7 @@ var postdata;
             return false;
         });
         $('table tbody').on('click', '.view-invoice-in', function (ev) {
-            var cur_obj = $(this).prev().prev("div.hiddenRowData");
+            var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
 
             for(var i = 0 ; i< list_fields.length; i++){
             $("#modal-invoice-in-view").find("[data-id='"+list_fields[i]+"']").html('');
@@ -243,15 +241,7 @@ var postdata;
             }
             $('#modal-invoice-in-view').modal('show');
         });
-        $('table tbody').on('click', '.view-invoice-sent', function (ev) {
-            var cur_obj = $(this).prev().prev("div.hiddenRowData");
-            InvoiceID = cur_obj.find("[name=InvoiceID]").val();
-            view_url =  ( "/customer/invoice/{id}/print_preview").replace("{id}",InvoiceID);
-            showAjaxModal( view_url ,'print-modal-invoice');
-            pdf_url = (baseurl + "/customer/invoice/"+InvoiceID+"/print");
-            pdf_url = pdf_url.replace("{id}",InvoiceID);
-            $('#print-modal-invoice').find(".btn.print").attr("href",pdf_url);
-        });
+
         $("#selectall").click(function(ev) {
             var is_checked = $(this).is(':checked');
             $('#table-4 tbody tr').each(function(i, el) {

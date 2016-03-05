@@ -183,7 +183,7 @@ class AmazonS3 {
 
             //When no amazon ;
             if($s3 == 'NoAmazon'){
-                $Uploadpath = getenv('UPLOAD_PATH') . "\\"."".$file;
+                $Uploadpath = getenv('UPLOAD_PATH') . "/"."".$file;
                 if ( file_exists($Uploadpath) ) {
                     @unlink($Uploadpath);
                     return true;
