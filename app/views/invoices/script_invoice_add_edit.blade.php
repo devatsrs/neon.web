@@ -220,13 +220,14 @@ $(document).ready(function(){
                 total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
             }
         });
+        var CurrencySymbol = $("input[name=CurrencyCode]").val();
 
-        $('input[name=SubTotal]').val(grand_total.toFixed(decimal_places));
-        $('input[name=TotalTax]').val(total_tax.toFixed(decimal_places));
+        $('input[name=SubTotal]').val(CurrencySymbol+grand_total.toFixed(decimal_places));
+        $('input[name=TotalTax]').val(CurrencySymbol+total_tax.toFixed(decimal_places));
         total = eval(grand_total + total_tax).toFixed(decimal_places);
 
-        $('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
-        $('input[name=GrandTotal]').val(total + " " + $("input[name=CurrencyCode]").val());
+        $('input[name=TotalDiscount]').val(CurrencySymbol+total_discount.toFixed(decimal_places));
+        $('input[name=GrandTotal]').val(CurrencySymbol+total);
 
     }
     function cal_line_total(obj){

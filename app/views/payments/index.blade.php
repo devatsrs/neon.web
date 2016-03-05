@@ -642,10 +642,12 @@
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
                         var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
-                        $.get( url, function( Currency ) {
-                            $("#currency").text('('+Currency+')');
-                            $("#add-edit-payment-form [name='Currency']").val(Currency);
-                        });
+                        if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
+                            $.get(url, function (Currency) {
+                                $("#currency").text('(' + Currency + ')');
+                                $("#add-edit-payment-form [name='Currency']").val(Currency);
+                            });
+                        }
                     });
 
                     $('#add-new-payment').click(function (ev) {

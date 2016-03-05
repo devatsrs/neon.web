@@ -458,10 +458,12 @@ var postdata;
          $("#add-invoice_in_template-form [name='AccountID']").change(function(){
             $("#add-invoice_in_template-form [name='AccountName']").val( $("#add-invoice_in_template-form [name='AccountID'] option:selected").text());
             var url = baseurl + '/payments/getcurrency/'+$("#add-invoice_in_template-form [name='AccountID'] option:selected").val();
-            $.get( url, function( Currency ) {
-                $("#currency").text('('+Currency+')');
-                $("#add-invoice_in_template-form [name='Currency']").val(Currency);
-            });
+             if($("#add-invoice_in_template-form [name='AccountID'] option:selected").val() > 0) {
+                 $.get(url, function (Currency) {
+                     $("#currency").text('(' + Currency + ')');
+                     $("#add-invoice_in_template-form [name='Currency']").val(Currency);
+                 });
+             }
         });
         $("#add-invoice_in_template-form").submit(function(e){
             e.preventDefault();
@@ -825,10 +827,12 @@ var postdata;
         $("#add-edit-payment-form [name='AccountID']").change(function(){
             $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
             var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
-            $.get( url, function( Currency ) {
-                $("#AccountID_currency").text('('+Currency+')');
-                $("#add-edit-payment-form [name='Currency']").val(Currency);
-            });
+            if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
+                $.get(url, function (Currency) {
+                    $("#AccountID_currency").text('(' + Currency + ')');
+                    $("#add-edit-payment-form [name='Currency']").val(Currency);
+                });
+            }
         });
         $("#bulk_email").click(function(){
             $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');

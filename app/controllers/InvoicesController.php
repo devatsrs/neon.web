@@ -432,7 +432,7 @@ class InvoicesController extends \BaseController {
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
             $fields =["CurrencyId","Address1","Address2","Address3","City","PostCode","Country","InvoiceTemplateID"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
-            $Currency = Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
+            $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID = $Account->InvoiceTemplateID;
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
