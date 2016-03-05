@@ -53,9 +53,10 @@ class BillingDashboard extends \BaseController {
         $data['Type'] = empty($data['Type'])?1:$data['Type'];
         $data['PinExt'] = empty($data['PinExt'])?'pincode':$data['PinExt'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $data['Startdate'] = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
-        $data['Enddate'] = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
-
+        $Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
+        $Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
+        $data['Startdate'] = trim($Startdate).' 23:59:59';
+        $data['Enddate'] = trim($Enddate).' 23:59:59';
         if($data['Type'] == 2 && $data['PinExt'] == 'pincode'){
             $report_label = 'Pin Duration (in Sec) ';
         }else if($data['Type'] == 2 && $data['PinExt'] == 'extension'){

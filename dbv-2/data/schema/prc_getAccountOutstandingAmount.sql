@@ -27,7 +27,8 @@ BEGIN
     from tblPayment
     where AccountID = p_AccountID
     and CompanyID = p_company_id
-    and Status = 'Approved';
+    and Status = 'Approved'
+    and Recall = 0;
 
     -- print concat('Total Paid ',v_TotalPaid_)
 
