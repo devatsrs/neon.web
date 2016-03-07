@@ -148,14 +148,23 @@ class Invoice extends \Eloquent {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
+            chmod(getenv('UPLOAD_PATH'),0777);
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+
             file_put_contents($logo, file_get_contents($as3url));
 
             $InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
             $file_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.pdf';
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo'))->render();
+            $CompanyID = $Account->CompanyId;
+            $Company = Company::find($CompanyID);
+            $VatNumber = '';
+            if(!empty($Company->VAT)){
+                $VatNumber = $Company->VAT;
+            }
+
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','VatNumber'))->render();
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice'))->render();
             $footer = htmlspecialchars_decode($footer);
