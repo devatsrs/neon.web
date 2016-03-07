@@ -474,7 +474,8 @@ var postdata;
             }else{
                 update_new_url = baseurl + '/invoice/add_invoice_in';
             }
-            submit_ajax_withfile(update_new_url,formData)
+            submit_ajax_withfile(update_new_url,formData);
+            $(".btn").button('reset');
        });
         $('table tbody').on('click', '.edit-invoice-in', function (ev) {
             $('#add-invoice_in_template-form').trigger("reset");
