@@ -170,7 +170,7 @@
                                     <td>{{Form::text('SubTotal',number_format($Invoice->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr>
-                                    <td >VAT </td>
+                                    <td ><span class="product_tax_title">VAT</span> </td>
                                     <td>{{Form::text('TotalTax',number_format($Invoice->TotalTax,$RoundChargesAmount),array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr>

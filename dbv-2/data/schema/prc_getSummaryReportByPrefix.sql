@@ -23,20 +23,24 @@ BEGIN
     THEN
          
             SELECT
-                MAX(AccountName) AS AccountName,
+                MAX(uh.AccountName) AS AccountName,
                 area_prefix as AreaPrefix,
                 MAX(c.Country) AS Country,
                 MAX(r.Description) AS Description,
                 count(UsageDetailID) AS NoOfCalls,
 				Concat( Format(SUM(duration ) / 60,0), ':' , SUM(duration ) % 60) AS Duration,
 		    	Concat( Format(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
-                SUM(cost) AS TotalCharges
+                CONCAT(IFNULL(cc.Symbol,''),SUM(cost)) AS TotalCharges
                 
             FROM tmp_tblUsageDetails_ uh
             LEFT JOIN Ratemanagement3.tblRate r
                 ON r.Code = uh.area_prefix 
             LEFT JOIN Ratemanagement3.tblCountry c
                 ON r.CountryID = c.CountryID
+            INNER JOIN Ratemanagement3.tblAccount a
+         		ON a.AccountID = uh.AccountID
+         	LEFT JOIN Ratemanagement3.tblCurrency cc
+	         	ON cc.CurrencyId = a.CurrencyId
             WHERE 
 			(p_Prefix='' OR uh.area_prefix like REPLACE(p_Prefix, '*', '%'))
 			AND (p_Country=0 OR r.CountryID=p_Country)
@@ -44,10 +48,10 @@ BEGIN
                      uh.AccountID
                      ORDER BY
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN MAX(AccountName)
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN MAX(uh.AccountName)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN MAX(AccountName)
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN MAX(uh.AccountName)
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AreaPrefixDESC') THEN area_prefix

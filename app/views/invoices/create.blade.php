@@ -156,7 +156,7 @@
                                     <td>{{Form::text('SubTotal','',array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr>
-                                    <td >VAT </td>
+                                    <td ><span class="product_tax_title">VAT</span> </td>
                                     <td>{{Form::text('TotalTax','',array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr>

@@ -7,12 +7,13 @@ class BillingDashboard extends \BaseController {
         $CurrencyID = "";
         if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
             $CurrencyID = $data["CurrencyID"];
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
         $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
-        return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense'));
+        return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
 
     }
 
@@ -24,7 +25,7 @@ class BillingDashboard extends \BaseController {
         if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
             $CurrencyID = $data["CurrencyID"];
             $CurrencyCode = Currency::getCurrency($CurrencyID);
-            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyCode);
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
 
@@ -53,9 +54,10 @@ class BillingDashboard extends \BaseController {
         $data['Type'] = empty($data['Type'])?1:$data['Type'];
         $data['PinExt'] = empty($data['PinExt'])?'pincode':$data['PinExt'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $data['Startdate'] = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
-        $data['Enddate'] = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
-
+        $Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
+        $Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
+        $data['Startdate'] = trim($Startdate).' 23:59:59';
+        $data['Enddate'] = trim($Enddate).' 23:59:59';
         if($data['Type'] == 2 && $data['PinExt'] == 'pincode'){
             $report_label = 'Pin Duration (in Sec) ';
         }else if($data['Type'] == 2 && $data['PinExt'] == 'extension'){
