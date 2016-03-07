@@ -57,10 +57,10 @@ table{
                         <p>{{nl2br($Invoice->Address)}}</p>
                 </td>
                 <td class="col-md-6 text-right"  valign="top" >
-                        <p><b>Vat Number: </b>{{$VatNumber}}</p>
                         <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix}}{{$Invoice->InvoiceNumber}}</p>
                         <p><b>Invoice Date: </b>{{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</p>
                         <p><b>Due Date: </b>{{date('d-m-Y',strtotime($Invoice->IssueDate.' +'.$Account->PaymentDueInDays.' days'))}}</p>
+                        <p><b>VAT No: </b>{{$VatNumber}}</p>
                 </td>
             </tr>
         </table>
@@ -83,6 +83,7 @@ table{
             </thead>
             <tbody>
             @foreach($InvoiceDetail as $ProductRow)
+                <?php $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID) ?>
             @if($ProductRow->ProductType == Product::ITEM)
             <tr>
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
@@ -120,7 +121,7 @@ table{
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         <tr>
-                                                                <td class="text-right"><strong>Tax</strong></td>
+                                                                <td class="text-right"><strong>{{$TaxrateName}}</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalTax,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @if($Invoice->TotalDiscount >0)
