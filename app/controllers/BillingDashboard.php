@@ -7,12 +7,13 @@ class BillingDashboard extends \BaseController {
         $CurrencyID = "";
         if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
             $CurrencyID = $data["CurrencyID"];
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
         $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
-        return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense'));
+        return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
 
     }
 
