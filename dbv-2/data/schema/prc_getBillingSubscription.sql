@@ -85,4 +85,6 @@ BEGIN
 			AND(p_Name ='' OR tblBillingSubscription.Name like Concat('%',p_Name,'%'));
 				
 	END IF;       
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
