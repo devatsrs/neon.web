@@ -30,6 +30,7 @@
                         FoodMaster Ltd</p>
                 </td>
                 <td class="col-md-6 text-right"  valign="top" >
+                        <p><b>Vat Number: </b>@if(isset($VatNumber)) {{$VatNumber}} @endif</p>
                         <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</p>
                         <p><b>Invoice Date: </b>{{date('d-m-Y')}}</p>
                         <p><b>Due Date: </b>{{date('d-m-Y',strtotime('+5 days'))}}</p>

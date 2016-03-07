@@ -3,9 +3,18 @@
 class InvoiceTemplatesController extends \BaseController {
 
     public function ajax_datagrid() {
-
+        $data = Input::all();
         $CompanyID = User::get_companyID();
-        $invoiceCompanies = InvoiceTemplate::select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod')->where("CompanyID", $CompanyID);
+        $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod')->get();
+            Excel::create('Invoice Template', function ($excel) use ($invoiceCompanies) {
+                $excel->sheet('Invoice Template', function ($sheet) use ($invoiceCompanies) {
+                    $sheet->fromArray($invoiceCompanies);
+                });
+            })->download('xls');
+        }
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -23,7 +32,9 @@ class InvoiceTemplatesController extends \BaseController {
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
             $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
         }
-        return View::make('invoicetemplates.show', compact('InvoiceTemplate','logo'));
+        $CompanyID = User::get_companyID();
+        $VatNumber = Company::getCompanyField($CompanyID,'VAT');
+        return View::make('invoicetemplates.show', compact('InvoiceTemplate','logo','VatNumber'));
 
     }
 
@@ -72,6 +83,10 @@ class InvoiceTemplatesController extends \BaseController {
             $file = Input::file('CompanyLogo');
             if (!empty($file))
             {
+                $ext = $file->getClientOriginalExtension();
+                if (!in_array($ext, array("jpg", "png",))){
+                    return Response::json(array("status" => "failed", "message" => "Please Upload only jpg or png file."));
+                }
                 $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
@@ -130,6 +145,10 @@ class InvoiceTemplatesController extends \BaseController {
         $file = Input::file('CompanyLogo');
         if (!empty($file))
         {
+            $ext = $file->getClientOriginalExtension();
+            if (!in_array($ext, array("jpg", "png",))){
+                return Response::json(array("status" => "failed", "message" => "Please Upload only jpg or png file."));
+            }
             $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
             $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
@@ -195,7 +214,9 @@ class InvoiceTemplatesController extends \BaseController {
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
             $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
         }
-        return View::make('invoicetemplates.invoice_pdf', compact('InvoiceTemplate','logo'));
+        $CompanyID = User::get_companyID();
+        $VatNumber = Company::getCompanyField($CompanyID,'VAT');
+        return View::make('invoicetemplates.invoice_pdf', compact('InvoiceTemplate','logo','VatNumber'));
 
         /*$pdf = PDF::loadView('invoicetemplates.invoice_pdf', compact('InvoiceTemplate'));
         return $pdf->download('rm_invoice_template.pdf');*/
@@ -227,11 +248,12 @@ class InvoiceTemplatesController extends \BaseController {
                 $logo ='';
             }
 
-            
+            $CompanyID = User::get_companyID();
+            $VatNumber = Company::getCompanyField($CompanyID,'VAT');
 
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
             $htmlfile_name = 'Invoice--' . date('d-m-Y') . '.html';
-            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo'))->render();
+            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo','VatNumber'))->render();
             $body = htmlspecialchars_decode($body);
 
             $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate'))->render();

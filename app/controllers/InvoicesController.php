@@ -377,10 +377,12 @@ class InvoicesController extends \BaseController {
                             //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
+                            $TaxRateTitle = 'VAT';
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
 
                                 $TaxRateId = $TaxRates['TaxRateID'];
                                 $TaxRateAmount = 0;
+                                $TaxRateTitle = $TaxRates['Title'];
                                 if (isset($TaxRates['Amount'])) {
                                     $TaxRateAmount = $TaxRates['Amount'];
                                 }
@@ -398,6 +400,7 @@ class InvoicesController extends \BaseController {
                                 "product_total_tax_rate" => $TotalTax,
                                 "sub_total" => $SubTotal,
                                 "decimal_places" => $decimal_places,
+                                "product_tax_title" => $TaxRateTitle,
                             ];
                         } else {
                             $error = "No Product Found.";
@@ -597,7 +600,9 @@ class InvoicesController extends \BaseController {
                     }
                 }
             }
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+            $CompanyID = User::get_companyID();
+            $VatNumber = Company::getCompanyField($CompanyID,'VAT');
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','VatNumber'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
