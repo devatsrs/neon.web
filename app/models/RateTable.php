@@ -56,6 +56,6 @@ class RateTable extends \Eloquent
     }
     public static function getCurrencyCode($RateTableId){
         $CurrencyID = RateTable::where(["RateTableId" => $RateTableId])->pluck('CurrencyID');
-        return Currency::getCurrencyCode($CurrencyID);
+        return Currency::getCurrencySymbol($CurrencyID);
     }
 }
