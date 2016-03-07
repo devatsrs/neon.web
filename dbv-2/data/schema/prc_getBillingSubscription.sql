@@ -60,7 +60,7 @@ BEGIN
      	FROM tblBillingSubscription
      	WHERE tblBillingSubscription.CompanyID = p_CompanyID
 			AND(p_CurrencyID =0  OR tblBillingSubscription.CurrencyID   = p_CurrencyID)
-			AND(p_Advance = 0 OR tblBillingSubscription.Advance = p_Advance)
+			AND(p_Advance is null OR tblBillingSubscription.Advance = p_Advance)
 			AND(p_Name ='' OR tblBillingSubscription.Name like Concat('%',p_Name,'%'));
  	END IF;
       
