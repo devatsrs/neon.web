@@ -97,6 +97,7 @@ $(document).ready(function(){
                                     $row.find(".Price").val(response.product_amount);
                                     $row.find(".TaxAmount").val(response.product_total_tax_rate);
                                     $row.find(".LineTotal").val(response.sub_total);
+                                    $row.find(".product_tax_title").text(response.sub_total);
 
                                     $row.find(".StartDate").attr("disabled",false);
                                     $row.find(".EndDate").attr("disabled",false);
@@ -124,6 +125,7 @@ $(document).ready(function(){
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
                             $row.find(".LineTotal").val(response.sub_total);
+                            $row.find(".product_tax_title").text(response.sub_total);
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
@@ -147,6 +149,7 @@ $(document).ready(function(){
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
                             $row.find(".LineTotal").val(response.sub_total);
+                            $row.find(".product_tax_title").text(response.sub_total);
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
@@ -176,6 +179,7 @@ $(document).ready(function(){
         calculate_total();
     });
 
+
     $('#add-row').on('click', function(e){
         e.preventDefault();
         $('#InvoiceTable > tbody').append(add_row_html);
@@ -199,6 +203,7 @@ $(document).ready(function(){
         var grand_total = 0;
         var total_tax = 0;
         var total_discount = 0.0;
+        var taxTitle = 'VAT';
 
         $('#InvoiceTable tbody tr td .TaxAmount').each(function(i, el){
             var $this = $(el);
@@ -220,7 +225,20 @@ $(document).ready(function(){
                 total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
             }
         });
+
+       /* $('#InvoiceTable tbody tr td .TaxRateID').each(function(i, el){
+            var $this = $(el);
+            if($this.val() != ''){
+                taxTitle = $(".TaxRateID option:selected").text();
+                if(taxTitle =='Select a Tax Rate'){
+                    taxTitle='VAT';
+                }
+            }
+        });*/
+
+
         var CurrencySymbol = $("input[name=CurrencyCode]").val();
+
 
         $('input[name=SubTotal]').val(CurrencySymbol+grand_total.toFixed(decimal_places));
         $('input[name=TotalTax]').val(CurrencySymbol+total_tax.toFixed(decimal_places));
@@ -229,7 +247,10 @@ $(document).ready(function(){
         $('input[name=TotalDiscount]').val(CurrencySymbol+total_discount.toFixed(decimal_places));
         $('input[name=GrandTotal]').val(CurrencySymbol+total);
 
+      //  $(".product_tax_title").text(taxTitle);
+
     }
+
     function cal_line_total(obj){
 
 
@@ -244,6 +265,7 @@ $(document).ready(function(){
         var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
 
         obj.find('.LineTotal').val(line_total.toFixed(decimal_places));
+
         calculate_total();
     }
 
@@ -254,6 +276,16 @@ $(document).ready(function(){
         showAjaxModal(ajaxurl,'send-modal-invoice');
         $("#send-invoice-form")[0].reset();
         $('#send-modal-invoice').modal('show');
+    });
+    $('select.TaxRateID').on( "change",function(e){
+
+        var taxTitle =  $(this).find(":selected").text() ;
+        //var taxTitle = $(".TaxRateID option:selected").text();
+
+        if(taxTitle =='Select a Tax Rate'){
+            taxTitle='VAT';
+        }
+        $(".product_tax_title").text(taxTitle);
     });
 
     $("select[name=AccountID]").change( function (e) {
