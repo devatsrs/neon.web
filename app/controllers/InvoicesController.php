@@ -435,7 +435,7 @@ class InvoicesController extends \BaseController {
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
             $fields =["CurrencyId","Address1","Address2","Address3","City","PostCode","Country","InvoiceTemplateID"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
-            $Currency = Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
+            $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID = $Account->InvoiceTemplateID;
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
@@ -496,7 +496,8 @@ class InvoicesController extends \BaseController {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo'));
+            $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'));
         }
     }
 
@@ -1139,7 +1140,7 @@ class InvoicesController extends \BaseController {
             $Account = Account::where(['AccountID'=>$AccountID])->first();
             if (count($Invoice) > 0) {
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
-                $CurrencySymbol =  Currency::getCurrencySymbol($CurrencyCode);
+                $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
                 return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode'));
             }
         }

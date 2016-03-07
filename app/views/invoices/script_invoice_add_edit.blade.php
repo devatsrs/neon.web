@@ -225,6 +225,7 @@ $(document).ready(function(){
                 total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
             }
         });
+
        /* $('#InvoiceTable tbody tr td .TaxRateID').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
@@ -236,12 +237,15 @@ $(document).ready(function(){
         });*/
 
 
-        $('input[name=SubTotal]').val(grand_total.toFixed(decimal_places));
-        $('input[name=TotalTax]').val(total_tax.toFixed(decimal_places));
+        var CurrencySymbol = $("input[name=CurrencyCode]").val();
+
+
+        $('input[name=SubTotal]').val(CurrencySymbol+grand_total.toFixed(decimal_places));
+        $('input[name=TotalTax]').val(CurrencySymbol+total_tax.toFixed(decimal_places));
         total = eval(grand_total + total_tax).toFixed(decimal_places);
 
-        $('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
-        $('input[name=GrandTotal]').val(total + " " + $("input[name=CurrencyCode]").val());
+        $('input[name=TotalDiscount]').val(CurrencySymbol+total_discount.toFixed(decimal_places));
+        $('input[name=GrandTotal]').val(CurrencySymbol+total);
 
       //  $(".product_tax_title").text(taxTitle);
 

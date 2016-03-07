@@ -16,7 +16,11 @@ class AccountSubscriptionController extends \BaseController {
             $subscriptions->where('tblAccountSubscription.InvoiceDescription','Like','%'.trim($data['SubscriptionInvoiceDescription']).'%');
         }
         if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
-            $subscriptions->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));
+            $subscriptions->where(function($query){
+                $query->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));
+                $query->orwhere('tblAccountSubscription.EndDate','=','0000-00-00');
+            });
+
         }elseif(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'false'){
             $subscriptions->where('tblAccountSubscription.EndDate','<',date('Y-m-d'));
         }
@@ -46,7 +50,7 @@ class AccountSubscriptionController extends \BaseController {
             'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
             'StartDate'               =>'required',
-            'EndDate'               =>'required'
+            //'EndDate'               =>'required'
         );
         $validator = Validator::make($data, $rules);
         $validator->setPresenceVerifier($verifier);
@@ -80,7 +84,7 @@ class AccountSubscriptionController extends \BaseController {
                 'AccountID' => 'required',
                 'SubscriptionID' => 'required',
                 'StartDate' => 'required',
-                'EndDate' => 'required'
+                //'EndDate' => 'required'
             );
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);

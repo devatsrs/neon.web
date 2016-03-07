@@ -47,7 +47,7 @@
         <div class="toast toast-error" style="">
         <div class="toast-title">Outstanding</div>
         <div class="toast-message">
-        Outstanding Amount - {{$outstanding}} {{$currency}}
+        Outstanding Amount - {{$currency}}{{$outstanding}}
         </div>
     </div>
 </div>

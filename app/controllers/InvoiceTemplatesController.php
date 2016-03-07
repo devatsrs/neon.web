@@ -84,8 +84,10 @@ class InvoiceTemplatesController extends \BaseController {
             if (!empty($file))
             {
                 $ext = $file->getClientOriginalExtension();
-                if (!in_array($ext, array("jpg", "png",))){
-                    return Response::json(array("status" => "failed", "message" => "Please Upload only jpg or png file."));
+				
+                if (!in_array($ext, array("jpg"))){
+                    return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
+
                 }
                 $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
@@ -146,8 +148,9 @@ class InvoiceTemplatesController extends \BaseController {
         if (!empty($file))
         {
             $ext = $file->getClientOriginalExtension();
-            if (!in_array($ext, array("jpg", "png",))){
-                return Response::json(array("status" => "failed", "message" => "Please Upload only jpg or png file."));
+
+            if (!in_array($ext, array("jpg"))){
+                return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
             }
             $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;

@@ -279,7 +279,7 @@
                 </tbody>
             </table>
             <script type="text/javascript">
-                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
+                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -331,7 +331,7 @@
                                 mRender: function (id, type, full) {
                                     var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
                                     a = a.toString();
-                                    return a + ' ' + full[5]
+                                    return full[16]
                                 }
                             },
                             {
@@ -432,7 +432,11 @@
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-                            $("#view-modal-payment [name='"+list_fields[i]+"']").text(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            if(list_fields[i] == 'Amount'){
+                                $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
+                            }else {
+                                $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='" + list_fields[i] + "']").val());
+                            }
                         }
 
                         $('#view-modal-payment h4').html('View Payment');
@@ -639,10 +643,12 @@
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
                         var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
-                        $.get( url, function( Currency ) {
-                            $("#currency").text('('+Currency+')');
-                            $("#add-edit-payment-form [name='Currency']").val(Currency);
-                        });
+                        if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
+                            $.get(url, function (Currency) {
+                                $("#currency").text('(' + Currency + ')');
+                                $("#add-edit-payment-form [name='Currency']").val(Currency);
+                            });
+                        }
                     });
 
                     $('#add-new-payment').click(function (ev) {
@@ -905,7 +911,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
+                                    <label for="field-5" class="control-label">Account Name * </label>
                                     {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                                     <input type="hidden" name="AccountName" />
                                 </div>
@@ -930,7 +936,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Amount *</label>
+                                    <label for="field-5" class="control-label">Amount *<span id="currency"></span></label>
                                     <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="PaymentID" >
                                     <input type="hidden" name="Currency" >

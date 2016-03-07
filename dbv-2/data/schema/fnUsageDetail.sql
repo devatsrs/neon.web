@@ -1,6 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT   
 
-, IN `p_cdr_type` CHAR(2))
+, IN `p_cdr_type` CHAR(1))
 BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(

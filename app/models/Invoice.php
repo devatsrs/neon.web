@@ -142,6 +142,7 @@ class Invoice extends \Eloquent {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
+            $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  base_path().'/public/assets/images/250x100.png';
@@ -164,7 +165,8 @@ class Invoice extends \Eloquent {
                 $VatNumber = $Company->VAT;
             }
 
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','VatNumber'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','VatNumber'))->render();
+
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice'))->render();
             $footer = htmlspecialchars_decode($footer);

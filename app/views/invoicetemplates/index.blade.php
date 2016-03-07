@@ -303,7 +303,7 @@ function ajax_update(fullurl,data){
                                     <input id="picture" type="file" name="CompanyLogo" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                                 </div>
                                 <div class="col-sm-6">
-                                    <img name="CompanyLogoUrl" src="http://placehold.it/250x100" width="100"> (Only Upload .jpg or .png file)
+                                    <img name="CompanyLogoUrl" src="http://placehold.it/250x100" width="100"> (Only Upload .jpg file)
                                 </div>
                             </div>
 
