@@ -170,7 +170,7 @@
                                     <td>{{Form::text('SubTotal',number_format($Invoice->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr>
-                                    <td >VAT </td>
+                                    <td ><span class="product_tax_title">VAT</span> </td>
                                     <td>{{Form::text('TotalTax',number_format($Invoice->TotalTax,$RoundChargesAmount),array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr>
@@ -195,7 +195,7 @@
 
 <div class="pull-right">
     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
-    <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
+    <input type="hidden" name="CurrencyCode" value="{{$CurrencySymbol}}">
     <input type="hidden" name="InvoiceTemplateID" value="{{$InvoiceTemplateID}}">
 </div>
 </form>
