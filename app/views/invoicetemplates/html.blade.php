@@ -33,6 +33,7 @@
                         <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</p>
                         <p><b>Invoice Date: </b>{{date('d-m-Y')}}</p>
                         <p><b>Due Date: </b>{{date('d-m-Y',strtotime('+5 days'))}}</p>
+                    <p><b>VAT No: </b>@if(isset($VatNumber)) {{$VatNumber}} @endif</p>
                  </td>
                 </tr>
                 <tr>

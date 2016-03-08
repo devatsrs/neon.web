@@ -12,6 +12,11 @@ class LCRController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
+            foreach($excel_data as $rowno => $rows){
+                foreach($rows as $colno => $colval){
+                    $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                }
+            }
             Excel::create('LCR', function ($excel) use ($excel_data) {
                 $excel->sheet('LCR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);

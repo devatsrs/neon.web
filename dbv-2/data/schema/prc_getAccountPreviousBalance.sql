@@ -18,6 +18,7 @@ BEGIN
             ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.AccountID = p_AccountID 
 		AND tblPayment.Status = 'Approved' 
+		AND tblPayment.Recall = 0
 		AND tblPayment.PaymentType = 'Payment In';
 
 		

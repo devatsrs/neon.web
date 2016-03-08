@@ -45,9 +45,9 @@ class Account extends \Eloquent {
     }
 
     public static function getCurrency($id=0){
-        $currency =  Account::select('Code')->join('tblCurrency','tblAccount.CurrencyId','=','tblCurrency.CurrencyId')->where(['AccountID'=>intval($id)])->first();
+        $currency =  Account::select('Symbol')->join('tblCurrency','tblAccount.CurrencyId','=','tblCurrency.CurrencyId')->where(['AccountID'=>intval($id)])->first();
         if(!empty($currency)){
-            return $currency->Code;
+            return $currency->Symbol;
         }
         return "";
     }

@@ -968,6 +968,19 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
+
+	/*Sippy CDr Download */
+	SELECT
+		'sippydownloadcdr' as Command,
+		tblCronJob.CronJobID
+	FROM tblCronJob
+	INNER JOIN tblCronJobCommand
+		ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
+	WHERE tblCronJob.CompanyID = p_CompanyID
+	AND tblCronJob.Status = 1
+	AND tblCronJob.DownloadActive = 0
+	AND tblCronJobCommand.Command = 'sippyaccountusage';
+
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END

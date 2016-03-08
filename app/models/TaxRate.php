@@ -116,4 +116,7 @@ class TaxRate extends \Eloquent {
         }
         return $GrandTotal;
     }
+    public static function getTaxName($TaxRateId){
+        return $TaxRate = TaxRate::where(["TaxRateId"=>$TaxRateId])->pluck('Title');
+    }
 }

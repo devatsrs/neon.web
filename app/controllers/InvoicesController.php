@@ -377,10 +377,12 @@ class InvoicesController extends \BaseController {
                             //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
+                            $TaxRateTitle = 'VAT';
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
 
                                 $TaxRateId = $TaxRates['TaxRateID'];
                                 $TaxRateAmount = 0;
+                                $TaxRateTitle = $TaxRates['Title'];
                                 if (isset($TaxRates['Amount'])) {
                                     $TaxRateAmount = $TaxRates['Amount'];
                                 }
@@ -398,6 +400,7 @@ class InvoicesController extends \BaseController {
                                 "product_total_tax_rate" => $TotalTax,
                                 "sub_total" => $SubTotal,
                                 "decimal_places" => $decimal_places,
+                                "product_tax_title" => $TaxRateTitle,
                             ];
                         } else {
                             $error = "No Product Found.";
@@ -432,7 +435,7 @@ class InvoicesController extends \BaseController {
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
             $fields =["CurrencyId","Address1","Address2","Address3","City","PostCode","Country","InvoiceTemplateID"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
-            $Currency = Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
+            $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID = $Account->InvoiceTemplateID;
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
@@ -493,7 +496,8 @@ class InvoicesController extends \BaseController {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo'));
+            $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'));
         }
     }
 
@@ -597,7 +601,9 @@ class InvoicesController extends \BaseController {
                     }
                 }
             }
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+            $CompanyID = User::get_companyID();
+            $VatNumber = Company::getCompanyField($CompanyID,'VAT');
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','VatNumber'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
@@ -1134,7 +1140,7 @@ class InvoicesController extends \BaseController {
             $Account = Account::where(['AccountID'=>$AccountID])->first();
             if (count($Invoice) > 0) {
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
-                $CurrencySymbol =  Currency::getCurrencySymbol($CurrencyCode);
+                $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
                 return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode'));
             }
         }

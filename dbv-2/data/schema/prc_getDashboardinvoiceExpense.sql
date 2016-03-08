@@ -1,6 +1,5 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT)
 BEGIN
-    
     DECLARE v_Round_ int;
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -38,7 +37,23 @@ BEGIN
     ORDER BY Year, Month;
 
 	 INSERT INTO tmp_MonthlyTotalReceived_
-    SELECT YEAR(inv.created_at) as Year, MONTH(inv.created_at) as Month,MONTHNAME(MAX(inv.created_at)) as  MonthName, ROUND(SUM(IFNULL(p.Amount,0)),v_Round_) as TotalAmount,inv.CurrencyID
+	 
+	 SELECT YEAR(p.PaymentDate) as Year, MONTH(p.PaymentDate) as Month,MONTHNAME(MAX(p.PaymentDate)) as  MonthName, ROUND(SUM(IFNULL(p.Amount,0)),v_Round_) as TotalAmount,ac.CurrencyID
+	 FROM tblPayment p 
+	 INNER JOIN Ratemanagement3.tblAccount ac 
+	 	ON ac.AccountID = p.AccountID
+	 WHERE 
+        		p.CompanyID = p_CompanyID
+        and ac.CurrencyID = p_CurrencyID
+        and p.PaymentDate >= DATE_ADD(NOW(),INTERVAL -6 MONTH)
+        AND p.Status = 'Approved'
+        AND p.Recall=0
+        AND p.PaymentType = 'Payment In'
+        and (p_AccountID = p_AccountID or ac.AccountID = p_AccountID)
+    GROUP BY YEAR(p.PaymentDate), MONTH(p.PaymentDate),ac.CurrencyID
+    ORDER BY Year, Month;
+	 
+    /*SELECT YEAR(inv.created_at) as Year, MONTH(inv.created_at) as Month,MONTHNAME(MAX(inv.created_at)) as  MonthName, ROUND(SUM(IFNULL(p.Amount,0)),v_Round_) as TotalAmount,inv.CurrencyID
     from tblInvoice inv
     inner join Ratemanagement3.tblAccount ac on ac.AccountID = inv.AccountID
     left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
@@ -55,7 +70,7 @@ BEGIN
             )
      
     GROUP BY YEAR(inv.created_at), MONTH(inv.created_at),inv.CurrencyID
-    ORDER BY Year, Month;
+    ORDER BY Year, Month;*/
  
 
     

@@ -4,6 +4,7 @@ CREATE TABLE `tblCurrency` (
   `Code` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `Description` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Status` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Symbol` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,

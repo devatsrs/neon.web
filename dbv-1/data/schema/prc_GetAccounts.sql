@@ -1,11 +1,13 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_activeStatus` int, IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
 BEGIN
    DECLARE v_OffSet_ int;
-
+	DECLARE v_Round_ int;
+	
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
  
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-
+		SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+		
 	IF p_isExport = 0
 	THEN
 
@@ -17,7 +19,8 @@ BEGIN
 			tblAccount.AccountName,
 			CONCAT(tblUser.FirstName,' ',tblUser.LastName) as Ownername,
 			tblAccount.Phone, 
-			(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved') as OutStandingAmount,
+			
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
 			tblAccount.Email, 
 			tblAccount.IsCustomer, 
 			tblAccount.IsVendor,
@@ -97,7 +100,7 @@ BEGIN
     THEN
         SELECT
             tblAccount.Number, tblAccount.AccountName,CONCAT(tblUser.FirstName,' ',tblUser.LastName) as Ownername,tblAccount.Phone, 
-			(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved') as OutStandingAmount ,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OutStandingAmount ,
 			tblAccount.Email, tblAccount.IsCustomer, tblAccount.IsVendor,
 			Case
 				when tblAccount.VerificationStatus = 0 Then 'Not Verified'

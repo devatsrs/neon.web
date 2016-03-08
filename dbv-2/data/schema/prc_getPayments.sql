@@ -30,9 +30,11 @@ BEGIN
             tblPayment.Notes,
             tblPayment.Recall,
             tblPayment.RecallReasoan,
-            tblPayment.RecallBy
+            tblPayment.RecallBy,
+            CONCAT(tblCurrency.Symbol,tblPayment.Amount) as AmountWithSymbol
             from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            LEFT JOIN Ratemanagement3.tblCurrency ON tblPayment.Currency = tblCurrency.Code
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)

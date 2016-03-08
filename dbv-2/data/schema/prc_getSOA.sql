@@ -57,13 +57,14 @@ BEGIN
             tblPayment.PaymentID
         FROM tblInvoice
         LEFT JOIN tblInvoiceDetail
-            ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND tblInvoiceDetail.ProductType = 2 /* INVOICE USAGE*/
+            ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )/* ProductType =2 = INVOICE USAGE AND InvoiceType = 1 Invoice sent and InvoiceType =2 invoice recevied */
         INNER JOIN Ratemanagement3.tblAccount
             ON tblInvoice.AccountID = tblAccount.AccountID
         LEFT JOIN tblInvoiceTemplate  on tblAccount.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
         LEFT JOIN tblPayment
             ON (tblInvoice.InvoiceNumber = tblPayment.InvoiceNo OR REPLACE(tblPayment.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tblInvoice.InvoiceNumber)) ) )
-            AND tblPayment.Status = 'Approved' AND tblPayment.Recall = 0
+            AND tblPayment.Status = 'Approved' 
+            AND tblPayment.Recall = 0
         WHERE tblInvoice.CompanyID = p_CompanyID
         AND (p_accountID = 0
         OR tblInvoice.AccountID = p_accountID)
@@ -122,16 +123,23 @@ BEGIN
         PeriodCover,
         InvoiceAmount,
         ' ' AS spacer,
-        PaymentDate,
-        Amount AS payment,
+         CASE
+        WHEN p_isExport = 0
+        THEN
+        GROUP_CONCAT(PaymentDate SEPARATOR '<br/>')
+		  ELSE
+		   GROUP_CONCAT(PaymentDate SEPARATOR "\r\n") 
+		  END	as PaymentDate,
+        SUM(Amount) AS payment,
         NULL AS ballence,
         CASE
         WHEN p_isExport = 0
         THEN
-            PaymentsID
+            MAX(PaymentsID)
         END PaymentID 
     FROM tmp_AOS_
     WHERE Type = 1
+    GROUP BY InvoiceNo,PeriodCover,InvoiceAmount,StartDate
     ORDER BY StartDate desc;
 
     SELECT

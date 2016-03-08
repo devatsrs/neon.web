@@ -37,8 +37,9 @@ class VendorRatesController extends \BaseController
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
+        $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
             $countries = $this->countries;
-            return View::make('vendorrates.index', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
+            return View::make('vendorrates.index', compact('id', 'trunks', 'trunk_keys', 'countries','Account','CurrencySymbol'));
     }
 
      
@@ -479,7 +480,8 @@ class VendorRatesController extends \BaseController
     public function bulk_update_preference($id){
         $data = Input::all();
         if(empty($data['Preference'])){
-            return Response::json(array("status" => "failed", "message" => "Please Insert Preference."));
+            $data['Preference']='0';
+         //   return Response::json(array("status" => "failed", "message" => "Please Insert Preference."));
         }
         $company_id = User::get_companyID();
         $username = User::get_user_full_name();
