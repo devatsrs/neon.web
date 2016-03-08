@@ -252,6 +252,7 @@
 
 
             <br>
+
             @if(User::checkCategoryPermission('Payments','Add'))
             <p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
