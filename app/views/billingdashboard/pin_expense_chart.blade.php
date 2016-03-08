@@ -31,11 +31,18 @@ $(function() {
                         xkey: 'x',
                         ykeys: ['y'],
                         labels:['{{$report_label}}'],
-                        barColors: ['#3399FF']
+                        barColors: ['#3399FF'],
+                            hoverCallback:function (index, options, content, row) {
+                                if('{{$report_label}}' ==  'Extension Cost' || '{{$report_label}}' ==  'Pin Cost') {
+                                    return '<div class="morris-hover-row-label">' + row.x + '</div><div style="color: #3399FF" class="morris-hover-point">{{$report_label}}: {{$CurrencySymbol}}' + row.y + '</div>'
+                                }else{
+                                    return '<div class="morris-hover-row-label">' + row.x + '</div><div style="color: #3399FF" class="morris-hover-point">{{$report_label}}: ' + row.y + '</div>'
+                                }
+                            }
 
                     }).on('click', function(i, row){
                             if(sales_data_3[i].x) {
-                                dataGrid(sales_data_3[i].x,'{{$data['Startdate']}}','{{$data['Enddate']}}','{{$data['PinExt']}}');
+                                dataGrid(sales_data_3[i].x,'{{$data['Startdate']}}','{{$data['Enddate']}}','{{$data['PinExt']}}','{{$data['CurrencyID']}}');
                             }
                     });
     line_chart_demo_3.parent().attr('style', '');
