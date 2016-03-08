@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AccountID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AccountID` INT, IN `p_CurrencyID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
     COMMENT 'Pincodes Grid For DashBorad'
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -15,10 +15,12 @@ BEGIN
 	THEN
 		SELECT
       	cld as DestinationNumber,
-         ROUND(SUM(cost),v_Round_) AS TotalCharges,
+         CONCAT(IFNULL(c.Symbol,''),ROUND(SUM(cost),v_Round_)) AS TotalCharges,
  			COUNT(UsageDetailID) AS NoOfCalls
 		FROM tmp_tblUsageDetails_ uh
-      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
+		INNER JOIN Ratemanagement3.tblAccount a ON a.AccountID = uh.AccountID
+		LEFT  JOIN Ratemanagement3.tblCurrency c ON c.CurrencyId = a.CurrencyId
+      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0 AND a.CurrencyId = p_CurrencyID
 		GROUP BY uh.cld
 		ORDER BY
                 CASE
@@ -44,7 +46,8 @@ BEGIN
 		SELECT COUNT(*) as totalcount FROM(SELECT
       	DISTINCT cld 
 		FROM tmp_tblUsageDetails_ uh
-      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
+		INNER JOIN Ratemanagement3.tblAccount a on a.AccountID = uh.AccountID
+      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0 AND a.CurrencyId = p_CurrencyID
 		GROUP BY uh.cld) tbl;
 		
 	END IF;
@@ -53,10 +56,11 @@ BEGIN
 	THEN
 		SELECT
       	cld as `Destination Number`,
-         ROUND(SUM(cost),v_Round_) AS `Total Cost`,
+         CONCAT(IFNULL(c.Symbol,''),ROUND(SUM(cost),v_Round_)) AS `Total Cost`,
  			COUNT(UsageDetailID) AS `Number of Times Dialed`
 		FROM tmp_tblUsageDetails_ uh
-      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0
+		INNER JOIN Ratemanagement3.tblAccount a on a.AccountID = uh.AccountID
+      WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0 AND a.CurrencyId = p_CurrencyID
 		GROUP BY uh.cld;
 	
 	END IF;

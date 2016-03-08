@@ -233,7 +233,7 @@ $(function() {
         pin_report();
     });
 });
-    function dataGrid(Pincode,Startdate,Enddate,PinExt){
+    function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
         $("#pin_grid_main").removeClass('hidden');
         if(PinExt == 'pincode'){
             $('.pin_expsense_report').find('h3').html('Pincode '+Pincode+' Detail Report');
@@ -252,7 +252,8 @@ $(function() {
                         {"name": "Pincode", "value": Pincode},
                         {"name": "Startdate", "value": Startdate},
                         {"name": "Enddate", "value": Enddate},
-                        {"name": "PinExt", "value": PinExt}
+                        {"name": "PinExt", "value": PinExt},
+                        {"name": "CurrencyID", "value": CurrencyID}
                 );
 
                 data_table_extra_params.length = 0;
@@ -261,6 +262,7 @@ $(function() {
                         {"name": "Startdate", "value": Startdate},
                         {"name": "Enddate", "value": Enddate},
                         {"name": "PinExt", "value": PinExt},
+                        {"name": "CurrencyID", "value": CurrencyID},
                         {"name":"Export","value":1}
                 );
 
