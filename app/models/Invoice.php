@@ -158,14 +158,8 @@ class Invoice extends \Eloquent {
             $file_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.pdf';
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
-            $CompanyID = $Account->CompanyId;
-            $Company = Company::find($CompanyID);
-            $VatNumber = '';
-            if(!empty($Company->VAT)){
-                $VatNumber = $Company->VAT;
-            }
 
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','VatNumber'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice'))->render();

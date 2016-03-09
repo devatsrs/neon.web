@@ -60,7 +60,6 @@ table{
                         <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix}}{{$Invoice->InvoiceNumber}}</p>
                         <p><b>Invoice Date: </b>{{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</p>
                         <p><b>Due Date: </b>{{date('d-m-Y',strtotime($Invoice->IssueDate.' +'.$Account->PaymentDueInDays.' days'))}}</p>
-                        <p><b>VAT No: </b>{{$VatNumber}}</p>
                 </td>
             </tr>
         </table>
