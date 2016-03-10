@@ -217,9 +217,9 @@ BEGIN
 
 			SELECT
 				trc2.RateID,
-            trc2.Rate,
             trc2.Interval1,
             trc2.IntervalN,
+            trc2.Rate,
             trc2.EffectiveDate
          FROM   tmp_CustomerRates_ trc2
          LEFT JOIN tblRateSheet
