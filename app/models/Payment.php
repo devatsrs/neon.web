@@ -51,6 +51,12 @@ class Payment extends \Eloquent {
                 return $valid;
             }
         }*/
+        $data['CurrencyID'] = '';
+        $Account = Account::find($data['AccountID']);
+        if(!empty($Account)){
+            $data['CurrencyID'] = $Account->CurrencyId;
+
+        }
         if(isset($data['AccountID']) && trim($data['AccountID']) == '' ) {
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Account Name from dropdown"));
             return $valid;
@@ -63,7 +69,7 @@ class Payment extends \Eloquent {
         }elseif(isset($data['PaymentType'])&& trim($data['PaymentType']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Payment Type from dropdown"));
             return $valid;
-        }elseif(isset($data['Currency'])&& trim($data['Currency']) == ''){
+        }elseif(isset($data['CurrencyID'])&& trim($data['CurrencyID']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please set Currency in setting"));
             return $valid;
         }elseif(isset($data['Amount'])&& trim($data['Amount']) == ''){
@@ -74,6 +80,9 @@ class Payment extends \Eloquent {
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Status from dropdown"));
                 return $valid;
             }
+        }elseif(date('Y-m-d',strtotime($data['PaymentDate'])) >  date('Y-m-d')){
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "Future payments not allowed"));
+            return $valid;
         }
         if (Input::hasFile('PaymentProof')){
             $upload_path = Config::get('app.payment_proof_path');
