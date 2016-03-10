@@ -20,7 +20,7 @@ BEGIN
 			CONCAT(tblUser.FirstName,' ',tblUser.LastName) as Ownername,
 			tblAccount.Phone, 
 			
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
+			CONCAT((SELECT IFNULL(Symbol,'') FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
 			tblAccount.Email, 
 			tblAccount.IsCustomer, 
 			tblAccount.IsVendor,
@@ -100,7 +100,7 @@ BEGIN
     THEN
         SELECT
             tblAccount.Number, tblAccount.AccountName,CONCAT(tblUser.FirstName,' ',tblUser.LastName) as Ownername,tblAccount.Phone, 
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OutStandingAmount ,
+			CONCAT((SELECT IFNULL(Symbol,'') FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OutStandingAmount ,
 			tblAccount.Email, tblAccount.IsCustomer, tblAccount.IsVendor,
 			Case
 				when tblAccount.VerificationStatus = 0 Then 'Not Verified'

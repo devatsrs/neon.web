@@ -12,7 +12,7 @@ BEGIN
 			`Billing Cycle` int,
 			`Minute Cost` float,
 			`Lock Type` varchar(50),
-			`Section Rate` float,
+			`Section Rate` varchar(50),
 			`Billing Rate for Calling Card Prompt` float,
 			`Billing Cycle for Calling Card Prompt` INT,
 			AccountID int,
