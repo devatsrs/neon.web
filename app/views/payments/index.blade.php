@@ -35,7 +35,7 @@
               <div class="col-sm-3"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
               <!-- payment date start-->
               <label for="field-1" class="col-sm-1 control-label">Payment Date</label>
-              <div class="col-sm-3">
+              <div class="col-sm-2">
                 <input type="text" name="PaymentDate_filter" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="PaymentDate_filter" placeholder="" value="{{Input::get('paymentdate')}}" />
               </div>
               <!--payment date end-->
