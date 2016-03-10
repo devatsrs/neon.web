@@ -22,7 +22,7 @@
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="row">
                 <div class="col-md-12">
-                    <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                    <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -62,6 +62,13 @@
                                     <div class="col-sm-3">
                                         {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
+                                      <!-- payment date start-->
+                                    <div class="form-group">
+                                    <label for="field-1" class="col-sm-1 control-label">Payment Date</label>
+                                    <div class="col-sm-3">
+                                      <input type="text" name="PaymentDate_filter" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="PaymentDate_filter" placeholder="" value="{{Input::get('paymentdate')}}" />
+                                    </div>
+                                    <!--payment date end-->
                                     <label class="col-sm-1 control-label">Recalled</label>
                                     <div class="col-sm-1">
                                         <p class="make-switch switch-small">
@@ -270,7 +277,10 @@
                     <th width="10%">Payment Date</th>
                     <th width="10%">Status</th>
                     <th width="12%">CreatedBy</th>
-                    <th width="31%">Action</th>
+                    <th width="12%">Notes</th>
+                    <th width="25%">Action</th>
+
+                    
                 </tr>
                 </thead>
                 <tbody>
@@ -295,7 +305,8 @@
                                     {"name": "Status","value": $searchFilter.Status},
                                     {"name": "type","value": $searchFilter.type},
                                     {"name": "paymentmethod","value": $searchFilter.paymentmethod},
-                                    {"name": "recall_on_off","value": $searchFilter.recall_on_off}
+                                    {"name": "recall_on_off","value": $searchFilter.recall_on_off},
+									{"name": "PaymentDate_filter","value": $searchFilter.PaymentDate_filter}
                             );
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push(
@@ -305,13 +316,14 @@
                                     {"name": "type","value": $searchFilter.type},
                                     {"name": "paymentmethod","value": $searchFilter.paymentmethod},
                                     {"name": "recall_on_off","value": $searchFilter.recall_on_off},
+									{"name": "PaymentDate_filter","value": $searchFilter.PaymentDate_filter},
                                     {"name":"Export","value":1});
 
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[5, 'desc']],
+                        "aaSorting": [[4, 'desc']],
                         "aoColumns": [
                             {
                                 "bSortable": true, //Account
@@ -358,6 +370,12 @@
                                     return full[8]
                                 }
                             },
+							{
+                                "bSortable": true, //Created by
+                                mRender: function (id, type, full) {
+                                    return full[12]
+                                }
+                            },
                             {                       //3  Action
 
                                 "bSortable": false,
@@ -374,7 +392,7 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                 //   action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
                                     @if(User::is('BillingAdmin') || User::is_admin())
                                     if(full[7] != "Approved"){
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
@@ -809,6 +827,7 @@
                     $searchFilter.Status = $("#payment-table-search select[name='Status']").val();
                     $searchFilter.type = $("#payment-table-search select[name='type']").val();
                     $searchFilter.paymentmethod = $("#payment-table-search select[name='paymentmethod']").val();
+					$searchFilter.PaymentDate_filter = $("#payment-table-search input[name='PaymentDate_filter']").val();
                     if($("#payment-table-search select[name='recall_on_off']")) {
                         $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
                     }else{

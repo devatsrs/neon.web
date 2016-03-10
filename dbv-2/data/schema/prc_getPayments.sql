@@ -1,13 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_isExport` INT )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_paymentdate` DATE, IN `p_isExport` INT )
 BEGIN
-
-
      DECLARE v_OffSet_ int;
      SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-
-
 	IF p_isExport = 0
     THEN
     select
@@ -32,7 +28,7 @@ BEGIN
             tblPayment.RecallReasoan,
             tblPayment.RecallBy
             from tblPayment
-            left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -40,6 +36,7 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			 AND((p_paymentdate IS NULL OR tblPayment.PaymentDate = p_paymentdate))
             ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
@@ -90,23 +87,20 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByASC') THEN tblPayment.CreatedBy
                 END ASC
             LIMIT p_RowspPage OFFSET v_OffSet_;
-
             SELECT
             COUNT(tblPayment.PaymentID) AS totalcount
             from tblPayment
-            left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
-            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod));
-
+            AND((p_paymentdate IS NULL OR tblPayment.PaymentDate = p_paymentdate));
 	END IF;
 	IF p_isExport = 1
     THEN
-
 		SELECT 
             AccountName,
             Amount,
@@ -123,14 +117,15 @@ BEGIN
             tblPayment.PaymentMethod,
             Notes 
 			from tblPayment
-            left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
-            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod));
+            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND((p_paymentdate IS NULL OR tblPayment.PaymentDate = p_paymentdate));
 	END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
