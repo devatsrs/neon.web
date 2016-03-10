@@ -161,7 +161,6 @@
             </div>
         <br>
 
-        <?php $code = Currency::getCurrency($Account->CurrencyId);?>
         <table class="table table-bordered datatable" id="table-4">
             <thead>
                 <tr>
@@ -172,7 +171,7 @@
                     <th width="5%">Interval N</th>
                     <th width="5%">Connection Fee</th>
                     <th width="5%" class="routng_plan_cl">Routing plan</th>
-                    <th width="5%">Rate ({{$code}})</th>
+                    <th width="5%">Rate ({{$CurrencySymbol}})</th>
                     <th width="10%">Effective Date</th>
                     <th width="10%">Modified Date</th>
                     <th width="10%">Modified By</th>

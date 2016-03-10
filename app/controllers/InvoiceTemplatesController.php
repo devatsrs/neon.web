@@ -32,6 +32,7 @@ class InvoiceTemplatesController extends \BaseController {
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
             $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
         }
+
         return View::make('invoicetemplates.show', compact('InvoiceTemplate','logo'));
 
     }
@@ -82,8 +83,10 @@ class InvoiceTemplatesController extends \BaseController {
             if (!empty($file))
             {
                 $ext = $file->getClientOriginalExtension();
+				
                 if (!in_array($ext, array("jpg"))){
                     return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
+
                 }
                 $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
@@ -144,6 +147,7 @@ class InvoiceTemplatesController extends \BaseController {
         if (!empty($file))
         {
             $ext = $file->getClientOriginalExtension();
+
             if (!in_array($ext, array("jpg"))){
                 return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
             }
@@ -212,6 +216,7 @@ class InvoiceTemplatesController extends \BaseController {
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
             $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
         }
+
         return View::make('invoicetemplates.invoice_pdf', compact('InvoiceTemplate','logo'));
 
         /*$pdf = PDF::loadView('invoicetemplates.invoice_pdf', compact('InvoiceTemplate'));
@@ -244,7 +249,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $logo ='';
             }
 
-            
+
 
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
             $htmlfile_name = 'Invoice--' . date('d-m-Y') . '.html';

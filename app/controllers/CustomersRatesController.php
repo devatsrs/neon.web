@@ -62,7 +62,8 @@ class CustomersRatesController extends \BaseController {
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
-            return View::make('customersrates.index', compact('id', 'trunks', 'countries','Account','routine','trunks_routing','account_owners','trunk_keys'));
+        $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
+            return View::make('customersrates.index', compact('id', 'trunks', 'countries','Account','routine','trunks_routing','account_owners','trunk_keys','CurrencySymbol'));
 
 
     }

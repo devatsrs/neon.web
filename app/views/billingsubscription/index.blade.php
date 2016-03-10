@@ -91,7 +91,7 @@ jQuery(document).ready(function ($) {
     public_vars.$body = $("body");
     //show_loading_bar(40);
 
-    var list_fields  = ["Name", "MonthlyFee", "WeeklyFee", "DailyFee", "SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","Advance"];
+    var list_fields  = ["Name","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol", "SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","Advance", "MonthlyFee", "WeeklyFee", "DailyFee"];
     $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
     $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
     $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();

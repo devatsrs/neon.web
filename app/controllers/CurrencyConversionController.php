@@ -57,6 +57,9 @@ class CurrencyConversionController extends \BaseController {
 	public function create()
 	{
         $data = Input::all();
+        if(empty($data['ExchangeRate'])){
+            return Response::json(array("status" => "failed", "message" => "No Exchange Rate available."));
+        }
         $companyID = User::get_companyID();
         $EffectiveDate = date('Y-m-d H:i:s');
         $ExchangeRates = $data['ExchangeRate'];

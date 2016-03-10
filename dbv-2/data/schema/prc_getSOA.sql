@@ -63,7 +63,8 @@ BEGIN
         LEFT JOIN tblInvoiceTemplate  on tblAccount.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
         LEFT JOIN tblPayment
             ON (tblInvoice.InvoiceNumber = tblPayment.InvoiceNo OR REPLACE(tblPayment.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tblInvoice.InvoiceNumber)) ) )
-            AND tblPayment.Status = 'Approved' AND (tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+            AND tblPayment.Status = 'Approved' 
+            AND tblPayment.Recall = 0
         WHERE tblInvoice.CompanyID = p_CompanyID
         AND (p_accountID = 0
         OR tblInvoice.AccountID = p_accountID)
@@ -106,7 +107,7 @@ BEGIN
         INNER JOIN Ratemanagement3.tblAccount
             ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.Status = 'Approved'
-        AND (tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+        AND tblPayment.Recall = 0
         AND tblPayment.AccountID = p_accountID
         AND tblPayment.CompanyID = p_CompanyID
         AND tblPayment.InvoiceNo = ''
