@@ -1,6 +1,63 @@
 <?php
 
 class InvoicesController extends \BaseController {
+	
+	public function ajax_datagrid_total()
+	{
+        $data 						 = 	Input::all();
+		$data['iDisplayStart'] 		 =	0;
+        $data['iDisplayStart'] 		+=	1;
+		$data['iSortCol_0']			 =  0;
+		$data['sSortDir_0']			 =  'desc';
+        $companyID 					 =  User::get_companyID();
+        $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
+        $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
+        $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
+        $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
+        $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
+        $sort_column 				 =  $columns[$data['iSortCol_0']];
+		
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+		
+        if(isset($data['Export']) && $data['Export'] == 1)
+		{
+            if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
+			{
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"")');
+            }
+			else
+			{
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
+            }
+			
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('Invoice', function ($excel) use ($excel_data)
+			{
+                $excel->sheet('Invoice', function ($sheet) use ($excel_data)
+				{
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+		
+        if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
+		{
+            $query = $query.',0,0,1,"")';
+        }
+		else
+		{
+            $query .=',0,0,0,"")';
+        }
+    	
+		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
+		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
+		$result4  = array(
+			"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->os_pp,
+		);
+		
+		return json_encode($result4,JSON_NUMERIC_CHECK);		
+	}
 
     public function ajax_datagrid() {
         $data = Input::all();

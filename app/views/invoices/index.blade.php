@@ -41,7 +41,7 @@
 </p>
 <div class="row">
     <div class="col-md-12">
-        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -259,7 +259,7 @@ var postdata;
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
                 {  "bSortable": true },  // 4 GrandTotal
-                {  "bSortable": true },  // 4 GrandTotal
+                {  "bSortable": true },  // 4 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
                         return invoicestatus[full[6]];
@@ -356,6 +356,7 @@ var postdata;
                 ]
             },
            "fnDrawCallback": function() {
+				   get_total_grand(); //get result total
                 $('#table-4 tbody tr').each(function(i, el) {
                     if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                         if (checked != '') {
@@ -438,6 +439,36 @@ var postdata;
             data_table.fnFilter('', 0);
             return false;
         });
+		
+		
+				function get_total_grand()
+		{
+			 $.ajax({
+                url: baseurl + "/invoice/ajax_datagrid_total",
+                type: 'GET',
+                dataType: 'json',
+				data:{
+			"InvoiceType":$("#invoice_filter [name='InvoiceType']").val(),
+			"AccountID":$("#invoice_filter select[name='AccountID']").val(),
+			"InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
+			"InvoiceStatus":$("#invoice_filter select[name='InvoiceStatus']").val(),
+			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
+			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
+			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
+			"bDestroy": true,
+            "bProcessing":true,
+            "bServerSide":true,
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[3, 'desc']],},
+                success: function(response1) {
+					console.log("sum of result"+response1);
+					$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
+					},
+			});	
+		}
 		
 		
 		

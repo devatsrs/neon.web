@@ -1,27 +1,25 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_InvoiceStatus` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT, IN `p_sageExport` INT, IN `p_zerovalueinvoice` INT, IN `p_InvoiceID` LONGTEXT)
 BEGIN
     DECLARE v_OffSet_ int;
+    DECLARE v_Round_ int;
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+    SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 	        
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-
-
-
     IF p_isExport = 0 and p_sageExport = 0
     THEN
-
         SELECT inv.InvoiceType ,
         ac.AccountName,
         ( CONCAT(ltrim(rtrim(it.InvoiceNumberPrefix)), ltrim(rtrim(inv.InvoiceNumber)))) as InvoiceNumber,
         inv.IssueDate,
-        inv.GrandTotal,
-		  CONCAT(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND (p.Recall IS NULL OR p.Recall !=1)),6),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6)) as `PendingAmount`,
+        ROUND(inv.GrandTotal,v_Round_) as GrandTotal,
+		  CONCAT(ROUND(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),v_Round_),'/',ROUND(format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved'  AND p.AccountID = inv.AccountID AND (p.Recall =0)) ),6),v_Round_)) as `PendingAmount`,
         inv.InvoiceStatus,
         inv.InvoiceID,
         inv.Description,
         inv.Attachment,
         inv.AccountID,
-        (inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ) as OutstandingAmount, 
+        ROUND(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),v_Round_) as OutstandingAmount, 
         inv.ItemInvoice,
 		  IFNULL(ac.BillingEmail,'') as BillingEmail
         FROM tblInvoice inv
@@ -69,7 +67,7 @@ BEGIN
         
         
         SELECT
-            COUNT(*) AS totalcount
+            COUNT(*) AS totalcount,  ROUND(sum(inv.GrandTotal),v_Round_) as total_grand,concat(sum(ROUND(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),v_Round_)),concat(' / ',sum(ROUND(format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved'  AND p.AccountID = inv.AccountID AND (p.Recall =0)) ),6),v_Round_)))) as os_pp
         FROM
         tblInvoice inv
         inner join Ratemanagement3.tblAccount ac on ac.AccountID = inv.AccountID
@@ -85,12 +83,11 @@ BEGIN
     END IF;
     IF p_isExport = 1
     THEN
-
         SELECT ac.AccountName ,
         ( CONCAT(ltrim(rtrim(it.InvoiceNumberPrefix)), ltrim(rtrim(inv.InvoiceNumber)))) as InvoiceNumber,
         inv.IssueDate,
-        inv.GrandTotal,
-        CONCAT(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6)) as `Paid/OS`,
+        ROUND(inv.GrandTotal,v_Round_) as GrandTotal,
+        CONCAT(ROUND(format((select ROUND(IFNULL(sum(p.Amount),0),v_Round_) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),v_Round_),'/',ROUND(format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6),v_Round_)) as `Paid/OS`,
         inv.InvoiceStatus,
         inv.InvoiceType,
         inv.ItemInvoice
@@ -105,17 +102,15 @@ BEGIN
         AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
         AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND inv.InvoiceStatus = p_InvoiceStatus))
         AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0));
-
     END IF;
      IF p_isExport = 2
     THEN
-
         SELECT ac.AccountID ,
         ac.AccountName,
         ( CONCAT(ltrim(rtrim(it.InvoiceNumberPrefix)), ltrim(rtrim(inv.InvoiceNumber)))) as InvoiceNumber,
         inv.IssueDate,
         inv.GrandTotal,
-		  CONCAT(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6)) as `Paid/OS`,
+		  CONCAT(ROUND(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID),6),v_Round_),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID) ),6)) as `Paid/OS`,
         inv.InvoiceStatus,
         inv.InvoiceType,
         inv.ItemInvoice,
@@ -132,7 +127,6 @@ BEGIN
         AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND inv.InvoiceStatus = p_InvoiceStatus))
         AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0));
     END IF;
-
     IF p_sageExport =1 OR p_sageExport =2
     THEN
     		 -- mark as paid invoice that are sage export
@@ -157,8 +151,8 @@ BEGIN
         SELECT
           Number AS AccountNumber,
           DATE_FORMAT(DATE_ADD(inv.IssueDate,INTERVAL ac.PaymentDueInDays DAY), '%Y-%m-%d') AS DueDate,
-          GrandTotal AS GoodsValueInAccountCurrency,
-          GrandTotal AS SalControlValueInBaseCurrency,
+          ROUND(GrandTotal,v_Round_) AS GoodsValueInAccountCurrency,
+          ROUND(GrandTotal,v_Round_) AS SalControlValueInBaseCurrency,
           1 AS DocumentToBaseCurrencyRate,
           1 AS DocumentToAccountCurrencyRate,
           DATE_FORMAT(IssueDate, '%Y-%m-%d') AS PostedDate,
@@ -182,7 +176,6 @@ BEGIN
           ON c.CurrencyId = ac.CurrencyId
         LEFT JOIN tblInvoiceTemplate it 
           ON ac.InvoiceTemplateID = it.InvoiceTemplateID        
-
         WHERE ac.CompanyID = p_CompanyID
                 AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
                 AND (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND inv.InvoiceNumber = p_InvoiceNumber))
@@ -193,7 +186,6 @@ BEGIN
                 AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0))
                 AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ));
     END IF;
-
  
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
