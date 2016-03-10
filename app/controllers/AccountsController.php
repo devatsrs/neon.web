@@ -192,7 +192,7 @@ class AccountsController extends \BaseController {
             $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
             $verificationflag = AccountApprovalList::isVerfiable($id);
             $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
-            $currency = Currency::getCurrency($account->CurrencyId);
+            $currency = Currency::getCurrencySymbol($account->CurrencyId);
             $activity_type = AccountActivity::$activity_type;
             $activity_status = [1 => 'Open', 2 => 'Closed'];
             return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
@@ -613,8 +613,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $companyID = User::get_companyID();
             $Invoiceids = $data['InvoiceIDs'];
             $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, $account->RoundChargesAmount);
-            $currency = Currency::getCurrency($account->CurrencyId);
-            $outstandingtext = $outstanding . ' ' . $currency;
+            $currency = Currency::getCurrencySymbol($account->CurrencyId);
+            $outstandingtext = $currency.$outstanding;
             echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
     }
     public function paynow($id){

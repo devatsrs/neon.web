@@ -8,26 +8,25 @@ class BillingSubscriptionController extends \BaseController {
         $data = Input::all();                
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
-        $billingSubscription = BillingSubscription::where("CompanyID", $CompanyID);
-        if(isset($data['FilterAdvance']) && $data['FilterAdvance']!=''){
-            $billingSubscription->where("Advance",$data['FilterAdvance']);
+        $data['iDisplayStart'] +=1;
+        $columns = array("Name", "MonthlyFee", "WeeklyFee", "DailyFee");
+        $sort_column = $columns[$data['iSortCol_0']];
+        if($data['FilterAdvance'] == ''){
+            $data['FilterAdvance'] = 'null';
         }
-        if(!empty($data['FilterName'])){
-            $billingSubscription->where('Name','Like','%'.trim($data['FilterName']).'%');
-        }
-        if(!empty($data['FilterCurrencyID'])){
-            $billingSubscription->where('CurrencyID','=',$data['FilterCurrencyID']);
-        }
+        $query = "call prc_getBillingSubscription (".$CompanyID.",".$data['FilterAdvance'].",'".$data['FilterName']."','".intval($data['FilterCurrencyID'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $billexports = $billingSubscription->select("Name", "MonthlyFee", "WeeklyFee", "DailyFee", "ActivationFee","InvoiceLineDescription","Description","Advance")->get();
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $billexports = json_decode(json_encode($excel_data),true);
             Excel::create('Billing Subscription', function ($excel) use ($billexports) {
                 $excel->sheet('Billing Subscription', function ($sheet) use ($billexports) {
                     $sheet->fromArray($billexports);
                 });
             })->download('xls');
         }
-        $billingSubscription->select("Name", "MonthlyFee", "WeeklyFee", "DailyFee", "SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","Advance");
-        return Datatables::of($billingSubscription)->make();
+        $query .=',0)';
+
+        return DataTableSql::of($query,'sqlsrv2')->make();
     }
 
     public function index() {

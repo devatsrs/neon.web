@@ -11,3 +11,4 @@ Thumbs.db
 .env
 app/storage/sessions/
 app/storage/views/
+wkhtmltopdf/
