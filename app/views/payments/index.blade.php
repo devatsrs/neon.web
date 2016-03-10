@@ -392,7 +392,7 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                 //   action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
                                     @if(User::is('BillingAdmin') || User::is_admin())
                                     if(full[7] != "Approved"){
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
