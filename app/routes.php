@@ -538,6 +538,7 @@ Route::group(array('before' => 'auth'), function () {
 
 
 	Route::any('/invoice/ajax_datagrid', 'InvoicesController@ajax_datagrid');
+	Route::any('/invoice/ajax_datagrid_total', 'InvoicesController@ajax_datagrid_total');
 	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
 	Route::any('/invoice/get_account_info', 'InvoicesController@getAccountInfo');
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
