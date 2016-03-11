@@ -3,7 +3,8 @@
 class PaymentsController extends \BaseController {
 
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid()
+	{
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
