@@ -15,7 +15,7 @@ BEGIN
 			 PaymentType,
 			 Notes,
 			 Amount,
-			 Currency,
+			 CurrencyID,
 			 Recall,
 			 `Status`,
 			 created_at,
@@ -23,7 +23,7 @@ BEGIN
 			 CreatedBy,
 			 ModifyBy,
 			 RecallReasoan,
-			 RecallBy)
+			 RecallBy,BulkUpload)
  	select tp.CompanyID,
 	 		 tp.AccountID,
 			 COALESCE(tp.InvoiceNo,''),
@@ -32,10 +32,7 @@ BEGIN
 			 tp.PaymentType,
 			 tp.Notes,
 			 tp.Amount,
-			 (select `Code` 
-					from Ratemanagement3.tblAccount ac 
-					inner join Ratemanagement3.tblCurrency cr on ac.CurrencyId = cr.CurrencyId 
-					where (ac.AccountID = tp.AccountID) limit 1 ) as Currency,
+			 ac.CurrencyId,
 			 0 as Recall,
 			 tp.Status,
 			 Now() as created_at,
@@ -43,8 +40,12 @@ BEGIN
 			 v_UserName as CreatedBy,
 			 '' as ModifyBy,
 			 '' as RecallReasoan,
-			 '' as RecallBy
+			 '' as RecallBy,
+			 1 as BulkUpload
 	from tblTempPayment tp
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID
 	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
 			AND tp.CompanyID = p_CompanyID;
 END
