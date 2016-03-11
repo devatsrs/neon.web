@@ -34,6 +34,7 @@ class CurrenciesController extends \BaseController {
             'CompanyID' => 'required',
             'Code' => 'required|unique:tblCurrency,Code,NULL,CurrencyID,CompanyID,'.$data['CompanyID'],
             'Description' => 'required',
+            'Symbol' => 'required',
         );
         $validator = Validator::make($data, $rules);
 
@@ -92,6 +93,7 @@ class CurrenciesController extends \BaseController {
                 'Code' => 'required|unique:tblCurrency,Code,'.$id.',CurrencyID,CompanyID,'.$data['CompanyID'],
                 'CompanyID' => 'required',
                 'Description' => 'required',
+                'Symbol' => 'required',
             );
             $validator = Validator::make($data, $rules);
 

@@ -129,6 +129,7 @@ var postdata;
     $('#add-new-currency').click(function(ev){
         ev.preventDefault();
         $('#add-new-currency-form').trigger("reset");
+        $("#add-new-currency-form [name='Code']").removeAttr('readonly')
         $("#add-new-currency-form [name='CurrencyID']").val('')
         $('#add-new-modal-currency h4').html('Add New Currency');
         $('#add-new-modal-currency').modal('show');
@@ -143,6 +144,7 @@ var postdata;
         Symbol = $(this).prev("div.hiddenRowData").find("input[name='Symbol']").val();
 
         $("#add-new-currency-form [name='Code']").val(Code);
+        $("#add-new-currency-form [name='Code']").attr('readonly',true);
         $("#add-new-currency-form [name='Symbol']").val(Symbol);
         $("#add-new-currency-form [name='Description']").val(Description);
         $("#add-new-currency-form [name='CurrencyID']").val($(this).attr('data-id'));
@@ -218,7 +220,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Currency Code</label>
-                                <input type="text" name="Code" class="form-control" id="field-5" placeholder="">
+                                <input type="text"   name="Code" class="form-control" id="field-5" placeholder="">
                              </div>
                         </div>
                         <div class="col-md-12">

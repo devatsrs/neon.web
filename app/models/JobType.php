@@ -15,4 +15,7 @@ class JobType extends \Eloquent {
         return $row;
 
     }
+    public static function checkJobType($code){
+        return JobType::where(["Code" => $code])->count();
+    }
 }
