@@ -58,6 +58,7 @@
                             {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
                             {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
                             <input name="AccountID" type="hidden" value="{{Customer::get_accountID()}}">
+                            <input name="CurrencyID" type="hidden" value="{{$account->CurrencyId}}">
                         </form>
 
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -181,7 +182,7 @@ $(function() {
         pin_report();
     });
 })
-function dataGrid(Pincode,Startdate,Enddate,PinExt){
+function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
     $("#pin_grid_main").removeClass('hidden');
     if(PinExt == 'pincode'){
         $('.pin_expsense_report').find('h3').html('Pincode '+Pincode+' Detail Report');
@@ -200,7 +201,8 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt){
                     {"name": "Pincode", "value": Pincode},
                     {"name": "Startdate", "value": Startdate},
                     {"name": "Enddate", "value": Enddate},
-                    {"name": "PinExt", "value": PinExt}
+                    {"name": "PinExt", "value": PinExt},
+                    {"name": "CurrencyID", "value": CurrencyID}
             );
 
             data_table_extra_params.length = 0;
@@ -209,6 +211,7 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt){
                     {"name": "Startdate", "value": Startdate},
                     {"name": "Enddate", "value": Enddate},
                     {"name": "PinExt", "value": PinExt},
+                    {"name": "CurrencyID", "value": CurrencyID},
                     {"name":"Export","value":1}
             );
 

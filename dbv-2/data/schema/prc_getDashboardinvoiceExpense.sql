@@ -49,7 +49,7 @@ BEGIN
         AND p.Status = 'Approved'
         AND p.Recall=0
         AND p.PaymentType = 'Payment In'
-        and (p_AccountID = p_AccountID or ac.AccountID = p_AccountID)
+        and (p_AccountID = 0 or ac.AccountID = p_AccountID)
     GROUP BY YEAR(p.PaymentDate), MONTH(p.PaymentDate),ac.CurrencyID
     ORDER BY Year, Month;
 	 

@@ -34,6 +34,12 @@
 
     <ul id="main-menu" class="">
         <li>
+            <a href="{{Url::to('customer/dashboard')}}">
+                <i class="entypo-gauge"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
             <a href="#">
                 <i class="entypo-layout"></i>
                 <span>Billing</span>
