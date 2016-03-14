@@ -281,7 +281,7 @@
                 </tbody>
             </table>
             <script type="text/javascript">
-                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
+                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','CurrencyID','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -648,7 +648,6 @@
                         if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
                             $.get(url, function (Currency) {
                                 $("#currency").text('(' + Currency + ')');
-                                $("#add-edit-payment-form [name='Currency']").val(Currency);
                             });
                         }
                     });
@@ -657,7 +656,6 @@
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
                         $("#add-edit-payment-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-payment-form [name='Currency']").val('');
                         $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         $("#add-edit-payment-form [name='PaymentID']").val('')
@@ -921,7 +919,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Payment Date *</label>
-                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
+                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-enddate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -941,7 +939,6 @@
                                     <label for="field-5" class="control-label">Amount *<span id="currency"></span></label>
                                     <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="PaymentID" >
-                                    <input type="hidden" name="Currency" >
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -996,12 +993,6 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Account Name</label>
                                 <div class="col-sm-12" name="AccountName"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Currency</label>
-                                <div class="col-sm-12" name="Currency"></div>
                             </div>
                         </div>
                         <div class="col-md-12">

@@ -70,7 +70,8 @@ class BaseController extends Controller {
 
     //not in use
     public function getAllowedActions(){
-        return  array('get_users_dropdown','process_redirect','doforgot_password','doreset_password','doRegistration','loadDashboardJobsDropDown','cview','cdownloadUsageFile','display_invoice','download_invoice','invoice_payment','pay_invoice','invoice_thanks','search_customer_grid','edit_profile','update_profile','dologout','/Wysihtml5/getfiles','/Wysihtml5/file_upload');
+        
+        return  array('get_users_dropdown','process_redirect','doforgot_password','doreset_password','doRegistration','loadDashboardJobsDropDown','cview','cdownloadUsageFile','display_invoice','download_invoice','invoice_payment','pay_invoice','invoice_thanks','search_customer_grid','edit_profile','update_profile','dologout','/Wysihtml5/getfiles','/Wysihtml5/file_upload','home');
 
     }
 }
