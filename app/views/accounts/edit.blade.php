@@ -57,12 +57,12 @@
                     <div class="col-sm-4">
                     <?php
                     $disable = '';
-                    if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager')){
+                    if(!User::is_admin() && !User::is('AccountManager')){
                     $disable = 'disabled';
 
                     }?>
                        {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2",$disable))}}
-                        @if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager'))
+                        @if(!User::is_admin() && !User::is('AccountManager'))
                             <input type="hidden" value="{{$account->Owner}}" name="Owner">
                         @endif
                     </div>

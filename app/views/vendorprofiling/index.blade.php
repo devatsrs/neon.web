@@ -24,7 +24,9 @@
 <div class="tab-content">
     <div class="row">
         <ul class="nav nav-tabs">
+			@if(User::can('VendorProfilingController.active_deactivate_vendor'))
             <li class="active"><a href="#tab1" data-toggle="tab">Bulk Vendor Update</a></li>
+			@endif
             <li ><a href="#tab2" data-toggle="tab">Vendor Blocking</a></li>
         </ul>
         <div class="tab-content">

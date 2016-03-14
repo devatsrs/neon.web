@@ -20,7 +20,7 @@ class DashboardController extends BaseController {
 
             $companyID = User::get_companyID();
             $userID = '';
-            $isAdmin = (User::is_admin() || User::is('RateManager')) ? 1 : 0;
+            $isAdmin = (User::is_admin()) ? 1 : 0;
             $data = Input::all();
 
 
@@ -172,7 +172,7 @@ class DashboardController extends BaseController {
     public function ajax_get_jobs(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin = (User::is_admin())?1:0;
         $query = "call prc_GetDashboardDataJobs (".$companyID.','.$userID.','.$isAdmin.")";
         $JobResult = DataTableSql::of($query)->getProcResult(array('AllHeaderJobs','CountJobs'));
         $Jobs = [];
@@ -194,7 +194,7 @@ class DashboardController extends BaseController {
     public function ajax_get_processed_files(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin = (User::is_admin())?1:0;
         $query = "call prc_GetDashboardProcessedFiles (".$companyID.','.$userID.','.$isAdmin.")";
         $fileResult = DataTableSql::of($query)->getProcResult(array('RecentJobFiles'));
         $jobFiles = [];

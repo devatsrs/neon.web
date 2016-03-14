@@ -178,15 +178,18 @@
 
                                 </td>
                                 <td>
+                                    @if(User::can('RateGeneratorsController.edit_rule'))
                                     <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm btn-icon icon-left">
                                         <i class="entypo-floppy"></i>
                                         Edit
                                     </a>
-
+                                    @endif
+                                    @if(User::can('RateGeneratorsController.delete_rule'))
                                     <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm btn-icon icon-left">
                                         <i class="entypo-cancel"></i>
                                         Delete
                                     </a>
+                                    @endif
                                 </td>
                             </tr>
 

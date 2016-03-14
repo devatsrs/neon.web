@@ -22,13 +22,13 @@
 <!--<script src="{{URL::to('/')}}/assets/js/neon-fileupload.js" type="text/javascript"></script>-->
 
 <p style="text-align: right;">
-    @if( User::checkCategoryPermission('CodeDecks','Upload') )
+    @if( User::can('CodeDecksController.upload') )
     <a href="javascript:;" id="upload-codedeck" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Upload
     </a>
     @endif
-    @if(User::checkCategoryPermission('CodeDecks','Add') )
+    @if(User::can('CodeDecksController.store') )
     <a href="javascript:;" id="add-new-code" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New
@@ -75,13 +75,15 @@
     </div>
 </div>
 <div style="text-align: right;padding:10px 0 ">
-    @if( User::checkCategoryPermission('CodeDecks','Edit'))
+
+    @if( User::can('CodeDecksController.update_selected'))
     <a href="javascript:;"  id="changeSelectedCodedeck" class="btn btn-primary btn-sm btn-icon icon-left" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;">
         <i class="entypo-floppy"></i>
         Change Selected Codedeck
     </a>
     @endif
-    @if( User::checkCategoryPermission('CodeDecks','Delete'))
+
+    @if( User::can('CodeDecksController.delete_selected') && User::can('CodeDecksController.delete_all'))
     <button type="submit" id="delete-bulk-codedeck-selected" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Delete Selected Codedeck
@@ -182,13 +184,14 @@ var postdata;
                         action += '<input type = "hidden"  name = "Interval1" value = "' +  Interval1 + '" / >' ;
                         action += '<input type = "hidden"  name = "IntervalN" value = "' +  IntervalN + '" / >' ;
                         action += '</div>';
-                        
-                        <?php if(User::checkCategoryPermission('CodeDecks','Edit')){ ?>
+
+                        if('{{User::can('CodeDecksController.update')}}'){
                             action += '<a href="javascript:;" class="edit-codedeck btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?>
-                        <?php if(User::checkCategoryPermission('CodeDecks','Delete') ){ ?>
+                        }
+
+                        if('{{User::can('CodeDecksController.delete')}}'){
                             action += ' <a data-id="'+ RateID +'" class="delete-codedecks btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                        <?php } ?>
+                        }
 
                         return action;
                       }

@@ -16,7 +16,7 @@
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
             <br>
-            @if( User::is_admin() || User::is('BillingAdmin'))
+            @if(User::can('ProductsController.create'))
                 <p style="text-align: right;">
                     <a href="#" id="add-new-product" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
@@ -134,12 +134,12 @@
                                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                         }
                                         action += '</div>';
-                                        <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
+                                        if('{{User::can('ProductsController.update')}}') {
                                             action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" class="edit-product btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                        <?php } ?>
-                                        <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
+                                        }
+                                        if('{{User::can('ProductsController.delete')}}') {
                                             action += '<a href="'+delete_+'" data-redirect="{{ URL::to('products')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
-                                         <?php } ?>   
+                                        }
                                         return action;
                                     }
                                 }

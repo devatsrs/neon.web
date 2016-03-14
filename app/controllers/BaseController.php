@@ -16,8 +16,7 @@ class BaseController extends Controller {
                 $action = $controller[1];
                 $str_all = $controller[0].'.*';
                 $str = str_replace('@','.',$route);
-
-                if(!$this->skipAllowedActions($action)) {
+                if(!$this->skipAllowedActions($str_all,$str)) {
                     if(!Auth::guest()) {
                         if (!user::is_admin()) {
                             if (!User::checkPermissionnew($str)) {
@@ -51,16 +50,26 @@ class BaseController extends Controller {
         return json_encode('');
     }
 
-    public function skipAllowedActions($action){
-        $allowed_actions = $this->getAllowedActions();
-        if(in_array($action,$allowed_actions)) {
+    /**
+     * @param $str_all - controller skip permission
+     * @param $action - only asction skip permission
+     * @return bool
+     */
+    public function skipAllowedActions($str_all,$action){
+        //$allowed_actions = $this->getAllowedActions();
+        $allowed_actions = Resources::getSkipResourcesValue();
+        if(in_array($str_all,$allowed_actions)) {
             return true;
+        }else if(in_array($action,$allowed_actions)) {
+            return true;
+        }else{
+            return false;
         }
-        return false;
+
     }
 
+    //not in use
     public function getAllowedActions(){
-
         return  array('get_users_dropdown','process_redirect','doforgot_password','doreset_password','doRegistration','loadDashboardJobsDropDown','cview','cdownloadUsageFile','display_invoice','download_invoice','invoice_payment','pay_invoice','invoice_thanks','search_customer_grid','edit_profile','update_profile','dologout','/Wysihtml5/getfiles','/Wysihtml5/file_upload');
 
     }

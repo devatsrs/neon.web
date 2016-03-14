@@ -27,14 +27,14 @@
              Settings
         </a>
     </li>
-    @if(User::checkCategoryPermission('CustomersRates','Download'))
+    @if(User::can('CustomersRatesController.download'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
              Download Rate sheet
         </a>
     </li>
     @endif
-    @if(User::checkCategoryPermission('CustomersRates','History'))
+    @if(User::can('CustomersRatesController.history'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/history') }}" >
             History

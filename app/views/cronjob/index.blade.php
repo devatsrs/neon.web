@@ -15,7 +15,7 @@
 @include('includes.errors')
 @include('includes.success')
 <p style="text-align: right;">
-@if( User::checkCategoryPermission('CronJob','Add') )
+@if( User::can('CronJobController.create') )
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add Cron Job
@@ -86,12 +86,12 @@ var postdata;
                          action += '</div>';
                          var history_url = baseurl + "/cronjobs/history/"+CronJobID;
 
-                         <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
+                         if('{{User::can('CronJobController.update')}}'){
                             action += ' <a data-name = "'+full[1]+'" data-id="'+ CronJobID+'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                         <?php } ?>
-                         <?php if(User::checkCategoryPermission('CronJob','Delete') ){ ?>
+                         }
+                         if('{{User::can('CronJobController.delete')}}'){
                             action += ' <a data-id="'+ CronJobID +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                         <?php } ?>
+                         }
                          action += ' <a href="'+history_url+'" class=" btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>History </a>';
 
                         return action;

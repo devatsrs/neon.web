@@ -19,7 +19,7 @@
 
 <p style="text-align: right;">
 
-@if( User::checkCategoryPermission('InvoiceTemplates','Add'))
+@if( User::can('InvoiceTemplatesController.create'))
     <a href="#" id="add-new-invoice_template" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Invoice Template
@@ -82,14 +82,14 @@ var postdata;
                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'') + '" / >';
                          }
                          action += '</div>';
-                         <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
+                         if('{{User::can('InvoiceTemplatesController.update')}}'){
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                         <?php } ?>
+                         }
                          action += ' <a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
                          action += ' <a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Periodic View </a>';
-                         <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
+                         if('{{User::can('InvoiceTemplatesController.delete')}}'){
                             action += ' <a data-id="'+ id +'" class="delete-invoice_template btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                         <?php } ?>
+                         }
                         return action;
                       }
                   },

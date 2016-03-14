@@ -22,42 +22,42 @@
         <span class="hidden-xs">Vendor Rate</span>
     </a>
 </li>
-@if(User::checkCategoryPermission('VendorRates','Upload'))
+@if(User::can('VendorRatesController.upload'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
         <span class="hidden-xs">Vendor Rate Upload</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Download'))
+@if(User::can('VendorRatesController.downloaded_excel_file_download'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
         <span class="hidden-xs">Vendor Rate Download</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Settings'))
+@if(User::can('VendorRatesController.settings'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/settings') }}" >
         <span class="hidden-xs">Settings</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Blocking'))
+@if(User::can('VendorBlockingsController.*'))
 <li >
     <a href="{{ URL::to('vendor_blocking/'.$id) }}" >
         <span class="hidden-xs">Blocking</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Preference'))
+@if(User::can('VendorRatesController.vendor_preference'))
 <li >
     <a href="{{ URL::to('/vendor_rates/vendor_preference/'.$id) }}" >
         <span class="hidden-xs">Preference</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','History'))
+@if(User::can('VendorRatesController.history'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/history') }}" >
         <span class="hidden-xs">Vendor Rate History</span>
@@ -124,7 +124,7 @@
 </div>
 </div>
 <div style="text-align: right;padding:10px 0 ">
-    @if(User::checkCategoryPermission('VendorRates','Edit'))
+    @if(User::can('VendorRatesController.bulk_update') && User::can('VendorRatesController.bulk_update_new') )
     <a class="btn btn-primary btn-sm btn-icon icon-left" id="bulk_set_vendor_rate" href="javascript:;">
         <i class="entypo-floppy"></i>
         Bulk update
@@ -134,7 +134,7 @@
         Change Selected Rates
     </a>
     @endif
-    @if(User::checkCategoryPermission('VendorRates','Delete'))
+        @if(User::can('VendorRatesController.bulk_clear_rate') && User::can('VendorRatesController.clear_all_vendorrate') )
     <button class="btn btn-danger btn-sm btn-icon icon-left" id="clear-bulk-rate" type="submit">
         <i class="entypo-cancel"></i>
         Delete Selected Rates
@@ -233,13 +233,13 @@ jQuery(document).ready(function($) {
                                     action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
-                                <?php if(User::checkCategoryPermission('VendorRates','Edit')) { ?>
+                                if('{{User::can('VendorRatesController.bulk_update')}}' && '{{User::can('VendorRatesController.bulk_update_new')}}') {
                                     action += '<a href="Javascript:;" class="edit-vendor-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
-                                <?php } ?>
+                                }
                                 if (full[0] > 0) {
-                                    <?php if(User::checkCategoryPermission('VendorRates','Delete')) { ?>
+                                    if('{{User::can('VendorRatesController.bulk_clear_rate')}}' && '{{User::can('VendorRatesController.clear_all_vendorrate')}}') {
                                         action += ' <button href="' + clerRate_ + '"  class="btn clear btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</button>';
-                                    <?php } ?>
+                                    }
                                 }
                                 return action;
                             }

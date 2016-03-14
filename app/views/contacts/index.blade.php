@@ -17,7 +17,7 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('Contacts','Add'))
+@if(User::can('ContactsController.store') && User::can('ContactsController.create') )
     <a href="{{URL::to('contacts/create')}}" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New
@@ -70,13 +70,13 @@
                         show_ = show_.replace( '{id}', id );
                         delete_  = delete_ .replace( '{id}', id );
                         action = '';
-                        <?php if(User::checkCategoryPermission('Contacts','Edit') ){ ?>
-                        action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?>
+                        if('{{User::can('ContactsController.update')}}' && '{{User::can('ContactsController.edit')}}') {
+                            action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                        }
                         action += '<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
-                        <?php if(User::checkCategoryPermission('Contacts','Delete') ){ ?>
-                        action += '<a href="'+delete_+'" data-redirect="{{ URL::to('contacts')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
-                        <?php } ?>
+                        if('{{User::can('ContactsController.destroy')}}'){
+                            action += '<a href="'+delete_+'" data-redirect="{{ URL::to('contacts')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
+                        }
                         return action;
                       }
                   },

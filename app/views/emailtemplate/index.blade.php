@@ -51,7 +51,7 @@
 </div>
 
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('EmailTemplate','Add'))
+@if(User::can('EmailTemplateController.store'))
     <a href="#" id="add-new-template" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Template
@@ -117,12 +117,12 @@ var postdata;
                          action = '<div class = "hiddenRowData" >';
                          action += '<input type = "hidden"  name = "templateID" value = "' + id + '" / >';
                          action += '</div>';
-                        <?php if(User::checkCategoryPermission('EmailTemplate','Edit')) { ?>
+                        if('{{User::can('EmailTemplateController.update')}}' && '{{User::can('EmailTemplateController.edit')}}') {
                             action += ' <a data-name = "'+full[4]+'" data-id="'+ id +'" class="edit-template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?>
-                        <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
+                        }
+                        if('{{User::can('EmailTemplateController.delete')}}') {
                             action += ' <a data-id="'+id+'" class="delete-template btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                        <?php } ?>
+                        }
                         return action;
                       }
                   },

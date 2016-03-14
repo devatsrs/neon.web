@@ -6,6 +6,7 @@ class Permission extends \Eloquent {
     protected $table = 'tblPermission';
     protected $primaryKey = "PermissionID";
 
+    //not in use
     public static function hasPermission($role , $resource ){
 
         if(is_array($role)){

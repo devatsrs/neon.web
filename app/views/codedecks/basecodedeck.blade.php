@@ -19,7 +19,7 @@
 <!--<script src="{{URL::to('/')}}/assets/js/neon-fileupload.js" type="text/javascript"></script>-->
 
 <p style="text-align: right;">
-    @if( User::checkCategoryPermission('CodeDecks','Add'))
+    @if( User::can('CodeDecksController.cretecodedeck'))
     <a href="#" id="add-new-codedeck" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New CodeDeck
@@ -70,12 +70,12 @@ var postdata;
                         show_ = "{{ URL::to('codedecks/basecodedeck/{id}')}}";
                         show_ = show_.replace( '{id}', id);
                         action = '<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';                        
-                        <?php if(User::checkCategoryPermission('CodeDecks','Edit') ){ ?>
+                        if('{{User::can('CodeDecksController.updatecodedeck')}}'){
                             action += ' <a data-name = "'+full[0]+'" data-type = "'+full[4]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?>
-                        <?php if(User::checkCategoryPermission('CodeDecks','Delete') ){ ?>
+                        }
+                        if('{{User::can('CodeDecksController.base_delete')}}'){
                             action += ' <a data-id="'+ id +'" class="delete-codedecks btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                        <?php } ?>    
+                        }
 
                         return action;
                       }

@@ -3,7 +3,7 @@
 <br />
 <div class="row">
 <!------/*Recent Due Rate Sheet*/---->
-    <?php if( User::is('RateManager') || User::is_admin() ){ ?>
+    <?php if(User::is_admin() ){ ?>
     <div class="col-sm-6">
         <?php
         /* Recent Due Rate Sheet */
@@ -46,12 +46,12 @@
                         </tr>
                         <tr>
                             <td colspan="3">
-                                @if(User::checkCategoryPermission('Account','View'))
+                                @if(User::can('AccountsController.index'))
                                     <a href="{{URL::to('accounts/due_ratesheet?accounttype='.AccountApproval::CUSTOMER)}}" class="btn btn-primary text-right">View All</a>
                                 @endif
                             </td>
                             <td colspan="3">
-                                @if(User::checkCategoryPermission('Account','View'))
+                                @if(User::can('AccountsController.due_ratesheet'))
                                     <a href="{{URL::to('accounts/due_ratesheet?accounttype='.AccountApproval::VENDOR)}}" class="btn btn-primary text-right">View All</a>
                                 @endif
                             </td>
@@ -63,7 +63,7 @@
     </div>
     <?php }
     ?>
-    <?php if(User::checkCategoryPermission('Leads','View')){?>
+    <?php if(User::can('LeadsController.index')){?>
         <div class="col-sm-6">
                 <div class="panel panel-primary panel-table">
                     <div class="panel-heading">
@@ -129,7 +129,7 @@
                     <tbody>
                     </tbody>
                 </table>
-                @if(User::checkCategoryPermission('Jobs','View'))
+                @if(User::can('JobsController.index'))
                 <div class="text-right">
                     <a href="{{URL::to('/jobs')}}" class="btn btn-primary text-right">View All</a>
                 </div>
@@ -171,7 +171,7 @@
     </div>
     <div class="clear"></div>
     <!---Recent Accounts-->
-    <?php if(User::checkCategoryPermission('Account','View')){?>
+    <?php if(User::can('AccountsController.index')){?>
     <div class="col-sm-6">
             <div class="panel panel-primary panel-table">
                 <div class="panel-heading">

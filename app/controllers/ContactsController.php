@@ -217,7 +217,7 @@ class ContactsController extends \BaseController {
     public function exports() {
             $companyID = User::get_companyID();
             // if CRM or Account Manager show ony their Contacts.
-            if (User::is('AccountManager') || User::is('CRM')) {
+            if (User::is('AccountManager')) {
                 $userID = User::get_userID();
                 $contacts = Contact::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'tblContact.Owner')
                     ->where(["tblContact.CompanyID" => $companyID])->WhereRaw("( tblContact.Owner = ".    $userID. " OR tblContact.Owner is NULL)")

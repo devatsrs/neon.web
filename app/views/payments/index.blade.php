@@ -12,12 +12,14 @@
     </ol>
 
     <h3>Payments</h3>
+    @if(User::can('PaymentsController.upload'))
     <p style="text-align: right;">
         <a href="javascript:;" id="upload-payments" class="btn upload btn-primary ">
             <i class="entypo-upload"></i>
             Upload
         </a>
     </p>
+    @endif
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="row">
@@ -253,7 +255,7 @@
 
             <br>
 
-            @if(User::checkCategoryPermission('Payments','Add'))
+            @if(User::can('PaymentsController.create'))
             <p style="text-align: right;">
                     <a href="#" id="add-new-payment" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
@@ -376,19 +378,19 @@
                                     }
                                     action += '</div>';
                                     action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
-                                    @if(User::is('BillingAdmin') || User::is_admin())
-                                    if(full[7] != "Approved"){
-                                        action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
-                                        action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                    if('{{User::can('PaymentsController.payment_approve_reject')}}'){
+                                        if(full[7] != "Approved"){
+                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
+                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                        }
                                     }
-                                    @endif
 
                                     //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                    <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
-                                    if(full[13]==0 && full[7]!='Rejected' ){
-                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
+                                    if('{{User::can('PaymentsController.recall')}}'){
+                                        if(full[13]==0 && full[7]!='Rejected' ){
+                                            action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
+                                        }
                                     }
-                                    <?php } ?>
                                     if(full[9]!= null){
                                         action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                     }

@@ -27,35 +27,35 @@
         <span class="hidden-xs">Vendor Rate Upload</span>
     </a>
 </li>
-@if(User::checkCategoryPermission('VendorRates','Download'))
+    @if(User::can('VendorRatesController.downloaded_excel_file_download'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
         <span class="hidden-xs">Vendor Rate Download</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Settings'))
+    @if(User::can('VendorRatesController.settings'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/settings') }}" >
         <span class="hidden-xs">Settings</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Blocking'))
+    @if(User::can('VendorBlockingsController.*'))
 <li >
     <a href="{{ URL::to('vendor_blocking/'.$id) }}" >
         <span class="hidden-xs">Blocking</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Preference'))
+    @if(User::can('VendorRatesController.vendor_preference'))
 <li >
     <a href="{{ URL::to('/vendor_rates/vendor_preference/'.$id) }}" >
         <span class="hidden-xs">Preference</span>
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','History'))
+    @if(User::can('VendorRatesController.history'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/history') }}" >
         <span class="hidden-xs">Vendor Rate History</span>

@@ -49,7 +49,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                         </button>
                     </form>
                 </li>-->
-        @if( User::checkCategoryPermission('RmDashboard','All')  || User::checkCategoryPermission('SalesDashboard','All')||User::checkCategoryPermission('BillingDashboard','All'))
+        @if( User::can('DashboardController.home')  || User::can('DashboardController.salesdashboard')||User::can('DashboardController.billingdashboard'))
             <li class="">
                 <a href="#">
                     <i class="entypo-gauge"></i>
@@ -57,7 +57,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </a>
                 <ul>
                     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-                        @if(User::checkCategoryPermission('RmDashboard','All'))
+                        @if(User::can('DashboardController.home'))
                         <li>
                             <a href="{{action('dashboard')}}">
                                 <i class="entypo-pencil"></i>
@@ -67,7 +67,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                         @endif
                     @endif
                     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-                        @if(User::checkCategoryPermission('SalesDashboard','All'))
+                        @if(User::can('DashboardController.salesdashboard'))
                             <li>
                                 <a href="{{action('salesdashboard')}}">
                                     <i class="entypo-pencil"></i>
@@ -75,7 +75,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('BillingDashboard','All'))
+                        @if(User::can('DashboardController.billingdashboard'))
                             <li>
                                 <a href="{{Url::to('/billingdashboard')}}">
                                     <i class="entypo-pencil"></i>
@@ -87,7 +87,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </ul>
             </li>
         @endif
-        @if(User::checkCategoryPermission('Leads','View'))
+        @if(User::can('LeadsController.index'))
             <li>
                 <a href="{{Url::to('/leads')}}">
                     <i class="entypo-layout"></i>
@@ -95,7 +95,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </a>
             </li>
         @endif
-        @if( User::checkCategoryPermission('Contacts','View'))
+        @if( User::can('ContactsController.index'))
             <li>
                 <a href="{{Url::to('/contacts')}}">
                     <i class="entypo-layout"></i>
@@ -103,7 +103,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </a>
             </li>
         @endif
-        @if( User::checkCategoryPermission('Account','View'))
+        @if( User::can('AccountsController.index'))
             <li>
                 <a href="{{URL::to('/accounts')}}">
                     <i class="entypo-layout"></i>
@@ -111,7 +111,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </a>
             </li>
         @endif
-        @if( User::checkCategoryPermission('EmailTemplate','View'))
+        @if( User::can('EmailTemplateController.index'))
             <li>
                 <a href="#">
                     <i class="entypo-layout"></i>
@@ -128,15 +128,15 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
             </li>
         @endif
         @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-                @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
-                    User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All'))
+                @if( User::can('RateTablesController.index') || User::can('LCRController.*') || User::can('LCRController.index') ||
+                    User::can('RateGeneratorsController.index') || User::can('VendorProfilingController.index') || User::can('VendorProfilingController.*'))
                 <li>
                     <a href="#">
                         <i class="entypo-layout"></i>
                         <span>Rate Management</span>
                     </a>
                     <ul>
-                        @if(User::checkCategoryPermission('RateTables','View'))
+                        @if(User::can('RateTablesController.index'))
                             <li>
                                 <a href="{{URL::to('/rate_tables')}}">
                                     <i class="entypo-pencil"></i>
@@ -144,7 +144,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('LCR','All'))
+                        @if(User::can('LCRController.*') || User::can('LCRController.index'))
                             <li>
                                 <a href="{{URL::to('/lcr')}}">
                                     <i class="entypo-pencil"></i>
@@ -152,7 +152,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('RateGenerator','View'))
+                        @if(User::can('RateGeneratorsController.index'))
                             <li>
                                 <a href="{{URL::to('/rategenerators')}}">
                                     <i class="entypo-pencil"></i>
@@ -160,7 +160,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('VendorProfiling','All'))
+                        @if(User::can('VendorProfilingController.index') || User::can('VendorProfilingController.*'))
                             <li>
                                 <a href="{{URL::to('/vendor_profiling')}}">
                                     <i class="entypo-pencil"></i>
@@ -174,7 +174,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
         @endif
 
         @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-            @if( User::checkCategoryPermission('SummaryReports','All'))
+            @if( User::can('SummaryController.*') || User::can('SummaryController.index') )
                 <li >
                     <a href="#">
                         <i class="entypo-layout"></i>
@@ -208,17 +208,17 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
             @endif
         @endif
         @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-            @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
-                User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
-                User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
-                User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View') )
+            @if(User::can('InvoicesController.index')  || User::can('BillingSubscriptionController.index') ||
+                User::can('PaymentsController.index') || User::can('AccountStatementController.*') || User::can('AccountStatementController.index') ||
+                User::can('ProductsController.index') || User::can('InvoiceTemplatesController.index') ||
+                User::can('TaxRatesController.index') || User::can('CDRController.index') || User::can('CDRController.show') )
                 <li>
                     <a href="#">
                         <i class="entypo-layout"></i>
                         <span>Billing</span>
                     </a>
                     <ul>
-                        @if(User::checkCategoryPermission('Invoice','View'))
+                        @if(User::can('InvoicesController.index'))
                             <li>
                                 <a href="{{URL::to('/invoice')}}">
                                     <i class="entypo-pencil"></i>
@@ -226,7 +226,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('BillingSubscription','View'))
+                        @if(User::can('BillingSubscriptionController.index'))
                             <li>
                                 <a href="{{URL::to('/billing_subscription')}}">
                                     <i class="entypo-pencil"></i>
@@ -234,7 +234,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('Payments','View'))
+                        @if(User::can('PaymentsController.index'))
                             <li>
                                 <a href="{{URL::to('/payments')}}">
                                     <i class="entypo-pencil"></i>
@@ -242,7 +242,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('AccountStatement','All'))
+                        @if(User::can('AccountStatementController.*') || User::can('AccountStatementController.index'))
                             <li>
                                 <a href="{{URL::to('/account_statement')}}">
                                     <i class="entypo-pencil"></i>
@@ -250,7 +250,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('Products','View'))
+                        @if(User::can('ProductsController.index'))
                             <li>
                                 <a href="{{URL::to('products')}}">
                                     <i class="entypo-pencil"></i>
@@ -258,7 +258,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('InvoiceTemplates','View'))
+                        @if(User::can('InvoiceTemplatesController.index'))
                             <li>
                                 <a href="{{URL::to('/invoice_template')}}">
                                     <i class="entypo-pencil"></i>
@@ -266,7 +266,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('TaxRates','View'))
+                        @if(User::can('TaxRatesController.index'))
                             <li>
                                 <a href="{{URL::to('/taxrate')}}">
                                     <i class="entypo-pencil"></i>
@@ -274,7 +274,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('CDR','Upload'))
+                        @if(User::can('CDRController.index'))
                             <li>
                                 <a href="{{URL::to('/cdr_upload')}}">
                                     <i class="entypo-pencil"></i>
@@ -282,7 +282,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                                 </a>
                             </li>
                         @endif
-                        @if(User::checkCategoryPermission('CDR','View'))
+                        @if(User::can('CDRController.show'))
                             <li>
                                 <a href="{{URL::to('/cdr_show')}}">
                                     <i class="entypo-pencil"></i>
@@ -306,17 +306,17 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </li>
             @endif
         @endif
-        @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
-            User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
-            User::checkCategoryPermission('Currency','View') || User::checkCategoryPermission('ExchangeRate','View') ||
-            User::checkCategoryPermission('CodeDecks','View'))
+        @if(User::can('UsersController.edit_profile') || User::can('UsersController.*') ||
+            User::can('TrunkController.index') || User::can('GatewayController.index') ||
+            User::can('CurrenciesController.index') || User::can('CurrencyConversionController.index') ||
+            User::can('CodeDecksController.basecodedeck'))
             <li>
                 <a href="#">
                     <i class="entypo-layout"></i>
                     <span>Settings</span>
                 </a>
                 <ul>
-                    @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') )
+                    @if(User::can('UsersController.edit_profile') || User::can('UsersController.*') )
                         <li>
                             <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">
                                 <i class="entypo-pencil"></i>
@@ -324,7 +324,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if( User::checkCategoryPermission('Trunk','View') )
+                    @if( User::can('TrunkController.index') )
                         <li>
                             <a href="{{Url::to('/trunks')}}">
                                 <i class="entypo-pencil"></i>
@@ -332,7 +332,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if( User::checkCategoryPermission('CodeDecks','View') )
+                    @if( User::can('CodeDecksController.basecodedeck') )
                         <li>
                             <a href="{{Url::to('/codedecks')}}">
                                 <i class="entypo-pencil"></i>
@@ -340,7 +340,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('Gateway','View'))
+                    @if(User::can('GatewayController.index'))
                         <li>
                             <a href="{{Url::to('/gateway')}}">
                                 <i class="entypo-pencil"></i>
@@ -348,7 +348,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('Currency','View'))
+                    @if(User::can('CurrenciesController.index'))
                         <li>
                             <a href="{{Url::to('/currency')}}">
                                 <i class="entypo-pencil"></i>
@@ -356,7 +356,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('ExchangeRate','View'))
+                    @if(User::can('CurrencyConversionController.index'))
                         <li>
                             <a href="{{Url::to('/currency_conversion')}}">
                                 <i class="entypo-pencil"></i>
@@ -367,15 +367,15 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </ul>
             </li>
         @endif
-        @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
-            User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
+        @if( User::can('UsersController.index') || User::can('AccountApprovalController.index') ||
+            User::can('CronJobController.index') || User::can('VendorFileUploadTemplateController.index'))
             <li>
                 <a href="#">
                     <i class="entypo-layout"></i>
                     <span>Admin</span>
                 </a>
                 <ul>
-                    @if( User::checkCategoryPermission('Users','View'))
+                    @if( User::can('UsersController.index'))
                         <li>
                             <a href="{{Url::to('users')}}">
                                 <i class="entypo-pencil"></i>
@@ -391,7 +391,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('AccountChecklist','View'))
+                    @if(User::can('AccountApprovalController.index'))
                         <li>
                             <a href="{{Url::to('accountapproval')}}">
                                 <i class="entypo-pencil"></i>
@@ -399,7 +399,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('CronJob','View'))
+                    @if(User::can('CronJobController.index'))
                         <li>
                             <a href="{{URL::to('/cronjobs')}}">
                                 <i class="entypo-pencil"></i>
@@ -407,7 +407,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('UploadFileTemplate','view'))
+                    @if(User::can('VendorFileUploadTemplateController.index'))
                         <li>
                             <a href="{{URL::to('/uploadtemplate')}}">
                                 <i class="entypo-pencil"></i>
@@ -415,7 +415,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             </a>
                         </li>
                     @endif
-                    @if(User::checkCategoryPermission('Jobs','view'))
+                    @if(User::can('JobsController.index'))
                        <!-- <li>
                             <a href="{URL::to('/activejob')}">
                                 <i class="entypo-pencil"></i>
@@ -426,7 +426,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </ul>
             </li>
         @endif
-        @if( User::checkCategoryPermission('Jobs','View'))
+        @if( User::can('JobsController.index'))
             <li>
                 <a href="{{Url::to('jobs')}}">
                     <i class="entypo-layout"></i>
@@ -435,7 +435,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
             </li>
         @endif
 
-        @if( User::checkCategoryPermission('Company','View'))
+        @if( User::can('CompaniesController.edit'))
             <li>
                 <a href="{{Url::to('company')}}">
                     <i class="entypo-layout"></i>
@@ -443,7 +443,7 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </a>
             </li>
         @endif
-        @if( User::checkCategoryPermission('Pages','About'))
+        @if( User::can('PagesController.about'))
             <li>
                 <a href="{{Url::to('/about')}}">
                     <i class="entypo-layout"></i>

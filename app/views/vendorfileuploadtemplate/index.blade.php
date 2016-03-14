@@ -16,7 +16,7 @@
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
             <br>
-            @if( User::is_admin())
+            @if( User::can('VendorFileUploadTemplateController.create') && User::can('VendorFileUploadTemplateController.store'))
                 <p style="text-align: right;">
                     <a href="{{URL::to('/uploadtemplate/create')}}" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
@@ -57,12 +57,12 @@
                                     delete_  = delete_ .replace( '{id}', id );
                                     edit  = edit .replace( '{id}', id );
                                     var action = '';
-                                    <?php if(User::checkCategoryPermission('UploadFileTemplate','Edit') ){ ?>
+                                    if('{{User::can('VendorFileUploadTemplateController.edit')}}' && '{{User::can('VendorFileUploadTemplateController.update')}}') {
                                         action += '<a href="'+edit+'" class="edit-config btn btn-default btn-sm btn-icon icon-left" data-name="Edit Template"><i class="entypo-pencil"></i>Edit </a>';
-                                    <?php } ?>
-                                    <?php if(User::checkCategoryPermission('UploadFileTemplate','Delete') ){ ?>
+                                    }
+                                    if('{{User::can('VendorFileUploadTemplateController.delete')}}'){
                                         action += ' <a href="'+delete_+'" class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                                    <?php } ?>
+                                    }
                                     return action;
                                 }
                             }

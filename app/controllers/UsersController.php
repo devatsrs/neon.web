@@ -7,10 +7,10 @@ class UsersController extends BaseController {
     }
 
     public function index() {
-
             return View::make('user.show', compact(''));
     }
 
+    //not in use
     public function add() {
             //$roles = Role::getRoles();
             return View::make('user.create',compact(''));
@@ -22,6 +22,7 @@ class UsersController extends BaseController {
     public function store() {
 
         $data = Input::all();
+
         $CompanyID = User::get_companyID();
 
         $data['Status'] = isset($data['Status']) ? 1 : 0;
@@ -65,6 +66,7 @@ class UsersController extends BaseController {
         }
     }
 
+    //not in use
     public function edit($id) {
             $user = DB::table('tblUser')->where(['UserID' => $id])->first();
             $roles = Role::getRoles();
@@ -94,7 +96,7 @@ class UsersController extends BaseController {
         $rules = array(
             'FirstName' => 'required',
             'LastName' => 'required',
-            //'password' => 'required|confirmed|min:3',
+            'password' => 'confirmed|min:3',
             //'Roles' => 'required',
             'EmailAddress' => 'required|email|unique:tblUser,EmailAddress,' . $id . ',UserID',
             'Status' => 'required',
@@ -120,15 +122,28 @@ class UsersController extends BaseController {
     }
 
     public function ajax_datagrid() {
-        $companyID = User::get_companyID();
-        if (isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == '') {
-            $users = User::where(["CompanyID" => $companyID, "Status" => 1])->select(array('Status', 'FirstName', 'LastName', 'EmailAddress', 'AdminUser', 'UserID')); // by Default Status 1
-        } else {
-            $users = User::where(["CompanyID" => $companyID])->select(array('Status', 'FirstName', 'LastName', 'EmailAddress', 'AdminUser', 'UserID'));
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $data['iDisplayStart'] +=1;
+        $data['status'] = $data['status']== 'true'?1:0;
+        $columns = ['Status','FirstName','LastName','EmailAddress','AdminUser'];
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getUsers (".$CompanyID.", ".$data['status'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('User', function ($excel) use ($excel_data) {
+                $excel->sheet('User', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
         }
-        return Datatables::of($users)->make();
+        $query .=',0)';
+        return DataTableSql::of($query,'sqlsrv')->make();
+
     }
 
+    //not in use
     public function exports() {
             $data = Input::all();
             $companyID = User::get_companyID();

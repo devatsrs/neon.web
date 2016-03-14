@@ -18,7 +18,7 @@
 
 
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('BillingSubscription','Add'))
+@if(User::can('BillingSubscriptionController.create'))
 <a href="#" id="add-new-billing_subscription" class="btn btn-primary ">
     <i class="entypo-plus"></i>
     Add New Subscription
@@ -127,12 +127,12 @@ jQuery(document).ready(function ($) {
                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + full[i] + '" / >';
                      }
                      action += '</div>';
-                     <?php if(User::checkCategoryPermission('BillingSubscription','Edit')) { ?>
+                     if('{{User::can('BillingSubscriptionController.update')}}') {
                         action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-billing_subscription btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                     <?php } ?>
-                     <?php if(User::checkCategoryPermission('BillingSubscription','Delete')) { ?>
+                     }
+                     if('{{User::can('BillingSubscriptionController.delete')}}') {
                         action += ' <a data-id="'+ id +'" class="delete-billing_subscription btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                     <?php } ?>
+                     }
                     return action;
                   }
               }

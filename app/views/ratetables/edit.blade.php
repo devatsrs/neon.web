@@ -20,9 +20,11 @@
     <li class="active  "><a href="{{URL::to('/rate_tables/'.$id.'/view')}}"> <span
                 class="hidden-xs">Rate</span>
         </a></li>
+    @if(User::can('RateTablesController.upload'))
     <li><a href="{{URL::to('/rate_tables/'.$id.'/upload')}}"> <span
                     class="hidden-xs">Upload Rates</span>
         </a></li>
+    @endif
 </ul>
 
 <div class="row">
@@ -79,16 +81,16 @@
 
 <p style="text-align: right;">
     @if($isBandTable)
-        @if(User::checkCategoryPermission('RateTables','Add') )
+        @if(User::can('RateTablesController.add_newrate'))
             <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New Rates </button>
         @endif    
     @endif
-    @if(User::checkCategoryPermission('RateTables','Edit') )
+    @if(User::can('RateTablesController.bulk_update_rate_table_rate'))
         <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left" href="javascript:;"> <i class="entypo-floppy"></i>
             Change Selected Rates
         </a>
     @endif
-    @if(User::checkCategoryPermission('RateTables','Delete') )
+    @if(User::can('RateTablesController.bulk_clear_rate_table_rate'))
         <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete Selected Rates </button>
     @endif    
 <form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
@@ -177,13 +179,13 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
+                                    if('{{User::can('RateTablesController.update_rate_table_rate')}}') {
                                         action += '<a href="Javascript:;" class="edit-rate-table btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
-                                    <?php } ?>
+                                    }
                                     if (id != null && id > 0) {
-                                        <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
+                                        if('{{User::can('RateTablesController.clear_rate')}}') {
                                             action += ' <button href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete Rate</button>';
-                                        <?php } ?>
+                                        }
                                     }
                                     return action;
                                 }

@@ -10,7 +10,7 @@
 </ol>
 <h3>Rate Table</h3>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('RateTables','Add'))
+@if(User::can('RateTablesController.store'))
     <a href="#" id="add-new-rate-table" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New RateTable
@@ -123,9 +123,9 @@
 
                                 action = '<a href="' + view_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';
 
-                                <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
+                                if('{{User::can('RateTablesController.delete')}}') {
                                     action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a>';
-                                <?php } ?>
+                                }
                                 //action += status_link;
                                 return action;
                             }

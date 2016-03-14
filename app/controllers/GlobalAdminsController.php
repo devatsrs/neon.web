@@ -1,5 +1,5 @@
 <?php
-Use \DebugBar;
+
 class GlobalAdminsController extends \BaseController {
 
     public function __construct()

@@ -13,6 +13,11 @@ class Resources extends \Eloquent {
         return $roles;
     }
 
+    public static function getResourcesValue(){
+        $roles = Resources::select('ResourceID','ResourceValue')->orderBy('ResourceValue')->lists('ResourceValue', 'ResourceID');
+        return $roles;
+    }
+
     public static function insertResources(){
         $CompanyID = user::get_companyID();
         $routeCollection = Route::getRoutes();
@@ -34,5 +39,15 @@ class Resources extends \Eloquent {
                 }
             }
         }
+    }
+
+    public static function getSkipResourcesValue(){
+        $resorceid = CompanySetting::getKeyVal('SkipPermissionAction');
+        $roles = array();
+        if($resorceid != 'Invalid Key'){
+            $roles = Resources::whereIn('ResourceID', explode(',', $resorceid))->select('ResourceValue')->orderBy('ResourceValue')->lists('ResourceValue');
+        }
+
+        return $roles;
     }
 }

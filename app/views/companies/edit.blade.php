@@ -30,7 +30,7 @@
 <br class="">
 
 <div class="float-right">
-    @if(User::checkCategoryPermission('Company','Edit'))
+    @if(User::can('CompaniesController.update'))
     <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save

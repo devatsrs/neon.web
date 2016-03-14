@@ -14,7 +14,7 @@ class JobsController extends \BaseController {
         $columns = array('Title','Type','Status','created_at','CreatedBy','JobID','ShowInCounter','updated_at');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
-        if (User::is_admin() || User::is('RateManager')) {
+        if (User::is_admin()) {
             $isAdmin = 1;
         }else{
             $userID = User::get_userID();

@@ -353,4 +353,141 @@ class RoleController extends \BaseController {
         }
     }
 
+    public function showcategory() {
+        $id=0;
+        $companyID = User::get_companyID();
+        $users = User::getUserIDList(0);
+        $roles = Role::getRoles(0);
+        $resources = ResourceCategories::getResourceCategories();
+        $actions = Resources::getResources();
+        Resources::insertResources();
+        return View::make('roles.category', compact('id','gateway','resource','users','roles','resources','actions'));
+    }
+
+    public function storecategory(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $ResourceCategory = ResourceCategories::find($data['ResourceCategoryID']);
+        $rules = array(
+            "ResourceCategoryName" => "required|unique:tblResourceCategories,ResourceCategoryName,null,ResourceCategoryID,CompanyID,".$CompanyID,
+        );
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $ResourceCategoryName = $data['ResourceCategoryName'];
+        $category = ['CompanyID'=>$CompanyID,'ResourceCategoryName'=>$ResourceCategoryName];
+        if(!empty($data['action']) && $data['action']=='edit'){
+            if ($ResourceCategory->update($category)) {
+                return Response::json(array("status" => "success", "message" => "Category Successfully Updated"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem updating Role."));
+            }
+        }elseif(ResourceCategories::create($category)) {
+            return Response::json(array("status" => "success", "message" => "Category Successfully Created"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Category."));
+        }
+    }
+
+    public function categoryupdate(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $users = [];
+        $roles = [];
+        $resources = [];
+        $actions = [];
+        $userid = [];
+        foreach($data as $row){
+            if(array_key_exists('user',$row)){
+                $users[] = $row;
+                $userid[] = $row['user'];
+            }elseif(array_key_exists('role',$row)){
+                $roles[] =$row;
+            }elseif(array_key_exists('resource',$row)){
+                $resources[] =$row;
+            }elseif(array_key_exists('action',$row)){
+                $actions[] =$row;
+            }
+        }
+        if(count($resources)>0 && count($actions) >0) {
+            foreach ($resources as $index1=>$resource) {
+                ResourceCategoryMapping::whereIn('ResourceCategoryID',$resource)->delete();
+                foreach ($actions as $index2=>$action) {
+                    $data = ['ResourceID' => $action['action'], 'ResourceCategoryID' => $resource['resource'], 'CompanyID' => $CompanyID];
+                    ResourceCategoryMapping::create($data);
+                }
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Please add or remove options on both sides. No change found."));
+        }
+        return Response::json(array("status" => "success", "message" => "Selection Updated"));
+    }
+
+    public function ajax_action_list($action){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $user = [];
+        $role = [];
+        $resource = [];
+        $resources =[];
+        foreach($data as $row){
+            if(array_key_exists('user',$row)){
+                $user[] = $row['user'];
+            }elseif(array_key_exists('role',$row)){
+                $role[] =$row['role'];
+            }elseif(array_key_exists('resource',$row)){
+                $resource[] =$row['resource'];
+            }
+        }
+
+        if($action == 'resourcecategory') {
+            $id = implode(',',$resource);
+            $query = "call prc_GetAjaxActionList (".$CompanyID.",'".$id."',1)";
+            $excel_data  = DB::select($query);
+            $resources = json_decode(json_encode($excel_data),true);
+        }
+        if(!empty($resources)){
+            return Response::json(array("status" => "success", "result" => $resources));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Some thing wrong."));
+        }
+
+    }
+
+    public function skippermissionaction() {
+        $id=0;
+        $CompanyID = User::get_companyID();
+        $query = "call prc_GetSkipResourceList (".$CompanyID.")";
+        $excel_data  = DB::select($query);
+        $actions = json_decode(json_encode($excel_data),true);
+
+        return View::make('roles.skipaction', compact('actions'));
+    }
+
+    public function storpermissionaction(){
+        $data = Input::all();
+        $action='';
+        $actionlist = array();
+        if(!empty($data['ActionID'])){
+            $actionids=$data['ActionID'];
+            if(count($data['ActionID'])>0){
+                foreach($actionids as $actionid){
+                    $action.= $actionid.',';
+                }
+                $action = rtrim($action,',');
+            }
+            CompanySetting::setKeyVal('SkipPermissionAction',$action);
+            $CompanyID = User::get_companyID();
+            $query = "call prc_GetSkipResourceList (".$CompanyID.")";
+            $excel_data  = DB::select($query);
+            $actionlist = json_decode(json_encode($excel_data),true);
+            return Response::json(array("status" => "success", "message" => "Action succefully saved.", 'actiondata' => $actionlist));
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "No Action Selected."));
+        }
+    }
+
 }

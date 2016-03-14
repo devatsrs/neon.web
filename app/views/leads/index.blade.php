@@ -17,7 +17,7 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('Leads','Add'))
+@if(User::can('LeadsController.create') && User::can('LeadsController.store'))
     <a href="{{URL::to('leads/create')}}" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New
@@ -177,13 +177,13 @@
 </div>
 
 <div class="clear"></div>
-@if(User::checkCategoryPermission('Leads','Email,Edit'))
+@if(User::can('LeadsController.bulk_mail') || User::can('LeadsController.bulk_tags') )
 <div class="row hidden dropdown">
     <div  class="col-md-12">
         <div class="input-group-btn pull-right" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                @if(User::checkCategoryPermission('Leads','Email'))
+                @if(User::can('LeadsController.bulk_mail'))
                 <li>
                     <a href="javascript:void(0)" class="sendemail">
                         <i class="entypo-mail"></i>
@@ -191,7 +191,7 @@
                     </a>
                 </li>
                 @endif
-                @if(User::checkCategoryPermission('Leads','Edit'))
+                @if(User::can('LeadsController.bulk_tags'))
                     <li>
                         <a href="javascript:void(0)" id="bulk-tags">
                             <i class="entypo-tag"></i>
@@ -295,12 +295,12 @@
                             clone_ = clone_.replace('{id}', id);
                             show_ = show_.replace('{id}', id);
                             action = '';
-                            <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                            <?php } ?>
-                            <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
-                            action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
-                            <?php } ?>
+                            if('{{User::can('LeadsController.edit')}}' && '{{User::can('LeadsController.update')}}') {
+                                action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            }
+                            if('{{User::can('LeadsController.lead_clone')}}'){
+                                action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
+                            }
                             action += '&nbsp;<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';

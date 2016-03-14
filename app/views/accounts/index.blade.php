@@ -17,7 +17,7 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('Account','Add'))
+@if(User::can('AccountsController.store') && User::can('AccountsController.create') )
     <a href="{{URL::to('accounts/create')}}" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New
@@ -188,13 +188,13 @@
     </div>
 </div>
 <div class="clear"></div>
-@if(User::checkCategoryPermission('Account','Email,Edit'))
+@if(User::can('AccountsController.bulk_mail') || User::can('AccountsController.bulk_tags'))
 <div class="row hidden dropdown">
     <div  class="col-md-12">
         <div class="input-group-btn pull-right" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                @if(User::checkCategoryPermission('Account','Email'))
+                @if(User::can('AccountsController.bulk_mail'))
                 <li>
                     <a href="javascript:void(0)" class="sendemail">
                         <i class="entypo-mail"></i>
@@ -202,7 +202,7 @@
                     </a>
                 </li>
                 @endif
-                @if(User::checkCategoryPermission('Account','Edit'))
+                @if(User::can('AccountsController.bulk_tags'))
                 <li>
                     <a href="javascript:void(0)" id="bulk-tags">
                         <i class="entypo-tag"></i>
@@ -210,7 +210,7 @@
                     </a>
                 </li>
                 @endif
-                @if(User::checkCategoryPermission('Account','Email'))
+                @if(User::can('AccountsController.bulk_mail'))
                 <li>
                     <a href="javascript:void(0)" id="bulk-Ratesheet">
                         <i class="entypo-mail"></i>
@@ -324,9 +324,9 @@
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
-                                <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                <?php } ?>
+                                if('{{User::can('AccountsController.edit')}}' && '{{User::can('AccountsController.update')}}'){
+                                    action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                }
                                 action += '&nbsp;<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 
                                 /*full[6] == Customer verified
@@ -340,7 +340,7 @@
 
                                  /*action += ' <div class="btn-group"><button href="#" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Verification Status<span class="caret"></span></button>'
                                  action += '<ul class="dropdown-menu dropdown-primary" role="menu"><li><a href="' + NOT_VERIFIED + '" class="change_verification_status" >{{Account::$doc_status[Account::NOT_VERIFIED]}}</a></li><li><a href="' + PENDING_VERIFICATION + '" class="change_verification_status">{{Account::$doc_status[Account::PENDING_VERIFICATION]}}</a></li><li><a href="' + VERIFIED + '" class="change_verification_status">{{Account::$doc_status[Account::VERIFIED]}}</a></li></ul></div>';*/
-                                <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
+                                if('{{User::can('AccountsController.change_verifiaction_status')}}'){
                                  action += '<select name="varification_status" class="change_verification_status">';
                                  for(var i = 0; i < varification_status.length ; i++){
                                     var selected = "";
@@ -350,16 +350,16 @@
                                     action += '<option data-id="'+full[0]+'" value="' + varification_status[i] + '" ' + selected   +'     >'+varification_status_text[i]+'</option>';
                                  }
                                  action += '</select>';
-                                <?php } ?>
+                                }
 
                                 if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
-                                    <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
+                                    <?php if(User::can('CustomersRatesController.index')){ ?>
                                         action += '&nbsp;<a href="'+customer_rate_+'" class="btn btn-warning btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Customer</a>';
                                     <?php } ?>
                                 }
 
                                 if(full[8]==1 && full[9]=='{{Account::VERIFIED}}'){
-                                    <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
+                                    <?php if(User::can('VendorRatesController.index')){ ?>
                                         action += '&nbsp;<a href="'+vendor_blocking_+'" class="btn btn-info btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Vendor</a>';
                                     <?php } ?>
                                 }

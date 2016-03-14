@@ -18,7 +18,7 @@
 
 
 <p style="text-align: right;">
-@if( User::checkCategoryPermission('Gateway','Add') )
+@if(User::can('GatewayController.create'))
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add Gateway
@@ -88,12 +88,12 @@ var postdata;
                         action += '<input type = "hidden"  name = "BillingTimeZone" value = "' +( full[6]!==null?full[6]:'') + '" / >';
                          action += '</div>';
 
-                         <?php if(User::checkCategoryPermission('Gateway','Edit') ){ ?>
+                         if('{{User::can('GatewayController.update')}}'){
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                         <?php } ?>
-                         <?php if(User::checkCategoryPermission('Gateway','Delete') ){ ?>
+                         }
+                         if('{{User::can('GatewayController.delete')}}'){
                             action += ' <a data-id="'+ full[4] +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                         <?php } ?>
+                         }
                          if( full[4]>0){
                             action += ' <a data-id="'+ full[4]+'" class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>';
                          }

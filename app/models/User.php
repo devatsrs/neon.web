@@ -52,6 +52,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
 
+    //not in use
     public static function checkPermission($resource, $abort = true) {
 
         $role = User::get_user_role_array();
@@ -81,7 +82,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     }
 
-
+    //not in use
     public static function hasPermission($resource) {
         return self::checkPermission($resource,false);
     }
@@ -177,10 +178,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     }
 
+    // not in use
     public static function get_user_role(){
         return Auth::user()->Roles;
     }
 
+    //not in use
     public static function get_user_role_array(){
         $roles = Auth::user()->Roles;
 
@@ -201,13 +204,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         });
         $roles = $role->select($select)->distinct()->get()->lists('RoleName');
         $roless='';
-        if(count($roles)>0){
+        if(User::is_admin()){
+            return 'Admin';
+        }elseif(count($roles)>0){
             foreach($roles as $role){
                 $roless.=$role.',';
             }
             $roless = rtrim($roless,',');
-        }elseif(User::is_admin()){
-            return 'Admin';
         }
         return $roless;
     }
@@ -253,6 +256,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
 
+    // not in use
     public static function checkMinRights($user_role){
         if(User::is_admin()){
             return true;
@@ -321,6 +325,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
     }
 
+    // not in use(do not delete)
     public static function checkCategoryPermission($resourcecontroller,$action)
     {
         if(user::is_admin()){
@@ -367,37 +372,43 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
 
         $usrcat = [];
+        $resourceid = [];
         if(count($resourcescat)){
             foreach($resourcescat as $row){
                 $usrcat[] = $row['ResourceCategoryID'];
             }
         }
-        $resources = Resources::whereIn('CategoryID',$usrcat)->select(['ResourceValue'])->get();
-        if (count($resources) > 0) {
-            $resource_array = [];
-            foreach($resources as $row){
-                if(!empty($row->ResourceValue)) {
-                    $resource_array[$row->ResourceValue] = $row->ResourceValue;
-                }
+
+        $resourceids = ResourceCategoryMapping::whereIn('ResourceCategoryID',$usrcat)->select(['ResourceID'])->get();
+        if(count($resourceids)>0) {
+            foreach($resourceids as $row){
+                $resourceid[] = $row['ResourceID'];
             }
-            Session::put('user_permission', $resource_array);
+            $resources = Resources::whereIn('ResourceID', $resourceid)->select(['ResourceValue'])->get();
+            if (count($resources) > 0) {
+                $resource_array = [];
+                foreach ($resources as $row) {
+                    if (!empty($row->ResourceValue)) {
+                        $resource_array[$row->ResourceValue] = $row->ResourceValue;
+                    }
+                }
+                Session::put('user_permission', $resource_array);
+            }
         }
     }
 
     /**
-     * User::has("Payment","Add")  will check Payment.Add or Paymente.*
      * check Permission - For Buttons
      */
-    public static function can($ResourceCategoryName ,$ResourceCategoryAction = '*'){
-
+    public static function can($ResourceCategoryAction){
         if(User::is_admin()){
             return true;
         }
-
-        if(User::is($ResourceCategoryName.'.'.$ResourceCategoryAction) || User::is($ResourceCategoryName.'.*')) {
+        if(User::checkPermissionnew($ResourceCategoryAction)) {
             return true;
         }
         return false;
 
     }
+
 }

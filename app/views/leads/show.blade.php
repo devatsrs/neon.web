@@ -17,12 +17,13 @@
 <h3>View Lead
 
     <div style="float: right; text-align: right " class="col-sm-6">
-        @if(User::checkCategoryPermission('Leads','Convert'))
+        @if(User::can('LeadsController.convert'))
         <a href="{{ URL::to('leads/'.$lead->AccountID.'/convert')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Convert to Account</a>
         @endif
-        @if(User::checkCategoryPermission('Leads','Edit'))
+        @if(User::can('LeadsController.edit') && User::can('LeadsController.update') && User::can('LeadsController.lead_clone'))
         <a href="{{ URL::to('leads/'.$lead->AccountID.'/clone')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone</a>
-
+        @endif
+        @if(User::can('LeadsController.edit') && User::can('LeadsController.update'))
         <a href="{{ URL::to('leads/'.$lead->AccountID.'/edit')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Edit</a>
         @endif
         <a href="{{URL::to('/leads')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
@@ -235,7 +236,7 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    @if(User::checkCategoryPermission('Leads','Add'))
+                    @if(User::can('LeadsController.create') && User::can('LeadsController.store'))
                     <div class="form-group">
                         <form role="form" id="notes-from" method="post" action="{{URL::to('leads/'.$lead->AccountID.'/store_note/')}}" class="form-horizontal form-groups-bordered">
                             <div class="  col-sm-12">
@@ -263,8 +264,10 @@
                         @foreach($notes as $note)
                         <tr>
                             <td>
-                                @if(User::checkCategoryPermission('Leads','Edit'))
+                                @if(User::can('LeadsController.store_note'))
                                     <a href="{{URL::to('leads/'.$lead->AccountID.'/store_note/')}}" class="btn-danger btn-sm deleteNote entypo-cancel" id="{{$note->NoteID}}"></a>
+                                @endif
+                                @if(User::can('LeadsController.delete_note'))
                                     <a href="{{URL::to('leads/'.$lead->AccountID.'/delete_note/')}}" class="btn-default btn-sm editNote entypo-pencil" id="{{$note->NoteID}}"></a>
                                 @endif
                             </td>
@@ -314,14 +317,14 @@
                             <td>{{$contact->Phone}}</td>
                             <td>{{$contact->Email}}</td>
                             <td class="center">
-                                @if(User::checkCategoryPermission('Contacts','Edit'))
+                                @if(User::can('ContactsController.edit') && User::can('ContactsController.update'))
                                 <a href="{{ URL::to('contacts/'.$contact->ContactID.'/edit')}}"
                                    class="btn btn-default btn-sm btn-icon icon-left">
                                     <i class="entypo-pencil"></i>
                                     Edit
                                 </a>
                                 @endif
-                                @if(User::checkCategoryPermission('Contacts','View'))
+                                @if(User::can('ContactsController.index') && User::can('ContactsController.show'))
                                 <a href="{{ URL::to('contacts/'.$contact->ContactID.'/show')}}"
                                    class="btn btn-default btn-sm btn-icon icon-left">
                                     <i class="entypo-pencil"></i>
@@ -347,7 +350,7 @@
                         </tbody>
                     </table>
                     <p style="text-align: left;">
-                        @if(User::checkCategoryPermission('Contacts','Add'))
+                        @if(User::can('ContactsController.create') && User::can('ContactsController.store'))
                         <a href="{{URL::action('contacts_create',array("AccountID"=>$lead->AccountID))}}" class="btn btn-primary ">
                             <i class="entypo-plus"></i>
                             Add New

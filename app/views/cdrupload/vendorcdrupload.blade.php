@@ -85,7 +85,7 @@
                     </div>
                     <p style="text-align: right;">
 
-                        @if(User::checkCategoryPermission('CDR','Upload'))
+                        @if(User::can('CDRController.upload'))
                         <button id="upload" class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
                             <i class="glyphicon glyphicon-circle-arrow-up"></i>
                             Upload

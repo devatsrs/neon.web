@@ -16,15 +16,15 @@ class HomeController extends BaseController {
             }
             if (!user::is_admin()) {
                 if(!empty($DefaultDashboard)){
-                    if(User::checkCategoryPermission(getDashBoardController($DefaultDashboard),'All')){
+                    if(User::can(getDashBoardController($DefaultDashboard))){
                         $this->dashboard_url = $DefaultDashboard;
-                    }elseif(User::checkCategoryPermission('RmDashboard', 'All')) {
+                    }elseif(User::can('DashboardController.home')) {
                         $this->dashboard_url = '/dashboard';
-                    }elseif(User::checkCategoryPermission('SalesDashboard', 'All')) {
+                    }elseif(User::can('DashboardController.salesdashboard')) {
                         $this->dashboard_url = '/salesdashboard';
-                    }elseif(User::checkCategoryPermission('BillingDashboard', 'All')) {
+                    }elseif(User::can('DashboardController.billingdashboard')) {
                         $this->dashboard_url = '/billingdashboard';
-                    }elseif(User::checkCategoryPermission('Account','View')){
+                    }elseif(User::can('AccountsController.index') || User::can('AccountsController.*')){
                         $this->dashboard_url = '/accounts';
                     }else{
                         $this->dashboard_url = '/users/edit_profile/'. User::get_userID();
@@ -37,13 +37,13 @@ class HomeController extends BaseController {
                      * 3. Profile
                      * */
 
-                    if (User::checkCategoryPermission('RmDashboard', 'All')) {
+                    if (User::can('DashboardController.home')) {
                         $this->dashboard_url = '/dashboard';
-                    } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
+                    } elseif (User::can('DashboardController.salesdashboard')) {
                         $this->dashboard_url = '/salesdashboard';
-                    } elseif (User::checkCategoryPermission('BillingDashboard', 'All')) {
+                    } elseif (User::can('DashboardController.billingdashboard')) {
                         $this->dashboard_url = '/billingdashboard';
-                    } elseif (User::checkCategoryPermission('Account', 'View')) {
+                    } elseif (User::can('AccountsController.index') || User::can('AccountsController.*')) {
                         $this->dashboard_url = '/accounts';
                     } else {
                         $this->dashboard_url = '/users/edit_profile/' . User::get_userID();
@@ -54,23 +54,23 @@ class HomeController extends BaseController {
         }elseif(Company::isBillingLicence()) {
             $this->dashboard_url = '/billingdashboard';
             if (!empty($DefaultDashboard)) {
-                if (User::checkCategoryPermission(getDashBoardController($DefaultDashboard), 'All')) {
+                if (User::can(getDashBoardController($DefaultDashboard))) {
                     $this->dashboard_url = $DefaultDashboard;
-                }elseif (User::checkCategoryPermission('BillingDashboard', 'All')) {
+                }elseif (User::can('DashboardController.billingdashboard')) {
                     $this->dashboard_url = '/billingdashboard';
-                } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
+                } elseif (User::can('DashboardController.salesdashboard')) {
                     $this->dashboard_url = '/salesdashboard';
-                } elseif (User::checkCategoryPermission('Account', 'View')) {
+                } elseif (User::can('AccountsController.index') || User::can('AccountsController.*')) {
                     $this->dashboard_url = '/accounts';
                 } else {
                     $this->dashboard_url = '/users/edit_profile/' . User::get_userID();
                 }
             } else {
-                if (User::checkCategoryPermission('BillingDashboard', 'All')) {
+                if (User::can('DashboardController.billingdashboard')) {
                     $this->dashboard_url = '/billingdashboard';
-                } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
+                } elseif (User::can('DashboardController.salesdashboard')) {
                     $this->dashboard_url = '/salesdashboard';
-                } elseif (User::checkCategoryPermission('Account', 'View')) {
+                } elseif (User::can('AccountsController.index') || User::can('AccountsController.*')) {
                     $this->dashboard_url = '/accounts';
                 } else {
                     $this->dashboard_url = '/users/edit_profile/' . User::get_userID();

@@ -29,7 +29,7 @@
         <i class="entypo-cancel"></i>
         Close
     </a>
-    @if(User::checkCategoryPermission('Contacts','Delete'))
+    @if(User::can('ContactsController.destroy'))
     <a href="{{URL::to('contacts/'.$contact->ContactID.'/delete')}}" class="btn delete btn-danger btn-sm btn-icon icon-left" >
         <i class="entypo-cancel"></i>
         Delete

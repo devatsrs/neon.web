@@ -25,7 +25,7 @@
         <i class="entypo-cancel"></i>
         Close
     </a>
-    @if(User::checkCategoryPermission('InvoiceTemplates','Edit') )
+    @if(User::can('InvoiceTemplatesController.update') )
     <button type="submit" id="invoice_template-save"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save Template

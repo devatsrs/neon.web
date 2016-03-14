@@ -18,17 +18,19 @@
 
 
 <p style="text-align: right;">
-    @if(User::checkCategoryPermission('Invoice','Add'))
+    @if(User::can('InvoicesController.add_invoice_in'))
     <a href="javascript:;" id="invoice-in" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Invoice Received
     </a>
+    @endif
+    @if(User::can('InvoicesController.create') && User::can('InvoicesController.store'))
     <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Invoice
     </a>
     @endif
-    @if(User::checkCategoryPermission('Invoice','Generate'))
+    @if(User::can('InvoicesController.generate'))
     <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Generate New Invoice
@@ -108,24 +110,25 @@
         <div class="input-group-btn pull-right" style="width:230px;">
             <span style="text-align: right;padding-right: 10px;"><button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button></span>
             <!--<span style="text-align: right;padding-right: 10px;"><button type="button" id="selectallbutton"  class="btn btn-primary "><i class="entypo-check"></i><span>Select all found Accounts</span></button></span>-->
-            @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+            @if( User::can('InvoicesController.bulk_send_invoice_mail') || User::can('InvoicesController.invoice_change_Status') || User::can('InvoicesController.invoice_regen') || User::can('InvoicesController.pay_invoice') || User::can('AccountsController.bulk_mail'))
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                @if(User::checkCategoryPermission('Invoice','Send'))
+
+                @if(User::can('InvoicesController.bulk_send_invoice_mail'))
                 <li>
                     <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;" style="width:100%">
                         Send Invoice
                     </a>
                 </li>
                 @endif
-                @if(User::checkCategoryPermission('Invoice','Edit'))
+                @if(User::can('InvoicesController.invoice_change_Status'))
                 <li>
                     <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;" >
                         Change Status
                     </a>
                 </li>
                 @endif
-                @if(User::checkCategoryPermission('Invoice','Generate'))
+                @if(User::can('InvoicesController.invoice_regen'))
                 <li>
                     <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;" >
                         Regenerate
@@ -133,7 +136,7 @@
                 </li>
                 @endif
                 @if(is_authorize())
-                    @if(User::checkCategoryPermission('Invoice','Edit'))
+                    @if(User::can('InvoicesController.pay_invoice'))
                     <li>
                         <a class="pay_now create" id="pay_now" href="javascript:;" >
                             Pay Now
@@ -141,7 +144,7 @@
                     </li>
                     @endif
                 @endif
-                @if(User::checkCategoryPermission('Invoice','Email'))
+                @if(User::can('AccountsController.bulk_mail'))
                 <li>
                     <a class="pay_now create" id="bulk_email" href="javascript:;" >
                         Bulk Email
@@ -291,7 +294,7 @@ var postdata;
 
                           /*Multiple Dropdown*/
                         if (full[0] == '{{Invoice::INVOICE_IN}}'){
-                            if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
+                            if('{{User::can('InvoicesController.update_invoice_in')}}') {
                                 action += '<div class="btn-group">';
                                 action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
@@ -306,7 +309,7 @@ var postdata;
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                             if (full[12] == '{{Invoice::ITEM_INVOICE}}'){
-                                if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
+                                if('{{User::can('InvoicesController.edit')}}' && '{{User::can('InvoicesController.edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}",id) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                 }
                             }
@@ -318,12 +321,12 @@ var postdata;
                                 action += '<li><a href="' + invoice_log +'" class="icon-left"><i class="entypo-pencil"></i>Log </a></li>';
                             }
                             if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                if('{{User::checkCategoryPermission('Invoice','Send')}}') {
+                                if('{{User::can('InvoicesController.send')}}') {
                                     action += '<li><a data-id="' + id  + '" class="send-invoice icon-left"><i class="entypo-mail"></i>Send </a></li>';
                                 }
                             }
                             if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[6] != '{{Invoice::PAID}}')){
-                                if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
+                                if('{{User::can('PaymentsController.create')}}') {
                                     action += '<li><a data-id="' + id  + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Paytment</a></li>';
                                 }
                             }
@@ -333,7 +336,7 @@ var postdata;
 
                          /*Multiple Dropdown*/
                        if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                           if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
+                           if('{{User::can('InvoicesController.invoice_change_Status')}}') {
                              action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                              action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                              $.each(invoicestatus, function( index, value ) {

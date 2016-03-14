@@ -18,7 +18,7 @@
 
 
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('AccountChecklist','Add'))
+@if(User::can('AccountApprovalController.create'))
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Document
@@ -123,12 +123,12 @@ var postdata;
                          action += '<input type = "hidden"  name = "Infomsg" value = "' + full[8] + '" / >';
                          action += '<input type = "hidden"  name = "CountryId" value = "' + full[9] + '" / >';
                          action += '</div>';
-                         <?php if(User::checkCategoryPermission('AccountChecklist','Edit')){ ?>
+                         if('{{User::can('AccountApprovalController.update')}}'){
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                         <?php } ?>
-                         <?php if(User::checkCategoryPermission('AccountChecklist','Delete')){ ?>
+                         }
+                         if('{{User::can('AccountApprovalController.delete')}}'){
                             action += ' <a data-id="'+ id +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                         <?php } ?>
+                         }
                         return action;
                       }
                   },

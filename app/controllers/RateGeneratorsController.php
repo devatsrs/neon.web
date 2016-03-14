@@ -77,11 +77,17 @@ class RateGeneratorsController extends \BaseController {
         }
 
         if ($rateg = RateGenerator::create($data)) {
+            $redirect = '';
+            if(User::can('RateGeneratorsController.edit')){
+                $redirect = URL::to('/rategenerators/'.$rateg->RateGeneratorId.'/edit');
+            }else{
+                $redirect = URL::to('/rategenerators');
+            }
             return Response::json(array(
                         "status" => "success",
                         "message" => "RateGenerator Successfully Created",
                         'LastID'=>$rateg->RateGeneratorId,
-                        'redirect' => URL::to('/rategenerators/'.$rateg->RateGeneratorId.'/edit')
+                        'redirect' => $redirect
                     ));
         } else {
             return Response::json(array(

@@ -19,7 +19,7 @@
 </ol>
 <h3>Authentication Rule</h3>
 <p style="text-align: right;">
-    @if(User::checkCategoryPermission('AuthenticationRule','Add'))
+    @if(User::can('AccountsController.authenticate_store'))
     <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save

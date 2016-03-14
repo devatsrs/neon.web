@@ -25,21 +25,21 @@
             Customer Rate
         </a>
     </li>
-    @if(User::checkCategoryPermission('CustomersRates','Settings'))
+    @if(User::can('CustomersRatesController.settings'))
     <li  >
         <a href="{{ URL::to('/customers_rates/settings/'.$id) }}" >
             Settings
         </a>
     </li>
     @endif
-    @if(User::checkCategoryPermission('CustomersRates','Download'))
+    @if(User::can('CustomersRatesController.download'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
             Download Rate sheet
         </a>
     </li>
     @endif
-    @if(User::checkCategoryPermission('CustomersRates','History'))
+    @if(User::can('CustomersRatesController.history'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/history') }}" >
             History
@@ -130,10 +130,10 @@
         <div class="row">
          <div  class="col-md-12">
                 <div class="input-group-btn pull-right" style="width:70px;">
-                    @if( User::checkCategoryPermission('CustomersRates','Edit,ClearRate'))
+                    @if(User::can('CustomersRatesController.update') || User::can('CustomersRatesController.clear_rate'))
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                        @if(User::checkCategoryPermission('CustomersRates','Edit'))
+                        @if(User::can('CustomersRatesController.update') && User::can('CustomersRatesController.process_bulk_rate_update'))
                         <li><a class="generate_rate create" id="bulk_set_cust_rate" href="javascript:;" style="width:100%">
                                 Bulk update
                             </a>
@@ -142,7 +142,7 @@
                                 Change Selected Rates
                             </a></li>
                         @endif
-                        @if(User::checkCategoryPermission('CustomersRates','ClearRate'))
+                        @if(User::can('CustomersRatesController.clear_rate') && User::can('CustomersRatesController.bulk_clear_rate') && User::can('CustomersRatesController.process_bulk_rate_clear'))
                         <li><a class="generate_rate create" id="clear-bulk-rate" href="javascript:;" style="width:100%">
                                 Clear Selected Rates
                             </a></li>
@@ -291,13 +291,13 @@
                                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                                     }
                                                     action += '</div>';
-                                                    <?php if(User::checkCategoryPermission('CustomersRates','Edit')) { ?>
+                                                    if('{{User::can('CustomersRatesController.update')}}') {
                                                         action += '<a href="Javascript:;" class="edit-customer-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
-                                                    <?php } ?>
+                                                    }
                                                     if (CustomerRateID > 0) {
-                                                        <?php if(User::checkCategoryPermission('CustomersRates','ClearRate')) { ?>
+                                                        if('{{User::can('CustomersRatesController.clear_rate')}}') {
                                                             action += ' <button href="' + clerRate_ + '"  class="btn clear btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Clear Rate</button>';
-                                                        <?php } ?>
+                                                        }
                                                     }
                                                     return action;
                                                 }

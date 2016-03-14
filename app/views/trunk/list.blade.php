@@ -12,7 +12,7 @@
 </ol>
 <h3>Trunks</h3>
 <p class="text-right">
-@if(User::checkCategoryPermission('Trunk','Add'))
+@if(User::can('TrunkController.create') && User::can('TrunkController.TrunkController.store'))
     <a href="{{URL::to('trunks/create')}}" class="btn btn-primary">
         <i class="entypo-plus"></i>
         Add New
@@ -68,9 +68,9 @@
                         edit_ = "{{ URL::to('trunk/edit/{id}')}}";
                          
                         edit_ = edit_.replace( '{id}', id );
-                        <?php if(User::checkCategoryPermission('Trunk','Edit')){ ?>
+                        if('{{User::can('TrunkController.edit')}}' && '{{User::can('TrunkController.update')}}'){
                             action = '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?> 
+                        }
                         return action;
                       }
                   },

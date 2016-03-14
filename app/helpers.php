@@ -652,9 +652,9 @@ function getDashBoards(){
 }
 
 function getDashBoardController($key){
-    $DashBoards['/dashboard'] = 'RmDashboard';
-    $DashBoards['/salesdashboard'] = 'SalesDashboard';
-    $DashBoards['/billingdashboard'] = 'BillingDashboard';
+    $DashBoards['/dashboard'] = 'DashboardController.home';
+    $DashBoards['/salesdashboard'] = 'DashboardController.salesdashboard';
+    $DashBoards['/billingdashboard'] = 'DashboardController.billingdashboard';
     return $DashBoards[$key];
 }
 

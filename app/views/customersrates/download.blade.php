@@ -26,7 +26,7 @@
              Customer Rate
         </a>
     </li>
-    @if(User::checkCategoryPermission('CustomersRates','Settings'))
+    @if(User::can('CustomersRatesController.settings'))
      <li>
         <a href="{{ URL::to('/customers_rates/settings/'.$id) }}" >
              Settings
@@ -38,7 +38,7 @@
              Download Rate sheet
         </a>
     </li>
-    @if(User::checkCategoryPermission('CustomersRates','History'))
+    @if(User::can('CustomersRatesController.history'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/history') }}" >
             History

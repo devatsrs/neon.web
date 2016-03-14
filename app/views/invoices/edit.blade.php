@@ -20,7 +20,7 @@
 
 <form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
 <div class="pull-right">
-    @if(User::checkCategoryPermission('Invoice','Send'))
+    @if(User::can('InvoicesController.send') && User::can('InvoicesController.bulk_send_invoice_mail'))
     <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print">
         Send Invoice
         <i class="entypo-mail"></i>

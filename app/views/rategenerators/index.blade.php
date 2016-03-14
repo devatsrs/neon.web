@@ -13,7 +13,7 @@
 
 <h3>Rate Generator </h3>
 <div class="float-right">
-@if(User::checkCategoryPermission('RateGenerator','Add'))
+@if(User::can('RateGeneratorsController.store'))
     <a href="{{URL::to('rategenerators/create')}}" class="btn add btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-floppy"></i>
         Add New
@@ -77,14 +77,16 @@
                                 generate_new_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/create')}}";
                                 update_existing_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/update')}}";
                                 var status_link = active_ = "";
-                                if (full[3] == "1") {
-                                    active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
-                                    status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
-                                } else {
-                                    active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
-                                    status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
-                                }
 
+                                if('{{User::can('RateGeneratorsController.change_status')}}'){
+                                    if (full[3] == "1") {
+                                        active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
+                                        status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
+                                    } else {
+                                        active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
+                                        status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
+                                    }
+                                }
 
                                 edit_ = edit_.replace('{id}', id);
                                 delete_ = delete_.replace('{id}', id);
@@ -93,14 +95,14 @@
                                 status_link = status_link.replace('{id}', id);
                                 action = '';
 
-                                <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
+                                if('{{User::can('RateGeneratorsController.update')}}') {
                                     action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a> '
                                     action += status_link; //'<a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
                                     if(full[3]==1){ /* When Status is 1 */
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="'+ full[5] +'" data-codedeck="'+ full[6] +'" data-currency="'+ full[7] +'">Update Existing Rate Table</a></li></ul></div>';
                                     }
-                                <?php } ?>
+                                }
                                 return action;
                             }
                         },

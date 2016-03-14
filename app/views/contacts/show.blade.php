@@ -24,7 +24,7 @@
 <h3>View Contact
 
     <div style="float: right; text-align: right " class="col-sm-3">
-        @if(User::checkCategoryPermission('Contacts','Edit'))
+        @if(User::can('ContactsController.edit') && User::can('ContactsController.update'))
         <a href="{{ URL::to('contacts/'.$contact->ContactID.'/edit')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Edit</a>
         @endif
         <a href="{{URL::to('/contacts')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
@@ -214,7 +214,7 @@
         </div>
     </div>
     <div class="panel-body">
-        @if(User::checkCategoryPermission('Contacts','Add'))
+        @if(User::can('ContactsController.create') && User::can('ContactsController.store'))
         <div class="form-group">
             <form role="form" id="notes-from" method="post" action="{{URL::to('contacts/'.$contact->ContactID.'/store_note/')}}" class="form-horizontal form-groups-bordered">
                 <div class="  col-sm-12">
@@ -242,10 +242,10 @@
             @foreach($notes as $note)
             <tr>
                 <td>
-                    @if(User::checkCategoryPermission('Contacts','Delete'))
+                    @if(User::can('AccountsController.store_note'))
                     <a href="{{URL::to('contacts/'.$contact->ContactID.'/store_note/')}}" class="btn-danger btn-sm deleteNote entypo-cancel" id="{{$note->NoteID}}"></a>
                     @endif
-                    @if(User::checkCategoryPermission('Contacts','Edit'))
+                        @if(User::can('AccountsController.delete_note'))
                     <a href="{{URL::to('contacts/'.$contact->ContactID.'/delete_note/')}}" class="btn-default btn-sm editNote entypo-pencil" id="{{$note->NoteID}}"></a>
                     @endif
 

@@ -17,7 +17,7 @@
 
 <p style="text-align: right;">
 
-    @if( User::checkCategoryPermission('ExchangeRate','Add'))
+    @if( User::can('CurrencyConversionController.create'))
         <a href="#" id="add-new-exchangerate" class="btn btn-primary ">
             <i class="entypo-floppy"></i>
             Save

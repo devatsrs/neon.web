@@ -48,6 +48,13 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/roles/ajax_user_list/{where}', array('as' => 'ajax_group_list', 'uses' => 'RoleController@ajax_user_list'))->where('where', '(user|role|resource)');
     Route::any('/roles/ajax_role_list/{where}', array('as' => 'ajax_user_list', 'uses' => 'RoleController@ajax_role_list'))->where('where', '(user|role|resource)');
     Route::any('/roles/ajax_resource_list/{where}', array('as' => 'ajax_actions_list', 'uses' => 'RoleController@ajax_resource_list'))->where('where', '(user|role|resource)');
+	Route::any('/roles/category', "RoleController@showcategory");
+	Route::any('/roles/storecategory', "RoleController@storecategory");
+	Route::any('/roles/categoryupdate', "RoleController@categoryupdate");
+	Route::any('/roles/ajax_action_list/{where}', array('as' => 'ajax_action_list', 'uses' => 'RoleController@ajax_action_list'))->where('where', '(user|role|resource|resourcecategory)');
+	Route::any('/roles/skippermissionAction', "RoleController@skippermissionAction");
+	Route::any('/roles/storpermissionaction', "RoleController@storpermissionaction");
+
 
     //Profile
     Route::any('customer/profile', array('as' => 'profile_show', 'uses' => 'ProfileController@show'));

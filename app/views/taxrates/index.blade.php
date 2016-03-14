@@ -19,7 +19,7 @@
 
 <p style="text-align: right;">
 
-@if( User::checkCategoryPermission('TaxRates','Add') )
+@if( User::can('TaxRatesController.create') )
     <a href="#" id="add-new-taxrate" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New TaxRate
@@ -71,12 +71,12 @@ var postdata;
                          action += '<input type = "hidden"  name = "TaxType" value = "' + full[3] + '" / >';
                          action += '<input type = "hidden"  name = "FlatStatus" value = "' + full[4] + '" / >';
                          action += '</div>';
-                         <?php if(User::checkCategoryPermission('TaxRates','Edit')){ ?>
+                         if('{{User::can('TaxRatesController.update')}}'){
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-taxrate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                         <?php } ?>
-                         <?php if(User::checkCategoryPermission('TaxRates','Delete')){ ?>
+                         }
+                         if('{{User::can('TaxRatesController.delete')}}'){
                             action += ' <a data-id="'+ id +'" class="delete-taxrate btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                          <?php } ?>
+                          }
                         return action;
                       }
                   },
