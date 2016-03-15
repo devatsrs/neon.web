@@ -13,6 +13,7 @@ class AccountStatementController extends \BaseController {
         if(!empty($account->RoundChargesAmount)){
             $roundplaces = $account->RoundChargesAmount;
         }
+        $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
 
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',0)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
@@ -61,7 +62,9 @@ class AccountStatementController extends \BaseController {
                     'payments'=>$temp['payment'],
                     'PaymentDates'=>$temp['PaymentDate'],
                     'ballences'=>$temp['ballence'],
-                    'roundplaces'=>$roundplaces);
+                    'roundplaces'=>$roundplaces,
+                    'CurencySymbol'=>$CurencySymbol
+                );
             }else{
                 if($index<$countinInvoices){
                     $temp = $inInvoices[$index];
@@ -83,7 +86,8 @@ class AccountStatementController extends \BaseController {
                     'payments'=>$data['payment'],
                     'PaymentDates'=>$data['PaymentDate'],
                     'ballences'=>$data['ballence'],
-                    'roundplaces'=>$roundplaces
+                    'roundplaces'=>$roundplaces,
+                    'CurencySymbol'=>$CurencySymbol
                 );
             }
 

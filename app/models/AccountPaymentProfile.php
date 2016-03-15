@@ -140,7 +140,7 @@ class AccountPaymentProfile extends \Eloquent
                             $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$account);
                             $paymentdata['PaymentDate'] = date('Y-m-d');
                             $paymentdata['PaymentMethod'] = $transactionResponse['transaction_payment_method'];
-                            $paymentdata['Currency'] = Currency::getCurrencyCode($account->CurrencyId);
+                            $paymentdata['CurrencyID'] = $account->CurrencyId;
                             $paymentdata['PaymentType'] = 'Payment In';
                             $paymentdata['Notes'] = $transactionResponse['transaction_notes'];
                             $paymentdata['Amount'] = floatval($Invoiceid->RemaingAmount);

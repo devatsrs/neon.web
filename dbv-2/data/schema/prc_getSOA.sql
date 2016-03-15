@@ -38,7 +38,7 @@ BEGIN
             END AS dates,
             tblPayment.PaymentMethod,
             tblPayment.Amount,
-            tblPayment.Currency,
+            tblPayment.CurrencyID,
             CASE
             	WHEN (tblInvoice.ItemInvoice = 1 AND p_isExport = 1) THEN
 	                DATE_FORMAT(tblInvoice.IssueDate,'%d/%m/%Y')
@@ -63,8 +63,10 @@ BEGIN
         LEFT JOIN tblInvoiceTemplate  on tblAccount.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
         LEFT JOIN tblPayment
             ON (tblInvoice.InvoiceNumber = tblPayment.InvoiceNo OR REPLACE(tblPayment.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tblInvoice.InvoiceNumber)) ) )
-            AND tblPayment.Status = 'Approved' AND (tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+            AND tblPayment.Status = 'Approved' 
+            AND tblPayment.Recall = 0
         WHERE tblInvoice.CompanyID = p_CompanyID
+        AND ( (IFNULL(tblInvoice.InvoiceStatus,'') = '') OR  tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting'))
         AND (p_accountID = 0
         OR tblInvoice.AccountID = p_accountID)
 		AND 
@@ -88,7 +90,7 @@ BEGIN
             END AS dates,
             tblPayment.PaymentMethod,
             tblPayment.Amount,
-            tblPayment.Currency,
+            tblPayment.CurrencyID,
             '' AS dates,
 			tblPayment.PaymentDate,
 			tblPayment.PaymentDate,
@@ -106,7 +108,7 @@ BEGIN
         INNER JOIN Ratemanagement3.tblAccount
             ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.Status = 'Approved'
-        AND (tblPayment.Recall IS NULL OR tblPayment.Recall != 1)
+        AND tblPayment.Recall = 0
         AND tblPayment.AccountID = p_accountID
         AND tblPayment.CompanyID = p_CompanyID
         AND tblPayment.InvoiceNo = ''

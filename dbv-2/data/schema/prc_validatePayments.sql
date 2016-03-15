@@ -11,7 +11,7 @@ SET SESSION group_concat_max_len=5000;
 	);
 
 	INSERT INTO tmp_error_
-	SELECT  CONCAT('Duplicate Payment in file Against Account ',IFNULL(ac.AccountName,''),' Action:' ,IFNULL(pt.PaymentType,''),' Payment Date:',IFNULL(pt.PaymentDate,''),' Amount:',pt.Amount) as ErrorMessage  FROM tblTempPayment pt
+	SELECT distinct CONCAT('Duplicate payment in file - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage  FROM tblTempPayment pt
 	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
 	INNER JOIN tblTempPayment tp on tp.ProcessID = pt.ProcessID
 		AND tp.AccountID = pt.AccountID
@@ -24,8 +24,8 @@ SET SESSION group_concat_max_len=5000;
  	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount having count(*)>=2;
  	
 	INSERT INTO tmp_error_	
-	SELECT
-		CONCAT('Duplicate Payment in System Against Account ',IFNULL(ac.AccountName,''),' Action:' ,IFNULL(pt.PaymentType,''),' Payment Date:',IFNULL(pt.PaymentDate,''),' Amount:',pt.Amount) as ErrorMessage
+	SELECT DISTINCT
+		CONCAT('Duplicate payment in system - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
 	FROM tblTempPayment pt
 	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
 	INNER JOIN tblPayment p on p.CompanyID = pt.CompanyID 
@@ -35,6 +35,15 @@ SET SESSION group_concat_max_len=5000;
 		AND p.PaymentType = pt.PaymentType
 		AND p.Recall = 0
 	WHERE pt.CompanyID = p_CompanyID
+		AND pt.ProcessID = p_ProcessID;
+	
+	INSERT INTO tmp_error_	
+	SELECT DISTINCT
+		CONCAT('Future payment in Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
+	FROM tblTempPayment pt
+	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
+	WHERE pt.CompanyID = p_CompanyID
+		AND pt.PaymentDate > NOW()
 		AND pt.ProcessID = p_ProcessID;
 	
 	

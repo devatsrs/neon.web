@@ -434,10 +434,12 @@ class InvoicesController extends \BaseController {
                             //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
+                            $TaxRateTitle = 'VAT';
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
 
                                 $TaxRateId = $TaxRates['TaxRateID'];
                                 $TaxRateAmount = 0;
+                                $TaxRateTitle = $TaxRates['Title'];
                                 if (isset($TaxRates['Amount'])) {
                                     $TaxRateAmount = $TaxRates['Amount'];
                                 }
@@ -455,6 +457,7 @@ class InvoicesController extends \BaseController {
                                 "product_total_tax_rate" => $TotalTax,
                                 "sub_total" => $SubTotal,
                                 "decimal_places" => $decimal_places,
+                                "product_tax_title" => $TaxRateTitle,
                             ];
                         } else {
                             $error = "No Product Found.";
@@ -489,7 +492,7 @@ class InvoicesController extends \BaseController {
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
             $fields =["CurrencyId","Address1","Address2","Address3","City","PostCode","Country","InvoiceTemplateID"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
-            $Currency = Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
+            $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID = $Account->InvoiceTemplateID;
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
@@ -550,7 +553,8 @@ class InvoicesController extends \BaseController {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo'));
+            $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'));
         }
     }
 
@@ -654,6 +658,7 @@ class InvoicesController extends \BaseController {
                     }
                 }
             }
+
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
@@ -727,9 +732,6 @@ class InvoicesController extends \BaseController {
         }
         $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
-        foreach ($fields as $field) {
-            $$field = $Account->$field;
-        }
         if (Input::hasFile('Attachment')) {
             $upload_path = Config::get('app.upload_path');
             $Attachment = Input::file('Attachment');
@@ -747,12 +749,7 @@ class InvoicesController extends \BaseController {
         }
 
         $CreatedBy = User::get_user_full_name();
-        $Address = "";
-        $Address .= !empty($Address1)?$Address1. ','. PHP_EOL:'';
-        $Address .= !empty($Address2)?$Address2.','.PHP_EOL:'';
-        $Address .= !empty($Address3)?$Address3.','.PHP_EOL:'';
-        $Address .= !empty($City)?$City.','.PHP_EOL:'';
-        $Address .= !empty($Country)?$Country:'';
+        $Address = Account::getFullAddress($Account);
 
         $InvoiceData = array();
         $InvoiceData["CompanyID"] = $CompanyID;
@@ -803,9 +800,6 @@ class InvoicesController extends \BaseController {
         }
         $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
-        foreach ($fields as $field) {
-            $$field = $Account->$field;
-        }
         if (Input::hasFile('Attachment')) {
             $upload_path = Config::get('app.upload_path');
             $Attachment = Input::file('Attachment');
@@ -823,12 +817,7 @@ class InvoicesController extends \BaseController {
         }
 
         $CreatedBy = User::get_user_full_name();
-        $Address = "";
-        $Address .= !empty($Address1)?$Address1. ','. PHP_EOL:'';
-        $Address .= !empty($Address2)?$Address2.','.PHP_EOL:'';
-        $Address .= !empty($Address3)?$Address3.','.PHP_EOL:'';
-        $Address .= !empty($City)?$City.','.PHP_EOL:'';
-        $Address .= !empty($Country)?$Country:'';
+        $Address = Account::getFullAddress($Account);
 
         $InvoiceData = array();
         $InvoiceData["CompanyID"] = $CompanyID;
@@ -849,7 +838,7 @@ class InvoicesController extends \BaseController {
         $InvoiceDetailData['EndDate'] = $data['EndDate'].' '.$data['EndTime'];
         $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
-        $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s.000");
+        $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s");
         $InvoiceDetailData['Description'] = $data['Description'];
         $InvoiceDetailData["ModifiedBy"] = $CreatedBy;
         if(Invoice::find($id)->update($InvoiceData)) {
@@ -1191,7 +1180,7 @@ class InvoicesController extends \BaseController {
             $Account = Account::where(['AccountID'=>$AccountID])->first();
             if (count($Invoice) > 0) {
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
-                $CurrencySymbol =  Currency::getCurrencySymbol($CurrencyCode);
+                $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
                 return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode'));
             }
         }
@@ -1240,7 +1229,7 @@ class InvoicesController extends \BaseController {
                 $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$account);
                 $paymentdata['PaymentDate'] = date('Y-m-d');
                 $paymentdata['PaymentMethod'] = $response->method;
-                $paymentdata['Currency'] = Currency::getCurrencyCode($account->CurrencyId);
+                $paymentdata['CurrencyID'] = $account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
                 $paymentdata['Notes'] = $Notes;
                 $paymentdata['Amount'] = floatval($response->amount);

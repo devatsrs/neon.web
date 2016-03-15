@@ -3,7 +3,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_VendorPreferenceUpdateBySelecte
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	     
+	IF p_Preference != 0
+  THEN     
     UPDATE  tblVendorPreference v
    INNER JOIN (
     select  VendorPreferenceID,RateId from tblVendorPreference
@@ -46,7 +47,12 @@ BEGIN
          AND r.CompanyID = p_CompanyId   
       WHERE r.CompanyID = p_CompanyId       
             and cr.RateID is NULL;
-  
+  	END IF;
+  	
+	IF p_Preference = 0
+  THEN     
+  	delete  from  tblVendorPreference where AccountId = p_AccountId and TrunkID = p_TrunkId and   FIND_IN_SET (RateId,p_RateIDList) != 0 ; 
+  END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
   
 END

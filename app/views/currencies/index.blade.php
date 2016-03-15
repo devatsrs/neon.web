@@ -29,6 +29,7 @@
     <thead>
     <tr>
         <th width="30%">Currency Code</th>
+        <th width="30%">Currency Symbol</th>
         <th width="25%">Currency Description</th>
         <th width="25%">Action</th>
     </tr>
@@ -59,14 +60,16 @@ var postdata;
              "aoColumns":
             [
                 {  "bSortable": true },  //0  CurrencyCode', '', '', '
+                {  "bSortable": true },  //0  Currency Symbol', '', '', '
                 {  "bSortable": true }, //1   CurrencyDescription
                 {                       //3  CurrencyID
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_;
                          action = '<div class = "hiddenRowData" >';
-                         action += '<input type = "hidden"  name = "Code" value = "' + full[0] + '" / >';
-                         action += '<input type = "hidden"  name = "Description" value = "' + full[1] + '" / ></div>';
+                         action += '<input type = "hidden"  name = "Code" value = "' + (full[0] != null ? full[0] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "Symbol" value = "' + (full[1] != null ? full[1] : '') + '" / >';
+                         action += '<input type = "hidden"  name = "Description" value = "' + (full[2] != null ? full[2] : '') + '" / ></div>';
                          <?php if(User::checkCategoryPermission('Currency','Edit') ){ ?>
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-currency btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                          <?php } ?>   
@@ -126,6 +129,7 @@ var postdata;
     $('#add-new-currency').click(function(ev){
         ev.preventDefault();
         $('#add-new-currency-form').trigger("reset");
+        $("#add-new-currency-form [name='Code']").removeAttr('readonly')
         $("#add-new-currency-form [name='CurrencyID']").val('')
         $('#add-new-modal-currency h4').html('Add New Currency');
         $('#add-new-modal-currency').modal('show');
@@ -137,8 +141,11 @@ var postdata;
 
         Code = $(this).prev("div.hiddenRowData").find("input[name='Code']").val();
         Description = $(this).prev("div.hiddenRowData").find("input[name='Description']").val();
+        Symbol = $(this).prev("div.hiddenRowData").find("input[name='Symbol']").val();
 
         $("#add-new-currency-form [name='Code']").val(Code);
+        $("#add-new-currency-form [name='Code']").attr('readonly',true);
+        $("#add-new-currency-form [name='Symbol']").val(Symbol);
         $("#add-new-currency-form [name='Description']").val(Description);
         $("#add-new-currency-form [name='CurrencyID']").val($(this).attr('data-id'));
         $('#add-new-modal-currency h4').html('Edit Currency');
@@ -213,8 +220,14 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Currency Code</label>
-                                <input type="text" name="Code" class="form-control" id="field-5" placeholder="">
+                                <input type="text"   name="Code" class="form-control" id="field-5" placeholder="">
                              </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Currency Symbol</label>
+                                <input type="text" name="Symbol" class="form-control" id="field-5" placeholder="">
+                            </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">

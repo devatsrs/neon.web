@@ -99,8 +99,8 @@ class ProfileController extends \BaseController {
         $account = Account::find($id);
         $companyID = User::get_companyID();
         $outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,$account->RoundChargesAmount);
-        $currency = Currency::getCurrency($account->CurrencyId);
-        $outstandingtext = $outstanding . ' ' . $currency;
+        $currency = Currency::getCurrencySymbol($account->CurrencyId);
+        $outstandingtext = $currency.$outstanding;
         echo json_encode(array("status" => "success", "message" => "","outstanding"=>$outstanding,"outstadingtext"=>$outstandingtext));
     }
 

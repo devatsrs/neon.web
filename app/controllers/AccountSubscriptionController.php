@@ -7,7 +7,7 @@ class AccountSubscriptionController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate","tblAccountSubscription.EndDate","tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax"];
+        $select = ["tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax"];
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
@@ -16,7 +16,11 @@ class AccountSubscriptionController extends \BaseController {
             $subscriptions->where('tblAccountSubscription.InvoiceDescription','Like','%'.trim($data['SubscriptionInvoiceDescription']).'%');
         }
         if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
-            $subscriptions->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));
+            $subscriptions->where(function($query){
+                $query->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));
+                $query->orwhere('tblAccountSubscription.EndDate','=','0000-00-00');
+            });
+
         }elseif(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'false'){
             $subscriptions->where('tblAccountSubscription.EndDate','<',date('Y-m-d'));
         }
@@ -46,7 +50,7 @@ class AccountSubscriptionController extends \BaseController {
             'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
             'StartDate'               =>'required',
-            'EndDate'               =>'required'
+            //'EndDate'               =>'required'
         );
         $validator = Validator::make($data, $rules);
         $validator->setPresenceVerifier($verifier);
@@ -80,7 +84,7 @@ class AccountSubscriptionController extends \BaseController {
                 'AccountID' => 'required',
                 'SubscriptionID' => 'required',
                 'StartDate' => 'required',
-                'EndDate' => 'required'
+                //'EndDate' => 'required'
             );
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);

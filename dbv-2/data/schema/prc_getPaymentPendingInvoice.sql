@@ -14,6 +14,7 @@ BEGIN
 		ON p.AccountID = i.AccountID
 		AND REPLACE(p.InvoiceNo,'-','') = (CONCAT( ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(i.InvoiceNumber)) )) AND P.Status = 'Approved' AND p.AccountID = i.AccountID
 		AND p.Status = 'Approved'
+		AND p.Recall = 0
 	WHERE i.CompanyID = p_CompanyID
 	AND i.InvoiceStatus != 'cancel'
 	AND i.AccountID = p_AccountID

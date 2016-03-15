@@ -5,7 +5,7 @@ CREATE TABLE `tblPayment` (
   `InvoiceNo` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   `PaymentDate` datetime NOT NULL,
   `PaymentMethod` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-  `Currency` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `CurrencyID` int(11) NOT NULL,
   `PaymentType` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
   `Notes` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Amount` decimal(18,8) NOT NULL,
@@ -15,9 +15,10 @@ CREATE TABLE `tblPayment` (
   `ModifyBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `PaymentProof` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Recall` int(11) DEFAULT '0',
-  `RecallReasoan` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `RecallBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Recall` tinyint(4) NOT NULL DEFAULT '0',
+  `RecallReasoan` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
+  `RecallBy` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `BulkUpload` bit(1) DEFAULT b'0',
   PRIMARY KEY (`PaymentID`),
   KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`Status`,`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
