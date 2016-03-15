@@ -216,15 +216,13 @@ class Payment extends \Eloquent {
                         'Status' => $PaymentStatus,
                         'Amount' => trim($row[$selection['Amount']])
                     );
-                    if(isset($selection['InvoiceNo'])) {
-                        if (!empty($row[$selection['InvoiceNo']])) {
-                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                        }
+
+                    if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
+                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
                     }
-                    if(isset($selection['Notes'])) {
-                        if (!empty($row[$selection['Notes']])) {
-                            $temp['Notes'] = trim($row[$selection['Notes']]);
-                        }
+
+                    if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
+                        $temp['Notes'] = trim($row[$selection['Notes']]);
                     }
                     $batch_insert[] = $temp;
                 }
