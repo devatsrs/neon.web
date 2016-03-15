@@ -4,7 +4,7 @@ BEGIN
 	
 	DECLARE v_UserName varchar(30);
  	
- 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from LocalRatemanagement.tblUser u where u.UserID=p_UserID;
  	
  	INSERT INTO tblPayment (
 	 		CompanyID,
@@ -43,9 +43,16 @@ BEGIN
 			 '' as RecallBy,
 			 1 as BulkUpload
 	from tblTempPayment tp
-	INNER JOIN Ratemanagement3.tblAccount ac 
+	INNER JOIN LocalRatemanagement.tblAccount ac 
 		ON  ac.AccountID = tp.AccountID
 	where tp.ProcessID = p_ProcessID
 			AND tp.PaymentDate <= NOW()
 			AND tp.CompanyID = p_CompanyID;
+			
+			
+
+   /* Delete tmp table */		
+	delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+	
+			
 END
