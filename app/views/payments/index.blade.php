@@ -42,16 +42,16 @@
             </div>
             <!--payment date start -->
             <div class="form-group">
-              <label class="col-sm-2 control-label" for="PaymentDate_StartDate">Payment Start Date</label>
+              <label class="col-sm-1 control-label" for="PaymentDate_StartDate">Start Date</label>
               <div class="col-sm-2">
-                <input type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
               </div>
               <div class="col-sm-2">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
               </div>
-              <label class="col-sm-2 control-label" for="PaymentDate_EndDate">Payment End Date</label>
+              <label  class="col-sm-1 control-label" for="PaymentDate_EndDate">End Date</label>
               <div class="col-sm-2">
-                <input type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
               <div class="col-sm-2">
                 <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
@@ -173,6 +173,7 @@
                 <button id="payments-upload" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
               </p>
             </div>
+
           </div>
         </form>
       </div>
@@ -217,7 +218,7 @@
                                     {"name": "type","value": $searchFilter.type},
                                     {"name": "paymentmethod","value": $searchFilter.paymentmethod},
                                     {"name": "recall_on_off","value": $searchFilter.recall_on_off},
-									{"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},									
+									{"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime}
@@ -231,7 +232,7 @@
                                     {"name": "type","value": $searchFilter.type},
                                     {"name": "paymentmethod","value": $searchFilter.paymentmethod},
                                     {"name": "recall_on_off","value": $searchFilter.recall_on_off},
-									{"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},									
+									{"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
@@ -260,7 +261,7 @@
                                 mRender: function (id, type, full) {
                                     var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
                                     a = a.toString();
-                                    return a + ' ' + full[5]
+                                    return full[16]
                                 }
                             },
                             {
@@ -367,7 +368,11 @@
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-                            $("#view-modal-payment [name='"+list_fields[i]+"']").text(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            if(list_fields[i] == 'Amount'){
+                                $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
+                            }else {
+                                $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='" + list_fields[i] + "']").val());
+                            }
                         }
 
                         $('#view-modal-payment h4').html('View Payment');
@@ -574,21 +579,22 @@
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
                         var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
-                        $.get( url, function( Currency ) {
-                            $("#currency").text('('+Currency+')');
-                            $("#add-edit-payment-form [name='Currency']").val(Currency);
-                        });
+                        if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
+                            $.get(url, function (Currency) {
+                                $("#currency").text('(' + Currency + ')');
+                            });
+                        }
                     });
 
                     $('#add-new-payment').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
                         $("#add-edit-payment-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-payment-form [name='Currency']").val('');
                         $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
+                        $('.file-input-name').text('');
                         $('#add-edit-modal-payment').modal('show');
                     });
 
@@ -746,7 +752,7 @@
                     $searchFilter.type = $("#payment-table-search select[name='type']").val();
                     $searchFilter.paymentmethod = $("#payment-table-search select[name='paymentmethod']").val();
 					$searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
-					$searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();						
+					$searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
 					$searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
 					$searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
                     if($("#payment-table-search select[name='recall_on_off']")) {
@@ -828,6 +834,7 @@
 @stop
 @section('footer_ext')
     @parent
+<<<<<<< HEAD
 <div class="modal fade" id="add-edit-modal-payment">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -888,6 +895,154 @@
                 <div class="col-sm-6">
                   <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+=======
+    <div class="modal fade" id="add-edit-modal-payment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-edit-payment-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New payment Request</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Account Name * </label>
+                                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                                    <input type="hidden" name="AccountName" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Payment Date *</label>
+                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-enddate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Payment Method *</label>
+                                    {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Action *</label>
+                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Amount *<span id="currency"></span></label>
+                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+                                    <input type="hidden" name="PaymentID" >
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Invoice</label>
+                                    <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Notes</label>
+                                    <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
+                                    <input type="hidden" name="PaymentID" >
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+                                    <div class="col-sm-6">
+                                        <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="view-modal-payment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">View Payment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Name</label>
+                                <div class="col-sm-12" name="AccountName"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Invoice</label>
+                                <div class="col-sm-12" name="InvoiceNo"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Payment Date</label>
+                                <div class="col-sm-12" name="PaymentDate"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Payment Method</label>
+                                <div class="col-sm-12" name="PaymentMethod"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Action</label>
+                                <div class="col-sm-12" name="PaymentType"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Amount</label>
+                                <div class="col-sm-12" name="Amount"></div>
+                                <input type="hidden" name="PaymentID" >
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Notes</label>
+                                <div class="col-sm-12" name="Notes"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Recall Reasoan</label>
+                                <div class="col-sm-12" name="RecallReasoan"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Recall By</label>
+                                <div class="col-sm-12" name="RecallBy"></div>
+                            </div>
+                        </div>
+                    </div>
+>>>>>>> 43f38763447bc23a030e050c27c9907c46742187
                 </div>
               </div>
             </div>
