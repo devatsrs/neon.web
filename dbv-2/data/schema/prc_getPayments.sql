@@ -1,9 +1,13 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_isExport` INT )
 BEGIN
+		
+    	DECLARE v_OffSet_ int;
+    	DECLARE v_Round_ int;
+    	
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+     
+		SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
-
-     DECLARE v_OffSet_ int;
-     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -14,13 +18,13 @@ BEGIN
             tblPayment.PaymentID,
             tblAccount.AccountName,
             tblPayment.AccountID,
-            tblPayment.Amount,
+            ROUND(tblPayment.Amount,v_Round_) AS Amount,
             CASE WHEN p_isCustomer = 1 THEN
               CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
               END
             ELSE  PaymentType
             END as PaymentType,
-            tblPayment.Currency,
+            tblPayment.CurrencyID,
             tblPayment.PaymentDate,
             tblPayment.Status,
             tblPayment.CreatedBy,
@@ -31,10 +35,10 @@ BEGIN
             tblPayment.Recall,
             tblPayment.RecallReasoan,
             tblPayment.RecallBy,
-            CONCAT(tblCurrency.Symbol,tblPayment.Amount) as AmountWithSymbol
+            CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(tblPayment.Amount,v_Round_)) as AmountWithSymbol
             from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
-            LEFT JOIN Ratemanagement3.tblCurrency ON tblPayment.Currency = tblCurrency.Code
+            LEFT JOIN Ratemanagement3.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -60,12 +64,6 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountASC') THEN Amount
-                END ASC,
-				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CurrencyDESC') THEN Currency
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CurrencyASC') THEN Currency
                 END ASC,
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentTypeDESC') THEN PaymentType
@@ -111,21 +109,21 @@ BEGIN
 
 		SELECT 
             AccountName,
-            Amount,
+            CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
             CASE WHEN p_isCustomer = 1 THEN
               CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
               END
             ELSE  PaymentType
             END as PaymentType,
-            Currency,
             PaymentDate,
             tblPayment.Status,
-            CreatedBy,
+            tblPayment.CreatedBy,
             InvoiceNo,
             tblPayment.PaymentMethod,
             Notes 
 			from tblPayment
             left join Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            LEFT JOIN Ratemanagement3.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)

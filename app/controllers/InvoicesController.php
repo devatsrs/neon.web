@@ -675,9 +675,6 @@ class InvoicesController extends \BaseController {
         }
         $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
-        foreach ($fields as $field) {
-            $$field = $Account->$field;
-        }
         if (Input::hasFile('Attachment')) {
             $upload_path = Config::get('app.upload_path');
             $Attachment = Input::file('Attachment');
@@ -695,12 +692,7 @@ class InvoicesController extends \BaseController {
         }
 
         $CreatedBy = User::get_user_full_name();
-        $Address = "";
-        $Address .= !empty($Address1)?$Address1. ','. PHP_EOL:'';
-        $Address .= !empty($Address2)?$Address2.','.PHP_EOL:'';
-        $Address .= !empty($Address3)?$Address3.','.PHP_EOL:'';
-        $Address .= !empty($City)?$City.','.PHP_EOL:'';
-        $Address .= !empty($Country)?$Country:'';
+        $Address = Account::getFullAddress($Account);
 
         $InvoiceData = array();
         $InvoiceData["CompanyID"] = $CompanyID;
@@ -751,9 +743,6 @@ class InvoicesController extends \BaseController {
         }
         $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
-        foreach ($fields as $field) {
-            $$field = $Account->$field;
-        }
         if (Input::hasFile('Attachment')) {
             $upload_path = Config::get('app.upload_path');
             $Attachment = Input::file('Attachment');
@@ -771,12 +760,7 @@ class InvoicesController extends \BaseController {
         }
 
         $CreatedBy = User::get_user_full_name();
-        $Address = "";
-        $Address .= !empty($Address1)?$Address1. ','. PHP_EOL:'';
-        $Address .= !empty($Address2)?$Address2.','.PHP_EOL:'';
-        $Address .= !empty($Address3)?$Address3.','.PHP_EOL:'';
-        $Address .= !empty($City)?$City.','.PHP_EOL:'';
-        $Address .= !empty($Country)?$Country:'';
+        $Address = Account::getFullAddress($Account);
 
         $InvoiceData = array();
         $InvoiceData["CompanyID"] = $CompanyID;
@@ -797,7 +781,7 @@ class InvoicesController extends \BaseController {
         $InvoiceDetailData['EndDate'] = $data['EndDate'].' '.$data['EndTime'];
         $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
-        $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s.000");
+        $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s");
         $InvoiceDetailData['Description'] = $data['Description'];
         $InvoiceDetailData["ModifiedBy"] = $CreatedBy;
         if(Invoice::find($id)->update($InvoiceData)) {
@@ -1188,7 +1172,7 @@ class InvoicesController extends \BaseController {
                 $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$account);
                 $paymentdata['PaymentDate'] = date('Y-m-d');
                 $paymentdata['PaymentMethod'] = $response->method;
-                $paymentdata['Currency'] = Currency::getCurrencyCode($account->CurrencyId);
+                $paymentdata['CurrencyID'] = $account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
                 $paymentdata['Notes'] = $Notes;
                 $paymentdata['Amount'] = floatval($response->amount);
