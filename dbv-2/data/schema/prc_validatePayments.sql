@@ -11,7 +11,7 @@ SET SESSION group_concat_max_len=5000;
 	);
 
 	INSERT INTO tmp_error_
-	SELECT distinct CONCAT('Duplicate payment in file - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount,' Notes: ',pt.Notes) as ErrorMessage  
+	SELECT distinct CONCAT('Duplicate payment in file - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage  
 	FROM tblTempPayment pt
 	INNER JOIN LocalRatemanagement.tblAccount ac on ac.AccountID = pt.AccountID
 	INNER JOIN tblTempPayment tp on tp.ProcessID = pt.ProcessID
@@ -20,10 +20,9 @@ SET SESSION group_concat_max_len=5000;
 		AND tp.Amount = pt.Amount
 		AND tp.PaymentType = pt.PaymentType
 		AND tp.PaymentMethod = pt.PaymentMethod
-		AND tp.Notes = pt.Notes
 	WHERE pt.CompanyID = p_CompanyID
 		AND pt.ProcessID = p_ProcessID
- 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount,pt.Notes having count(*)>=2;
+ 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount having count(*)>=2;
  	
 	INSERT INTO tmp_error_	
 	SELECT DISTINCT
