@@ -109,6 +109,7 @@ class PaymentsController extends \BaseController {
                 $data['Subject']= 'Payment verification';
                 $save['AccountName'] = $AccountName;
                 $data['data'] = $save;
+                $data['data']['Currency'] = Currency::getCurrencyCode($data['data']['CurrencyID']);
                 //$billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->where('Roles', 'like', '%Billing Admin%')->get(['EmailAddress']);
                 $resource = DB::table('tblResourceCategories')->select('ResourceCategoryID')->where([ "ResourceCategoryName"=>'BillingAdmin',"CompanyID" => $companyID])->first();
                 $userid=[];
@@ -229,7 +230,7 @@ class PaymentsController extends \BaseController {
                         $emaildata['Subject'] = 'Payment '.$save['Status'].' '.$managerinfo->AccountName;
                         $save['Amount'] = $Payment->Amount;
                         $save['PaymentType'] = $Payment->PaymentType;
-                        $save['Currency'] = $Payment->Currency;
+                        $save['Currency'] = Currency::getCurrencyCode($Payment->CurrencyID);
                         $save['PaymentDate'] = $Payment->PaymentDate;
                         $save['Notes'] = $Payment->Notes;
                         $save['AccountName'] = $managerinfo->AccountName;
@@ -354,7 +355,9 @@ class PaymentsController extends \BaseController {
         $file_name = basename($data['TemplateFile']);
         $temp_path = getenv('TEMP_PATH').'/' ;
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
-
+        if(JobType::checkJobType('PU') == 0){
+            return Response::json(array("status" => "failure", "message" => "Job Type not Defined."));
+        }
         $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
 
@@ -377,9 +380,35 @@ class PaymentsController extends \BaseController {
             }
             $data['PaymentUploadTemplateID'] = $template->PaymentUploadTemplateID;
         }
+        $fullPath = $amazonPath . $file_name;
+        $jobType = JobType::where(["Code" => 'PU'])->get(["JobTypeID", "Title"]);
+
+        $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+        $jobdata["CompanyID"] = $CompanyID;
+        $jobdata["JobTypeID"] = !empty($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+        $jobdata["JobStatusID"] = !empty($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+        $jobdata["JobLoggedUserID"] = User::get_userID();
+        $jobdata["Title"] =  (!empty($jobType[0]->Title) ? $jobType[0]->Title : '');
+        $jobdata["Description"] = !empty($jobType[0]->Title) ? $jobType[0]->Title : '';
+        $jobdata["CreatedBy"] = User::get_user_full_name();
+        $jobdata["Options"] = json_encode($data);
+        $jobdata["updated_at"] = date('Y-m-d H:i:s');
+        $JobID = Job::insertGetId($jobdata);
+
+        $jobfiledata["JobID"] = $JobID;
+        $jobfiledata["FileName"] = basename($fullPath);
+        $jobfiledata["FilePath"] = $fullPath;
+        $jobfiledata["HttpPath"] = 0;
+        $jobfiledata["CreatedBy"] = User::get_user_full_name();
+        $jobfiledata["updated_at"] = date('Y-m-d H:i:s');
+        $JobFileID = JobFile::insertGetId($jobfiledata);
         $UserID = User::get_userID();
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
         $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+        $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
+        $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
+        $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
+        Job::where(["JobID" => $JobID])->update($jobupdatedata);
         if($result){
             return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }else{

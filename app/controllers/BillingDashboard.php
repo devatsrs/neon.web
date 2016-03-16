@@ -65,11 +65,16 @@ class BillingDashboard extends \BaseController {
         }else if($data['PinExt'] == 'extension'){
             $report_label = 'Extension Cost';
         }
+        $CurrencySymbol = $CurrencyID = "";
+        if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
+            $CurrencyID = $data["CurrencyID"];
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
+        }
 
-        $query = "call prc_getDashBoardPinCodes ('". $companyID  . "',  '". $data['Startdate']  . "','". $data['Enddate']  . "','".$data['AccountID']."','". $data['Type']  . "','". $data['Limit']  . "','". $data['PinExt']. "')";
+        $query = "call prc_getDashBoardPinCodes ('". $companyID  . "',  '". $data['Startdate']  . "','". $data['Enddate']  . "','".$data['AccountID']."','". $data['Type']  . "','". $data['Limit']  . "','". $data['PinExt']. "','".intval($CurrencyID)."')";
         $top_pincode_data = DB::connection('sqlsrv2')->select($query);
 
-        return View::make('billingdashboard.pin_expense_chart',compact('top_pincode_data','report_label','report_header','data'));
+        return View::make('billingdashboard.pin_expense_chart',compact('top_pincode_data','report_label','report_header','data','CurrencySymbol'));
     }
     public function ajaxgrid_top_pincode(){
         $data = Input::all();
@@ -80,7 +85,11 @@ class BillingDashboard extends \BaseController {
         $data['Enddate'] = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPincodesGrid (".$companyID.",'".$data['Pincode']."','".$data['PinExt']."','".$data['Startdate']."','".$data['Enddate']."','".$data['AccountID']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $CurrencyID = "0";
+        if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
+            $CurrencyID = $data["CurrencyID"];
+        }
+        $query = "call prc_getPincodesGrid (".$companyID.",'".$data['Pincode']."','".$data['PinExt']."','".$data['Startdate']."','".$data['Enddate']."','".$data['AccountID']."','".intval($CurrencyID)."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

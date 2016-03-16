@@ -51,6 +51,12 @@ class Payment extends \Eloquent {
                 return $valid;
             }
         }*/
+        $data['CurrencyID'] = '';
+        $Account = Account::find($data['AccountID']);
+        if(!empty($Account)){
+            $data['CurrencyID'] = $Account->CurrencyId;
+
+        }
         if(isset($data['AccountID']) && trim($data['AccountID']) == '' ) {
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Account Name from dropdown"));
             return $valid;
@@ -63,7 +69,7 @@ class Payment extends \Eloquent {
         }elseif(isset($data['PaymentType'])&& trim($data['PaymentType']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Payment Type from dropdown"));
             return $valid;
-        }elseif(isset($data['Currency'])&& trim($data['Currency']) == ''){
+        }elseif(isset($data['CurrencyID'])&& trim($data['CurrencyID']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please set Currency in setting"));
             return $valid;
         }elseif(isset($data['Amount'])&& trim($data['Amount']) == ''){
@@ -74,6 +80,9 @@ class Payment extends \Eloquent {
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Status from dropdown"));
                 return $valid;
             }
+        }elseif(date('Y-m-d',strtotime($data['PaymentDate'])) >  date('Y-m-d')){
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "Future payments not allowed"));
+            return $valid;
         }
         if (Input::hasFile('PaymentProof')){
             $upload_path = Config::get('app.payment_proof_path');
@@ -124,7 +133,7 @@ class Payment extends \Eloquent {
         $selection = $data['selection'];
         $file = $data['TemplateFile'];
         $CompanyID = User::get_companyID();
-        $where = ['CompanyId'=>$CompanyID];
+        $where = ['CompanyId'=>$CompanyID,"AccountType"=>1];
         if(User::is("AccountManager") ){
             $where['Owner']=User::get_userID();
         }
@@ -207,15 +216,13 @@ class Payment extends \Eloquent {
                         'Status' => $PaymentStatus,
                         'Amount' => trim($row[$selection['Amount']])
                     );
-                    if(isset($selection['InvoiceNo'])) {
-                        if (!empty($row[$selection['InvoiceNo']])) {
-                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                        }
+
+                    if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
+                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
                     }
-                    if(isset($selection['Notes'])) {
-                        if (!empty($row[$selection['Notes']])) {
-                            $temp['Notes'] = trim($row[$selection['Notes']]);
-                        }
+
+                    if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
+                        $temp['Notes'] = trim($row[$selection['Notes']]);
                     }
                     $batch_insert[] = $temp;
                 }
