@@ -46,10 +46,12 @@
                                 <div class="col-sm-2">
                                     <input class="form-control" name="opportunityName"  type="text" >
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label">Account Owner</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
-                                </div>
+                                @if(User::is_admin())
+                                    <label for="field-1" class="col-sm-2 control-label">Account Owner</label>
+                                    <div class="col-sm-2">
+                                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                                    </div>
+                                @endif
                                 <label for="field-1" class="col-sm-2 control-label">Company</label>
                                 <div class="col-sm-2">
                                     {{Form::select('AccountID',$leads,Input::get('AccountID'),array("class"=>"select2"))}}

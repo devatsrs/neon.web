@@ -1,5 +1,6 @@
 <?php
 
+
 class OpportunityBoardController extends \BaseController {
 
     var $model = 'OpportunityBoard';
@@ -14,16 +15,11 @@ class OpportunityBoardController extends \BaseController {
     public function ajax_datagrid(){
         $companyID = User::get_companyID();
         $data = Input::all();
-        $select = ['OpportunityBoardName' ,'Status','CreatedBy','OpportunityBoardID'];
-        $OpportunityBoard = OpportunityBoard::select($select)->where(['CompanyID'=>$companyID]);
-
-        if($data['Active'] != '' ) {
-            $OpportunityBoard->where('Status', $data['Active']);
-        }
-        if(trim($data['OpportunityBoardName']) != '') {
-            $OpportunityBoard->where('OpportunityBoardName', 'like','%'.trim($data['OpportunityBoardName']).'%');
-        }
-        return Datatables::of($OpportunityBoard)->make();
+        $data['iDisplayStart'] +=1;
+        //unset($data['iDisplayStart']);// +=1;
+        //unset($data['iDisplayLength']);
+        $response = NeonAPI::request('opportunityboard/get_boards',$data,false);
+        return json_response_api($response);
     }
 
 
@@ -40,7 +36,14 @@ class OpportunityBoardController extends \BaseController {
     public function manage($id){
         $OpportunityBoard = OpportunityBoard::find($id);
         $account_owners = User::getOwnerUsersbyRole();
-        $leads = Lead::getLeadList();
+        $where['Status']=1;
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+        $leads = Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($leads)){
+            $leads = array(""=> "Select a Company")+$leads;
+        }
         $boards = OpportunityBoard::getBoards();
         $tags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         return View::make('opportunityboards.manage', compact('id','OpportunityBoard','account_owners','leads','boards','tags'));
@@ -55,24 +58,11 @@ class OpportunityBoardController extends \BaseController {
     public function create(){
 
         $data = Input::all();
-        $companyID = User::get_companyID();
-        $data ["CompanyID"] = $companyID;
-        $rules = array(
-            'CompanyID' => 'required',
-            'OpportunityBoardName' => 'required',
-        );
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        $data['Status'] = isset($data['Status']) ? 1 : 0;
-        $data["CreatedBy"] = User::get_user_full_name();
-        unset($data['OpportunityBoardID']);
-        if (OpportunityBoard::create($data)) {
+        $response = NeonAPI::request('opportunityboard/add_board',$data);
+        if($response->status_code==200){
             return Response::json(array("status" => "success", "message" => "Opportunity Board Successfully Created"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Opportunity Board."));
+        }else{
+            return Response::json(array("status" => "failed", "message" => $response->message));
         }
     }
 
@@ -88,25 +78,11 @@ class OpportunityBoardController extends \BaseController {
     {
         if( $id > 0 ) {
             $data = Input::all();
-            $OpportunityBoard = OpportunityBoard::findOrFail($id);
-
-            $companyID = User::get_companyID();
-            $data["CompanyID"] = $companyID;
-            $data['Status'] = isset($data['Status']) ? 1 : 0;
-            $data["ModifiedBy"] = User::get_user_full_name();
-            $rules = array(
-                'CompanyID' => 'required',
-                'OpportunityBoardName' => 'required',
-            );
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            if ($OpportunityBoard->update($data)) {
-                return Response::json(array("status" => "success", "message" => "OpportunityBoard Successfully Updated"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating OpportunityBoard."));
+            $response = NeonAPI::request('opportunityboard/'.$id.'/update_board',$data);
+            if($response->status_code==200){
+                return Response::json(array("status" => "success", "message" => "Opportunity Board Successfully Updated"));
+            }else{
+                return Response::json(array("status" => "failed", "message" => $response->message));
             }
         }else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating OpportunityBoard."));

@@ -115,11 +115,15 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function (response) {
-                        $('#deals-dashboard').empty();
-                        $(response).each(function(i,item){
-                            $('#deals-dashboard').append(builditem(item));
-                            initdrageable();
-                        });
+                        if(!response.status) {
+                            $('#deals-dashboard').empty();
+                            $(response).each(function (i, item) {
+                                $('#deals-dashboard').append(builditem(item));
+                                initdrageable();
+                            });
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
                     },
                     // Form data
                     //data: {},

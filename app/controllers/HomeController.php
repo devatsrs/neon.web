@@ -159,7 +159,7 @@ class HomeController extends BaseController {
                 }
             }
             //if Normal User
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ))) {
+            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login()) {
                 User::setUserPermission();
                 $redirect_to = URL::to($this->dashboard_url);
                 if(isset($data['redirect_to'])){
@@ -168,6 +168,8 @@ class HomeController extends BaseController {
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {
+                Session::flush();
+                Auth::logout();
                 echo json_encode(array("login_status" => "invalid"));
                 return;
             }

@@ -12,6 +12,32 @@ function json_validator_response($validator){
 
 }
 
+function json_response_api($response){
+    $errors = '';
+    if(is_array($response)){
+        $response = (object)$response;
+    }
+    if(isset($response->status_code)) {
+        if ($response->status_code == 200) {
+            if (isset($response->data)) {
+                return json_encode($response->data->result);
+            } else {
+                return Response::json(array("status" => "success", "message" => $response->message));
+            }
+        } elseif ($response->status_code == 432) {
+            $validator = json_decode($response->message, true);
+            if (count($validator) > 0) {
+                foreach ($validator as $index => $error) {
+                    $errors .= $error[0] . "<br>";
+                }
+            }
+        }
+    }else{
+        $errors = $response->message;
+    }
+    return  Response::json(array("status" => "failed", "message" => $errors));
+}
+
 function validator_response($validator){
 
 
@@ -718,7 +744,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
 function validfilepath($path){
     $path = AmazonS3::unSignedUrl($path);
     if (!is_numeric(strpos($path, "https://"))) {
-        $path = str_replace('/', '\\', $path);
+        //$path = str_replace('/', '\\', $path);
         if (copy($path, './uploads/' . basename($path))) {
             $path = URL::to('/') . '/uploads/' . basename($path);
         }
@@ -728,4 +754,12 @@ function validfilepath($path){
 function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
+}
+
+function getUploadedFileRealPath($files){
+    $realPaths = [];
+    foreach ($files as $file) {
+        $realPaths[] = '@'.$file->getRealPath().';filename='.$file->getClientOriginalName();
+    }
+    return $realPaths;
 }
