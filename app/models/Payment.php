@@ -133,7 +133,7 @@ class Payment extends \Eloquent {
         $selection = $data['selection'];
         $file = $data['TemplateFile'];
         $CompanyID = User::get_companyID();
-        $where = ['CompanyId'=>$CompanyID];
+        $where = ['CompanyId'=>$CompanyID,"AccountType"=>1];
         if(User::is("AccountManager") ){
             $where['Owner']=User::get_userID();
         }
