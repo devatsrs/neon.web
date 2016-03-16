@@ -133,7 +133,7 @@ class Payment extends \Eloquent {
         $selection = $data['selection'];
         $file = $data['TemplateFile'];
         $CompanyID = User::get_companyID();
-        $where = ['CompanyId'=>$CompanyID];
+        $where = ['CompanyId'=>$CompanyID,"AccountType"=>1];
         if(User::is("AccountManager") ){
             $where['Owner']=User::get_userID();
         }
@@ -216,16 +216,13 @@ class Payment extends \Eloquent {
                         'Status' => $PaymentStatus,
                         'Amount' => trim($row[$selection['Amount']])
                     );
+
                     if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
-                        //if (!empty($row[$selection['InvoiceNo']])) {
-                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                        //}
+                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
                     }
 
                     if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
-                        //if (!empty($row[$selection['Notes']])) {
-                            $temp['Notes'] = trim($row[$selection['Notes']]);
-                        //}
+                        $temp['Notes'] = trim($row[$selection['Notes']]);
                     }
                     $batch_insert[] = $temp;
                 }
