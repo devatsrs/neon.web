@@ -9,6 +9,14 @@ SET SESSION group_concat_max_len=5000;
 	CREATE TEMPORARY TABLE tmp_error_(
 		`ErrorMessage` VARCHAR(500)
 	);
+	
+		INSERT INTO tmp_error_	
+	SELECT DISTINCT CONCAT('Future payments will not be uploaded - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
+	FROM tblTempPayment pt
+	INNER JOIN LocalRatemanagement.tblAccount ac on ac.AccountID = pt.AccountID
+	WHERE pt.CompanyID = p_CompanyID
+		AND pt.PaymentDate > NOW()
+		AND pt.ProcessID = p_ProcessID;
 
 	INSERT INTO tmp_error_
 	SELECT distinct CONCAT('Duplicate payment in file - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage  
@@ -36,15 +44,6 @@ SET SESSION group_concat_max_len=5000;
 		AND p.PaymentType = pt.PaymentType
 		AND p.Recall = 0
 	WHERE pt.CompanyID = p_CompanyID
-		AND pt.ProcessID = p_ProcessID;
-	
-	INSERT INTO tmp_error_	
-	SELECT DISTINCT
-		CONCAT('Future payment in Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
-	FROM tblTempPayment pt
-	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
-	WHERE pt.CompanyID = p_CompanyID
-		AND pt.PaymentDate > NOW()
 		AND pt.ProcessID = p_ProcessID;
 	
 	
