@@ -39,12 +39,14 @@ class NeonAPI extends \Eloquent {
 
     }
     protected static function setToken($api_token){
-        $UserID =  User::get_userID();
-        User::where(array('UserID'=>$UserID))->update(array('api_token'=>$api_token));
+        //$UserID =  User::get_userID();
+        Session::set("api_token", $api_token);
+        //User::where(array('UserID'=>$UserID))->update(array('api_token'=>$api_token));
     }
     protected static function getToken(){
-        $UserID =  User::get_userID();
-        $api_token = User::where(array('UserID'=>$UserID))->pluck('api_token');
+        //$UserID =  User::get_userID();
+        //$api_token = User::where(array('UserID'=>$UserID))->pluck('api_token');
+        $api_token = Session::get("api_token");
         return $api_token;
     }
     public static function postrequest($call_method,$post_data=array()){
