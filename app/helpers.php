@@ -717,3 +717,38 @@ function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
 }
+function parse_reponse($response){
+    $response = json_decode($response);
+    if($response->status_code == 200){
+        return $response;
+    }elseif($response->status_code == 401 && $response->message == 'Token has expired'){
+        Session::flush();
+        Auth::logout();
+        return Redirect::to('/login')->with('message', 'Your are now logged out!');
+    }
+}
+function json_response_api($response){
+    $errors = '';
+    if(is_array($response)){
+        $response = (object)$response;
+    }
+    if(isset($response->status_code)) {
+        if ($response->status_code == 200) {
+            if (isset($response->data)) {
+                return json_encode($response->data->result);
+            } else {
+                return Response::json(array("status" => "success", "message" => $response->message));
+            }
+        } elseif ($response->status_code == 432) {
+            $validator = json_decode($response->message, true);
+            if (count($validator) > 0) {
+                foreach ($validator as $index => $error) {
+                    $errors .= $error[0] . "<br>";
+                }
+            }
+        }
+    }else{
+        $errors = $response->message;
+    }
+    return  Response::json(array("status" => "failed", "message" => $errors));
+}

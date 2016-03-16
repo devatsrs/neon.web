@@ -135,6 +135,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
 	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
+	Route::any('account/get_credit/{id}', 'AccountsController@get_credit');
+	Route::any('account/update_credit', 'AccountsController@update_credit');
+	Route::any('account/ajax_datagrid_credit', 'AccountsController@ajax_datagrid_credit');
+
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
@@ -627,8 +631,9 @@ Route::group(array('before' => 'guest'), function () {
 		Auth::logout();
 		$user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
-        if(!empty($user) ){
+        if(!empty($user)){
             Auth::login($user);
+			NeonAPI::login_by_id($id);
 			User::setUserPermission();
             Session::set("admin", 1 );
             return Redirect::to($redirect_to);
