@@ -22,6 +22,23 @@ class NeonAPI{
         }
         return false;
     }
+    public static function login_by_id($id){
+        $curl = new Curl\Curl();
+        $call_method = 'l/'.$id;
+
+        $api_url = getenv('NeonApiUrl');
+
+        $curl->get($api_url.$call_method, array());
+        $curl->close();
+
+        $response = json_decode($curl->response);
+        if(isset($response->token)){
+            self::setToken($response->token);
+            return true;
+        }
+        return false;
+
+    }
     protected static function setToken($api_token){
         /*$UserID =  User::get_userID();
         User::where(array('UserID'=>$UserID))->update(array('api_token'=>$api_token));*/

@@ -668,13 +668,14 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
     Route::get('/l/{id}', function($id){
-		Session::flush();
-		Auth::logout();
-		$user = User::find($id);
+        Session::flush();
+        Auth::logout();
+        $user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
-        if(!empty($user) ){
+        if(!empty($user)){
             Auth::login($user);
-			User::setUserPermission();
+            NeonAPI::login_by_id($id);
+            User::setUserPermission();
             Session::set("admin", 1 );
             return Redirect::to($redirect_to);
         }
