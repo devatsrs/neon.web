@@ -453,7 +453,7 @@
                         var elem = $('#add-edit-opportunity-form [name="AccountID"]');
                         //elem.select2('destroy');
                         elem.empty();
-                        if(response.result) {
+                        if(response.result.length > 0) {
                             $.each(response.result, function (i, item) {
                                 elem.append('<option value="' + i + '">' + item + '</option>');
                             });
