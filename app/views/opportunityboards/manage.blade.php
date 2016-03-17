@@ -453,9 +453,13 @@
                         var elem = $('#add-edit-opportunity-form [name="AccountID"]');
                         //elem.select2('destroy');
                         elem.empty();
-                        $.each(response.result,function(i,item){
-                            elem.append('<option value="'+i+'">'+item+'</option>');
-                        });
+                        if(response.result) {
+                            $.each(response.result, function (i, item) {
+                                elem.append('<option value="' + i + '">' + item + '</option>');
+                            });
+                        }else{
+                            elem.append('<option value="">Not Found</option>');
+                        }
                         elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         //opts = {allowClear: attrDefault(elem, 'allowClear', false)};
                         //elem.select2(opts);
