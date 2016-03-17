@@ -453,13 +453,12 @@
                         var elem = $('#add-edit-opportunity-form [name="AccountID"]');
                         //elem.select2('destroy');
                         elem.empty();
-                        if(response.result.length > 0) {
+                        if(Object.prototype.toString.call( response.result ) === '[object Object]') {
                             $.each(response.result, function (i, item) {
                                 elem.append('<option value="' + i + '">' + item + '</option>');
                             });
                         }else{
                             elem.append('<option value="">Not Found</option>');
-                            elem.siblings('.select2-choice').children('.select2-chosen').text('Not Found');
                         }
                         elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         //opts = {allowClear: attrDefault(elem, 'allowClear', false)};
