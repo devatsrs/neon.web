@@ -304,7 +304,9 @@
                         <div class="col-sm-4">
                             {{Form::select('selection[ConnectionFee]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
-                        <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
+                        <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span>
+
+                        </label>
                         <div class="col-sm-4">
                             {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
                         </div>

@@ -361,7 +361,7 @@ class PaymentsController extends \BaseController {
             return Response::json(array("status" => "failure", "message" => "Job Type not Defined."));
         }
         $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-        move_uploaded_file($temp_path . $file_name, $destinationPath . $file_name);
+        copy($temp_path . $file_name, $destinationPath . $file_name);
 
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload payments file." ));
