@@ -459,6 +459,7 @@
                             });
                         }else{
                             elem.append('<option value="">Not Found</option>');
+                            elem.siblings('.select2-choice').children('.select2-chosen').text('Not Found');
                         }
                         elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         //opts = {allowClear: attrDefault(elem, 'allowClear', false)};
