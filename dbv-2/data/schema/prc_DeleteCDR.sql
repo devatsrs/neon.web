@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT, IN `p_CDRType` CHAR(1))
 BEGIN
 
     DECLARE v_BillingTime_ int;
@@ -41,8 +41,10 @@ BEGIN
 	        WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 			  AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
 	        AND uh.CompanyID = p_CompanyID
-	        AND (p_AccountID = '' OR uh.AccountID = p_AccountID)
-	        AND (p_GatewayID = '' OR CompanyGatewayID = p_GatewayID)
+	        AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
+	        AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+	        AND (p_CDRType = '' OR ud.is_inbound = p_CDRType)
+	        
 	        ) tbl
 	        WHERE 
 	    

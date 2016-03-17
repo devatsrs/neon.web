@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT, IN `p_ProcessID` VARCHAR(50), IN `p_tbltempusagedetail_name` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT, IN `p_ProcessID` VARCHAR(50), IN `p_tbltempusagedetail_name` VARCHAR(50), IN `p_CDRType` CHAR(1))
 BEGIN
 	 DECLARE v_BillingTime_ INT; 
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -10,7 +10,7 @@ BEGIN
 
     SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
     
-    CALL fnUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,''); 
+    CALL fnUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType); 
     
     set @stm1 = CONCAT('
 

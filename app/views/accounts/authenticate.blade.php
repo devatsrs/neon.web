@@ -31,6 +31,7 @@
         Close
     </a>
 </p>
+<?php $AccountNameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$AccountNameFormat;?>
 @if($account->IsCustomer == 1 )
 <div class="row">
     <div class="col-md-12">
@@ -46,7 +47,6 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <?php $AccountNameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$AccountNameFormat;?>
                         <label for="field-1" class="col-sm-2 control-label">Authentication Rule
 
                         </label>
