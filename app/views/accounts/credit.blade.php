@@ -38,7 +38,7 @@
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Customer Details
+                        Credit Control
                     </div>
                     <div class="panel-options">
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
@@ -47,19 +47,28 @@
                 <div class="panel-body">
                     <div class="form-group">
 
-                        <label for="field-1" class="col-sm-2 control-label">Permanent Credit Limit</label>
+                        <label for="field-1" class="col-sm-2 control-label">Account Balance</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="PermanentCredit" value="" id="PermanentCredit Limit">
-                        </div>
-                        </div><div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Temporary Credit Limit</label>
-                        <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="TemporaryCredit" value="" id="PermanentCredit Limit">
+                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$BalanceAmount}}" id="PermanentCredit Limit">
                         </div>
                     </div><div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Balance Warning</label>
+                        <label for="field-1" class="col-sm-2 control-label">Permanent Credit Limit</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="BalanceThreshold" value="" id="Threshold Limit">
+                            <input type="text" class="form-control"  name="PermanentCredit" value="{{$PermanentCredit}}" id="PermanentCredit Limit">
+                        </div>
+                        </div><div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Temporary Credit Limit
+                            <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span>
+                        </label>
+                        <div class="desc col-sm-4 ">
+                            <input type="text" class="form-control"  name="TemporaryCredit" value="{{$TemporaryCredit}}" id="PermanentCredit Limit">
+                        </div>
+                    </div><div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Balance Threshold
+                            <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span>
+                        </label>
+                        <div class="desc col-sm-4 ">
+                            <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit">
                         </div>
                     </div>
                 </div>

@@ -19,6 +19,10 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+    <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+        <i class="entypo-cancel"></i>
+        Credit Control
+    </a>
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Authentication Rule

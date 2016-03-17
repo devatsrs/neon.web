@@ -746,7 +746,22 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::getrequest('account/get_creditinfo',$getdata);
-        return View::make('accounts.credit', compact('account','AccountAuthenticate'));
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = 0;
+        if(!empty($response) && $response->status_code == 200 ){
+            if(!empty($response->data->PermanentCredit)){
+                $PermanentCredit = $response->data->PermanentCredit;
+            }
+            if(!empty($response->data->TemporaryCredit)){
+                $TemporaryCredit = $response->data->TemporaryCredit;
+            }
+            if(!empty($response->data->BalanceThreshold)){
+                $BalanceThreshold = $response->data->BalanceThreshold;
+            }
+            if(!empty($response->data->BalanceAmount)){
+                $BalanceThreshold = $response->data->BalanceAmount;
+            }
+        }
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount'));
     }
 
     public function update_credit(){
