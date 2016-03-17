@@ -343,12 +343,6 @@ function getFileContent($file_name,$data){
         if ($flag == 1) {
             $reader->noHeading();
         }
-        if(!$isExcel) {
-            $reader->formatDates(true, 'Y-m-d');
-        }else{
-            $reader->formatDates(false);
-            $reader->setReadDataOnly(true);
-        }
     })->take(10)->toArray();
     $counter = 1;
     //$results[0] = array_filter($results[0]);

@@ -141,9 +141,7 @@ class Payment extends \Eloquent {
         $Accounts = array_change_key_case($Accounts);
         if (!empty($file)) {
 
-            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {
-                $reader->formatDates(true, 'Y-m-d');
-            })->get();
+            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {})->get();
 
             $results = json_decode(json_encode($results), true);
 
