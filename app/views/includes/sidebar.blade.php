@@ -95,6 +95,22 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                 </a>
             </li>
         @endif
+        @if(User::checkCategoryPermission('Leads','View'))
+            <li>
+                <a href="{{Url::to('/leads')}}">
+                    <i class="entypo-layout"></i>
+                    <span>Leads</span>
+                </a>
+            </li>
+        @endif
+        @if( User::checkCategoryPermission('Contacts','View'))
+            <li>
+                <a href="{{Url::to('/contacts')}}">
+                    <i class="entypo-layout"></i>
+                    <span>Contacts</span>
+                </a>
+            </li>
+        @endif
         @if( User::checkCategoryPermission('EmailTemplate','View'))
             <li>
                 <a href="#">
@@ -202,22 +218,6 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                         <a href="{{URL::to('/opportunityboards')}}">
                             <i class="entypo-pencil"></i>
                             <span>Opportunity Board</span>
-                        </a>
-                    </li>
-                @endif
-                @if(User::checkCategoryPermission('Leads','View'))
-                    <li>
-                        <a href="{{Url::to('/leads')}}">
-                            <i class="entypo-pencil"></i>
-                            <span>Leads</span>
-                        </a>
-                    </li>
-                @endif
-                @if( User::checkCategoryPermission('Contacts','View'))
-                    <li>
-                        <a href="{{Url::to('/contacts')}}">
-                            <i class="entypo-pencil"></i>
-                            <span>Contacts</span>
                         </a>
                     </li>
                 @endif

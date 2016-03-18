@@ -15,7 +15,8 @@
                                     foreach($opportunity as $i=>$val){
                                         $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
                                     }
-                            ?>
+                            $style=(empty($opportunity['Hieght'])&&empty($opportunity['Width']))?'':'style="'.(empty($opportunity['Hieght'])?'':'Height:'.$opportunity['Hieght'].';').(empty($opportunity['Width'])?'':'Width:'.$opportunity['Width'].';').'"';
+                        ?>
                             <li class="board-column-item sortable-item count-cards" data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
                             <div class="row-hidden">
                                 {{$hidden}}

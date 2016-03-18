@@ -42,18 +42,18 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Opportunity Name</label>
-                                <div class="col-sm-2">
+                                <label for="field-1" class="col-sm-1 control-label">Opportunity Name</label>
+                                <div class="col-sm-3">
                                     <input class="form-control" name="opportunityName"  type="text" >
                                 </div>
                                 @if(User::is_admin())
-                                    <label for="field-1" class="col-sm-2 control-label">Account Owner</label>
-                                    <div class="col-sm-2">
+                                    <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                                    <div class="col-sm-3">
                                         {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                                     </div>
                                 @endif
-                                <label for="field-1" class="col-sm-2 control-label">Company</label>
-                                <div class="col-sm-2">
+                                <label for="field-1" class="col-sm-1 control-label">Company</label>
+                                <div class="col-sm-3">
                                     {{Form::select('AccountID',$leads,Input::get('AccountID'),array("class"=>"select2"))}}
                                 </div>
                             </div>
@@ -110,6 +110,7 @@
             var readonly = ['Company','Phone','Email','ContactName'];
             var OpportunityBoardID = "{{$id}}";
             var usetId = "{{User::get_userID()}}";
+            $('#add-edit-opportunity-form [name="Rating"]').knob();
             getOpportunities();
             $('#add-opportunity').click(function(){
                 isEdit = false;
@@ -134,7 +135,8 @@
 
                 setcolor($('#add-edit-modal-opportunity [name="BackGroundColour"]'),'#303641');
                 setcolor($('#add-edit-modal-opportunity [name="TextColour"]'),'#ffffff');
-                setrating(1);
+                $('#add-edit-opportunity-form [name="Rating"]').val(1);
+                $('#add-edit-opportunity-form [name="Rating"]').val(1).trigger('change');
                 $('#add-edit-modal-opportunity h4').text('Add Opportunity');
                 $('#add-edit-modal-opportunity').modal('show');
             });
@@ -343,20 +345,6 @@
                 });
             });
 
-            $(document).on('mouseover','#rating i',function(){
-                var currentrateid = $(this).attr('rate-id');
-                setrating(currentrateid);
-            });
-            $(document).on('click','#rating i',function(){
-                var currentrateid = $(this).attr('rate-id');
-                $('#rating input[name="Rating"]').val(currentrateid);
-                setrating(currentrateid);
-            });
-            $(document).on('mouseleave','#rating',function(){
-                var defultrateid = $('#rating input[name="Rating"]').val();
-                setrating(defultrateid);
-            });
-
             $(".tags").select2({
                 tags:{{$tags}}
             });
@@ -530,17 +518,6 @@
                 $('#cardorder [name="OpportunityBoardColumnID"]').val(OpportunityBoardColumnID);
             }
 
-            function setrating(currentrateid){
-                $('#rating i').css('color','black');
-                $('#rating i').each(function(){
-                    var rateid = $(this).attr('rate-id');
-                    if(currentrateid<rateid){
-                        return false;
-                    }
-                    $(this).css('color','#e9dc3c');
-                });
-            }
-
             function setunsetreadonly(data,status){
                 for(var i = 0 ; i< readonly.length; i++){
                     $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val('');
@@ -622,7 +599,7 @@
                         if(color.indexOf(opportunity[i])!=-1){
                             setcolor(elem,val);
                         }else if(opportunity[i]=='Rating'){
-                            setrating(val);
+                            elem.val(val).trigger('change');
                         }else if(opportunity[i]=='Tags'){
                             elem.val(val).trigger("change");
                         }
@@ -632,7 +609,6 @@
                 $('#add-edit-modal-opportunity h4').text('Edit Opportunity');
                 $('#add-edit-modal-opportunity').modal('show');
             }
-
         });
     </script>
 </div>
@@ -671,6 +647,18 @@
                                         <?php $leadaccount = ['Lead'=>'Lead','Account'=>'Account']; ?>
                                         {{Form::select('leadOrAccount',$leadaccount,'',array("class"=>"selectboxit"))}}
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="input-1" class="control-label col-sm-2">Rate This</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="75" data-height="75" name="Rating" value="1" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label id="leadlable" for="field-5" class="control-label col-sm-2">Existing Lead</label>
                                     <div class="col-sm-4">
                                         <?php $leadcheck = ['No'=>'No','Yes'=>'Yes']; ?>
@@ -678,9 +666,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div class="leads hidden">
@@ -692,6 +677,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -735,7 +721,9 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-1">
-                                        <button class="btn btn-xs btn-danger reset" data-color="#303641" type="button">Reset</button>
+                                        <a class="btn btn-primary btn-xs reset" data-color="#303641" href="javascript:void(0)">
+                                            <i class="entypo-ccw"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -751,7 +739,10 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-1">
-                                        <button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>
+                                        <a class="btn btn-primary btn-xs reset" data-color="#ffffff" href="javascript:void(0)">
+                                            <i class="entypo-ccw"></i>
+                                        </a>
+                                        <!--<button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>-->
                                     </div>
                                     <label for="field-5" class="control-label col-sm-2">Tags</label>
                                     <div class="col-sm-4 input-group">
@@ -763,15 +754,6 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="input-1" class="control-label col-sm-2">Rate This</label>
-                                    <div id="rating" class="col-sm-4">
-                                        <i rate-id="1" class="entypo-star"></i>
-                                        <i rate-id="2" class="entypo-star"></i>
-                                        <i rate-id="3" class="entypo-star"></i>
-                                        <i rate-id="4" class="entypo-star"></i>
-                                        <i rate-id="5" class="entypo-star"></i>
-                                        <input type="hidden" name="Rating" value="1" />
-                                    </div>
                                 </div>
                             </div>
                         </div>

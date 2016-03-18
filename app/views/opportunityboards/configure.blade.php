@@ -51,15 +51,21 @@
                 $('#add-edit-columnname-form').trigger("reset");
                 $('#add-edit-columnname-form [name="OpportunityBoardID"]').val(OpportunityBoardID);
                 $('#add-edit-columnname-form [name="OpportunityBoardColumnID"]').val('');
+                $('#add-edit-columnname-form [name="Height"]').val('100%');
+                $('#add-edit-columnname-form [name="Width"]').val('195px');
                 $('#add-edit-columnname-modal h4').text('Add New Column');
                 $('#add-edit-columnname-modal').modal('show');
             });
             $(document).on('click','.edit-column',function(){
                 var OpportunityBoardColumnID = $(this).attr('data-id');
                 var OpportunityBoardColumnName = $(this).attr('data-name');
+                var Height = $(this).attr('data-height')!=''?$(this).attr('data-height'):'100%';
+                var Width = $(this).attr('data-width')!=''?$(this).attr('data-width'):'195px';
                 $('#add-edit-columnname-form [name="OpportunityBoardID"]').val(OpportunityBoardID);
                 $('#add-edit-columnname-form [name="OpportunityBoardColumnID"]').val(OpportunityBoardColumnID);
                 $('#add-edit-columnname-form [name="OpportunityBoardColumnName"]').val(OpportunityBoardColumnName);
+                $('#add-edit-columnname-form [name="Height"]').val(Height);
+                $('#add-edit-columnname-form [name="Width"]').val(Width);
                 $('#add-edit-columnname-modal h4').text('Edit Column');
                 $('#add-edit-columnname-modal').modal('show');
             });
@@ -137,7 +143,7 @@
                 var items = '<li id="'+item.OpportunityBoardColumnID+'" class="board-column count-li" style="position: relative;">';
                 items += '   <header>';
                 items += '    <h5>'+item.OpportunityBoardColumnName;
-                items += '        <a class="edit-column" data-name="'+item.OpportunityBoardColumnName+'" data-id="'+item.OpportunityBoardColumnID+'"><i class="edit-button-color entypo-pencil pull-right"></i></a>';
+                items += '        <a class="edit-column" data-name="'+item.OpportunityBoardColumnName+'" data-id="'+item.OpportunityBoardColumnID+'" data-height="'+item.Height+'" data-width="'+item.Width+'"><i class="edit-button-color entypo-pencil pull-right"></i></a>';
                 items += '    </h5>';
                 items += '   </header>';
                 items += '</li>';
@@ -196,10 +202,34 @@
                         <h4 class="modal-title">Add Column Name</h4>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Column Name</label>
-                            <div class="col-sm-5">
-                                <input name="OpportunityBoardColumnName" type="text" class="form-control">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Column Name</label>
+                                    <div class="col-sm-5">
+                                        <input name="OpportunityBoardColumnName" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Height</label>
+                                    <div class="col-sm-5">
+                                        <input name="Height" type="text" value="100%" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">width</label>
+                                    <div class="col-sm-5">
+                                        <input name="Width" type="text" value="195px" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
