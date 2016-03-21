@@ -133,7 +133,7 @@ class Payment extends \Eloquent {
         $selection = $data['selection'];
         $file = $data['TemplateFile'];
         $CompanyID = User::get_companyID();
-        $where = ['CompanyId'=>$CompanyID];
+        $where = ['CompanyId'=>$CompanyID,"AccountType"=>1];
         if(User::is("AccountManager") ){
             $where['Owner']=User::get_userID();
         }
@@ -141,9 +141,7 @@ class Payment extends \Eloquent {
         $Accounts = array_change_key_case($Accounts);
         if (!empty($file)) {
 
-            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {
-                $reader->formatDates(true, 'Y-m-d');
-            })->get();
+            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {})->get();
 
             $results = json_decode(json_encode($results), true);
 
@@ -216,15 +214,13 @@ class Payment extends \Eloquent {
                         'Status' => $PaymentStatus,
                         'Amount' => trim($row[$selection['Amount']])
                     );
-                    if(isset($selection['InvoiceNo'])) {
-                        if (!empty($row[$selection['InvoiceNo']])) {
-                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                        }
+
+                    if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
+                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
                     }
-                    if(isset($selection['Notes'])) {
-                        if (!empty($row[$selection['Notes']])) {
-                            $temp['Notes'] = trim($row[$selection['Notes']]);
-                        }
+
+                    if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
+                        $temp['Notes'] = trim($row[$selection['Notes']]);
                     }
                     $batch_insert[] = $temp;
                 }
