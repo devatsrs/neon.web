@@ -218,6 +218,14 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                         <span>Billing</span>
                     </a>
                     <ul>
+                    		@if(User::checkCategoryPermission('Invoice','View'))
+                            <li>
+                                <a href="{{URL::to('/estimates')}}">
+                                    <i class="entypo-pencil"></i>
+                                    <span>Estimates</span>
+                                </a>
+                            </li>                        
+                        @endif
                         @if(User::checkCategoryPermission('Invoice','View'))
                             <li>
                                 <a href="{{URL::to('/invoice')}}">

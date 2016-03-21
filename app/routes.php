@@ -510,7 +510,44 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
 
-
+	/////////////////
+	//Estimates
+	Route::any('/estimates', 'EstimatesController@index');
+	Route::any('/estimate/create', 'EstimatesController@create');
+	Route::any('/estimate/store', 'EstimatesController@store');
+	Route::any('/estimate/bulk_send_estimate_mail', 'EstimatesController@bulk_send_estimate_mail');
+    Route::any('/estimate/estimate_regen', 'EstimatesController@estimate_regen');
+	Route::any('/estimate/{id}/edit', 'EstimatesController@edit');
+	Route::any('/estimate/{id}/delete', 'EstimatesController@delete');
+	Route::any('/estimate/{id}/view', 'EstimatesController@view');
+	Route::any('/estimate/{id}/update', 'EstimatesController@update');
+	Route::any('/estimate/{id}/estimate_preview', 'EstimatesController@estimate_preview'); //Customer View
+	Route::any('/estimate/{id}/send', 'EstimatesController@send');
+	Route::any('/estimate/{id}/ajax_getEmailTemplate', 'EstimatesController@ajax_getEmailTemplate');
+	Route::any('/estimate/{id}/estimate_email', 'EstimatesController@estimate_email');
+	Route::any('/estimate/estimate_change_Status', 'EstimatesController@estimate_change_Status');	
+	Route::any('/estimate/estimate_change_Status_Bulk', 'EstimatesController@estimate_change_Status_Bulk');
+	
+	Route::any('/estimate/estimate_delete_bulk', 'EstimatesController@delete_bulk');	
+	
+	
+	
+	Route::any('/estimate/{id}/download_usage', 'EstimatesController@downloadUsageFile');
+    Route::any('/estimates_log/{id}', 'TransactionLogController@log');
+    Route::any('/estimates_log/ajax_datagrid/{id}', 'TransactionLogController@ajax_datagrid');
+    Route::any('/estimates_log/ajax_estimate_datagrid/{id}', 'TransactionLogController@ajax_estimate_datagrid');
+    Route::any('/estimate/generate', 'EstimatesController@generate');
+	Route::any('/estimate/ajax_datagrid', 'EstimatesController@ajax_datagrid');	
+	Route::any('/estimate/ajax_datagrid_total', 'EstimatesController@ajax_datagrid_total');	
+	Route::any('/estimate/calculate_total', 'EstimatesController@calculate_total');
+	Route::any('/estimate/get_account_info', 'EstimatesController@getAccountInfo');
+	Route::any('/estimate/bulk_estimate', 'EstimatesController@bulk_estimate');
+	Route::any('/estimate/add_estimate_in', 'EstimatesController@add_estimate_in');
+	Route::any('/estimate/update_estimate_in/{id}', 'EstimatesController@update_estimate_in');
+	Route::any('/estimate/download_doc_file/{id}', 'EstimatesController@download_doc_file');
+	Route::any('/estimate/sageExport', 'EstimatesController@sageExport');
+	Route::any('/estimate/getEstimateDetail', 'EstimatesController@getEstimateDetail');
+	///////////////////////////
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
@@ -644,7 +681,14 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
-
+	
+	#estimate
+	Route::any('/estimate/display_estimate/{id}', 'EstimatesController@display_estimate');
+	Route::any('/estimate/{id}/estimate_email', 'EstimatesController@estimate_email');
+	
+	Route::any('/estimate/{id}/convert_estimate', 'EstimatesController@convert_estimate');
+	
+	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
 
 });
 

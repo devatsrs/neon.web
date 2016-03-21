@@ -382,8 +382,12 @@ function getFileContent($file_name,$data){
     return $grid;
 }
 
-
-
+function estimate_date_fomat($DateFormat){
+    if(empty($DateFormat)){
+        $DateFormat = 'd-m-Y';
+    }
+    return $DateFormat;
+}
 function invoice_date_fomat($DateFormat){
     if(empty($DateFormat)){
         $DateFormat = 'd-m-Y';

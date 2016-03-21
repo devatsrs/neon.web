@@ -17,7 +17,7 @@ class InvoicesController extends \BaseController {
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
 		
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
 		
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
@@ -69,7 +69,7 @@ class InvoicesController extends \BaseController {
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"")');
@@ -101,7 +101,7 @@ class InvoicesController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
-
+		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
@@ -111,7 +111,7 @@ class InvoicesController extends \BaseController {
             $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
         }
         $invoice = implode(',',$InvoiceNoarray);
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID'));
 
     }
 
@@ -1346,10 +1346,10 @@ class InvoicesController extends \BaseController {
     }
 
     public function sageExport(){
-        $data = Input::all();
+        $data = Input::all();		
         $companyID = User::get_companyID();
         if(!empty($data['InvoiceIDs'])){
-            $query = "call prc_getInvoice (".$companyID.",'','','','','','','' ,'','',''";
+            $query = "call prc_getInvoice (".$companyID.",'','','','','','','' ,'','','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2,0';
             }else{
@@ -1358,6 +1358,7 @@ class InvoicesController extends \BaseController {
             if(!empty($data['InvoiceIDs'])){
                 $query = $query.",'".$data['InvoiceIDs']."'";
             }
+			else			
             $query .= ")";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -1367,10 +1368,11 @@ class InvoicesController extends \BaseController {
                 });
             })->download('csv');
         }else{
+			
             $criteria = json_decode($data['criteria'],true);
             $criteria['InvoiceType'] = $criteria['InvoiceType'] == 'All'?'':$criteria['InvoiceType'];
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
-            $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','',''";
+            $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2';
             }else{
@@ -1379,6 +1381,10 @@ class InvoicesController extends \BaseController {
             if(!empty($criteria['zerovalueinvoice'])){
                 $query = $query.',1';
             }
+			else
+			{
+				$query = $query.',0';
+			}
             $query .= ",'')";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);

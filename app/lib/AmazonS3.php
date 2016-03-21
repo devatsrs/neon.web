@@ -20,6 +20,7 @@ class AmazonS3 {
         'PAYMENT_PROOF'=>'PaymentProof',
         'INVOICE_PROOF_ATTACHMENT' =>  'InvoiceProofAttachment',
         'INVOICE_UPLOAD' =>  'Invoices',
+		'ESTIMATE_UPLOAD' =>  'estimates',
         'CUSTOMER_PROFILE_IMAGE' =>  'CustomerProfileImage',
         'BULK_LEAD_MAIL_ATTACHEMENT' => 'bulkleadmailattachment',
         'TEMPLATE_FILE' => 'TemplateFile',

@@ -86,19 +86,22 @@
 
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
-                        <div class="col-sm-1">
+                        <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
                             </p>
                         </div>
-                    </div>
-                    <p style="text-align: right;">
+                          <label for="field-1" class="col-sm-2 control-label">Currency</label>
+                     <div class="col-sm-2">
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
+                    </div>                  
+                </div>
+                  <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-search"></i>
                             Search
                         </button>
                     </p>
-                </div>
             </div>
         </form>
     </div>
@@ -196,6 +199,7 @@ var postdata;
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
         $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+		$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -207,7 +211,7 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
             },
@@ -441,6 +445,7 @@ var postdata;
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+			$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
             data_table.fnFilter('', 0);
             return false;
         });
@@ -460,6 +465,7 @@ var postdata;
 			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
 			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
 			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
+			"CurrencyID":$("#invoice_filter [name='CurrencyID']").val(),
 			"bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -470,7 +476,16 @@ var postdata;
             "aaSorting": [[3, 'desc']],},
                 success: function(response1) {
 					console.log("sum of result"+response1);
-					$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
+						if(response1.total_grand!=null)
+						{ 
+							var selected_currency  =	 $("#invoice_filter [name='CurrencyID']").val();
+							var concat_currency    = 	 '';
+							if(selected_currency!='')
+							{							
+								concat_currency = $("#invoice_filter [name='CurrencyID'] option:selected").text()+' ';		
+							}
+				$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
+						}
 					},
 			});	
 		}
