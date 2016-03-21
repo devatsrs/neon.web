@@ -71,9 +71,10 @@ class Company extends \Eloquent {
         $result['Type'] = '';
         $result['LicenceProperties'] = '';
         $company_id = User::get_companyID();
-        $result['CompanyName'] = company::getName($company_id);
+        //$result['CompanyName'] = company::getName($company_id);
+        $result['CompanyName'] = getenv('CompanyName');
         //$result['CompanyName'] = 'abc';
-        if(!empty($LICENCE_KEY)) {
+        if(!empty($LICENCE_KEY) && !empty($result['CompanyName'])) {
 
             $post = array("host" => $_SERVER['HTTP_HOST'], "ip" => $_SERVER['SERVER_ADDR'], "licence_key" => getenv('LICENCE_KEY'), "company_name" => $result['CompanyName']);
             $response = call_api($post);
@@ -92,8 +93,8 @@ class Company extends \Eloquent {
 
         }else{
 
-            $result['Message'] = "Licence key not found";
-            $result['Status'] = "Licence key not found";
+            $result['Message'] = "Licence key Or Company Name not found";
+            $result['Status'] = "Licence key Or Company Name not found";
             $result['ExpiryDate'] = "";
         }
 
