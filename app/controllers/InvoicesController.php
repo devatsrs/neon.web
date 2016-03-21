@@ -1321,6 +1321,8 @@ class InvoicesController extends \BaseController {
             }
             if(!empty($criteria['zerovalueinvoice'])){
                 $query = $query.',1';
+            }else{
+                $query = $query.',0';
             }
             $query .= ",'')";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
