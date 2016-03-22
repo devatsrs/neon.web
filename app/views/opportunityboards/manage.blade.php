@@ -221,11 +221,7 @@
 
             $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
                 e.stopPropagation();
-                var rowHidden = $(this).parents('.tile-stats').prev('div.row-hidden');
-                //var UserID = rowHidden.find('input[name="UserID"]').val();
-                //var AccountID = rowHidden.find('input[name="AccountID"]').val();
-                //$('#add-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(UserID);
-
+                var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 var select = ['UserID','OpportunityBoardID'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){

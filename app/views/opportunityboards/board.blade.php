@@ -13,22 +13,37 @@
                                 $backgroundcolour = $opportunity['BackGroundColour']==''?'':'style="background-color:'.$opportunity['BackGroundColour'].';"';
                                 $textcolour = $opportunity['TextColour']==''?'':'style="color:'.$opportunity['TextColour'].';"';
                                 $hidden = '';
-                                    foreach($opportunity as $i=>$val){
-                                        $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
+                                foreach($opportunity as $i=>$val){
+                                    $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
+                                }
+
+                                $ContactName = '';
+                                $Owner = '';
+                                if(!empty($opportunity['ContactName'])){
+                                    $ContactNameArray = explode(" ", $opportunity['ContactName']);
+                                    foreach ($ContactNameArray as $w) {
+                                        $ContactName .= $w[0];
                                     }
+                                }
+                                if(!empty($opportunity['Owner'])){
+                                    $OwnerArray = explode(" ", $opportunity['Owner']);
+                                    foreach ($OwnerArray as $w) {
+                                        $Owner .= $w[0];
+                                    }
+                                }
                         ?>
-                            <li class="board-column-item sortable-item count-cards" data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
-                            <div class="row-hidden">
-                                {{$hidden}}
-                            </div>
-                                <div class="tile-stats" {{$backgroundcolour}}>
-                                    <i class="edit-deal entypo-pencil pull-right"></i>
-                                    <div class="margin-top-15" id="card-1-info">
-                                        <h3 id="card-1-name" {{$textcolour}}>{{$opportunity['OpportunityName']}}</h3>
-                                        <h3 id="card-1-company" {{$textcolour}}>{{$opportunity['Company']}}</h3>
-                                        <h3 id="card-1-contract" {{$textcolour}}>{{(empty($opportunity['ContactName'])?'.':$opportunity['ContactName'])}}</h3>
-                                        <h3 id="card-1-owner" {{$textcolour}}>Account Owner: {{$opportunity['Owner']}}</h3>
-                                    </div>
+                            <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
+                                <div class="pull-right"><i class="edit-deal entypo-pencil" {{$textcolour}}></i></div>
+                                <div class="row-hidden">
+                                    {{$hidden}}
+                                </div>
+                                <div class="info">
+                                    <h3 {{$textcolour}}>{{$opportunity['OpportunityName']}}</h3>
+                                    <p {{$textcolour}}>{{$opportunity['Company']}} Company Name</p>
+                                </div>
+                                <div class="pull-right">
+                                    <span class="badge badge-info">{{$Owner}}</span>
+                                    <span class="badge badge-success">{{$ContactName}}</span>
                                 </div>
                             </li>
                         @endif
