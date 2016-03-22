@@ -949,9 +949,9 @@ class EstimatesController extends \BaseController {
 		$companyID 			=    User::get_companyID();
         
 		$Estimate_data 		= 	Estimate::find($data['eid']);
-		if($Estimate_data->converted=='N')
+		//if($Estimate_data->converted=='N')
 		{
-						$query	  = 	"call prc_Convert_Invoices_to_Estimates (".$companyID.",'','','0000-00-00 00:00:00','0000-00-00 00:00:00','','".$data['eid']."')";
+						$query	  = 	"call prc_Convert_Invoices_to_Estimates (".$companyID.",'','','0000-00-00 00:00:00','0000-00-00 00:00:00','','".$data['eid']."',0)";
 						$results  = 	DB::connection('sqlsrv2')->select($query);
 						$inv_id   = 	$results[0]->InvoiceID;
 						$pdf_path = 	Invoice::generate_pdf($inv_id);
@@ -970,7 +970,7 @@ class EstimatesController extends \BaseController {
 		$companyID 			=    User::get_companyID();		
 		$Estimate_data 		= 	 Estimate::find($data['EstimateIDs']);
 		
-		if($Estimate_data->converted=='N')
+		//if($Estimate_data->converted=='N')
 		{
 			if (Estimate::where('EstimateID',$data['EstimateIDs'])->update([ 'ModifiedBy'=>$username,'EstimateStatus' => $data['EstimateStatus']]))
 			{
@@ -982,10 +982,7 @@ class EstimatesController extends \BaseController {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating Estimate."));
 			}
 		}
-		else
-		{
-			return Response::json(array("status" => "failed", "message" => "Estimate has been send to Client."));
-		}
+		
     }
 	
 	public function estimate_change_Status_Bulk()
@@ -1004,7 +1001,7 @@ class EstimatesController extends \BaseController {
 			//convert all with criteria
 			if($data['AllChecked']==1)
 			{
-				$query = "call prc_Convert_Invoices_to_Estimates (".$companyID.",'".$data['AccountID']."','".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."','')";		
+				$query = "call prc_Convert_Invoices_to_Estimates (".$companyID.",'".$data['AccountID']."','".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."','',1)";		
 				$results  = DB::connection('sqlsrv2')->select($query);
 				
 				foreach($results as $results_data)
@@ -1022,7 +1019,7 @@ class EstimatesController extends \BaseController {
 					$Estimate_data = Estimate::find($EstimateIDs_data);
 					if($Estimate_data->converted=='N')
 					{
-						 $query = "call prc_Convert_Invoices_to_Estimates (".$companyID.",'".$data['AccountID']."','".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."','".$EstimateIDs_data."')";
+						 $query = "call prc_Convert_Invoices_to_Estimates (".$companyID.",'".$data['AccountID']."','".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."','".$EstimateIDs_data."',0)";
 						 $results  = DB::connection('sqlsrv2')->select($query);
 						$inv_id   = $results[0]->InvoiceID;
 						$pdf_path = Invoice::generate_pdf($inv_id);
