@@ -1,9 +1,0 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerRateClear`(IN `p_CustomerRateId` int)
-BEGIN
-  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;  
-  DELETE FROM tblCustomerRate
-    WHERE CustomerRateId = p_CustomerRateId;
-    
- SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-  
-END

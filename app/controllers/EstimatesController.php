@@ -951,10 +951,10 @@ class EstimatesController extends \BaseController {
 		$Estimate_data 		= 	Estimate::find($data['eid']);
 		if($Estimate_data->converted=='N')
 		{
-						$query = "call prc_Convert_Invoices_to_Estimates (".$companyID.",'','','0000-00-00 00:00:00','0000-00-00 00:00:00','','".$data['eid']."')";
-						$results  = DB::connection('sqlsrv2')->select($query);
-						$inv_id   = $results[0]->InvoiceID;
-						$pdf_path = Invoice::generate_pdf($inv_id);
+						$query	  = 	"call prc_Convert_Invoices_to_Estimates (".$companyID.",'','','0000-00-00 00:00:00','0000-00-00 00:00:00','','".$data['eid']."')";
+						$results  = 	DB::connection('sqlsrv2')->select($query);
+						$inv_id   = 	$results[0]->InvoiceID;
+						$pdf_path = 	Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
 		}
 			
@@ -999,7 +999,6 @@ class EstimatesController extends \BaseController {
 		$data['IssueDateStart'] 	=  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']       =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
 
-		
 		
         
 			//convert all with criteria

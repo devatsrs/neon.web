@@ -177,8 +177,8 @@ class Estimate extends \Eloquent {
             $file_name 			= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name 		= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file 		= 	$destination_dir .  $file_name;
-            $local_htmlfile 	= 	$destination_dir .  $htmlfile_name;
-
+			$local_htmlfile 	= 	$destination_dir .  $htmlfile_name;
+		
 			file_put_contents($local_htmlfile,$body);
 
 			$footer_name 		= 	'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
