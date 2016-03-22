@@ -48,4 +48,12 @@ BEGIN
 	where tp.ProcessID = p_ProcessID
 			AND tp.PaymentDate <= NOW()
 			AND tp.CompanyID = p_CompanyID;
+			
+            
+
+   /* Delete tmp table */        
+    delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+    
+            
+			
 END
