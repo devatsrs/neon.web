@@ -63,7 +63,7 @@
         <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
         @endif       
         @if(User::checkCategoryPermission('Invoice','Edit'))
-        <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Convert To Invoice</a> </li>
+        <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept</a> </li>
         @endif
       </ul>
       @endif
@@ -245,7 +245,7 @@ var postdata;
 
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}')
 								{
-									if(full[4] != 'accepted')
+									//if(full[4] != 'accepted')
 									{
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/{id}/edit").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Edit </a></li>';
 									}
@@ -265,17 +265,18 @@ var postdata;
                                 	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-pencil"></i>Delete</a></li>';				}
                             }
                             
-							if(full[11]== 'N')
+							//if(full[11]== 'N')
 							{
 	                                   action += ' <li><a class="icon-left send_estimate"  estimate="'+full[5]+'"><i class="entypo-pencil"></i>Send</a></li>';    
-											action += ' <li><a class="icon-left convert_estimate"  estimate="'+full[5]+'"><i class="entypo-pencil"></i>Convert to Invoice</a></li>';
+											action += ' <li><a class="icon-left convert_estimate"  estimate="'+full[5]+'"><i class="entypo-pencil"></i>Accept</a></li>';
 						}
                             
 
                             action += '</ul>';
                             action += '</div>';
 							
-							if(full[4] != 'accepted'){
+							//if(full[4] != 'accepted')
+							{
                              action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                              action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                              $.each(estimatestatus, function( index, value ) {
@@ -418,8 +419,10 @@ var postdata;
 						var selected_currency = $("#estimate_filter [name='CurrencyID']").val();
 						var concat_currency   = '';
 						if(selected_currency!='')
-						{							
-							concat_currency = $("#estimate_filter [name='CurrencyID'] option:selected").text()+' ';		
+						{	
+							var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
+							var concat_currency = currency_txt.substr(0,1);
+							//concat_currency  =    $("#estimate_filter [name='CurrencyID'] option:selected").text()+' ';		
 						}
 						$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');	
 					}
