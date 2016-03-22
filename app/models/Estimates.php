@@ -229,9 +229,9 @@ class Estimate extends \Eloquent {
     public static function getFullEstimateNumber($Estimate,$Account)
 	{
         $EstimateNumberPrefix = '';
-        if(!empty($Account->EstimateTemplateID))
+        if(!empty($Account->InvoiceTemplateID))
 		{
-            $EstimateNumberPrefix = InvoiceTemplate::find($Account->InvoiceTemplateID)->EstimateNumberPrefix;
+             $EstimateNumberPrefix = InvoiceTemplate::find($Account->InvoiceTemplateID)->EstimateNumberPrefix;
         }
         return $EstimateNumberPrefix.$Estimate->EstimateNumber;
     }
