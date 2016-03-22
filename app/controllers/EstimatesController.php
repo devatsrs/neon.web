@@ -7,7 +7,7 @@ class EstimatesController extends \BaseController {
         $data 						 = 	Input::all();
 		$data['iDisplayStart'] 		 =	0;
         $data['iDisplayStart'] 		+=	1;
-		$data['iSortCol_0']			 =  0;
+		$data['iSortCol_0']			 =  0; 
 		$data['sSortDir_0']			 =  'desc';
         $companyID 					 =  User::get_companyID();
         $columns 					 =  ['EstimateID','AccountName','EstimateNumber','IssueDate','GrandTotal','PendingAmount','EstimateStatus','EstimateID'];
