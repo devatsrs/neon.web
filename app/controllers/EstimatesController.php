@@ -1102,7 +1102,7 @@ class EstimatesController extends \BaseController {
         }
 		else if(file_exists($FilePath))
 		{
-            download_file($FilePath);
+            download_file($FilePath); 
         }
         exit;
     }
