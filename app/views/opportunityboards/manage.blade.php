@@ -57,6 +57,12 @@
                                     {{Form::select('AccountID',$leads,Input::get('AccountID'),array("class"=>"select2"))}}
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Tags</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control tags" name="Tags" type="text" >
+                                </div>
+                            </div>
                             <p style="text-align: right;">
                                 <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                     <i class="entypo-search"></i>
@@ -87,7 +93,6 @@
     <script>
         var $searchFilter = {};
         var currentDrageable = '';
-        var isEdit = false;
         $(document).ready(function ($) {
             var opportunity = [
                                 'OpportunityBoardColumnID',
@@ -110,19 +115,18 @@
             var readonly = ['Company','Phone','Email','ContactName'];
             var OpportunityBoardID = "{{$id}}";
             var usetId = "{{User::get_userID()}}";
-            $('#add-edit-opportunity-form [name="Rating"]').knob();
+            $('#add-opportunity-form [name="Rating"]').knob();
             getOpportunities();
             $('#add-opportunity').click(function(){
-                isEdit = false;
-                $('#add-edit-opportunity-form').trigger("reset");
+                $('#add-opportunity-form').trigger("reset");
                 var select = ['UserID','AccountID','OpportunityBoardID'];
                 for(var i = 0 ; i< opportunity.length; i++){
-                    var elem = $('#add-edit-opportunity-form [name="'+opportunity[i]+'"]');
+                    var elem = $('#add-opportunity-form [name="'+opportunity[i]+'"]');
                     if(select.indexOf(opportunity[i])!=-1){
                         elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                         if(opportunity[i]=='UserID'){
-                            $('#add-edit-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
-                            $('#add-edit-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
+                            $('#add-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
+                            $('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
                         }
                     } else{
                         elem.val('');
@@ -131,54 +135,48 @@
                         }
                     }
                 }
-                $('#add-edit-modal-opportunity [name="OpportunityBoardID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(OpportunityBoardID);
+                $('#add-modal-opportunity [name="OpportunityBoardID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(OpportunityBoardID);
 
-                setcolor($('#add-edit-modal-opportunity [name="BackGroundColour"]'),'#303641');
-                setcolor($('#add-edit-modal-opportunity [name="TextColour"]'),'#ffffff');
-                $('#add-edit-opportunity-form [name="Rating"]').val(1);
-                $('#add-edit-opportunity-form [name="Rating"]').val(1).trigger('change');
-                $('#add-edit-modal-opportunity h4').text('Add Opportunity');
-                $('#add-edit-modal-opportunity').modal('show');
+                setcolor($('#add-modal-opportunity [name="BackGroundColour"]'),'#303641');
+                setcolor($('#add-modal-opportunity [name="TextColour"]'),'#ffffff');
+                $('#add-opportunity-form [name="Rating"]').val(1);
+                $('#add-opportunity-form [name="Rating"]').val(1).trigger('change');
+                $('#add-modal-opportunity h4').text('Add Opportunity');
+                $('#add-modal-opportunity').modal('show');
             });
 
-            $('#add-edit-opportunity-form [name="leadcheck"]').change(function(){
-                    var lead = $('#add-edit-modal-opportunity').find('.leads');
+            $('#add-opportunity-form [name="leadcheck"]').change(function(){
+                    var lead = $('#add-modal-opportunity').find('.leads');
                     if ($(this).val() == 'Yes') {
                         lead.removeClass('hidden');
-                        setunsetreadonly('', true);
+                        setunset('');
                     } else {
                         lead.addClass('hidden');
-                        setunsetreadonly('', false);
+                        setunset('');
                     }
             });
 
-            $('#add-edit-opportunity-form [name="AccountID"]').change(function(){
+            $('#add-opportunity-form [name="AccountID"]').change(function(){
                 var AccountID = $(this).val();
-                if(!isEdit){
-                    getLeadorAccountInstance(AccountID);
-                }
+                getLeadorAccountInstance(AccountID);
             });
 
-            $('#add-edit-opportunity-form [name="UserID"]').change(function(){
-                if(!isEdit){
-                    check = 1;
-                    if($('#add-edit-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
-                        $('#leadlable').text('Existing lead');
-                        $('.leads label').text('Lead');
-                    }else{
-                        $('#leadlable').text('Existing Account');
-                        $('.leads label').text('Account');
-                        check = 2;
-                    }
-                    var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
-                    getLeadOrAccount(url);
+            $('#add-opportunity-form [name="UserID"]').change(function(){
+                check = 1;
+                if($('#add-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
+                    $('#leadlable').text('Existing lead');
+                    $('.leads label').text('Lead');
+                }else{
+                    $('#leadlable').text('Existing Account');
+                    $('.leads label').text('Account');
+                    check = 2;
                 }
+                var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
+                getLeadOrAccount(url);
             });
 
-            $('#add-edit-opportunity-form [name="leadOrAccount"]').on('change',function(){
-                if(!isEdit) {
-                    changelableanddropdown();
-                }
+            $('#add-opportunity-form [name="leadOrAccount"]').on('change',function(){
+                changelableanddropdown();
             });
 
             $('#search-opportunity-filter').submit(function(e){
@@ -186,16 +184,18 @@
                 getOpportunities();
             });
 
-            $('#add-edit-opportunity-form').submit(function(e){
+            $('#add-opportunity-form,#edit-opportunity-form').submit(function(e){
                 e.preventDefault();
                 var update_new_url = '';
-                var opportunityID = $('#add-edit-opportunity-form').find('[name="OpportunityID"]').val();
-                if( typeof opportunityID != 'undefined' && opportunityID != ''){
+                var formid = $(this).attr('id');
+                var opportunityID = $('#'+formid).find('[name="OpportunityID"]').val();
+
+                if(opportunityID){
                     update_new_url = baseurl + '/opportunity/'+opportunityID+'/update';
                 }else{
                     update_new_url = baseurl + '/opportunity/create';
                 }
-                var formData = new FormData($('#add-edit-opportunity-form')[0]);
+                var formData = new FormData($('#'+formid)[0]);
                 $.ajax({
                     url: update_new_url,  //Server script to process data
                     type: 'POST',
@@ -203,7 +203,7 @@
                     success: function (response) {
                         if(response.status =='success'){
                             toastr.success(response.message, "Success", toastr_opts);
-                            $('#add-edit-modal-opportunity').modal('hide');
+                            $('#add-modal-opportunity').modal('hide');
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
@@ -221,15 +221,32 @@
 
             $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
                 e.stopPropagation();
-                isEdit = true;
-                $('#add-edit-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Yes');
-                $('#add-edit-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                 var rowHidden = $(this).parents('.tile-stats').prev('div.row-hidden');
-                var UserID = rowHidden.find('input[name="UserID"]').val();
-                var AccountID = rowHidden.find('input[name="AccountID"]').val();
-                $('#add-edit-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(UserID);
-                getLeadorAccountInstance(AccountID);
-                setTimeout(loadOpportunity, 2000, rowHidden);
+                //var UserID = rowHidden.find('input[name="UserID"]').val();
+                //var AccountID = rowHidden.find('input[name="AccountID"]').val();
+                //$('#add-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(UserID);
+
+                var select = ['UserID','OpportunityBoardID'];
+                var color = ['BackGroundColour','TextColour'];
+                for(var i = 0 ; i< opportunity.length; i++){
+                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
+                    var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
+                    //console.log(opportunity[i]+' '+val);
+                    if(select.indexOf(opportunity[i])!=-1){
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                    } else{
+                        elem.val(val);
+                        if(color.indexOf(opportunity[i])!=-1){
+                            setcolor(elem,val);
+                        }else if(opportunity[i]=='Rating'){
+                            elem.val(val).trigger('change');
+                        }else if(opportunity[i]=='Tags'){
+                            elem.val(val).trigger("change");
+                        }
+                    }
+                }
+                $('#edit-modal-opportunity h4').text('Edit Opportunity');
+                $('#edit-modal-opportunity').modal('show');
             });
 
             $(document).on('mousedown','#board-start ul.sortable-list li',function(e){
@@ -349,7 +366,7 @@
                 tags:{{$tags}}
             });
 
-            $('#add-edit-modal-opportunity .reset').click(function(){
+            $('#add-modal-opportunity .reset').click(function(){
                 var colorPicker = $(this).parents('.form-group').find('[type="text"].colorpicker');
                 var color = $(this).attr('data-color');
                 setcolor(colorPicker,color);
@@ -432,13 +449,13 @@
             }
 
             function getLeadOrAccount(url){
-                var formData = new FormData($('#add-edit-opportunity-form')[0]);
+                var formData = new FormData($('#add-opportunity-form')[0]);
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
                     dataType: 'json',
                     success: function (response) {
-                        var elem = $('#add-edit-opportunity-form [name="AccountID"]');
+                        var elem = $('#add-opportunity-form [name="AccountID"]');
                         //elem.select2('destroy');
                         elem.empty();
                         if(Object.prototype.toString.call( response.result ) === '[object Object]') {
@@ -518,12 +535,12 @@
                 $('#cardorder [name="OpportunityBoardColumnID"]').val(OpportunityBoardColumnID);
             }
 
-            function setunsetreadonly(data,status){
+            function setunset(data){
                 for(var i = 0 ; i< readonly.length; i++){
-                    $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val('');
-                    $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
+                    $('#add-opportunity-form [name="'+readonly[i]+'"]').val('');
+                    //$('#add-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
                     if(data){
-                        $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val(data[readonly[i]]);
+                        $('#add-opportunity-form [name="'+readonly[i]+'"]').val(data[readonly[i]]);
                     }
                 }
             }
@@ -543,11 +560,7 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function (response) {
-                            if(isEdit){
-                                $('#add-edit-opportunity-form [name="leadOrAccount"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(response[0].AccountType==0?'Lead':'Account');
-                                changelableanddropdown();
-                            }
-                            setunsetreadonly(response[0],true);
+                            setunset(response);
                         },
                         //Options to tell jQuery not to process data or worry about content-type.
                         cache: false,
@@ -555,19 +568,13 @@
                         processData: false
                     });
                 }else{
-                    if(!isEdit) {
-                        if ($('#add-edit-opportunity-form [name="leadcheck"]').val() == 'Yes') {
-                            setunsetreadonly('', true);
-                        } else {
-                            setunsetreadonly('', false);
-                        }
-                    }
+                    setunset('');
                 }
             }
 
             function changelableanddropdown(){
                 var check=1;
-                if($('#add-edit-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
+                if($('#add-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
                     $('#leadlable').text('Existing lead');
                     $('.leads label').text('Lead');
                 }else{
@@ -577,37 +584,7 @@
                 }
                 var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
                 getLeadOrAccount(url);
-                if(!isEdit) {
-                    if ($('#add-edit-opportunity-form [name="leadcheck"]').val() == 'Yes') {
-                        setunsetreadonly('', true);
-                    } else {
-                        setunsetreadonly('', false);
-                    }
-                }
-            }
-            function loadOpportunity(rowHidden){
-                var select = ['UserID','AccountID','OpportunityBoardID'];
-                var color = ['BackGroundColour','TextColour'];
-                for(var i = 0 ; i< opportunity.length; i++){
-                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
-                    var elem = $('#add-edit-opportunity-form [name="'+opportunity[i]+'"]');
-                    //console.log(opportunity[i]+' '+val);
-                    if(select.indexOf(opportunity[i])!=-1){
-                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
-                    } else{
-                        elem.val(val);
-                        if(color.indexOf(opportunity[i])!=-1){
-                            setcolor(elem,val);
-                        }else if(opportunity[i]=='Rating'){
-                            elem.val(val).trigger('change');
-                        }else if(opportunity[i]=='Tags'){
-                            elem.val(val).trigger("change");
-                        }
-                    }
-                }
-                isEdit = false;
-                $('#add-edit-modal-opportunity h4').text('Edit Opportunity');
-                $('#add-edit-modal-opportunity').modal('show');
+                setunset('');
             }
         });
     </script>
@@ -615,10 +592,10 @@
 @stop
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="add-edit-modal-opportunity">
+    <div class="modal fade" id="add-modal-opportunity">
         <div class="modal-dialog" style="width: 70%;">
             <div class="modal-content">
-                <form id="add-edit-opportunity-form" method="post">
+                <form id="add-opportunity-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Add New Opportunity</h4>
@@ -638,7 +615,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -674,6 +650,137 @@
                                             {{Form::select('AccountID',$leads,'',array("class"=>"select2"))}}
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Company</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="Company" class="form-control" id="field-5">
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Contact Name</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="ContactName" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Phone Number</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="Phone" class="form-control" id="field-5">
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Email Address</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="Email" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Select Board</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Select Background</label>
+                                    <div class="col-sm-3 input-group">
+                                        <input name="BackGroundColour" type="text" class="form-control colorpicker" value="" />
+                                        <div class="input-group-addon">
+                                            <i class="color-preview"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <a class="btn btn-primary btn-xs reset" data-color="#303641" href="javascript:void(0)">
+                                            <i class="entypo-ccw"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Text Color</label>
+                                    <div class="col-sm-3 input-group">
+                                        <input name="TextColour" type="text" class="form-control colorpicker" value="" />
+                                        <div class="input-group-addon">
+                                            <i class="color-preview"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <a class="btn btn-primary btn-xs reset" data-color="#ffffff" href="javascript:void(0)">
+                                            <i class="entypo-ccw"></i>
+                                        </a>
+                                        <!--<button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>-->
+                                    </div>
+                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
+                                    <div class="col-sm-4 input-group">
+                                        <input class="form-control tags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="OpportunityID">
+                        <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-modal-opportunity">
+        <div class="modal-dialog" style="width: 70%;">
+            <div class="modal-content">
+                <form id="edit-opportunity-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New Opportunity</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Account Owner *</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('UserID',$account_owners,'',array("class"=>"select2"))}}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="input-1" class="control-label col-sm-2">Rate This</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="knob" data-min="0" data-max="5" data-width="75" data-height="75" name="Rating" value="1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="field-5" class="control-label col-sm-2">Opportunity Name *</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                         </div>

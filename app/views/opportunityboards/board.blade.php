@@ -1,9 +1,10 @@
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($boradsWithOpportunities)>0)
         @foreach($boradsWithOpportunities as $index=>$board )
-        <li data-id="{{$index}}" class="board-column count-li">
+            <?php $style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
+        <li data-id="{{$index}}" {{$style}} class="board-column count-li">
             <header>
-                <h5>{{$columns[$index]}} {{empty($board[0])?'':'('.count($board).')'}}</h5>
+                <h5>{{$columns[$index]['Name']}} {{empty($board[0])?'':'('.count($board).')'}}</h5>
             </header>
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
                     @foreach($board as $opportunity)
@@ -15,7 +16,6 @@
                                     foreach($opportunity as $i=>$val){
                                         $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
                                     }
-                            $style=(empty($opportunity['Hieght'])&&empty($opportunity['Width']))?'':'style="'.(empty($opportunity['Hieght'])?'':'Height:'.$opportunity['Hieght'].';').(empty($opportunity['Width'])?'':'Width:'.$opportunity['Width'].';').'"';
                         ?>
                             <li class="board-column-item sortable-item count-cards" data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
                             <div class="row-hidden">

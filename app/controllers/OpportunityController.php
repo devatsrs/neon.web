@@ -101,10 +101,23 @@ class OpportunityController extends \BaseController {
         $response = NeonAPI::request('opportunity/'.$id.'/update_columnorder',$data);
         return json_response_api($response);
     }
-    //@TODO: convert into procedure
     public function getLead($id){
-        $response = NeonAPI::request('opportunity/'.$id.'/get_lead',[],false);
-        return json_response_api($response);
+        $response = NeonAPI::request('account/'.$id.'/get_account',[],false);
+        $return=[];
+        if(isset($response->status_code)) {
+            if ($response->status_code == 200) {
+                $lead = $response->data->result;
+                $return['Company'] = $lead->AccountName;
+                $return['Phone'] = $lead->Phone;
+                $return['Email'] = $lead->Email;
+                $return['ContactName'] = $lead->FirstName.' '.$lead->LastName;
+                return $return;
+            }else{
+                return json_response_api($response);
+            }
+        }else{
+            return json_response_api($response);
+        }
     }
 
     public function getDropdownLeadAccount($accountLeadCheck){
