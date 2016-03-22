@@ -651,19 +651,19 @@ class EstimatesController extends \BaseController {
             $Estimate = Estimate::where(["EstimateID"=>$EstimateID,"AccountID"=>$AccountID])->first();
             if(count($Estimate)>0)
 			{
-				/*
-                $invoiceloddata = array();
-                $invoiceloddata['Note']= 'Viewed By Unknown';
+				
+                $estimateloddata = array();
+                $estimateloddata['Note']= 'Viewed By Unknown';
                 if(!empty($_GET['email']))
 				{
-                    $invoiceloddata['Note']= 'Viewed By '. $_GET['email'];
+                    $estimateloddata['Note']= 'Viewed By '. $_GET['email'];
                 }
 
-                $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
-                $invoiceloddata['created_at']= date("Y-m-d H:i:s");
-                $invoiceloddata['InvoiceLogStatus']= InVoiceLog::VIEWED;
-                InVoiceLog::insert($invoiceloddata);
-				*/
+                $estimateloddata['EstimateID']= $Estimate->EstimateID;
+                $estimateloddata['created_at']= date("Y-m-d H:i:s");
+                $estimateloddata['EstimateLogStatus']= EstimateLog::VIEWED;
+                EstimateLog::insert($estimateloddata);
+				
                 return self::estimate_preview($EstimateID);
             }
         }
