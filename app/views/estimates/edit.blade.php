@@ -214,7 +214,7 @@ var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-dan
      add_row_html += '{{Form::hidden('EstimateDetail[StartDate][]','',array("class"=>"StartDate"))}}{{Form::hidden('EstimateDetail[EndDate][]','',array("class"=>"EndDate"))}}{{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}</td></tr>';
 
 </script>
-@include('Estimates.script_estimate_add_edit')
+@include('estimates.script_estimate_add_edit')
 @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'estimate/'.$id.'/update' ))
 @stop
 @section('footer_ext')
