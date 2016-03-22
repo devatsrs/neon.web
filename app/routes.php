@@ -683,6 +683,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
 	
 	#estimate
+	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View
 	Route::any('/estimate/display_estimate/{id}', 'EstimatesController@display_estimate');
 	Route::any('/estimate/{id}/estimate_email', 'EstimatesController@estimate_email');
 	

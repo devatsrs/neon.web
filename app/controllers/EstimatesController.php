@@ -642,16 +642,20 @@ class EstimatesController extends \BaseController {
         return Response::download($pdf_path);
     }
 
-    public function cview($id) {
+    public function cview($id) 
+	{
         $account_inv = explode('-',$id);
         if(isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0  ) {
             $AccountID = intval($account_inv[0]);
-            $InvoiceID = intval($account_inv[1]);
-            $Invoice = Invoice::where(["InvoiceID"=>$InvoiceID,"AccountID"=>$AccountID])->first();
-            if(count($Invoice)>0) {
+            $EstimateID = intval($account_inv[1]);
+            $Estimate = Estimate::where(["EstimateID"=>$EstimateID,"AccountID"=>$AccountID])->first();
+            if(count($Estimate)>0)
+			{
+				/*
                 $invoiceloddata = array();
                 $invoiceloddata['Note']= 'Viewed By Unknown';
-                if(!empty($_GET['email'])){
+                if(!empty($_GET['email']))
+				{
                     $invoiceloddata['Note']= 'Viewed By '. $_GET['email'];
                 }
 
@@ -659,8 +663,8 @@ class EstimatesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::VIEWED;
                 InVoiceLog::insert($invoiceloddata);
-
-                return self::invoice_preview($InvoiceID);
+				*/
+                return self::estimate_preview($EstimateID);
             }
         }
         echo "Something Went wrong";
