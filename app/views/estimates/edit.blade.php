@@ -7,7 +7,7 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <a href="{{URL::to('estimate')}}">Estimate</a>
+        <a href="{{URL::to('estimates')}}">Estimate</a>
     </li>
     <li class="active">
         <strong>Edit Estimate</strong>
