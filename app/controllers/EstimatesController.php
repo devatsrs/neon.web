@@ -611,6 +611,7 @@ class EstimatesController extends \BaseController {
             $Account 			= 	Account::find($Estimate->AccountID);
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
+			$CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
             return View::make('estimates.estimates_cview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo'));
         }
     }
