@@ -182,6 +182,7 @@ class NeonExcelIO
         $this->reader = ReaderFactory::create(Type::CSV); // for XLSX files
         $this->set_file_settings();
         $this->reader->open($filepath);
+        $result = array();
 
         foreach($this->reader->getSheetIterator() as $key  => $sheet) {
 
