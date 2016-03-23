@@ -58,8 +58,7 @@ table{
                 </td>
                 <td class="col-md-6 text-right"  valign="top" >
                         <p><b>Estimate No: </b>{{$EstimateTemplate->EstimateNumberPrefix}}{{$Estimate->EstimateNumber}}</p>
-                        <p><b>Estimate Date: </b>{{ date($EstimateTemplate->DateFormat,strtotime($Estimate->IssueDate))}}</p>
-                        <p><b>Due Date: </b>{{date('d-m-Y',strtotime($Estimate->IssueDate.' +'.$Account->PaymentDueInDays.' days'))}}</p>
+                        <p><b>Estimate Date: </b>{{ date($EstimateTemplate->DateFormat,strtotime($Estimate->IssueDate))}}</p>                       
                 </td>
             </tr>
         </table>
@@ -116,21 +115,21 @@ table{
                                                     <tfoot>
                                                         <tr>
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
-                                                                <td class="text-right">{{number_format($Estimate->SubTotal,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         <tr>
                                                                 <td class="text-right"><strong>Tax</strong></td>
-                                                                <td class="text-right">{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
-                                                                <td class="text-right">{{number_format($Estimate->TotalDiscount,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalDiscount,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
                                                         <tr>
                                                                 <td class="text-right"><strong>Estimate Total ({{$CurrencyCode}})</strong></td>
-                                                                <td class="text-right">{{number_format($Estimate->GrandTotal,$Account->RoundChargesAmount)}} </td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$Account->RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>

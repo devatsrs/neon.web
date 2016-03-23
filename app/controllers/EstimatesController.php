@@ -898,32 +898,32 @@ class EstimatesController extends \BaseController {
 		
         $mail->Body 	= $body;
         $mail->Subject 	= $data['Subject'];
-
+		
         if(is_array($data['EmailTo']))
 		{
             foreach((array)$data['EmailTo'] as $email_address)
 			{
                 if(!empty($email_address))
 				{
-                    $email_address = trim($email_address);
-					
+                    $email_address = trim($email_address);					
                     $mail->addAddress($email_address);
+					
                     if (!$mail->send())
 					{
                         $mail->clearAllRecipients();
-                        $status['status'] = 0;
-                        $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $email_address . ')';
+                        $status['status']   = 	0;
+                        $status['message'] .= 	$mail->ErrorInfo . ' ( Email Address: ' . $email_address . ')';
                     }
 					else
 					{
-                        $status['status'] = 1;
-                        $status['message'] = 'Email has been sent';
+                        $status['status'] 	= 	1;
+                        $status['message'] 	= 	'Email has been sent';
                     }
                 }
             }
         }
 		else
-		{
+		{ 
             if(!empty($data['EmailTo']))
 			{
                 $email_address = trim($data['EmailTo']);

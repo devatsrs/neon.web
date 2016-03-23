@@ -143,6 +143,7 @@ class Estimate extends \Eloquent {
             $Account 			= 	Account::find($Estimate->AccountID);
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency)?$Currency->Code:'';
+			$CurrencySymbol 	=   Currency::getCurrencySymbol($Account->CurrencyId);
             $EstimateTemplate 	= 	InvoiceTemplate::find($Account->InvoiceTemplateID);
 			
             if (empty($EstimateTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key) == '')
@@ -161,7 +162,7 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo'))->render();
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol'))->render();
             $body 	= 	htmlspecialchars_decode($body);
             $footer = 	View::make('estimates.pdffooter', compact('Estimate'))->render();
             $footer = 	htmlspecialchars_decode($footer);

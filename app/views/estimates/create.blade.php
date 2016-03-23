@@ -7,7 +7,7 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <a href="{{URL::to('estimate')}}">Estimate</a>
+        <a href="{{URL::to('estimates')}}">Estimate</a>
     </li>
     <li class="active">
         <strong>Create Estimate</strong>
@@ -25,7 +25,7 @@
         Save Estimate
         <i class="entypo-mail"></i>
    </button>
-    <a href="{{URL::to('/estimate')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+    <a href="{{URL::to('/estimates')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close
     </a>

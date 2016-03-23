@@ -262,13 +262,13 @@ var postdata;
 							{     
 								//if(full[4] != 'accepted')
 								{                           
-                                	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-pencil"></i>Delete</a></li>';				}
+                                	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-cancel"></i>Delete</a></li>';				}
                             }
                             
 							//if(full[11]== 'N')
 							{
-	                                   action += ' <li><a class="icon-left send_estimate"  estimate="'+full[5]+'"><i class="entypo-pencil"></i>Send</a></li>';    
-											action += ' <li><a class="icon-left convert_estimate"  estimate="'+full[5]+'"><i class="entypo-pencil"></i>Accept</a></li>';
+	                                   action += ' <li><a class="icon-left send_estimate"  estimate="'+full[5]+'"><i class="entypo-mail"></i>Send</a></li>';    
+											action += ' <li><a class="icon-left convert_estimate"  estimate="'+full[5]+'"><i class="entypo-check"></i>Accept</a></li>';
 						}
                             
 
