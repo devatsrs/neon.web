@@ -372,7 +372,17 @@
                 setcolor(colorPicker,color);
             });
 
-
+            $('#addTtachment').click(function(){
+                $('#filecontrole').click();
+            });
+            $(document).on('change','#filecontrole',function(e){
+                var files = e.target.files;
+                var fileText = '';
+                for(i=0;i<files.length;i++){
+                    fileText+=files[i].name+'<br>';
+                }
+                $('#commentadd').siblings('.file-input-name').html(fileText);
+            });
             function initSortable(){
                 // Code using $ as usual goes here.
                 $('#board-start .sortable-list').sortable({
@@ -905,14 +915,23 @@
                                 </div>
                                 <div class="col-md-12">
                                     <textarea class="form-control" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <p class="comment-box-options">
+                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
+                                            <i class="entypo-attach"></i>
+                                        </a>
+                                        <a class="btn-sm btn-white btn-xs" title="Tag a memeber…" href="javascript:void(0)">
+                                            <i class="entypo-tag"></i>
+                                        </a>
+                                    </p>
                                 </div>
                                 <div class="col-sm-12 pull-right end-buttons" style="text-align: right;">
                                     <input type="hidden" name="OpportunityID" >
-                                    <input type="file" name="commentattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
                                         <i class="entypo-floppy"></i>
                                         Add Comment
                                     </button>
+                                    <br>
+                                    <input id="filecontrole" type="file" name="commentattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                 </div>
                             </div>
                         </form>
