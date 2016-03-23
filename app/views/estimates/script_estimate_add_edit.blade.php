@@ -227,7 +227,7 @@ $(document).ready(function(){
         total = eval(grand_total + total_tax).toFixed(decimal_places);
 
         $('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
-        $('input[name=GrandTotal]').val(total + " " + $("input[name=CurrencyCode]").val());
+        $('input[name=GrandTotal]').val(total);
 
     }
     function cal_line_total(obj){
