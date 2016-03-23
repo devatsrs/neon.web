@@ -900,16 +900,20 @@ button.close {
     padding: 5px 5px 5px 10px;
     cursor:pointer;
 }
-.tile-stats h3,
-.tile-stats p {
+.count-cards .info{
+    padding: 15px 0px 0px 5px;
+}
+.count-cards .info .title,
+.count-cards .info .name {
+    word-wrap: break-word;
     font-weight: 600;
     text-align:left
 }
-.tile-stats h3{
+.count-cards .info .title{
     font-size:12px;
 }
-.count-cards .info{
-    padding: 15px 0px 0px 5px;
+.input-group{
+    top:-5px;
 }
 @media (max-width: 767px) {
     dialog {
@@ -923,4 +927,31 @@ button.close {
         position:absolute;
 
     }
+}
+
+#allComments .panel-primary{
+    border-color:#ffffff;
+}
+
+#allComments .comments-list > li{
+    padding: 0px;
+    list-style:none;
+    float:left;
+    clear:left;
+}
+#allComments .comments-list > li .comment-details{
+    width: 100%;
+    padding: 5px;
+}
+#allComments .comments-list > li .comment-details .comment-text{
+    margin: 0px;
+    padding: 0px;
+}
+
+#allComments .comments-list > li .comment-details .comment-footer{
+    padding: 2px;
+}
+
+#allComments .comments-list > li .comment-details .comment-footer .comment-time{
+    min-width: 60px;
 }

@@ -38,12 +38,12 @@
                                     {{$hidden}}
                                 </div>
                                 <div class="info">
-                                    <h3 {{$textcolour}}>{{$opportunity['OpportunityName']}}</h3>
-                                    <p {{$textcolour}}>{{$opportunity['Company']}} Company Name</p>
+                                    <p {{$textcolour}} class="title">{{$opportunity['OpportunityName']}}</p>
+                                    <p {{$textcolour}} class="name">{{$opportunity['Company']}}</p>
                                 </div>
                                 <div class="pull-right">
-                                    <span class="badge badge-info">{{$Owner}}</span>
-                                    <span class="badge badge-success">{{$ContactName}}</span>
+                                    <span class="badge badge-info tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="Tooltip on top">{{$Owner}}</span>
+                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="Tooltip on top">{{$ContactName}}</span>
                                 </div>
                             </li>
                         @endif

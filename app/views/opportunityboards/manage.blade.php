@@ -636,8 +636,12 @@
                                         <?php $leadcheck = ['No'=>'No','Yes'=>'Yes']; ?>
                                         {{Form::select('leadcheck',$leadcheck,'',array("class"=>"selectboxit"))}}
                                     </div>
+
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div class="leads hidden">
@@ -703,6 +707,11 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
+                                    <div class="col-sm-4 input-group">
+                                        <input class="form-control tags" name="Tags" type="text" >
+                                    </div>
+
                                     <label for="field-5" class="control-label col-sm-2">Text Color</label>
                                     <div class="col-sm-3 input-group">
                                         <input name="TextColour" type="text" class="form-control colorpicker" value="" />
@@ -715,10 +724,6 @@
                                             <i class="entypo-ccw"></i>
                                         </a>
                                         <!--<button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>-->
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
-                                    <div class="col-sm-4 input-group">
-                                        <input class="form-control tags" name="Tags" type="text" >
                                     </div>
                                 </div>
                             </div>
@@ -834,6 +839,10 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
+                                    <div class="col-sm-4 input-group">
+                                        <input class="form-control tags" name="Tags" type="text" >
+                                    </div>
                                     <label for="field-5" class="control-label col-sm-2">Text Color</label>
                                     <div class="col-sm-3 input-group">
                                         <input name="TextColour" type="text" class="form-control colorpicker" value="" />
@@ -846,10 +855,6 @@
                                             <i class="entypo-ccw"></i>
                                         </a>
                                         <!--<button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>-->
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
-                                    <div class="col-sm-4 input-group">
-                                        <input class="form-control tags" name="Tags" type="text" >
                                     </div>
                                 </div>
                             </div>

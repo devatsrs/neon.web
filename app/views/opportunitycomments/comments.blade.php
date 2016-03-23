@@ -12,7 +12,7 @@
                         <li class="countComments" id="comment-1">
                             <div class="comment-details">
                                 <p class="comment-text">
-                                    {{$comment['CommentText']}}
+                                    {{nl2br($comment['CommentText'])}}
                                 </p>
                                 <div class="comment-footer">
                                     <div class="comment-time">
