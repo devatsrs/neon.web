@@ -320,6 +320,11 @@ function getFileContent($file_name,$data){
     $columns = [];
     $grid = [];
     $flag = 0;
+
+    $NeonExcel = new NeonExcelIO($file_name, $data);
+    $results = $NeonExcel->read(10);
+
+    /*
     if (!empty($data['Delimiter'])) {
         Config::set('excel::csv.delimiter', $data['Delimiter']);
     }
@@ -343,11 +348,11 @@ function getFileContent($file_name,$data){
         if ($flag == 1) {
             $reader->noHeading();
         }
-    })->take(10)->toArray();
+    })->take(10)->toArray();*/
     $counter = 1;
     //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if ($flag == 1) {
+        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             $columns[$index] = $index;
