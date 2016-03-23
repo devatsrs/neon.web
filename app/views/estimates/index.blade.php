@@ -63,7 +63,7 @@
         <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
         @endif       
         @if(User::checkCategoryPermission('Invoice','Edit'))
-        <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept</a> </li>
+        <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept and generate invoice</a> </li>
         @endif
       </ul>
       @endif
@@ -268,7 +268,7 @@ var postdata;
 							//if(full[11]== 'N')
 							{
 	                                   action += ' <li><a class="icon-left send_estimate"  estimate="'+full[5]+'"><i class="entypo-mail"></i>Send</a></li>';    
-											action += ' <li><a class="icon-left convert_estimate"  estimate="'+full[5]+'"><i class="entypo-check"></i>Accept</a></li>';
+											action += ' <li><a class="icon-left convert_estimate"  estimate="'+full[5]+'"><i class="entypo-check"></i>Accept and generate invoice</a></li>';
 						}
                             
 
