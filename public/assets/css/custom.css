@@ -929,16 +929,24 @@ button.close {
     }
 }
 
+#deals-dashboard .board-column-list li{
+    -webkit-transition: none;
+    -moz-transition: none;
+    -o-transition: none;
+    -ms-transition: none;
+    transition: none;
+}
+
 #allComments .panel-primary{
     border-color:#ffffff;
 }
-
 #allComments .comments-list > li{
     padding: 0px;
     list-style:none;
     float:left;
     clear:left;
     border-radius: 10px;
+    max-width: 100%;
 }
 #allComments .comments-list > li .comment-details{
     width: 100%;
@@ -947,6 +955,7 @@ button.close {
 #allComments .comments-list > li .comment-details .comment-text{
     margin: 0px;
     padding: 2px;
+    word-wrap: break-word;
 }
 
 #allComments .comments-list > li .comment-details .comment-footer{

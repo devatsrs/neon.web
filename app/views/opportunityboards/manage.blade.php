@@ -10,6 +10,10 @@
         font-size: 15px;
     }
 
+    .margin-top{
+        margin-top:10px;
+    }
+
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -139,8 +143,8 @@
 
                 setcolor($('#add-modal-opportunity [name="BackGroundColour"]'),'#303641');
                 setcolor($('#add-modal-opportunity [name="TextColour"]'),'#ffffff');
-                $('#add-opportunity-form [name="Rating"]').val(1);
-                $('#add-opportunity-form [name="Rating"]').val(1).trigger('change');
+                $('#add-opportunity-form [name="Rating"]').val(0);
+                $('#add-opportunity-form [name="Rating"]').trigger('change');
                 $('#add-modal-opportunity h4').text('Add Opportunity');
                 $('#add-modal-opportunity').modal('show');
             });
@@ -598,99 +602,106 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6 pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Account Owner *</label>
-                                    <div class="col-sm-4">
+                                    <label for="field-5" class="control-label col-sm-4">Account Owner *</label>
+                                    <div class="col-sm-8">
                                         {{Form::select('UserID',$account_owners,'',array("class"=>"select2"))}}
                                     </div>
-                                    <label for="field-5" class="control-label col-sm-2">Opportunity Name *</label>
-                                    <div class="col-sm-4">
+                                </div>
+                            </div>
+                            <div class="col-md-6 pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Opportunity Name *</label>
+                                    <div class="col-sm-8">
                                         <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
+
+                            <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Lead/Account</label>
-                                    <div class="col-sm-4">
+                                    <label for="input-1" class="control-label col-sm-4">Rate This</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="80" data-height="80" name="Rating" value="1" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 margin-top pull-left ">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Lead/Account</label>
+                                    <div class="col-sm-8">
                                         <?php $leadaccount = ['Lead'=>'Lead','Account'=>'Account']; ?>
                                         {{Form::select('leadOrAccount',$leadaccount,'',array("class"=>"selectboxit"))}}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="input-1" class="control-label col-sm-2">Rate This</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="75" data-height="75" name="Rating" value="1" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label id="leadlable" for="field-5" class="control-label col-sm-2">Existing Lead</label>
-                                    <div class="col-sm-4">
+                                    <label id="leadlable" for="field-5" class="control-label col-sm-4">Existing Lead</label>
+                                    <div class="col-sm-8">
                                         <?php $leadcheck = ['No'=>'No','Yes'=>'Yes']; ?>
                                         {{Form::select('leadcheck',$leadcheck,'',array("class"=>"selectboxit"))}}
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6 margin-top pull-left leads hidden">
                                 <div class="form-group">
-                                    <div class="leads hidden">
-                                        <label for="field-5" class="control-label col-sm-2">Leads</label>
-                                        <div class="col-sm-4">
-                                            {{Form::select('AccountID',$leads,'',array("class"=>"select2"))}}
-                                        </div>
+                                    <label for="field-5" class="control-label col-sm-4">Leads</label>
+                                    <div class="col-sm-8">
+                                        {{Form::select('AccountID',$leads,'',array("class"=>"select2"))}}
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Company</label>
-                                    <div class="col-sm-4">
+                                    <label for="field-5" class="control-label col-sm-4">Company</label>
+                                    <div class="col-sm-8">
                                         <input type="text" name="Company" class="form-control" id="field-5">
                                     </div>
-                                    <label for="field-5" class="control-label col-sm-2">Contact Name</label>
-                                    <div class="col-sm-4">
+                                </div>
+                            </div>
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Contact Name</label>
+                                    <div class="col-sm-8">
                                         <input type="text" name="ContactName" class="form-control" id="field-5">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
+
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Phone Number</label>
-                                    <div class="col-sm-4">
+                                    <label for="field-5" class="control-label col-sm-4">Phone Number</label>
+                                    <div class="col-sm-8">
                                         <input type="text" name="Phone" class="form-control" id="field-5">
                                     </div>
-                                    <label for="field-5" class="control-label col-sm-2">Email Address</label>
-                                    <div class="col-sm-4">
+                                </div>
+                            </div>
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Email Address</label>
+                                    <div class="col-sm-8">
                                         <input type="text" name="Email" class="form-control" id="field-5">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
+
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Select Board</label>
-                                    <div class="col-sm-4">
+                                    <label for="field-5" class="control-label col-sm-4">Select Board</label>
+                                    <div class="col-sm-8">
                                         {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
                                     </div>
-                                    <label for="field-5" class="control-label col-sm-2">Select Background</label>
-                                    <div class="col-sm-3 input-group">
+                                </div>
+                            </div>
+
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Select Background</label>
+                                    <div class="col-sm-7 input-group">
                                         <input name="BackGroundColour" type="text" class="form-control colorpicker" value="" />
                                         <div class="input-group-addon">
                                             <i class="color-preview"></i>
@@ -703,17 +714,20 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
+
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
-                                    <div class="col-sm-4 input-group">
+                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
+                                    <div class="col-sm-8 input-group">
                                         <input class="form-control tags" name="Tags" type="text" >
                                     </div>
+                                </div>
+                            </div>
 
-                                    <label for="field-5" class="control-label col-sm-2">Text Color</label>
-                                    <div class="col-sm-3 input-group">
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Text Color</label>
+                                    <div class="col-sm-7 input-group">
                                         <input name="TextColour" type="text" class="form-control colorpicker" value="" />
                                         <div class="input-group-addon">
                                             <i class="color-preview"></i>
@@ -725,12 +739,6 @@
                                         </a>
                                         <!--<button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>-->
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
                                 </div>
                             </div>
                         </div>
