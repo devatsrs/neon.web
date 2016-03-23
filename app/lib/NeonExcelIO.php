@@ -179,10 +179,10 @@ class NeonExcelIO
      */
     public function read_csv($filepath,$limit=0) {
 
+        $result = array();
         $this->reader = ReaderFactory::create(Type::CSV); // for XLSX files
         $this->set_file_settings();
         $this->reader->open($filepath);
-        $result = array();
 
         foreach($this->reader->getSheetIterator() as $key  => $sheet) {
 
@@ -199,13 +199,13 @@ class NeonExcelIO
                         $first_row = $row;
                         $this->set_columns($first_row);
                         $this->row_cnt++;
-                        $limit++;
+                        if($limit > 0 ){
+                            $limit++;
+                        }
                         continue;
                     }
 
                     $result[] = $this->set_row($row);
-
-
 
                     $this->row_cnt++;
 
@@ -221,6 +221,7 @@ class NeonExcelIO
     }
 
     public function read_excel($filepath,$limit=0){
+
 
         $this->reader = ReaderFactory::create(Type::XLSX); // for XLSX files
         $this->reader->open($filepath);
@@ -241,7 +242,9 @@ class NeonExcelIO
                         $first_row = $row;
                         $this->set_columns($first_row);
                         $this->row_cnt++;
-                        $limit++;
+                        if($limit > 0 ){
+                            $limit++;
+                        }
                         continue;
                     }
 
