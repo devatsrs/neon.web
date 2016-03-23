@@ -938,6 +938,7 @@ button.close {
     list-style:none;
     float:left;
     clear:left;
+    border-radius: 10px;
 }
 #allComments .comments-list > li .comment-details{
     width: 100%;
@@ -945,7 +946,7 @@ button.close {
 }
 #allComments .comments-list > li .comment-details .comment-text{
     margin: 0px;
-    padding: 0px;
+    padding: 2px;
 }
 
 #allComments .comments-list > li .comment-details .comment-footer{
