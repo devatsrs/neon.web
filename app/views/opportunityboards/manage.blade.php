@@ -22,9 +22,6 @@
     #add-modal-opportunity .btn-xs{
         padding:0px;
     }
-    #card-features-details .has-switch label i{
-        font-size:14px;
-    }
 
 </style>
 <div id="content">
@@ -977,13 +974,14 @@
                                         </a>
                                     </p>
                                 </div>
-                                <div class="col-sm-12 pull-right end-buttons" style="text-align: right;">
-                                    <input type="hidden" name="OpportunityID" >
-
-                                    <span id="label-switch" class="make-switch switch-mini" data-text-label="<i class='entypo-mail'></i>" data-on-label="To Customer" data-off-label="Not to Customer">
+                                <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
+                                    <label for="field-5" class="control-label">Send Mail To Customer:</label>
+                                    <span id="label-switch" class="make-switch switch-mini">
                                         <input name="PrivateComment" value="1" type="checkbox">
                                     </span>
-
+                                </div>
+                                <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
+                                    <input type="hidden" name="OpportunityID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
                                         <i class="entypo-floppy"></i>
                                         Add Comment
