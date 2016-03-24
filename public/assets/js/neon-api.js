@@ -260,14 +260,14 @@ function gridfix(checkClass) { //function added by abubakar to fix grid in accou
                 gridview.find('ul.grid li').each(function () {
                     if (checkClass == '1'){
                         $(this).removeClass('col-lg-4');
-                        $(this).removeClass('col-sm-6');
+                       // $(this).removeClass('col-sm-6');
                         $(this).addClass('col-lg-3');
-                        $(this).addClass('col-sm-4');
+                       // $(this).addClass('col-sm-4');
                     } else {
                         $(this).removeClass('col-lg-3');
-                        $(this).removeClass('col-sm-4');
+                      //  $(this).removeClass('col-sm-4');
                         $(this).addClass('col-lg-4');
-                        $(this).addClass('col-sm-6');
+                       // $(this).addClass('col-sm-6');
                     }
                 });
             }

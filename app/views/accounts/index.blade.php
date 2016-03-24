@@ -361,7 +361,7 @@
                 }
                 if(checkClass=='1')
 				{
-                    html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-4 col-xsm-12">';
+                    html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-6 col-xsm-12">';
                 }
 				else
 				{
@@ -388,7 +388,7 @@
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Address</div>';
-                html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
+                html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-11 padding-0 action">';
