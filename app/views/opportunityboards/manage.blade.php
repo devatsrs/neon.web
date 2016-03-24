@@ -13,6 +13,12 @@
     .margin-top{
         margin-top:10px;
     }
+    .paddingleft-0{
+        padding-left: 0px;
+    }
+    .paddingright-0{
+        padding-right: 0px;
+    }
 
 </style>
 <div id="content">
@@ -99,23 +105,24 @@
         var currentDrageable = '';
         $(document).ready(function ($) {
             var opportunity = [
-                                'OpportunityBoardColumnID',
-                                'OpportunityBoardColumnName',
-                                'OpportunityID',
-                                'OpportunityName',
-                                'BackGroundColour',
-                                'TextColour',
-                                'Company',
-                                'ContactName',
-                                'Owner',
-                                'UserID',
-                                'Phone',
-                                'Email',
-                                'OpportunityBoardID',
-                                'AccountID',
-                                'Tags',
-                                'Rating'
-                                ];
+                'OpportunityBoardColumnID',
+                'OpportunityBoardColumnName',
+                'OpportunityID',
+                'OpportunityName',
+                'BackGroundColour',
+                'TextColour',
+                'Company',
+                'ContactName',
+                'Owner',
+                'UserID',
+                'Phone',
+                'Email',
+                'OpportunityBoardID',
+                'AccountID',
+                'Tags',
+                'Rating',
+                'TaggedUser'
+            ];
             var readonly = ['Company','Phone','Email','ContactName'];
             var OpportunityBoardID = "{{$id}}";
             var usetId = "{{User::get_userID()}}";
@@ -177,6 +184,32 @@
                 }
                 var url = baseurl + '/opportunity/'+check+'/getDropdownLeadAccount';
                 getLeadOrAccount(url);
+            });
+
+            $('#taggedUser [name="taggedUser[]"]').change(function(){
+                var formData = new FormData($('#taggedUser')[0]);
+                var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
+                var url = baseurl + '/opportunity/'+opportunityID+'/updatetaggeduser';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if(response.status =='success'){
+                            toastr.success(response.message, "Success", toastr_opts);
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $("#opportunity-update").button('reset');
+                        getOpportunities();
+                    },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
             });
 
             $('#add-opportunity-form [name="leadOrAccount"]').on('change',function(){
@@ -261,14 +294,17 @@
 
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
+                var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
-                var opportunityID = $(this).attr('data-id');
-                var opportunityName = $(this).attr('data-name');
+                var opportunityID = rowHidden.find('[name="OpportunityID"]').val();
+                var opportunityName = rowHidden.find('[name="OpportunityName"]').val();
+                var taggedUser = rowHidden.find('[name="TaggedUser"]').val();
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
+                $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
+                $('#taggedUser [name="taggedUser[]"]').select2('val', taggedUser.split(','));
                 getComments();
                 getOpportunityAttachment();
-                $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
                 $('#add-view-modal-opportunity-comments').modal('show');
             });
 
@@ -383,6 +419,9 @@
                 }
                 $('#commentadd').siblings('.file-input-name').html(fileText);
             });
+            $(document).on('click','.viewattachments',function(){
+                $(this).siblings('.comment-attachment').toggleClass('hidden');
+            })
             function initSortable(){
                 // Code using $ as usual goes here.
                 $('#board-start .sortable-list').sortable({
@@ -633,7 +672,7 @@
                                 <div class="form-group">
                                     <label for="input-1" class="control-label col-sm-4">Rate This</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="80" data-height="80" name="Rating" value="1" />
+                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="85" data-height="85" name="Rating" value="0" />
                                     </div>
                                 </div>
                             </div>
@@ -711,13 +750,13 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Background</label>
-                                    <div class="col-sm-7 input-group">
+                                    <div class="col-sm-7 input-group paddingright-0">
                                         <input name="BackGroundColour" type="text" class="form-control colorpicker" value="" />
                                         <div class="input-group-addon">
                                             <i class="color-preview"></i>
                                         </div>
                                     </div>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-1 paddingleft-0">
                                         <a class="btn btn-primary btn-xs reset" data-color="#303641" href="javascript:void(0)">
                                             <i class="entypo-ccw"></i>
                                         </a>
@@ -737,13 +776,13 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Text Color</label>
-                                    <div class="col-sm-7 input-group">
+                                    <div class="col-sm-7 input-group paddingright-0">
                                         <input name="TextColour" type="text" class="form-control colorpicker" value="" />
                                         <div class="input-group-addon">
                                             <i class="color-preview"></i>
                                         </div>
                                     </div>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-1 paddingleft-0">
                                         <a class="btn btn-primary btn-xs reset" data-color="#ffffff" href="javascript:void(0)">
                                             <i class="entypo-ccw"></i>
                                         </a>
@@ -908,6 +947,17 @@
                         <h4 class="modal-title">Opportunity Name</h4>
                     </div>
                     <div class="modal-body">
+                        <form id="taggedUser" method="post">
+                            <div class="form-group">
+                                <div class="col-md-12 text-left">
+                                    <h4>Tag Users</h4>
+                                </div>
+                                <div class="col-md-12 text-left">
+                                    <?php unset($account_owners['']); ?>
+                                    {{Form::select('taggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                </div>
+                            </div>
+                        </form>
                         <form id="add-opportunity-comments-form" method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <div class="col-md-12 text-left">
@@ -918,9 +968,6 @@
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
-                                        </a>
-                                        <a class="btn-sm btn-white btn-xs" title="Tag a memeber…" href="javascript:void(0)">
-                                            <i class="entypo-tag"></i>
                                         </a>
                                     </p>
                                 </div>

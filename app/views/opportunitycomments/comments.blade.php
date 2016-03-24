@@ -20,8 +20,11 @@
                                     </div>
                                     <div class="comment-time pull-left">
                                         @if(!empty($comment['AttachmentPaths']))
+                                            <a href="javascript:void(0)" title="View attachments" class="viewattachments btn-sm btn-default btn-xs">
+                                                <i class="entypo-attach"></i>
+                                            </a>
                                             @foreach($comment['AttachmentPaths'] as $attachment)
-                                                <p class="comment-attachment"><a href="{{$attachment['filepath']}}" target="_blank">{{basename($attachment['filename'])}}</a></p>
+                                                <p class="comment-attachment btn-default hidden"><a href="{{$attachment['filepath']}}" target="_blank">{{basename($attachment['filename'])}}</a></p>
                                             @endforeach
                                         @endif
                                     </div>

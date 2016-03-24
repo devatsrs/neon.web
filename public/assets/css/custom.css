@@ -651,7 +651,7 @@ ul.board-column-list {
 }
 .end-buttons {
     padding-bottom: 15px;
-    padding-top:10px;
+    margin-top: -20px;
 }
 .placeholder {
     background-color: #e9eced;
@@ -953,6 +953,10 @@ button.close {
     clear:left;
     border-radius: 10px;
     max-width: 100%;
+    border-bottom: 3px solid #D6CFCF;
+    border-right: 3px solid #D6CFCF;
+    border-top: 1px solid #D6CFCF;
+    border-left: 1px solid #D6CFCF;
 }
 #allComments .comments-list > li .comment-details{
     width: 100%;
@@ -970,4 +974,5 @@ button.close {
 
 #allComments .comments-list > li .comment-details .comment-footer .comment-time{
     min-width: 60px;
+    padding-left:5px;
 }

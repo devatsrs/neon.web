@@ -586,6 +586,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/updateColumnOrder', 'OpportunityController@updateColumnOrder');
     Route::any('/opportunity/{id}/ajax_opportunity', 'OpportunityController@ajax_opportunity');
     Route::any('/opportunity/{id}/ajax_getattachments', 'OpportunityController@ajax_getattachments');
+    Route::any('/opportunity/{id}/updatetaggeduser', 'OpportunityController@updateTaggedUser');
 
     //Opportunity Comments
 

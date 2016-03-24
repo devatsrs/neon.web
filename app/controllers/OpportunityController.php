@@ -101,6 +101,13 @@ class OpportunityController extends \BaseController {
         $response = NeonAPI::request('opportunity/'.$id.'/update_columnorder',$data);
         return json_response_api($response);
     }
+
+    function updateTaggedUser($id){
+        $data = Input::all();
+        $response = NeonAPI::request('opportunity/'.$id.'/update_taggeduser',$data);
+        return json_response_api($response);
+    }
+
     public function getLead($id){
         $response = NeonAPI::request('account/'.$id.'/get_account',[],false);
         $return=[];
