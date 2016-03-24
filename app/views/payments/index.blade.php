@@ -173,7 +173,6 @@
                 <button id="payments-upload" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
               </p>
             </div>
-
           </div>
         </form>
       </div>
@@ -834,227 +833,155 @@
 @stop
 @section('footer_ext')
     @parent
-<<<<<<< HEAD
 <div class="modal fade" id="add-edit-modal-payment">
   <div class="modal-dialog">
     <div class="modal-content">
       <form id="add-edit-payment-form" method="post">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add New payment Request</h4>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add New payment Request</h4>
+      </div>
+      <div class="modal-body">
+      <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
+          {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+          <input type="hidden" name="AccountName" />
         </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
-                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-                <input type="hidden" name="AccountName" />
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Payment Date *</label>
-                <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Payment Method *</label>
-                {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }} </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Action *</label>
-                {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }} </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Amount *</label>
-                <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
-                <input type="hidden" name="PaymentID" >
-                <input type="hidden" name="Currency" >
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Invoice</label>
-                <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Notes</label>
-                <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
-                <input type="hidden" name="PaymentID" >
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-                <div class="col-sm-6">
-                  <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-=======
-    <div class="modal fade" id="add-edit-modal-payment">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="add-edit-payment-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New payment Request</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Account Name * </label>
-                                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-                                    <input type="hidden" name="AccountName" />
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Date *</label>
-                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-enddate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Amount *<span id="currency"></span></label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
-                                    <input type="hidden" name="PaymentID" >
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Invoice</label>
-                                    <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Notes</label>
-                                    <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
-                                    <input type="hidden" name="PaymentID" >
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-                                    <div class="col-sm-6">
-                                        <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Payment Date *</label>
+          <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
         </div>
-    </div>
-
-    <div class="modal fade" id="view-modal-payment">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">View Payment</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Account Name</label>
-                                <div class="col-sm-12" name="AccountName"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Invoice</label>
-                                <div class="col-sm-12" name="InvoiceNo"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Payment Date</label>
-                                <div class="col-sm-12" name="PaymentDate"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Payment Method</label>
-                                <div class="col-sm-12" name="PaymentMethod"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Action</label>
-                                <div class="col-sm-12" name="PaymentType"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Amount</label>
-                                <div class="col-sm-12" name="Amount"></div>
-                                <input type="hidden" name="PaymentID" >
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Notes</label>
-                                <div class="col-sm-12" name="Notes"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Recall Reasoan</label>
-                                <div class="col-sm-12" name="RecallReasoan"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Recall By</label>
-                                <div class="col-sm-12" name="RecallBy"></div>
-                            </div>
-                        </div>
-                    </div>
->>>>>>> 43f38763447bc23a030e050c27c9907c46742187
-                </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Payment Method *</label>
+          {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }} </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Action *</label>
+          {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }} </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Amount *</label>
+          <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+          <input type="hidden" name="PaymentID" >
+          <input type="hidden" name="Currency" >
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Invoice</label>
+          <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="field-5" class="control-label">Notes</label>
+          <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
+          <input type="hidden" name="PaymentID" >
+        </div>
+      </div>
+      <div class="col-md-12">
+      <div class="form-group">
+      <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+      <div class="col-sm-6">
+      <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+       </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-        </div>
-      </form>
+      <div class="modal fade" id="add-edit-modal-payment">
+      <div class="modal-dialog">
+      <div class="modal-content">
+     
     </div>
   </div>
+</div>
+<div class="modal fade" id="view-modal-payment">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">View Payment</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Account Name</label>
+              <div class="col-sm-12" name="AccountName"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Invoice</label>
+              <div class="col-sm-12" name="InvoiceNo"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Payment Date</label>
+              <div class="col-sm-12" name="PaymentDate"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Payment Method</label>
+              <div class="col-sm-12" name="PaymentMethod"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Action</label>
+              <div class="col-sm-12" name="PaymentType"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Amount</label>
+              <div class="col-sm-12" name="Amount"></div>
+              <input type="hidden" name="PaymentID" >
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Notes</label>
+              <div class="col-sm-12" name="Notes"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Recall Reasoan</label>
+              <div class="col-sm-12" name="RecallReasoan"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Recall By</label>
+              <div class="col-sm-12" name="RecallBy"></div>
+            </div>
+          </div>
+        </div>
+         </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="modal-footer">
+  <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+  <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+</div>
+</form>
+</div>
+</div>
 </div>
 <div class="modal fade" id="view-modal-payment">
   <div class="modal-dialog">
