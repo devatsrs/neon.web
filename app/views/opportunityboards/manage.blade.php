@@ -10,14 +10,20 @@
         font-size: 15px;
     }
 
-    .margin-top{
+    #add-modal-opportunity .margin-top{
         margin-top:10px;
     }
     .paddingleft-0{
-        padding-left: 0px;
+        padding-left: 3px;
     }
     .paddingright-0{
         padding-right: 0px;
+    }
+    #add-modal-opportunity .btn-xs{
+        padding:0px;
+    }
+    #card-features-details .has-switch label i{
+        font-size:14px;
     }
 
 </style>
@@ -973,6 +979,11 @@
                                 </div>
                                 <div class="col-sm-12 pull-right end-buttons" style="text-align: right;">
                                     <input type="hidden" name="OpportunityID" >
+
+                                    <span id="label-switch" class="make-switch switch-mini" data-text-label="<i class='entypo-mail'></i>" data-on-label="To Customer" data-off-label="Not to Customer">
+                                        <input name="PrivateComment" value="1" type="checkbox">
+                                    </span>
+
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
                                         <i class="entypo-floppy"></i>
                                         Add Comment
