@@ -286,9 +286,9 @@
                              select = 'selected';
                          }
                          if(checkClass=='1'){
-                             html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-6 col-xsm-12">';
+                             html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                          }else{
-                             html += '<li class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-xsm-12">';
+                             html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                          }
                          html += '  <div class="box clearfix ' + select + '">';
                          //html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
