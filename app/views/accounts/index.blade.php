@@ -218,6 +218,18 @@
                     </a>
                 </li>
                 @endif
+                <li>
+                    <a href="{{ URL::to('/accounts/importmissingaccount') }}" >
+                        <i class="entypo-mail"></i>
+                        <span>Import Gatway Account</span>
+                    </a>
+                </li>
+                    <li>
+                        <a href="{{ URL::to('/accounts/importaccounts') }}" >
+                            <i class="entypo-mail"></i>
+                            <span>Import Account by CSV</span>
+                        </a>
+                    </li>
             </ul>
         </div><!-- /btn-group -->
     </div>

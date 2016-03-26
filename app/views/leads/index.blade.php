@@ -22,7 +22,7 @@
         <i class="entypo-plus"></i>
         Add New
     </a>
-@endif    
+@endif
 </p>
 
 <style>
@@ -199,6 +199,12 @@
                         </a>
                     </li>
                 @endif
+                    <li>
+                        <a href="{{ URL::to('/leads/importleads') }}" >
+                            <i class="entypo-mail"></i>
+                            <span>Import Leads by CSV</span>
+                        </a>
+                    </li>
             </ul>
         </div><!-- /btn-group -->
     </div>

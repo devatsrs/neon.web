@@ -39,6 +39,12 @@
                 ?>
                 <input type="hidden" name="RateFormat" value="{{$selectd_val}}">
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
+            @elseif($configkey == 'AllowAccountImport')
+                <div class="clear col-md-13">
+                    <p class="make-switch switch-small">
+                        <input id="AllowAccountImport"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="AllowAccountImport" value="1">
+                    </p>
+                </div>
             @else
                 <input @if($configkey == 'password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && $configkey == 'password'){{Crypt::decrypt($gatewayconfigval->$configkey)}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
             @endif
