@@ -104,7 +104,15 @@ class Invoice extends \Eloquent {
                     }
                     break;
                 case 'monthly_anniversary':
-                        $NextInvoiceDate = date("Y-m-d", strtotime("+1 month +1 Day",$BillingStartDate));
+
+                    $day = date("d",  strtotime($BillingCycleValue)); // Date of Anivarsary
+                    $month = date("m",  $BillingStartDate); // Month of Last Invoice date or Start Date
+                    $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
+
+                    $newDate = strtotime($year . '-' . $month . '-' . $day);
+
+                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate ));
+
                     break;
                 case 'fortnightly':
                     $fortnightly_day = date("d", $BillingStartDate);
