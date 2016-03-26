@@ -966,10 +966,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         if(isset($response['result']) && $response['result'] =='OK'){
             $ProcessID = GUID::generate();
-            $CompanyGatewayID=10;
+            $CompanyGatewayID=$id;
+            $CompanyID = User::get_companyID();
             $pbx = new PBX($CompanyGatewayID);
-            $param['CompanyGatewayID'] = 10;
-            $param['CompanyID'] = 1;
+            $param['CompanyGatewayID'] = $CompanyGatewayID;
+            $param['CompanyID'] = $CompanyID;
             $param['ProcessID'] = $ProcessID;
             $response = $pbx->getAccountsDetail($param);
             if(isset($response['result']) && $response['result'] =='OK'){
