@@ -526,12 +526,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/{id}/ajax_getEmailTemplate', 'EstimatesController@ajax_getEmailTemplate');
 	Route::any('/estimate/{id}/estimate_email', 'EstimatesController@estimate_email');
 	Route::any('/estimate/estimate_change_Status', 'EstimatesController@estimate_change_Status');	
-	Route::any('/estimate/estimate_change_Status_Bulk', 'EstimatesController@estimate_change_Status_Bulk');
-	
+	Route::any('/estimate/estimate_change_Status_Bulk', 'EstimatesController@estimate_change_Status_Bulk');	
 	Route::any('/estimate/estimate_delete_bulk', 'EstimatesController@delete_bulk');	
-	
-	
-	
 	Route::any('/estimate/{id}/download_usage', 'EstimatesController@downloadUsageFile');
     Route::any('/estimates_log/{id}', 'TransactionLogController@log');
     Route::any('/estimates_log/ajax_datagrid/{id}', 'TransactionLogController@ajax_datagrid');
@@ -571,9 +567,6 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/invoice_log/ajax_datagrid/{id}', 'TransactionLogController@ajax_datagrid');
     Route::any('/invoice_log/ajax_invoice_datagrid/{id}', 'TransactionLogController@ajax_invoice_datagrid');
     Route::any('/invoice/generate', 'InvoicesController@generate');
-
-
-
 	Route::any('/invoice/ajax_datagrid', 'InvoicesController@ajax_datagrid');
 	Route::any('/invoice/ajax_datagrid_total', 'InvoicesController@ajax_datagrid_total');
 	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
@@ -584,6 +577,20 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
+	
+	//Themes
+	Route::any('/themes', 'ThemesController@index');
+	Route::any('/themes/create', 'ThemesController@create');
+	Route::any('/themes/store', 'ThemesController@store');
+	Route::any('/themes/bulk_send_estimate_mail', 'ThemesController@bulk_send_estimate_mail');
+    Route::any('/themes/estimate_regen', 'ThemesController@estimate_regen');
+	Route::any('/themes/{id}/edit', 'ThemesController@edit');
+	Route::any('/themes/{id}/delete', 'ThemesController@delete');
+	Route::any('/themes/{id}/view', 'ThemesController@view');
+	Route::any('/themes/{id}/update', 'ThemesController@update');
+    Route::any('/themes/ajax_datagrid', 'ThemesController@ajax_datagrid');
+	Route::any('/themes/themes_change_Status', 'ThemesController@themes_change_Status');	
+	Route::any('/themes/themes_delete_bulk', 'ThemesController@delete_bulk');	
 
 	//Product
 

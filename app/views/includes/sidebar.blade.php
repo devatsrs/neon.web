@@ -1,10 +1,6 @@
-<?php
-$LicenceApiResponse = Session::get('LicenceApiResponse','');
-
-?>
+<?php $LicenceApiResponse = Session::get('LicenceApiResponse',''); ?>
 <div class="sidebar-menu">
     <header class="logo-env">
-
         <!-- logo -->
         <div class="logo"><!-- Added by Abubakar -->
             <a href="{{Url::to('/process_redirect')}}">
@@ -369,6 +365,14 @@ $LicenceApiResponse = Session::get('LicenceApiResponse','');
                             <a href="{{Url::to('/currency_conversion')}}">
                                 <i class="entypo-pencil"></i>
                                 <span>Exchange Rate</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(User::checkCategoryPermission('themes','View'))
+                        <li>
+                            <a href="{{Url::to('/themes')}}">
+                                <i class="entypo-pencil"></i>
+                                <span>Themes</span>
                             </a>
                         </li>
                     @endif

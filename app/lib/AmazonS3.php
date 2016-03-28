@@ -30,7 +30,8 @@ class AmazonS3 {
         'BULK_INVOICE_MAIL_ATTACHEMENT'=>'bulkinvoicemailattachment',
         'RATETABLE_UPLOAD'=>'RateTableUpload',
         'WYSIHTML5_FILE_UPLOAD'=>'Wysihtml5fileupload',
-        'PAYMENT_UPLOAD'=>'PaymentUpload'
+        'PAYMENT_UPLOAD'=>'PaymentUpload',
+		'THEMES_IMAGES'=>'ThemeImages'
     );
 
     // Instantiate an S3 client
