@@ -54,29 +54,7 @@
                 <input id="Logo" type="file" name="Logo" class="form-control file2 inline btn btn-primary Logo-input-file" accept="image/jpeg" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
               </div>
               <div class="col-sm-6"> 
-              <?php 
-			  $empty_logo = 1;
-			  if($Theme->Logo!='')
-			  {
-				   $FilePath =  AmazonS3::preSignedUrl($Theme->Logo); 
-				  if(file_exists($FilePath))
-				  { 
-				  	 $empty_logo = 0;
-					 if (!is_numeric(strpos($FilePath, "https://")))
-					 {
-						$FilePath = str_replace('/', '\\', $FilePath);
-						if (copy($FilePath, './uploads/' . basename($FilePath)))
-						{
-							$FilePath = URL::to('/') . '/uploads/' . basename($FilePath);
-						}
-                	 }  
-				  
-			  ?>
-              <img name="LogoUrl" src="<?php echo $FilePath; ?>" width="200">
-              <?php } } 
-			  if($empty_logo){ ?>
-              <img name="LogoUrl" src="http://placehold.it/200x58" width="200">
-              <?php } ?>
+              <img name="LogoUrl" src="{{!empty($Theme->Logo)?validfilepath($Theme->Logo):'http://placehold.it/200x58'}}" width="200">
                (Only Upload .jpg file)
                </div>
             </div>
@@ -88,29 +66,7 @@
                 <input id="Favicon" type="file" name="Favicon" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
               </div>
               <div class="col-sm-6">
-               <?php 
-			  $empty_fav = 1;
-			  if($Theme->Favicon!='')
-			  {
-				   $FilePath =  AmazonS3::preSignedUrl($Theme->Favicon); 
-				  if(file_exists($FilePath))
-				  { 
-				  	 $empty_fav = 0;
-					 if (!is_numeric(strpos($FilePath, "https://")))
-					 {
-						$FilePath = str_replace('/', '\\', $FilePath);
-						if (copy($FilePath, './uploads/' . basename($FilePath)))
-						{
-							$FilePath = URL::to('/') . '/uploads/' . basename($FilePath);
-						}
-                	 }  
-				  
-			  ?>
-              <img name="FaviconUrl" src="<?php echo $FilePath; ?>" width="32">
-              <?php } } 
-			  if($empty_fav){ ?>
-              <img name="FaviconUrl" src="http://placehold.it/32x32" width="32">
-              <?php } ?>
+              <img name="FaviconUrl" src="{{!empty($Theme->Favicon)?validfilepath($Theme->Favicon):'http://placehold.it/32x32'}}" width="32">
                (Only Upload .jpg file)
               
               </div>

@@ -91,7 +91,7 @@ class ThemesController extends \BaseController {
 		{
 	        $theme_status_json 		= 	 Themes::get_theme_status();
             $Theme 					= 	 Themes::find($id);
-            return View::make('themes.edit', compact('Theme','theme_status_json'));
+		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav'));
         }
     }
 
