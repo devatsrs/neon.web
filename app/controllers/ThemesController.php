@@ -142,10 +142,16 @@ class ThemesController extends \BaseController {
 			{
 				$upload_path 	  = 	getenv('TEMP_PATH');
 				$Attachment		  = 	Input::file('Logo');
-				$ext 			  = 	$Attachment->getClientOriginalExtension();			
-				
+				$ext 			  = 	$Attachment->getClientOriginalExtension();	
 				if (in_array($ext, array("jpg")))
-				{
+				{		
+					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
+					
+					if($width_log >200 || $height_log>58)
+					{
+						return Response::json(array("status" => "failed", "message" => "Logo image max size is 200 x 58"));			
+					}					
+
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
 					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;					
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
@@ -161,13 +167,7 @@ class ThemesController extends \BaseController {
 				
 					$data['logo']	 	 = $amazonPath . $filename; 
 					
-					list($width_log,$height_log) =  getimagesize($data['logo_path']);
 					
-					if($width_log >200 || $height_log>58)
-					{
-						unlink($data['logo_path']);
-						return Response::json(array("status" => "failed", "message" => "Logo image max size is 200 x 58"));			
-					}
 				}
 				else
 				{
@@ -183,17 +183,19 @@ class ThemesController extends \BaseController {
 			if (Input::hasFile('Favicon'))
 			{
 				
-				//////////
-				
 				///////////
 				$upload_path 	  = 	getenv('TEMP_PATH');
 				$Attachment		  = 	Input::file('Favicon');
-				$ext 			  = 	$Attachment->getClientOriginalExtension();			
-				$destinationPath  = 	$upload_path . sprintf("\\%s\\", $company_name);
+				$ext 			  = 	$Attachment->getClientOriginalExtension();	
+				
 				if (in_array($ext, array("ico")))
 				{
+					list($width_fav,$height_fav) =  getimagesize($Attachment->getRealPath());
 					
-					////////
+					if($width_fav >32 || $height_fav>32)
+					{
+						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
+					}
 					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
 					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;					
@@ -208,15 +210,7 @@ class ThemesController extends \BaseController {
 					 
 					$data['Favicon_path']   = $fullPath; 
 				
-					$data['Favicon']	 	 = $amazonPath . $filename; 
-			
-					list($width_log,$height_log) =  getimagesize($data['Favicon_path']);
-					
-					if($width_log >32 || $height_log>32)
-					{
-						unlink($data['Favicon_path']);
-						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
-					}
+					$data['Favicon']	 	 = $amazonPath . $filename; 				
 				}
 				else
 				{
@@ -303,6 +297,13 @@ class ThemesController extends \BaseController {
 				
 				if (in_array($ext, array("jpg")))
 				{
+					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
+					
+					if($width_log >200 || $height_log>58)
+					{
+						return Response::json(array("status" => "failed", "message" => "Logo image max size is 200 x 58"));			
+					}
+					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
 					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;					
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
@@ -317,14 +318,6 @@ class ThemesController extends \BaseController {
 					$data['logo_path']   = $fullPath; 
 				
 					$data['logo']	 	 = $amazonPath . $filename; 
-					
-					list($width_log,$height_log) =  getimagesize($data['logo_path']);
-					
-					if($width_log >200 || $height_log>58)
-					{
-						unlink($data['logo_path']);
-						return Response::json(array("status" => "failed", "message" => "Logo image max size is 200 x 58"));			
-					}
 				}
 				else
 				{
@@ -349,9 +342,15 @@ class ThemesController extends \BaseController {
 				$upload_path 	  = 	getenv('TEMP_PATH');
 				$Attachment		  = 	Input::file('Favicon');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();			
-				$destinationPath  = 	$upload_path . sprintf("\\%s\\", $company_name);
+
 				if (in_array($ext, array("ico")))
 				{
+					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
+					
+					if($width_log >32 || $height_log>32)
+					{
+						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
+					}
 					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
 					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;					
@@ -366,15 +365,7 @@ class ThemesController extends \BaseController {
 					 
 					$data['Favicon_path']   = $fullPath; 
 				
-					$data['Favicon']	 	 = $amazonPath . $filename; 
-			
-					list($width_log,$height_log) =  getimagesize($data['Favicon_path']);
-					
-					if($width_log >32 || $height_log>32)
-					{
-						unlink($data['Favicon_path']);
-						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
-					}
+					$data['Favicon']	 	 = $amazonPath . $filename; 					
 				}
 				else
 				{
