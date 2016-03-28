@@ -1075,7 +1075,6 @@ class EstimatesController extends \BaseController {
     
     public static function display_estimate($EstimateID)
 	{
-		echo "here";
         $Estimate = Estimate::find($EstimateID);
         $PDFurl = '';
 		
