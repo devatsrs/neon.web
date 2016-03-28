@@ -86,6 +86,7 @@ class EstimatesController extends \BaseController {
         $companyID 				= 	User::get_companyID();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $accounts 				= 	Account::getAccountIDList();
+		
         $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
         $emailTemplates 	 	= 	EmailTemplate::getTemplateArray(array('Type'=>Estimate::ESTIMATE_TEMPLATE));
         $templateoption 	 	= 	[''=>'Select',1=>'New Create',2=>'Update'];

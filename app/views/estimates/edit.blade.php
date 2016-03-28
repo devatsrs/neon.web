@@ -315,5 +315,4 @@ var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-dan
         </div>
     </div>
 </div>
-
 @stop
