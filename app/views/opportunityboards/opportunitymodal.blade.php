@@ -199,6 +199,10 @@
             setcolor(colorPicker,color);
         });
 
+        $(".opportunitytags").select2({
+            tags:{{$opportunitytags}}
+        });
+
         function getLeadOrAccount(url){
             var formData = new FormData($('#add-opportunity-form')[0]);
             $.ajax({
@@ -413,7 +417,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Tags</label>
                                 <div class="col-sm-8 input-group">
-                                    <input class="form-control tags" name="Tags" type="text" >
+                                    <input class="form-control opportunitytags" name="Tags" type="text" >
                                 </div>
                             </div>
                         </div>

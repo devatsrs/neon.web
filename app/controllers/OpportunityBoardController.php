@@ -45,9 +45,9 @@ class OpportunityBoardController extends \BaseController {
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $boards = OpportunityBoard::getBoards();
-        $tags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $OpportunityBoardID = $id;
-        return View::make('opportunityboards.manage', compact('OpportunityBoardID','OpportunityBoard','account_owners','leadOrAccount','boards','tags'));
+        return View::make('opportunityboards.manage', compact('OpportunityBoardID','OpportunityBoard','account_owners','leadOrAccount','boards','opportunitytags'));
     }
 
 	/**

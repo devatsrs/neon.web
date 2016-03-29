@@ -73,7 +73,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Tags</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control tags" name="Tags" type="text" >
+                                    <input class="form-control opportunitytags" name="Tags" type="text" >
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -279,10 +279,6 @@
                     contentType: false,
                     processData: false
                 });
-            });
-
-            $(".tags").select2({
-                tags:{{$tags}}
             });
 
             $('#addTtachment').click(function(){
