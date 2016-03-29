@@ -734,3 +734,28 @@ function validfilepath($path){
     return $path;
 }
 
+function create_site_configration_cache()
+{
+	$domain_url 	=  	$_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+	$result 		= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
+	
+	if($result){  //url found	
+		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
+		$cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
+		$cache['Title']				=	$result[0]->Title;		
+		$cache['FooterText']		=	$result[0]->FooterText;
+		$cache['FooterUrl']			=	$result[0]->FooterUrl;
+		$cache['LoginMessage']		=	$result[0]->LoginMessage;
+		$cache['CustomCss']			=	$result[0]->CustomCss;			
+	}else{		
+		$cache['FavIcon'] 			=	URL::to('/').'/assets/images/favicon.ico';
+		$cache['Logo'] 	  			=	URL::to('/').'/assets/images/logo@2x.png';
+		$cache['Title']				=	'Neon';		
+		$cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
+		$cache['FooterUrl']			=	'http://www.code-desk.com';
+		$cache['LoginMessage']		=	'Dear user, log in to access RM!';
+		$cache['CustomCss']			=	'';
+	}
+	
+	Session::put('user_site_configrations', $cache);
+}

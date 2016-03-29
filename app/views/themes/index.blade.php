@@ -100,7 +100,7 @@ var postdata;
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, 'desc']],
+            "aaSorting": [[1, 'desc']],
              "fnServerParams": function(aoData) {				
                 aoData.push({"name":"searchText","value":$searchFilter.searchText},{"name":"ThemeStatus","value":$searchFilter.ThemeStatus});
             },

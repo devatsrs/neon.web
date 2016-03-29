@@ -4,7 +4,7 @@
         <!-- logo -->
         <div class="logo"><!-- Added by Abubakar -->
             <a href="{{Url::to('/process_redirect')}}">
-                <img src="<?php echo URL::to('/'); ?>/assets/images/logo@2x.png" width="120" alt="" />
+                <img src="{{Session::get('user_site_configrations.Logo')}}" width="120" alt="" />
             </a>
             @if(strtolower(getenv('APP_ENV'))!='production')
                 <br/>
