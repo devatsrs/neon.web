@@ -143,7 +143,7 @@ class ThemesController extends \BaseController {
 				$upload_path 	  = 	getenv('TEMP_PATH');
 				$Attachment		  = 	Input::file('Logo');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();	
-				if (in_array($ext, array("jpg")))
+				if (in_array($ext, array("jpg","png")))
 				{		
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
@@ -295,7 +295,7 @@ class ThemesController extends \BaseController {
 				$Attachment		  = 	Input::file('Logo');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();			
 				
-				if (in_array($ext, array("jpg")))
+				if (in_array($ext, array("jpg","png")))
 				{
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					

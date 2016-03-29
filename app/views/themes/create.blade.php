@@ -47,9 +47,9 @@
             <label for="Logo" class="col-sm-2 control-label">Logo</label>
             <div class="col-sm-10">
               <div class="col-sm-4">
-                <input id="Logo" type="file" name="Logo" class="form-control file2 inline btn btn-primary Logo-input-file" accept="image/jpeg" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                <input id="Logo" type="file" name="Logo" class="form-control file2 inline btn btn-primary Logo-input-file"  data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
               </div>
-              <div class="col-sm-6"> <img name="LogoUrl" src="http://placehold.it/200x58" width="200"> (Only Upload .jpg file) </div>
+              <div class="col-sm-6"> <img name="LogoUrl" src="http://placehold.it/200x58" width="200"> (Upload jpg,png file) </div>
             </div>
           </div>
           <div class="form-group">
