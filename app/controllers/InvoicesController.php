@@ -1383,10 +1383,7 @@ class InvoicesController extends \BaseController {
             }else{
                 $query = $query.',0';
             }
-			else
-			{
-				$query = $query.',0';
-			}
+			
             $query .= ",'')";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
