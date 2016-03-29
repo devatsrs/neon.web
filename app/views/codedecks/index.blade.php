@@ -393,7 +393,7 @@ var postdata;
                 result = confirm("Are you Sure?")
                 if(result) {
                     update_new_url = baseurl + '/codedecks/delete_selected';
-                    bulk_update(update_new_url, 'CodeDecks=' + Codedecks);
+                    bulk_update(update_new_url, 'CodeDecks=' + Codedecks+'&CodeDeckID='+$searchFilter.ft_codedeckid);
                 }
             }
         }
