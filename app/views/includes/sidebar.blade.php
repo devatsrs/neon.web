@@ -1,8 +1,4 @@
-<?php $LicenceApiResponse = Session::get('LicenceApiResponse','');
- $name = Session::get('user_site_configrations');
- echo $name;
- var_dump($name);
- ?>
+<?php $LicenceApiResponse = Session::get('LicenceApiResponse',''); ?>
 <div class="sidebar-menu">
   <header class="logo-env"> 
     <!-- logo -->

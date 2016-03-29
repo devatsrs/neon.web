@@ -673,6 +673,7 @@ Route::group(array('before' => 'guest'), function () {
 		$user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
         if(!empty($user) ){
+			create_site_configration_cache();
             Auth::login($user);
 			User::setUserPermission();
             Session::set("admin", 1 );
