@@ -22,7 +22,7 @@
         <script type="text/javascript">var baseurl = '<?php echo URL::to('/'); ?>';</script>
         
         @if(Session::get('user_site_configrations.CustomCss'))
-        <style>
+        <style>		
         {{Session::get('user_site_configrations.CustomCss')}}
         </style>
         @endif
