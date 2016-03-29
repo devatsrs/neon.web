@@ -42,13 +42,14 @@
         var readonly = ['Company','Phone','Email','ContactName'];
         var ajax_complete = false;
         var OpportunityBoardID = '';
+        var leadOrAccountID = '';
         @if(isset($OpportunityBoardID))
             OpportunityBoardID = "{{$OpportunityBoardID}}";
-            <?php $disabled='';$leadOrAccountCheck = 'No'; ?>
+            <?php $disabled='';$leadOrAccountExist = 'No';$leadOrAccountID = '';$leadOrAccountCheck='' ?>
         @else
-         <?php $leads = [];$disabled = 'disabled';$leadOrAccountCheck = 'Yes'?>
+         <?php $leads = [];$disabled = 'disabled';$leadOrAccountExist = 'Yes'?>
+        leadOrAccountID = '{{$leadOrAccountID}}';
         @endif
-
         var usetId = "{{User::get_userID()}}";
         $('#add-opportunity-form [name="Rating"]').knob();
         //getOpportunities();
@@ -66,9 +67,11 @@
                             $('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
                         }else{
                             $('#add-modal-opportunity .leads').removeClass('hidden');
-                            //$('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Yes');
-                            //$('#add-opportunity-form [name="leadOrAccount"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(leadOrAccount);
                             $('#add-modal-opportunity .toHidden').addClass('hidden');
+                        }
+                    }else if(opportunity[i]=='AccountID'){
+                        if(leadOrAccountID) {
+                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(leadOrAccountID);
                         }
                     }
                 } else{
@@ -330,7 +333,7 @@
                                 <label for="field-5" class="control-label col-sm-4">Lead/Account</label>
                                 <div class="col-sm-8">
                                     <?php $leadaccount = ['Lead'=>'Lead','Account'=>'Account']; ?>
-                                    {{Form::select('leadOrAccount',$leadaccount,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('leadOrAccount',$leadaccount,$leadOrAccountCheck,array("class"=>"selectboxit"))}}
                                 </div>
                             </div>
                         </div>
@@ -339,7 +342,7 @@
                                 <label id="leadlable" for="field-5" class="control-label col-sm-4">Existing Lead</label>
                                 <div class="col-sm-8">
                                     <?php $leadcheck = ['No'=>'No','Yes'=>'Yes']; ?>
-                                    {{Form::select('leadcheck',$leadcheck,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('leadcheck',$leadcheck,$leadOrAccountExist,array("class"=>"selectboxit"))}}
                                 </div>
                             </div>
                         </div>
@@ -347,7 +350,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Leads</label>
                                 <div class="col-sm-8">
-                                    {{Form::select('AccountID',$leadOrAccount,$leadOrAccountCheck,array("class"=>"select2",$disabled))}}
+                                    {{Form::select('AccountID',$leadOrAccount,$leadOrAccountID,array("class"=>"select2",$disabled))}}
                                 </div>
                             </div>
                         </div>

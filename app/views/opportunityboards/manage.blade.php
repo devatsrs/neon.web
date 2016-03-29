@@ -182,9 +182,11 @@
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var opportunityID = rowHidden.find('[name="OpportunityID"]').val();
+                var accountID = rowHidden.find('[name="AccountID"]').val();
                 var opportunityName = rowHidden.find('[name="OpportunityName"]').val();
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
+                $('#add-opportunity-attachment-form [name="AccountID"]').val(accountID);
                 $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
                 getComments();
                 getOpportunityAttachment();
@@ -641,6 +643,7 @@
                                 </div>
                                 <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
                                     <input type="hidden" name="OpportunityID" >
+                                    <input type="hidden" name="AccountID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
                                         <i class="entypo-floppy"></i>
                                         Add Comment

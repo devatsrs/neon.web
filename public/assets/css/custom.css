@@ -905,12 +905,15 @@ button.close {
     margin-top:10px;
     padding: 5px 5px 5px 10px;
     cursor:pointer;
+    max-width: 195px;
+    min-width: 195px;
 }
 .count-cards .info{
     padding: 15px 0px 0px 5px;
 }
 .count-cards .info .title,
 .count-cards .info .name {
+    max-width:193px;
     word-wrap: break-word;
     font-weight: 600;
     text-align:left

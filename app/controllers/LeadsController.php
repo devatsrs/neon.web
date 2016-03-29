@@ -83,10 +83,11 @@ class LeadsController extends \BaseController {
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 
         $leads = Lead::getLeadList();
-        $leadOrAccountCheck = 'Lead';
+        $leadOrAccountID = '';
         $leadOrAccount = $leads;
+        $leadOrAccountCheck = 'lead';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck','opportunitytags'));
+        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
     }
 
     /**
@@ -166,18 +167,23 @@ class LeadsController extends \BaseController {
      */
     public function edit($id)
     {
-            $lead = Lead::find($id);
-            $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
-            $companyID = User::get_companyID();
-            $account_owners = User::getOwnerUsersbyRole();
-            $countries = $this->countries;
-            $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-            $leads = Lead::getLeadList();
-            $boards = OpportunityBoard::getBoards();
-            $text = 'Edit Lead';
-            $url = URL::to('leads/update/' . $lead->AccountID);
-            $url2 = 'leads/update/' . $lead->AccountID;
-        return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2','opportunityTags','leads','boards'));
+        $lead = Lead::find($id);
+        $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
+        $companyID = User::get_companyID();
+        $account_owners = User::getOwnerUsersbyRole();
+        $countries = $this->countries;
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $leads = Lead::getLeadList();
+        $boards = OpportunityBoard::getBoards();
+        $text = 'Edit Lead';
+        $url = URL::to('leads/update/' . $lead->AccountID);
+        $url2 = 'leads/update/' . $lead->AccountID;
+        $leads = Lead::getLeadList();
+        $leadOrAccountID = $id;
+        $leadOrAccount = $leads;
+        $leadOrAccountCheck = 'lead';
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2','opportunityTags','leads','boards','opportunitytags','leadOrAccountCheck','leadOrAccount','leadOrAccountID'));
     }
 
     /**

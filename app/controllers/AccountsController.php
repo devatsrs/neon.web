@@ -90,10 +90,11 @@ class AccountsController extends \BaseController {
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $accounts = Account::getAccountIDList();
         $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
-        $leadOrAccountCheck = 'Account';
+        $leadOrAccountID = '';
         $leadOrAccount = $accounts;
+        $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags'));
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
     }
 
     /**
@@ -210,31 +211,35 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function edit($id) {
-            $account = Account::find($id);
-            $companyID = User::get_companyID();
-            $account_owners = User::getOwnerUsersbyRole();
-            $countries = $this->countries;
-            $tags = json_encode(Tags::getTagsArray());
-            $products = Product::getProductDropdownList();
-            $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
-            $currencies = Currency::getCurrencyDropdownIDList();
-            $taxrates = TaxRate::getTaxRateDropdownIDList();
-            if(isset($taxrates[""])){unset($taxrates[""]);}
-            $timezones = TimeZone::getTimeZoneDropdownList();
-            $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+        $account = Account::find($id);
+        $companyID = User::get_companyID();
+        $account_owners = User::getOwnerUsersbyRole();
+        $countries = $this->countries;
+        $tags = json_encode(Tags::getTagsArray());
+        $products = Product::getProductDropdownList();
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
+        $currencies = Currency::getCurrencyDropdownIDList();
+        $taxrates = TaxRate::getTaxRateDropdownIDList();
+        if(isset($taxrates[""])){unset($taxrates[""]);}
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
 
-            $boards = OpportunityBoard::getBoards();
-            $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-            $accounts = Account::getAccountList();
+        $boards = OpportunityBoard::getBoards();
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $accounts = Account::getAccountList();
 
-            $AccountApproval = AccountApproval::getList($id);
-            $doc_status = Account::$doc_status;
-            $verificationflag = AccountApprovalList::isVerfiable($id);
-            $invoice_count = Account::getInvoiceCount($id);
-            if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
-                unset($doc_status[Account::VERIFIED]);
-            }
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts'));
+        $AccountApproval = AccountApproval::getList($id);
+        $doc_status = Account::$doc_status;
+        $verificationflag = AccountApprovalList::isVerfiable($id);
+        $invoice_count = Account::getInvoiceCount($id);
+        if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
+            unset($doc_status[Account::VERIFIED]);
+        }
+        $leadOrAccountID = $id;
+        $leadOrAccount = $accounts;
+        $leadOrAccountCheck = 'account';
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags'));
     }
 
     /**

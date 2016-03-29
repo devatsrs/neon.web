@@ -17,7 +17,7 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-    <a href="javascript:void(0)" id="createopportunity" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
+    <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
         Create Opportunity
     </a>
@@ -360,7 +360,7 @@
 </script>
 
 @include('includes.ajax_submit_script', array('formID'=>'lead-from' , 'url' => ($url2)));
-
+@include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
 @stop
 
 @section('footer_ext')
