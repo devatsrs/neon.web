@@ -14,6 +14,7 @@ CREATE TABLE `tblRateTableRate` (
   `ConnectionFee` decimal(18,6) DEFAULT NULL,
   PRIMARY KEY (`RateTableRateID`),
   KEY `FK_tblRateTableRate_tblRate` (`RateID`),
-  KEY `XI_tblRateTableRate_RateID` (`RateID`),
-  KEY `IX_RateTableRate_RateID` (`RateID`)
+  KEY `IX_RateTableRate_RateID` (`RateID`),
+  KEY `XI_RateID_RatetableID` (`RateID`,`RateTableRateID`),
+  CONSTRAINT `FKtblratetablerate_tblrate_rateid` FOREIGN KEY (`RateID`) REFERENCES `tblRate` (`RateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
