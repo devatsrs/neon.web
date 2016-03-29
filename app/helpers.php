@@ -734,12 +734,10 @@ function validfilepath($path){
     return $path;
 }
 
-function create_site_configration_cache()
-{
-	print_r($_SERVER);
-	exit;
-	$domain_url 	=  	$_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-	$result 		= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
+function create_site_configration_cache(){
+	
+	$domain_url 					=   addhttp($_SERVER['HTTP_HOST']);
+	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 	
 	if($result){  //url found	
 		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
@@ -760,4 +758,11 @@ function create_site_configration_cache()
 	}
 	
 	Session::put('user_site_configrations', $cache);
+}
+
+function addhttp($url) {
+    if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+        $url = "http://" . $url;
+    }
+    return $url;
 }
