@@ -1,0 +1,23 @@
+CREATE TABLE `tblCustomerRate` (
+  `CustomerRateID` int(11) NOT NULL AUTO_INCREMENT,
+  `RateID` int(11) NOT NULL,
+  `CustomerID` int(11) NOT NULL,
+  `LastModifiedDate` datetime DEFAULT NULL,
+  `LastModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CreatedDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `TrunkID` int(11) DEFAULT NULL,
+  `Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+  `EffectiveDate` date DEFAULT NULL,
+  `PreviousRate` decimal(18,6) DEFAULT '0.000000',
+  `Interval1` int(11) DEFAULT NULL,
+  `IntervalN` int(11) DEFAULT NULL,
+  `RoutinePlan` int(11) DEFAULT NULL,
+  `ConnectionFee` decimal(18,6) DEFAULT NULL,
+  PRIMARY KEY (`CustomerRateID`),
+  KEY `IX_tblCustomerRate_CustomerID_9494E` (`CustomerID`),
+  KEY `IX_tblCustomerRate_CustomerID_EffectiveDate_61B1F` (`CustomerID`,`EffectiveDate`),
+  KEY `IX_tblCustomerRate_CustomerID_TrunkID_Rate_FDB55` (`CustomerID`,`TrunkID`,`Rate`),
+  KEY `IX_tblCustomerRate_RateID_CustomerID_effectivedate` (`CustomerID`,`TrunkID`,`RateID`),
+  KEY `FKtblcustomerrate_tblrate_rateid` (`RateID`),
+  CONSTRAINT `FKtblcustomerrate_tblrate_rateid` FOREIGN KEY (`RateID`) REFERENCES `tblRate` (`RateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

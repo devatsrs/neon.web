@@ -1380,6 +1380,8 @@ class InvoicesController extends \BaseController {
             }
             if(!empty($criteria['zerovalueinvoice'])){
                 $query = $query.',1';
+            }else{
+                $query = $query.',0';
             }
 			else
 			{
