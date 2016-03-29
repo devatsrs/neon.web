@@ -771,29 +771,6 @@
             });
         });
 
-        $(document).on('click','.opportunity',function(){
-            var accountID = $(this).attr('data-id');
-            $('#add-edit-opportunity-form').trigger('reset');
-            $('#add-edit-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
-            if(accountID) {
-                var url = baseurl + '/opportunity/' + accountID + '/getlead';
-                $.ajax({
-                    url: url,  //Server script to process data
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        setunsetreadonly(response[0],true);
-                        $('#add-edit-modal-opportunity').modal('show');
-                    },
-                    //Options to tell jQuery not to process data or worry about content-type.
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                });
-            }
-        });
-
-
         $("#test").click(function(e){
             e.preventDefault();
             $("#BulkMail-form").find('[name="test"]').val(1);
@@ -932,34 +909,6 @@
             }
         });
 
-        $('#add-edit-opportunity-form').submit(function(e){
-            e.preventDefault();
-            var AccountID = $('#add-edit-opportunity-form [name="AccountID"]').val();
-            var url = baseurl + '/accounts/'+AccountID+'/createOpportunity';
-            var formData = new FormData($('#add-edit-opportunity-form')[0]);
-            $.ajax({
-                url: url,  //Server script to process data
-                type: 'POST',
-                dataType: 'json',
-                success: function (response) {
-                    if(response.status =='success'){
-                        toastr.success(response.message, "Success", toastr_opts);
-                        $('#add-edit-modal-opportunity').modal('hide');
-                    }else{
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                    $("#opportunity-update").button('reset');
-                },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-
-
         $(".accountTags").select2({
             tags:{{$accountTags}}
         });
@@ -1014,34 +963,6 @@
                 }
             });
         }
-
-        function setunsetreadonly(data,status){
-            for(var i = 0 ; i< readonly.length; i++){
-                $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val('');
-                $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
-                if(data){
-                    $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val(data[readonly[i]]);
-                }
-            }
-        }
-
-        function setcolor(elem,color){
-            elem.colorpicker('destroy');
-            elem.val(color);
-            elem.colorpicker({color:color});
-            elem.siblings('.input-group-addon').find('.color-preview').css('background-color', color);
-        }
-
-        function setrating(currentrateid){
-            $('#rating i').css('color','black');
-            $('#rating i').each(function(){
-                var rateid = $(this).attr('rate-id');
-                if(currentrateid<rateid){
-                    return false;
-                }
-                $(this).css('color','#e9dc3c');
-            });
-        }
     });
 
     function getselectedIDs(){
@@ -1076,6 +997,7 @@
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+@include('opportunityboards.opportunitymodal')
 @stop
 
 @section('footer_ext')
@@ -1277,142 +1199,6 @@
                     </div>
                     <div class="modal-footer">
                         <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="add-edit-modal-opportunity">
-        <div class="modal-dialog" style="width: 70%;">
-            <div class="modal-content">
-                <form id="add-edit-opportunity-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Opportunity</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Account Owner *</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('UserID',$account_owners,User::get_userID(),array("class"=>"selectboxit",'disabled'))}}
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Opportunity Name *</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="leads">
-                                        <label for="field-5" class="control-label col-sm-2">Account</label>
-                                        <div class="col-sm-4">
-                                            {{Form::select('AccountID',$accounts,'',array("class"=>"selectboxit",'disabled'))}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Company</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="Company" class="form-control" id="field-5">
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Contact Name</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="ContactName" class="form-control" id="field-5">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Phone Number</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="Phone" class="form-control" id="field-5">
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Email Address</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="Email" class="form-control" id="field-5">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Select Board</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Select Background</label>
-                                    <div class="col-sm-3 input-group">
-                                        <input name="BackGroundColour" type="text" class="form-control colorpicker" value="#303641" />
-                                        <div class="input-group-addon">
-                                            <i class="color-preview"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-1">
-                                        <button class="btn btn-xs btn-danger reset" data-color="#303641" type="button">Reset</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Text Color</label>
-                                    <div class="col-sm-3 input-group">
-                                        <input name="TextColour" type="text" class="form-control colorpicker" value="#ffffff" />
-                                        <div class="input-group-addon">
-                                            <i class="color-preview"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-1">
-                                        <button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>
-                                    </div>
-                                    <label for="field-5" class="control-label col-sm-2">Tags</label>
-                                    <div class="col-sm-4 input-group">
-                                        <input class="form-control opportunityTags" name="Tags" type="text" >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="input-1" class="control-label col-sm-2">Rate This</label>
-                                    <div id="rating" class="col-sm-4">
-                                        <i rate-id="1" class="entypo-star"></i>
-                                        <i rate-id="2" class="entypo-star"></i>
-                                        <i rate-id="3" class="entypo-star"></i>
-                                        <i rate-id="4" class="entypo-star"></i>
-                                        <i rate-id="5" class="entypo-star"></i>
-                                        <input type="hidden" name="Rating" value="1" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="hidden" name="OpportunityID">
-                        <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
                         </button>

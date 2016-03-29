@@ -90,7 +90,10 @@ class AccountsController extends \BaseController {
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $accounts = Account::getAccountIDList();
         $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts'));
+        $leadOrAccountCheck = 'Account';
+        $leadOrAccount = $accounts;
+
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck'));
     }
 
     /**

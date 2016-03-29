@@ -40,13 +40,14 @@ class OpportunityBoardController extends \BaseController {
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
         }
-        $leads = Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
-        if(!empty($leads)){
-            $leads = array(""=> "Select a Company")+$leads;
+        $leadOrAccount = Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $boards = OpportunityBoard::getBoards();
         $tags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('opportunityboards.manage', compact('id','OpportunityBoard','account_owners','leads','boards','tags'));
+        $OpportunityBoardID = $id;
+        return View::make('opportunityboards.manage', compact('OpportunityBoardID','OpportunityBoard','account_owners','leadOrAccount','boards','tags'));
     }
 
 	/**

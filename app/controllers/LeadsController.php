@@ -83,9 +83,10 @@ class LeadsController extends \BaseController {
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 
         $leads = Lead::getLeadList();
+        $leadOrAccountCheck = 'Lead';
+        $leadOrAccount = $leads;
 
-
-        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads'));
+        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck'));
     }
 
     /**
