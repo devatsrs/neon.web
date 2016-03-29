@@ -53,7 +53,7 @@ class InvoicesController extends \BaseController {
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
 			"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand,
-			"os_pp"=>$result['data']['Total_grand_field'][0]->os_pp,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
 		);
 		
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
