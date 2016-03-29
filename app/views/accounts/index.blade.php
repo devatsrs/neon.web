@@ -25,99 +25,10 @@
 @endif    
 </p>
 
-<style>
-
-    ul.grid {
-        list-style: outside none none;
-        margin: 0 auto;
-        padding-left: 0px;
-        font-size:11px;
-    }
-    .clearfix {
-        display: block;
-    }
-
-    ul.grid li {
-        box-sizing: border-box;
-        padding: 3px 3px 2px;
-    }
-    ul.grid li div.box{
-        border: 1px solid #b6bdbe;
-        padding: 5px 5px;
-        width:100%;
-    }
-    ul.grid li div.selected{
-        background :#a94442 none repeat scroll 0 0;
-    }
-    ul.grid li div.header {
-        min-height: 66px;
-    }
-    ul.grid li div.block {
-        min-height: 80px;
-        word-wrap: break-word;
-    }
-    ul.grid li div.cellNo{
-        min-height: 40px;
-    }
-    ul.grid li .address{
-        height: 120px;
-        overflow-y:auto;
-    }
-    ul.grid li div.block a,ul.grid li div.cellNo a{
-        color: #74B1C4;
-    }
-    ul.grid li div.meta {
-        color: #93989b;
-        display: block;
-        font-weight: normal;
-    }
-    ul.grid li div.action{
-        text-align: right;
-        margin: 5px 0px;
-        min-height:20px;
-        padding-bottom: 5px;;
-        nargin-to:-20px;
-    }
-
-    .right-padding-0{
-        padding-right: 0px;
-    }
-    .left-padding-0{
-        padding-left: 0px;
-    }
-
-    .change-view header {
-        position: absolute;
-        top:15px;
-        right:150px;
-        width:65px;
-    }
-
-    .change-view header .list-style-buttons {
-        position: absolute;
-        right: 0;
-    }
-    .padding-0{
-        padding: 0px !important;
-    }
-    .padding-left-1{
-        padding: 0px 0px 0px 1px !important;
-    }
-    .padding-3{
-        padding:3px;
-    }
-    ul.grid .head{
-        font-size:12px;
-        font-weight: 700;
-        color:#373e4a;
-        word-wrap: break-word;
-    }
-
-</style>
 
 <div class="row">
     <div class="col-md-12">
-        <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -341,7 +252,7 @@
                                  /*action += ' <div class="btn-group"><button href="#" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Verification Status<span class="caret"></span></button>'
                                  action += '<ul class="dropdown-menu dropdown-primary" role="menu"><li><a href="' + NOT_VERIFIED + '" class="change_verification_status" >{{Account::$doc_status[Account::NOT_VERIFIED]}}</a></li><li><a href="' + PENDING_VERIFICATION + '" class="change_verification_status">{{Account::$doc_status[Account::PENDING_VERIFICATION]}}</a></li><li><a href="' + VERIFIED + '" class="change_verification_status">{{Account::$doc_status[Account::VERIFIED]}}</a></li></ul></div>';*/
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                 action += '<select name="varification_status" class="change_verification_status">';
+                                /* action += '<select name="varification_status" class="change_verification_status">';
                                  for(var i = 0; i < varification_status.length ; i++){
                                     var selected = "";
                                     if(full[9] == varification_status[i]){
@@ -349,7 +260,7 @@
                                     }
                                     action += '<option data-id="'+full[0]+'" value="' + varification_status[i] + '" ' + selected   +'     >'+varification_status_text[i]+'</option>';
                                  }
-                                 action += '</select>';
+                                 action += '</select>';*/
                                 <?php } ?>
 
                                 if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
@@ -369,7 +280,8 @@
                                 action +='<input type="hidden" name="address3" value="'+full[12]+'"/>';
                                 action +='<input type="hidden" name="city" value="'+full[13]+'"/>';
                                 action +='<input type="hidden" name="country" value="'+full[14]+'"/>';
-                                action +='<input type="hidden" name="picture" value="'+full[15]+'"/>';
+								action +='<input type="hidden" name="PostCode" value="'+full[15]+'"/>';
+                                action +='<input type="hidden" name="picture" value="'+full[16]+'"/>';
                                 return action;
                             }
                         },
@@ -433,32 +345,42 @@
                 var address3 = $(temp).find('input[name="address3"]').val();
                 var city = $(temp).find('input[name="city"]').val();
                 var country = $(temp).find('input[name="country"]').val();
-                address1 = (address1=='null'||address1==''?'':'1:'+address1);
-                address2 = (address2=='null'||address2==''?'':'<br>2:'+address2);
-                address3 = (address3=='null'||address3==''?'':'<br>3:'+address3);
-                city = (city=='null'||city==''?'':'<br>City:'+city);
-                country = (country=='null'||country==''?'':'&nbsp;&nbsp;Country:'+country);
-                var url = baseurl + '/assets/images/placeholder-male.gif';
+				var PostCode = $(temp).find('input[name="PostCode"]').val();
+				
+				
+                address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
+                address2 = (address2=='null'||address2==''?'':address2+'<br>');
+                address3 = (address3=='null'||address3==''?'':address3+'<br>');
+                city 	 = (city=='null'||city==''?'':city+'<br>');
+				PostCode = (PostCode=='null'||PostCode==''?'':PostCode+'<br>');
+                country  = (country=='null'||country==''?'':country);
+                var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
                 if (checked != '') {
                     select = ' selected';
                 }
-                if(checkClass=='1'){
-                    html += '<li class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xsm-12">';
-                }else{
-                    html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-6 col-xsm-12">';
+				
+				//col-xl-2 col-md-4 col-sm-6 col-xsm-12 col-lg-3
+				
+                if(checkClass=='1')
+				{
+                    html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
+                }
+				else
+				{
+                    html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                 }
                 html += '  <div class="box clearfix ' + select + '">';
-                html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                html += '  <div class="col-sm-8 header padding-left-1">  <span class="head">' + childrens.eq(2).text() + '</span><br>';
-                html += '  <span class="meta">Owner:' + childrens.eq(3).text() + '</span></div>';
+               // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
+                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + childrens.eq(2).text() + '</span><br>';
+                html += '  <span class="meta complete_name">' + childrens.eq(3).text() + '</span></div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
-                html += '     <div class="meta">Send Email</div>';
+                html += '     <div class="meta">Email</div>';
                 html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(6).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div class="cellNo">';
-                html += '     <div class="meta">Call Work</div>';
+                html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div>';
@@ -469,7 +391,7 @@
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Address</div>';
-                html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+country+'</div>';
+                html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-11 padding-0 action">';

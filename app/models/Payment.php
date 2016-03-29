@@ -264,7 +264,7 @@ class Payment extends \Eloquent {
 
             return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status,'confirmshow'=>$confirm_show];
 
-        }
+        } 
     }
 
 }

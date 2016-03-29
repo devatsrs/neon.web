@@ -7,14 +7,14 @@ class InvoiceTemplatesController extends \BaseController {
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod')->get();
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix')->get();
             Excel::create('Invoice Template', function ($excel) use ($invoiceCompanies) {
                 $excel->sheet('Invoice Template', function ($sheet) use ($invoiceCompanies) {
                     $sheet->fromArray($invoiceCompanies);
                 });
             })->download('xls');
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -68,6 +68,10 @@ class InvoiceTemplatesController extends \BaseController {
             if(!isset($data['InvoiceStartNumber'])){
                 //If saved from view.
                 unset($rules['InvoiceStartNumber']);
+            }
+			if(!isset($data['EstimateStartNumber'])){
+                //If saved from view.
+                unset($rules['EstimateStartNumber']);
             }
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');

@@ -40,8 +40,8 @@ table{
                 </td>
                 <td class="col-md-6 text-right" valign="top">
                     <br>
-                   <strong>Invoice From:</strong>
-                   <p><strong>{{ nl2br($InvoiceTemplate->Header)}}</strong></p>
+                   <strong>Estimate From:</strong>
+                   <p><strong>{{ nl2br($EstimateTemplate->Header)}}</strong></p>
 
                 </td>
             </tr>
@@ -52,14 +52,13 @@ table{
             <tr>
                 <td class="col-md-6"  valign="top" >
                         <br>
-                        <strong>Invoice To</strong>
+                        <strong>Estimate To</strong>
                         <p>{{$Account->AccountName}}</p>
-                        <p>{{nl2br($Invoice->Address)}}</p>
+                        <p>{{nl2br($Estimate->Address)}}</p>
                 </td>
                 <td class="col-md-6 text-right"  valign="top" >
-                        <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix}}{{$Invoice->InvoiceNumber}}</p>
-                        <p><b>Invoice Date: </b>{{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</p>
-                        <p><b>Due Date: </b>{{date('d-m-Y',strtotime($Invoice->IssueDate.' +'.$Account->PaymentDueInDays.' days'))}}</p>
+                        <p><b>Estimate No: </b>{{$EstimateTemplate->EstimateNumberPrefix}}{{$Estimate->EstimateNumber}}</p>
+                        <p><b>Estimate Date: </b>{{ date($EstimateTemplate->DateFormat,strtotime($Estimate->IssueDate))}}</p>                       
                 </td>
             </tr>
         </table>
@@ -72,7 +71,7 @@ table{
                 <th style="text-align: center;">Description</th>
                 <th style="text-align: center;">Quantity</th>
                 <th style="text-align: center;">Price</th>
-                @if($Invoice->TotalDiscount >0)
+                @if($Estimate->TotalDiscount >0)
                 <th style="text-align: center;">Discount</th>
                 @endif
                 <th style="text-align: center;">Line Total</th>
@@ -81,15 +80,14 @@ table{
             </tr>
             </thead>
             <tbody>
-            @foreach($InvoiceDetail as $ProductRow)
-                <?php $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID) ?>
+            @foreach($EstimateDetail as $ProductRow)
             @if($ProductRow->ProductType == Product::ITEM)
             <tr>
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td class="text-center">{{$ProductRow->Description}}</td>
                 <td class="text-center">{{$ProductRow->Qty}}</td>
                 <td class="text-center">{{number_format($ProductRow->Price,$Account->RoundChargesAmount)}}</td>
-                @if($Invoice->TotalDiscount >0)
+                @if($Estimate->TotalDiscount >0)
                 <td class="text-center">{{$ProductRow->Discount}}</td>
                 @endif
                 <td class="text-center">{{number_format($ProductRow->LineTotal,$Account->RoundChargesAmount)}}</td>
@@ -110,28 +108,28 @@ table{
                                 <table border="0" width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td class="col-md-5" valign="top" width="60%">
-                                                <p><a class="form-control" style="height: auto">{{nl2br($Invoice->Terms)}}</a></p>
+                                                <p><a class="form-control" style="height: auto">{{nl2br($Estimate->Terms)}}</a></p>
                                         </td>
                                         <td class="col-md-6"  valign="top" width="35%" >
                                                 <table  border="1"  width="100%" cellpadding="0" cellspacing="0" class="bg_graycolor invoice_total col-md-12 table table-bordered">
                                                     <tfoot>
                                                         <tr>
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         <tr>
-                                                                <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalTax,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right"><strong>Tax</strong></td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
-                                                        @if($Invoice->TotalDiscount >0)
+                                                        @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalDiscount,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalDiscount,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
                                                         <tr>
-                                                                <td class="text-right"><strong>Invoice Total</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$Account->RoundChargesAmount)}} </td>
+                                                                <td class="text-right"><strong>Estimate Total ({{$CurrencyCode}})</strong></td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$Account->RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>
