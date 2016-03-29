@@ -736,6 +736,8 @@ function validfilepath($path){
 
 function create_site_configration_cache()
 {
+	print_r($_SERVER);
+	exit;
 	$domain_url 	=  	$_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	$result 		= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 	
