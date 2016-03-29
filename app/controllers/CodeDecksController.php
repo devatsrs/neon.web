@@ -306,15 +306,23 @@ class CodeDecksController extends \BaseController {
     public  function delete_selected(){
             try {
                 $data = Input::all();
-                $rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
+                //$rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
+                $rateids = $data['CodeDecks'];
                 $companyID = User::get_companyID();
-                if(is_array($rateids) && !empty($rateids)){
-                    $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->delete();
+                $CodeDeckID = $data['CodeDeckID'];
+
+                if(!empty($rateids) || !empty($CodeDeckID)){
+                    //$result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->delete();
+                    $query = "call prc_RateDeleteFromCodedeck('".$companyID."','" . $CodeDeckID . "','".$rateids."',0,'','')";
+                    //echo $query;exit;
+                    $result = DB::statement($query);
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
                     }
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Please select CodeDeck."));
                 }
             } catch (Exception $ex) {
                 return Response::json(array("status" => "failed", "message" => "CodeDeck is in Use, You cant delete this CodeDeck."));
@@ -325,24 +333,21 @@ class CodeDecksController extends \BaseController {
             try {
                 $data = Input::all();
                 $companyID = User::get_companyID();
-                $query = CodeDeck::where('CompanyID',$companyID);
-                if($data['ft_country']){
-                    $query->where('CountryID',$data['ft_country']);
-                }
-                if($data['ft_code']){
-                    $query->where('Code','like',str_replace('*','%',$data['ft_code']));
-                }
-                if($data['ft_description']){
-                    $query->where('Description','like',str_replace('*','%',$data['ft_description']));
-                }
-                if($data['ft_codedeckid']){
-                    $query->where('CodeDeckId',$data['ft_codedeckid']);
-                }
-                $result = $query->delete();
-                if ($result) {
-                    return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
+                $CodeDeckID = $data['ft_codedeckid'];
+                $data['ft_country'] = !empty($data['ft_country']) ? $data['ft_country'] : '0';
+                $data['ft_code'] = !empty($data['ft_code']) ? $data['ft_code'] : '';
+                $data['Description'] = !empty($data['Description']) ? $data['Description'] : '';
+
+                if(!empty($CodeDeckID)){
+                    $query = "call prc_RateDeleteFromCodedeck('".$companyID."','" . $CodeDeckID . "','',".$data['ft_country'].",'".$data['ft_code']."','".$data['Description']."')";
+                    $result = DB::statement($query);
+                    if ($result) {
+                        return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
+                    }
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Please select CodeDeck."));
                 }
 
             } catch (Exception $ex) {
