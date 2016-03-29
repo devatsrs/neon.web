@@ -202,7 +202,7 @@ var postdata;
 							
 							//if(full[4] != 'accepted')
 							{
-                             action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
+                             //action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                              action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                                  $.each(themestatus, function( index, value ) {
                                  

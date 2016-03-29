@@ -27,7 +27,7 @@
               <input type="text" name='Title' class="form-control" id="Title" placeholder="Title" value="">
             </div>
           </div>
-              <div class="form-group">
+          <div class="form-group">
             <label for="FooterText" class="col-sm-2 control-label">Footer Text</label>
             <div class="col-sm-4">
               <input type="text" name='FooterText' class="form-control" id="FooterText" placeholder="Footer Text" value="">
@@ -38,12 +38,12 @@
             </div>
           </div>
           <div class="form-group">
-          <label for="LoginMessage" class="col-sm-2 control-label">Login Message</label>
+            <label for="LoginMessage" class="col-sm-2 control-label">Login Message</label>
             <div class="col-sm-8">
               <input type="text" name='LoginMessage' class="form-control" id="LoginMessage" placeholder="Login Message" value="">
             </div>
           </div>
-                    <div class="form-group">
+          <div class="form-group">
             <label for="Logo" class="col-sm-2 control-label">Logo</label>
             <div class="col-sm-10">
               <div class="col-sm-4">
@@ -52,7 +52,7 @@
               <div class="col-sm-6"> <img name="LogoUrl" src="http://placehold.it/200x58" width="200"> (Only Upload .jpg file) </div>
             </div>
           </div>
-              <div class="form-group">
+          <div class="form-group">
             <label for="Favicon" class="col-sm-2 control-label">Favicon</label>
             <div class="col-sm-10">
               <div class="col-sm-4">
@@ -61,19 +61,35 @@
               <div class="col-sm-6"> <img name="FaviconUrl" src="http://placehold.it/32x32" width="32"> (Only Upload .ico file) </div>
             </div>
           </div>
-              <div class="form-group">
-          <label for="CustomCss" class="col-sm-2 control-label">Custom Css</label>
+          <div class="form-group">
+            <label for="CustomCss" class="col-sm-2 control-label">Custom Css</label>
             <div class="col-sm-8">
               <textarea name='CustomCss' class="form-control" rows="12"  id="CustomCss" placeholder="Custom Css"></textarea>
             </div>
-            </div>
-            <div class="form-group">
-           <label for="ThemeStatus" class="col-sm-2 control-label">Status</label>
-           <div class="col-sm-4">
-           		{{Form::select('ThemeStatus',$theme_status_json,'',array("class"=>"select2"))}}
-          	 </div>            
           </div>
-        
+          <!--<div class="form-group">
+            <label for="ThemeStatus" class="col-sm-2 control-label">Status</label>
+            <div class="col-sm-4"> {{Form::select('ThemeStatus',$theme_status_json,'active',array("class"=>"select2"))}} </div>
+          </div>-->
+<!--          <div class="form-group">
+            <label for="ThemeStatus1"  class="col-sm-2 control-label">Status</label>
+            <div class="col-sm-4">
+              <div class="checkbox ">
+                <input type="hidden" id="ThemeStatus1" name="ThemeStatus" value="inactive">           
+                <label><input type="checkbox" id="ThemeStatus2" name="ThemeStatus" value="active" >Active</label>           
+              </div>
+            </div>
+          </div>-->
+             <div class="form-group">
+						<label class="col-sm-2 control-label">Status</label>
+						
+						<div class="col-sm-5">
+							<div id="label-switch" class="make-switch" data-on-label="Active" data-off-label="Inactive">
+								<input type="checkbox" value="active" name="ThemeStatus" checked>
+							</div>
+						</div>
+					</div>
+
         </div>
       </div>
     </form>
@@ -99,7 +115,7 @@ function ajax_form_success(response)
     }
 }	
 
-</script>
+</script> 
 @include('includes.ajax_submit_script', array('formID'=>'form-themes-add' , 'url' => 'themes/store','update_url'=>'themes/{id}/update' ))
 @stop
 @section('footer_ext')

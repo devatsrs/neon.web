@@ -67,7 +67,7 @@
               </div>
               <div class="col-sm-6">
               <img name="FaviconUrl" src="{{!empty($Theme->Favicon)?validfilepath($Theme->Favicon):'http://placehold.it/32x32'}}" width="32">
-               (Only Upload .jpg file)
+               (Only Upload .ico file)
               
               </div>
             </div>
@@ -78,12 +78,15 @@
               <textarea name='CustomCss' class="form-control" rows="12"  id="CustomCss" placeholder="Custom Css">{{$Theme->CustomCss}}</textarea>
             </div>
           </div>
-                  <div class="form-group">
-           <label for="ThemeStatus" class="col-sm-2 control-label">Status</label>
-           <div class="col-sm-4">
-           		{{Form::select('ThemeStatus',$theme_status_json,$Theme->ThemeStatus,array("class"=>"select2"))}}
-          	 </div>            
-          </div>
+             <div class="form-group">
+						<label class="col-sm-2 control-label">Status</label>
+						
+						<div class="col-sm-5">
+							<div id="label-switch" class="make-switch" data-on-label="Active" data-off-label="Inactive">
+								<input type="checkbox" value="active" name="ThemeStatus" @if($Theme->ThemeStatus == 'active' )checked=""@endif>
+							</div>
+						</div>
+					</div>
         </div>
       </div>
     </form>

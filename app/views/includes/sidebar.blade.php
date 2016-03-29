@@ -177,10 +177,7 @@
         @endif
         @if(User::checkCategoryPermission('ExchangeRate','View'))
         <li> <a href="{{Url::to('/currency_conversion')}}"> <i class="entypo-pencil"></i> <span>Exchange Rate</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('themes','View'))
-        <li> <a href="{{Url::to('/themes')}}"> <i class="entypo-pencil"></i> <span>Themes</span> </a> </li>
-        @endif
+        @endif        
       </ul>
     </li>
     @endif
@@ -193,6 +190,9 @@
         @endif
         @if(User::is_admin())
         <li> <a href="{{Url::to('roles')}}"> <i class="entypo-pencil"></i> <span>User Roles</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('themes','View'))
+        <li> <a href="{{Url::to('/themes')}}"> <i class="entypo-pencil"></i> <span>Themes</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('AccountChecklist','View'))
         <li> <a href="{{Url::to('accountapproval')}}"> <i class="entypo-pencil"></i> <span>Account Checklist</span> </a> </li>

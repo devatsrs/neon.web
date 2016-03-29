@@ -116,7 +116,7 @@ class ThemesController extends \BaseController {
             $themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
 			$themeData["LoginMessage"] 		= 	$data["LoginMessage"];
             $themeData["CustomCss"] 		= 	$data["CustomCss"];			
-            $themeData["ThemeStatus"] 		= 	$data["ThemeStatus"];
+            $themeData["ThemeStatus"] 		= 	empty($data["ThemeStatus"])?Themes::INACTIVE:$data["ThemeStatus"];
             $themeData["CreatedBy"] 		= 	$CreatedBy;
 			$themeData["created_at"] 		= 	date('Y-m-d H:i:s');
 
@@ -265,7 +265,7 @@ class ThemesController extends \BaseController {
             $themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
 			$themeData["LoginMessage"] 		= 	$data["LoginMessage"];
             $themeData["CustomCss"] 		= 	$data["CustomCss"];			
-            $themeData["ThemeStatus"] 		= 	$data["ThemeStatus"];
+           $themeData["ThemeStatus"] 		= 	empty($data["ThemeStatus"])?Themes::INACTIVE:$data["ThemeStatus"];
             $themeData["ModifiedBy"] 		= 	$CreatedBy;
 			$themeData["updated_at"] 		= 	date('Y-m-d H:i:s');
             ///////////

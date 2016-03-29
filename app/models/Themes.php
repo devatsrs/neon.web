@@ -7,7 +7,7 @@ class Themes extends \Eloquent {
     protected $guarded 		= 	array('ThemeID');
     protected $table 		= 	'tblCompanyThemes';
     protected $primaryKey 	= 	"ThemeID";
-    const DRAFT 			= 	'draft';
+    const INACTIVE 			= 	'inactive';
     const ACTIVE 			= 	'active';
 	
 
@@ -18,8 +18,8 @@ class Themes extends \Eloquent {
        $themeStatus 	= 	explode(',','');
        $themearray 		= 	array(
 	   										''=>'Select Theme Status',
-	   										self::DRAFT=>'Draft',
-											self::ACTIVE=>'Active'											
+											self::ACTIVE=>'Active',
+	   										self::INACTIVE=>'Inactive'																					
 								);
 	   
         foreach($themeStatus as $status)
