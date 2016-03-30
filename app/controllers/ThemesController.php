@@ -18,7 +18,7 @@ class ThemesController extends \BaseController {
         	$Themes->where('DomainUrl', 'like', '%' . $_GET['searchText'] . '%')
               ->orWhere('Title', 'like', '%' . $_GET['searchText'] . '%')
 			  ->orWhere('FooterText', 'like', '%' . $_GET['searchText'] . '%')
-			  ->orWhere('FooterUrl', 'like', '%' . $_GET['searchText'] . '%')
+			 // ->orWhere('FooterUrl', 'like', '%' . $_GET['searchText'] . '%')
 			  ->orWhere('LoginMessage', 'like', '%' . $_GET['searchText'] . '%');			  
    			 });			
         }
@@ -113,7 +113,7 @@ class ThemesController extends \BaseController {
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
             $themeData["Title"] 			= 	$data["Title"];
             $themeData["FooterText"] 		= 	$data["FooterText"];
-            $themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
+           // $themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
 			$themeData["LoginMessage"] 		= 	$data["LoginMessage"];
             $themeData["CustomCss"] 		= 	$data["CustomCss"];			
             $themeData["ThemeStatus"] 		= 	empty($data["ThemeStatus"])?Themes::INACTIVE:$data["ThemeStatus"];
@@ -124,7 +124,7 @@ class ThemesController extends \BaseController {
             $rules = array(
                 'CompanyID' => 'required',
                 'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl|url', 
-				'FooterUrl' => 'url',               
+				//'FooterUrl' => 'url',               
             );
 			
             $verifier = App::make('validation.presence');
@@ -147,9 +147,10 @@ class ThemesController extends \BaseController {
 				{		
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
-					if($width_log >200 || $height_log>58)
+					//if($width_log >200 || $height_log>58)
+					if($width_log >200)
 					{
-						return Response::json(array("status" => "failed", "message" => "Logo image max size is 200 x 58"));			
+						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}					
 
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
@@ -262,17 +263,17 @@ class ThemesController extends \BaseController {
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
             $themeData["Title"] 			= 	$data["Title"];
             $themeData["FooterText"] 		= 	$data["FooterText"];
-            $themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
+            //$themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
 			$themeData["LoginMessage"] 		= 	$data["LoginMessage"];
             $themeData["CustomCss"] 		= 	$data["CustomCss"];			
-           $themeData["ThemeStatus"] 		= 	empty($data["ThemeStatus"])?Themes::INACTIVE:$data["ThemeStatus"];
+            $themeData["ThemeStatus"] 		= 	empty($data["ThemeStatus"])?Themes::INACTIVE:$data["ThemeStatus"];
             $themeData["ModifiedBy"] 		= 	$CreatedBy;
 			$themeData["updated_at"] 		= 	date('Y-m-d H:i:s');
             ///////////
 
             $rules = array(
                 'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl,'.$id.',ThemeID|url',
-                'FooterUrl' => 'url',
+               // 'FooterUrl' => 'url',
             );
 			
             $verifier = App::make('validation.presence');
@@ -299,9 +300,10 @@ class ThemesController extends \BaseController {
 				{
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
-					if($width_log >200 || $height_log>58)
+					///if($width_log >200 || $height_log>58)
+					if($width_log >200)
 					{
-						return Response::json(array("status" => "failed", "message" => "Logo image max size is 200 x 58"));			
+						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}
 					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
