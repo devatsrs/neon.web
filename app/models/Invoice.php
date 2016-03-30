@@ -105,7 +105,7 @@ class Invoice extends \Eloquent {
                     break;
                 case 'monthly_anniversary':
 
-                    $day = date("d",  strtotime($BillingCycleValue)); // Date of Anivarsary
+                    $day = date("d",  strtotime($BillingCycle['BillingCycleValue'])); // Date of Anivarsary
                     $month = date("m",  $BillingStartDate); // Month of Last Invoice date or Start Date
                     $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
 
