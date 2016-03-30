@@ -22,7 +22,7 @@
             <div class="col-sm-4">
               <input type="text" name='DomainUrl' class="form-control" id="DomainUrl" placeholder="https://www.site.com" value="">
             </div>
-            <label for="Title" class="col-sm-2 control-label">Title</label>
+            <label for="Title" class="col-sm-2 control-label">Page Title</label>
             <div class="col-sm-4">
               <input type="text" name='Title' class="form-control" id="Title" placeholder="Title" value="">
             </div>
@@ -32,14 +32,12 @@
             <div class="col-sm-4">
               <input type="text" name='FooterText' class="form-control" id="FooterText" placeholder="Footer Text" value="">
             </div>
-            <label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
+<!--            <label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
             <div class="col-sm-4">
               <input type="text" name='FooterUrl' class="form-control" id="FooterUrl" placeholder="Footer Url" value="">
-            </div>
-          </div>
-          <div class="form-group">
+            </div>-->
             <label for="LoginMessage" class="col-sm-2 control-label">Login Message</label>
-            <div class="col-sm-8">
+            <div class="col-sm-4">
               <input type="text" name='LoginMessage' class="form-control" id="LoginMessage" placeholder="Login Message" value="">
             </div>
           </div>
@@ -81,10 +79,10 @@
             </div>
           </div>-->
              <div class="form-group">
-						<label class="col-sm-2 control-label">Status</label>
+						<label class="col-sm-2 control-label">Active</label>
 						
 						<div class="col-sm-5">
-							<div id="label-switch" class="make-switch" data-on-label="Active" data-off-label="Inactive">
+							<div id="label-switch" class="make-switch" data-on-label="ON" data-off-label="OFF">
 								<input type="checkbox" value="active" name="ThemeStatus" checked>
 							</div>
 						</div>
