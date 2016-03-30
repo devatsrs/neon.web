@@ -201,7 +201,7 @@ GenerateRateTable:BEGIN
 
 	       INSERT INTO tmp_Vendorrates_   (code ,rate ,  ConnectionFee , AccountId ,RowNo ,PreferenceRank )
 			  SELECT code,rate,ConnectionFee,AccountId,RowNo,PreferenceRank FROM(SELECT *,
-				 @row_num := IF(@prev_Code2 collate 'utf8_unicode_ci'= code AND  @prev_Preference >= Preference AND  @prev_Rate2 >= rate ,@row_num+1,1) AS PreferenceRank,
+				 @row_num := IF(@prev_Code2 = code AND  @prev_Preference >= Preference AND  @prev_Rate2 >= rate ,@row_num+1,1) AS PreferenceRank,
 				 @prev_Code2  := Code,
 				 @prev_Rate2  := rate,
 				 @prev_Preference  := Preference
@@ -210,7 +210,7 @@ GenerateRateTable:BEGIN
 				ConnectionFee,
 				AccountId,
 				Preference,
-				@row_num := IF(@prev_Code collate 'utf8_unicode_ci' = code AND @prev_Rate >= rate ,@row_num+1,1) AS RowNo,
+				@row_num := IF(@prev_Code = code AND @prev_Rate >= rate ,@row_num+1,1) AS RowNo,
 				@prev_Code  := Code,
 				@prev_Rate  := rate
 				from  (
@@ -294,7 +294,7 @@ GenerateRateTable:BEGIN
 			                    (v_Use_Preference_ =1 and PreferenceRank <= v_RatePosition_)
 			                )
 			                AND rate.code is null
-			                AND IFNULL(vr.Rate, 0) > 0
+			            --   AND IFNULL(vr.Rate, 0) > 0
 						 ) vRate;
 	         ELSE -- AVERAGE
 	            
@@ -324,7 +324,7 @@ GenerateRateTable:BEGIN
 	                    (v_Use_Preference_ =1 and PreferenceRank <= v_RatePosition_)
 	                )
 	                AND rate.code is null
-	                AND IFNULL(vr.Rate, 0) > 0
+	              --  AND IFNULL(vr.Rate, 0) > 0
 	                GROUP BY vr.code 
 						 ) vRate;
 	
@@ -337,8 +337,8 @@ GenerateRateTable:BEGIN
 
 		 
 		 
-	    DELETE FROM tmp_Rates_
-	    WHERE IFNULL(Rate, 0) = 0;
+	   -- DELETE FROM tmp_Rates_
+	   -- WHERE IFNULL(Rate, 0) = 0;
 		/*select * from tmp_Rates_;*/
 
 	    IF p_RateTableId = -1
