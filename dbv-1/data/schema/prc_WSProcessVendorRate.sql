@@ -31,6 +31,7 @@ BEGIN
 			`IntervalN` int,
 			INDEX tmp_EffectiveDate (`EffectiveDate`),
 			INDEX tmp_Code (`Code`),
+			INDEX tmp_CC (`Code`,`Change`),
 			INDEX tmp_Change (`Change`)
     );
     
@@ -336,7 +337,6 @@ BEGIN
                 AND tblTempVendorRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d')
                 AND tblTempVendorRate.Rate <> tblVendorRate.Rate
                 AND tblTempVendorRate.EffectiveDate <> tblVendorRate.EffectiveDate
-                AND tblVendorRate.EffectiveDate <> tblTempVendorRate.EffectiveDate
                 )
                 )
                 AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
@@ -350,7 +350,7 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * from tmp_JobLog_;
-	 DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId;
+	 -- DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId;
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
