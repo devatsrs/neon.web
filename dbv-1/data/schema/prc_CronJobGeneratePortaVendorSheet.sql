@@ -15,7 +15,7 @@ BEGIN
     );
         INSERT INTO tmp_VendorRate_
         SELECT   `TrunkID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee`
-		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID AND tblVendorRate.Rate > 0
+		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID 
 								AND FIND_IN_SET(tblVendorRate.TrunkId,p_trunks) != 0 
                         AND EffectiveDate <= NOW();
 
@@ -36,8 +36,8 @@ BEGIN
                    THEN tblVendorRate.IntervalN
                    ElSE tblRate.IntervalN
                END  AS `Next Interval`,
-               tblVendorRate.Rate as `First Price`,
-               tblVendorRate.Rate as `Next Price`,
+               Abs(tblVendorRate.Rate) as `First Price`,
+               Abs(tblVendorRate.Rate) as `Next Price`,
                tblVendorRate.EffectiveDate as `Effective From` ,
                IFNULL(Preference,5) as `Preference`,
                CASE
@@ -49,6 +49,7 @@ BEGIN
                        ) THEN 1
                    ELSE 0
                END AS `Forbidden`,
+               CASE WHEN tblVendorRate.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
                CASE WHEN ConnectionFee > 0 THEN
 						CONCAT('SEQ=',ConnectionFee,'&int1x1@price1&intNxN@priceN')
 					ELSE
