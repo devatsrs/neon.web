@@ -1,7 +1,6 @@
 @extends('layout.login')
 
 @section('content')
-
 <div class="login-container">
     
     <div class="login-header login-caret">
@@ -9,10 +8,10 @@
         <div class="login-content">
             
             <a href="<?php echo URL::to('/'); ?>" class="logo">
-                <img src="<?php echo URL::to('/'); ?>/assets/images/logo@2x.png" width="120" alt="" />
+                <img src="{{Session::get('user_site_configrations.Logo')}}" width="120" alt="" />
             </a>
             
-            <p class="description" style="color:#fff">Dear user, log in to access RM!</p>
+            <p class="description" style="color:#fff">{{Session::get('user_site_configrations.LoginMessage')}}</p>
             
             <!-- progress bar indicator -->
             <div class="login-progressbar-indicator">

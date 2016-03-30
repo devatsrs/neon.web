@@ -346,6 +346,11 @@ function getFileContent($file_name,$data){
     $columns = [];
     $grid = [];
     $flag = 0;
+
+    $NeonExcel = new NeonExcelIO($file_name, $data);
+    $results = $NeonExcel->read(10);
+
+    /*
     if (!empty($data['Delimiter'])) {
         Config::set('excel::csv.delimiter', $data['Delimiter']);
     }
@@ -369,17 +374,11 @@ function getFileContent($file_name,$data){
         if ($flag == 1) {
             $reader->noHeading();
         }
-        if(!$isExcel) {
-            $reader->formatDates(true, 'Y-m-d');
-        }else{
-            $reader->formatDates(false);
-            $reader->setReadDataOnly(true);
-        }
-    })->take(10)->toArray();
+    })->take(10)->toArray();*/
     $counter = 1;
     //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if ($flag == 1) {
+        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             $columns[$index] = $index;
@@ -408,8 +407,12 @@ function getFileContent($file_name,$data){
     return $grid;
 }
 
-
-
+function estimate_date_fomat($DateFormat){
+    if(empty($DateFormat)){
+        $DateFormat = 'd-m-Y';
+    }
+    return $DateFormat;
+}
 function invoice_date_fomat($DateFormat){
     if(empty($DateFormat)){
         $DateFormat = 'd-m-Y';
@@ -741,6 +744,21 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     return $datetime;
 }
 
+function SortBillingType(){
+    ksort(Company::$BillingCycleType);
+    return Company::$BillingCycleType;
+}
+
+
+function getUploadedFileRealPath($files)
+{
+    $realPaths = [];
+    foreach ($files as $file) {
+        $realPaths[] = '@' . $file->getRealPath() . ';filename=' . $file->getClientOriginalName();
+    }
+    return $realPaths;
+}
+
 function validfilepath($path){
     $path = AmazonS3::unSignedUrl($path);
     if (!is_numeric(strpos($path, "https://"))) {
@@ -751,15 +769,36 @@ function validfilepath($path){
     }
     return $path;
 }
-function SortBillingType(){
-    ksort(Company::$BillingCycleType);
-    return Company::$BillingCycleType;
+
+function create_site_configration_cache(){
+
+	$domain_url 					=   addhttp($_SERVER['HTTP_HOST']);
+	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
+
+	if($result){  //url found
+		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
+		$cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
+		$cache['Title']				=	$result[0]->Title;
+		$cache['FooterText']		=	$result[0]->FooterText;
+		$cache['FooterUrl']			=	$result[0]->FooterUrl;
+		$cache['LoginMessage']		=	$result[0]->LoginMessage;
+		$cache['CustomCss']			=	$result[0]->CustomCss;
+	}else{
+		$cache['FavIcon'] 			=	URL::to('/').'/assets/images/favicon.ico';
+		$cache['Logo'] 	  			=	URL::to('/').'/assets/images/logo@2x.png';
+		$cache['Title']				=	'Neon';
+		$cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
+		$cache['FooterUrl']			=	'http://www.code-desk.com';
+		$cache['LoginMessage']		=	'Dear user, log in to access RM!';
+		$cache['CustomCss']			=	'';
+	}
+
+	Session::put('user_site_configrations', $cache);
 }
 
-function getUploadedFileRealPath($files){
-    $realPaths = [];
-    foreach ($files as $file) {
-        $realPaths[] = '@'.$file->getRealPath().';filename='.$file->getClientOriginalName();
+function addhttp($url) {
+    if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+        $url = "http://" . $url;
     }
-    return $realPaths;
+    return $url;
 }

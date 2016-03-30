@@ -14,7 +14,7 @@ class LeadsController extends \BaseController {
        $companyID = User::get_companyID();
        $userID = User::get_userID();
         $data = Input::all();
-        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'Address1','Address2','Address3','City','Country','Picture'];
+        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'Address1','Address2','Address3','City','Country','Picture','tblAccount.PostCode'];
         $leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 
         if (User::is('AccountManager')) { // Account Manager

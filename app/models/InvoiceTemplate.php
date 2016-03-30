@@ -52,6 +52,37 @@ class InvoiceTemplate extends \Eloquent {
         }
         return $NewInvoiceNumber;
     }
+		/////////////////
+	public static function getAccountNextEstimateNumber($AccountID)
+	{
+
+        $InvoiceTemplateID = Account::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        
+		if($InvoiceTemplateID > 0)
+		{
+            return self::getNextEstimateNumber($InvoiceTemplateID);
+        }
+		else
+		{
+            return 0;
+        }
+    }
+	
+    public static function getNextEstimateNumber($InvoiceTemplateid)
+	{
+        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
+        $NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->LastEstimateNumber);
+        $CompanyID = User::get_companyID();
+        
+		while(Estimate::where(["EstimateNumber"=> $NewEstimateNumber,'CompanyID'=>$CompanyID])->count() ==1)
+		{
+            $NewEstimateNumber++;
+        }
+		
+        return $NewEstimateNumber;
+    }
+	//////////////////////
+	
     public static function clearCache(){
 
         Cache::flush("it_dropdown1_cache");

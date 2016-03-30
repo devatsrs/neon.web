@@ -25,103 +25,9 @@
 @endif    
 </p>
 
-<style>
-
-    ul.grid {
-        list-style: outside none none;
-        margin: 0 auto;
-        padding-left: 0px;
-        font-size:11px;
-    }
-    .clearfix {
-        display: block;
-    }
-
-    ul.grid li {
-        box-sizing: border-box;
-        padding: 3px 3px 2px;
-    }
-    ul.grid li div.box{
-        border: 1px solid #b6bdbe;
-        padding: 5px 5px;
-        width:100%;
-    }
-    ul.grid li div.selected{
-        background :#a94442 none repeat scroll 0 0;
-    }
-    ul.grid li div.header {
-        min-height: 66px;
-    }
-    ul.grid li div.block {
-        min-height: 80px;
-        word-wrap: break-word;
-    }
-    ul.grid li div.cellNo{
-        min-height: 40px;
-    }
-    ul.grid li .address{
-        height: 120px;
-        overflow-y:auto;
-    }
-    ul.grid li div.block a,ul.grid li div.cellNo a{
-        color: #74B1C4;
-    }
-    ul.grid li div.meta {
-        color: #93989b;
-        display: block;
-        font-weight: normal;
-    }
-    ul.grid li div.action{
-        text-align: right;
-        margin: 5px 0px;
-        min-height:20px;
-        padding-bottom: 5px;;
-        nargin-to:-20px;
-    }
-
-    .right-padding-0{
-        padding-right: 0px;
-    }
-    .left-padding-0{
-        padding-left: 0px;
-    }
-
-    .change-view header {
-        position: absolute;
-        top:15px;
-        right:150px;
-        width:65px;
-    }
-
-    .change-view header .list-style-buttons {
-        position: absolute;
-        right: 0;
-    }
-    .padding-0{
-        padding: 0px !important;
-    }
-    .padding-left-1{
-        padding: 0px 0px 0px 1px !important;
-    }
-    .padding-3{
-        padding:3px;
-    }
-    ul.grid .head{
-        font-size:12px;
-        font-weight: 700;
-        color:#373e4a;
-        word-wrap: break-word;
-    }
-
-    #selectcheckbox{
-        padding: 15px 10px;
-    }
-
-</style>
-
 <div class="row">
     <div class="col-md-12">
-        <form id="lead_filter" method="get"  action="{{URL::to('leads/ajax_datagrid')}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="lead_filter" method="get"  action="{{URL::to('leads/ajax_datagrid')}}" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -232,7 +138,6 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
-    var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
         $searchFilter.account_name = $("#lead_filter [name='account_name']").val();
         $searchFilter.account_number = $("#lead_filter [name='account_number']").val();
@@ -241,250 +146,231 @@
 
         $searchFilter.account_owners = $("#lead_filter [name='account_owners']").val();
         $searchFilter.account_active = $("#lead_filter [name='account_active']").prop("checked");
-        data_table = $("#table-4").dataTable({
+            data_table = $("#table-4").dataTable({
 
-            "bProcessing": true,
-            "bServerSide": true,
-            "bDestroy": true,
-            "sAjaxSource": baseurl + "/leads/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
-            "fnServerParams": function (aoData) {
-                aoData.push({"name": "account_name", "value": $searchFilter.account_name}, {
-                    "name": "account_number",
-                    "value": $searchFilter.account_number
-                }, {"name": "contact_name", "value": $searchFilter.contact_name}, {
-                    "name": "account_active",
-                    "value": $searchFilter.account_active
-                }, {"name": "account_owners", "value": $searchFilter.account_owners}, {
-                    "name": "tag",
-                    "value": $searchFilter.tag
-                });
-                data_table_extra_params.length = 0;
-                data_table_extra_params.push({
-                    "name": "account_name",
-                    "value": $searchFilter.account_name
-                }, {"name": "account_number", "value": $searchFilter.account_number}, {
-                    "name": "contact_name",
-                    "value": $searchFilter.contact_name
-                }, {"name": "account_active", "value": $searchFilter.account_active}, {
-                    "name": "account_owners",
-                    "value": $searchFilter.account_owners
-                }, {"name": "tag", "value": $searchFilter.tag});
-            },
-            "sPaginationType": "bootstrap",
-            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "oTableTools": {},
-            "aaSorting": [[0, 'asc']],
-            "aoColumns": [
-                {
-                    "bSortable": false,
-                    mRender: function (id, type, full) {
-                        return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[4] + '" class="rowcheckbox" ></div>';
-                    }
-                }, //0Checkbox
-                {
-                    "bSortable": true,
-                    mRender: function (id, type, full) {
-                        return full[0];
-                    }
+                "bProcessing": true,
+                "bServerSide": true,
+                "bDestroy": true,
+                "sAjaxSource": baseurl + "/leads/ajax_datagrid",
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "fnServerParams": function(aoData) {
+                    aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
                 },
-                {
-                    "bSortable": true,
-                    mRender: function (id, type, full) {
-                        return full[1];
-                    }
-                },
-                {
-                    "bSortable": true,
-                    mRender: function (id, type, full) {
-                        return full[2];
-                    }
-                },
-                {
-                    "bSortable": true,
-                    mRender: function (id, type, full) {
-                        return full[3];
-                    }
-                },
-                {
-                    "bSortable": true,
-                    mRender: function (id, type, full) {
-                        var action, edit_, show_;
-                        id = full[4];
-                        edit_ = "{{ URL::to('leads/{id}/edit')}}";
-                        clone_ = "{{ URL::to('leads/{id}/clone')}}";
-                        show_ = "{{ URL::to('leads/{id}/show')}}";
-
-                        edit_ = edit_.replace('{id}', id);
-                        clone_ = clone_.replace('{id}', id);
-                        show_ = show_.replace('{id}', id);
-                        action = '';
-                        <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                        action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?>
-                        <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
-                        action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
-                        <?php } ?>
-                        action += '&nbsp;<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
-                        <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                        action += '&nbsp;<a href="javascript:void(0)" data-id="' + id + '" class="btn btn-default btn-sm btn-icon icon-left opportunity"><i class="entypo-users"></i>Add Opportunity </a>';
-                        <?php } ?>
-                        action += '<input type="hidden" name="accountid" value="' + id + '"/>';
-                        action += '<input type="hidden" name="address1" value="' + full[7] + '"/>';
-                        action += '<input type="hidden" name="address2" value="' + full[8] + '"/>';
-                        action += '<input type="hidden" name="address3" value="' + full[9] + '"/>';
-                        action += '<input type="hidden" name="city" value="' + full[10] + '"/>';
-                        action += '<input type="hidden" name="country" value="' + full[11] + '"/>';
-                        action += '<input type="hidden" name="picture" value="' + full[12] + '"/>';
-                        return action;
-                    }
-                },
-            ],
-            "oTableTools": {
-                "aButtons": [
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "oTableTools": {},
+                "aaSorting": [[0, 'asc']],
+                "aoColumns": [
+                    {"bSortable": false,
+                        mRender: function(id, type, full) {
+                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[4] + '" class="rowcheckbox" ></div>';
+                        }
+                    }, //0Checkbox
+                    {"bSortable": true,
+                        mRender: function(id, type, full) {
+                            return full[0];
+                        }
+                    },
+                    {"bSortable": true,
+                        mRender: function(id, type, full) {
+                            return full[1];
+                        }
+                    },
+                    {"bSortable": true,
+                        mRender: function(id, type, full) {
+                            return full[2];
+                        }
+                    },
+                    {"bSortable": true,
+                        mRender: function(id, type, full) {
+                            return full[3];
+                        }
+                    },
                     {
-                        "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/leads/exports",
-                        sButtonClass: "save-collection"
-                    }
-                ]
-            },
-            "fnDrawCallback": function () {
-                $(".dropdown").removeClass("hidden");
-                var toggle = '<header>';
-                toggle += '   <span class="list-style-buttons">';
+                        "bSortable": true,
+                        mRender: function (id, type, full) {
+                            var action, edit_, show_;
+                            id = full[4];
+                            edit_ = "{{ URL::to('leads/{id}/edit')}}";
+                            clone_ = "{{ URL::to('leads/{id}/clone')}}";
+                            show_ = "{{ URL::to('leads/{id}/show')}}";
 
-                if (view == 1) {
-                    var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                    var desctiveurl = baseurl + '/assets/images/list-view.png';
-                    toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="' + activeurl + '"></a>';
-                    toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="' + desctiveurl + '"></a>';
-                } else {
-                    var activeurl = baseurl + '/assets/images/list-view-active.png';
-                    var desctiveurl = baseurl + '/assets/images/grid-view.png';
-                    toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="' + desctiveurl + '"></a>';
-                    toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="' + activeurl + '"></a>';
-                }
-                toggle += '   </span>';
-                toggle += '</header>';
-                $('.change-view').html(toggle);
-                var html = '<ul class="clearfix grid col-md-12">';
-                if ($(this).parents('.page-container').hasClass('sidebar-collapsed')) {
-                    checkClass = '1';
-                } else {
-                    checkClass = '0';
-                }
-                $('#table-4 tbody tr').each(function (i, el) {
-                    var childrens = $(this).children();
-                    if (childrens.eq(0).hasClass('dataTables_empty')) {
-                        return true;
-                    }
-                    var temp = childrens.eq(5).clone();
-                    $(temp).find('a').each(function () {
-                        $(this).find('i').remove();
-                        $(this).removeClass('btn btn-icon icon-left');
-                        $(this).addClass('label');
-                        $(this).addClass('padding-3');
-                    });
-                    var address1 = $(temp).find('input[name="address1"]').val();
-                    var address2 = $(temp).find('input[name="address2"]').val();
-                    var address3 = $(temp).find('input[name="address3"]').val();
-                    var city = $(temp).find('input[name="city"]').val();
-                    var country = $(temp).find('input[name="country"]').val();
-                    address1 = (address1 == 'null' || address1 == '' ? '' : '1:' + address1);
-                    address2 = (address2 == 'null' || address2 == '' ? '' : '<br>2:' + address2);
-                    address3 = (address3 == 'null' || address3 == '' ? '' : '<br>3:' + address3);
-                    city = (city == 'null' || city == '' ? '' : '<br>City:' + city);
-                    country = (country == 'null' || country == '' ? '' : '&nbsp;&nbsp;Country:' + country);
-                    var url = baseurl + '/assets/images/placeholder-male.gif';
-                    var select = '';
-                    if (checked != '') {
-                        select = 'selected';
-                    }
-                    if (checkClass == '1') {
-                        html += '<li class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xsm-12">';
-                    } else {
-                        html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-6 col-xsm-12">';
-                    }
-                    html += '  <div class="box clearfix ' + select + '">';
-                    html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                    html += '  <div class="col-sm-8 header padding-left-1">  <span class="head">' + childrens.eq(1).text() + '</span><br>';
-                    html += '  <span class="meta">Owner:' + childrens.eq(2).text() + '</span></div>';
-                    html += '  <div class="col-sm-6 padding-0">';
-                    html += '  <div class="block">';
-                    html += '     <div class="meta">Send Email</div>';
-                    html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(4).text() + '</a></div>';
-                    html += '  </div>';
-                    html += '  <div class="cellNo">';
-                    html += '     <div class="meta">Call Work</div>';
-                    html += '     <div><a href="tel:' + childrens.eq(3).text() + '">' + childrens.eq(3).text() + '</a></div>';
-                    html += '  </div>';
-                    html += '  </div>';
-                    html += '  <div class="col-sm-6 padding-0">';
-                    html += '  <div class="block">';
-                    html += '     <div class="meta">Address</div>';
-                    html += '     <div class="address">' + address1 + '' + address2 + '' + address3 + '' + city + '' + country + '</div>';
-                    html += '  </div>';
-                    html += '  </div>';
-                    html += '  <div class="col-sm-11 padding-0 action">';
-                    html += '   ' + temp.html();
-                    html += '  </div>';
-                    html += ' </div>';
-                    html += '</li>';
-                    if (checked != '') {
-                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                        $(this).addClass('selected');
-                    } else {
-                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                        ;
-                        $(this).removeClass('selected');
-                    }
-                });
-                html += '</ul>';
-                $('.gridview').html(html);
-                if (view == 2) {
-                    $('.gridview').addClass('hidden');
-                    $('#table-4').removeClass('hidden');
-                } else {
-                    $('#table-4').addClass('hidden');
-                    $('.gridview').removeClass('hidden');
-                }
+                            edit_ = edit_.replace('{id}', id);
+                            clone_ = clone_.replace('{id}', id);
+                            show_ = show_.replace('{id}', id);
+                            action = '';
+                            <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
+                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            <?php } ?>
+                            <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
+                            action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
+                            <?php } ?>
+                            <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                            action += '&nbsp;<a href="javascript:void(0)" data-id="' + id + '" class="btn btn-default btn-sm btn-icon icon-left opportunity"><i class="entypo-users"></i>Add Opportunity </a>';
+                            <?php } ?>
+                            action += '&nbsp;<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 
-                //select all record
-                $('#selectallbutton').click(function () {
-                    if ($('#selectallbutton').is(':checked')) {
-                        checked = 'checked=checked disabled';
-                        $("#selectall").prop("checked", true).prop('disabled', true);
-                        //if($('.gridview').is(':visible')){
-                        $('.gridview li div.box').each(function (i, el) {
-                            $(this).addClass('selected');
-                        });
-                        //}else{
-                        $('#table-4 tbody tr').each(function (i, el) {
+                            action +='<input type="hidden" name="accountid" value="'+id+'"/>';
+                            action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
+                            action +='<input type="hidden" name="address2" value="'+full[8]+'"/>';
+                            action +='<input type="hidden" name="address3" value="'+full[9]+'"/>';
+                            action +='<input type="hidden" name="city" value="'+full[10]+'"/>';
+                            action +='<input type="hidden" name="country" value="'+full[11]+'"/>';
+                            action +='<input type="hidden" name="picture" value="'+full[12]+'"/>';
+							action +='<input type="hidden" name="PostCode" value="'+full[13]+'"/>';
+                            return action;
+                        }
+                    },
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "Export Data",
+                            "sUrl": baseurl + "/leads/exports",
+                            sButtonClass: "save-collection"
+                        }
+                    ]
+                },
+                "fnDrawCallback": function() {
+                    $(".dropdown").removeClass("hidden");
+                    var toggle = '<header>';
+                    toggle += '   <span class="list-style-buttons">';
+
+                    if(view==1){
+                        var activeurl = baseurl + '/assets/images/grid-view-active.png';
+                        var desctiveurl = baseurl + '/assets/images/list-view.png';
+                        toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl+'"></a>';
+                        toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="'+desctiveurl+'"></a>';
+                    }else{
+                        var activeurl = baseurl + '/assets/images/list-view-active.png';
+                        var desctiveurl = baseurl + '/assets/images/grid-view.png';
+                        toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+desctiveurl+'"></a>';
+                        toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="'+activeurl+'"></a>';
+                    }
+                    toggle += '   </span>';
+                    toggle += '</header>';
+                    $('.change-view').html(toggle);
+                    var html = '<ul class="clearfix grid col-md-12">';
+                    if($(this).parents('.page-container').hasClass('sidebar-collapsed')) {
+                        checkClass = '1';
+                    }else{
+                        checkClass = '0';
+                    }
+                     $('#table-4 tbody tr').each(function(i, el) {
+                        var childrens = $(this).children();
+                         if(childrens.eq(0).hasClass('dataTables_empty')){
+                             return true;
+                         }
+                         var temp = childrens.eq(5).clone();
+                         $(temp).find('a').each(function(){
+                             $(this).find('i').remove();
+                             $(this).removeClass('btn btn-icon icon-left');
+                             $(this).addClass('label');
+                             $(this).addClass('padding-3');
+                         });
+                         var address1 	= 	$(temp).find('input[name="address1"]').val();
+                         var address2 	= 	$(temp).find('input[name="address2"]').val();
+                         var address3 	= 	$(temp).find('input[name="address3"]').val();
+                         var city 		= 	$(temp).find('input[name="city"]').val();
+                         var country 	= 	$(temp).find('input[name="country"]').val();
+						 var PostCode 	= 	$(temp).find('input[name="PostCode"]').val();
+                         address1 		= 	(address1=='null'||address1==''?'':address1+'<br>');
+                         address2 		= 	(address2=='null'||address2==''?'':address2+'<br>');
+                         address3 		= 	(address3=='null'||address3==''?'':address3+'<br>');
+                         city 			= 	(city=='null'||city==''?'':city+'<br>');
+						 PostCode 		= 	(PostCode=='null'||PostCode==''?'':PostCode+'<br>');
+                         country 		= 	(country=='null'||country==''?'':country);
+                        var url 		= 	baseurl + '/assets/images/placeholder-male.gif';
+                         var select='';
+                         if (checked!='') {
+                             select = 'selected';
+                         }
+                         if(checkClass=='1'){
+                             html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
+                         }else{
+                             html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
+                         }
+                         html += '  <div class="box clearfix ' + select + '">';
+                         //html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
+                         html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + childrens.eq(1).text() + '</span><br>';
+                         html += '  <span class="meta complete_name">' + childrens.eq(2).text() + '</span></div>';
+                         html += '  <div class="col-sm-6 padding-0">';
+                         html += '  <div class="block">';
+                         html += '     <div class="meta">Email</div>';
+                         html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(4).text() + '</a></div>';
+                         html += '  </div>';
+                         html += '  <div class="cellNo">';
+                         html += '     <div class="meta">Phone</div>';
+                         html += '     <div><a href="tel:' + childrens.eq(3).text() + '">' + childrens.eq(3).text() + '</a></div>';
+                         html += '  </div>';
+                         html += '  </div>';
+                         html += '  <div class="col-sm-6 padding-0">';
+                         html += '  <div class="block">';
+                         html += '     <div class="meta">Address</div>';
+                         //html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+country+'</div>';
+						 html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
+                         html += '  </div>';
+                         html += '  </div>';
+                         html += '  <div class="col-sm-11 padding-0 action">';
+                         html += '   ' + temp.html();
+                         html += '  </div>';
+                         html += ' </div>';
+                         html += '</li>';
+                        if (checked!='') {
                             $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
                             $(this).addClass('selected');
-                        });
-                        //}
-                    } else {
-                        checked = '';
-                        $("#selectall").prop("checked", false).prop('disabled', false);
-                        //if($('.gridview').is(':visible')){
-                        $('.gridview li div.box').each(function (i, el) {
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);;
                             $(this).removeClass('selected');
-                        });
-                        //}else{
-                        $('#table-4 tbody tr').each(function (i, el) {
-                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                            $(this).removeClass('selected');
-                        });
-                        //    }
+                        }
+                    });
+                    html += '</ul>';
+                    $('.gridview').html(html);
+                    if(view==2){
+                        $('.gridview').addClass('hidden');
+                        $('#table-4').removeClass('hidden');
+                    }else{
+                        $('#table-4').addClass('hidden');
+                        $('.gridview').removeClass('hidden');
                     }
-                });
-            }
-        });
+
+                    //select all record
+                    $('#selectallbutton').click(function(){
+                        if($('#selectallbutton').is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall").prop("checked", true).prop('disabled', true);
+                            //if($('.gridview').is(':visible')){
+                                $('.gridview li div.box').each(function(i,el){
+                                    $(this).addClass('selected');
+                                });
+                            //}else{
+                                $('#table-4 tbody tr').each(function (i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                });
+                            //}
+                        }else{
+                            checked = '';
+                            $("#selectall").prop("checked", false).prop('disabled', false);
+                            //if($('.gridview').is(':visible')){
+                                $('.gridview li div.box').each(function(i,el){
+                                    $(this).removeClass('selected');
+                                });
+                            //}else{
+                                $('#table-4 tbody tr').each(function (i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                });
+                        //    }
+                        }
+                    });
+                }
+            });
         $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
-        $("#lead_filter").submit(function (e) {
+        $("#lead_filter").submit(function(e) {
             e.preventDefault();
             $searchFilter.account_name = $("#lead_filter [name='account_name']").val();
             $searchFilter.account_number = $("#lead_filter [name='account_number']").val();
@@ -497,13 +383,13 @@
             return false;
         });
 
-        $(".dataTables_wrapper select").select2({
-            minimumResultsForSearch: -1
-        });
-        $(document).on('click', '#table-4 tbody tr,.gridview ul li div.box', function () {
-            if (checked == '') {
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
+        $(document).on('click', '#table-4 tbody tr,.gridview ul li div.box', function() {
+            if (checked =='') {
                 $(this).toggleClass('selected');
-                if ($(this).is('tr')) {
+                if($(this).is('tr')) {
                     if ($(this).hasClass('selected')) {
                         $(this).find('.rowcheckbox').prop("checked", true);
                     } else {
@@ -513,9 +399,9 @@
             }
         });
 
-        $("#BulkMail-form [name=email_template]").change(function (e) {
+        $("#BulkMail-form [name=email_template]").change(function(e){
             var templateID = $(this).val();
-            if (templateID > 0) {
+            if(templateID>0) {
                 var url = baseurl + '/leads/' + templateID + '/ajax_template';
                 $.get(url, function (data, status) {
                     if (Status = "success") {
@@ -527,25 +413,23 @@
             }
         });
 
-        $('#BulkMail-form [name="email_template_privacy"]').change(function (e) {
-            setTimeout(function () {
-                drodown_reset();
-            }, 100);
+        $('#BulkMail-form [name="email_template_privacy"]').change(function(e){
+            setTimeout(function(){ drodown_reset(); }, 100);
         });
 
-        $("#BulkMail-form [name=template_option]").change(function (e) {
-            if ($(this).val() == 1) {
+        $("#BulkMail-form [name=template_option]").change(function(e){
+            if($(this).val()==1){
                 $('#templatename').removeClass("hidden");
-            } else {
+            }else{
                 $('#templatename').addClass("hidden");
             }
         });
 
-        $("#BulkMail-form").submit(function (e) {
+        $("#BulkMail-form").submit(function(e){
             e.preventDefault();
             var SelectedIDs = [];
             var i = 0;
-            if ($("#BulkMail-form").find('[name="test"]').val() == 0) {
+            if($("#BulkMail-form").find('[name="test"]').val()==0) {
                 if (checked == '') {
                     var SelectedIDs = getselectedIDs();
                     if (SelectedIDs.length == 0) {
@@ -572,13 +456,13 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function (response) {
-                    if (response.status == 'success') {
+                    if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
                         $(".save").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         data_table.fnFilter('', 0);
                         reloadJobsDrodown(0);
-                    } else {
+                    }else{
                         toastr.error(response.message, "Error", toastr_opts);
                         $(".save").button('reset');
                     }
@@ -594,9 +478,9 @@
             });
         });
 
-        $("#selectall").click(function (ev) {
+        $("#selectall").click(function(ev) {
             var is_checked = $(this).is(':checked');
-            $('#table-4 tbody tr').each(function (i, el) {
+            $('#table-4 tbody tr').each(function(i, el) {
                 if (is_checked) {
                     $(this).find('.rowcheckbox').prop("checked", true);
                     $(this).addClass('selected');
@@ -623,7 +507,7 @@
             replaceCheckboxes();
         });
 
-        $('#modal-BulkMail').on('shown.bs.modal', function (event) {
+        $('#modal-BulkMail').on('shown.bs.modal', function(event){
             var modal = $(this);
             modal.find('.message').wysihtml5({
                 "font-styles": true,
@@ -633,19 +517,19 @@
                 "link": true,
                 "image": true,
                 "color": false,
-                parser: function (html) {
+                parser: function(html) {
                     return html;
                 }
             });
         });
 
-        $('#modal-BulkMail').on('hidden.bs.modal', function (event) {
+        $('#modal-BulkMail').on('hidden.bs.modal', function(event){
             var modal = $(this);
             modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
             modal.find('.message').show();
         });
 
-        $(document).on('click', '.sendemail', function () {
+        $(document).on('click','.sendemail',function(){
             $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $('#BulkMail-form [name="email_template_privacy"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(0);
@@ -655,21 +539,7 @@
             });
         });
 
-        $(document).on('mouseover', '#rating i', function () {
-            var currentrateid = $(this).attr('rate-id');
-            setrating(currentrateid);
-        });
-        $(document).on('click', '#rating i', function () {
-            var currentrateid = $(this).attr('rate-id');
-            $('#rating input[name="Rating"]').val(currentrateid);
-            setrating(currentrateid);
-        });
-        $(document).on('mouseleave', '#rating', function () {
-            var defultrateid = $('#rating input[name="Rating"]').val();
-            setrating(defultrateid);
-        });
-
-        $('#modal-BulkTags').on('hidden.bs.modal', function (event) {
+        $('#modal-BulkTags').on('hidden.bs.modal', function(event){
             var modal = $(this);
             var el = $('#lead_filter').find('[name="tags"]');
             el.siblings('div').remove();
@@ -677,7 +547,7 @@
             el.select2({tags:{{$leadTags}}});
         });
 
-        $("#bulk-tags").click(function () {
+        $("#bulk-tags").click(function() {
             var el = $('#modal-BulkTags').find('[name="tags"]');
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
@@ -687,7 +557,7 @@
             $('#modal-BulkTags').modal('show');
         });
 
-        $("#BulkTag-form").submit(function (e) {
+        $("#BulkTag-form").submit(function(e){
             e.preventDefault();
             var SelectedIDs = getselectedIDs();
             if (SelectedIDs.length == 0) {
@@ -695,8 +565,8 @@
                 $('#modal-BulkTags').modal('hide');
                 toastr.error('Please select at least one lead.', "Error", toastr_opts);
                 return false;
-            } else {
-                if (confirm('Do you want to add tags to selected leads')) {
+            }else{
+                if(confirm('Do you want to add tags to selected leads')){
                     var url = baseurl + "/leads/bulk_tags";
                     $("#BulkTag-form").find("input[name='SelectedIDs']").val(SelectedIDs.join(","));
                     var formData = new FormData($('#BulkTag-form')[0]);
@@ -705,13 +575,13 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function (response) {
-                            if (response.status == 'success') {
+                            if(response.status =='success'){
                                 toastr.success(response.message, "Success", toastr_opts);
                                 $(".save").button('reset');
                                 $('#modal-BulkTags').modal('hide');
                                 data_table.fnFilter('', 0);
                                 reloadJobsDrodown(0);
-                            } else {
+                            }else{
                                 toastr.error(response.message, "Error", toastr_opts);
                                 $(".save").button('reset');
                             }
@@ -736,24 +606,24 @@
             tags:{{$opportunityTags}}
         });
 
-        $("#test").click(function (e) {
+        $("#test").click(function(e){
             e.preventDefault();
             $("#BulkMail-form").find('[name="test"]').val(1);
             $('#TestMail-form').find('[name="EmailAddress"]').val('');
             $('#modal-TestMail').modal({show: true});
         });
-        $("#bull-email-account").click(function (e) {
+        $("#bull-email-account").click(function(e){
             $("#BulkMail-form").find('[name="test"]').val(0);
         });
-        $('.alert').click(function (e) {
+        $('.alert').click(function(e){
             e.preventDefault();
             var email = $('#TestMail-form').find('[name="EmailAddress"]').val();
             var accontID = $('#TestMail-form').find('[name="accountID"]').val();
-            if (email == '') {
+            if(email==''){
                 toastr.error('Email field should not empty.', "Error", toastr_opts);
                 $(".alert").button('reset');
                 return false;
-            } else if (accontID == '') {
+            }else if(accontID==''){
                 toastr.error('Please select sample account from dropdown', "Error", toastr_opts);
                 $(".alert").button('reset');
                 return false;
@@ -765,55 +635,49 @@
 
         });
 
-        $('#modal-TestMail').on('hidden.bs.modal', function (event) {
+        $('#modal-TestMail').on('hidden.bs.modal', function(event){
             var modal = $(this);
             modal.find('[name="test"]').val(0);
         });
-        $(document).on('click', '.switcher', function () {
+        $(document).on('click','.switcher',function(){
             var self = $(this);
-            if (self.hasClass('active')) {
+            if(self.hasClass('active')){
                 return false;
             }
             var activeurl;
             var desctiveurl;
-            if (self.attr('id') == 'gridview') {
+            if(self.attr('id')=='gridview'){
                 var activeurl = baseurl + '/assets/images/grid-view-active.png';
                 var desctiveurl = baseurl + '/assets/images/list-view.png';
                 view = 1;
-            } else {
+            }else{
                 var activeurl = baseurl + '/assets/images/list-view-active.png';
                 var desctiveurl = baseurl + '/assets/images/grid-view.png';
                 view = 2;
             }
-            self.find('img').attr('src', activeurl);
+            self.find('img').attr('src',activeurl);
             self.addClass('active');
             var sibling = self.siblings('a');
-            sibling.find('img').attr('src', desctiveurl);
+            sibling.find('img').attr('src',desctiveurl);
             sibling.removeClass('active');
             $('.gridview').toggleClass('hidden');
             $('#table-4').toggleClass('hidden');
         });
 
-        $('#add-edit-modal-opportunity .reset').click(function () {
-            var colorPicker = $(this).parents('.form-group').find('[type="text"].colorpicker');
-            var color = $(this).attr('data-color');
-            setcolor(colorPicker, color);
-        });
-
-        function drodown_reset() {
+        function drodown_reset(){
             var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val();
-            if (privacyID == null) {
+            if(privacyID == null){
                 return false;
             }
             var Type = $('#BulkMail-form [name="Type"]').val();
-            var url = baseurl + '/accounts/' + privacyID + '/ajax_getEmailTemplate/' + Type;
+            var url = baseurl + '/accounts/' + privacyID + '/ajax_getEmailTemplate/'+Type;
             $.get(url, function (data, status) {
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
                     $(el).data("selectBox-selectBoxIt").remove();
-                    $.each(data, function (key, value) {
-                        $(el).data("selectBox-selectBoxIt").add({value: key, text: value});
+                    $.each(data,function(key,value){
+                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
                     });
                     $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                 } else {
@@ -822,15 +686,15 @@
             });
         }
 
-        function editor_reset(data) {
+        function editor_reset(data){
             var modal = $("#modal-BulkMail");
             modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
             modal.find('.message').show();
-            if (!Array.isArray(data)) {
+            if(!Array.isArray(data)){
                 var EmailTemplate = data['EmailTemplate'];
                 modal.find('[name="subject"]').val(EmailTemplate.Subject);
                 modal.find('.message').val(EmailTemplate.TemplateBody);
-            } else {
+            }else{
                 modal.find('[name="subject"]').val('');
                 modal.find('.message').val('');
             }
@@ -842,20 +706,20 @@
                 "link": true,
                 "image": true,
                 "color": false,
-                parser: function (html) {
+                parser: function(html) {
                     return html;
                 }
             });
         }
 
-        function getselectedIDs() {
+        function getselectedIDs(){
             var SelectedIDs = [];
-            if ($('.gridview').is(':visible')) {
-                $('.gridview li div.selected .action input[name="accountid"]').each(function (i, el) {
+            if($('.gridview').is(':visible')){
+                $('.gridview li div.selected .action input[name="accountid"]').each(function(i,el){
                     AccountID = $(this).val();
                     SelectedIDs[i++] = AccountID;
                 });
-            } else {
+            }else{
                 $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
                     leadID = $(this).val();
                     SelectedIDs[i++] = leadID;
@@ -863,8 +727,9 @@
             }
             return SelectedIDs;
         }
-
     });
+
+
 
 </script>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">

@@ -41,7 +41,7 @@
 </p>
 <div class="row">
     <div class="col-md-12">
-        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -86,19 +86,22 @@
 
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
-                        <div class="col-sm-1">
+                        <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
                             </p>
                         </div>
-                    </div>
-                    <p style="text-align: right;">
+                          <label for="field-1" class="col-sm-2 control-label">Currency</label>
+                     <div class="col-sm-2">
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
+                    </div>                  
+                </div>
+                  <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-search"></i>
                             Search
                         </button>
                     </p>
-                </div>
             </div>
         </form>
     </div>
@@ -196,6 +199,7 @@ var postdata;
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
         $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+		$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -207,7 +211,7 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
             },
@@ -264,7 +268,7 @@ var postdata;
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
                 {  "bSortable": true },  // 4 GrandTotal
-                {  "bSortable": true },  // 4 GrandTotal
+                {  "bSortable": true },  // 4 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
                         return invoicestatus[full[6]];
@@ -361,6 +365,7 @@ var postdata;
                 ]
             },
            "fnDrawCallback": function() {
+				   get_total_grand(); //get result total
                 $('#table-4 tbody tr').each(function(i, el) {
                     if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                         if (checked != '') {
@@ -440,9 +445,54 @@ var postdata;
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+			$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
             data_table.fnFilter('', 0);
             return false;
         });
+		
+		
+				function get_total_grand()
+		{
+			 $.ajax({
+                url: baseurl + "/invoice/ajax_datagrid_total",
+                type: 'GET',
+                dataType: 'json',
+				data:{
+			"InvoiceType":$("#invoice_filter [name='InvoiceType']").val(),
+			"AccountID":$("#invoice_filter select[name='AccountID']").val(),
+			"InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
+			"InvoiceStatus":$("#invoice_filter select[name='InvoiceStatus']").val(),
+			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
+			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
+			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
+			"CurrencyID":$("#invoice_filter [name='CurrencyID']").val(),
+			"bDestroy": true,
+            "bProcessing":true,
+            "bServerSide":true,
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[3, 'desc']],},
+                success: function(response1) {
+					console.log("sum of result"+response1);
+						if(response1.total_grand!=null)
+						{ 
+						$('.result_row').remove();
+						$('.result_row').hide();
+							var selected_currency  =	 $("#invoice_filter [name='CurrencyID']").val();
+							var concat_currency    = 	 '';
+							if(selected_currency!='')
+							{							
+		//						concat_currency = $("#invoice_filter [name='CurrencyID'] option:selected").text()+' ';		
+								var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
+								var concat_currency = currency_txt.substr(0,1);
+							}
+				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
+						}
+					},
+			});	
+		}
 		
 		
 		

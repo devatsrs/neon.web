@@ -1,4 +1,3 @@
-
 body {
 }
 .no-border {
@@ -499,6 +498,7 @@ em {
     color: #949494;
 }
 
+
 dialog {
     width: 580px;
     background:#fff;
@@ -979,3 +979,106 @@ button.close {
     min-width: 60px;
     padding-left:5px;
 }
+
+/*grid css start*/
+
+    ul.grid {
+        list-style: outside none none;
+        margin: 0 auto;
+        padding-left: 0px;
+        font-size:11px;
+    }
+    .clearfix {
+        display: block;
+    }
+	
+    ul.grid li {
+        box-sizing: border-box;
+        padding: 6px 8px 4px 4px;		
+		
+    }
+    ul.grid li div.box{
+        border: 1px solid #b6bdbe;
+		background:#FFFFFF;
+		border-radius:10px;
+        padding: 5px 5px;
+        width:100%;
+		height:23.5em;
+		overflow:hidden;
+    }
+    ul.grid li div.selected{
+        background :#a94442 none repeat scroll 0 0;
+    }
+    ul.grid li div.header {
+        min-height: 66px;
+    }
+    ul.grid li div.block {
+        min-height: 80px;
+        word-wrap: break-word;
+    }
+    ul.grid li div.cellNo{
+        min-height: 40px;
+    }
+    ul.grid li .address{
+        height: 116px;
+        overflow-y:auto;
+    }
+	
+	ul.grid li .account-address
+	{
+		height: 120px !important;
+	}
+    ul.grid li div.block a,ul.grid li div.cellNo a{
+        color: #74B1C4;
+    }
+    ul.grid li div.meta {
+        color: #93989b;
+        display: block;
+        font-weight: normal;
+    }
+    ul.grid li div.action{
+        text-align: right;
+        margin: 5px 0px;
+        min-height:20px;
+        padding-bottom: 5px;;
+        nargin-to:-20px;
+    }
+
+    .right-padding-0{
+        padding-right: 0px;
+    }
+    .left-padding-0{
+        padding-left: 0px;
+    }
+
+    .change-view header {
+        position: absolute;
+        top:15px;
+        right:150px;
+        width:65px;
+    }
+
+    .change-view header .list-style-buttons {
+        position: absolute;
+        right: 0;
+    }
+    .padding-0{
+        padding: 0px !important;
+    }
+    .padding-left-1{
+        padding: 0px 0px 0px 1px !important;
+    }
+    .padding-3{
+        padding:3px;
+    }
+    ul.grid .head{
+        font-size:22px;
+        font-weight: 700;
+        color:#373e4a;
+        word-wrap: break-word;
+    }
+	ul.grid .complete_name{
+	font-size:16px;
+	}
+
+/*grid css end*/

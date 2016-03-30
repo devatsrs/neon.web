@@ -120,7 +120,7 @@ table{
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         <tr>
-                                                                <td class="text-right"><strong>{{$TaxrateName}}</strong></td>
+                                                                <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalTax,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @if($Invoice->TotalDiscount >0)

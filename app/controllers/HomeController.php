@@ -84,6 +84,7 @@ class HomeController extends BaseController {
         if(Auth::check()){
             return Redirect::to('/accounts');
         }else{
+			create_site_configration_cache();			
             return View::make('user.login');
         }
 
@@ -161,6 +162,7 @@ class HomeController extends BaseController {
             //if Normal User
             if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login()) {
                 User::setUserPermission();
+				create_site_configration_cache();
                 $redirect_to = URL::to($this->dashboard_url);
                 if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];

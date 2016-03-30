@@ -1,4 +1,6 @@
 <!-- Footer -->
 <footer class="main">
-    &copy; 2015 <a href="http://www.code-desk.com" target="_blank"><strong>Code Desk</strong> Limited</a>
+     {{--<a href="{{Session::get('user_site_configrations.FooterUrl')}}" target="_blank"><strong>{{Session::get('user_site_configrations.FooterText')}}</strong></a>--}}
+  <a href="#"><strong>{{Session::get('user_site_configrations.FooterText')}}</strong></a>
+
 </footer>

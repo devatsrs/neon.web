@@ -3,19 +3,42 @@
 class PaymentsController extends \BaseController {
 
 
-    public function ajax_datagrid() {
-        $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $data['iDisplayStart'] +=1;
-        $data['AccountID'] = $data['AccountID']!= ''?$data['AccountID']:0;
-        $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
-        $data['Status'] = $data['Status'] != ''?"'".$data['Status']."'":'null';
-        $data['type'] = $data['type'] != ''?"'".$data['type']."'":'null';
-        $data['paymentmethod'] = $data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
+    public function ajax_datagrid()
+	{
+        $data 							 = 		Input::all();
+        $CompanyID 						 = 		User::get_companyID();
+        $data['iDisplayStart'] 			+=		1;
+        $data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
+        $data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
+        $data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
+        $data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
+        $data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';		
+		$data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
+		$data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'';		
+		$data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
+		$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'';
+		$data['p_paymentstart']			 =		'null';		
+		$data['p_paymentend']			 =		'null';
+		
+		if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
+		{
+			 $data['p_paymentstart']		=	"'".$data['p_paymentstartdate'].' '.$data['p_paymentstartTime']."'";	
+		}		
+		
+		if($data['p_paymentenddate']!='' && $data['p_paymentenddate']!='null' && $data['p_paymentendtime']!='')
+		{
+			 $data['p_paymentend']			=	"'".$data['p_paymentenddate'].' '.$data['p_paymentendtime']."'";	
+		}
+		
+		if($data['p_paymentstart']!='null' && $data['p_paymentend']=='null')
+		{
+			$data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
+		}
+
         $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
-        $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
+        $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

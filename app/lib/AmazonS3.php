@@ -20,6 +20,7 @@ class AmazonS3 {
         'PAYMENT_PROOF'=>'PaymentProof',
         'INVOICE_PROOF_ATTACHMENT' =>  'InvoiceProofAttachment',
         'INVOICE_UPLOAD' =>  'Invoices',
+		'ESTIMATE_UPLOAD' =>  'estimates',
         'CUSTOMER_PROFILE_IMAGE' =>  'CustomerProfileImage',
         'BULK_LEAD_MAIL_ATTACHEMENT' => 'bulkleadmailattachment',
         'TEMPLATE_FILE' => 'TemplateFile',
@@ -30,7 +31,8 @@ class AmazonS3 {
         'RATETABLE_UPLOAD'=>'RateTableUpload',
         'WYSIHTML5_FILE_UPLOAD'=>'Wysihtml5fileupload',
         'PAYMENT_UPLOAD'=>'PaymentUpload',
-        'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment'
+        'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
+		'THEMES_IMAGES'=>'ThemeImages'
     );
 
     // Instantiate an S3 client

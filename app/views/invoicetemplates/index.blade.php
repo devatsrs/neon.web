@@ -49,7 +49,7 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod'];
+        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix'];
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -146,9 +146,15 @@ var postdata;
         $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val('')
         $('#add-new-modal-invoice_template h4').html('Add New InvoiceTemplate');
         $("#add-new-invoice_template-form .LastInvoiceNumber").hide();
+		$("#add-new-invoice_template-form .LastEstimateNumber").hide();
+		
 
         $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",'http://placehold.it/250x100');
         $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').show();
+		
+		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').show();
+		
+		
         $('#add-new-modal-invoice_template').modal('show');
     });
     $('table tbody').on('click','.edit-invoice_template',function(e){
@@ -158,17 +164,23 @@ var postdata;
         $('#add-new-invoice_template-form').trigger("reset");
         $('#add-new-invoice_template-form').trigger("reset");
         $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').hide();
+		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').hide();
         $('#add-new-modal-invoice_template').modal('show');
 
         $("#add-new-invoice_template-form .LastInvoiceNumber").show();
+		$("#add-new-invoice_template-form .LastEstimateNumber").show();
         $("#add-new-invoice_template-form [name='CompanyID']").val($(this).prev("div.hiddenRowData").find("input[name='CompanyID']").val());
         $("#add-new-invoice_template-form [name='Name']").val($(this).prev("div.hiddenRowData").find("input[name='Name']").val());
         $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val());
         $("#add-new-invoice_template-form [name='InvoiceStartNumber']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceStartNumber']").val());
         $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceNumberPrefix']").val());
+		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='EstimateNumberPrefix']").val());
         $("#add-new-invoice_template-form [name='InvoicePages']").selectBoxIt().data("selectBox-selectBoxIt").selectOption($(this).prev("div.hiddenRowData").find("input[name='InvoicePages']").val());
         $("#add-new-invoice_template-form [name='DateFormat']").selectBoxIt().data("selectBox-selectBoxIt").selectOption($(this).prev("div.hiddenRowData").find("input[name='DateFormat']").val());
         $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastInvoiceNumber']").val());
+		
+		$("#add-new-invoice_template-form [name='LastEstimateNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastEstimateNumber']").val());
+		
         if($(this).prev("div.hiddenRowData").find("input[name='ShowZeroCall']").val() == 1 ){
             $('[name="ShowZeroCall"]').prop('checked',true)
         }else{
@@ -285,6 +297,24 @@ function ajax_update(fullurl,data){
                             <label for="field-1" class="col-sm-2 control-label">Last Invoice Number</label>
                             <div class="col-sm-4">
                                     <input type="text" name="LastInvoiceNumber" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                           <label for="field-1" class="col-sm-2 control-label">Estimate Prefix</label>
+                            <div class="col-sm-4">
+                                    <input type="text" name="EstimateNumberPrefix" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            <div id="EstimateStartNumberToggle">
+                            <label for="field-1" class="col-sm-2 control-label">Estimate Start Number</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="EstimateStartNumber" class="form-control" id="field-1" placeholder="" value="" />
+                            </div>
+                            </div>
+                            <div class="LastEstimateNumber">
+                            <label for="field-1" class="col-sm-2 control-label">Last Estimate Number</label>
+                            <div class="col-sm-4">
+                                    <input type="text" name="LastEstimateNumber" class="form-control" id="field-5" placeholder="">
                             </div>
                             </div>
                         </div>
