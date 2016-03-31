@@ -48,7 +48,7 @@ class NeonAPI{
     protected static function getToken(){
 /*        $UserID =  User::get_userID();
         $api_token = User::where(array('UserID'=>$UserID))->pluck('api_token');*/
-        $api_token = Session::get("api_token");
+        $api_token = Session::get("api_token",'');
         return $api_token;
     }
     public static function request($call_method,$post_data=array(),$post=true,$is_array=false,$is_upload=false){
