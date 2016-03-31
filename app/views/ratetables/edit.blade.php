@@ -125,6 +125,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
+    var codedeckid = '{{$id}}';
     var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
     jQuery(document).ready(function($) {
 
@@ -483,7 +484,7 @@
         $("#add-new-rate").click(function(e){
             e.preventDefault();
             $("#new-rate-form")[0].reset();
-            $("#new-rate-form [name='RateID']").select2().select2('val','');
+            //$("#new-rate-form [name='RateID']").select2().select2('val','');
             $("#modal-add-new").modal('show');
         });
         $("#new-rate-form").submit(function(e){
@@ -491,6 +492,29 @@
             fullurl = baseurl+'/rate_tables/{{$id}}/add_newrate';
             submit_ajax(fullurl,$("#new-rate-form").serialize());
         return false;
+        });
+        $('#rateid_list').select2({
+            placeholder: 'Enter a Code',
+            minimumInputLength: 1,
+            ajax: {
+                dataType: 'json',
+                url: baseurl+'/rate_tables/getCodeByAjax',
+                data: function (term, page) {
+                    return {
+                        q: term,
+                        page: codedeckid
+                    };
+                },
+                quietMillis: 500,
+                error: function (data) {
+                    return false;
+                },
+                results: function (data, page) {
+                    return {
+                        results: data
+                    };
+                }
+            }
         });
     });
 
@@ -697,7 +721,8 @@
 
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Code</label>
-                                {{ Form::select('RateID', $codes, '', array("class"=>"select2")) }}
+                                {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
+                                <input type="hidden" id="rateid_list" name="RateID" />
 
                             </div>
 

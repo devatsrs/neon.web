@@ -28,6 +28,8 @@ LEFT JOIN tblOpportunity o on o.OpportunityBoardID = b.OpportunityBoardID
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
+			AND ac.AccountType = 0
+			AND ac.`Status` = 1
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
 LEFT JOIN tblUser u on u.UserID = o.UserID
 ORDER BY bc.`Order`,o.`Order`;
