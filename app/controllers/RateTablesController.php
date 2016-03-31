@@ -486,4 +486,31 @@ class RateTablesController extends \BaseController {
             return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
     }
+
+    //get ajax code for add new rate
+    public function getCodeByAjax(){
+        $CompanyID = User::get_companyID();
+        $list = array();
+        $data = Input::all();
+        $rate = $data['q'].'%';
+        $ratetableid = $data['page'];
+        $CodeDeckId = RateTable::getCodeDeckId($ratetableid);
+        $codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+            ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
+
+        if(count($codes) > 0){
+            foreach($codes as $key => $value){
+                $list2 = array();
+                $list2['id'] = $key;
+                $list2['text'] = $value;
+                $list[]= json_encode($list2);
+            }
+            $rateids = '['.implode(',',$list).']';
+        }else{
+            $rateids = '[]';
+        }
+
+
+        return $rateids;
+    }
 }
