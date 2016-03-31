@@ -920,14 +920,9 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
-<<<<<<< HEAD
-		/** Payment Upload **/
-	SELECT
-=======
+
 	/**VendorUploadCDR**/
     SELECT
->>>>>>> 22fd467b9526b04fd20be7ade73238b974574462
 		TBL1.JobID,
 		TBL1.Options,
 		TBL1.AccountID
