@@ -17,11 +17,14 @@ class LCRController extends \BaseController {
                     $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
                 }
             }
-            Excel::create('LCR', function ($excel) use ($excel_data) {
+            $file_path = getenv('UPLOAD_PATH') .'/LCR.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($excel_data);
+            /*Excel::create('LCR', function ($excel) use ($excel_data) {
                 $excel->sheet('LCR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 

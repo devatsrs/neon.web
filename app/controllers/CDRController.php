@@ -190,11 +190,16 @@ class CDRController extends BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('CDR', function ($excel) use ($excel_data) {
+
+            $file_path = getenv('UPLOAD_PATH') .'/CDR.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($excel_data);
+
+            /*Excel::create('CDR', function ($excel) use ($excel_data) {
                 $excel->sheet('CDR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 
@@ -418,11 +423,16 @@ class CDRController extends BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Vendor CDR', function ($excel) use ($excel_data) {
+
+            $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($excel_data);
+
+            /*Excel::create('Vendor CDR', function ($excel) use ($excel_data) {
                 $excel->sheet('Vendor CDR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 
