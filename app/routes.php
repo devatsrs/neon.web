@@ -364,6 +364,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/rate_tables/{id}/check_upload', array('as' => 'check_upload', 'uses' => 'RateTablesController@check_upload'));
     Route::any('/rate_tables/{id}/ajaxfilegrid', 'RateTablesController@ajaxfilegrid');
     Route::any('/rate_tables/{id}/storeTemplate', 'RateTablesController@storeTemplate');
+	Route::any('/rate_tables/getCodeByAjax', 'RateTablesController@getCodeByAjax');
     Route::resource('rate_tables', 'RateTablesController');
 	Route::controller('rate_tables', 'RateTablesController');
 

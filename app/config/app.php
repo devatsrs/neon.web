@@ -61,7 +61,7 @@ return array(
     |
     */
 
-    'timezone' => 'Europe/London',
+    'timezone' => getenv('APP_TIMEZONE'),
 
     /*
     |--------------------------------------------------------------------------
