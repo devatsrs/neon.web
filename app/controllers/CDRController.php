@@ -391,6 +391,7 @@ class CDRController extends BaseController {
                 $data['Escape'] = $options['option']['Escape'];
                 $data['Firstrow'] = $options['option']['Firstrow'];
             }
+		 
             if (!empty($file_name)) {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;
@@ -478,6 +479,11 @@ class CDRController extends BaseController {
                 $data['Escape'] = $options['option']['Escape'];
                 $data['Firstrow'] = $options['option']['Firstrow'];
             }
+			
+			$path = str_replace('/', '\\', $file_name); 
+			copy($path, './uploads/' . basename($path)); 
+			
+			 $file_name =   public_path().'/uploads/' . basename($path);  
             if (!empty($file_name)) {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;

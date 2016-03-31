@@ -106,7 +106,7 @@
                                <div class="col-sm-2">
                                     <input type="text" name="CLD" class="form-control "  value=""  />
                                 </div>                           
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Cost Value</label>
+                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Cost</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovaluecost" name="zerovaluecost" type="checkbox">

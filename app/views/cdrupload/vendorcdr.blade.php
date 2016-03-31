@@ -75,13 +75,13 @@
                 </div>
               </div>
               <div class="form-group">
-                <label for="zerovaluesellingcost" class="col-sm-3 control-label">Hide Zero Selling Cost Value</label>
+                <label for="zerovaluesellingcost" class="col-sm-3 control-label">Hide Zero Selling Cost</label>
                 <div class="col-sm-2">
                   <p class="make-switch switch-small">
                     <input id="zerovaluesellingcost" name="zerovaluesellingcost" type="checkbox">
                   </p>
                 </div>
-                         <label for="zerovaluebuyingcost" class="col-sm-3 control-label">Hide Zero Buying Cost Value</label>
+                         <label for="zerovaluebuyingcost" class="col-sm-3 control-label">Hide Zero Buying Cost</label>
                 <div class="col-sm-2">
                   <p class="make-switch switch-small">
                     <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
