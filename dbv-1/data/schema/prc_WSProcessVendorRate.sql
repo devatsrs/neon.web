@@ -31,11 +31,12 @@ BEGIN
 			`IntervalN` int,
 			INDEX tmp_EffectiveDate (`EffectiveDate`),
 			INDEX tmp_Code (`Code`),
-			INDEX tmp_CC (`Code`,`Change`),
+            INDEX tmp_CC (`Code`,`Change`),
 			INDEX tmp_Change (`Change`)
     );
     
-     DELETE n1 FROM tblTempVendorRate n1, tblTempVendorRate n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+     DELETE n1 FROM tblTempVendorRate n1, tblTempVendorRate n2 
+     WHERE n1.EffectiveDate < n2.EffectiveDate 
 	 	AND n1.CodeDeckId = n2.CodeDeckId
 		AND  n1.Code = n2.Code
 		AND  n1.ProcessId = n2.ProcessId
@@ -350,7 +351,7 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * from tmp_JobLog_;
-	 -- DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId;
+	 DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId;
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
