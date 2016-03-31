@@ -599,3 +599,8 @@ em {
 	}
 
 /*grid css end*/
+
+.scrollx
+{
+	overflow-x:scroll;
+}
