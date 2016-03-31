@@ -315,7 +315,7 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * from tmp_JobLog_;
-	 DELETE  FROM tmp_TempRateTableRate_ WHERE  ProcessId = p_processId;
+	 DELETE  FROM tblTempRateTableRate WHERE  ProcessId = p_processId;
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
