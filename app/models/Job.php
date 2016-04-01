@@ -872,7 +872,7 @@ class Job extends \Eloquent {
 
     public static function removeUnnecesorryOptions( $type , $options = array()){
         if(!empty($options)){
-            $unset_array = array("AccountID","CompanyID","isMerge","full_path");
+            $unset_array = array("AccountID","CompanyID","full_path");
             foreach($unset_array as $unset_keys){
                 if(isset($options[$unset_keys])){
                     unset($options[$unset_keys]);

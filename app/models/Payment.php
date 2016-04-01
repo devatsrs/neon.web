@@ -170,7 +170,7 @@ class Payment extends \Eloquent {
                     $response_message .= ' <br>Payment Date is empty at line no ' . $lineno;
                     $has_Error = true;
                 }else{
-                    $date = formatSmallDate(trim($row[$selection['PaymentDate']]),$selection['DateFormat']);
+                    $date = formatSmallDate(str_replace( '/','-',trim($row[$selection['PaymentDate']])),$selection['DateFormat']);
                     if (empty($date)) {
                         $response_message .= '<br>Invalid Payment Date at line no ' . $lineno;
                         $has_Error = true;
@@ -208,7 +208,7 @@ class Payment extends \Eloquent {
                     $temp = array('CompanyID' => $CompanyID,
                         'ProcessID' => $ProcessID,
                         'AccountID' => $Accounts[strtolower(trim($row[$selection['AccountName']]))],
-                        'PaymentDate' => trim($row[$selection['PaymentDate']]),
+                        'PaymentDate' => trim(str_replace( '/','-',$row[$selection['PaymentDate']])),
                         'PaymentMethod' => trim(strtoupper($row[$selection['PaymentMethod']])),
                         'PaymentType' => trim(ucfirst($row[$selection['PaymentType']])),
                         'Status' => $PaymentStatus,

@@ -147,7 +147,7 @@ class ThemesController extends \BaseController {
 				{		
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
-					//if($width_log >200 || $height_log>58)
+
 					if($width_log >200)
 					{
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
@@ -300,7 +300,6 @@ class ThemesController extends \BaseController {
 				{
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
-					///if($width_log >200 || $height_log>58)
 					if($width_log >200)
 					{
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			

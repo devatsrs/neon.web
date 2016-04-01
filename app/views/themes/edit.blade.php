@@ -41,6 +41,7 @@
               <input type="text" name='FooterUrl' class="form-control" id="FooterUrl" placeholder="Footer Url" value="{{$Theme->FooterUrl}}">
             </div>-->
             <label for="LoginMessage" class="col-sm-2 control-label">Login Message</label>
+
             <div class="col-sm-4">
               <input type="text" name='LoginMessage' class="form-control" id="LoginMessage" placeholder="Login Message" value="{{$Theme->LoginMessage}}">
             </div>

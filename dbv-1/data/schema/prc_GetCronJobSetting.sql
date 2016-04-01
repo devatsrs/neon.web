@@ -1,0 +1,11 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobSetting`(IN `p_CronJobID` INT)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	select Settings from tblCronJob where CronJobID=p_CronJobID;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+	
+END

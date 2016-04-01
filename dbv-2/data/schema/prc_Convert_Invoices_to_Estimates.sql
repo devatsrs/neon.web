@@ -1,6 +1,11 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_Convert_Invoices_to_Estimates`(IN `p_CompanyID` INT, IN `p_AccountID` VARCHAR(50), IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_EstimateID` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_Convert_Invoices_to_Estimates`(IN `p_CompanyID` INT, IN `p_AccountID` VARCHAR(50), IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_EstimateID` VARCHAR(50), IN `p_convert_all` INT)
 BEGIN
-INSERT INTO `tblInvoice` (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,EstimateID)
+	DECLARE estimate_ids int;
+ SET sql_mode = 'ALLOW_INVALID_DATES';
+    
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+update tblInvoice  set EstimateID = '';
+INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,EstimateID)
  	select te.CompanyID,
 	 		 te.AccountID,
 			 te.Address,
@@ -31,37 +36,37 @@ INSERT INTO `tblInvoice` (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, 
 			NOW() as updated_at,
 			1 as ItemInvoice,
 			te.FooterTerm,
-			te.EstimateID
-
+			te.EstimateID			
 			from tblEstimate te		
-		where	1=1 
-		and (te.CompanyID = p_CompanyID)		
-		AND (p_AccountID = '' OR ( p_AccountID != '' AND te.AccountID = p_AccountID))
-		AND (p_EstimateID = '' OR ( p_EstimateID != '' AND te.EstimateID = p_EstimateID))		
-        AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND te.EstimateNumber = p_EstimateNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND te.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND te.IssueDate <= p_IssueDateEnd))
-        AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus))
-		and (te.converted='N');
-		
-        select 	InvoiceID from tblInvoice inv
+			where
+			(p_convert_all=0 and te.EstimateID = p_EstimateID)
+			OR
+			(p_EstimateID = '' and p_convert_all =1 and (te.CompanyID = p_CompanyID)		
+			AND (p_AccountID = '' OR ( p_AccountID != '' AND te.AccountID = p_AccountID))
+			AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND te.EstimateNumber = p_EstimateNumber))
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND te.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND te.IssueDate <= p_IssueDateEnd))
+			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus)) );
+			
+
+ select 	InvoiceID from tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
-where
-(ti.CompanyID = p_CompanyID)		
-		AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
-		AND (p_EstimateID = '' OR ( p_EstimateID != '' AND ti.EstimateID = p_EstimateID))		
-        AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
-     	and (ti.converted='N');  
+where (p_convert_all=0 and ti.EstimateID = p_EstimateID)
+		OR
+		(p_EstimateID = '' and p_convert_all =1 and (ti.CompanyID = p_CompanyID)
+			AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
+			AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))		
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
+			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus)) );
         
-		INSERT INTO `tblInvoiceDetail` ( `InvoiceID`, `ProductID`, `Description`, `StartDate`, `EndDate`, `Price`, `Qty`, `Discount`, `TaxRateID`, `TaxAmount`, `LineTotal`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ProductType`)
+		INSERT INTO tblInvoiceDetail ( `InvoiceID`, `ProductID`, `Description`, `StartDate`, `EndDate`, `Price`, `Qty`, `Discount`, `TaxRateID`, `TaxAmount`, `LineTotal`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ProductType`)
 			select 
 				inv.InvoiceID,
 				ted.ProductID,
 				ted.Description,
-				'0000-00-00 00:00:00' as StartDate,
-				'0000-00-00 00:00:00' as EndDate,
+				'' as StartDate,
+				'' as EndDate,
 				ted.Price,
 				ted.Qty,
 				ted.Discount,
@@ -77,40 +82,38 @@ from tblEstimateDetail ted
 INNER JOIN tblInvoice inv ON  inv.EstimateID = ted.EstimateID
 INNER JOIN tblEstimate ti ON  ti.EstimateID = ted.EstimateID
 where	 
-		 (ti.CompanyID = p_CompanyID)		
-		AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
-		AND (p_EstimateID = '' OR ( p_EstimateID != '' AND ti.EstimateID = p_EstimateID))		
-        AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
-        AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus))
-		and (ti.converted='N');
-
-
-	
-
+		 (p_convert_all=0 and ti.EstimateID = p_EstimateID)
+		OR	(p_EstimateID = '' and p_convert_all =1 and (ti.CompanyID = p_CompanyID)	
+			AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
+			AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))			
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
+			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus)));
+		
 insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
 select inv.InvoiceID,inv.Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
 where
-(ti.CompanyID = p_CompanyID)		
-		AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
-		AND (p_EstimateID = '' OR ( p_EstimateID != '' AND ti.EstimateID = p_EstimateID))		
-        AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
-        AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus))
-		and (ti.converted='N');
+			(p_convert_all=0 and ti.EstimateID = p_EstimateID)
+		OR	(p_EstimateID = '' and p_convert_all =1 and (ti.CompanyID = p_CompanyID)	
+			AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
+			AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))		
+			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus)));
 		
-update tblEstimate te set te.EstimateStatus='accepted', te.converted='Y'
-where  (te.CompanyID = p_CompanyID)			
-		AND (p_AccountID = '' OR ( p_AccountID != '' AND te.AccountID = p_AccountID))
-		AND (p_EstimateID = '' OR ( p_EstimateID != '' AND te.EstimateID = p_EstimateID))		
-        AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND te.EstimateNumber = p_EstimateNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND te.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND te.IssueDate <= p_IssueDateEnd))
-        AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus))
-		and (te.converted='N');	
-	
 		
+update tblEstimate te set te.EstimateStatus='accepted'
+where  
+			(p_convert_all=0 and te.EstimateID = p_EstimateID)
+			OR
+			(p_EstimateID = '' and p_convert_all =1 and (te.CompanyID = p_CompanyID)	
+			AND (p_AccountID = '' OR ( p_AccountID != '' AND te.AccountID = p_AccountID))
+			AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND te.EstimateNumber = p_EstimateNumber))
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND te.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND te.IssueDate <= p_IssueDateEnd))
+			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus)));
+
+			
+				SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

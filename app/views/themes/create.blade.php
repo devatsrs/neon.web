@@ -32,11 +32,11 @@
             <div class="col-sm-4">
               <input type="text" name='FooterText' class="form-control" id="FooterText" placeholder="Footer Text" value="">
             </div>
-            <!--      <label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
+            
+            <!--<label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
             <div class="col-sm-4">
               <input type="text" name='FooterUrl' class="form-control" id="FooterUrl" placeholder="Footer Url" value="">
-            </div>--> 
-         
+            </div>-->
             <label for="LoginMessage" class="col-sm-2 control-label">Login Message</label>
             <div class="col-sm-4">
               <input type="text" name='LoginMessage' class="form-control" id="LoginMessage" placeholder="Login Message" value="">

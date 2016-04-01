@@ -304,4 +304,14 @@ class NeonExcelIO
         return $col_row;
     }
 
+    public function download_excel($rows){
+        $this->write_excel($rows);
+        download_file($this->file);
+    }
+
+    public function download_csv($rows){
+        $this->write_csv($rows);
+        download_file($this->file);
+    }
+
 }
