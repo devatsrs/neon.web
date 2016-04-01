@@ -590,11 +590,17 @@ dialog {
     border-radius: 3px 3px 0 0;
     padding-left:5px;
 }
+.board header.fixed{
+    position: fixed;
+    top:0px;
+    z-index:1;
+    min-width:195px;
+}
 ul.board-column-list {
     height: 100%;
     width: 100%;
     text-align: center;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     margin: 0px;
 }
 .list-unstyled, .list-inline, .dropdown-menu>li>ul, li.well {
@@ -905,8 +911,8 @@ button.close {
     margin-top:10px;
     padding: 5px 5px 5px 10px;
     cursor:pointer;
-    max-width: 195px;
-    min-width: 195px;
+    max-width: 193px;
+    min-width: 193px;
 }
 .count-cards .info{
     padding: 15px 0px 0px 5px;

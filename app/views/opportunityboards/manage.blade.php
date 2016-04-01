@@ -106,6 +106,7 @@
     <script>
         var $searchFilter = {};
         var currentDrageable = '';
+        var fixedHeader = false;
         $(document).ready(function ($) {
             var opportunity = [
                 'OpportunityBoardColumnID',
@@ -297,6 +298,21 @@
             $(document).on('click','.viewattachments',function(){
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             })
+
+            function initEnhancement(){
+                var board = $('#board-start');
+                var height = board.find('ul li:first-child').height();
+                board.height(height+120);
+                $(document).on('scroll',function(){
+                    if(board.offset().top < $(document).scrollTop() && !fixedHeader){
+                        fixedHeader = true;
+                        board.find('#deals-dashboard li header').addClass('fixed');
+                    }else if(board.offset().top > $(document).scrollTop() && fixedHeader){
+                        fixedHeader = false;
+                        board.find('#deals-dashboard li header').removeClass('fixed');
+                    }
+                });
+            }
             function initSortable(){
                 // Code using $ as usual goes here.
                 $('#board-start .sortable-list').sortable({
@@ -344,6 +360,7 @@
                     dataType: 'html',
                     success: function (response) {
                         $('#board-start').html(response);
+                        initEnhancement();
                         initSortable();
                         initToolTip();
                     },
