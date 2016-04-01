@@ -287,6 +287,7 @@
             $('#addTtachment').click(function(){
                 $('#filecontrole').click();
             });
+
             $(document).on('change','#filecontrole',function(e){
                 var files = e.target.files;
                 var fileText = '';
@@ -297,19 +298,29 @@
             });
             $(document).on('click','.viewattachments',function(){
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
-            })
+            });
+
+            $('#board-start').scroll(function(){
+                if(fixedHeader){
+                    var header = $('#board-start .header');
+                    var left = $('#board-start').scrollLeft();
+                    header.css('right',left-1009);
+                }
+            });
 
             function initEnhancement(){
                 var board = $('#board-start');
-                var height = board.find('ul li:first-child').height();
-                board.height(height+120);
+                var height = board.find('ul.board-inner li:first-child').height();
+                var width = board.find('.board-inner').width();
+                board.height(height+230);
+                board.find('.header').width(width *2);
                 $(document).on('scroll',function(){
                     if(board.offset().top < $(document).scrollTop() && !fixedHeader){
                         fixedHeader = true;
-                        board.find('#deals-dashboard li header').addClass('fixed');
+                        board.find('.header').addClass('fixed');
                     }else if(board.offset().top > $(document).scrollTop() && fixedHeader){
                         fixedHeader = false;
-                        board.find('#deals-dashboard li header').removeClass('fixed');
+                        board.find('.header').removeClass('fixed');
                     }
                 });
             }
