@@ -96,7 +96,7 @@
         </p>
 
         <section class="deals-board">
-            <div id="board-start" class="board" style="height: 500px;">
+            <div id="board-start" class="board scroller" style="height: 500px;">
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
@@ -323,6 +323,17 @@
                         board.find('.header').removeClass('fixed');
                     }
                 });
+
+                var nicescroll_defaults = {
+                    cursorcolor: '#d4d4d4',
+                    cursorborder: '1px solid #ccc',
+                    railpadding: {right: 3},
+                    cursorborderradius: 1,
+                    autohidemode: true,
+                    sensitiverail: false
+                };
+
+                board.niceScroll(nicescroll_defaults);
             }
             function initSortable(){
                 // Code using $ as usual goes here.
