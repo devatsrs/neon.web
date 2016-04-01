@@ -52,8 +52,8 @@ BEGIN
                                                 Rate,
                                                 EffectiveDate,
                                                 preference_rank,
-                                                @rank := CASE WHEN (@prev_Code2 COLLATE utf8_unicode_ci   = Code  AND @prev_Rate2 <  Rate) THEN @rank+1
-                                                	   		  WHEN (@prev_Code2 COLLATE utf8_unicode_ci   = Code  AND @prev_Rate2 =  Rate) THEN @rank
+                                                @rank := CASE WHEN (@prev_Code2  = Code  AND @prev_Rate2 <  Rate) THEN @rank+1
+                                                	   		  WHEN (@prev_Code2  = Code  AND @prev_Rate2 =  Rate) THEN @rank
                                                 				  ELSE
 																					1
 																				  END
@@ -68,8 +68,8 @@ BEGIN
                                                     Preference,
                                                     Rate,
                                                     EffectiveDate,
-                                                    @preference_rank := CASE WHEN (@prev_Code COLLATE utf8_unicode_ci   = Code AND @prev_Preference = Preference AND @prev_Rate2 <  Rate) THEN @preference_rank+1
-					                                                	   		  WHEN (@prev_Code COLLATE utf8_unicode_ci   = Code  AND @prev_Preference = Preference AND @prev_Rate2 =  Rate) THEN @preference_rank
+                                                    @preference_rank := CASE WHEN (@prev_Code  = Code AND @prev_Preference = Preference AND @prev_Rate2 <  Rate) THEN @preference_rank+1
+					                                                	   		  WHEN (@prev_Code  = Code  AND @prev_Preference = Preference AND @prev_Rate2 =  Rate) THEN @preference_rank
                					                                 				  ELSE
 																										1
 																									  END as preference_rank,
