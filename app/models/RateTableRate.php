@@ -12,6 +12,8 @@ class RateTableRate extends \Eloquent {
         'RateTableId' =>      'required',
         'Rate' =>      'required',
         'EffectiveDate' =>      'required',
+        'Interval1'=>      'required',
+        'IntervalN'=>      'required',
     ];
 
 }
