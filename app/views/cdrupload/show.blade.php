@@ -56,7 +56,7 @@
     <div class="tab-pane active">
         <div class="row">
             <div class="col-md-12">
-                <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
+                <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
                     <div data-collapsed="0" class="panel panel-primary">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -96,8 +96,23 @@
                                 <div class="col-sm-2">
                                     {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-
                             </div>
+                            <div class="form-group">
+                               <label class="col-sm-2 control-label" for="field-1">CLI</label>
+                               <div class="col-sm-2">
+                                    <input type="text" name="CLI" class="form-control "  value=""  />
+                                </div>
+                                 <label class="col-sm-2 control-label" for="field-1">CLD</label>
+                               <div class="col-sm-2">
+                                    <input type="text" name="CLD" class="form-control "  value=""  />
+                                </div>                           
+                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Cost</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
+                            </p>
+                        </div>                                       
+                </div>
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
                                     <i class="entypo-search"></i>
@@ -117,7 +132,7 @@
                         <th width="15%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
-                        <th width="10%" >Duration</th>
+                        <th width="10%" >Billed Duration</th>
                         <th width="10%" >Cost</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
@@ -184,11 +199,16 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             if(starttime =='0:00:01'){
                 starttime = '0:00:00';
             }
-            $searchFilter.StartDate = $("#cdr_filter [name='StartDate']").val();
-            $searchFilter.EndDate = $("#cdr_filter [name='EndDate']").val();
-            $searchFilter.CompanyGatewayID = $("#cdr_filter [name='CompanyGatewayID']").val();
-            $searchFilter.AccountID = $("#cdr_filter [name='AccountID']").val();
-            $searchFilter.CDRType = $("#cdr_filter [name='CDRType']").val();
+            $searchFilter.StartDate 			= 		$("#cdr_filter [name='StartDate']").val();
+            $searchFilter.EndDate 				= 		$("#cdr_filter [name='EndDate']").val();
+            $searchFilter.CompanyGatewayID 		= 		$("#cdr_filter [name='CompanyGatewayID']").val();
+            $searchFilter.AccountID 			= 		$("#cdr_filter [name='AccountID']").val();
+            $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
+			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
+			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
+			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
+			
+			
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
                toastr.error("Please Select a Start date", "Error", toastr_opts);
                return false;
@@ -208,9 +228,9 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType});
+                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[0, 'asc']],

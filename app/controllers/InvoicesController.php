@@ -545,16 +545,23 @@ class InvoicesController extends \BaseController {
         }
         return View::make('invoices.invoice_view', compact('Invoice','InvoiceDetail','Account','InvoiceTemplate','CurrencyCode','logo'));
     }
-    public function invoice_preview($id) {
-
+    public function invoice_preview($id)
+	{
         $Invoice = Invoice::find($id);
-        if(!empty($Invoice)) {
-            $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
-            $Account = Account::find($Invoice->AccountID);
-            $Currency = Currency::find($Account->CurrencyId);
-            $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'));
+		
+        if(!empty($Invoice))
+		{
+            $InvoiceDetail  	= 	InvoiceDetail::where(["InvoiceID" => $id])->get();
+            $Account 			= 	Account::find($Invoice->AccountID);
+            $Currency 			= 	Currency::find($Account->CurrencyId);
+            $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
+            $CurrencySymbol 	=  	Currency::getCurrencySymbol($Account->CurrencyId);
+			$companyID 			= 	User::get_companyID();
+			$query 				= 	"CALL `prc_getInvoicePayments`('".$id."','".$companyID."');";			
+			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
+			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
+						
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log'));
         }
     }
 
@@ -1383,7 +1390,6 @@ class InvoicesController extends \BaseController {
             }else{
                 $query = $query.',0';
             }
-			
             $query .= ",'')";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);

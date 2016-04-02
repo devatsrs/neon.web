@@ -32,7 +32,8 @@
             <div class="col-sm-4">
               <input type="text" name='FooterText' class="form-control" id="FooterText" placeholder="Footer Text" value="">
             </div>
-<!--            <label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
+            
+            <!--<label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
             <div class="col-sm-4">
               <input type="text" name='FooterUrl' class="form-control" id="FooterUrl" placeholder="Footer Url" value="">
             </div>-->
@@ -65,29 +66,14 @@
               <textarea name='CustomCss' class="form-control" rows="12"  id="CustomCss" placeholder="Custom Css"></textarea>
             </div>
           </div>
-          <!--<div class="form-group">
-            <label for="ThemeStatus" class="col-sm-2 control-label">Status</label>
-            <div class="col-sm-4"> {{Form::select('ThemeStatus',$theme_status_json,'active',array("class"=>"select2"))}} </div>
-          </div>-->
-<!--          <div class="form-group">
-            <label for="ThemeStatus1"  class="col-sm-2 control-label">Status</label>
-            <div class="col-sm-4">
-              <div class="checkbox ">
-                <input type="hidden" id="ThemeStatus1" name="ThemeStatus" value="inactive">           
-                <label><input type="checkbox" id="ThemeStatus2" name="ThemeStatus" value="active" >Active</label>           
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Active</label>
+            <div class="col-sm-5">
+              <div id="label-switch" class="make-switch" data-on-label="ON" data-off-label="OFF">
+                <input type="checkbox" value="active" name="ThemeStatus" checked>
               </div>
             </div>
-          </div>-->
-             <div class="form-group">
-						<label class="col-sm-2 control-label">Active</label>
-						
-						<div class="col-sm-5">
-							<div id="label-switch" class="make-switch" data-on-label="ON" data-off-label="OFF">
-								<input type="checkbox" value="active" name="ThemeStatus" checked>
-							</div>
-						</div>
-					</div>
-
+          </div>
         </div>
       </div>
     </form>

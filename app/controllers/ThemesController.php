@@ -18,7 +18,7 @@ class ThemesController extends \BaseController {
         	$Themes->where('DomainUrl', 'like', '%' . $_GET['searchText'] . '%')
               ->orWhere('Title', 'like', '%' . $_GET['searchText'] . '%')
 			  ->orWhere('FooterText', 'like', '%' . $_GET['searchText'] . '%')
-			  //->orWhere('FooterUrl', 'like', '%' . $_GET['searchText'] . '%')
+			 // ->orWhere('FooterUrl', 'like', '%' . $_GET['searchText'] . '%')
 			  ->orWhere('LoginMessage', 'like', '%' . $_GET['searchText'] . '%');			  
    			 });			
         }
@@ -147,6 +147,7 @@ class ThemesController extends \BaseController {
 				{		
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
+
 					if($width_log >200)
 					{
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
@@ -262,7 +263,7 @@ class ThemesController extends \BaseController {
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
             $themeData["Title"] 			= 	$data["Title"];
             $themeData["FooterText"] 		= 	$data["FooterText"];
-           // $themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
+            //$themeData["FooterUrl"] 		= 	$data["FooterUrl"];			
 			$themeData["LoginMessage"] 		= 	$data["LoginMessage"];
             $themeData["CustomCss"] 		= 	$data["CustomCss"];			
             $themeData["ThemeStatus"] 		= 	empty($data["ThemeStatus"])?Themes::INACTIVE:$data["ThemeStatus"];

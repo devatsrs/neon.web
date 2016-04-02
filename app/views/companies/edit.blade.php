@@ -36,10 +36,10 @@
         Save
     </button>
     @endif
-    <a href="{{URL::to('/')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+    <!--<a href="{{URL::to('/')}}" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Close
-    </a>
+    </a>-->
 </div>
 <br>
 <br>
