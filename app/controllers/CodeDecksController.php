@@ -213,7 +213,7 @@ class CodeDecksController extends \BaseController {
 
             $data = Input::all();
 
-            $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'null';
+            $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
             $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
             $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
 
@@ -224,11 +224,14 @@ class CodeDecksController extends \BaseController {
             $codedecks  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create('Code Decks', function ($excel) use ($codedecks) {
+            $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($codedecks);
+            /*Excel::create('Code Decks', function ($excel) use ($codedecks) {
                 $excel->sheet('Code Decks', function ($sheet) use ($codedecks) {
                     $sheet->fromArray($codedecks);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
     public function delete($id){
@@ -264,7 +267,7 @@ class CodeDecksController extends \BaseController {
                 $criteria = json_decode($data['criteria'],true);
                 if(!empty($criteria['ft_codedeckid'])){
 
-                    $criteria['ft_country']=$criteria['ft_country']!= ''?$criteria['ft_country']:'null';
+                    $criteria['ft_country']=$criteria['ft_country']!= ''?$criteria['ft_country']:'0';
                     $criteria['ft_code'] = $criteria['ft_code'] != ''?"'".$criteria['ft_code']."'":'null';
                     $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
 

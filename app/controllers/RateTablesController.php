@@ -306,11 +306,15 @@ class RateTablesController extends \BaseController {
             $rate_table_rates  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
+            $RateTableName = str_replace( '\/','-',$RateTableName);
+            $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($rate_table_rates);
+            /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
                 $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
                     $sheet->fromArray($rate_table_rates);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
     public static function add_newrate($id){
         $data = Input::all();

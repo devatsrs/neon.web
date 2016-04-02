@@ -27,13 +27,17 @@ class CustomersRatesController extends \BaseController {
 
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1');
+            $query .=',1)';
+            $excel_data  = DB::select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Customer Rates', function ($excel) use ($excel_data) {
+            $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($excel_data);
+            /*Excel::create('Customer Rates', function ($excel) use ($excel_data) {
                 $excel->sheet('Customer Rates', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
         //echo $query;exit;
