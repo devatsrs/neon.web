@@ -242,11 +242,15 @@ class VendorRatesController extends \BaseController
             $vendor_rates  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create('Vendor Rates', function ($excel) use ($vendor_rates) {
+            $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($vendor_rates);
+
+            /*Excel::create('Vendor Rates', function ($excel) use ($vendor_rates) {
                 $excel->sheet('Vendor Rates', function ($sheet) use ($vendor_rates) {
                     $sheet->fromArray($vendor_rates);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
     public function uploaded_excel_file_download($id,$JobID){
