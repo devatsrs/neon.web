@@ -22,6 +22,9 @@
     #add-modal-opportunity .btn-xs{
         padding:0px;
     }
+    .resizevertical{
+        resize:vertical;
+    }
 
 </style>
 <div id="content">
@@ -667,7 +670,7 @@
                                     <h4>Add Comment</h4>
                                 </div>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <textarea class="form-control resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
