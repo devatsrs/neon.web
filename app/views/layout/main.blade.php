@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-         <link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">
+         @if(Session::get('user_site_configrations.FavIcon')!='')<link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">@endif         
         <title>{{Session::get('user_site_configrations.Title')}}</title>
 
         @include('includes.login-css')

@@ -187,7 +187,8 @@ class InvoicesController extends \BaseController {
             $InvoiceData["IssueDate"] = $data["IssueDate"];
             $InvoiceData["PONumber"] = $data["PONumber"];
             $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
-            $InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
+            //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
+			$InvoiceData["TotalDiscount"] = 0;
             $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
             $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceData["CurrencyID"] = $data["CurrencyID"];
@@ -237,6 +238,7 @@ class InvoicesController extends \BaseController {
                         }else{
                             $InvoiceDetailData[$i][$field] = $value;
                         }
+						$InvoiceDetailData[$i]["Discount"] 	= 	0;
                         $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                         $InvoiceDetailData[$i]["CreatedBy"] = $CreatedBy;
@@ -299,7 +301,8 @@ class InvoicesController extends \BaseController {
             $InvoiceData["IssueDate"] = $data["IssueDate"];
             $InvoiceData["PONumber"] = $data["PONumber"];
             $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
-            $InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
+            //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
+			$InvoiceData["TotalDiscount"] = 0;
             $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
             $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceData["CurrencyID"] = $data["CurrencyID"];
@@ -357,6 +360,7 @@ class InvoicesController extends \BaseController {
                                 }else{
                                     $InvoiceDetailData[$i][$field] = $value;
                                 }
+								$InvoiceDetailData[$i]["Discount"] 	= 	0;
                                 $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                                 $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                                 $InvoiceDetailData[$i]["updated_at"] = date("Y-m-d H:i:s");
@@ -1356,14 +1360,14 @@ class InvoicesController extends \BaseController {
         $data = Input::all();		
         $companyID = User::get_companyID();
         if(!empty($data['InvoiceIDs'])){
-            $query = "call prc_getInvoice (".$companyID.",'','','','','','','' ,'','','',''";
+            $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',1 ,".count($data['InvoiceIDs']).",'','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2,0';
             }else{
                 $query = $query.',0,1,0';
             }
             if(!empty($data['InvoiceIDs'])){
-                $query = $query.",'".$data['InvoiceIDs']."'";
+                $query = $query.",'".$data['InvoiceIDs']."')";
             }
 			else			
             $query .= ")";
@@ -1374,12 +1378,11 @@ class InvoicesController extends \BaseController {
                     $sheet->fromArray($excel_data);
                 });
             })->download('csv');
-        }else{
-			
+        }else{			
             $criteria = json_decode($data['criteria'],true);
             $criteria['InvoiceType'] = $criteria['InvoiceType'] == 'All'?'':$criteria['InvoiceType'];
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
-            $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',''";
+            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2';
             }else{

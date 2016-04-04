@@ -75,13 +75,8 @@
                 </div>
               </div>
               <div class="form-group">
-                <label for="zerovaluesellingcost" class="col-sm-3 control-label">Hide Zero Selling Cost</label>
-                <div class="col-sm-2">
-                  <p class="make-switch switch-small">
-                    <input id="zerovaluesellingcost" name="zerovaluesellingcost" type="checkbox">
-                  </p>
-                </div>
-                         <label for="zerovaluebuyingcost" class="col-sm-3 control-label">Hide Zero Buying Cost</label>
+        
+                         <label for="zerovaluebuyingcost" class="col-sm-3 control-label">Hide Zero Cost</label>
                 <div class="col-sm-2">
                   <p class="make-switch switch-small">
                     <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
@@ -105,8 +100,8 @@
               <th width="15%" >Connect Time</th>
               <th width="10%" >Disconnect Time</th>
               <th width="10%" >Billed Duration</th>
-              <th width="10%" >Selling Cost</th>
-              <th width="10%" >Buying Cost</th>
+			<!--<th width="10%" >Selling Cost</th>-->
+              <th width="10%" >Cost</th>
               <th width="15%" >CLI</th>
               <th width="15%" >CLD</th>
             </tr>
@@ -164,7 +159,7 @@ var postdata;
             $searchFilter.AccountID 				= 		$("#cdr_filter [name='AccountID']").val();			
 			$searchFilter.CLI 						= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 						= 		$("#cdr_filter [name='CLD']").val();			
-			$searchFilter.zerovaluesellingcost 		= 		$("#cdr_filter [name='zerovaluesellingcost']").prop("checked");			
+			//$searchFilter.zerovaluesellingcost 		= 		$("#cdr_filter [name='zerovaluesellingcost']").prop("checked");			
 			$searchFilter.zerovaluebuyingcost 		= 		$("#cdr_filter [name='zerovaluebuyingcost']").prop("checked");
 			
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
@@ -186,9 +181,9 @@ var postdata;
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluesellingcost","value":$searchFilter.zerovaluesellingcost},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost});
+                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluesellingcost","value":$searchFilter.zerovaluesellingcost},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost});
+                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[0, 'asc']],
@@ -208,8 +203,7 @@ var postdata;
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
+                    { "bSortable": true },                    
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true } /*,

@@ -421,10 +421,9 @@ class CDRController extends BaseController {
         $companyID 						 = 	 User::get_companyID();
         $columns 						 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
         $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
-		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;
-		$data['zerovaluesellingcost']	 =   $data['zerovaluesellingcost']== 'true'?1:0;
+		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
 		
-        $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".$data['zerovaluesellingcost'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');

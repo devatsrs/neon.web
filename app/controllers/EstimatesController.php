@@ -178,7 +178,8 @@ class EstimatesController extends \BaseController {
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
             $EstimateData["SubTotal"] 		= 	str_replace(",","",$data["SubTotal"]);
-            $EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
+            //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
+			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
             $EstimateData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotal"]));
             $EstimateData["CurrencyID"] 	= 	$data["CurrencyID"];
@@ -216,11 +217,11 @@ class EstimatesController extends \BaseController {
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Estimate = Estimate::create($EstimateData);
                 //Store Last Estimate Number.
-                if($isAutoEstimateNumber)
-				{
-                   InvoiceTemplate::find(Account::find($data["AccountID"])->InvoiceTemplateID)->update(array("LastEstimateNumber" => $LastEstimateNumber ));
+                
+				if($isAutoEstimateNumber) {
+                    InvoiceTemplate::find(Account::find($data["AccountID"])->InvoiceTemplateID)->update(array("LastEstimateNumber" => $LastEstimateNumber ));
                 }
-
+				
                 $EstimateDetailData = array();
 
                 foreach($data["EstimateDetail"] as $field => $detail)
@@ -240,6 +241,7 @@ class EstimatesController extends \BaseController {
                         $EstimateDetailData[$i]["EstimateID"] 	= 	$Estimate->EstimateID;
                         $EstimateDetailData[$i]["created_at"] 	= 	date("Y-m-d H:i:s");
                         $EstimateDetailData[$i]["CreatedBy"] 	= 	$CreatedBy;
+						$EstimateDetailData[$i]["Discount"] 	= 	0;
 						
                         if(empty($EstimateDetailData[$i]['ProductID']))
 						{
@@ -306,7 +308,8 @@ class EstimatesController extends \BaseController {
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
             $EstimateData["SubTotal"] 		= 	str_replace(",","",$data["SubTotal"]);
-            $EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
+            //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
+			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
             $EstimateData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotal"]));
             $EstimateData["CurrencyID"] 	= 	$data["CurrencyID"];
@@ -377,6 +380,7 @@ class EstimatesController extends \BaseController {
                                 $EstimateDetailData[$i]["updated_at"]  	= 	date("Y-m-d H:i:s");
                                 $EstimateDetailData[$i]["CreatedBy"]   	= 	$CreatedBy;
                                 $EstimateDetailData[$i]["ModifiedBy"]  	= 	$CreatedBy;
+								$EstimateDetailData[$i]["Discount"] 	= 	0;
                                 
 								if(isset($EstimateDetailData[$i]["EstimateDetailID"]))
 								{
@@ -957,7 +961,7 @@ class EstimatesController extends \BaseController {
 		$Estimate_data 		= 	Estimate::find($data['eid']);
 		//if($Estimate_data->converted=='N')
 		{
-						$query	  = 	"call prc_Convert_Invoices_to_Estimates (".$companyID.",'','','0000-00-00 00:00:00','0000-00-00 00:00:00','','".$data['eid']."',0)";
+					 $query	  = 	"call prc_Convert_Invoices_to_Estimates (".$companyID.",'','','0000-00-00 00:00:00','0000-00-00 00:00:00','','".$data['eid']."',0)";  
 						$results  = 	DB::connection('sqlsrv2')->select($query);
 						$inv_id   = 	$results[0]->InvoiceID;
 						$pdf_path = 	Invoice::generate_pdf($inv_id);

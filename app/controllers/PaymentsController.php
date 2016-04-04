@@ -14,9 +14,9 @@ class PaymentsController extends \BaseController {
         $data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
         $data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';		
 		$data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
-		$data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'';		
+		$data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'00:00:00';		
 		$data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
-		$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'';
+		$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
 		

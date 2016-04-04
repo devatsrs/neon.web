@@ -32,24 +32,38 @@ class ThemesController extends \BaseController {
 		 
 		   return Datatables::of($Themes)
             ->edit_column('Logo',function($row){
-                $path = AmazonS3::unSignedUrl($row->Logo);
-                if (!is_numeric(strpos($path, "https://"))) {
-                    $path = str_replace('/', '\\', $path);
-                    if (copy($path, './uploads/' . basename($path))) {
-                        $path = URL::to('/') . '/uploads/' . basename($path);
-                    }
-                }
+				if($row->Logo!='')
+				{
+					$path = AmazonS3::unSignedUrl($row->Logo);
+					if (!is_numeric(strpos($path, "https://"))) {
+						$path = str_replace('/', '\\', $path);
+						if (copy($path, './uploads/' . basename($path))) {
+							$path = URL::to('/') . '/uploads/' . basename($path);
+						}
+					}
+				}
+				else
+				{
+					$path = 'http://placehold.it/200x58';					
+				}
 
                 return $path;
             })->edit_column('Favicon',function($row){
-                $path = AmazonS3::unSignedUrl($row->Favicon);
-                if (!is_numeric(strpos($path, "https://"))) {
-                    $path = str_replace('/', '\\', $path);
-                    if (copy($path, './uploads/' . basename($path))) {
-                        $path = URL::to('/') . '/uploads/' . basename($path);
-                    }
-                }
-
+				if($row->Favicon!='')
+				{
+					$path = AmazonS3::unSignedUrl($row->Favicon);
+					if (!is_numeric(strpos($path, "https://"))) {
+						$path = str_replace('/', '\\', $path);
+						if (copy($path, './uploads/' . basename($path))) {
+							$path = URL::to('/') . '/uploads/' . basename($path);
+						}
+					}
+				}
+				else
+				{
+					$path = 'http://placehold.it/32x32';	
+				}
+	
                 return $path;
             })->make();
 		
@@ -177,7 +191,8 @@ class ThemesController extends \BaseController {
 			}			
 			else
 			{
-				return Response::json(array("status" => "failed", "message" => "Please Select Logo."));				
+				$data['logo'] = '';
+				//return Response::json(array("status" => "failed", "message" => "Please Select Logo."));				
 			}
 			
 			/*Favicon upload start*/						
@@ -220,7 +235,8 @@ class ThemesController extends \BaseController {
 			}			
 			else
 			{
-				return Response::json(array("status" => "failed", "message" => "Please Select Favicon."));				
+				$data['Favicon'] = '';
+				//return Response::json(array("status" => "failed", "message" => "Please Select Favicon."));				
 			}
 			/*Favicon upload end*/	
 	
@@ -329,7 +345,8 @@ class ThemesController extends \BaseController {
 			{
 				if($Themes->Logo=='')
 				{
-					return Response::json(array("status" => "failed", "message" => "Please Select Logo."));				
+				 $data['logo'] = '';
+				 //	return Response::json(array("status" => "failed", "message" => "Please Select Logo."));				
 				}
 			}
 			
@@ -377,7 +394,8 @@ class ThemesController extends \BaseController {
 			{
 				if($Themes->Favicon=='')
 				{
-					return Response::json(array("status" => "failed", "message" => "Please Select Favicon."));				
+					$data['Favicon']  = '';
+					//return Response::json(array("status" => "failed", "message" => "Please Select Favicon."));				
 				}
 			}
 			/*Favicon upload end*/	
