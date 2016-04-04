@@ -55,8 +55,8 @@
                                             <span {{$color}} class="badge badge-warning tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
                                         @endforeach
                                     @endif
-                                    <span class="badge badge-info tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{$Owner}}</span>
-                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['ContactName']}}">{{$ContactName}}</span>
+                                    <span class="badge badge-info tooltip-primary">{{strtoupper($Owner)}}</span>
+                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['ContactName']}}">{{strtoupper($ContactName)}}</span>
                                 </div>
                             </li>
                         @endif
