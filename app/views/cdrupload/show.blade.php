@@ -28,6 +28,7 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 .col-sm-2{width:15%;}
+.col-sm-e1{width:11.33333%;}
 </style>
 <!--
 <div class="row">
@@ -110,11 +111,11 @@
                                          
                             
                                <label class="col-sm-1 control-label" for="field-1">CLI</label>
-                               <div class="col-sm-1">
+                               <div class="col-sm-1 col-sm-e1">
                                     <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
                                 </div>
                                  <label class="col-sm-1 control-label" for="field-1">CLD</label>
-                               <div class="col-sm-1">
+                               <div class="col-sm-1 col-sm-e1">
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div> 
                                                
