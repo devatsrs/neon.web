@@ -1,7 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCliRateByAccount`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_TrunkID` INT , IN `p_processId` varchar(200), IN `p_tbltempusagedetail_name` VARCHAR(50))
 BEGIN
     
-    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     call prc_GetCustomerRate (p_CompanyID,p_AccountID,p_TrunkID,NULL,NULL,NULL,'All',1,0,0,0,'','',1);
 
     set @stm1 = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
@@ -15,6 +15,7 @@ BEGIN
     WHERE processid = "',p_processId,'"
     AND accountid = "',p_AccountID ,'" 
     AND trunk = (select Trunk from tblTrunk where TrunkID = "',p_TrunkID,'" limit 1)
+    AND is_inbound = 0
     AND cr.rate is not null') ;
     
     PREPARE stmt1 FROM @stm1;
@@ -28,6 +29,7 @@ BEGIN
     WHERE processid = "',p_processId,'"
     AND accountid = "',p_AccountID ,'"  
     AND trunk = (select  Trunk from tblTrunk where TrunkID = "',p_TrunkID,'" LIMIT 1)
+    AND is_inbound = 0
     AND cr.rate is null ');
     
     PREPARE stmt2 FROM @stm2;
@@ -49,6 +51,7 @@ BEGIN
     WHERE processid ="',p_processId,'" 
     AND ud.accountid = "',p_AccountID ,'"  
     AND trunk = (select  Trunk from tblTrunk where TrunkID = "',p_TrunkID,'" LIMIT 1)
+    AND is_inbound = 0
     AND cr.rate is null');
     
     PREPARE stmt4 FROM @stm4;

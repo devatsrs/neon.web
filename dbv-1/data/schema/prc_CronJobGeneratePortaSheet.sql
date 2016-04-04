@@ -79,7 +79,7 @@ BEGIN
                      JOIN tblRateTableRate ON tblRateTableRate.RateTableId = tblRateTable.RateTableId
                      JOIN tblTrunk ON tblTrunk.TrunkId = tblCustomerTrunk.TrunkId
              WHERE   tblAccount.AccountID = p_CustomerID
-                     AND tblRateTableRate.Rate > 0
+                    -- AND tblRateTableRate.Rate > 0
                      And FIND_IN_SET(tblTrunk.TrunkID,p_trunks)!= 0
                      AND ( EffectiveDate <= now() or ( v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW()) )
             ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC;
@@ -154,15 +154,15 @@ BEGIN
                                 END as `Next Interval`,
                 CASE WHEN cr.RateID IS NOT NULL 
                                     THEN
-                                    cr.Rate 
+                                    Abs(cr.Rate) 
                                 ELSE
-                                    rt.Rate
+                                    Abs(rt.Rate)
                                 END as `First Price` ,
                 CASE WHEN cr.RateID IS NOT NULL 
                                     THEN
-                                    cr.Rate 
+                                    Abs(cr.Rate) 
                                 ELSE
-                                    rt.Rate
+                                    Abs(rt.Rate)
                                 END as `Next Price`,
                CASE WHEN cr.RateID IS NOT NULL 
                                     THEN
@@ -170,6 +170,13 @@ BEGIN
                                     ELSE
                                         DATE_FORMAT(rt.EffectiveDate ,'%d/%m/%Y')
                                     END as  `Effective From`,
+         CASE WHEN ( CASE WHEN cr.RateID IS NOT NULL 
+                                    THEN
+                                    cr.Rate
+                                ELSE
+                                    rt.Rate
+                                 	END ) < 0 THEN 'Y' ELSE '' 
+								END  'Payback Rate' ,
 			 CASE WHEN cr.RateID IS NOT NULL  and cr.ConnectionFee > 0 THEN
 									CONCAT('SEQ=', cr.ConnectionFee,'&int1x1@price1&intNxN@priceN')
 								ELSE
@@ -179,6 +186,7 @@ BEGIN
 										''
 									END
 								END as `Formula`
+			
             
         FROM    tblRate
                 LEFT JOIN tmp_RateTable_ rt ON rt.RateID = tblRate.RateID
