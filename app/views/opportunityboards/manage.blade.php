@@ -338,7 +338,6 @@
                 };
 
                 board.niceScroll(nicescroll_defaults);
-                $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
             }
             function initSortable(){
                 // Code using $ as usual goes here.
@@ -417,9 +416,8 @@
                             autohidemode: true,
                             sensitiverail: false
                         };
-
-                        board.niceScroll(nicescroll_defaults);
                         $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+
                     },
                     // Form data
                     data: [],
