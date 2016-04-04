@@ -52,7 +52,7 @@
                                     @if(count($taggedUser)>0)
                                         @foreach($taggedUser as $user)
                                             <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>
-                                            <span {{$color}} class="badge badge-warning tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{substr($user['FirstName'],0,1).substr($user['LastName'],0,1)}}</span>
+                                            <span {{$color}} class="badge badge-warning tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
                                         @endforeach
                                     @endif
                                     <span class="badge badge-info tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{$Owner}}</span>

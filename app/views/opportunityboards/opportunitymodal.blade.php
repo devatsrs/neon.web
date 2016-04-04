@@ -184,7 +184,8 @@
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                     }
-                    $("#opportunity-update").button('reset');
+                    $("#opportunity-add").button('reset');
+                    $("#opportunity-edit").button('reset');
                     //getOpportunities();
                 },
                 // Form data
@@ -446,7 +447,7 @@
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" name="OpportunityID">
-                    <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <button type="submit" id="opportunity-add"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>

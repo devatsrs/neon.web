@@ -338,6 +338,7 @@
                 };
 
                 board.niceScroll(nicescroll_defaults);
+                $('#allComments').niceScroll(nicescroll_defaults);
             }
             function initSortable(){
                 // Code using $ as usual goes here.
