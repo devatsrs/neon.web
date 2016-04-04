@@ -84,7 +84,9 @@ class PaymentsController extends \BaseController {
         $isvalid = Payment::validate();
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
-
+			
+			print_r($save);
+exit;
             /* for Adding payment from Invoice  */
             if(isset($save['InvoiceID'])) {
                 $InvoiceID = $save['InvoiceID'];
@@ -102,7 +104,7 @@ class PaymentsController extends \BaseController {
             if(User::is('BillingAdmin') || User::is_admin() ) {
                 $save['Status'] = 'Approved';
             }
-			unset($data['Currency']); 
+			unset($save['Currency']); 
             if (Payment::create($save)) {
                 if(isset($InvoiceID) && !empty($InvoiceID)){
                     $Invoice = Invoice::find($InvoiceID);
