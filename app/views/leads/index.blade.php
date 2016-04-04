@@ -123,8 +123,8 @@
 <thead>
 <tr>
     <th width="10%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+    <th width="15%">Company</th>
     <th width="15%">Name</th>
-    <th width="15%">Owner</th>
     <th width="15%">Phone</th>
     <th width="15%">Email</th>
     <th width="30%">Actions</th>

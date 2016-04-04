@@ -1,6 +1,11 @@
 @extends('layout.main')
 
 @section('content')
+<style>
+.small_fld{width:80.6667%;}
+.small_label{width:5.0%;}
+.col-sm-2{width:15%;}
+</style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <a href="javascript:void(0)">Payments</a> </li>
@@ -19,45 +24,47 @@
           </div>
           <div class="panel-body">
             <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+              <label for="field-1" class="col-sm-1 control-label small_label">Account Name</label>
               <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-              <label class="col-sm-1 control-label">Invoice No</label>
+              <label class="col-sm-1 control-label small_label">Invoice No</label>
               <div class="col-sm-2">
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
-              <label for="field-1" class="col-sm-1 control-label">Status</label>
+              <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
               <div class="col-sm-2"> {{ Form::select('Status', Payment::$status, 'Pending Approval', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-              <label for="field-1" class="col-sm-1 control-label">Action</label>
+              <label for="field-1" class="col-sm-1 control-label small_label">Action</label>
               <div class="col-sm-2"> {{ Form::select('type', Payment::$action, '', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
-            </div>
-            <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
-              <div class="col-sm-3"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
-              <label class="col-sm-1 control-label">Recalled</label>
+                     <label class="col-sm-1 control-label">Recalled</label>
               <div class="col-sm-1">
                 <p class="make-switch switch-small">
                   <input id="Recall_on_off" name="recall_on_off" type="checkbox" value="1">
                 </p>
               </div>
-            </div>  
+            </div>
+ 
             <!--payment date start -->
             <div class="form-group">
-              <label class="col-sm-1 control-label" for="PaymentDate_StartDate">Start Date</label>
+              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
               <div class="col-sm-2">
-                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
               </div>
               <div class="col-sm-2">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
               </div>
-              <label  class="col-sm-1 control-label" for="PaymentDate_EndDate">End Date</label>
+              <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
               <div class="col-sm-2">
                 <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
               <div class="col-sm-2">
                 <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
               </div>
-            </div>
+           
             <!--payment date end -->
+                       
+              <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
+              <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+       
+            </div> 
             <p style="text-align: right;">
               <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
             </p>

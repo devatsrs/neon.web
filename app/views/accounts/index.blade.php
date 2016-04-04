@@ -148,8 +148,8 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Name</th>
-        <th width="10%" >Owner</th>
+        <th width="15%" >Company</th>
+        <th width="10%" >Name</th>
         <th width="10%">Phone</th>
         <th width="10%">OS</th>
         <th width="10%">Email</th>
@@ -168,6 +168,7 @@
     var checked = '';
     var view = 1;
     jQuery(document).ready(function ($) {
+      
 
         //["tblAccount.Number",
         // "tblAccount.AccountName",
@@ -179,8 +180,8 @@
         // "tblAccount.IsVendor",
         // 'tblAccount.VerificationStatus']
 
-        var varification_status = [{{Account::NOT_VERIFIED}},{{Account::PENDING_VERIFICATION}},{{Account::VERIFIED}}];
-        var varification_status_text = ["{{Account::$doc_status[Account::NOT_VERIFIED]}}","{{Account::$doc_status[Account::PENDING_VERIFICATION]}}","{{Account::$doc_status[Account::VERIFIED]}}"];
+        var varification_status = [{{Account::NOT_VERIFIED}},{{Account::VERIFIED}}];
+        var varification_status_text = ["{{Account::$doc_status[Account::NOT_VERIFIED]}}","{{Account::$doc_status[Account::VERIFIED]}}"];
 
         $searchFilter.account_name = $("#account_filter [name='account_name']").val();
         $searchFilter.account_number = $("#account_filter [name='account_number']").val();
@@ -246,11 +247,10 @@
                                 varification_url = varification_url.replace('{id}',full[0]);
 
                                 NOT_VERIFIED = varification_url +'{{Account::NOT_VERIFIED}}';
-                                PENDING_VERIFICATION = varification_url + '{{Account::PENDING_VERIFICATION}}';
+                               
                                 VERIFIED = varification_url + '{{Account::VERIFIED}}';
 
-                                 /*action += ' <div class="btn-group"><button href="#" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Verification Status<span class="caret"></span></button>'
-                                 action += '<ul class="dropdown-menu dropdown-primary" role="menu"><li><a href="' + NOT_VERIFIED + '" class="change_verification_status" >{{Account::$doc_status[Account::NOT_VERIFIED]}}</a></li><li><a href="' + PENDING_VERIFICATION + '" class="change_verification_status">{{Account::$doc_status[Account::PENDING_VERIFICATION]}}</a></li><li><a href="' + VERIFIED + '" class="change_verification_status">{{Account::$doc_status[Account::VERIFIED]}}</a></li></ul></div>';*/
+                                 
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
                                 /* action += '<select name="varification_status" class="change_verification_status">';
                                  for(var i = 0; i < varification_status.length ; i++){

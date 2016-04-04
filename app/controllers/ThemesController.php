@@ -44,7 +44,7 @@ class ThemesController extends \BaseController {
 				}
 				else
 				{
-					$path = 'http://placehold.it/200x58';					
+					$path = '';					
 				}
 
                 return $path;
@@ -61,7 +61,7 @@ class ThemesController extends \BaseController {
 				}
 				else
 				{
-					$path = 'http://placehold.it/32x32';	
+					$path = '';	
 				}
 	
                 return $path;

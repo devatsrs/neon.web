@@ -53,45 +53,43 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Type</label>
                         <div class="col-sm-2">
                             {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Account</label>
+                        <label for="field-1" class="col-sm-1 control-label">Account</label>
                         <div class="col-sm-2">
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Status</label>
                         <div class="col-sm-2">
                             {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
-
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Number</label>
-                        <div class="col-sm-2">
-                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
-                        </div>
-                         <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
+            <label for="field-1" class="col-sm-1 control-label">Hide Zero Invoice Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
                             </p>
                         </div>
-                          <label for="field-1" class="col-sm-2 control-label">Currency</label>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
+                        <div class="col-sm-2">
+                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
+                        </div>
+                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
+                        <div class="col-sm-2">
+                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                        </div>
+                        <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
+                        <div class="col-sm-2">
+                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                        </div>
+                   
+            
+                          <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
                      {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
                     </div>                  
