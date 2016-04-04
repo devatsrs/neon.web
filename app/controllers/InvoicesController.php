@@ -215,6 +215,7 @@ class InvoicesController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice."));
                 }
             }catch (Exception $e){
+                Log::info($e);
                 DB::connection('sqlsrv2')->rollback();
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice. \n" . $e->getMessage()));
             }
