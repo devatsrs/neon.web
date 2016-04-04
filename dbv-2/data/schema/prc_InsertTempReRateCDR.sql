@@ -3,7 +3,7 @@ BEGIN
 	 DECLARE v_BillingTime_ INT; 
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     SELECT BillingTime INTO v_BillingTime_
-	 FROM Ratemanagement3.tblCompanyGateway cg
+	 FROM LocalRatemanagement.tblCompanyGateway cg
 	 INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	 WHERE AccountID = p_AccountID AND (p_CompanyGatewayID = '' OR ga.CompanyGatewayID = p_CompanyGatewayID)
 	 LIMIT 1;
@@ -14,7 +14,7 @@ BEGIN
     
     set @stm1 = CONCAT('
 
-    INSERT INTO RMCDR3.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound)
+    INSERT INTO LocalRMCdr.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound)
 
     SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",AccountName ,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,"',p_ProcessID,'",duration,is_inbound
     FROM tmp_tblUsageDetails_');

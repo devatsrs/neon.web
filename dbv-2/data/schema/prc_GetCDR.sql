@@ -9,7 +9,7 @@ BEGIN
     
 	 
 		SELECT BillingTime INTO v_BillingTime_
-		FROM Ratemanagement3.tblCompanyGateway cg
+		FROM LocalRatemanagement.tblCompanyGateway cg
 		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 		WHERE AccountID = p_AccountID AND (p_CompanyGatewayID = '' OR ga.CompanyGatewayID = p_CompanyGatewayID)
 		LIMIT 1;
@@ -40,7 +40,7 @@ BEGIN
 		            uh.AccountName as AccountName,           
 		            uh.connect_time,
 		            uh.disconnect_time,
-		            uh.duration,
+		            uh.billed_duration,
 		            uh.cli,
 		            uh.cld,
 						format(uh.cost,6) as cost,

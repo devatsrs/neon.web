@@ -4,15 +4,15 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
       -- update trunk with first trunk if not set UseInBilling
-   set @stm1 = CONCAT(' UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+   set @stm1 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
     LEFT JOIN tblGatewayAccount  ga 
         ON ud.GatewayAccountID = ga.GatewayAccountID
         AND ud.CompanyGatewayID = ga.CompanyGatewayID
         AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblCustomerTrunk ct 
+    LEFT JOIN LocalRatemanagement.tblCustomerTrunk ct 
         ON ct.AccountID = ga.AccountID AND ct.Status =1 
         AND UseInBilling = 0 and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblTrunk t 
+    LEFT JOIN LocalRatemanagement.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
 	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
@@ -29,15 +29,15 @@ BEGIN
 
 
  -- update trunk if set UseInBilling
-     set @stm2 = CONCAT(' UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+     set @stm2 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
     LEFT JOIN tblGatewayAccount  ga 
         ON ud.GatewayAccountID = ga.GatewayAccountID
         AND ud.CompanyGatewayID = ga.CompanyGatewayID
         AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblCustomerTrunk ct 
+    LEFT JOIN LocalRatemanagement.tblCustomerTrunk ct 
         ON ct.AccountID = ga.AccountID AND ct.Status =1 and ud.processId = "' , p_processId , '"
         AND UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-    LEFT JOIN Ratemanagement3.tblTrunk t 
+    LEFT JOIN LocalRatemanagement.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
 	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
@@ -64,20 +64,20 @@ BEGIN
     SELECT
 		  TempUsageDetailID,
         MAX(r.Code) AS prefix
-    FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+    FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
     LEFT JOIN tblGatewayAccount ga 
         ON ud.GatewayAccountID = ga.GatewayAccountID
         AND ud.CompanyGatewayID = ga.CompanyGatewayID
         AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblCustomerTrunk ct 
+    LEFT JOIN LocalRatemanagement.tblCustomerTrunk ct 
         ON ct.AccountID = ga.AccountID AND ct.Status =1  
         AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblCustomerRate cr 
+    LEFT JOIN LocalRatemanagement.tblCustomerRate cr 
         ON cr.CustomerID = ga.AccountID
         AND  cr.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-   LEFT JOIN Ratemanagement3.tblRateTableRate rtr 
+   LEFT JOIN LocalRatemanagement.tblRateTableRate rtr 
         ON rtr.RateTableId = ct.RateTableID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblRate r 
+    LEFT JOIN LocalRatemanagement.tblRate r 
         ON ( cr.RateID = r.RateID OR rtr.RateID = r.RateID) and ud.processId = "' , p_processId , '"
     WHERE  
  	 ud.processId = "' , p_processId , '"
@@ -97,7 +97,7 @@ BEGIN
     DEALLOCATE PREPARE stmt3;
    
 	
-	set @stm4 = CONCAT('UPDATE RMCDR3.' , p_tbltempusagedetail_name , ' tbl2
+	set @stm4 = CONCAT('UPDATE LocalRMCdr.' , p_tbltempusagedetail_name , ' tbl2
     INNER JOIN tmp_TempUsageDetail_ tbl
         ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
     SET area_prefix = prefix
