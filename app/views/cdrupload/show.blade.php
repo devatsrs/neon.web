@@ -96,22 +96,24 @@
                                 <div class="col-sm-2">
                                     {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
+                                         
                             </div>
                             <div class="form-group">
-                               <label class="col-sm-2 control-label" for="field-1">CLI</label>
+                               <label class="col-sm-1 control-label" for="field-1">CLI</label>
                                <div class="col-sm-2">
                                     <input type="text" name="CLI" class="form-control "  value=""  />
                                 </div>
-                                 <label class="col-sm-2 control-label" for="field-1">CLD</label>
+                                 <label class="col-sm-1 control-label" for="field-1">CLD</label>
                                <div class="col-sm-2">
                                     <input type="text" name="CLD" class="form-control "  value=""  />
-                                </div>                           
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Cost</label>
-                        <div class="col-sm-2">
+                                </div> 
+                                <label for="field-1" class="col-sm-2 control-label">Hide Zero Cost</label>               
+                                  <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
                             </p>
-                        </div>                                       
+                        </div>                             
+                                                          
                 </div>
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">

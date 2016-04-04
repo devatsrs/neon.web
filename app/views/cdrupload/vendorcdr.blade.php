@@ -65,17 +65,15 @@
                 <div class="col-sm-2"> {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }} </div>
               </div>
               <div class="form-group">
-                <label class="col-sm-2 control-label" for="field-1">CLI</label>
+                <label class="col-sm-1 control-label" for="field-1">CLI</label>
                 <div class="col-sm-2">
                   <input type="text" name="CLI" class="form-control "  value=""  />
                 </div>
-                <label class="col-sm-2 control-label" for="field-1">CLD</label>
+                <label class="col-sm-1 control-label" for="field-1">CLD</label>
                 <div class="col-sm-2">
                   <input type="text" name="CLD" class="form-control "  value=""  />
                 </div>
-              </div>
-              <div class="form-group">
-        
+             
                          <label for="zerovaluebuyingcost" class="col-sm-3 control-label">Hide Zero Cost</label>
                 <div class="col-sm-2">
                   <p class="make-switch switch-small">

@@ -14,7 +14,7 @@
         <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
           <div class="panel panel-primary" data-collapsed="0">
           <div class="panel-heading">
-            <div class="panel-title"> Search </div>
+            <div class="panel-title"> Filter </div>
             <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
           </div>
           <div class="panel-body">
