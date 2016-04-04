@@ -225,6 +225,7 @@
                     processData: false
                 });
             });
+
             $(document).on('change','#add-opportunity-attachment-form input[type="file"]',function(){
                 var opportunityID = $('#add-opportunity-attachment-form [name="OpportunityID"]').val();
                 var formData = new FormData($('#add-opportunity-attachment-form')[0]);
@@ -616,7 +617,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Tags</label>
                                     <div class="col-sm-8 input-group">
-                                        <input class="form-control tags" name="Tags" type="text" >
+                                        <input class="form-control opportunitytags" name="Tags" type="text" >
                                     </div>
                                 </div>
                             </div>

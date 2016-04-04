@@ -212,26 +212,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">Height</label>
-                                    <div class="col-sm-5">
-                                        <input name="Height" type="text" value="100%" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">width</label>
-                                    <div class="col-sm-5">
-                                        <input name="Width" type="text" value="195px" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="opportunityboardcolumn-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">

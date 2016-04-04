@@ -1,16 +1,16 @@
 <div class="header">
     <ul>
         @foreach($columns as $index=>$column)
-            <?php $style=(empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
-        <li {{$style}}>{{$columns[$index]['Name']}}</li>
+            <?php //$style=(empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
+        <li>{{$columns[$index]['Name']}}</li>
         @endforeach
     </ul>
 </div>
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($boradsWithOpportunities)>0)
         @foreach($boradsWithOpportunities as $index=>$board )
-            <?php $style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
-        <li data-id="{{$index}}" {{$style}} class="board-column count-li">
+            <?php //$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
+        <li data-id="{{$index}}" class="board-column count-li">
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
                     @foreach($board as $opportunity)
                         @if(!empty($opportunity))
