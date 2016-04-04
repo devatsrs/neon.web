@@ -2,6 +2,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updatePrefixTrunk`(IN `p_Compan
 BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	
+	set @stm6 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
+	 SET ud.trunk = "Other",ud.area_prefix = "Other"
+    WHERE 
+    	  ud.processId = "' , p_processId , '";
+    ');
+
+    PREPARE stmt6 FROM @stm6;
+    EXECUTE stmt6;
+    DEALLOCATE PREPARE stmt6;
 
       -- update trunk with first trunk if not set UseInBilling
    set @stm1 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
