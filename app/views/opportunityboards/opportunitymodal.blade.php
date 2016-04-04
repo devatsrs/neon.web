@@ -185,7 +185,7 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $("#opportunity-add").button('reset');
-                    $("#opportunity-edit").button('reset');
+                    $("#opportunity-update").button('reset');
                     //getOpportunities();
                 },
                 // Form data
