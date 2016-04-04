@@ -85,8 +85,7 @@ class PaymentsController extends \BaseController {
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
 			
-			print_r($save);
-exit;
+			
             /* for Adding payment from Invoice  */
             if(isset($save['InvoiceID'])) {
                 $InvoiceID = $save['InvoiceID'];
