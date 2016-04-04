@@ -100,8 +100,12 @@
 
                     <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Color</label>
-                        <div class="col-sm-6">
-                            <input type="text" name='color' class="form-control" id="Text2" placeholder="Color" value="{{$user->Color}}">
+
+                        <div class="col-sm-6 input-group">
+                            <input name="Color" type="text" class="form-control colorpicker" value="{{$user->Color}}" />
+                            <div class="input-group-addon">
+                                <i class="color-preview"></i>
+                            </div>
                         </div>
                     </div>
 
