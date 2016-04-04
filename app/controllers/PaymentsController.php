@@ -19,7 +19,7 @@ class PaymentsController extends \BaseController {
 		$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
-		
+		 
 		if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
 		{
 			 $data['p_paymentstart']		=	"'".$data['p_paymentstartdate'].' '.$data['p_paymentstartTime']."'";	
@@ -30,7 +30,7 @@ class PaymentsController extends \BaseController {
 			 $data['p_paymentend']			=	"'".$data['p_paymentenddate'].' '.$data['p_paymentendtime']."'";	
 		}
 		
-		if($data['p_paymentstart']!='null' && $data['p_paymentend']=='null')
+		if($data['p_paymentstart']!='null' && $data['p_paymentend']=='null') 
 		{
 			$data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
 		}
