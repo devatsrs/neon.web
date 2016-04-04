@@ -573,8 +573,7 @@ dialog {
     min-height: 50px;
 }
 .board-inner {
-    width: 100%;
-    height: 100%;
+    height: 92%;
     list-style-type: none;
     /*white-space: nowrap;*/
     margin: 0px;
