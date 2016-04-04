@@ -918,7 +918,7 @@ button.close {
     text-align:center;
 }
 .comment-attachment {
-    display:inline-block;
+    display:block;
 }
 .fileinput-new {
     width:100%;

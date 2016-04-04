@@ -24,7 +24,7 @@
                                                 <i class="entypo-attach"></i>
                                             </a>
                                             @foreach($comment['AttachmentPaths'] as $attachment)
-                                                <p class="comment-attachment btn-default hidden"><a href="{{$attachment['filepath']}}" target="_blank">{{basename($attachment['filename'])}}</a></p>
+                                                <div class="comment-attachment btn-default hidden"><a href="{{$attachment['filepath']}}" target="_blank">{{basename($attachment['filename'])}}</a></div>
                                             @endforeach
                                         @endif
                                     </div>
