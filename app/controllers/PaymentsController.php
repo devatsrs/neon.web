@@ -102,6 +102,7 @@ class PaymentsController extends \BaseController {
             if(User::is('BillingAdmin') || User::is_admin() ) {
                 $save['Status'] = 'Approved';
             }
+			unset($data['Currency']); 
             if (Payment::create($save)) {
                 if(isset($InvoiceID) && !empty($InvoiceID)){
                     $Invoice = Invoice::find($InvoiceID);
