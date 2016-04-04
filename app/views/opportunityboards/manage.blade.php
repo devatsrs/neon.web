@@ -338,7 +338,7 @@
                 };
 
                 board.niceScroll(nicescroll_defaults);
-                $('#allComments').niceScroll(nicescroll_defaults);
+                $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
             }
             function initSortable(){
                 // Code using $ as usual goes here.
@@ -409,6 +409,17 @@
                     dataType: 'html',
                     success: function (response) {
                         $('#allComments').html(response);
+                        var nicescroll_defaults = {
+                            cursorcolor: '#d4d4d4',
+                            cursorborder: '1px solid #ccc',
+                            railpadding: {right: 3},
+                            cursorborderradius: 1,
+                            autohidemode: true,
+                            sensitiverail: false
+                        };
+
+                        board.niceScroll(nicescroll_defaults);
+                        $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
                     },
                     // Form data
                     data: [],
