@@ -99,6 +99,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Color</label>
+                        <div class="col-sm-6">
+                            <input type="text" name='color' class="form-control" id="Text2" placeholder="Color" value="{{$user->Color}}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Active</label>
                         <div class="col-sm-6">
                             <div class="make-switch switch-small">
