@@ -953,6 +953,9 @@ button.close {
 .count-cards .info .title{
     font-size:12px;
 }
+.count-card .badge{
+    margin:3px 3px 0 0;
+}
 .input-group{
     top:-5px;
 }
