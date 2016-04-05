@@ -596,7 +596,7 @@ dialog {
 .board-column {
     position: relative;
     background: #f1f1f1;
-    width: 195px;
+    width: 210px;
     height: 100%;
     -ms-flex-negative: 0;
     -webkit-flex-shrink: 0;
@@ -623,8 +623,10 @@ dialog {
 ul.board-column-list {
     height: 100%;
     width: 100%;
-    text-align: right;
-    overflow-y: auto;
+    text-align: left;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding: 0 4px;
     margin: 0px;
 }
 .list-unstyled, .list-inline, .dropdown-menu>li>ul, li.well {
@@ -936,8 +938,8 @@ button.close {
     margin-bottom: -6px;
     padding: 5px 5px 5px 10px;
     cursor:pointer;
-    max-width: 193px;
-    min-width: 193px;
+    max-width: 195px;
+    min-width: 195px;
     display: inline-block;
 }
 .count-cards .info{

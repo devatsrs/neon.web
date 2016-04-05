@@ -102,7 +102,7 @@
         </p>
 
         <section class="deals-board">
-            <div id="board-start" class="board scroller" style="height: 500px;">
+            <div id="board-start" class="board scroller" style="height: 500px;overflow: auto !important;">
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
@@ -535,7 +535,7 @@
 
                         <div class="row">
                             <div class="col-md-12 text-left">
-                                <label for="field-5" class="control-label col-sm-2">Tag User *</label>
+                                <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10">
                                     <?php unset($account_owners['']); ?>
                                     {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
@@ -570,7 +570,7 @@
 
                             <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">First Name</label>
+                                    <label for="field-5" class="control-label col-sm-4">First Name*</label>
                                     <div class="col-sm-8">
                                         <div class="input-group" style="width: 100%;">
                                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
@@ -585,7 +585,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Last Name</label>
+                                    <label for="field-5" class="control-label col-sm-4">Last Nam*e</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="LastName" class="form-control" id="field-5">
                                     </div>
@@ -594,7 +594,7 @@
 
                             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Company</label>
+                                    <label for="field-5" class="control-label col-sm-4">Company*</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="Company" class="form-control" id="field-5">
                                     </div>
@@ -603,7 +603,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Phone Number</label>
+                                    <label for="field-5" class="control-label col-sm-4">Phone Number*</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="Phone" class="form-control" id="field-5">
                                     </div>
@@ -611,7 +611,7 @@
                             </div>
                             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Email Address</label>
+                                    <label for="field-5" class="control-label col-sm-4">Email Address*</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="Email" class="form-control" id="field-5">
                                     </div>
@@ -620,7 +620,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Select Board</label>
+                                    <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                     <div class="col-sm-8">
                                         {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
                                     </div>
