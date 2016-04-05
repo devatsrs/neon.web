@@ -576,13 +576,12 @@ class InvoicesController extends \BaseController {
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
-                $as3url =  public_path("/assets/images/250x100.png");
+                $as3url = 'http://placehold.it/250x100';
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
-            chmod($logo,0777);
             $usage_data = array();
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
             if($InvoiceTemplate->InvoicePages == 'single_with_detail') {
@@ -611,7 +610,6 @@ class InvoicesController extends \BaseController {
             }
             $save_path = $destination_dir .  GUID::generate().'-'. $file_name;
             PDF::loadHTML($body)->setPaper('a4')->setOrientation('potrait')->save($save_path);
-            chmod($save_path,0777);
             //@unlink($logo);
             return $save_path;
         }
