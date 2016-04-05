@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
 BEGIN
 	DECLARE v_AffectedRecords_ INT DEFAULT 0;
 	 DECLARE     v_CodeDeckId_ INT ;
@@ -315,7 +315,7 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * from tmp_JobLog_;
-	 DELETE  FROM tmp_TempRateTableRate_ WHERE  ProcessId = p_processId;
+	 DELETE  FROM tblTempRateTableRate WHERE  ProcessId = p_processId;
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

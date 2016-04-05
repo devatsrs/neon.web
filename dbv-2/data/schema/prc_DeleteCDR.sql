@@ -5,7 +5,7 @@ BEGIN
     SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
 		SELECT BillingTime INTO v_BillingTime_
-		FROM Ratemanagement3.tblCompanyGateway cg
+		FROM LocalRatemanagement.tblCompanyGateway cg
 		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 		WHERE AccountID = p_AccountID AND (p_GatewayID = 0 OR ga.CompanyGatewayID = p_GatewayID)
 		LIMIT 1;
@@ -33,10 +33,10 @@ BEGIN
 	            connect_time,
 	            disconnect_time
 	
-			FROM `RMCDR3`.tblUsageDetails  ud 
-			INNER JOIN `RMCDR3`.tblUsageHeader uh
+			FROM `LocalRMCdr`.tblUsageDetails  ud 
+			INNER JOIN `LocalRMCdr`.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
-	        LEFT JOIN Ratemanagement3.tblAccount a
+	        LEFT JOIN LocalRatemanagement.tblAccount a
 	            ON uh.AccountID = a.AccountID
 	        WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 			  AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
@@ -57,7 +57,7 @@ BEGIN
 
 		
 		 delete ud.*
-        From `RMCDR3`.tblUsageDetails ud
+        From `LocalRMCdr`.tblUsageDetails ud
         inner join tmp_tblUsageDetail_ uds on ud.UsageDetailID = uds.UsageDetailID;
         
         SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

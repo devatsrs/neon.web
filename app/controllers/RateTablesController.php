@@ -201,7 +201,7 @@ class RateTablesController extends \BaseController {
 
             $data["ModifiedBy"] = User::get_user_full_name();
 
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -228,7 +228,7 @@ class RateTablesController extends \BaseController {
             $data["PreviousRate"] = 0;
             unset($data['RateTableRateID']);
 
-            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'Interval1'=>'required','IntervalN'=>'required','PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -248,7 +248,7 @@ class RateTablesController extends \BaseController {
         if ($id > 0) {
             $data = Input::all();
             $username = User::get_user_full_name();
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required');
+            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -492,8 +492,8 @@ class RateTablesController extends \BaseController {
             return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
     }
-
-    //get ajax code for add new rate
+	
+	//get ajax code for add new rate
     public function getCodeByAjax(){
         $CompanyID = User::get_companyID();
         $list = array();

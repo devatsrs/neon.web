@@ -93,18 +93,18 @@ BEGIN
             ORDER BY
                 tblCustomerRate.TrunkId, tblCustomerRate.CustomerId,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
          
-    	
-		 
-		
+        
+         
+        
                 
             
-    	SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
-	 	SELECT MAX(EffectiveDate) as EffectiveDate
-		FROM 
-		tblRateTableRate
-		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
-		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	 	)tbl;
+        SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+        SELECT MAX(EffectiveDate) as EffectiveDate
+        FROM 
+        tblRateTableRate
+        WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
+        ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
+        )tbl;
 
     INSERT INTO tmp_RateTableRate_
             SELECT
@@ -142,21 +142,21 @@ BEGIN
                )
                 ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC;
             
-		IF p_Effective = 'Now'
-		THEN
-			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);	        
-			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-			AND n1.TrunkId = n2.TrunkId
-			AND  n1.RateID = n2.RateID;
-		  
-		  CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);	        
+        IF p_Effective = 'Now'
+        THEN
+            CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);         
+            DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+            AND n1.TrunkId = n2.TrunkId
+            AND  n1.RateID = n2.RateID;
+          
+          CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);           
         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-	 	  AND n1.TrunkId = n2.TrunkId
-		  AND  n1.RateID = n2.RateID;
-		END IF;
+          AND n1.TrunkId = n2.TrunkId
+          AND  n1.RateID = n2.RateID;
+        END IF;
 
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
-	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
+        CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
+       CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
 
    
     
@@ -399,6 +399,9 @@ BEGIN
 
     IF p_isExport = 1
     THEN
+    
+		    
+		  DROP TEMPORARY TABLE IF EXISTS tmp_customerrate_;
 
         CREATE TEMPORARY TABLE IF NOT EXISTS  tmp_customerrate_ as (
 
