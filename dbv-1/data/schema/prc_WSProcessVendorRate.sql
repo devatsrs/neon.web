@@ -34,9 +34,9 @@ BEGIN
             INDEX tmp_CC (`Code`,`Change`),
 			INDEX tmp_Change (`Change`)
     );
-    
-     DELETE n1 FROM tblTempVendorRate n1, tblTempVendorRate n2 
-     WHERE n1.EffectiveDate < n2.EffectiveDate 
+
+     DELETE n1 FROM tblTempVendorRate n1, tblTempVendorRate n2
+     WHERE n1.EffectiveDate < n2.EffectiveDate
 	 	AND n1.CodeDeckId = n2.CodeDeckId
 		AND  n1.Code = n2.Code
 		AND  n1.ProcessId = n2.ProcessId
@@ -44,10 +44,10 @@ BEGIN
 
 		  INSERT INTO tmp_TempVendorRate_
         SELECT distinct `CodeDeckId`,`Code`,`Description`,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN` FROM tblTempVendorRate WHERE tblTempVendorRate.ProcessId = p_processId;
-			
-		 
-      
-		
+
+
+
+
 	 	     SELECT CodeDeckId INTO v_CodeDeckId_ FROM tmp_TempVendorRate_ WHERE ProcessId = p_processId  LIMIT 1;
 
             UPDATE tmp_TempVendorRate_ as tblTempVendorRate
@@ -56,21 +56,21 @@ BEGIN
                 AND tblRate.CompanyID = p_companyId
                 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
                 AND tblRate.CodeDeckId =  v_CodeDeckId_
-            SET  
+            SET
                 tblTempVendorRate.Interval1 = CASE WHEN tblTempVendorRate.Interval1 is not null  and tblTempVendorRate.Interval1 > 0
-                                            THEN    
+                                            THEN
                                                 tblTempVendorRate.Interval1
                                             ELSE
-                                            CASE WHEN tblRate.Interval1 is not null  
-                                            THEN    
+                                            CASE WHEN tblRate.Interval1 is not null
+                                            THEN
                                                 tblRate.Interval1
                                             ELSE CASE WHEN tblTempVendorRate.Interval1 is null and (tblTempVendorRate.Description LIKE '%gambia%' OR tblTempVendorRate.Description LIKE '%mexico%')
-                                                 THEN 
+                                                 THEN
                                                     60
-                                            ELSE CASE WHEN tblTempVendorRate.Description LIKE '%USA%' 
-                                                 THEN 
+                                            ELSE CASE WHEN tblTempVendorRate.Description LIKE '%USA%'
+                                                 THEN
                                                     6
-                                                 ELSE 
+                                                 ELSE
                                                     1
                                                 END
                                             END
@@ -78,10 +78,10 @@ BEGIN
                                             END
                                             END,
                 tblTempVendorRate.IntervalN = CASE WHEN tblTempVendorRate.IntervalN is not null  and tblTempVendorRate.IntervalN > 0
-                                            THEN    
+                                            THEN
                                                 tblTempVendorRate.IntervalN
                                             ELSE
-                                                CASE WHEN tblRate.IntervalN is not null 
+                                                CASE WHEN tblRate.IntervalN is not null
                                           THEN
                                             tblRate.IntervalN
                                           ElSE
@@ -89,17 +89,17 @@ BEGIN
                                                 WHEN tblTempVendorRate.Description LIKE '%mexico%' THEN 60
                                             ELSE CASE
                                                 WHEN tblTempVendorRate.Description LIKE '%USA%' THEN 6
-                                                
-                                            ELSE 
+
+                                            ELSE
                                             1
                                             END
                                             END
                                           END
                                           END;
-                                           
+
           DROP TEMPORARY TABLE IF EXISTS tmp_TempVendorRate2_;
-			 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempVendorRate2_ as (select * from tmp_TempVendorRate_);   
- 
+			 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempVendorRate2_ as (select * from tmp_TempVendorRate_);
+
 
 
             IF  p_addNewCodesToCodeDeck = 1
@@ -168,13 +168,13 @@ BEGIN
                         WHERE tblTempVendorRate2.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) c
                         ON vc.Code = c.Code;
                         /* AND c.CountryID IS NOT NULL*/
-								
+
 
 
                 INSERT INTO tmp_JobLog_ (Message)
                     SELECT DISTINCT
                         CONCAT(tblTempVendorRate.Code , ' INVALID CODE - COUNTRY NOT FOUND ')
-                    FROM tmp_TempVendorRate_  as tblTempVendorRate 
+                    FROM tmp_TempVendorRate_  as tblTempVendorRate
                     INNER JOIN tblRate
 				             ON tblRate.Code = tblTempVendorRate.Code
 				             AND tblRate.CompanyID = p_companyId
@@ -190,7 +190,7 @@ BEGIN
                         SELECT DISTINCT
                             tblTempVendorRate.Code,
                             tblTempVendorRate.Description
-                        FROM tmp_TempVendorRate_  as tblTempVendorRate 
+                        FROM tmp_TempVendorRate_  as tblTempVendorRate
                         LEFT JOIN tblRate
 			                ON tblRate.Code = tblTempVendorRate.Code
 			                AND tblRate.CompanyID = p_companyId
@@ -226,14 +226,14 @@ BEGIN
             THEN
 
 
-            
-            	
-            
-            	/*DELETE n1 FROM tmp_TempVendorRate_ n1, tmp_TempVendorRate2_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate AND n1.Code = n2.Code;*/
-            
 
-                
-           
+
+
+            	/*DELETE n1 FROM tmp_TempVendorRate_ n1, tmp_TempVendorRate2_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate AND n1.Code = n2.Code;*/
+
+
+
+
 
                 UPDATE tmp_TempVendorRate_
                 SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
@@ -243,10 +243,10 @@ BEGIN
 
             END IF;
 
-            UPDATE tblVendorRate 
-            LEFT JOIN tblRate 
+            UPDATE tblVendorRate
+            LEFT JOIN tblRate
 					ON tblVendorRate.RateId = tblRate.RateId
-	            AND tblVendorRate.AccountId = p_accountId 
+	            AND tblVendorRate.AccountId = p_accountId
 					AND tblVendorRate.TrunkId = p_trunkId
             LEFT JOIN tmp_TempVendorRate_ as tblTempVendorRate
                 ON tblRate.Code = tblTempVendorRate.Code
@@ -269,13 +269,13 @@ BEGIN
                         AND tblVendorRate.TrunkId = p_trunkId
                         AND tblTempVendorRate.Rate = tblVendorRate.Rate
                         AND (
-                        tblVendorRate.EffectiveDate = tblTempVendorRate.EffectiveDate 
-                        OR  
+                        tblVendorRate.EffectiveDate = tblTempVendorRate.EffectiveDate
+                        OR
                         (
                         DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempVendorRate.EffectiveDate, '%Y-%m-%d')
                         )
                         OR 1 = (CASE
-                            WHEN tblTempVendorRate.EffectiveDate > NOW() THEN 1 
+                            WHEN tblTempVendorRate.EffectiveDate > NOW() THEN 1
                             ELSE 0
                         END)
                         )
@@ -299,7 +299,7 @@ BEGIN
             AND DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempVendorRate.EffectiveDate, '%Y-%m-%d');
 
 
-            
+
 
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
@@ -346,12 +346,12 @@ BEGIN
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 
 
-      
+
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
-	 
+
  	 SELECT * from tmp_JobLog_;
-	 DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId;
+	 DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId;
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

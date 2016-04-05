@@ -201,7 +201,7 @@ class RateTablesController extends \BaseController {
 
             $data["ModifiedBy"] = User::get_user_full_name();
 
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -228,7 +228,7 @@ class RateTablesController extends \BaseController {
             $data["PreviousRate"] = 0;
             unset($data['RateTableRateID']);
 
-            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'Interval1'=>'required','IntervalN'=>'required','PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -248,7 +248,7 @@ class RateTablesController extends \BaseController {
         if ($id > 0) {
             $data = Input::all();
             $username = User::get_user_full_name();
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required');
+            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -306,11 +306,15 @@ class RateTablesController extends \BaseController {
             $rate_table_rates  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
+            $RateTableName = str_replace( '\/','-',$RateTableName);
+            $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xlsx';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($rate_table_rates);
+            /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
                 $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
                     $sheet->fromArray($rate_table_rates);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
     public static function add_newrate($id){
         $data = Input::all();
@@ -319,6 +323,8 @@ class RateTablesController extends \BaseController {
         $RateTableRate['RateID'] = $data['RateID'];
         $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
         $RateTableRate['Rate'] = $data['Rate'];
+        $RateTableRate['Interval1'] = $data['Interval1'];
+        $RateTableRate['IntervalN'] = $data['IntervalN'];
         $rules = RateTableRate::$rules;
         $rules['RateID'] = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
         $validator = Validator::make($RateTableRate, $rules);
@@ -486,8 +492,8 @@ class RateTablesController extends \BaseController {
             return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
     }
-
-    //get ajax code for add new rate
+	
+	//get ajax code for add new rate
     public function getCodeByAjax(){
         $CompanyID = User::get_companyID();
         $list = array();

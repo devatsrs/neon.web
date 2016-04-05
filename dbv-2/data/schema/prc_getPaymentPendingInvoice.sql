@@ -12,7 +12,7 @@ BEGIN
 		ON a.InvoiceTemplateID = it.InvoiceTemplateID
 	LEFT JOIN tblPayment p
 		ON p.AccountID = i.AccountID
-		AND REPLACE(p.InvoiceNo,'-','') = (CONCAT( ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(i.InvoiceNumber)) )) AND P.Status = 'Approved' AND p.AccountID = i.AccountID
+		AND REPLACE(p.InvoiceNo,'-','') = (CONCAT( ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(i.InvoiceNumber)) )) AND p.Status = 'Approved' AND p.AccountID = i.AccountID
 		AND p.Status = 'Approved'
 		AND p.Recall = 0
 	WHERE i.CompanyID = p_CompanyID
