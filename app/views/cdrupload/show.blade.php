@@ -112,11 +112,11 @@
                                          
                             
                                <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
-                               <div class="col-sm-1 col-sm-e1">
+                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
                                     <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
                                 </div>
-                                 <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; width: 6%;">CLD</label>
-                               <div class="col-sm-1 col-sm-e1">
+                                 <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
+                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div> 
                                                
