@@ -88,6 +88,17 @@ GenerateRateTable:BEGIN
         INDEX tmp_Vendorrates_code (`code`),
         INDEX tmp_Vendorrates_rate (`rate`)
     	);
+    	
+    	
+    	DROP TEMPORARY TABLE IF EXISTS tmp_Vendorrates_stage2_;
+     	CREATE TEMPORARY TABLE tmp_Vendorrates_stage2_  (
+        code VARCHAR(50),
+        rate DECIMAL(18, 6),
+        ConnectionFee DECIMAL(18, 6),
+        INDEX tmp_Vendorrates_stage2__code (`code`)
+    	);
+    	
+    	
      	DROP TEMPORARY TABLE IF EXISTS tmp_code_;
      	CREATE TEMPORARY TABLE tmp_code_  (
         code VARCHAR(50),
@@ -201,7 +212,7 @@ GenerateRateTable:BEGIN
 
 	       INSERT INTO tmp_Vendorrates_   (code ,rate ,  ConnectionFee , AccountId ,RowNo ,PreferenceRank )
 			  SELECT code,rate,ConnectionFee,AccountId,RowNo,PreferenceRank FROM(SELECT *,
-				 @row_num := IF(@prev_Code2 = code AND  @prev_Preference >= Preference AND  @prev_Rate2 >= rate ,@row_num+1,1) AS PreferenceRank,
+				 @row_num := IF(@prev_Code2 = code AND  @prev_Preference <= Preference ,(@row_num+1),1) AS PreferenceRank,
 				 @prev_Code2  := Code,
 				 @prev_Rate2  := rate,
 				 @prev_Preference  := Preference
@@ -210,14 +221,28 @@ GenerateRateTable:BEGIN
 				ConnectionFee,
 				AccountId,
 				Preference,
-				@row_num := IF(@prev_Code = code AND @prev_Rate >= rate ,@row_num+1,1) AS RowNo,
+				@row_num := IF(@prev_Code = code AND @prev_Rate <= rate ,(@row_num+1),1) AS RowNo,
 				@prev_Code  := Code,
 				@prev_Rate  := rate
 				from  (
 				SELECT DISTINCT
 	                c.code,
-					 ( tmp_tblVendorRate_.rate / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CompanyCurrencyID_ and  CompanyID = v_CompanyId_ ))
-						* (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ ) as  Rate,
+					 CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
+						THEN
+							tmp_tblVendorRate_.rate
+	               WHEN  v_CompanyCurrencyID_ = v_CurrencyID_  
+					 THEN
+						  (
+						   ( tmp_tblVendorRate_.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
+						 )
+					  ELSE 
+					  (
+					  			-- Convert to base currrncy and x by RateGenerator Exhange
+      					  (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
+					  		* (tmp_tblVendorRate_.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
+					  )
+					 END
+						as  Rate,
 	                tmp_tblVendorRate_.ConnectionFee,
 	                tblAccount.AccountId,
 					Preference
@@ -263,12 +288,35 @@ GenerateRateTable:BEGIN
 			 INSERT INTO tmp_Rates2_ (code,rate,ConnectionFee)
 			 select  code,rate,ConnectionFee from tmp_Rates_;
  
+			 -- Inner query
+            truncate   tmp_Vendorrates_stage2_;
+            INSERT INTO tmp_Vendorrates_stage2_         
+				SELECT
+                    vr.code,
+                    vr.rate,
+                    vr.ConnectionFee
+                FROM tmp_Vendorrates_ vr
+                left join tmp_Rates2_ rate on rate.code = vr.code 
+                WHERE 
+                rate.code is null
+	             and   (
+	                    (v_Use_Preference_ =0 and vr.RowNo <= v_RatePosition_ ) or 
+	                    (v_Use_Preference_ =1 and vr.PreferenceRank <= v_RatePosition_)
+	                )
+	                --  AND IFNULL(vr.Rate, 0) > 0
+					order by
+						CASE WHEN v_Use_Preference_ =1 THEN 
+							PreferenceRank
+						ELSE 
+							RowNo
+						END desc;
+							
 	        IF v_Average_ = 0 
 	        THEN
 	           
-	           
+	           	
 	                 
-	            INSERT INTO tmp_Rates_
+	              INSERT INTO tmp_Rates_
 	                SELECT
 	                    code,
 	                    (SELECT 
@@ -278,24 +326,19 @@ GenerateRateTable:BEGIN
 	                                END) ELSE vRate.rate
 	                            END
 	                        FROM tblRateRuleMargin 
-	                        WHERE rateruleid = v_rateRuleId_ LIMIT 1) as Rate,
-	                ConnectionFee
+	                        WHERE rateruleid = v_rateRuleId_ LIMIT 1
+							) as Rate,
+	                	ConnectionFee
 	                FROM ( 
-									 SELECT
-			                    vr.code,
-			                    vr.rate,
-			                    vr.ConnectionFee,
-			                    AccountId
-			                FROM tmp_Vendorrates_ vr
-			                left join tmp_Rates2_ rate on rate.code = vr.code 
-			                WHERE 
-			                (
-			                    (v_Use_Preference_ =0 and RowNo <= v_RatePosition_ ) or 
-			                    (v_Use_Preference_ =1 and PreferenceRank <= v_RatePosition_)
-			                )
-			                AND rate.code is null
-			            --   AND IFNULL(vr.Rate, 0) > 0
+             					select  max(code) as code , max(rate) as rate , max(ConnectionFee) as  ConnectionFee,
+											@row_num := IF(@prev_Code = code   ,(@row_num+1),1) AS RowNoNew,
+											@prev_Code  := code
+								 	from tmp_Vendorrates_stage2_
+										 , (SELECT @row_num := 1 , @prev_Code := '' ) t
+							 		group by code 
 						 ) vRate;
+						 
+						 
 	         ELSE -- AVERAGE
 	            
 	           INSERT INTO tmp_Rates_
@@ -309,23 +352,15 @@ GenerateRateTable:BEGIN
 	                                END) ELSE vRate.rate
 	                            END
 	                        FROM tblRateRuleMargin 
-	                        WHERE rateruleid = v_rateRuleId_ LIMIT 1 ) as Rate,
+	                        WHERE rateruleid = v_rateRuleId_ LIMIT 1 
+								) as Rate,
 	                    ConnectionFee
 	                FROM ( 
-						 	SELECT
-	                    vr.code,
-	                    AVG(vr.Rate) as Rate,
-	                    AVG(vr.ConnectionFee) as ConnectionFee
-	                FROM tmp_Vendorrates_ vr
-	                left join tmp_Rates2_ rate on rate.code = vr.code 
-	                WHERE 
-	                (
-	                    (v_Use_Preference_ =0 and RowNo <= v_RatePosition_ ) or 
-	                    (v_Use_Preference_ =1 and PreferenceRank <= v_RatePosition_)
-	                )
-	                AND rate.code is null
-	              --  AND IFNULL(vr.Rate, 0) > 0
-	                GROUP BY vr.code 
+			                select code,
+				                    AVG(Rate) as Rate,
+				                    AVG(ConnectionFee) as ConnectionFee
+								 	from tmp_Vendorrates_stage2_
+							 		group by code 
 						 ) vRate;
 	
 	        END IF;
