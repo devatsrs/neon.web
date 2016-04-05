@@ -309,13 +309,13 @@
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
 
-            $('#board-start').scroll(function(){
+            /*$('#board-start').scroll(function(){
                 if(fixedHeader){
                     var header = $('#board-start .header');
                     var left = $('#board-start').scrollLeft();
                     header.css('right',left-1009);
                 }
-            });
+            });*/
 
             function initEnhancement(){
                 var board = $('#board-start');
