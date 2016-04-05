@@ -14,7 +14,10 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+<style>
+#table-4_wrapper{padding-left:15px; padding-right:15px;}
+.small-row{margin-left:0px; margin-right:0px;}
+</style>
 
 
 <p style="text-align: right;">
@@ -104,9 +107,9 @@
         </form>
     </div>
 </div>
-<div class="row">
+<div class="row small-row">
  <div  class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:230px;">
+        <div class="input-group-btn pull-right" style="width:180px;">
             <span style="text-align: right;padding-right: 10px;"><button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button></span>
             <!--<span style="text-align: right;padding-right: 10px;"><button type="button" id="selectallbutton"  class="btn btn-primary "><i class="entypo-check"></i><span>Select all found Accounts</span></button></span>-->
             @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
@@ -162,15 +165,15 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="5%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
                 <div class="pull-right"> Sent/Receive</div></th>
-        <th width="20%">Account Name</th>
+        <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
         <th width="10%">Grand Total</th>
         <th width="10%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
-        <th width="25%">Action</th>
+        <th width="20%">Action</th>
     </tr>
     </thead>
     <tbody>

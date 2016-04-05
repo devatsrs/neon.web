@@ -148,7 +148,7 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Company</th>
+        <th width="15%" >Account Name</th>
         <th width="10%" >Name</th>
         <th width="10%">Phone</th>
         <th width="10%">OS</th>
