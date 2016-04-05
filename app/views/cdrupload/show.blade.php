@@ -59,7 +59,7 @@
         </a>
     </li>
 </ul>
-<div class="tab-content">
+<div class="tab-content" style="padding:0;">
     <div class="tab-pane active">
         <div class="row">
             <div class="col-md-12">
