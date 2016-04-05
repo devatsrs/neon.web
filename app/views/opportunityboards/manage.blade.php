@@ -36,7 +36,7 @@
             <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
         </li>
         <li class="active">
-            <strong>{{$OpportunityBoard->OpportunityBoardName}}</strong>
+            <strong>{{$Board->BoardName}}</strong>
         </li>
     </ol>
 
@@ -103,7 +103,7 @@
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
-                <input type="hidden" name="OpportunityBoardColumnID" />
+                <input type="hidden" name="BoardColumnID" />
             </form>
         </section>
     <script>
@@ -112,8 +112,8 @@
         var fixedHeader = false;
         $(document).ready(function ($) {
             var opportunity = [
-                'OpportunityBoardColumnID',
-                'OpportunityBoardColumnName',
+                'BoardColumnID',
+                'BoardColumnName',
                 'OpportunityID',
                 'OpportunityName',
                 'BackGroundColour',
@@ -124,14 +124,14 @@
                 'UserID',
                 'Phone',
                 'Email',
-                'OpportunityBoardID',
+                'BoardID',
                 'AccountID',
                 'Tags',
                 'Rating',
                 'TaggedUser'
             ];
             var readonly = ['Company','Phone','Email','ContactName'];
-            var OpportunityBoardID = "{{$OpportunityBoardID}}";
+            var BoardID = "{{$BoardID}}";
             getOpportunities();
 
             $('#search-opportunity-filter').submit(function(e){
@@ -143,7 +143,7 @@
             $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','OpportunityBoardID','TaggedUser'];
+                var select = ['UserID','BoardID','TaggedUser'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
@@ -379,7 +379,7 @@
 
             function getOpportunities(){
                 var formData = new FormData($('#search-opportunity-filter')[0]);
-                var url = baseurl + '/opportunity/'+OpportunityBoardID+'/ajax_opportunity';
+                var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -448,7 +448,7 @@
             }
 
             function fillColumns(){
-                var url = baseurl + '/opportunityboardcolumn/{{$OpportunityBoardID}}/ajax_datacolumn';
+                var url = baseurl + '/opportunityboardcolumn/{{$BoardID}}/ajax_datacolumn';
                 $.ajax({
                     url: url,
                     type: 'POST',
@@ -470,7 +470,7 @@
 
             function postorder(){
                 saveOrder();
-                url = baseurl + '/opportunity/'+OpportunityBoardID+'/updateColumnOrder';
+                url = baseurl + '/opportunity/'+BoardID+'/updateColumnOrder';
                 var formData = new FormData($('#cardorder')[0]);
                 $.ajax({
                     url: url,  //Server script to process data
@@ -496,12 +496,12 @@
             function saveOrder() {
                 var selectedCards = new Array();
                 var currentColumn = currentDrageable.parents('li.board-column');
-                var OpportunityBoardColumnID = currentColumn.attr('data-id');
+                var BoardColumnID = currentColumn.attr('data-id');
                 currentColumn.find('ul.board-column-list li.count-cards').each(function() {
                     selectedCards.push($(this).attr("data-id"));
                 });
                 $('#cardorder [name="cardorder"]').val(selectedCards);
-                $('#cardorder [name="OpportunityBoardColumnID"]').val(OpportunityBoardColumnID);
+                $('#cardorder [name="BoardColumnID"]').val(BoardColumnID);
             }
 
             function setcolor(elem,color){
@@ -600,7 +600,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
                                     </div>
                                 </div>
                             </div>

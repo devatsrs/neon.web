@@ -1064,7 +1064,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-2">Select Board</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
                                 </div>
                                 <label for="field-5" class="control-label col-sm-2">Select Background</label>
                                 <div class="col-sm-3 input-group">

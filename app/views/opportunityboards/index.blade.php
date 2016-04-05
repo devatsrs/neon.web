@@ -42,7 +42,7 @@
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Board Name</label>
                                     <div class="col-sm-2">
-                                        {{ Form::text('OpportunityBoardName', '', array("class"=>"form-control")) }}
+                                        {{ Form::text('BoardName', '', array("class"=>"form-control")) }}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Active</label>
                                     <div class="col-sm-2">
@@ -74,13 +74,13 @@
                 </tbody>
             </table>
             <script type="text/javascript">
-                var list_fields  = ['OpportunityBoardName' ,'Status','CreatedBy','OpportunityBoardID'];
+                var list_fields  = ['BoardName' ,'Status','CreatedBy','BoardID'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
                 jQuery(document).ready(function ($) {
                     public_vars.$body = $("body");
-                    $searchFilter.OpportunityBoardName = $("#opportunityboard_filter [name='OpportunityBoardName']").val();
+                    $searchFilter.BoardName = $("#opportunityboard_filter [name='BoardName']").val();
                     $searchFilter.Active = $("#opportunityboard_filter select[name='Active']").val();
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
@@ -88,11 +88,11 @@
                         "bServerSide": true,
                         "sAjaxSource": baseurl + "/opportunityboards/ajax_datagrid",
                         "fnServerParams": function (aoData) {
-                            aoData.push({ "name": "OpportunityBoardName", "value": $searchFilter.OpportunityBoardName },
+                            aoData.push({ "name": "BoardName", "value": $searchFilter.BoardName },
                                     { "name": "Active", "value": $searchFilter.Active });
 
                             data_table_extra_params.length = 0;
-                            data_table_extra_params.push({ "name": "OpportunityBoardName", "value": $searchFilter.OpportunityBoardName },
+                            data_table_extra_params.push({ "name": "BoardName", "value": $searchFilter.BoardName },
                                     { "name": "Active", "value": $searchFilter.Active },{ "name": "Export", "value": 1});
 
                         },
@@ -156,7 +156,7 @@
                     });
                     $("#opportunityboard_filter").submit(function(e){
                         e.preventDefault();
-                        $searchFilter.OpportunityBoardName = $("#opportunityboard_filter [name='OpportunityBoardName']").val();
+                        $searchFilter.BoardName = $("#opportunityboard_filter [name='BoardName']").val();
                         $searchFilter.Active = $("#opportunityboard_filter select[name='Active']").val();
                         data_table.fnFilter('', 0);
                         return false;
@@ -192,16 +192,16 @@
                     $('#add-new-opportunityboard').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-opportunitybaord-form').trigger("reset");
-                        $("#add-edit-opportunitybaord-form [name='OpportunityBoardID']").val('');
+                        $("#add-edit-opportunitybaord-form [name='BoardID']").val('');
                         $('#add-edit-modal-opportunity-board h4').html('Add New Opportunity Board');
                         $('#add-edit-modal-opportunity-board').modal('show');
                     });
 
                     $('#add-edit-opportunitybaord-form').submit(function(e){
                         e.preventDefault();
-                        var OpportunityBoardID = $("#add-edit-opportunitybaord-form [name='OpportunityBoardID']").val()
-                        if( typeof OpportunityBoardID != 'undefined' && OpportunityBoardID != ''){
-                            update_new_url = baseurl + '/opportunityboards/'+OpportunityBoardID+'/update';
+                        var BoardID = $("#add-edit-opportunitybaord-form [name='BoardID']").val()
+                        if( typeof BoardID != 'undefined' && BoardID != ''){
+                            update_new_url = baseurl + '/opportunityboards/'+BoardID+'/update';
                         }else{
                             update_new_url = baseurl + '/opportunityboards/create';
                         }
@@ -291,8 +291,8 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Board Name *</label>
-                                    <input type="text" name="OpportunityBoardName" class="form-control" id="field-5" placeholder="">
-                                    <input type="hidden" name="OpportunityBoardID" />
+                                    <input type="text" name="BoardName" class="form-control" id="field-5" placeholder="">
+                                    <input type="hidden" name="BoardID" />
                                 </div>
                             </div>
                             </div>

@@ -2,7 +2,7 @@
 
 class OpportunityBoardColumnController extends \BaseController {
 
-    var $model = 'OpportunityBoardColumn';
+    var $model = 'CRMBoardColumn';
 	/**
 	 * Display a listing of the resource.
 	 * GET /opportunityboardcolumn

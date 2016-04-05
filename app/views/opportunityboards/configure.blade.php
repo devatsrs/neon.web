@@ -12,7 +12,7 @@
                 <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
             </li>
             <li class="active">
-                <strong>{{$OpportunityBoard->OpportunityBoardName}}</strong>
+                <strong>{{$Board->BoardName}}</strong>
             </li>
         </ol>
     </div>
@@ -45,25 +45,25 @@
 
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
-            var OpportunityBoardID = {{$id}};
+            var BoardID = {{$id}};
             fillColumns();
             $('#add-colomn').click(function(){
                 $('#add-edit-columnname-form').trigger("reset");
-                $('#add-edit-columnname-form [name="OpportunityBoardID"]').val(OpportunityBoardID);
-                $('#add-edit-columnname-form [name="OpportunityBoardColumnID"]').val('');
+                $('#add-edit-columnname-form [name="BoardID"]').val(BoardID);
+                $('#add-edit-columnname-form [name="BoardColumnID"]').val('');
                 $('#add-edit-columnname-form [name="Height"]').val('100%');
                 $('#add-edit-columnname-form [name="Width"]').val('195px');
                 $('#add-edit-columnname-modal h4').text('Add New Column');
                 $('#add-edit-columnname-modal').modal('show');
             });
             $(document).on('click','.edit-column',function(){
-                var OpportunityBoardColumnID = $(this).attr('data-id');
-                var OpportunityBoardColumnName = $(this).attr('data-name');
+                var BoardColumnID = $(this).attr('data-id');
+                var BoardColumnName = $(this).attr('data-name');
                 var Height = $(this).attr('data-height')!=''?$(this).attr('data-height'):'100%';
                 var Width = $(this).attr('data-width')!=''?$(this).attr('data-width'):'195px';
-                $('#add-edit-columnname-form [name="OpportunityBoardID"]').val(OpportunityBoardID);
-                $('#add-edit-columnname-form [name="OpportunityBoardColumnID"]').val(OpportunityBoardColumnID);
-                $('#add-edit-columnname-form [name="OpportunityBoardColumnName"]').val(OpportunityBoardColumnName);
+                $('#add-edit-columnname-form [name="BoardID"]').val(BoardID);
+                $('#add-edit-columnname-form [name="BoardColumnID"]').val(BoardColumnID);
+                $('#add-edit-columnname-form [name="BoardColumnName"]').val(BoardColumnName);
                 $('#add-edit-columnname-form [name="Height"]').val(Height);
                 $('#add-edit-columnname-form [name="Width"]').val(Width);
                 $('#add-edit-columnname-modal h4').text('Edit Column');
@@ -73,10 +73,10 @@
             $('#add-edit-columnname-form').submit(function(e){
                 e.preventDefault();
                 var update_new_url = '';
-                var OpportunityBoardColumnID = $('#add-edit-columnname-form').find('[name="OpportunityBoardColumnID"]').val();
+                var BoardColumnID = $('#add-edit-columnname-form').find('[name="BoardColumnID"]').val();
                 var update_new_url = baseurl + '/opportunityboardcolumn/create';
-                if( typeof OpportunityBoardColumnID != 'undefined' && OpportunityBoardColumnID != ''){
-                    update_new_url = baseurl + '/opportunityboardcolumn/'+OpportunityBoardColumnID+'/update';
+                if( typeof BoardColumnID != 'undefined' && BoardColumnID != ''){
+                    update_new_url = baseurl + '/opportunityboardcolumn/'+BoardColumnID+'/update';
                 }else{
                     update_new_url = baseurl + '/opportunityboardcolumn/create';
                 }
@@ -140,10 +140,10 @@
             }
 
             function builditem(item){
-                var items = '<li id="'+item.OpportunityBoardColumnID+'" class="board-column count-li" style="position: relative;">';
+                var items = '<li id="'+item.BoardColumnID+'" class="board-column count-li" style="position: relative;">';
                 items += '   <header>';
-                items += '    <h5>'+item.OpportunityBoardColumnName;
-                items += '        <a class="edit-column" data-name="'+item.OpportunityBoardColumnName+'" data-id="'+item.OpportunityBoardColumnID+'" data-height="'+item.Height+'" data-width="'+item.Width+'"><i class="edit-button-color entypo-pencil pull-right"></i></a>';
+                items += '    <h5>'+item.BoardColumnName;
+                items += '        <a class="edit-column" data-name="'+item.BoardColumnName+'" data-id="'+item.BoardColumnID+'" data-height="'+item.Height+'" data-width="'+item.Width+'"><i class="edit-button-color entypo-pencil pull-right"></i></a>';
                 items += '    </h5>';
                 items += '   </header>';
                 items += '</li>';
@@ -207,7 +207,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">Column Name</label>
                                     <div class="col-sm-5">
-                                        <input name="OpportunityBoardColumnName" type="text" class="form-control">
+                                        <input name="BoardColumnName" type="text" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -218,8 +218,8 @@
                             <i class="entypo-floppy"></i>
                             Save
                         </button>
-                        <input type="hidden" name="OpportunityBoardID">
-                        <input type="hidden" name="OpportunityBoardColumnID">
+                        <input type="hidden" name="BoardID">
+                        <input type="hidden" name="BoardColumnID">
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
                             Close

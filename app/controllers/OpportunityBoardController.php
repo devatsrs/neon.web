@@ -3,7 +3,7 @@
 
 class OpportunityBoardController extends \BaseController {
 
-    var $model = 'OpportunityBoard';
+    var $model = 'CRMBoard';
 	/**
 	 * Display a listing of the resource.
 	 * GET /Opportunity board
@@ -29,12 +29,12 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function configure($id){
-        $OpportunityBoard = OpportunityBoard::find($id);
-        return View::make('opportunityboards.configure', compact('id','OpportunityBoard'));
+        $Board = CRMBoard::find($id);
+        return View::make('opportunityboards.configure', compact('id','Board'));
     }
 
     public function manage($id){
-        $OpportunityBoard = OpportunityBoard::find($id);
+        $Board = CRMBoard::find($id);
         $account_owners = User::getOwnerUsersbyRole();
         $where['Status']=1;
         if(User::is('AccountManager')){
@@ -44,10 +44,10 @@ class OpportunityBoardController extends \BaseController {
         if(!empty($leadOrAccount)){
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
-        $boards = OpportunityBoard::getBoards();
+        $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $OpportunityBoardID = $id;
-        return View::make('opportunityboards.manage', compact('OpportunityBoardID','OpportunityBoard','account_owners','leadOrAccount','boards','opportunitytags'));
+        $BoardID = $id;
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags'));
     }
 
 	/**

@@ -79,7 +79,7 @@ class LeadsController extends \BaseController {
         //$leads = DB::table('tblAccount')->where([ "AccountType"=>0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
         $leadTags = json_encode(Tags::getTagsArray(Tags::Lead_tag));
 
-        $boards = OpportunityBoard::getBoards();
+        $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 
         $leads = Lead::getLeadList();
@@ -174,7 +174,7 @@ class LeadsController extends \BaseController {
         $countries = $this->countries;
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $leads = Lead::getLeadList();
-        $boards = OpportunityBoard::getBoards();
+        $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $text = 'Edit Lead';
         $url = URL::to('leads/update/' . $lead->AccountID);
         $url2 = 'leads/update/' . $lead->AccountID;
@@ -390,54 +390,6 @@ class LeadsController extends \BaseController {
             $url = URL::to('leads/store');
             $url2 = 'leads/store';
             return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags','text','url','url2'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     * POST /Opportunity
-     *
-     * @return Response
-     */
-    public function createOpportunity($id){
-        $data = Input::all();
-        $companyID = User::get_companyID();
-        $data ["CompanyID"] = $companyID;
-        $rules = array(
-            'CompanyID' => 'required',
-            'OpportunityName' => 'required',
-            'Company'=>'required',
-            'Email'=>'required',
-            'Phone'=>'required',
-            'OpportunityBoardID'=>'required'
-        );
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-
-        unset($data['Company']);
-        unset($data['PhoneNumber']);
-        unset($data['Email']);
-
-        //Add new tags to db against opportunity
-        Tags::insertNewTags(['tags'=>$data['Tags'],'TagType'=>Tags::Opportunity_tag]);
-        // place new opp. in first column of board
-        $data["OpportunityBoardColumnID"] = OpportunityBoardColumn::where(['OpportunityBoardID'=>$data['OpportunityBoardID'],'Order'=>0])->pluck('OpportunityBoardColumnID');
-        $count = Opportunity::where(['CompanyID'=>$companyID,'OpportunityBoardID'=>$data['OpportunityBoardID'],'OpportunityBoardColumnID'=>$data["OpportunityBoardColumnID"]])->count();
-        $data['Order'] = $count;
-        $data["CreatedBy"] = User::get_user_full_name();
-        $data['AccountID'] = $id;
-        $data['UserID'] = User::get_userID();
-        unset($data['OppertunityID']);
-        unset($data['leadcheck']);
-        unset($data['leadOrAccount']);
-        if (Opportunity::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Opportunity Successfully Created"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Opportunity."));
-        }
     }
 
 }

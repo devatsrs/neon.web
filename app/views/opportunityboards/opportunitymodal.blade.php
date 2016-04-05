@@ -21,8 +21,8 @@
 <script>
     $(document).ready(function ($) {
         var opportunity = [
-            'OpportunityBoardColumnID',
-            'OpportunityBoardColumnName',
+            'BoardColumnID',
+            'BoardColumnName',
             'OpportunityID',
             'OpportunityName',
             'BackGroundColour',
@@ -33,7 +33,7 @@
             'UserID',
             'Phone',
             'Email',
-            'OpportunityBoardID',
+            'BoardID',
             'AccountID',
             'Tags',
             'Rating',
@@ -41,10 +41,10 @@
         ];
         var readonly = ['Company','Phone','Email','ContactName'];
         var ajax_complete = false;
-        var OpportunityBoardID = '';
+        var BoardID = '';
         var leadOrAccountID = '';
-        @if(isset($OpportunityBoardID))
-            OpportunityBoardID = "{{$OpportunityBoardID}}";
+        @if(isset($BoardID))
+            BoardID = "{{$BoardID}}";
             <?php $disabled='';$leadOrAccountExist = 'No';$leadOrAccountID = '';$leadOrAccountCheck='' ?>
         @else
          <?php $leads = [];$disabled = 'disabled';$leadOrAccountExist = 'Yes'?>
@@ -55,7 +55,7 @@
         //getOpportunities();
         $(document).on('click','.opportunity',function(){
             $('#add-opportunity-form').trigger("reset");
-            var select = ['UserID','AccountID','OpportunityBoardID'];
+            var select = ['UserID','AccountID','BoardID'];
             var accountID = '';
             for(var i = 0 ; i< opportunity.length; i++){
                 var elem = $('#add-opportunity-form [name="'+opportunity[i]+'"]');
@@ -63,7 +63,7 @@
                     elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                     if(opportunity[i]=='UserID'){
                         $('#add-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
-                        if(OpportunityBoardID) {
+                        if(BoardID) {
                             $('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
                         }else{
                             $('#add-modal-opportunity .leads').removeClass('hidden');
@@ -81,14 +81,14 @@
                     }
                 }
             }
-            $('#add-modal-opportunity [name="OpportunityBoardID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(OpportunityBoardID);
+            $('#add-modal-opportunity [name="BoardID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(BoardID);
 
             setcolor($('#add-modal-opportunity [name="BackGroundColour"]'),'#303641');
             setcolor($('#add-modal-opportunity [name="TextColour"]'),'#ffffff');
             $('#add-opportunity-form [name="Rating"]').val(0);
             $('#add-opportunity-form [name="Rating"]').trigger('change');
             $('#add-modal-opportunity h4').text('Add Opportunity');
-            if(!OpportunityBoardID){
+            if(!BoardID){
                 accountID =$(this).attr('data-id');
                 $('#add-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
             }
@@ -112,7 +112,7 @@
         });
 
         $('#add-opportunity-form [name="UserID"]').change(function(){
-            if(!OpportunityBoardID){
+            if(!BoardID){
                 return true;
             }
             check = 1;
@@ -178,7 +178,7 @@
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
                         $('#add-modal-opportunity').modal('hide');
-                        if(OpportunityBoardID){
+                        if(BoardID){
                             $('#search-opportunity-filter').submit();
                         }
                     }else{
@@ -394,7 +394,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Select Board</label>
                                 <div class="col-sm-8">
-                                    {{Form::select('OpportunityBoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
                                 </div>
                             </div>
                         </div>
