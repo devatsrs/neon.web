@@ -1,16 +1,11 @@
-<div class="header">
-    <ul>
-        @foreach($columns as $index=>$column)
-            <?php //$style=(empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
-        <li>{{$columns[$index]['Name']}}</li>
-        @endforeach
-    </ul>
-</div>
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($boradsWithOpportunities)>0)
         @foreach($boradsWithOpportunities as $index=>$board )
             <?php //$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
+            <header>
+                <h5>{{$columns[$index]['Name']}}</h5>
+            </header>
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
                     @foreach($board as $opportunity)
                         @if(!empty($opportunity))
@@ -56,7 +51,7 @@
                                         @endforeach
                                     @endif
                                     <span class="badge badge-info tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{strtoupper($Owner)}}</span>
-                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['ContactName']}}">{{strtoupper($ContactName)}}</span>
+                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
                                 </div>
                             </li>
                         @endif

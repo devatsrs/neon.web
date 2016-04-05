@@ -573,7 +573,7 @@ dialog {
     min-height: 50px;
 }
 .board-inner {
-    height: 92%;
+    height: 100%;
     list-style-type: none;
     /*white-space: nowrap;*/
     margin: 0px;
@@ -624,7 +624,7 @@ ul.board-column-list {
     height: 100%;
     width: 100%;
     text-align: right;
-    /*overflow-y: auto;*/
+    overflow-y: auto;
     margin: 0px;
 }
 .list-unstyled, .list-inline, .dropdown-menu>li>ul, li.well {

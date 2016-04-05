@@ -10,8 +10,11 @@
         font-size: 15px;
     }
 
-    #add-modal-opportunity .margin-top{
+    .margin-top{
         margin-top:10px;
+    }
+    .margin-top-group{
+        margin-top:15px;
     }
     .paddingleft-0{
         padding-left: 3px;
@@ -119,7 +122,9 @@
                 'BackGroundColour',
                 'TextColour',
                 'Company',
-                'ContactName',
+                'Title',
+                'FirstName',
+                'LastName',
                 'Owner',
                 'UserID',
                 'Phone',
@@ -130,7 +135,7 @@
                 'Rating',
                 'TaggedUser'
             ];
-            var readonly = ['Company','Phone','Email','ContactName'];
+            var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
             var BoardID = "{{$BoardID}}";
             getOpportunities();
 
@@ -143,7 +148,7 @@
             $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','BoardID','TaggedUser'];
+                var select = ['UserID','BoardID','TaggedUser','Title'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
@@ -314,7 +319,7 @@
 
             function initEnhancement(){
                 var board = $('#board-start');
-                var height = board.find('ul.board-inner li:first-child').height();
+                /*var height = board.find('ul.board-inner li:first-child').height();
                 var width = board.find('.board-inner').width();
                 board.height(height+230);
                 board.find('.header').width(width *2);
@@ -326,7 +331,7 @@
                         fixedHeader = false;
                         board.find('.header').removeClass('fixed');
                     }
-                });
+                });*/
 
                 var nicescroll_defaults = {
                     cursorcolor: '#d4d4d4',
@@ -337,6 +342,7 @@
                     sensitiverail: false
                 };
 
+                board.find('.board-column-list').niceScroll(nicescroll_defaults);
                 board.niceScroll(nicescroll_defaults);
             }
             function initSortable(){
@@ -562,6 +568,30 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">First Name</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group" style="width: 100%;">
+                                            <div class="input-group-addon" style="padding: 0px; width: 85px;">
+                                                <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <input type="text" name="FirstName" class="form-control" id="field-5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Last Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="LastName" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Company</label>
@@ -570,16 +600,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Contact Name</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="ContactName" class="form-control" id="field-5">
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="col-md-6 margin-top pull-left">
+                            <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Phone Number</label>
                                     <div class="col-sm-8">
@@ -587,7 +609,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 margin-top pull-right">
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Email Address</label>
                                     <div class="col-sm-8">
@@ -596,7 +618,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 margin-top pull-left">
+                            <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board</label>
                                     <div class="col-sm-8">
@@ -606,7 +628,7 @@
                             </div>
 
 
-                            <div class="col-md-6 margin-top pull-right">
+                            <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Background</label>
                                     <div class="col-sm-7 input-group paddingright-0">
@@ -623,7 +645,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 margin-top pull-left">
+                            <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Tags</label>
                                     <div class="col-sm-8 input-group">
@@ -632,7 +654,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 margin-top pull-right">
+                            <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Text Color</label>
                                     <div class="col-sm-7 input-group paddingright-0">

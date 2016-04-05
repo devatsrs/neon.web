@@ -117,7 +117,9 @@ class OpportunityController extends \BaseController {
                 $return['Company'] = $lead->AccountName;
                 $return['Phone'] = $lead->Phone;
                 $return['Email'] = $lead->Email;
-                $return['ContactName'] = $lead->FirstName.' '.$lead->LastName;
+                $return['Title'] = $lead->Title;
+                $return['FirstName'] = $lead->FirstName;
+                $return['LastName'] = $lead->LastName;
                 return $return;
             }else{
                 return json_response_api($response);

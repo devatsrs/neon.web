@@ -39,7 +39,7 @@
             'Rating',
             'TaggedUser'
         ];
-        var readonly = ['Company','Phone','Email','ContactName'];
+        var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
         var ajax_complete = false;
         var BoardID = '';
         var leadOrAccountID = '';
@@ -243,7 +243,11 @@
                 $('#add-opportunity-form [name="'+readonly[i]+'"]').val('');
                 //$('#add-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
                 if(data){
-                    $('#add-opportunity-form [name="'+readonly[i]+'"]').val(data[readonly[i]]);
+                    if(readonly[i]=='Title'){
+                        $('#add-opportunity-form [name="'+readonly[i]+'"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(data[readonly[i]]);
+                    }else {
+                        $('#add-opportunity-form [name="' + readonly[i] + '"]').val(data[readonly[i]]);
+                    }
                 }
             }
         }
@@ -356,6 +360,30 @@
                             </div>
                         </div>
 
+                        <div class="col-md-6 margin-top-group pull-left">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">First Name</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group" style="width: 100%;">
+                                        <div class="input-group-addon" style="padding: 0px; width: 85px;">
+                                            <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
+                                            {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                        </div>
+                                        <input type="text" name="FirstName" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 margin-top pull-right">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">Last Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="LastName" class="form-control" id="field-5">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-md-6 margin-top pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Company</label>
@@ -364,16 +392,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 margin-top pull-right">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Contact Name</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="ContactName" class="form-control" id="field-5">
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="col-md-6 margin-top pull-left">
+                        <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Phone Number</label>
                                 <div class="col-sm-8">
@@ -381,7 +401,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 margin-top pull-right">
+                        <div class="col-md-6 margin-top pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Email Address</label>
                                 <div class="col-sm-8">
@@ -390,7 +410,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top pull-left">
+                        <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Select Board</label>
                                 <div class="col-sm-8">
@@ -400,7 +420,7 @@
                         </div>
 
 
-                        <div class="col-md-6 margin-top pull-right">
+                        <div class="col-md-6 margin-top-group pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Select Background</label>
                                 <div class="col-sm-7 input-group paddingright-0">
@@ -417,7 +437,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top pull-left">
+                        <div class="col-md-6 margin-top-group pull-right">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Tags</label>
                                 <div class="col-sm-8 input-group">
@@ -426,7 +446,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top pull-right">
+                        <div class="col-md-6 margin-top-group pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Text Color</label>
                                 <div class="col-sm-7 input-group paddingright-0">
