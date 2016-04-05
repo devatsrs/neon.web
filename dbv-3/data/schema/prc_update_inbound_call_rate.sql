@@ -6,7 +6,8 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetailtech_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetailtech_(
 			TempUsageDetailID int,
-			prefix varchar(50)
+			prefix varchar(50),
+			INDEX tmpIX_TempUsageDetailtech_TempUsageDetailID (`TempUsageDetailID`)
 	);
 	DROP TEMPORARY TABLE IF EXISTS tmp_Message_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Message_(
