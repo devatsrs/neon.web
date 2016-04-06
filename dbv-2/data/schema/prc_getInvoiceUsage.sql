@@ -9,16 +9,16 @@ BEGIN
 
 	
 	SELECT BillingTime INTO v_BillingTime_
-	FROM Ratemanagement3.tblCompanyGateway cg
+	FROM LocalRatemanagement.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE AccountID = p_AccountID AND (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
 	LIMIT 1;
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,''); 
+	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
 
-	Select CDRType  INTO v_CDRType_ from  Ratemanagement3.tblAccount where AccountID = p_AccountID;
+	Select CDRType  INTO v_CDRType_ from  LocalRatemanagement.tblAccount where AccountID = p_AccountID;
 
 
             
@@ -32,28 +32,28 @@ BEGIN
             max(Trunk) as Trunk,
             (SELECT 
                 Country
-            FROM Ratemanagement3.tblRate r
-            INNER JOIN Ratemanagement3.tblCustomerRate cr
+            FROM LocalRatemanagement.tblRate r
+            INNER JOIN LocalRatemanagement.tblCustomerRate cr
                 ON cr.RateID = r.RateID
-            INNER JOIN Ratemanagement3.tblCustomerTrunk ct
+            INNER JOIN LocalRatemanagement.tblCustomerTrunk ct
                 ON cr.CustomerID = ct.AccountID
                 AND ct.TrunkID = cr.TrunkID
-            INNER JOIN Ratemanagement3.tblTrunk t
+            INNER JOIN LocalRatemanagement.tblTrunk t
                 ON ct.TrunkID = t.TrunkID
-            INNER JOIN Ratemanagement3.tblCountry c
+            INNER JOIN LocalRatemanagement.tblCountry c
                 ON c.CountryID = r.CountryID
             WHERE t.Trunk = MAX(ud.trunk)
             AND ct.AccountID = ud.AccountID
             AND r.Code = ud.area_prefix limit 1)
             AS Country,
             (SELECT Description
-            FROM Ratemanagement3.tblRate r
-            INNER JOIN Ratemanagement3.tblCustomerRate cr
+            FROM LocalRatemanagement.tblRate r
+            INNER JOIN LocalRatemanagement.tblCustomerRate cr
                 ON cr.RateID = r.RateID
-            INNER JOIN Ratemanagement3.tblCustomerTrunk ct
+            INNER JOIN LocalRatemanagement.tblCustomerTrunk ct
                 ON cr.CustomerID = ct.AccountID
                 AND ct.TrunkID = cr.TrunkID
-            INNER JOIN Ratemanagement3.tblTrunk t
+            INNER JOIN LocalRatemanagement.tblTrunk t
                 ON ct.TrunkID = t.TrunkID
             WHERE t.Trunk = MAX(ud.trunk)
             AND ct.AccountID = ud.AccountID
