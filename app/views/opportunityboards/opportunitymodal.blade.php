@@ -1,11 +1,13 @@
 <style>
 
-        .file-input-wrapper{
-            height: 26px;
-        }
-
         .margin-top{
             margin-top:10px;
+        }
+        .margin-top{
+            margin-top:10px;
+        }
+        .margin-top-group{
+            margin-top:15px;
         }
         .paddingleft-0{
             padding-left: 3px;
@@ -83,8 +85,8 @@
             }
             $('#add-modal-opportunity [name="BoardID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(BoardID);
 
-            setcolor($('#add-modal-opportunity [name="BackGroundColour"]'),'#303641');
-            setcolor($('#add-modal-opportunity [name="TextColour"]'),'#ffffff');
+            setcolor($('#add-modal-opportunity [name="BackGroundColour"]'),'#ffffff');
+            setcolor($('#add-modal-opportunity [name="TextColour"]'),'#303641');
             $('#add-opportunity-form [name="Rating"]').val(0);
             $('#add-opportunity-form [name="Rating"]').trigger('change');
             $('#add-modal-opportunity h4').text('Add Opportunity');
@@ -420,7 +422,7 @@
                         </div>
 
 
-                        <div class="col-md-6 margin-top-group pull-left">
+                        <!--<div class="col-md-6 margin-top-group pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Select Background</label>
                                 <div class="col-sm-7 input-group paddingright-0">
@@ -435,7 +437,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
 
                         <div class="col-md-6 margin-top-group pull-right">
                             <div class="form-group">
@@ -446,7 +448,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top-group pull-left">
+                       <!-- <div class="col-md-6 margin-top-group pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Text Color</label>
                                 <div class="col-sm-7 input-group paddingright-0">
@@ -459,10 +461,10 @@
                                     <a class="btn btn-primary btn-xs reset" data-color="#ffffff" href="javascript:void(0)">
                                         <i class="entypo-ccw"></i>
                                     </a>
-                                    <!--<button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>-->
                                 </div>
                             </div>
-                        </div>
+
+                        </div>-->
                     </div>
                 </div>
                 <div class="modal-footer">

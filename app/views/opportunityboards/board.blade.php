@@ -12,8 +12,8 @@
                             <?php
                         $taggedUser = $opportunity['TaggedUser'];
                         $opportunity = $opportunity['opportunity'];
-                        $backgroundcolour = $opportunity['BackGroundColour']==''?'':'style="background-color:'.$opportunity['BackGroundColour'].';"';
-                        $textcolour = $opportunity['TextColour']==''?'':'style="color:'.$opportunity['TextColour'].';"';
+                        $backgroundcolour = '';//$opportunity['BackGroundColour']==''?'':'style="background-color:'.$opportunity['BackGroundColour'].';"';
+                        $textcolour = '';//$opportunity['TextColour']==''?'':'style="color:'.$opportunity['TextColour'].';"';
                         $hidden = '';
                         foreach($opportunity as $i=>$val){
                             $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
