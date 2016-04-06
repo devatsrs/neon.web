@@ -68,7 +68,9 @@ class Estimate extends \Eloquent {
 			if (!file_exists($destination_dir))
 			{
                 mkdir($destination_dir, 0777, true);
-            }
+            }else{
+			chmod($destination_dir,0777);
+			}
 			
             $file_name 			= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name 		= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
