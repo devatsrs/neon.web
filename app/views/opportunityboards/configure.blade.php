@@ -152,7 +152,7 @@
 
             function postorder(){
                 saveOrder();
-                url = baseurl + '/opportunityboardcolumn/'+OpportunityBoardID+'/updateColumnOrder';
+                url = baseurl + '/opportunityboardcolumn/'+BoardID+'/updateColumnOrder';
                 var formData = new FormData($('#columnorder')[0]);
                 $.ajax({
                     url: url,  //Server script to process data
