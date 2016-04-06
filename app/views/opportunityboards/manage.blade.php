@@ -339,7 +339,7 @@
                     sensitiverail: false
                 };
 
-                /*board.find('.board-column-list').niceScroll(nicescroll_defaults);*/
+                board.find('.board-column-list').niceScroll(nicescroll_defaults);
                 board.niceScroll(nicescroll_defaults);
             }
             function initSortable(){
