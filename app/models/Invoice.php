@@ -63,6 +63,13 @@ class Invoice extends \Eloquent {
          * Assumption : If Billing Cycle is 7 Days then Usage and Subscription both will be 7 Days and same for Monthly and other billing cycles..
         * */
 
+        //set company billing timezone
+        $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
+
+        if($BillingTimezone != 'Invalid Key'){
+            date_default_timezone_set($BillingTimezone);
+        }
+
         $Account = Account::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
         $BillingCycle = Account::select(["BillingCycleType","BillingCycleValue"])->where("AccountID",$AccountID)->first()->toArray();
@@ -128,6 +135,11 @@ class Invoice extends \Eloquent {
                         $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
                     }
                     break;
+            }
+
+            $Timezone = Company::getCompanyTimeZone(0);
+            if(isset($Timezone) && $Timezone != ''){
+                date_default_timezone_set($Timezone);
             }
 
         }

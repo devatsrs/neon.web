@@ -11,9 +11,9 @@ class BaseController extends Controller {
     {
         //Set Company Timezone
         if(Auth::check()) {
-            $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
-            if ($BillingTimezone != 'Invalid Key') {
-                date_default_timezone_set($BillingTimezone);
+            $Timezone = Company::getCompanyTimeZone(0);
+            if (isset($Timezone) && $Timezone != '') {
+                date_default_timezone_set($Timezone);
             }
         }
 
