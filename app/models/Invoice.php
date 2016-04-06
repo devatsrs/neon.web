@@ -80,12 +80,6 @@ class Invoice extends \Eloquent {
 
         if(isset($BillingCycle['BillingCycleType'])) {
 
-            $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
-
-            if($BillingTimezone != 'Invalid Key'){
-                date_default_timezone_set($BillingTimezone);
-            }
-
             switch ($BillingCycle['BillingCycleType']) {
                 case 'weekly':
                     if (!empty($BillingCycle['BillingCycleValue'])) {
@@ -128,7 +122,6 @@ class Invoice extends \Eloquent {
                     break;
             }
 
-            date_default_timezone_set(Config::get("app.timezone"));
         }
 
         return $NextInvoiceDate;

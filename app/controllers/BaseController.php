@@ -9,6 +9,14 @@ class BaseController extends Controller {
      */
     protected function setupLayout()
     {
+        //Set Company Timezone
+        if(Auth::check()) {
+            $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
+            if ($BillingTimezone != 'Invalid Key') {
+                date_default_timezone_set($BillingTimezone);
+            }
+        }
+
         $route = Route::currentRouteAction();
         if(!Auth::guest() && Session::get("customer") != 1){
             $controller = explode('@',$route);
