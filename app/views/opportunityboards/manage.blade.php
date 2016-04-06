@@ -340,7 +340,7 @@
                 };
 
                 /*board.find('.board-column-list').niceScroll(nicescroll_defaults);*/
-                /*board.niceScroll(nicescroll_defaults);*/
+                board.niceScroll(nicescroll_defaults);
             }
             function initSortable(){
                 // Code using $ as usual goes here.
