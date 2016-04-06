@@ -158,13 +158,13 @@ class Invoice extends \Eloquent {
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
-                $as3url =  base_path().'/public/assets/images/250x100.png';
+                $as3url =  public_path("/assets/images/250x100.png");
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
             chmod(getenv('UPLOAD_PATH'),0777);
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
-
+            chmod($logo,0777);
             file_put_contents($logo, file_get_contents($as3url));
 
             $InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
@@ -187,10 +187,14 @@ class Invoice extends \Eloquent {
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name;
+            chmod($local_file,0777);
+
             $local_htmlfile = $destination_dir .  $htmlfile_name;
+            chmod($local_htmlfile,0777);
             file_put_contents($local_htmlfile,$body);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
             $footer_html = $destination_dir.$footer_name;
+            chmod($footer_html,0777);
             file_put_contents($footer_html,$footer);
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
