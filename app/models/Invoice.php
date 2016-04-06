@@ -164,8 +164,8 @@ class Invoice extends \Eloquent {
             }
             chmod(getenv('UPLOAD_PATH'),0777);
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
-            chmod($logo,0777);
             file_put_contents($logo, file_get_contents($as3url));
+            chmod($logo,0777);
 
             $InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
             $file_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.pdf';
