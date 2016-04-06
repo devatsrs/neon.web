@@ -355,7 +355,7 @@
                         </div>
                         <div class="col-md-6 margin-top pull-left leads hidden">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Leads</label>
+                                <label for="field-5" class="control-label col-sm-4">{{ucfirst($leadOrAccountCheck)}}</label>
                                 <div class="col-sm-8">
                                     {{Form::select('AccountID',$leadOrAccount,$leadOrAccountID,array("class"=>"select2",$disabled))}}
                                 </div>
