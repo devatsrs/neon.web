@@ -1,13 +1,13 @@
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($boradsWithOpportunities)>0)
         @foreach($boradsWithOpportunities as $index=>$board )
-            <?php //$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
+            <?php $countBoard = count($board); //$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
             <header>
                 <h5>{{$columns[$index]['Name']}}</h5>
             </header>
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
-                    @foreach($board as $opportunity)
+                    @foreach($board as $curent=>$opportunity)
                         @if(!empty($opportunity))
                             <?php
                         $taggedUser = $opportunity['TaggedUser'];
@@ -33,8 +33,12 @@
                                 $Owner .= $w[0];
                             }
                         }
+                        $style='';
+                        if($curent==$countBoard-1){
+                            $style='style="padding-bottom:40px;"';
+                        }
                         ?>
-                            <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
+                            <li class="tile-stats sortable-item count-cards" {{$style}} {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
                                 <div class="pull-right"><i class="edit-deal entypo-pencil" {{$textcolour}}></i></div>
                                 <div class="row-hidden">
                                     {{$hidden}}
