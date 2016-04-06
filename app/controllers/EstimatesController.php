@@ -90,22 +90,22 @@ class EstimatesController extends \BaseController {
         $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
         $emailTemplates 	 	= 	EmailTemplate::getTemplateArray(array('Type'=>Estimate::ESTIMATE_TEMPLATE));
         $templateoption 	 	= 	[''=>'Select',1=>'New Create',2=>'Update'];
-        $InvoiceNo 				= 	Estimate::where(array('CompanyID'=>$companyID))->get(['EstimateNumber']);
-        $InvoiceNoarray 		= 	array();
+        $EstimateNo 				= 	Estimate::where(array('CompanyID'=>$companyID))->get(['EstimateNumber']);
+        $EstimateNoarray 		= 	array();
         
-		foreach($InvoiceNo as $Invoicerow)
+		foreach($EstimateNo as $Estimaterow)
 		{
-            $InvoiceNoarray[] = $Invoicerow->EstimateNumber;
+            $EstimateNoarray[] = $Estimaterow->EstimateNumber;
         }
 		
-        $estimate = implode(',',$InvoiceNoarray);
+        $estimate = implode(',',$EstimateNoarray);
 		
         return View::make('estimates.index',compact('products','accounts','estimate_status_json','estimate','emailTemplates','templateoption','DefaultCurrencyID'));
     }
 
     /**
      * Show the form for creating a new resource.
-     * GET /invoices/create
+     * GET /estimates/create
      *
      * @return Response
      */
@@ -143,7 +143,7 @@ class EstimatesController extends \BaseController {
             }
 			
             $EstimateTemplateID 		=	 $Account->InvoiceTemplateID;
-            $InvoiceNumberPrefix 		= 	 ($EstimateTemplateID>0)?InvoiceTemplate::find($EstimateTemplateID)->InvoiceNumberPrefix:'';
+            $EstimateNumberPrefix 		= 	 ($EstimateTemplateID>0)?InvoiceTemplate::find($EstimateTemplateID)->EstimateNumberPrefix:'';
             $Currency 					= 	 Currency::find($CurrencyID);
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
             $CompanyName 				= 	 Company::getName();
@@ -690,12 +690,12 @@ class EstimatesController extends \BaseController {
 //        echo "Something Went wrong";
     }
 
-    //Generate Item Based Invoice PDF
+    //Generate Item Based Estimate PDF
     public function generate_pdf($id){
         if($id>0) {
-            $Invoice = Invoice::find($id);
-            $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
-            $Account = Account::find($Invoice->AccountID);
+            $Estimate 		=	 Estimate::find($id);
+            $EstimateDetail = 	 EstimateDetail::where(["EstimateID" => $id])->get();
+            $Account = Account::find($Estimate->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
@@ -707,9 +707,9 @@ class EstimatesController extends \BaseController {
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             $usage_data = array();
-            $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
+            $file_name = 'Estimate--' . date('d-m-Y') . '.pdf';
             if($InvoiceTemplate->InvoicePages == 'single_with_detail') {
-                foreach ($InvoiceDetail as $Detail) {
+                foreach ($EstimateDetail as $Detail) {
                     if (isset($Detail->StartDate) && isset($Detail->EndDate) && $Detail->StartDate != '1900-01-01' && $Detail->EndDate != '1900-01-01') {
 
                         $companyID = $Account->CompanyId;
@@ -717,17 +717,17 @@ class EstimatesController extends \BaseController {
                         $end_date = $Detail->EndDate;
                         $pr_name = 'call prc_getInvoiceUsage (';
 
-                        $query = $pr_name . $companyID . ",'" . $Invoice->AccountID . "','" . $start_date . "','" . $end_date . "')";
+                        $query = $pr_name . $companyID . ",'" . $Estimate->AccountID . "','" . $start_date . "','" . $end_date . "')";
                         DB::connection('sqlsrv2')->setFetchMode(PDO::FETCH_ASSOC);
                         $usage_data = DB::connection('sqlsrv2')->select($query);
                         $usage_data = json_decode(json_encode($usage_data), true);
-                        $file_name =  'Invoice-From-' . Str::slug($start_date) . '-To-' . Str::slug($end_date) . '.pdf';
+                        $file_name =  'Estimate-From-' . Str::slug($start_date) . '-To-' . Str::slug($end_date) . '.pdf';
                         break;
                     }
                 }
             }
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
+            $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+            $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -743,7 +743,7 @@ class EstimatesController extends \BaseController {
    
    
     public function  download_doc_file($id){
-        $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
+        $DocumentFile = Estimate::where(["EstimateID"=>$id])->pluck('Attachment');
         if(file_exists($DocumentFile)){
             download_file($DocumentFile);
         }else{
@@ -1055,8 +1055,8 @@ class EstimatesController extends \BaseController {
      * */
     public function downloadUsageFile($id){
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
-        $OutputFilePath = Invoice::where("InvoiceID", $id)->pluck("UsagePath");
-        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath);
+        $OutputFilePath = Estimate::where("EstimateID", $id)->pluck("UsagePath");
+        $FilePath 		= AmazonS3::preSignedUrl($OutputFilePath);
         if(is_amazon() == true){
             header('Location: '.$FilePath);
         }else if(file_exists($FilePath)){
@@ -1071,9 +1071,9 @@ class EstimatesController extends \BaseController {
     public function cdownloadUsageFile($id){
         $account_inv = explode('-',$id);
         if(isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0  ) {
-            $AccountID = intval($account_inv[0]);
-            $InvoiceID = intval($account_inv[1]);
-            $this->downloadUsageFile($InvoiceID);
+            $AccountID  = intval($account_inv[0]);
+            $EstimateID = intval($account_inv[1]);
+            $this->downloadUsageFile($EstimateID);
         }
     }
     
