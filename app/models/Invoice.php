@@ -177,7 +177,7 @@ class Invoice extends \Eloquent {
             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir."test", 0777, true);
             }
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
