@@ -35,7 +35,7 @@
                         }
                         $style='';
                         if($curent==$countBoard-1){
-                            $style='style="padding-bottom:40px;"';
+                            $style='style="margin-bottom:40px;"';
                         }
                         ?>
                             <li class="tile-stats sortable-item count-cards" {{$style}} {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
