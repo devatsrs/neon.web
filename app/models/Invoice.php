@@ -174,13 +174,11 @@ class Invoice extends \Eloquent {
             $footer = htmlspecialchars_decode($footer);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-            echo $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+            $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
-            }else{
-			chmod($destination_dir,0777);
-			}
+            }
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name;
