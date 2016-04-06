@@ -9,7 +9,7 @@ BEGIN
 	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
 	SELECT BillingTime INTO v_BillingTime_
-	FROM Ratemanagement3.tblCompanyGateway cg
+	FROM LocalRatemanagement.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
 	AND (p_AccountID = '' OR ga.AccountID = p_AccountID)
@@ -17,7 +17,7 @@ BEGIN
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1);
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,p_UserID,p_isAdmin,v_BillingTime_,''); 
+	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,p_UserID,p_isAdmin,v_BillingTime_,'','','',0); 
   
     IF p_isExport = 0
     THEN
@@ -29,13 +29,13 @@ BEGIN
 		    	Concat( Format(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
                CONCAT(IFNULL(cc.Symbol,''),SUM(cost)) AS TotalCharges
             FROM tmp_tblUsageDetails_ uh
-            LEFT JOIN Ratemanagement3.tblRate r
+            LEFT JOIN LocalRatemanagement.tblRate r
                 ON r.Code = uh.area_prefix 
-			LEFT JOIN Ratemanagement3.tblCountry c
+			LEFT JOIN LocalRatemanagement.tblCountry c
                 ON r.CountryID = c.CountryID
-         INNER JOIN Ratemanagement3.tblAccount a
+         INNER JOIN LocalRatemanagement.tblAccount a
          	ON a.AccountID = uh.AccountID
-         LEFT JOIN Ratemanagement3.tblCurrency cc
+         LEFT JOIN LocalRatemanagement.tblCurrency cc
          	ON cc.CurrencyId = a.CurrencyId          	
             WHERE (p_Country = '' OR c.CountryID = p_Country)
             group by 
@@ -77,9 +77,9 @@ BEGIN
 
         SELECT count(*) as totalcount from (SELECT DISTINCT uh.AccountID ,c.Country 
         FROM tmp_tblUsageDetails_ uh
-            LEFT JOIN Ratemanagement3.tblRate r
+            LEFT JOIN LocalRatemanagement.tblRate r
                 ON r.Code = uh.area_prefix 
-			LEFT JOIN Ratemanagement3.tblCountry c
+			LEFT JOIN LocalRatemanagement.tblCountry c
                 ON r.CountryID = c.CountryID
             WHERE (p_Country = '' OR c.CountryID = p_Country)
         ) As TBL;
@@ -96,9 +96,9 @@ BEGIN
 		    	Concat( Format(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
                 SUM(cost) AS TotalCharges
             FROM tmp_tblUsageDetails_ uh
-            LEFT JOIN Ratemanagement3.tblRate r
+            LEFT JOIN LocalRatemanagement.tblRate r
                 ON r.Code = uh.area_prefix 
-			LEFT JOIN Ratemanagement3.tblCountry c
+			LEFT JOIN LocalRatemanagement.tblCountry c
                 ON r.CountryID = c.CountryID
             WHERE (p_Country = '' OR c.CountryID = p_Country)
             group by 

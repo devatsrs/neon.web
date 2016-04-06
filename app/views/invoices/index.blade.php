@@ -14,7 +14,10 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+<style>
+#table-4_wrapper{padding-left:15px; padding-right:15px;}
+.small-row{margin-left:0px; margin-right:0px;}
+</style>
 
 
 <p style="text-align: right;">
@@ -53,45 +56,43 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Type</label>
                         <div class="col-sm-2">
                             {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Account</label>
+                        <label for="field-1" class="col-sm-1 control-label">Account</label>
                         <div class="col-sm-2">
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Status</label>
                         <div class="col-sm-2">
                             {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
-
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Number</label>
-                        <div class="col-sm-2">
-                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
-                        </div>
-                         <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
+            <label for="field-1" class="col-sm-1 control-label">Hide Zero Invoice Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
                             </p>
                         </div>
-                          <label for="field-1" class="col-sm-2 control-label">Currency</label>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
+                        <div class="col-sm-2">
+                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
+                        </div>
+                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
+                        <div class="col-sm-2">
+                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                        </div>
+                        <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
+                        <div class="col-sm-2">
+                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                        </div>
+                   
+            
+                          <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
                      {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
                     </div>                  
@@ -106,9 +107,9 @@
         </form>
     </div>
 </div>
-<div class="row">
+<div class="row small-row">
  <div  class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:230px;">
+        <div class="input-group-btn pull-right" style="width:180px;">
             <span style="text-align: right;padding-right: 10px;"><button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button></span>
             <!--<span style="text-align: right;padding-right: 10px;"><button type="button" id="selectallbutton"  class="btn btn-primary "><i class="entypo-check"></i><span>Select all found Accounts</span></button></span>-->
             @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
@@ -164,15 +165,15 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="5%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
                 <div class="pull-right"> Sent/Receive</div></th>
-        <th width="20%">Account Name</th>
+        <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
         <th width="10%">Grand Total</th>
         <th width="10%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
-        <th width="25%">Action</th>
+        <th width="20%">Action</th>
     </tr>
     </thead>
     <tbody>

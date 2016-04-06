@@ -140,14 +140,29 @@ var postdata;
                 mRender:function( id, type, full){
                                                         
                         var activeurl_fav =  id;
-                    var html_fav = '<a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl_fav+'"></a>';
+						var html_fav = '';
+						if(activeurl_fav!='')
+						{
+                     		html_fav = '<a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl_fav+'"></a>';
+						}
+						else
+						{
+							html_fav = '';
+						}
                                                         return html_fav;
                                                      } },  // 3 favicon
                 {  "bSortable": true,
 
                 mRender:function( id, type, full){
 					 var activeurl_logo =  id;
-                    var html_logo = '<a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl_logo+'"></a>';
+					 var html_logo = '';
+					 if(activeurl_logo!='')
+					 {
+	                    html_logo = '<a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl_logo+'"></a>';
+					 }else
+					 {
+						html_logo = '';
+					 }
                      return html_logo;
                                                      } },  // 4 logo
                 {  "bSortable": true,

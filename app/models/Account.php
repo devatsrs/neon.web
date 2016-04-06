@@ -8,9 +8,9 @@ class Account extends \Eloquent {
     protected  $primaryKey = "AccountID";
 
     const  NOT_VERIFIED = 0;
-    const  PENDING_VERIFICATION = 1;
+    //const  PENDING_VERIFICATION = 1;
     const  VERIFIED =2;
-    public static $doc_status = array( self::NOT_VERIFIED => 'Not Verified',self::PENDING_VERIFICATION=>'Pending Verification',self::VERIFIED=>'Verified');
+    public static $doc_status = array( self::NOT_VERIFIED => 'Not Verified',self::VERIFIED=>'Verified');
 
     const  DETAIL_CDR = 1;
     const  SUMMARY_CDR= 2;
