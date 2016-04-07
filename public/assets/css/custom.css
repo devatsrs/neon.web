@@ -1088,6 +1088,9 @@ button.close {
         min-height:20px;
         padding-bottom: 5px;;
         nargin-to:-20px;
+        position: absolute;
+        right: 15px;
+        bottom: 5px;
     }
 
     .right-padding-0{
@@ -1114,8 +1117,8 @@ button.close {
     .padding-left-1{
         padding: 0px 0px 0px 1px !important;
     }
-    .padding-3{
-        padding:3px;
+    .padding-4{
+        padding:4px;
     }
     ul.grid .head{
         font-size:22px;

@@ -692,7 +692,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="add-view-modal-opportunity-comments">
+    <div class="modal fade" id="add-view-modal-opportunity-comments" data-backdrop="static">
         <div id="card-features-details" class="modal-dialog">
             <div class="modal-content">
                     <div class="modal-header">

@@ -202,15 +202,15 @@
                             show_ = show_.replace('{id}', id);
                             action = '';
                             <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" data-id="'+id+'" type="button"> <i class="entypo-users"></i> </button>';
+                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="entypo-ticket"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                            action += '&nbsp;<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
-                            action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
+                            //action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
                             <?php } ?>
-                            action += '&nbsp;<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="View Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-info"></i> </button>';
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';
                             action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
@@ -269,7 +269,7 @@
                              $(this).find('i').remove();
                              $(this).removeClass('btn btn-icon icon-left');
                              $(this).addClass('label');
-                             $(this).addClass('padding-3');
+                             $(this).addClass('padding-4');
                          });
                          var address1 	= 	$(temp).find('input[name="address1"]').val();
                          var address2 	= 	$(temp).find('input[name="address2"]').val();

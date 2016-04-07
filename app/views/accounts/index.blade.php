@@ -238,12 +238,13 @@
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
                                 <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" data-id="'+full[0]+'" type="button"> <i class="entypo-users"></i> </button>';
+                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="entypo-ticket"></i> </button>';
                                 <?php } ?>
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                                //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
-                                action += '&nbsp;<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-info"></i> </button>';
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -339,7 +340,7 @@
                     $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
                     $(this).addClass('label');
-                    $(this).addClass('padding-3');
+                    $(this).addClass('padding-4');
                 });
                 $(temp).find('.select2-container').remove();
                 $(temp).find('select[name="varification_status"]').remove();
