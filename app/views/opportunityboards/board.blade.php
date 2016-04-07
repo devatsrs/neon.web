@@ -43,7 +43,7 @@
                                     <p {{$textcolour}} class="title">{{$opportunity['OpportunityName']}}</p>
                                     <p {{$textcolour}} class="name">{{$opportunity['Company']}}</p>
                                 </div>
-                                <div class="pull-right">
+                                <div class="pull-right bottom">
                                     @if(count($taggedUser)>0)
                                         @foreach($taggedUser as $user)
                                             <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>

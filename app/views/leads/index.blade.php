@@ -201,14 +201,14 @@
                             clone_ = clone_.replace('{id}', id);
                             show_ = show_.replace('{id}', id);
                             action = '';
+                            <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" data-id="'+id+'" type="button"> <i class="entypo-users"></i> </button>';
+                            <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += '&nbsp;<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
                             action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
-                            <?php } ?>
-                            <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                            action += '&nbsp;<a href="javascript:void(0)" data-id="' + id + '" class="btn btn-default btn-sm btn-icon icon-left opportunity"><i class="entypo-users"></i>Add Opportunity </a>';
                             <?php } ?>
                             action += '&nbsp;<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 

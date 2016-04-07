@@ -938,6 +938,7 @@ button.close {
     cursor:pointer;
     max-width: 195px;
     min-width: 195px;
+    min-height: 120px;
     display: inline-block;
 }
 .count-cards:hover{
@@ -958,7 +959,12 @@ button.close {
 .count-cards .info .title{
     font-size:12px;
 }
-.count-cards .badge{
+.count-cards .bottom{
+    position: absolute;
+    bottom:4px;
+    right: 0px;
+}
+.count-cards .bottom .badge{
     margin:3px 3px 0 0;
 }
 .input-group{

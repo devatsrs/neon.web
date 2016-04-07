@@ -237,13 +237,13 @@
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
+                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" data-id="'+full[0]+'" type="button"> <i class="entypo-users"></i> </button>';
+                                <?php } ?>
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
                                 action += '&nbsp;<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
-                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                                action += '&nbsp;<a href="javascript:void(0)" data-id="'+full[0]+'" class="btn btn-default btn-sm btn-icon icon-left opportunity"><i class="entypo-users"></i>Add Opportunity </a>';
-                                <?php } ?>
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
