@@ -5,7 +5,7 @@
             <div class="toast-message">
                 @if($Account->VerificationStatus == Account::VERIFIED)
                     Awaiting Account Verification Documents Upload.
-                @elseif($Account->VerificationStatus == Account::NOT_VERIFIED || $Account->VerificationStatus == Account::PENDING_VERIFICATION)
+                @elseif($Account->VerificationStatus == Account::NOT_VERIFIED )
                     Account Pending Verification.
                 @endif
             </div>

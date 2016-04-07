@@ -329,11 +329,11 @@ class LeadsController extends \BaseController {
             $data = Input::all();
             if (isset($data['sSearch_0']) && ($data['sSearch_0'] == '' || $data['sSearch_0'] == '1')) {
                 if (User::is_admin() || User::is('AccountManager')) { // Account Manager
-                    $accounts = Account::where(["Status" => 1, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName", "Phone", "Email"]);
+                    $accounts = Account::where(["Status" => 1, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as Company",DB::raw('CONCAT(FirstName,LastName) as Name'), "Phone", "Email"]);
                 }
             } else {
                 if (User::is_admin() || User::is('AccountManager')) { // Account Manager
-                    $accounts = Account::where(["Status" => 0, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName", "Phone", "Email"]);
+                    $accounts = Account::where(["Status" => 0, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName",DB::raw('CONCAT(FirstName,LastName) as Name'), "Phone", "Email"]);
                 }
             }
             $excel_data = json_decode(json_encode($accounts),true);

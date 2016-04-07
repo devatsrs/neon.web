@@ -24,6 +24,13 @@
         <span>CDR Rerate</span>
     </a>
 </p>
+<style>
+.small_fld{width:80.6667%;}
+.small_label{width:5.0%;}
+
+.col-sm-e1{ padding-left:8px;padding-right:8px;}
+.col-sm-e12{padding-left:5px;padding-right:5px; width:11%;}
+</style>
 <!--
 <div class="row">
 <div  class="col-md-12">
@@ -52,7 +59,7 @@
         </a>
     </li>
 </ul>
-<div class="tab-content">
+<div class="tab-content" style="padding:0;">
     <div class="tab-pane active">
         <div class="row">
             <div class="col-md-12">
@@ -68,50 +75,52 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-2 control-label" for="field-1">Start Date</label>
-                                <div class="col-sm-2">
-                                    <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
+                                <div class="col-sm-2" style="padding-right: 0px;">
+                                    <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                                </div>
+                                <div class="col-sm-2" style="padding: 0px; width: 15%;">
+                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                </div>
+                                <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
+                                <div class="col-sm-2" style="padding-right: 0px; width: 15%; padding-left: 0px;">
+                                    <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
                                 <div class="col-sm-2">
-                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label class="col-sm-2 control-label" for="field-1">End Date</label>
-                                <div class="col-sm-2">
-                                    <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
-                                </div>
-                                <div class="col-sm-2">
-                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" for="field-1">Gateway</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
-                                </div>
-                                <label class="col-sm-2 control-label" for="field-1">Account</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-                                <label class="col-sm-2 control-label" for="field-1">CDR Type</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                               <label class="col-sm-2 control-label" for="field-1">CLI</label>
-                               <div class="col-sm-2">
-                                    <input type="text" name="CLI" class="form-control "  value=""  />
-                                </div>
-                                 <label class="col-sm-2 control-label" for="field-1">CLD</label>
-                               <div class="col-sm-2">
-                                    <input type="text" name="CLD" class="form-control "  value=""  />
-                                </div>                           
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Cost</label>
-                        <div class="col-sm-2">
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>               
+                                  <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
                             </p>
-                        </div>                                       
+                        </div>              
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                                </div>
+                                <label class="col-sm-1 control-label" for="field-1">Account</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
+                                <label class="col-sm-1 control-label small_label" for="field-1">CDR Type</label>
+                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
+                                         
+                            
+                               <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
+                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
+                                    <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
+                                </div>
+                                 <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
+                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
+                                    <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
+                                </div> 
+                                               
+                                                          
                 </div>
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
