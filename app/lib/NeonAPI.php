@@ -26,7 +26,7 @@ class NeonAPI{
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-        $api_url = getenv('NeonApiUrl');
+        $api_url = getenv('Neon_API_URL');
 
         $curl->get($api_url.$call_method, array());
         $curl->close();
