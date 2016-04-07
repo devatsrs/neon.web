@@ -224,7 +224,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
-                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid",
+                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid/type",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
@@ -239,9 +239,15 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid",
-                            sButtonClass: "save-collection"
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid/csv",
+                            sButtonClass: "save-collection btn-sm"
                         }
                     ]
                 },

@@ -87,6 +87,13 @@
                 </div>
             </div>
             <div class="form-group">
+                <label for="field-1" class="col-sm-3 control-label">Download Type</label>
+                <div class="col-sm-5">
+
+                   {{ Form::select('downloadtype', $downloadtype, Input::get('downloadtype') , array("class"=>"selectboxit")) }}
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="field-1" class="col-sm-3 control-label">Merge Output file By Trunk</label>
                 <div class="col-sm-5">
                     <div class="make-switch switch-small" data-on-label="<i class='entypo-check'></i>" data-off-label="<i class='entypo-cancel'></i>" data-animated="false">

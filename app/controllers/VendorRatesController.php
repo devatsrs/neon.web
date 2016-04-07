@@ -121,7 +121,8 @@ class VendorRatesController extends \BaseController
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
-            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account'));
+            $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
+            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype'));
     }
     
     public function process_download($id) {
@@ -132,8 +133,11 @@ class VendorRatesController extends \BaseController
             $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
-            } 
+            }
 
+            if(empty($data['downloadtype'])){
+                $data['downloadtype'] = 'csv';
+            }
             $validator = Validator::make($data, $rules);
             
             if ($validator->fails()) {
@@ -209,7 +213,7 @@ class VendorRatesController extends \BaseController
 
         return View::make('vendorrates.show_history',compact('id','history','job_file'));
     }
-    public function history_exports($id) {
+    public function history_exports($id,$type) {
             $companyID = User::get_companyID();
 
             $RateSheetHistory = RateSheetHistory::join('tblJob', 'tblJob.JobID', '=', 'tblRateSheetHistory.JobID')
@@ -219,13 +223,25 @@ class VendorRatesController extends \BaseController
                 ->get(array('tblJob.Title', 'tblRateSheetHistory.created_at as created_date',
                 ));
 
+            $excel_data = json_decode(json_encode($RateSheetHistory),true);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates History.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates History.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*
             Excel::create('Vendor Rates History', function ($excel) use ($RateSheetHistory) {
                 $excel->sheet('Vendor Rates History', function ($sheet) use ($RateSheetHistory) {
                     $sheet->fromArray($RateSheetHistory);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
-    public function exports($id) {
+    public function exports($id,$type) {
             $data = Input::all();
             $data['iDisplayStart'] +=1;
             $data['Country']=$data['Country']!= 'All'?$data['Country']:'null';
@@ -242,9 +258,16 @@ class VendorRatesController extends \BaseController
             $vendor_rates  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xlsx';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($vendor_rates);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($vendor_rates);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($vendor_rates);
+            }
+
 
             /*Excel::create('Vendor Rates', function ($excel) use ($vendor_rates) {
                 $excel->sheet('Vendor Rates', function ($sheet) use ($vendor_rates) {

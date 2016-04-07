@@ -2,7 +2,7 @@
 
 class SummaryController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
 
         $data['iDisplayStart'] +=1;
@@ -36,11 +36,21 @@ class SummaryController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1){
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Summery Report By '.$export_sheet, function ($excel) use ($excel_data ,$export_sheet) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Summery Report By '.$export_sheet, function ($excel) use ($excel_data ,$export_sheet) {
                 $excel->sheet('Summery Report By '.$export_sheet, function ($sheet) use ($excel_data ,$export_sheet) {
                     $sheet->fromArray($excel_data );
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();

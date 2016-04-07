@@ -205,7 +205,7 @@ var postdata;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -358,9 +358,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/invoice/ajax_datagrid", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/csv", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },
@@ -469,7 +475,7 @@ var postdata;
 			"bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",

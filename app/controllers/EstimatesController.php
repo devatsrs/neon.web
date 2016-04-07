@@ -42,7 +42,7 @@ class EstimatesController extends \BaseController {
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
 	}
 
-    public function ajax_datagrid()
+    public function ajax_datagrid($type)
 	{
         $data 						 = 	Input::all();
         $data['iDisplayStart'] 		+=	1;
@@ -59,13 +59,22 @@ class EstimatesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
 			
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Estimate', function ($excel) use ($excel_data)
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+           /* Excel::create('Estimate', function ($excel) use ($excel_data)
 			{
                 $excel->sheet('Estimate', function ($sheet) use ($excel_data)
 				{
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
 		
 

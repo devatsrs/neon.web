@@ -39,7 +39,7 @@ class TransactionLogController extends \BaseController {
 
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
-    public function ajax_invoice_datagrid($id) {
+    public function ajax_invoice_datagrid($id,$type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
 
@@ -54,11 +54,22 @@ class TransactionLogController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Invoice Log', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Log.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Log.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Invoice Log', function ($excel) use ($excel_data) {
                 $excel->sheet('Invoice Log', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 

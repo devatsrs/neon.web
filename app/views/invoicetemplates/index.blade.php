@@ -55,7 +55,7 @@ var postdata;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice_template/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice_template/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -98,8 +98,14 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/invoice_template/ajax_datagrid", //baseurl + "/generate_xls.php",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/invoice_template/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/invoice_template/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection"
                     }
                 ]

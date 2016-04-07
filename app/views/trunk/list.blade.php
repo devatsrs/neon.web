@@ -52,7 +52,6 @@
             "sAjaxSource": baseurl + "/trunks/ajax_datagrid",
             "iDisplayLength": {{Config::get('app.pageSize')}},
             "sPaginationType": "bootstrap",
-            "oTableTools": {},
             "aaSorting"   : [[5, 'desc']],    
             "aoColumns": 
              [
@@ -80,12 +79,18 @@
                 "aButtons": [
                 {
                     "sExtends": "download",
-                    "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/trunks/exports", 
-                    sButtonClass: "save-collection",
+                    "sButtonText": "EXCEL",
+                    "sUrl": baseurl + "/trunks/exports/xlsx",
+                    sButtonClass: "save-collection btn-sm"
+                },
+                {
+                    "sExtends": "download",
+                    "sButtonText": "CSV",
+                    "sUrl": baseurl + "/trunks/exports/csv",
+                    sButtonClass: "save-collection btn-sm"
                 }
                 ]
-            }, 
+            }
         });
         $('#TrunkStatus').change(function() {
              if ($(this).is(":checked")) {

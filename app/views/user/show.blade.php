@@ -91,9 +91,15 @@
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/users/exports", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/users/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/users/exports/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             }

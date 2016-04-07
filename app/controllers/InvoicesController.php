@@ -59,7 +59,7 @@ class InvoicesController extends \BaseController {
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
 	}
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
@@ -77,11 +77,22 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Invoice', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Invoice', function ($excel) use ($excel_data) {
                 $excel->sheet('Invoice', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
             $query = $query.',0,0,1,"")';
@@ -1372,11 +1383,16 @@ class InvoicesController extends \BaseController {
             $query .= ")";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {
+
+            $file_path = getenv('UPLOAD_PATH') .'/InvoiceSageExport.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($excel_data);
+
+            /*Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {
                 $excel->sheet('InvoiceSageExport', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('csv');
+            })->download('csv');*/
         }else{
 			
             $criteria = json_decode($data['criteria'],true);
@@ -1396,11 +1412,15 @@ class InvoicesController extends \BaseController {
             $query .= ",'')";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {
+
+            $file_path = getenv('UPLOAD_PATH') .'/InvoiceSageExport.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($excel_data);
+            /*Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {
                 $excel->sheet('InvoiceSageExport', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('csv');
+            })->download('csv');*/
 
         }
 

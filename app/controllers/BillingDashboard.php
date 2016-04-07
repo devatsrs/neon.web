@@ -76,7 +76,7 @@ class BillingDashboard extends \BaseController {
 
         return View::make('billingdashboard.pin_expense_chart',compact('top_pincode_data','report_label','report_header','data','CurrencySymbol'));
     }
-    public function ajaxgrid_top_pincode(){
+    public function ajaxgrid_top_pincode($type){
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
@@ -93,11 +93,22 @@ class BillingDashboard extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Pincode Detail Report', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Pincode Detail Report.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Pincode Detail Report.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Pincode Detail Report', function ($excel) use ($excel_data) {
                 $excel->sheet('Pincode Detail Report', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .= ',0)';
         //echo $query;exit;

@@ -2,7 +2,7 @@
 
 class LCRController extends \BaseController {
 
-    public function search_ajax_datagrid() {
+    public function search_ajax_datagrid($type) {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
@@ -17,9 +17,17 @@ class LCRController extends \BaseController {
                     $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
                 }
             }
-            $file_path = getenv('UPLOAD_PATH') .'/LCR.xlsx';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($excel_data);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/LCR.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/LCR.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
             /*Excel::create('LCR', function ($excel) use ($excel_data) {
                 $excel->sheet('LCR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);

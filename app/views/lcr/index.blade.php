@@ -141,7 +141,7 @@
                 "bDestroy": true, // Destroy when resubmit form
                 "bProcessing": true,
                 "bServerSide": true,
-                "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid",
+                "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                 "fnServerParams": function(aoData) {
                     aoData.push({"name": "Code", "value": Code},  {"name": "Country", "value": Country}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference});
                     data_table_extra_params.length = 0;
@@ -174,9 +174,15 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/lcr/search_ajax_datagrid",
-                                    sButtonClass: "save-collection"
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/lcr/search_ajax_datagrid/xlsx",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/lcr/search_ajax_datagrid/csv",
+                                    sButtonClass: "save-collection btn-sm"
                                 }
                             ]
                         },

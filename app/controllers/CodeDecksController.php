@@ -208,7 +208,7 @@ class CodeDecksController extends \BaseController {
     }
 
 
-    public function exports() {
+    public function exports($type) {
             $companyID = User::get_companyID();
 
             $data = Input::all();
@@ -224,14 +224,16 @@ class CodeDecksController extends \BaseController {
             $codedecks  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($codedecks);
-            /*Excel::create('Code Decks', function ($excel) use ($codedecks) {
-                $excel->sheet('Code Decks', function ($sheet) use ($codedecks) {
-                    $sheet->fromArray($codedecks);
-                });
-            })->download('xls');*/
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($codedecks);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($codedecks);
+            }
+
     }
 
     public function delete($id){
@@ -433,14 +435,24 @@ class CodeDecksController extends \BaseController {
             }
         }
     }
-    public function base_exports() {
+    public function base_exports($type) {
             $CompanyID = User::get_companyID();
             $codedecks = BaseCodeDeck::where(["CompanyId" => $CompanyID])->get(["CodeDeckName","updated_at","ModifiedBy"]);
 
-            Excel::create('Code Decks', function ($excel) use ($codedecks) {
+            $excel_data = json_decode(json_encode($codedecks),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Code Decks', function ($excel) use ($codedecks) {
                 $excel->sheet('Code Decks', function ($sheet) use ($codedecks) {
                     $sheet->fromArray($codedecks);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 }

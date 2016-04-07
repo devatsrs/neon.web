@@ -8,7 +8,7 @@ class AccountsController extends \BaseController {
         $this->countries = Country::getCountryDropdownList();
     }
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $CompanyID = User::get_companyID();
         $data = Input::all();
         $data['iDisplayStart'] +=1;
@@ -31,11 +31,21 @@ class AccountsController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Accounts', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Accounts.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Accounts', function ($excel) use ($excel_data) {
                 $excel->sheet('Accounts', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 
@@ -485,7 +495,7 @@ class AccountsController extends \BaseController {
         }
     }
 
-    public function ajax_datagrid_sheet() {
+    public function ajax_datagrid_sheet($type) {
             $data = Input::all();
 
             $columns = array('AccountName', 'Trunk', 'EffectiveDate');
@@ -508,11 +518,20 @@ class AccountsController extends \BaseController {
                 $due_sheets = DB::select($query);
                 DB::setFetchMode(Config::get('database.fetch'));
 
-                Excel::create('Recent Due Sheet', function ($excel) use ($due_sheets) {
+                if($type=='csv'){
+                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.csv';
+                    $NeonExcel = new NeonExcelIO($file_path);
+                    $NeonExcel->download_csv($due_sheets);
+                }elseif($type=='xlsx'){
+                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xlsx';
+                    $NeonExcel = new NeonExcelIO($file_path);
+                    $NeonExcel->download_excel($due_sheets);
+                }
+                /*Excel::create('Recent Due Sheet', function ($excel) use ($due_sheets) {
                     $excel->sheet('Recent Due Sheet', function ($sheet) use ($due_sheets) {
                         $sheet->fromArray($due_sheets);
                     });
-                })->download('xls');
+                })->download('xls');*/
             }
 
             return DataTableSql::of($query)->make();

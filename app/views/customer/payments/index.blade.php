@@ -95,7 +95,7 @@
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
-                            "sAjaxSource": baseurl + "/customer/payments/ajax_datagrid",
+                            "sAjaxSource": baseurl + "/customer/payments/ajax_datagrid/type",
                             "fnServerParams": function (aoData) {
                                 aoData.push({"name": "AccountID", "value": $searchFilter.AccountID}, {
                                     "name": "InvoiceNo",
@@ -207,9 +207,15 @@
                                 "aButtons": [
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "Export Data",
-                                        "sUrl": baseurl + "/customer/payments/ajax_datagrid", //baseurl + "/generate_xls.php",
-                                        sButtonClass: "save-collection"
+                                        "sButtonText": "EXCEL",
+                                        "sUrl": baseurl + "/customer/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                                        sButtonClass: "save-collection btn-sm"
+                                    },
+                                    {
+                                        "sExtends": "download",
+                                        "sButtonText": "CSV",
+                                        "sUrl": baseurl + "/customer/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                        sButtonClass: "save-collection btn-sm"
                                     }
                                 ]
                             },

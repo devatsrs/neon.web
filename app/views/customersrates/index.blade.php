@@ -224,7 +224,7 @@
                                 "bDestroy": true, // Destroy when resubmit form
                                 "bProcessing": true,
                                 "bServerSide": true,
-                                "sAjaxSource": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid",
+                                "sAjaxSource": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid/type",
                                 "fnServerParams": function(aoData) {
                                     aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter});
                                     data_table_extra_params.length = 0;
@@ -308,9 +308,15 @@
                                             "aButtons": [
                                                 {
                                                     "sExtends": "download",
-                                                    "sButtonText": "Export Data",
-                                                    "sUrl": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid",
-                                                    sButtonClass: "save-collection"
+                                                    "sButtonText": "EXCEL",
+                                                    "sUrl": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid/xlsx",
+                                                    sButtonClass: "save-collection btn-sm"
+                                                },
+                                                {
+                                                    "sExtends": "download",
+                                                    "sButtonText": "CSV",
+                                                    "sUrl": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid/csv",
+                                                    sButtonClass: "save-collection btn-sm"
                                                 }
                                             ]
                                         },
