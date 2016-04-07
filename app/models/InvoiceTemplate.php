@@ -47,7 +47,7 @@ class InvoiceTemplate extends \Eloquent {
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
         $NewInvoiceNumber =  (($InvoiceTemplate->LastInvoiceNumber > 0)?($InvoiceTemplate->LastInvoiceNumber + 1):$InvoiceTemplate->InvoiceStartNumber);
         $CompanyID = User::get_companyID();
-        while(Invoice::where(["InvoiceNumber"=> $NewInvoiceNumber,'CompanyID'=>$CompanyID])->count() ==1){
+        while(Invoice::where(["InvoiceNumber"=> $NewInvoiceNumber,'CompanyID'=>$CompanyID])->count()>0){
             $NewInvoiceNumber++;
         }
         return $NewInvoiceNumber;
@@ -74,7 +74,7 @@ class InvoiceTemplate extends \Eloquent {
         $NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->LastEstimateNumber);
         $CompanyID = User::get_companyID();
         
-		while(Estimate::where(["EstimateNumber"=> $NewEstimateNumber,'CompanyID'=>$CompanyID])->count() ==1)
+		while(Estimate::where(["EstimateNumber"=> $NewEstimateNumber,'CompanyID'=>$CompanyID])->count()>0)
 		{
             $NewEstimateNumber++;
         }

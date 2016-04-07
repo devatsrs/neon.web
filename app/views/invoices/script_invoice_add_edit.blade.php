@@ -219,12 +219,12 @@ $(document).ready(function(){
             }
         });
 
-        $('#InvoiceTable tbody tr td .Discount').each(function(i, el){
+      /*  $('#InvoiceTable tbody tr td .Discount').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
                 total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
             }
-        });
+        });*/
 
        /* $('#InvoiceTable tbody tr td .TaxRateID').each(function(i, el){
             var $this = $(el);
@@ -244,7 +244,7 @@ $(document).ready(function(){
         $('input[name=TotalTax]').val(total_tax.toFixed(decimal_places));
         total = eval(grand_total + total_tax).toFixed(decimal_places);
 
-        $('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
+        //$('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
         $('input[name=GrandTotal]').val(total);
 
       //  $(".product_tax_title").text(taxTitle);
@@ -258,7 +258,8 @@ $(document).ready(function(){
         //decimal_places = get_decimal_places(price);
 
         var qty = parseInt(obj.find(".Qty").val());
-        var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
+        //var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
+		var discount = 0;
         var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
         var tax = parseFloat( (price * qty * taxAmount)/100 );
         obj.find('.TaxAmount').val(tax.toFixed(decimal_places));
