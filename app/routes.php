@@ -175,7 +175,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_statement', 'AccountStatementController@index');
 	Route::any('account_statement/payment', 'AccountStatementController@getPayment');
 	Route::any('account_statement/ajax_datagrid', 'AccountStatementController@ajax_datagrid');
-	Route::any('account_statement/exports', 'AccountStatementController@exports');
+	Route::any('account_statement/exports/{type}', 'AccountStatementController@exports');
 
     //EmailTemplate
 
