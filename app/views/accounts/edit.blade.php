@@ -815,8 +815,6 @@
 
             @if ($account->VerificationStatus == Account::NOT_VERIFIED)
                 $(".btn-toolbar .btn").first().button("toggle");
-            @elseif ($account->VerificationStatus == Account::PENDING_VERIFICATION)
-                $(".btn-toolbar .btn").first().next().button("toggle");
             @elseif ($account->VerificationStatus == Account::VERIFIED)
                 $(".btn-toolbar .btn").last().button("toggle");
             @endif

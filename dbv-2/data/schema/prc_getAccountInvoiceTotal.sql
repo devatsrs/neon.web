@@ -6,14 +6,14 @@ BEGIN
 
 	
 	SELECT BillingTime INTO v_BillingTime_
-	FROM Ratemanagement3.tblCompanyGateway cg
+	FROM LocalRatemanagement.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE AccountID = p_AccountID AND (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
 	LIMIT 1;
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,''); 
+	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
 	
 	IF p_checkDuplicate = 1 THEN
 	

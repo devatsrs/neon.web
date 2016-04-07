@@ -52,10 +52,11 @@ $(document).ready(function(){
         $.post( _url, post_data, callback, "json");
     }
 
-    $("#EstimateTable").delegate( '.product_dropdown' ,'change',function (e) {
+    $("#EstimateTable").delegate( '.product_dropdown' ,'change',function (e) {		
         var $this = $(this);
         var $row = $this.parents("tr");
-        //console.log($this.val());
+        console.log($row);
+		//alert($row);
         var productID = $this.val();
         var AccountID = $('select[name=AccountID]').val();
         var EstimateDetailID = $row.find('.EstimateDetailID').val();
@@ -215,18 +216,18 @@ $(document).ready(function(){
             }
         });
 	
-        $('#EstimateTable tbody tr td .Discount').each(function(i, el){
+       /* $('#EstimateTable tbody tr td .Discount').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
                 total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
             }
-        });
+        });*/
 
         $('input[name=SubTotal]').val(grand_total.toFixed(decimal_places));
         $('input[name=TotalTax]').val(total_tax.toFixed(decimal_places));
         total = eval(grand_total + total_tax).toFixed(decimal_places);
 
-        $('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
+        //$('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
         $('input[name=GrandTotal]').val(total);
 
     }
@@ -237,7 +238,8 @@ $(document).ready(function(){
         //decimal_places = get_decimal_places(price);
 
         var qty = parseInt(obj.find(".Qty").val());
-        var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
+       // var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
+	 var  discount = 0;
         var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
         var tax = parseFloat( (price * qty * taxAmount)/100 );
         obj.find('.TaxAmount').val(tax.toFixed(decimal_places));

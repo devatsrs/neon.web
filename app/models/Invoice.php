@@ -63,6 +63,13 @@ class Invoice extends \Eloquent {
          * Assumption : If Billing Cycle is 7 Days then Usage and Subscription both will be 7 Days and same for Monthly and other billing cycles..
         * */
 
+        //set company billing timezone
+        $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
+
+        if($BillingTimezone != 'Invalid Key'){
+            date_default_timezone_set($BillingTimezone);
+        }
+
         $Account = Account::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
         $BillingCycle = Account::select(["BillingCycleType","BillingCycleValue"])->where("AccountID",$AccountID)->first()->toArray();
@@ -79,12 +86,6 @@ class Invoice extends \Eloquent {
         }
 
         if(isset($BillingCycle['BillingCycleType'])) {
-
-            $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
-
-            if($BillingTimezone != 'Invalid Key'){
-                date_default_timezone_set($BillingTimezone);
-            }
 
             switch ($BillingCycle['BillingCycleType']) {
                 case 'weekly':
@@ -136,7 +137,11 @@ class Invoice extends \Eloquent {
                     break;
             }
 
-            date_default_timezone_set(Config::get("app.timezone"));
+            $Timezone = Company::getCompanyTimeZone(0);
+            if(isset($Timezone) && $Timezone != ''){
+                date_default_timezone_set($Timezone);
+            }
+
         }
 
         return $NextInvoiceDate;
@@ -153,14 +158,14 @@ class Invoice extends \Eloquent {
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
-                $as3url =  base_path().'/public/assets/images/250x100.png';
+                $as3url =  public_path("/assets/images/250x100.png");
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
             chmod(getenv('UPLOAD_PATH'),0777);
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
-
             file_put_contents($logo, file_get_contents($as3url));
+            chmod($logo,0777);
 
             $InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
             $file_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.pdf';
@@ -174,18 +179,22 @@ class Invoice extends \Eloquent {
             $footer = htmlspecialchars_decode($footer);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name;
+
             $local_htmlfile = $destination_dir .  $htmlfile_name;
             file_put_contents($local_htmlfile,$body);
+            chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
             $footer_html = $destination_dir.$footer_name;
             file_put_contents($footer_html,$footer);
+            chmod($footer_html,0777);
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
@@ -195,6 +204,7 @@ class Invoice extends \Eloquent {
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
                 Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
+            @chmod($local_file,0777);
             Log::info($output);
             @unlink($local_htmlfile);
             @unlink($footer_html);

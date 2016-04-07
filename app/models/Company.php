@@ -176,4 +176,12 @@ class Company extends \Eloquent {
         }
         return $LicenceApiResponse;
     }
+
+    public static function getCompanyTimeZone($companyID=0){
+            if($companyID>0){
+                return Company::find($companyID)->TimeZone;
+            }else{
+                return Company::find(User::get_companyID())->TimeZone;
+            }
+    }
 }
