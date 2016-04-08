@@ -10,7 +10,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
  	select te.CompanyID,
 	 		 te.AccountID,
 			 te.Address,
-			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,
+			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,			  
 			 te.IssueDate,
 			 te.CurrencyID,
 			 te.PONumber,
@@ -37,7 +37,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
 			NOW() as updated_at,
 			1 as ItemInvoice,
 			te.FooterTerm,
-			te.EstimateID			
+			te.EstimateID
 			from tblEstimate te		
 			where
 			(p_convert_all=0 and te.EstimateID = p_EstimateID)
