@@ -81,6 +81,7 @@ table{
             </thead>
             <tbody>
             @foreach($EstimateDetail as $ProductRow)
+         	  <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
             @if($ProductRow->ProductType == Product::ITEM)
             <tr>
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
@@ -117,10 +118,12 @@ table{
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
+                                                        <?php if(isset($TaxrateName)){ ?>
                                                         <tr>
-                                                                <td class="text-right"><strong>Tax</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
+         													 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
+                                                        <?php } ?>
                                                         @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
@@ -146,6 +149,5 @@ table{
         </div>
 
     <br />
-
 
  @stop
