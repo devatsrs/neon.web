@@ -51,6 +51,7 @@ class EstimatesController extends \BaseController {
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
+        $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
 		
         $query = "call prc_getEstimate (".$companyID.",".intval($data['AccountID']).",'".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
 		
