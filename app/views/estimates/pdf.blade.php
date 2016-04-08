@@ -118,12 +118,12 @@ table{
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
-                                                        @if($Estimate->TotalTax>0)
+                                                        <?php if(isset($TaxrateName)){ ?>
                                                         <tr>
                                                                 <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
          													 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
                                                         </tr>
-                                                        @endif
+                                                        <?php } ?>
                                                         @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
