@@ -59,23 +59,21 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Opportunity Name</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     <input class="form-control" name="opportunityName"  type="text" >
                                 </div>
                                 @if(User::is_admin())
                                     <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-2">
                                         {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                                     </div>
                                 @endif
                                 <label for="field-1" class="col-sm-1 control-label">Company</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     {{Form::select('AccountID',$leadOrAccount,Input::get('AccountID'),array("class"=>"select2"))}}
                                 </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Tags</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     <input class="form-control opportunitytags" name="Tags" type="text" >
                                 </div>
                             </div>
