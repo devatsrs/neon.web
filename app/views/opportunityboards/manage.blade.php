@@ -96,8 +96,8 @@
             </a>
         </p>
 
-        <section class="deals-board">
-            <div id="board-start" class="board scroller" style="height: 500px;overflow: auto !important;">
+        <section class="deals-board row">
+            <div id="board-start" class="board scroller" style="height: 600px;overflow: auto !important;">
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
