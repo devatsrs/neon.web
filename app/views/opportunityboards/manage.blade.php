@@ -132,6 +132,15 @@
             ];
             var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
             var BoardID = "{{$BoardID}}";
+            var board = $('#board-start');
+            var nicescroll_default = {cursorcolor:'#d4d4d4',cursoropacitymax:0.7,oneaxismousemode:false,cursorcolor: '#d4d4d4',
+                cursorborder: '1px solid #ccc',
+                railpadding: {right: 3},
+                cursorborderradius: 1,
+                autohidemode: true,
+                sensitiverail: true};
+            board.niceScroll(nicescroll_default);
+
             getOpportunities();
 
             $('#search-opportunity-filter').submit(function(e){
@@ -313,7 +322,6 @@
             });*/
 
             function initEnhancement(){
-                var board = $('#board-start');
                 /*var height = board.find('ul.board-inner li:first-child').height();
                 var width = board.find('.board-inner').width();
                 board.height(height+230);
@@ -338,14 +346,6 @@
                 };
 
                 board.find('.board-column-list').niceScroll(nicescroll_defaults);
-
-                var nicescroll_default = {cursorcolor:'#d4d4d4',cursoropacitymax:0.7,oneaxismousemode:false,cursorcolor: '#d4d4d4',
-                    cursorborder: '1px solid #ccc',
-                    railpadding: {right: 3},
-                    cursorborderradius: 1,
-                    autohidemode: true,
-                    sensitiverail: true};
-                board.niceScroll(nicescroll_default);
             }
             function initSortable(){
                 // Code using $ as usual goes here.
@@ -393,7 +393,7 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#board-start').html(response);
+                        board.html(response);
                         initEnhancement();
                         initSortable();
                         initToolTip();
