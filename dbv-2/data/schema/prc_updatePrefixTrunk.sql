@@ -6,7 +6,8 @@ BEGIN
 	set @stm6 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
 	 SET ud.trunk = "Other",ud.area_prefix = "Other"
     WHERE 
-    	  ud.processId = "' , p_processId , '";
+    	  ud.processId = "' , p_processId , '" 
+			AND ud.is_inbound = 0;
     ');
 
     PREPARE stmt6 FROM @stm6;
@@ -22,10 +23,11 @@ BEGIN
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
 	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
-    ud.processId = "' , p_processId , '"
-    AND ud.CompanyID = "' , p_CompanyID , '"
+        ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.cost > 0);
+    AND ud.processId = "' , p_processId , '"
+    AND (ud.billed_duration >0 OR ud.cost > 0)
+	 AND ud.is_inbound = 0;
     ');
 
     PREPARE stmt1 FROM @stm1;
@@ -43,10 +45,11 @@ BEGIN
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
 	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
-    ud.processId = "' , p_processId , '"
-	 AND  ud.CompanyID = "' , p_CompanyID , '"
+	     ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
+    AND ud.processId = "' , p_processId , '"
     AND (ud.billed_duration >0 OR ud.cost > 0)
+    AND ud.is_inbound = 0
     AND t.Trunk IS NOT NULL;
     ');
 
@@ -79,12 +82,13 @@ BEGIN
         ON rtr.RateTableId = ct.RateTableID and ud.processId = "' , p_processId , '"
         AND rtr.EffectiveDate <= Now()
     LEFT JOIN LocalRatemanagement.tblRate r 
-        ON ( cr.RateID = r.RateID OR rtr.RateID = r.RateID) and ud.processId = "' , p_processId , '"
+        ON ( cr.RateID = r.RateID OR rtr.RateID = r.RateID) AND  ct.CodeDeckId = r.CodeDeckId and ud.processId = "' , p_processId , '"
     WHERE  
- 	 ud.processId = "' , p_processId , '"
-	 AND ud.CompanyID = "' , p_CompanyID , '"
+	     ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
+    AND ud.processId = "' , p_processId , '"
     AND (ud.billed_duration >0 OR ud.cost > 0)
+    AND ud.is_inbound = 0
     AND (
             (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
             or 
