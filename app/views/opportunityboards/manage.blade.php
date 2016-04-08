@@ -200,6 +200,7 @@
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="AccountID"]').val(accountID);
+                $('#add-opportunity-comments-form [name="AccountID"]').val(accountID);
                 $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
                 getComments();
                 getOpportunityAttachment();
