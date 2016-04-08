@@ -565,7 +565,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/invoice_change_Status', 'InvoicesController@invoice_change_Status');
 	Route::any('/invoice/{id}/download_usage', 'InvoicesController@downloadUsageFile');
     Route::any('/invoice_log/{id}', 'TransactionLogController@log');
-    Route::any('/invoice_log/ajax_datagrid/{id}', 'TransactionLogController@ajax_datagrid');
+    Route::any('/invoice_log/ajax_datagrid/{id}/{type}', 'TransactionLogController@ajax_datagrid');
     Route::any('/invoice_log/ajax_invoice_datagrid/{id}/{type}', 'TransactionLogController@ajax_invoice_datagrid');
     Route::any('/invoice/generate', 'InvoicesController@generate');
 	Route::any('/invoice/ajax_datagrid/{type}', 'InvoicesController@ajax_datagrid');
