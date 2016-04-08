@@ -13,15 +13,16 @@ BEGIN
 
          
             SELECT
+            	inv.InvoiceNumber,
                 `Transaction`,
-                tl.Notes,
-                tl.created_at,
+                tl.Notes,                
                 tl.Amount,
                 tl.Status,
-                inv.InvoiceID,
-                inv.InvoiceNumber
+                tl.created_at,
+                inv.InvoiceID
+                
             FROM tblInvoice inv
-            INNER JOIN Ratemanagement3.tblAccount ac
+            INNER JOIN LocalRatemanagement.tblAccount ac
                 ON ac.AccountID = inv.AccountID
             INNER JOIN tblTransactionLog tl
                 ON tl.InvoiceID = inv.InvoiceID
@@ -57,7 +58,7 @@ BEGIN
         SELECT
             COUNT(*) AS totalcount
         FROM tblInvoice inv
-        INNER JOIN Ratemanagement3.tblAccount ac
+        INNER JOIN LocalRatemanagement.tblAccount ac
             ON ac.AccountID = inv.AccountID
         INNER JOIN tblTransactionLog tl
             ON tl.InvoiceID = inv.InvoiceID
@@ -76,6 +77,7 @@ BEGIN
     THEN
 
         SELECT
+            inv.InvoiceNumber,
 				`Transaction`,
             tl.Notes,
             tl.created_at,
@@ -83,7 +85,7 @@ BEGIN
             tl.Status,
             inv.InvoiceID
         FROM tblInvoice inv
-        INNER JOIN Ratemanagement3.tblAccount ac
+        INNER JOIN LocalRatemanagement.tblAccount ac
             ON ac.AccountID = inv.AccountID
         INNER JOIN tblTransactionLog tl
             ON tl.InvoiceID = inv.InvoiceID

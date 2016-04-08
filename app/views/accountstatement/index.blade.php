@@ -60,11 +60,14 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <div style="width:95px;" class="input-group-btn pull-right">
+                    <div style="width:150px;" class="input-group-btn pull-right">
                         <div class="export-data">
                             <div class="DTTT btn-group">
                                 <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_0">
-                                    <undefined>Export Data</undefined>
+                                    <undefined>EXCEL</undefined>
+                                </a>
+                                <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_1">
+                                    <undefined>CSV</undefined>
                                 </a>
                             </div>
                         </div>
@@ -132,6 +135,7 @@
                         }
                         $('#table-4_processing').show();
                         $('#ToolTables_table-4_0').hide();
+                        $('#ToolTables_table-4_1').hide();
                         $.ajax({
                             url: baseurl+'/account_statement/ajax_datagrid',
                             data: {
@@ -257,6 +261,7 @@
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();
+                                $('#ToolTables_table-4_1').show();
                             },
                             type: 'GET'
                         });
@@ -266,7 +271,15 @@
                         var AccountID = $('#account-statement-search [name="AccountID"]').val();
                         var StartDate = $("#account-statement-search [name='StartDate']").val();
                         var EndDate =  $("#account-statement-search [name='EndDate']").val();
-                        var url = baseurl + '/account_statement/exports?AccountID='+AccountID+"&StartDate="+StartDate+"&EndDate="+EndDate;
+                        var url = baseurl + '/account_statement/exports/xlsx?AccountID='+AccountID+"&StartDate="+StartDate+"&EndDate="+EndDate;
+                        $( "#RemotingIFrame" ).contents().find("form").attr('action',url);
+                        window.open(url, "RemotingIFrame");
+                    });
+                    $('#ToolTables_table-4_1').click(function(){
+                        var AccountID = $('#account-statement-search [name="AccountID"]').val();
+                        var StartDate = $("#account-statement-search [name='StartDate']").val();
+                        var EndDate =  $("#account-statement-search [name='EndDate']").val();
+                        var url = baseurl + '/account_statement/exports/csv?AccountID='+AccountID+"&StartDate="+StartDate+"&EndDate="+EndDate;
                         $( "#RemotingIFrame" ).contents().find("form").attr('action',url);
                         window.open(url, "RemotingIFrame");
                     });
