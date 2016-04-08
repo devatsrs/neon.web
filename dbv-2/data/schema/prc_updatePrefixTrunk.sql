@@ -57,7 +57,8 @@ BEGIN
    DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetail_(
 			TempUsageDetailID int,
-			prefix varchar(50)
+			prefix varchar(50),
+			INDEX tmp_TempUsageDetail_ID (`TempUsageDetailID`)
 	);
 	
 	
