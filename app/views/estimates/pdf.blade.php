@@ -131,7 +131,7 @@ table{
                                                         </tr>
                                                         @endif
                                                         <tr>
-                                                                <td class="text-right"><strong>Estimate Total ({{$CurrencyCode}})</strong></td>
+                                                                <td class="text-right"><strong>Estimate Total</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$Account->RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
