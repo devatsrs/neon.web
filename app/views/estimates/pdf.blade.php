@@ -81,7 +81,7 @@ table{
             </thead>
             <tbody>
             @foreach($EstimateDetail as $ProductRow)
-            <?php $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID) ?>
+         	  <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
             @if($ProductRow->ProductType == Product::ITEM)
             <tr>
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
