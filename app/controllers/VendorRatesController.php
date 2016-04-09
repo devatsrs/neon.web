@@ -518,31 +518,38 @@ class VendorRatesController extends \BaseController
         }
         $company_id = User::get_companyID();
         $username = User::get_user_full_name();
+
         if($data['Action'] == 'bulk'){
             $data['Country'] = $data['Country']!= 'All'?$data['Country']:'null';
             $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
-            $data['Description'] = empty($data['Description'])?"'".$data['Description']."'":'null';
-            $exceldatas  = DB::select("call prc_GetVendorPreference( ".$company_id.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'','','','',2);");
+            $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
+            /*$exceldatas  = DB::select("call prc_GetVendorPreference( ".$company_id.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",0,0,'','',2)");
             $exceldatas = json_decode(json_encode($exceldatas),true);
             $RateID='';
             foreach($exceldatas as $exceldata){
                 $RateID.= $exceldata['RateID'].',';
             }
-            $RateID = rtrim($RateID,',');
+            $RateID = rtrim($RateID,',');*/
+            try{
+                DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','',".$data['Trunk'].",".$data['Preference'].",'".$username."',".$data['Country'].",".$data['Code'].",".$data['Description'].",1)");
+                return Response::json(array("status" => "success", "message" => "Vendor Preference Updated Successfully"));
+            }catch ( Exception $ex ){
+                return Response::json(array("status" => "failed", "message" => "Error Updating Vendor Preference."));
+            }
         }else{
             $RateID = $data['RateID'];
-        }
-        if(!empty($RateID)){
-            try{
-                    DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Preference'].",'".$username."')");
+            if(!empty($RateID)){
+                try{
+                    DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Preference'].",'".$username."',null,null,null,0)");
                     return Response::json(array("status" => "success", "message" => "Vendor Preference Updated Successfully"));
-            }catch ( Exception $ex ){
+                }catch ( Exception $ex ){
                     return Response::json(array("status" => "failed", "message" => "Error Updating Vendor Preference."));
+                }
+
+            }else{
+
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Preference."));
             }
-
-        }else{
-
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Preference."));
         }
 
     }

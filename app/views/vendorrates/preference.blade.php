@@ -313,7 +313,7 @@ jQuery(document).ready(function($) {
         if($('#selectallbutton').is(':checked')){
         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
             criteria = JSON.stringify($searchFilter);
-            if(criteria=''){
+            if(criteria==''){
                 return false;
             }
         }
