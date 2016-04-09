@@ -476,7 +476,7 @@ class VendorRatesController extends \BaseController
             $countries = $this->countries;
             return View::make('vendorrates.preference', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
     }
-    public function search_ajax_datagrid_preference($id) {
+    public function search_ajax_datagrid_preference($id,$type) {
 
 
         $data = Input::all();
@@ -494,11 +494,17 @@ class VendorRatesController extends \BaseController
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Vendor Preference', function ($excel) use ($excel_data) {
-                $excel->sheet('Vendor Preference', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Preference.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Preference.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
         }
         $query .=',0)';
         return DataTableSql::of($query)->make();

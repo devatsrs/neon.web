@@ -290,7 +290,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/bulk_update/{id}', array('as' => 'vendor_rates_bulk_update', 'uses' => 'VendorRatesController@bulk_update'));
 	Route::any('/vendor_rates/bulk_update_new/{id}', array('as' => 'vendor_rates_bulk_update_new', 'uses' => 'VendorRatesController@bulk_update_new'));
 	Route::any('/vendor_rates/vendor_preference/{id}', 'VendorRatesController@vendor_preference');
-	Route::any('/vendor_rates/{id}/search_ajax_datagrid_preference', 'VendorRatesController@search_ajax_datagrid_preference');
+	Route::any('/vendor_rates/{id}/search_ajax_datagrid_preference/{type}', 'VendorRatesController@search_ajax_datagrid_preference');
 	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
     Route::any('/vendor_rates/{id}/check_upload', 'VendorRatesController@check_upload');
     Route::any('/vendor_rates/{id}/ajaxfilegrid', 'VendorRatesController@ajaxfilegrid');
