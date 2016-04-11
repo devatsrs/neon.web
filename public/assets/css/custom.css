@@ -965,6 +965,7 @@ button.close {
 }
 .count-cards .bottom .badge{
     margin:3px 3px 0 0;
+    min-width: 30px;
 }
 .input-group{
     top:-5px;
