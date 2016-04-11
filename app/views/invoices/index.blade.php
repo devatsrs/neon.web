@@ -206,7 +206,7 @@ var postdata;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -214,7 +214,7 @@ var postdata;
              "fnServerParams": function(aoData) {
                 aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
             },
              "aoColumns":
             [
@@ -359,9 +359,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/invoice/ajax_datagrid", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/csv", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },
@@ -470,7 +476,7 @@ var postdata;
 			"bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",

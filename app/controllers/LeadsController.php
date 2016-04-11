@@ -327,7 +327,7 @@ class LeadsController extends \BaseController {
     }
 
 
-    public function exports()
+    public function exports($type)
     {
             $companyID = User::get_companyID();
             $userID = User::get_userID();
@@ -341,11 +341,22 @@ class LeadsController extends \BaseController {
                     $accounts = Account::where(["Status" => 0, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName",DB::raw('CONCAT(FirstName,LastName) as Name'), "Phone", "Email"]);
                 }
             }
-            Excel::create('Leads', function ($excel) use ($accounts) {
+            $excel_data = json_decode(json_encode($accounts),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Leads.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Leads.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Leads', function ($excel) use ($accounts) {
                 $excel->sheet('Leads', function ($sheet) use ($accounts) {
                     $sheet->fromArray($accounts);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
     public function bulk_mail(){

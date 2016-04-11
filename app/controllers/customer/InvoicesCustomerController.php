@@ -2,7 +2,7 @@
 
 class InvoicesCustomerController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
@@ -18,11 +18,22 @@ class InvoicesCustomerController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Invoice', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Invoice', function ($excel) use ($excel_data) {
                 $excel->sheet('Invoice', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0,0,0,"")';
         return DataTableSql::of($query,'sqlsrv2')->make();

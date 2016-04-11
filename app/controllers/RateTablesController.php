@@ -281,7 +281,7 @@ class RateTablesController extends \BaseController {
         }
     }
     
-    public function exports() {
+    public function exports($type) {
             $CompanyID = User::get_companyID();
             $rate_tables = RateTable::where(["CompanyId" => $CompanyID])->orderBy("RateTableId", "desc");
             $data = Input::all();
@@ -289,14 +289,27 @@ class RateTablesController extends \BaseController {
                 $rate_tables->where('TrunkID',$data['TrunkID']);
             }
             $rate_tables = $rate_tables->get(["RateTableName"]);
+
+            $excel_data = json_decode(json_encode($rate_tables),true);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*
             Excel::create('Rates Table', function ($excel) use ($rate_tables) {
                 $excel->sheet('Rates Table', function ($sheet) use ($rate_tables) {
                     $sheet->fromArray($rate_tables);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
     
-    public function rate_exports($id) {
+    public function rate_exports($id,$type) {
             $companyID = User::get_companyID();
             $data = Input::all();
             $RateTableName = RateTable::find($id)->RateTableName;
@@ -307,9 +320,16 @@ class RateTablesController extends \BaseController {
             DB::setFetchMode( Config::get('database.fetch'));
 
             $RateTableName = str_replace( '\/','-',$RateTableName);
-            $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xlsx';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($rate_table_rates);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($rate_table_rates);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($rate_table_rates);
+            }
             /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
                 $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
                     $sheet->fromArray($rate_table_rates);

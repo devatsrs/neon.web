@@ -11,7 +11,7 @@ class ProductsController extends \BaseController {
 
 	  */
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
@@ -21,11 +21,20 @@ class ProductsController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Item', function ($excel) use ($excel_data) {
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Item.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Item.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Item', function ($excel) use ($excel_data) {
                 $excel->sheet('Item', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();

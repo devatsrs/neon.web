@@ -198,9 +198,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/codedecks/exports", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/codedecks/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/codedecks/exports/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },

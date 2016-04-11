@@ -1,7 +1,7 @@
 <?php
 
 class CronJobController extends \BaseController {
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
@@ -12,11 +12,15 @@ class CronJobController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Cron Job', function ($excel) use ($excel_data) {
-                $excel->sheet('Cron Job', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
         }
         $query .=',0)';
 
@@ -197,7 +201,7 @@ class CronJobController extends \BaseController {
     public function history($id){
         return View::make('cronjob.history', compact('id'));
     }
-    public function history_ajax_datagrid($id) {
+    public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data = Input::all();
@@ -207,16 +211,20 @@ class CronJobController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetCronJobHistory (".$id.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
-
-
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Cron Job History', function ($excel) use ($excel_data) {
-                $excel->sheet('Cron Job History', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
         }
         $query .=',0)';
 

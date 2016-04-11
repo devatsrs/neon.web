@@ -3,7 +3,7 @@
 class PaymentsController extends \BaseController {
 
 
-    public function ajax_datagrid()
+    public function ajax_datagrid($type)
 	{
         $data 							 = 		Input::all();
         $CompanyID 						 = 		User::get_companyID();
@@ -42,11 +42,15 @@ class PaymentsController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Payment', function ($excel) use ($excel_data) {
-                $excel->sheet('Payment', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Payment.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Payment.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
         }
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();

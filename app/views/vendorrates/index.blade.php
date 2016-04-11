@@ -250,9 +250,15 @@ jQuery(document).ready(function($) {
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports",
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },

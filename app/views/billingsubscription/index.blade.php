@@ -101,7 +101,7 @@ jQuery(document).ready(function ($) {
         "bDestroy": true,
         "bProcessing":true,
         "bServerSide":true,
-        "sAjaxSource": baseurl + "/billing_subscription/ajax_datagrid",
+        "sAjaxSource": baseurl + "/billing_subscription/ajax_datagrid/type",
         "iDisplayLength": '{{Config::get('app.pageSize')}}',
         "sPaginationType": "bootstrap",
         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -141,8 +141,14 @@ jQuery(document).ready(function ($) {
             "aButtons": [
                 {
                     "sExtends": "download",
-                    "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/billing_subscription/ajax_datagrid", //baseurl + "/generate_xls.php",
+                    "sButtonText": "EXCEL",
+                    "sUrl": baseurl + "/billing_subscription/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                    sButtonClass: "save-collection"
+                },
+                {
+                    "sExtends": "download",
+                    "sButtonText": "CSV",
+                    "sUrl": baseurl + "/billing_subscription/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                     sButtonClass: "save-collection"
                 }
             ]

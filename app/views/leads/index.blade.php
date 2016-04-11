@@ -228,9 +228,15 @@
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/leads/exports",
-                            sButtonClass: "save-collection"
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/leads/exports/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/leads/exports/csv",
+                            sButtonClass: "save-collection btn-sm"
                         }
                     ]
                 },

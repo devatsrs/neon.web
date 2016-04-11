@@ -179,7 +179,7 @@ class CDRController extends BaseController {
         }
         return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr'));
     }
-    public function ajax_datagrid(){
+    public function ajax_datagrid($type){
         $data						 =   Input::all();
         $data['iDisplayStart'] 		+=	 1;
         $companyID 					 =	 User::get_companyID();
@@ -194,9 +194,15 @@ class CDRController extends BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
-            $file_path = getenv('UPLOAD_PATH') .'/CDR.xlsx';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($excel_data);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/CDR.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/CDR.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
 
             /*Excel::create('CDR', function ($excel) use ($excel_data) {
                 $excel->sheet('CDR', function ($sheet) use ($excel_data) {
@@ -415,7 +421,7 @@ class CDRController extends BaseController {
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         return View::make('cdrupload.vendorcdr',compact('gateway'));
     }
-    public function ajax_datagrid_vendorcdr(){ 
+    public function ajax_datagrid_vendorcdr($type){
         $data 							 =   Input::all();
         $data['iDisplayStart'] 			+=	 1;
         $companyID 						 = 	 User::get_companyID();
@@ -429,10 +435,15 @@ class CDRController extends BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
-            $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xlsx';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($excel_data);
-
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
             /*Excel::create('Vendor CDR', function ($excel) use ($excel_data) {
                 $excel->sheet('Vendor CDR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);

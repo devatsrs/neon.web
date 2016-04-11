@@ -216,7 +216,7 @@
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
-                        "sAjaxSource": baseurl + "/payments/ajax_datagrid",
+                        "sAjaxSource": baseurl + "/payments/ajax_datagrid/type",
                         "fnServerParams": function (aoData) {
                             aoData.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
@@ -343,8 +343,14 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/payments/ajax_datagrid", //baseurl + "/generate_xls.php",
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                                    sButtonClass: "save-collection"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                     sButtonClass: "save-collection"
                                 }
                             ]

@@ -164,7 +164,7 @@ jQuery(document).ready(function($) {
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference",
+            "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/type",
             "fnServerParams": function(aoData) {
                 aoData.push( {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
                 data_table_extra_params.length = 0;
@@ -204,9 +204,15 @@ jQuery(document).ready(function($) {
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference",
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },
@@ -307,7 +313,7 @@ jQuery(document).ready(function($) {
         if($('#selectallbutton').is(':checked')){
         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
             criteria = JSON.stringify($searchFilter);
-            if(criteria=''){
+            if(criteria==''){
                 return false;
             }
         }

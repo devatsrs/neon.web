@@ -1,15 +1,16 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_Convert_Invoices_to_Estimates`(IN `p_CompanyID` INT, IN `p_AccountID` VARCHAR(50), IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_EstimateID` VARCHAR(50), IN `p_convert_all` INT)
 BEGIN
 	DECLARE estimate_ids int;
+	DECLARE note_text varchar(50);
  SET sql_mode = 'ALLOW_INVALID_DATES';
-    
+ set note_text = 'Created From Estimate: ';
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 update tblInvoice  set EstimateID = '';
 INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,EstimateID)
  	select te.CompanyID,
 	 		 te.AccountID,
 			 te.Address,
-			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,
+			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,			  
 			 te.IssueDate,
 			 te.CurrencyID,
 			 te.PONumber,
@@ -36,7 +37,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
 			NOW() as updated_at,
 			1 as ItemInvoice,
 			te.FooterTerm,
-			te.EstimateID			
+			te.EstimateID
 			from tblEstimate te		
 			where
 			(p_convert_all=0 and te.EstimateID = p_EstimateID)
@@ -91,8 +92,10 @@ where
 			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus)));
 		
 insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
-select inv.InvoiceID,inv.Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
+select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
+INNER JOIN LocalRatemanagement.tblAccount ac ON ac.AccountID = inv.AccountID
+LEFT JOIN tblInvoiceTemplate it ON ac.InvoiceTemplateID = it.InvoiceTemplateID
 where
 			(p_convert_all=0 and ti.EstimateID = p_EstimateID)
 		OR	(p_EstimateID = '' and p_convert_all =1 and (ti.CompanyID = p_CompanyID)	

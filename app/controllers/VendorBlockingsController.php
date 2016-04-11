@@ -73,7 +73,7 @@ class VendorBlockingsController extends \BaseController {
             return View::make('vendorblockings.blockby_code', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
     }
 
-    public function blockbycountry_exports($id) {
+    public function blockbycountry_exports($id,$type) {
             $data = Input::all();
 
             $data['Country']=$data['Country']!= ''?$data['Country']:'null';
@@ -84,14 +84,24 @@ class VendorBlockingsController extends \BaseController {
             $vendor_blocking_by_country  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create('Vendor Blocked By Country', function ($excel) use ($vendor_blocking_by_country) {
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($vendor_blocking_by_country);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($vendor_blocking_by_country);
+            }
+
+            /*Excel::create('Vendor Blocked By Country', function ($excel) use ($vendor_blocking_by_country) {
                 $excel->sheet('Vendor Blocked By Country', function ($sheet) use ($vendor_blocking_by_country) {
                     $sheet->fromArray($vendor_blocking_by_country);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
-    public function blockbycode_exports($id) {
+    public function blockbycode_exports($id,$type) {
             $data = Input::all();
 
             $data['Country']=$data['Country']!= ''?$data['Country']:'null';
@@ -105,11 +115,21 @@ class VendorBlockingsController extends \BaseController {
             $vendor_blocking_by_code  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create('Vendor Blocked By Code', function ($excel) use ($vendor_blocking_by_code) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Code.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($vendor_blocking_by_code);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Code.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($vendor_blocking_by_code);
+            }
+            /*Excel::create('Vendor Blocked By Code', function ($excel) use ($vendor_blocking_by_code) {
                 $excel->sheet('Vendor Blocked By Code', function ($sheet) use ($vendor_blocking_by_code) {
                     $sheet->fromArray($vendor_blocking_by_code);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
     public function blockbycountry($id){

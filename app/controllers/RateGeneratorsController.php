@@ -557,7 +557,7 @@ class RateGeneratorsController extends \BaseController {
             }
         }
     }
-    public function exports() {
+    public function exports($type) {
             $companyID = User::get_companyID();
             $RateGenerators = RateGenerator::join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")->where(["tblRateGenerator.CompanyID" => $companyID])
                 ->orderBy("RateGeneratorID", "desc")
@@ -566,11 +566,16 @@ class RateGeneratorsController extends \BaseController {
                     'tblTrunk.Trunk',
                     'tblRateGenerator.Status',
                 ));
-            Excel::create('Rate Generator', function ($excel) use ($RateGenerators) {
-                $excel->sheet('Rate Generator', function ($sheet) use ($RateGenerators) {
-                    $sheet->fromArray($RateGenerators);
-                });
-            })->download('xls');
+            $excel_data = json_decode(json_encode($RateGenerators),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.xlsx';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
     }
 
     public function ajax_load_rate_table_dropdown(){

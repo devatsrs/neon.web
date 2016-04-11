@@ -148,7 +148,7 @@ var postdata;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/estimate/ajax_datagrid",
+            "sAjaxSource": baseurl + "/estimate/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -156,7 +156,7 @@ var postdata;
              "fnServerParams": function(aoData) {				
                 aoData.push({"name":"EstimateType","value":$searchFilter.EstimateType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"EstimateNumber","value":$searchFilter.EstimateNumber},{"name":"EstimateStatus","value":$searchFilter.EstimateStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"EstimateType","value":$searchFilter.EstimateType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"EstimateNumber","value":$searchFilter.EstimateNumber},{"name":"EstimateStatus","value":$searchFilter.EstimateStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"EstimateType","value":$searchFilter.EstimateType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"EstimateNumber","value":$searchFilter.EstimateNumber},{"name":"EstimateStatus","value":$searchFilter.EstimateStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
             },
              "aoColumns":
             [
@@ -298,9 +298,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/estimate/ajax_datagrid", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/estimate/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/estimate/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },
@@ -406,7 +412,7 @@ var postdata;
 			"bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/estimate/ajax_datagrid",
+            "sAjaxSource": baseurl + "/estimate/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
