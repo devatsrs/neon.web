@@ -184,20 +184,47 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function show($id) {
-
-            $account = Account::find($id);
-            $companyID = User::get_companyID();
-            $account_owner = User::find($account->Owner);
-            $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
-            $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-            $verificationflag = AccountApprovalList::isVerfiable($id);
-            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
-            $currency = Currency::getCurrencySymbol($account->CurrencyId);
-            $activity_type = AccountActivity::$activity_type;
-            $activity_status = [1 => 'Open', 2 => 'Closed'];
+		
+            $account 			= 	Account::find($id);
+            $companyID 			= 	User::get_companyID();
+            $account_owner 		= 	User::find($account->Owner);
+            $notes 				= 	Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
+            $contacts 			= 	Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+            $verificationflag 	= 	AccountApprovalList::isVerfiable($id);
+            $outstanding 		= 	Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $currency 			= 	Currency::getCurrencySymbol($account->CurrencyId);
+            $activity_type 		= 	AccountActivity::$activity_type;
+            $activity_status 	=	[1 => 'Open', 2 => 'Closed'];
+			
             return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
     }
+	
+	    public function show1($id) {
+		
+            $account 			= 	Account::find($id);
+            $companyID 			= 	User::get_companyID();
+            $account_owner 		= 	User::find($account->Owner);
+            $notes 				= 	Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
+            $contacts 			= 	Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+            $verificationflag 	= 	AccountApprovalList::isVerfiable($id);
+            $outstanding 		= 	Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $currency 			= 	Currency::getCurrencySymbol($account->CurrencyId);
+            $activity_type 		= 	AccountActivity::$activity_type;
+            $activity_status 	=	[1 => 'Open', 2 => 'Closed'];
 
+            $data['iDisplayStart'] 	   =	0;
+            $data['iDisplayStart'] 	  +=	1;
+            $data['iDisplayLength']    =    10;
+            $data['AccountID']         =    $id;
+
+            $PageNumber                =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
+            $RowsPerPage               =    $data['iDisplayLength'];
+            $response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
+
+            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response'));
+    }
+	
+	
     /**
      * Show the form for editing the specified resource.
      * GET /accounts/{id}/edit
@@ -350,52 +377,15 @@ class AccountsController extends \BaseController {
      * Add notes to account
      * */
     public function store_note($id) {
-        $data = Input::all();
-        //$account = Account::find($id);
-
-        $companyID = User::get_companyID();
-        $user_name = User::get_user_full_name();
-
-        $data['CompanyID'] = $companyID;
-        $data['AccountID'] = $id;
-        $data['created_by'] = $user_name;
-        $data["Note"] = nl2br($data["Note"]);
-
-        $rules = array(
-            'CompanyID' => 'required',
-            'AccountID' => 'required',
-            'Note' => 'required',
-        );
-
-        $validator = Validator::make($data, $rules);
-
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-        if (empty($data["NoteID"])) {
-            unset($data["NoteID"]);
-            $result = Note::create($data);
-            $NoteID = DB::getPdo()->lastInsertId();
-        } else {
-            unset($data['created_by']);
-            $data['updated_by'] = $user_name;
-            $result = Note::find($data["NoteID"]);
-            if(!empty($result)) {
-                $result->update($data);
-            }
-            $NoteID = $data["NoteID"];
-        }
-
-        if ($result) {
-            if (empty($data["NoteID"])) {
-                return Response::json(array("status" => "success", "message" => "Note Successfully Updated", "NoteID" => $NoteID, "Note" => $result));
-            }
-            return Response::json(array("status" => "success", "message" => "Note Successfully Updated", "update" => true, "NoteID" => $NoteID, "Note" => $result));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Note."));
-        }
+        $data 					= 	Input::all();
+        $companyID 				= 	User::get_companyID();
+        $user_name 				= 	User::get_user_full_name();
+        $data['CompanyID'] 		= 	$companyID;
+        $data['AccountID'] 		= 	$id;
+        $data['created_by'] 	=	$user_name;
+        $data["Note"] 			= 	nl2br($data["Note"]);		
+ 		$response 				= 	NeonAPI::request('account/add_note',$data);
+	    return json_response_api($response);
     }
 
     /**

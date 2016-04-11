@@ -39,15 +39,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                        <label for="field-1" class="col-sm-1 control-label">Company</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_name"  type="text" >
-                        </div>
-                        <label for="field-1" class="col-sm-1 control-label">Account Number</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" name="account_number" type="text"  >
-                        </div>
-                        <label class="col-sm-1 control-label">Contact Name</label>
+                        </div>            
+                        <label class="col-sm-2 control-label">Contact Name</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="contact_name" type="text" >
                         </div>

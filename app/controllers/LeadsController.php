@@ -10,12 +10,13 @@ class LeadsController extends \BaseController {
     }
 
     public function ajax_datagrid(){
-
+	
        $companyID = User::get_companyID();
        $userID = User::get_userID();
         $data = Input::all();
-        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'Address1','Address2','Address3','City','Country','Picture','tblAccount.PostCode'];
-        $leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
+        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
+        //$leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
+		$leads = Account::select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 
         if (User::is('AccountManager')) { // Account Manager
             $leads->where(["tblAccount.Owner" => $userID ]);
@@ -32,13 +33,9 @@ class LeadsController extends \BaseController {
         }
         if(trim($data['account_name']) != '') {
             $leads->where('tblAccount.AccountName', 'like','%'.trim($data['account_name']).'%');
-        }
-        if(trim($data['account_number']) != '') {
-            $leads->where('tblAccount.Number','like', '%'.trim($data['account_number']).'%');
-        }
+        }       
         if(trim($data['contact_name']) != '') {
-            $leads->leftjoin('tblContact', 'tblContact.Owner', '=', 'tblAccount.AccountID');
-            $leads->whereRaw(  " concat(tblContact.FirstName,' ', tblContact.LastName) like '%".trim($data['contact_name'])."%'");
+            $leads->whereRaw("concat(tblAccount.FirstName,' ', tblAccount.LastName) like '%".trim($data['contact_name'])."%'");
         }
         if(trim($data['tag']) != '') {
             $leads->where('tblAccount.tags', 'like','%'.trim($data['tag']).'%');

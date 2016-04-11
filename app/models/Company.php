@@ -168,8 +168,7 @@ class Company extends \Eloquent {
     public static function getLicenceResponse(){
 
         $LicenceApiResponse = Session::get('LicenceApiResponse','');
-
-        if(empty($LicenceApiResponse)) { // if first time login ...
+		  if(empty($LicenceApiResponse)) { // if first time login ...
             $valresponse = Company::ValidateLicenceKey();
             Session::set('LicenceApiResponse', $valresponse);
             $LicenceApiResponse = $valresponse;

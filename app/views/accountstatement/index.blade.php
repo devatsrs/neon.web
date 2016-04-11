@@ -16,7 +16,7 @@
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="row">
                 <div class="col-md-12">
-                    <form role="form" id="account-statement-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                    <form role="form" id="account-statement-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -144,6 +144,10 @@
                             },
                             dataType: 'json',
                             success: function(data) {
+								if(data.length<1){
+									$('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
+									return false;
+								}
                                 $('#table-4 > thead > tr:nth-child(1) > th:nth-child(3)').html(AccountName + " INVOICE");
                                 $('#table-4 > thead > tr:nth-child(2) > th:nth-child(6)').html(AccountName + " PAYMENT");
                                 $('#table-4 > tbody > tr').remove();

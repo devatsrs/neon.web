@@ -47,7 +47,7 @@
             <div class="form-group">
               <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
               <div class="col-sm-2 col-sm-e2">
-                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
               <div class="col-sm-2 col-sm-e2">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
@@ -207,6 +207,8 @@
       </tbody>
     </table>
     <script type="text/javascript">
+	
+	 var currency_signs = {{$currency_ids}};
                 var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
                 var $searchFilter = {};
                 var update_new_url;
@@ -374,10 +376,17 @@
                         ev.stopPropagation();
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){
+                        for(var i = 0 ; i< list_fields.length; i++){							
                             if(list_fields[i] == 'Amount'){
                                 $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
-                            }else {
+                            }else if(list_fields[i] == 'Currency'){ 							
+							var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields[i] + "']").val()];
+								if(currency_sign_show!='Select a Currency'){								
+									$("#view-modal-payment [name='" + list_fields[i] + "']").text(currency_sign_show);	
+								 }else{
+									 $("#view-modal-payment [name='" + list_fields[i] + "']").text("Currency Not Found");	
+									 }
+							}else {
                                 $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='" + list_fields[i] + "']").val());
                             }
                         }
