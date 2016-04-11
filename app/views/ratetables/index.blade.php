@@ -66,7 +66,8 @@
                                 <thead>
                                     <tr>
                                         <th width="30%">Name</th>
-                                        <th width="30%">Currency</th>
+                                        <th width="20%">Currency</th>
+                                        <th width="28%">Codedeck</th>
                                         <th width="20%">last update</th>
                                          <th width="20%">Action</th>
                                     </tr>
@@ -109,6 +110,7 @@
             },
             "aoColumns":
                     [
+                        {},
                         {},
                         {},
                         {},

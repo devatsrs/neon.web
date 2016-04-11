@@ -4,10 +4,15 @@ class RateTablesController extends \BaseController {
 
     public function ajax_datagrid() {
         $CompanyID = User::get_companyID();
-        $rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+        $rate_tables = RateTable::
+        join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+            ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
+            ->select(['tblRateTable.RateTableName','tblCurrency.Code','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId'])
+            ->where("tblRateTable.CompanyId",$CompanyID);
+        //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
         if($data['TrunkID']){
-            $rate_tables->where('TrunkID',$data['TrunkID']);
+            $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
         }
         return Datatables::of($rate_tables)->make();
     }
@@ -283,21 +288,32 @@ class RateTablesController extends \BaseController {
     
     public function exports($type) {
             $CompanyID = User::get_companyID();
-            $rate_tables = RateTable::where(["CompanyId" => $CompanyID])->orderBy("RateTableId", "desc");
+            /*$rate_tables = RateTable::where(["CompanyId" => $CompanyID])->orderBy("RateTableId", "desc");
             $data = Input::all();
             if($data['TrunkID']){
                 $rate_tables->where('TrunkID',$data['TrunkID']);
             }
-            $rate_tables = $rate_tables->get(["RateTableName"]);
-
+            $rate_tables = $rate_tables->get(["RateTableName"]);*/
+            $rate_tables = RateTable::
+            join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+                ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
+                ->select(['tblRateTable.RateTableName','tblCurrency.Code as Currency Code','tblCodeDeck.CodeDeckName'])
+                ->where("tblRateTable.CompanyId",$CompanyID);
+            //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+            $data = Input::all();
+            if($data['TrunkID']){
+                $rate_tables = $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
+            }
+            $rate_tables = $rate_tables->get();
             $excel_data = json_decode(json_encode($rate_tables),true);
+
 
             if($type=='csv'){
                 $file_path = getenv('UPLOAD_PATH') .'/Rates Table.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -326,7 +342,7 @@ class RateTablesController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($rate_table_rates);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($rate_table_rates);
             }
