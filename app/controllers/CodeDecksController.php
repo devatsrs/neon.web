@@ -229,7 +229,7 @@ class CodeDecksController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($codedecks);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($codedecks);
             }
@@ -289,7 +289,7 @@ class CodeDecksController extends \BaseController {
             }
             //$companyID = User::get_companyID();
             $rules = array(
-                'CountryID' => 'required',
+                //'CountryID' => 'required',
                 'Description' => 'required',
             );
             $validator = Validator::make($data, $rules);
@@ -445,7 +445,7 @@ class CodeDecksController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
