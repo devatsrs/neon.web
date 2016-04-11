@@ -35,7 +35,7 @@ class TransactionLogController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice Transaction Log.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Transaction Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -71,7 +71,7 @@ class TransactionLogController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice Log.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

@@ -76,20 +76,21 @@ class VendorBlockingsController extends \BaseController {
     public function blockbycountry_exports($id,$type) {
             $data = Input::all();
 
-            $data['Country']=$data['Country']!= ''?$data['Country']:'null';
+            $data['Country'] = $data['Country'] != ''?"'".$data['Country']."'":'null';
 
-            $query = "call prc_GetVendorBlockByCountry (".$id.",".$data['Trunk'].",".(int)$data['Country'].",'".$data['Status']."',null ,null,null,null,1)";
+            $query = "call prc_GetVendorBlockByCountry (".$id.",".$data['Trunk'].",".$data['Country'].",'".$data['Status']."',null ,null,null,null,1)";
 
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $vendor_blocking_by_country  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
+
 
             if($type=='csv'){
                 $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_blocking_by_country);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_blocking_by_country);
             }
@@ -109,7 +110,7 @@ class VendorBlockingsController extends \BaseController {
 
             $companyID = User::get_companyID();
 
-            $query = "call prc_GetVendorBlockByCode (".$companyID.",".$id.",".$data['Trunk'].",".(int)$data['Country'].",'".$data['Status']."',".$data['Code'].",null,null,null,null,1)";
+            $query = "call prc_GetVendorBlockByCode (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",'".$data['Status']."',".$data['Code'].",null,null,null,null,1)";
 
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $vendor_blocking_by_code  = DB::select($query);
@@ -121,7 +122,7 @@ class VendorBlockingsController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_blocking_by_code);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Code.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Code.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_blocking_by_code);
             }

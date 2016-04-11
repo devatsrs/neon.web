@@ -26,7 +26,7 @@ class ProductsController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Item.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Item.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

@@ -23,7 +23,7 @@ class BillingSubscriptionController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($billexports);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($billexports);
             }

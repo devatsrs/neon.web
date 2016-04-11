@@ -14,7 +14,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($invoiceCompanies);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice Template.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Template.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($invoiceCompanies);
             }

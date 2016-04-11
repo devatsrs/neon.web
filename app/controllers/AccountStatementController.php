@@ -427,7 +427,7 @@ class AccountStatementController extends \BaseController {
                     $cell->setValue($total);
                 });
             });
-        })->download($type);
+        })->download('xls');
     }
 
     static function formateCell(&$cell,$isCenter=true){

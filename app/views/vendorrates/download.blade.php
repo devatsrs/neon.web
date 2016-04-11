@@ -102,15 +102,15 @@
                 <label for="field-1" class="col-sm-3 control-label">Output format</label>
                 <div class="col-sm-5">
  
-                   {{ Form::select('Format', $rate_sheet_formates, Input::get('RateSheetFormate') , array("class"=>"selectboxit")) }}
+                   {{ Form::select('Format', $rate_sheet_formates, Input::get('RateSheetFormate') , array("class"=>"selectboxit","id"=>"fileformat")) }}
                     
                 </div>
             </div>
             <div class="form-group">
-                <label for="field-1" class="col-sm-3 control-label">Download Type</label>
+                <label for="field-1" class="col-sm-3 control-label">File Type</label>
                 <div class="col-sm-5">
 
-                   {{ Form::select('downloadtype', $downloadtype, Input::get('downloadtype') , array("class"=>"selectboxit")) }}
+                   {{ Form::select('filetype', array(''=>'Select a Type'), Input::get('downloadtype') , array("class"=>"select2","id"=>"filetype",'allowClear'=>'true')) }}
 
                 </div>
             </div>
@@ -141,7 +141,28 @@
  
 <script type="text/javascript">
 jQuery(document).ready(function ($) {
+    $('#fileformat').change(function(e){
+        if($(this).val()){
+            var url = baseurl +'/customers_rates/{{$id}}/customerdownloadtype/'+$(this).val();
+            $.ajax({
+                url:  url,  //Server script to process data
+                type: 'POST',
+                success: function (response) {
+                    $('#filetype').empty();
+                    $('#filetype').append(response);
+                    setTimeout(function(){
+                        $("#filetype").select2('val','');
+                    },200)
+                },
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
 
+        }else{
+            $('#filetype').empty();
+            $("#filetype").select2('val','');
+        }
+    });
 
 		$(".btn.download").click(function () {
            // return false;

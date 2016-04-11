@@ -199,7 +199,7 @@ class CDRController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/CDR.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -440,7 +440,7 @@ class CDRController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

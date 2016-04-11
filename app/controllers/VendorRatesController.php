@@ -130,19 +130,22 @@ class VendorRatesController extends \BaseController
             
             $data = Input::all();
             
-            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required' );
+            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
 
-            if(empty($data['downloadtype'])){
-                $data['downloadtype'] = 'csv';
-            }
+
             $validator = Validator::make($data, $rules);
             
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+            if(!empty($data['filetype'])){
+                $data['downloadtype'] = $data['filetype'];
+                unset($data['filetype']);
+            }
+
             
             //Inserting Job Log
             try {
@@ -230,7 +233,7 @@ class VendorRatesController extends \BaseController
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates History.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -263,7 +266,7 @@ class VendorRatesController extends \BaseController
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_rates);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_rates);
             }
@@ -500,7 +503,7 @@ class VendorRatesController extends \BaseController
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Preference.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Preference.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -731,5 +734,14 @@ class VendorRatesController extends \BaseController
         $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.")";
         $accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
         return $accounts->make();
+    }
+
+    public function vendordownloadtype($id,$type){
+        if($type=='Vos 3.2'){
+            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+        }else{
+            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+        }
+        return $downloadtype;
     }
 }

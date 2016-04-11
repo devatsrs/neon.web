@@ -37,7 +37,7 @@ class AccountsController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -523,7 +523,7 @@ class AccountsController extends \BaseController {
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_csv($due_sheets);
                 }elseif($type=='xlsx'){
-                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xlsx';
+                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xls';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_excel($due_sheets);
                 }

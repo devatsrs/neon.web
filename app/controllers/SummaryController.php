@@ -42,7 +42,7 @@ class SummaryController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
