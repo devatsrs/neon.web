@@ -960,9 +960,8 @@ button.close {
     font-size:12px;
 }
 .count-cards .bottom{
-    position: absolute;
-    bottom:4px;
-    right: 0px;
+    text-align: right;
+    margin-top:20px;
 }
 .count-cards .bottom .badge{
     margin:3px 3px 0 0;
