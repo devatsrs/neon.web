@@ -146,6 +146,7 @@
                             success: function(data) {
 								if(data.length<1){
 									$('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
+									 $('#table-4_processing').show();
 									return false;
 								}
                                 $('#table-4 > thead > tr:nth-child(1) > th:nth-child(3)').html(AccountName + " INVOICE");
