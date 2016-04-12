@@ -558,6 +558,10 @@ function sort_table(table){
 }
 	function initCustomerGrid(tableID,OwnerFilter){
 		first_call = true;
+		var criteria =0;
+		if($('#selectallbutton').is(':checked')) {
+			criteria =1;
+		}
 		$searchFilter.OwnerFilter = "";
 		var data_table_new = $("#"+tableID).dataTable({
 			"bDestroy": true, // Destroy when resubmit form
@@ -572,7 +576,8 @@ function sort_table(table){
 						{"name": "Country", "value": $searchFilter.Country},
 						{"name": "Code", "value": $searchFilter.Code},
 						{"name": "SelectedCodes", "value": $searchFilter.SelectedCodes},
-						{"name": "action", "value": action_click}
+						{"name": "action", "value": action_click},
+						{"name": "criteria", "value": criteria}
 
 				);
 			},

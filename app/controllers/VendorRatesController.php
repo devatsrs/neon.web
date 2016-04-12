@@ -703,11 +703,13 @@ class VendorRatesController extends \BaseController
     public  function search_vendor_grid($id){
         $CompanyID = User::get_companyID();
         $data = Input::all();
+
         $UserID = 0;
         $SelectedCodes = 0;
         $isCountry = 1;
         $countries = 0;
         $isall = 0;
+        $criteria =0;
 
         if (User::is('AccountManager')) {
             $UserID = User::get_userID();
@@ -715,10 +717,19 @@ class VendorRatesController extends \BaseController
         if (isset($data['OwnerFilter']) && $data['OwnerFilter'] != 0) {
             $UserID = $data['OwnerFilter'];
         }
-        if(isset($data['SelectedCodes']) && !empty($data['SelectedCodes'])){
+        if(isset($data['SelectedCodes']) && !empty($data['SelectedCodes']) &&empty($data['criteria'])){
             $SelectedCodes = $data['SelectedCodes'];
             $isCountry = 0;
+            $criteria = 0;
         }
+
+        if(isset($data['Code']) && !empty($data['Code']) && !empty($data['criteria'])){
+            $SelectedCodes = $data['Code'];
+            $isCountry = 0;
+            $criteria = 1;
+        }
+
+
         if(in_array(0,explode(',',$data['Country']))){
             $isall = 1;
         }
@@ -730,8 +741,8 @@ class VendorRatesController extends \BaseController
         }else{
             $data['action'] = 1;
         }
-
-        $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.")";
+        
+        $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.",".$criteria.")";
         $accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
         return $accounts->make();
     }
