@@ -220,7 +220,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Currency Code</label>
-                                <input type="text"   name="Code" class="form-control" id="field-5" placeholder="">
+                                <input type="text"  maxlength="3"  name="Code" class="form-control" id="field-5" placeholder="">
                              </div>
                         </div>
                         <div class="col-md-12">

@@ -48,7 +48,7 @@
               <div class="form-group">
                 <label class="col-sm-1 control-label small_label" for="field-1">Start Date</label>
                 <div class="col-sm-2">
-                  <input type="text" name="StartDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                  <input type="text" name="StartDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                 </div>
                 <div class="col-sm-2">
                   <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
