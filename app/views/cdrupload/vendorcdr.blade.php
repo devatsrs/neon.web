@@ -200,7 +200,7 @@ var postdata;
                         {
                             "sExtends": "download",
                             "sButtonText": "CSV",
-                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/xlsx/csv",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/csv",
                             sButtonClass: "save-collection btn-sm"
                         }
                     ]
