@@ -80,7 +80,10 @@ class VendorProfilingController extends \BaseController {
                      * */
                     if ($data['action'] == 'block') {
                         $block=1;
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //1 for Unblock
+                        $isall = 3;
+
+                        $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.")");
+                        //$results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //1 for Unblock
                         if ($results) {
                             return Response::json(array("status" => "success", "message" => "Code Blocked Successfully."));
                         } else {
@@ -88,7 +91,9 @@ class VendorProfilingController extends \BaseController {
                         }
 
                     } else { // Unblock
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //2 for Unblock
+                        $isall = 3;
+                        $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.")");
+                        //$results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //2 for Unblock
                         if ($results) {
                             return Response::json(array("status" => "success", "message" => "Code Unblock Successfully."));
                         } else {
@@ -113,7 +118,8 @@ class VendorProfilingController extends \BaseController {
                      * */
                     if ($data['action'] == 'block') {
                         $block=1;
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //1 for Unblock
+                        $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'".$CountryIDs."','','".$username."',".$block.",".$isCountry.",".$isall.")");
+                        //$results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //1 for Unblock
                         if ($results) {
                             return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
                         } else {
@@ -121,7 +127,8 @@ class VendorProfilingController extends \BaseController {
                         }
 
                     } else { // Unblock
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //2 for Unblock
+                        $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'".$CountryIDs."','','".$username."',".$block.",".$isCountry.",".$isall.")");
+                        //$results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //2 for Unblock
                         if ($results) {
                             return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
                         } else {
@@ -140,7 +147,9 @@ class VendorProfilingController extends \BaseController {
                  * */
                 if ($data['action'] == 'block') {
                     $block=1;
-                    $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //1 for Unblock
+                    $isall = 2;
+                    $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.")");
+                   // $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //1 for Unblock
                     if ($results) {
                         return Response::json(array("status" => "success", "message" => "Code Blocked Successfully."));
                     } else {
@@ -148,7 +157,9 @@ class VendorProfilingController extends \BaseController {
                     }
 
                 } else { // Unblock
-                    $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //2 for Unblock
+                    $isall = 2;
+                    $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.")");
+                   // $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //2 for Unblock
                     if ($results) {
                         return Response::json(array("status" => "success", "message" => "Code Unblock Successfully."));
                     } else {
@@ -168,7 +179,8 @@ class VendorProfilingController extends \BaseController {
                  * */
                 if ($data['action'] == 'block') {
                     $block=1;
-                    $results = DB::statement(' call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //1 for Unblock
+                    $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'" . $CountryIDs . "','','".$username."',".$block.",".$isCountry.",".$isall.")");
+                    //$results = DB::statement(' call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //1 for block
                     if ($results) {
                         return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
                     } else {
@@ -176,7 +188,8 @@ class VendorProfilingController extends \BaseController {
                     }
 
                 } else { // Unblock
-                    $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //2 for Unblock
+                    $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'" . $CountryIDs . "','','".$username."',".$block.",".$isCountry.",".$isall.")");
+                    //$results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //2 for Unblock
                     if ($results) {
                         return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
                     } else {

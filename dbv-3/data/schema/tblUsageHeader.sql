@@ -8,6 +8,6 @@ CREATE TABLE `tblUsageHeader` (
   `updated_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`UsageHeaderID`),
-  KEY `Index_Com_GA_CG_A` (`CompanyID`,`GatewayAccountID`,`CompanyGatewayID`,`AccountID`),
-  KEY `Index_A_STD_CG` (`AccountID`,`StartDate`,`CompanyGatewayID`)
+  KEY `Index_A_STD_CG` (`AccountID`,`StartDate`,`CompanyGatewayID`),
+  KEY `Index_Com_GA_CG_A` (`CompanyID`,`GatewayAccountID`,`CompanyGatewayID`,`AccountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

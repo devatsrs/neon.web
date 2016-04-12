@@ -105,7 +105,7 @@ BEGIN
 		*/
 	
 	  	set @stm5 = CONCAT('insert into tmp_Message_ 
-									select   distinct concat( "Account :: " , a.AccountName ,  "  Rate Code :: ",ud.cld)
+									select   distinct concat( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",ud.cld," - No Matching prefix found")
 								  from  ' , p_tbltempusagedetail_name  , ' ud
 								  inner join LocalRatemanagement.tblAccount a on  a.CompanyId = ', p_companyid ,' and a.AccountID  = ud.AccountID and a.InboudRateTableID > 0 
 								  where ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 and ud.area_prefix = "Other"  ');
