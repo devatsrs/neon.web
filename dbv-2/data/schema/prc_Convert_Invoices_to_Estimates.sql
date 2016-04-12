@@ -11,7 +11,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
 	 		 te.AccountID,
 			 te.Address,
 			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,			  
-			 te.IssueDate,
+			 NOW() as IssueDate,
 			 te.CurrencyID,
 			 te.PONumber,
 			 1 as InvoiceType,
