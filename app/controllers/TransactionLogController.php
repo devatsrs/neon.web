@@ -55,7 +55,8 @@ class TransactionLogController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
 
-        $columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
+        //$columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
+		$columns = array('InvoiceNumber','Notes','Status','created_at','InvoiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
