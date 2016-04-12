@@ -61,14 +61,14 @@
                             <thead>
                                 <tr>
                                     <th width="1%"><div class="checkbox "><input type="checkbox" id="selectall" name="checkbox[]" class="" ></div></th>
-                                    <th width="15%">Trunk</th>
+                                    <th width="10%">Trunk</th>
                                     <th width="10%">Prefix</th>
                                     <th style="text-align:center" width="5%">Show Prefix in Ratesheet</th>
                                     <th width="15%">Use Prefix In CDR</th>
                                     <th style="text-align:center" width="5%">Enable Routing Plan</th>
                                     <th width="15%">Gateway</th>
                                     <th width="15%">CodeDeck</th>
-                                    <th width="15%">Base Rate Table</th>
+                                    <th width="20%">Base Rate Table</th>
                                     <th width="4%">Status</th>
                                 </tr>
                             </thead>
