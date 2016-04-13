@@ -5,21 +5,17 @@ BEGIN
 
       -- update trunk with first trunk if not set UseInBilling
    set @stm1 = CONCAT(' UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-    LEFT JOIN tblGatewayAccount  ga 
-        ON ud.GatewayAccountID = ga.GatewayAccountID
-        AND ud.CompanyGatewayID = ga.CompanyGatewayID
-        AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblVendorTrunk ct 
-        ON ct.AccountID = ga.AccountID AND ct.Status =1 
+        ON ct.AccountID = ud.AccountID AND ct.Status =1 
         AND UseInBilling = 0 and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
 	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
-    ud.processId = "' , p_processId , '"
-    AND ud.CompanyID = "' , p_CompanyID , '"
+        ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.selling_cost > 0);
+    AND ud.processId = "' , p_processId , '"
+    AND (ud.billed_duration >0 OR ud.buying_cost > 0);
     ');
 
     PREPARE stmt1 FROM @stm1;
@@ -30,21 +26,17 @@ BEGIN
 
  -- update trunk if set UseInBilling
      set @stm2 = CONCAT(' UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-    LEFT JOIN tblGatewayAccount  ga 
-        ON ud.GatewayAccountID = ga.GatewayAccountID
-        AND ud.CompanyGatewayID = ga.CompanyGatewayID
-        AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblVendorTrunk ct 
-        ON ct.AccountID = ga.AccountID AND ct.Status =1 and ud.processId = "' , p_processId , '"
+        ON ct.AccountID = ud.AccountID AND ct.Status =1 and ud.processId = "' , p_processId , '"
         AND UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
     LEFT JOIN Ratemanagement3.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
 	 SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
-    ud.processId = "' , p_processId , '"
-	 AND  ud.CompanyID = "' , p_CompanyID , '"
+	     ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.selling_cost > 0)
+    AND ud.processId = "' , p_processId , '"
+    AND (ud.billed_duration >0 OR ud.buying_cost > 0)
     AND t.Trunk IS NOT NULL;
     ');
 
@@ -65,23 +57,19 @@ BEGIN
 		  TempVendorCDRID,
         MAX(r.Code) AS prefix
     FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-    LEFT JOIN tblGatewayAccount ga 
-        ON ud.GatewayAccountID = ga.GatewayAccountID
-        AND ud.CompanyGatewayID = ga.CompanyGatewayID
-        AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblVendorTrunk ct 
-        ON ct.AccountID = ga.AccountID AND ct.Status =1  
+        ON ct.AccountID = ud.AccountID AND ct.Status =1  
         AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblVendorRate cr 
-        ON cr.AccountId = ga.AccountID
+        ON cr.AccountId = ud.AccountID
         AND  cr.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
     LEFT JOIN Ratemanagement3.tblRate r 
         ON cr.RateID = r.RateID and ud.processId = "' , p_processId , '"
     WHERE  
- 	 ud.processId = "' , p_processId , '"
-	 AND ud.CompanyID = "' , p_CompanyID , '"
+	  	  ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.selling_cost > 0)
+    AND ud.processId = "' , p_processId , '"
+    AND (ud.billed_duration >0 OR ud.buying_cost > 0)
     AND (
             (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
             or 

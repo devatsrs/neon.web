@@ -284,16 +284,21 @@ class CDRController extends BaseController {
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
-                'TemplateFile' => 'required');
+                'TemplateFile' => 'required',
+                'Account'=>'required');
         }else{
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,NULL,FileUploadTemplateID',
-                'TemplateFile' => 'required');
+                'TemplateFile' => 'required',
+                'Account'=>'required');
         }
         if($data['RateFormat'] == Company::CHARGECODE) {
             $rules['ChargeCode'] = 'required';
         }
         if(!empty($data['selection']['ChargeCode'])){
             $data['ChargeCode'] = $data['selection']['ChargeCode'];
+        }
+        if(!empty($data['selection']['Account'])){
+            $data['Account'] = $data['selection']['Account'];
         }
         $validator = Validator::make($data, $rules);
 

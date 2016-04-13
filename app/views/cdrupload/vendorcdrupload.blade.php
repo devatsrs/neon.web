@@ -468,7 +468,7 @@ var click_btn;
                 $("#rate_dropdown").addClass("hidden");
             }
         });
-        $('#RateCDR').trigger('click');
+        $('#RateCDR').trigger('change');
 
     });
     function createGrid(data){
