@@ -147,7 +147,7 @@ var postdata;
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[0, 'asc']],
+            "aaSorting": [[2, 'asc']],
              "aoColumns":
             [
                 {"bSortable": false, //RateID
@@ -372,6 +372,7 @@ var postdata;
             Codedecks[i++] = Codedeck;
         });
         if(Codedecks.length){
+            $('#bulk-edit-codedeck-form').trigger("reset");
             $('#modal-Codedeck').modal('show', {backdrop: 'static'});
         }
 
@@ -605,6 +606,7 @@ function bulk_update(fullurl,data){
                         <div class="col-md-6">
 
                             <div class="form-group hide_country">
+                                <input type="checkbox" name="updateCountryID" class="" />
                                 <label for="field-4" class="control-label">Country</label>
                                 {{ Form::select('CountryID', $countries, '', array("class"=>"select2")) }}
                             </div>
@@ -614,6 +616,7 @@ function bulk_update(fullurl,data){
                         <div class="col-md-6">
 
                             <div class="form-group">
+                                <input type="checkbox" name="updateDescription" class="" />
                                 <label for="field-5" class="control-label">Description</label>
 
                                 <input type="text" name="Description" class="form-control" id="field-5" placeholder="">
@@ -629,12 +632,14 @@ function bulk_update(fullurl,data){
                      <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-5" class="control-label">Interval 1</label>
                                 <input type="text" value="1" name="Interval1" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-4" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN"  class="form-control" value="1" />
                             </div>
