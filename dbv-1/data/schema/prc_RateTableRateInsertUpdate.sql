@@ -73,8 +73,9 @@ BEGIN
 		   
 	END IF;                  
      
-                    
-    INSERT INTO tmp_updaterateid_
+     
+
+   INSERT INTO tmp_updaterateid_
     SELECT r.RateID
     from
     (SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId   
@@ -83,17 +84,69 @@ BEGIN
 	 		
 	 ) r
     LEFT OUTER JOIN (
-		SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId  AND EffectiveDate = p_EffectiveDate 
+		SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId  
     ) cr on r.RateID = cr.RateID WHERE cr.RateID IS NOT NULL;
 
+		
+	IF(p_Rate != 0)
+	THEN	
+		set @stm1 = CONCAT(' UPDATE tblRateTableRate tr
+			LEFT JOIN tmp_updaterateid_ r ON  r.RateID = tr.RateID
+			SET Rate = "' , p_Rate , '" ,updated_at = NOW(),ModifiedBy =   "' ,  p_ModifiedBy ,'"
+			WHERE  RateTableId = "' , p_RateTableId  , '"
+			and r.RateID is NOT NULL;
+		');
+		PREPARE stmt1 FROM @stm1;
+		EXECUTE stmt1;
+		DEALLOCATE PREPARE stmt1;
 	
+	END IF;	
+	
+	IF(p_Interval1 != 0)
+	THEN	
+		set @stm2 = CONCAT(' UPDATE `tblRateTableRate` tr
+			LEFT JOIN `tmp_updaterateid_` r ON  r.RateID = tr.RateID
+			SET Interval1 = "' , p_Interval1 ,'" ,updated_at = NOW(),ModifiedBy = "' ,  p_ModifiedBy ,'"
+			WHERE  RateTableId = "' , p_RateTableId  , '"  
+			and r.RateID is NOT NULL;
+		');
+		PREPARE stmt2 FROM @stm2;
+		EXECUTE stmt2;
+		DEALLOCATE PREPARE stmt2;
+	
+	END IF;	
+	
+	IF(p_IntervalN != 0)
+	THEN	
+		set @stm3 = CONCAT(' UPDATE tblRateTableRate tr
+			LEFT JOIN tmp_updaterateid_ r ON  r.RateID = tr.RateID
+			SET IntervalN = "' , p_IntervalN , '" ,updated_at = NOW(),ModifiedBy =   "' ,  p_ModifiedBy ,'"
+			WHERE  RateTableId = "' , p_RateTableId  , '"  
+			and r.RateID is NOT NULL;
+		');
+		PREPARE stmt3 FROM @stm3;
+		EXECUTE stmt3;
+		DEALLOCATE PREPARE stmt3;
+	
+	END IF;	
+	
+	IF(p_ConnectionFee!= 0)
+	THEN	
+		set @stm4 = CONCAT(' UPDATE tblRateTableRate tr
+			LEFT JOIN tmp_updaterateid_ r ON  r.RateID = tr.RateID
+			SET ConnectionFee = "' , p_ConnectionFee , '" ,updated_at = NOW(),ModifiedBy =   "' ,  p_ModifiedBy ,'"
+			WHERE  RateTableId = "' , p_RateTableId  , '"  
+			and r.RateID is NOT NULL;
+		');
+		PREPARE stmt4 FROM @stm4;
+		EXECUTE stmt4;
+		DEALLOCATE PREPARE stmt4;
+	
+	END IF;		
     
-    UPDATE tblRateTableRate tr
-    LEFT JOIN tmp_updaterateid_ r ON  r.RateID = tr.RateID
-    SET Rate = p_Rate ,updated_at = NOW(),ModifiedBy =   p_ModifiedBy,Interval1 = p_Interval1,IntervalN = p_IntervalN,ConnectionFee= p_ConnectionFee
-    WHERE  RateTableId = p_RateTableId  AND EffectiveDate = p_EffectiveDate
-    and r.RateID is NOT NULL;
 
+  	IF(p_Rate != '0.0' AND  p_EffectiveDate != 'null')
+  	THEN
     INSERT INTO tmp_insertrateid_
     SELECT r.RateID
     
@@ -104,14 +157,15 @@ BEGIN
      SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId AND ( Rate = p_Rate OR Rate != p_Rate) AND EffectiveDate = p_EffectiveDate 
     ) cr on r.RateID = cr.RateID WHERE cr.RateID IS NULL;
     
-    
-    
+        
     
     INSERT INTO tblRateTableRate (RateID,RateTableId,Rate,EffectiveDate,created_at,CreatedBy,Interval1,IntervalN,ConnectionFee)
     SELECT DISTINCT  tr.RateID,RateTableId,p_Rate,p_EffectiveDate,NOW(),p_ModifiedBy,p_Interval1,p_IntervalN,p_ConnectionFee FROM tblRateTableRate tr
     LEFT JOIN tmp_insertrateid_ r ON  r.RateID = tr.RateID
     WHERE  RateTableId = p_RateTableId
     and r.RateID is NOT NULL;
+	
+	END IF;		
       
    CALL prc_ArchiveOldRateTableRate(p_RateTableId);
    

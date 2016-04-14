@@ -146,7 +146,7 @@ class RateTablesController extends \BaseController {
 
     public function clear_rate($id) {
         if ($id > 0) {
-            if (RateTableRate::find($id)->delete()) {
+            if (RateTableRate::where(["RateTableRateID" => $id])->delete()) {
                 return Response::json(array("status" => "success", "message" => "Rate Successfully Deleted"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate."));
@@ -200,8 +200,8 @@ class RateTablesController extends \BaseController {
     }
 
     public function update_rate_table_rate($id, $RateTableRateID = 0) {
-        if ($id > 0 && $RateTableRateID > 0) {
 
+        if ($id > 0 && $RateTableRateID > 0) {
             $data = Input::all();
 
             $data["ModifiedBy"] = User::get_user_full_name();
@@ -226,7 +226,6 @@ class RateTablesController extends \BaseController {
             // Create RateTableRate
 
             $data = Input::all();
-
             $data["CreatedBy"] = User::get_user_full_name();
             $data["ModifiedBy"] = User::get_user_full_name();
             $data["RateTableId"] = $id;
@@ -252,20 +251,83 @@ class RateTablesController extends \BaseController {
     public function bulk_update_rate_table_rate($id) {
         if ($id > 0) {
             $data = Input::all();
+
+            $updatedta = array();
+            $error = 0;
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee'])){
+                if(!empty($data['updateEffectiveDate'])){
+                    if(!empty($data['EffectiveDate'])){
+                        $updatedta['EffectiveDate'] = $data['EffectiveDate'];
+                    }else{
+                        $error=1;
+                    }
+
+                }else{
+                    $updatedta['EffectiveDate'] = 'null';
+                }
+                if(!empty($data['updateRate'])){
+                    if(!empty($data['Rate'])){
+                        $updatedta['Rate'] = $data['Rate'];
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updatedta['Rate'] = '0';
+                }
+                if(!empty($data['updateInterval1'])){
+                    if(!empty($data['Interval1'])){
+                        $updatedta['Interval1'] = $data['Interval1'];
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updatedta['Interval1'] = '0';
+                }
+                if(!empty($data['updateIntervalN'])){
+                    if(!empty($data['IntervalN'])){
+                        $updatedta['IntervalN'] = $data['IntervalN'];
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updatedta['IntervalN'] = '0';
+                }
+                if(!empty($data['updateConnectionFee'])){
+                    if(!empty($data['ConnectionFee'])){
+                        $updatedta['ConnectionFee'] = $data['ConnectionFee'];
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updatedta['ConnectionFee'] = '0';
+                }
+                if(isset($error) && $error==1){
+                    return Response::json(array("status" => "failed", "message" => "Please select Cheked Filed data"));
+                }
+
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Please Insert Data."));
+            }
+
             $username = User::get_user_full_name();
+
+            /*
             $rules = array('EffectiveDate' => 'required', 'Rate' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
-            }
+            }*/
+
+
             $companyID = User::get_companyID();
             if(empty($data['RateTableRateID']) && !empty($data['criteria'])){
                 $criteria = json_decode($data['criteria'],true);
-                $results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array('', $id, $data['Rate'], $data['EffectiveDate'],$username,intval($data['Interval1']),intval($data['IntervalN']),floatval($data['ConnectionFee']),$companyID,intval($criteria['TrunkID']),intval($criteria['Country']),$criteria['Code'],$criteria['Description'],$criteria['Effective'],1));
+                $results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array('', $id, $updatedta['Rate'], $updatedta['EffectiveDate'],$username,intval($updatedta['Interval1']),intval($updatedta['IntervalN']),floatval($updatedta['ConnectionFee']),$companyID,intval($criteria['TrunkID']),intval($criteria['Country']),$criteria['Code'],$criteria['Description'],$criteria['Effective'],1));
             }else{
-                $results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array($data['RateTableRateID'], $id, $data['Rate'], $data['EffectiveDate'],$username,intval($data['Interval1']),intval($data['IntervalN']),floatval($data['ConnectionFee']),$companyID,0,0,'','','',0));
+                $results = DB::statement("call prc_RateTableRateInsertUpdate ('".$data['RateTableRateID']."',".$id.",".floatval($updatedta['Rate']).",'".$updatedta['EffectiveDate']."','".$username."',".intval($updatedta['Interval1']).",".intval($updatedta['IntervalN']).",".floatval($updatedta['ConnectionFee']).",".$companyID.",0,0,'','','',0)");
+                //$results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array($data['RateTableRateID'], $id, $updatedta['Rate'], $updatedta['EffectiveDate'],$username,intval($updatedta['Interval1']),intval($updatedta['IntervalN']),floatval($updatedta['ConnectionFee']),$companyID,0,0,'','','',0));
             }
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Bulk Rate Successfully Updated"));
