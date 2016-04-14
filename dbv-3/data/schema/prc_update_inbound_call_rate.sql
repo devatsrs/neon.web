@@ -3,11 +3,17 @@ BEGIN
 
  	DECLARE v_Account int;
 	
-	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetailtech_;
-   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetailtech_(
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail_;
+   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetail_(
 			TempUsageDetailID int,
 			prefix varchar(50),
-			INDEX tmpIX_TempUsageDetailtech_TempUsageDetailID (`TempUsageDetailID`)
+			INDEX IX_TempUsageDetailID(`TempUsageDetailID`)
+	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail2_;
+   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetail2_(
+			TempUsageDetailID int,
+			prefix varchar(50),
+			INDEX IX_TempUsageDetailID2(`TempUsageDetailID`)
 	);
 	DROP TEMPORARY TABLE IF EXISTS tmp_Message_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Message_(
@@ -19,33 +25,40 @@ BEGIN
 	
  
 	/*--- Update area_prefix */
-	-- IF ( v_Account > 0 AND p_RateCDR =1)
-   -- IF ( p_RateCDR =1 )
+	-- IF ( v_Account > 0 )
 	-- THEN
 	
 		set @stm1 = CONCAT('
-		 INSERT INTO tmp_TempUsageDetailtech_
+		 INSERT INTO tmp_TempUsageDetail_
 	    SELECT
 			  ud.TempUsageDetailID,
-	        MAX(r.Code) AS prefix
+	        r.Code AS prefix
 			FROM `' , p_tbltempusagedetail_name , '` ud
 			inner join LocalRatemanagement.tblAccount a on  a.CompanyId = ', p_companyid ,' and a.InboudRateTableID > 0 and a.AccountID  = ud.AccountID 
 			Inner join LocalRatemanagement.tblRateTable rt on rt.CompanyId = ', p_companyid ,' and  rt.RateTableId = a.InboudRateTableID
 			Inner join LocalRatemanagement.tblRate r on r.CompanyId = ', p_companyid ,' and r.CodeDeckId = rt.CodeDeckId 
 			Inner join LocalRatemanagement.tblRateTableRate rtr on  rtr.RateTableId =  rt.RateTableId and rtr.RateID = r.RateID  
-			where ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 and ud.cld like concat( r.Code , "%" )
-			group by ud.TempUsageDetailID ;
+			where ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 and ud.cld like concat( r.Code , "%" );
 		');
 	
 				
 	    PREPARE stmt1 FROM @stm1;
 	    EXECUTE stmt1;
 	    DEALLOCATE PREPARE stmt1;
+	    
+	    set @stm7 = CONCAT('INSERT INTO tmp_TempUsageDetail2_
+		SELECT tbl.TempUsageDetailID,MAX(tbl.prefix)  
+		FROM tmp_TempUsageDetail_ tbl
+	   GROUP BY tbl.TempUsageDetailID;');
+    
+	    PREPARE stmt7 FROM @stm7;
+	    EXECUTE stmt7;
+	    DEALLOCATE PREPARE stmt7;
 	  
 	     	 
 	    
 	    set @stm2 = CONCAT('UPDATE ' , p_tbltempusagedetail_name , ' tbl2
-	    INNER JOIN tmp_TempUsageDetailtech_ tbl
+	    INNER JOIN tmp_TempUsageDetail2_ tbl
 	        ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
 	    SET tbl2.area_prefix = tbl.prefix 
 	    WHERE tbl2.processId = "' , p_processid , '" and tbl2.is_inbound = 1 ;
@@ -72,23 +85,20 @@ BEGIN
             rtr.Rate+ifnull(rtr.ConnectionFee,0)
           ELSE
 			    0
-		    END		    
-		    
-			
+		    END		
 		END 
 		where ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1  ;');
 	
 		PREPARE stmt3 FROM @stm3;
 	   EXECUTE stmt3;
 	   DEALLOCATE PREPARE stmt3;
-	   
-	   
+	   	   
       /* set cost = 0 where prefix not matched in p_tbltempusagedetail_name table  */
 	   set @stm4 = CONCAT('UPDATE ' , p_tbltempusagedetail_name , ' tbl2
-	   LEFT JOIN tmp_TempUsageDetailtech_ tbl
+	   LEFT JOIN tmp_TempUsageDetail2_ tbl
 	       ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
 	   SET tbl2.cost = 0
-	   WHERE tbl2.processId = "' , p_processid , '" and tbl2.is_inbound = 1 and tbl.prefix is null  ;');
+	   WHERE tbl2.processId = "' , p_processid , '" and tbl2.is_inbound = 1 and tbl.prefix is null and tbl2.AccountID is not null ;');
 	     
 	   PREPARE stmt4 FROM @stm4;
 	   EXECUTE stmt4;
