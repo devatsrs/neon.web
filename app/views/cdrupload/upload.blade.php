@@ -81,8 +81,8 @@
 
                             </div>
                             <div class="checkbox ">
-                                <input type="hidden" name="CheckCustomerCLI" value="0" >
-                                <label><input type="checkbox" id="rd-1" name="CheckCustomerCLI" value="1">   CLI verification</label>
+                                <input type="hidden" name="CheckFile" value="0" >
+                                <label><input type="checkbox" id="rd-1" name="CheckFile" value="1"> Verify this file</label>
                             </div>
                         </div>
                     </div>
@@ -274,6 +274,15 @@
                             <label for=" field-1" class="col-sm-2 control-label">Pincode</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[pincode]',array(),'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
+                            <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[Authentication]',$NameFormat ,'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                     </div>
@@ -515,7 +524,7 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]'){
+            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){

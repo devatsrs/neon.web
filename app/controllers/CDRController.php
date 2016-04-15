@@ -285,12 +285,14 @@ class CDRController extends BaseController {
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
                 'TemplateFile' => 'required',
-                'Account'=>'required');
+                );
         }else{
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,NULL,FileUploadTemplateID',
                 'TemplateFile' => 'required',
-                'Account'=>'required');
+                );
         }
+        $rules['Account'] = 'required';
+        $rules['Authentication'] = 'required';
         if($data['RateFormat'] == Company::CHARGECODE) {
             $rules['ChargeCode'] = 'required';
         }
@@ -299,6 +301,9 @@ class CDRController extends BaseController {
         }
         if(!empty($data['selection']['Account'])){
             $data['Account'] = $data['selection']['Account'];
+        }
+        if(!empty($data['selection']['Authentication'])){
+            $data['Authentication'] = $data['selection']['Authentication'];
         }
         $validator = Validator::make($data, $rules);
 
