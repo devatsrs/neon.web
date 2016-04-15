@@ -304,7 +304,7 @@ class CodeDecksController extends \BaseController {
                 }
 
             }else{
-                return Response::json(array("status" => "failed", "message" => "Please check tic box and it's appropriate select value."));
+                return Response::json(array("status" => "failed", "message" => "No field selected to Update."));
             }
 
             $companyID = User::get_companyID();
