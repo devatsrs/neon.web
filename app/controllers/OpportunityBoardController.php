@@ -36,7 +36,7 @@ class OpportunityBoardController extends \BaseController {
 
     public function manage($id){
         $Board = CRMBoard::find($id);
-        $account_owners = User::getUserIDList(0);
+        $account_owners = User::getUserIDList();
         $where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
