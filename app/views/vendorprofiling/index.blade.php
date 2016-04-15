@@ -325,6 +325,8 @@
 			if(action_click == 'block' || action_click == 'unblock'){
 				ajax_data+='&action='+action_click;
 			}
+			console.log(ajax_data);
+			console.log(ajax_full_url);			 
 			submit_ajax(ajax_full_url,ajax_data);
 			return false;
 		});
