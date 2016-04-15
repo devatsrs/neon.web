@@ -302,7 +302,14 @@
 			var criteria='';
 			var criteriaCountry='';
 			if(code_check == 1) { //bit for indicating Code Blocking unblocking
+			var Code_check_empty = $("#block_by_code_form [name='Code']").val();			
+			if(Code_check_empty!='')
+			{
 				var ajax_data = $('#block_by_code_form').serialize() + '&' + $('#bulk-update-vendor-code-form').serialize();
+			}else
+			{
+				var ajax_data = $('#bulk-update-vendor-code-form').serialize();
+			}
 				if($('#selectallbutton').is(':checked')) {
 					criteriaCountry=$searchFilter.Country;
 					ajax_data += '&criteria=1&criteriaCountry='+criteriaCountry;
