@@ -12,7 +12,7 @@ function json_validator_response($validator){
 
 }
 
-function json_response_api($response){
+function json_response_api($response,$datareturn=false){
     $errors = '';
     if(is_array($response)){
         $response = (object)$response;
@@ -20,6 +20,12 @@ function json_response_api($response){
     if(isset($response->status_code)) {
         if ($response->status_code == 200) {
             if (isset($response->data)) {
+                if($datareturn){
+                    if(is_array($response->data)){
+                        return $response->data['result'];
+                    }
+                   return $response->data->result;
+                }
                 return json_encode($response->data->result);
             } else {
                 return Response::json(array("status" => "success", "message" => $response->message));
@@ -33,7 +39,11 @@ function json_response_api($response){
             }
         }
     }else{
-        $errors = $response->message;
+        if(isset($response->error)){
+            $errors = $response->error;
+        }else{
+            $errors = 'Api not responded';//$response->message;
+        }
     }
     return  Response::json(array("status" => "failed", "message" => $errors));
 }

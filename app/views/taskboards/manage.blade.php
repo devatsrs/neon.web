@@ -19,7 +19,7 @@
     .paddingright-0{
         padding-right: 0px;
     }
-    #add-modal-opportunity .btn-xs{
+    #add-modal-task .btn-xs{
         padding:0px;
     }
     .resizevertical{
@@ -33,20 +33,27 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
+            <a href="{{URL::to('taskboards')}}">Task Board</a>
         </li>
         <li class="active">
-            <strong>{{$Board->BoardName}}</strong>
+            <strong>{{$Board[0]->BoardName}}</strong>
         </li>
     </ol>
 
-        <div class="row">
-            <div class="col-md-12 clearfix">
-            </div>
+    <div class="row">
+        <div class="col-md-12 clearfix">
         </div>
-        <div class="row">
+    </div>
+    <p style="text-align: right;">
+        <a href="{{URL::to('task/'.$Board[0]->BoardID.'/configure')}}" class="btn btn-primary">
+            <i class="entypo-cog"></i>
+            Configure Board
+        </a>
+    </p>
+
+    <div class="row">
             <div class="col-md-12">
-                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <form id="search-task-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
                     <div class="panel panel-primary" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -58,23 +65,24 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Opportunity Name</label>
+                                <label for="field-1" class="col-sm-1 control-label">Task Name</label>
                                 <div class="col-sm-2">
-                                    <input class="form-control" name="opportunityName"  type="text" >
+                                    <input class="form-control" name="taskName"  type="text" >
                                 </div>
                                 @if(User::is_admin())
-                                    <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                                    <label for="field-1" class="col-sm-1 control-label">Task Assign To</label>
                                     <div class="col-sm-2">
-                                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2",'multiple'))}}
                                     </div>
                                 @endif
-                                <label for="field-1" class="col-sm-1 control-label">Company</label>
+                                <label for="field-1" class="col-sm-1 control-label">Priority</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('AccountID',$leadOrAccount,Input::get('AccountID'),array("class"=>"select2"))}}
+                                    <?php $priority = array(""=> "Select a Priority")+$priority; ?>
+                                    {{Form::select('Priority',$priority,Input::get('AccountID'),array("class"=>"selectboxit"))}}
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label">Tags</label>
+                                <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    <input class="form-control opportunitytags" name="Tags" type="text" >
+                                    <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -89,52 +97,69 @@
             </div>
         </div>
 
-        <p style="text-align: right;">
-            <a href="javascript:void(0)" class="btn btn-primary opportunity">
+        <p id="tools" style="text-align: right;">
+            <button class="btn btn-default active" type="button">Grid</button>
+            <button class="btn btn-primary" type="button">List</button>
+            <a href="javascript:void(0)" class="btn btn-primary task">
                 <i class="entypo-plus"></i>
-                Add New Opportunity
+                Add New Task
             </a>
         </p>
 
-        <section class="deals-board row" >
-
-                <div id="board-start" class="board" style="height: 600px;" >
-                </div>
-
-
+        <section class="deals-board">
+            <table class="table table-bordered datatable hidden" id="taskGrid">
+                <thead>
+                <tr>
+                    <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                    <th width="25%" >Subject</th>
+                    <th width="10%" >Due Date</th>
+                    <th width="10%" >Status</th>
+                    <th width="5%">Priority</th>
+                    <th width="35%">Assigned To</th>
+                    <th width="10%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="board-start" class="board scroller" style="height: 500px;overflow: auto !important;">
+            </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
                 <input type="hidden" name="BoardColumnID" />
             </form>
         </section>
+    <?php $BoardID = $Board[0]->BoardID; ?>
     <script>
         var $searchFilter = {};
         var currentDrageable = '';
         var fixedHeader = false;
-        $(document).ready(function ($) {
-            var opportunity = [
+        $(document).ready(function(){
+
+            $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
+            $searchFilter.account_owners = $("#search-task-filter [name='account_owners']").val();
+            $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
+            $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
+            var task = [
                 'BoardColumnID',
                 'BoardColumnName',
-                'OpportunityID',
-                'OpportunityName',
-                'BackGroundColour',
-                'TextColour',
-                'Company',
-                'Title',
-                'FirstName',
-                'LastName',
-                'Owner',
-                'UserID',
-                'Phone',
-                'Email',
-                'BoardID',
-                'AccountID',
-                'Tags',
-                'Rating',
-                'TaggedUser'
+                'TaskID',
+                'UsersIDs',
+                'Users',
+                'AccountIDs',
+                'Subject',
+                'Description',
+                'DueDate',
+                'TaskStatus',
+                'Priority',
+                'PriorityText',
+                'TaggedUser',
+                'BoardID'
             ];
-            var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
-            var BoardID = "{{$BoardID}}";
+            var Priority = ['<i style="color:red;font-size:15px;" class="edit-deal entypo-up-bold"></i>',
+                            '<i style="color:#FAD839;font-size:15px;" class="edit-deal entypo-record"></i>',
+                            '<i style="color:green;font-size:15px;" class="edit-deal entypo-down-bold"></i>'];
+            var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
             var nicescroll_default = {cursorcolor:'#d4d4d4',
                 cursoropacitymax:0.7,
@@ -149,77 +174,170 @@
 
 
             $('#board-start').niceScroll(nicescroll_default);
+            getTask();
+            data_table = $("#taskGrid").dataTable({
+                "bDestroy": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": baseurl + "/task/"+BoardID+"/ajax_task_grid",
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                            {"name": "taskName", "value": $searchFilter.taskName},
+                            {"name": "account_owners","value": $searchFilter.account_owners},
+                            {"name": "Priority","value": $searchFilter.Priority},
+                            {"name": "DueDate","value": $searchFilter.DueDate}
+                    );
+                },
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[2, 'desc']],
+                "aoColumns": [
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[2] + '" class="rowcheckbox" ></div>';
+                        }
+                    },
+                    {
+                        "bSortable": true, //Subject
+                        mRender: function (id, type, full) {
+                            return full[6];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Due Date
+                        mRender: function (id, type, full) {
+                            return full[8];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Status
+                        mRender: function (id, type, full) {
+                            return full[1];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Priority
+                        mRender: function (id, type, full) {
 
-            getOpportunities();
+                            return Priority[full[10]-1]+full[11];
+                        }
+                    },
+                    {
+                        "bSortable": false, //Assign To
+                        mRender: function (id, type, full) {
+                            return full[4];
+                        }
+                    },
+                    {
+                        "bSortable": false, //action
+                        mRender: function (id, type, full) {
+                            action = '<div class = "hiddenRowData" >';
+                            for(var i = 0 ; i< task.length; i++){
+                                action += '<input type = "hidden"  name = "' + task[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                            }
+                            action += '</div>';
+                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            return action;
+                        }
+                    }
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                    ]
+                },
+                "fnDrawCallback": function () {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
 
-            $('#search-opportunity-filter').submit(function(e){
-                e.preventDefault();
-                getOpportunities();
+                    if($('#tools .active').text()=='Grid'){
+                        $('#taskGrid_wrapper').addClass('hidden');
+                    }else{
+                        $('#taskGrid').removeClass('hidden');
+                    }
+                }
+
             });
 
+            $('#search-task-filter').submit(function(e){
+                e.preventDefault();
+                getTask();
+                data_table.fnFilter('',0);
+            });
 
-            $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li i.edit-deal,#taskGrid .edit-deal',function(e){
                 e.stopPropagation();
-                var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','BoardID','TaggedUser','Title'];
+                if($(this).is('a')){
+                    var rowHidden = $(this).prev('div.hiddenRowData');
+                }else {
+                    var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                }
+                var select = ['UsersIDs','AccountIDs','TaskStatus','Priority','TaggedUser'];
                 var color = ['BackGroundColour','TextColour'];
-                for(var i = 0 ; i< opportunity.length; i++){
-                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
-                    var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
-                    //console.log(opportunity[i]+' '+val);
-                    if(select.indexOf(opportunity[i])!=-1){
-                        if(opportunity[i]=='TaggedUser'){
-                            var taggedUser = rowHidden.find('[name="TaggedUser"]').val();
-                            $('#edit-opportunity-form [name="TaggedUser[]"]').select2('val', taggedUser.split(','));
-                        }else {
+                for(var i = 0 ; i< task.length; i++){
+                    var val = rowHidden.find('input[name="'+task[i]+'"]').val();
+                    var elem = $('#edit-task-form [name="'+task[i]+'"]');
+                    //console.log(task[i]+' '+val);
+                    if(select.indexOf(task[i])!=-1){
+                        if(task[i]=='TaggedUser' || task[i]=='UsersIDs' || task[i]=='AccountIDs') {
+                            $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
+                        } else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
                         elem.val(val);
-                        if(color.indexOf(opportunity[i])!=-1){
-                            setcolor(elem,val);
-                        }else if(opportunity[i]=='Rating'){
-                            elem.val(val).trigger('change');
-                        }else if(opportunity[i]=='Tags'){
+                        if(color.indexOf(task[i])!=-1){
+                            /*setcolor(elem,val);*/
+                        }else if(task[i]=='Tags'){
                             elem.val(val).trigger("change");
                         }
                     }
                 }
-                $('#edit-modal-opportunity h4').text('Edit Opportunity');
-                $('#edit-modal-opportunity').modal('show');
+                $('#edit-modal-task h4').text('Edit Task');
+                $('#edit-modal-task').modal('show');
             });
 
-            $(document).on('mousedown','#board-start ul.sortable-list li',function(e){
-                //setting Class for current draggable item
-                $(this).addClass('dragging');
-            });
-
-            $(document).on('mouseup','#board-start ul.sortable-list li',function(e){
-                //remove Class for current draggable item
-                $(this).removeClass('dragging');
+            $('#tools button').click(function(){
+                if($(this).text()=='List'){
+                    $(this).addClass('btn-default active');
+                    $(this).removeClass('btn-primary');
+                    $(this).siblings('button').removeClass('btn-default active');
+                    $(this).siblings('button').addClass('btn-primary');
+                    $('#board-start').addClass('hidden');
+                    $('#taskGrid_wrapper,#taskGrid').removeClass('hidden');
+                }else{
+                    $(this).addClass('btn-default active');
+                    $(this).removeClass('btn-primary');
+                    $(this).siblings('button').removeClass('btn-default active');
+                    $(this).siblings('button').addClass('btn-primary');
+                    $('#board-start').removeClass('hidden');
+                    $('#taskGrid_wrapper,#taskGrid').addClass('hidden');
+                }
             });
 
             $(document).on('click','#board-start ul.sortable-list li',function(){
-                $('#add-opportunity-comments-form').trigger("reset");
+                $('#add-task-comments-form').trigger("reset");
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
-                var opportunityID = rowHidden.find('[name="OpportunityID"]').val();
+                var taskID = rowHidden.find('[name="TaskID"]').val();
                 var accountID = rowHidden.find('[name="AccountID"]').val();
-                var opportunityName = rowHidden.find('[name="OpportunityName"]').val();
-                $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
-                $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
-                $('#add-opportunity-attachment-form [name="AccountID"]').val(accountID);
-                $('#add-opportunity-comments-form [name="AccountID"]').val(accountID);
-                $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
+                var taskName = rowHidden.find('[name="taskName"]').val();
+                $('#add-task-comments-form [name="TaskID"]').val(taskID);
+                $('#add-task-attachment-form [name="TaskID"]').val(taskID);
+                $('#add-task-attachment-form [name="AccountID"]').val(accountID);
+                $('#add-task-comments-form [name="AccountID"]').val(accountID);
+                $('#add-view-modal-task-comments h4.modal-title').text(taskName);
                 getComments();
-                getOpportunityAttachment();
-                $('#add-view-modal-opportunity-comments').modal('show');
+                getTaskAttachment();
+                $('#add-view-modal-task-comments').modal('show');
             });
 
-            $('#add-opportunity-comments-form').submit(function(e){
+            $('#add-task-comments-form').submit(function(e){
                 e.preventDefault();
-                var formData = new FormData($('#add-opportunity-comments-form')[0]);
-                var url = baseurl + '/opportunitycomment/create';
+                var formData = new FormData($('#add-task-comments-form')[0]);
+                var url = baseurl + '/taskcomment/create';
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -227,12 +345,12 @@
                     success: function (response) {
                         if(response.status =='success'){
                             toastr.success(response.message, "Success", toastr_opts);
-                            $('#add-opportunity-comments-form').trigger("reset");
+                            $('#add-task-comments-form').trigger("reset");
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                         $("#commentadd").button('reset');
-                        $('#add-opportunity-comments-form').trigger("reset");
+                        $('#add-task-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
                         getComments();
                     },
@@ -245,10 +363,10 @@
                 });
             });
 
-            $(document).on('change','#add-opportunity-attachment-form input[type="file"]',function(){
-                var opportunityID = $('#add-opportunity-attachment-form [name="OpportunityID"]').val();
-                var formData = new FormData($('#add-opportunity-attachment-form')[0]);
-                var url = baseurl + '/opportunity/'+opportunityID+'/saveattachment';
+            $(document).on('change','#add-task-attachment-form input[type="file"]',function(){
+                var taskID = $('#add-task-attachment-form [name="TaskID"]').val();
+                var formData = new FormData($('#add-task-attachment-form')[0]);
+                var url = baseurl + '/task/'+taskID+'/saveattachment';
                 var top = $(this).offset().top;
                 top = top-300;
                 $('#attachment_processing').css('top',top);
@@ -260,14 +378,14 @@
                     success: function (response) {
                         if(response.status =='success'){
                             toastr.success(response.message, "Success", toastr_opts);
-                            $('#add-opportunity-attachment-form').trigger("reset");
+                            $('#add-task-attachment-form').trigger("reset");
                             $('#attachment_processing').addClass('hidden');
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        $('#add-opportunity-attachment-form').trigger("reset");
+                        $('#add-task-attachment-form').trigger("reset");
                         $('#addattachmentop .file-input-name').empty();
-                        getOpportunityAttachment();
+                        getTaskAttachment();
                     },
                     // Form data
                     data: formData,
@@ -283,9 +401,9 @@
                 if(!con){
                     return true;
                 }
-                var opportunityID = $('#add-opportunity-attachment-form [name="OpportunityID"]').val();
+                var taskID = $('#add-task-attachment-form [name="TaskID"]').val();
                 var attachmentID = $(this).attr('data-id');
-                var url = baseurl + '/opportunity/'+opportunityID+'/deleteattachment/'+attachmentID;
+                var url = baseurl + '/task/'+taskID+'/deleteattachment/'+attachmentID;
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -296,7 +414,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        getOpportunityAttachment();
+                        getTaskAttachment();
                     },
                     // Form data
                     data: [],
@@ -323,40 +441,7 @@
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
 
-            $(window).resize(function(){
-                setTimeout(function() {
-                    board.getNiceScroll().resize();
-                    /*board.find('.board-column-list').getNiceScroll().resize();*/
-                }, 500);
-            });
-
-            /*$('#board-start').scroll(function(){
-                if(fixedHeader){
-                    var header = $('#board-start .header');
-                    var left = $('#board-start').scrollLeft();
-                    header.css('right',left-1009);
-                }
-            });*/
-
             function initEnhancement(){
-                /*var height = board.find('ul.board-inner li:first-child').height();
-                var width = board.find('.board-inner').width();
-                board.height(height+230);
-                board.find('.header').width(width *2);
-                $(document).on('scroll',function(){
-                    if(board.offset().top < $(document).scrollTop() && !fixedHeader){
-                        fixedHeader = true;
-                        board.find('.header').addClass('fixed');
-                    }else if(board.offset().top > $(document).scrollTop() && fixedHeader){
-                        fixedHeader = false;
-                        board.find('.header').removeClass('fixed');
-                    }
-                });*/
-
-
-                /*board.niceScroll().remove();
-                board.find('.board-column-list').niceScroll().remove();*/
-
                 var nicescroll_defaults = {
                     cursorcolor: '#d4d4d4',
                     cursorborder: '1px solid #ccc',
@@ -406,9 +491,9 @@
                 });
             }
 
-            function getOpportunities(){
-                var formData = new FormData($('#search-opportunity-filter')[0]);
-                var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
+            function getTask(){
+                var formData = new FormData($('#search-task-filter')[0]);
+                var url = baseurl + '/task/'+BoardID+'/ajax_task_board';
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -429,8 +514,8 @@
             }
 
             function getComments(){
-                var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
-                var url = baseurl +'/opportunitycomments/'+opportunityID+'/ajax_opportunitycomments';
+                var taskID = $('#add-task-comments-form [name="TaskID"]').val();
+                var url = baseurl +'/taskcomments/'+taskID+'/ajax_taskcomments';
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -457,9 +542,9 @@
                 });
             }
 
-            function getOpportunityAttachment(){
-                var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
-                var url = baseurl +'/opportunity/'+opportunityID+'/ajax_getattachments';
+            function getTaskAttachment(){
+                var taskID = $('#add-task-comments-form [name="TaskID"]').val();
+                var url = baseurl +'/task/'+taskID+'/ajax_getattachments';
                 $.ajax({
                     url: url,  //Server script to process data
                     type: 'POST',
@@ -477,7 +562,7 @@
             }
 
             function fillColumns(){
-                var url = baseurl + '/opportunityboardcolumn/{{$BoardID}}/ajax_datacolumn';
+                var url = baseurl + '/taskboardcolumn/{{$BoardID}}/ajax_datacolumn';
                 $.ajax({
                     url: url,
                     type: 'POST',
@@ -499,7 +584,7 @@
 
             function postorder(elem){
                 saveOrder(elem);
-                url = baseurl + '/opportunity/'+BoardID+'/updateColumnOrder';
+                url = baseurl + '/task/'+BoardID+'/updateColumnOrder';
                 var formData = new FormData($('#cardorder')[0]);
                 $.ajax({
                     url: url,  //Server script to process data
@@ -507,7 +592,7 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
-                            getOpportunities();
+                            getTask();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                             fillColumns();
@@ -525,10 +610,12 @@
             function saveOrder(elem) {
                 var selectedCards = new Array();
                 var currentColumn = elem.parents('li.board-column');
+
                 var BoardColumnID = currentColumn.attr('data-id');
                 currentColumn.find('ul.board-column-list li.count-cards').each(function() {
                     selectedCards.push($(this).attr("data-id"));
                 });
+                console.log(BoardColumnID);
                 $('#cardorder [name="cardorder"]').val(selectedCards);
                 $('#cardorder [name="BoardColumnID"]').val(BoardColumnID);
             }
@@ -542,21 +629,22 @@
         });
     </script>
 </div>
-@include('opportunityboards.opportunitymodal')
+@include('taskboards.taskmodal')
 @stop
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="edit-modal-opportunity">
+    <div class="modal fade" id="edit-modal-task">
         <div class="modal-dialog" style="width: 70%;">
             <div class="modal-content">
-                <form id="edit-opportunity-form" method="post">
+                <form id="edit-task-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Opportunity</h4>
+                        <h4 class="modal-title">Add New Task</h4>
                     </div>
                     <div class="modal-body">
 
                         <div class="row">
+
                             <div class="col-md-12 text-left">
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10">
@@ -565,139 +653,70 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Task Status *</label>
+                                    <div class="col-sm-8">
+                                        {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"selectboxit"))}}
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Account Owner *</label>
+                                    <label for="field-5" class="control-label col-sm-4">Subject *</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('UserID',$account_owners,'',array("class"=>"select2"))}}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Opportunity Name *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
+                                        <input type="text" name="Subject" class="form-control" id="field-5" placeholder="">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="input-1" class="control-label col-sm-4">Rate This</label>
+                                    <label for="field-5" class="control-label col-sm-4">Priority</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="85" data-height="85" name="Rating" value="0" />
+                                        {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-6 margin-top-group pull-left">
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">First Name*</label>
+                                    <label for="field-5" class="control-label col-sm-4">Due Date</label>
                                     <div class="col-sm-8">
-                                        <div class="input-group" style="width: 100%;">
-                                            <div class="input-group-addon" style="padding: 0px; width: 85px;">
-                                                <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <input type="text" name="FirstName" class="form-control" id="field-5">
-                                        </div>
+                                        <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
                                 </div>
                             </div>
-
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Last Name*</label>
+                                    <label for="field-5" class="control-label col-sm-4">Assign To</label>
                                     <div class="col-sm-8">
-                                        <input type="text" name="LastName" class="form-control" id="field-5">
+                                        {{Form::select('UsersIDs[]',$account_owners,'',array("class"=>"select2","multiple"=>"multiple"))}}
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Company*</label>
+                                    <label for="field-5" class="control-label col-sm-4">Company</label>
                                     <div class="col-sm-8">
-                                        <input type="text" name="Company" class="form-control" id="field-5">
+                                        {{Form::select('AccountIDs[]',$leadOrAccount,'',array("class"=>"select2","multiple"=>"multiple"))}}
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Phone Number*</label>
+                                    <label for="field-5" class="control-label col-sm-4">Description</label>
                                     <div class="col-sm-8">
-                                        <input type="text" name="Phone" class="form-control" id="field-5">
+                                        <textarea name="Description" class="form-control resizevertical"> </textarea>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Email Address*</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Email" class="form-control" id="field-5">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Select Board*</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!--<div class="col-md-6 margin-top-group pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Select Background</label>
-                                    <div class="col-sm-7 input-group paddingright-0">
-                                        <input name="BackGroundColour" type="text" class="form-control colorpicker" value="" />
-                                        <div class="input-group-addon">
-                                            <i class="color-preview"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-1 paddingleft-0">
-                                        <a class="btn btn-primary btn-xs reset" data-color="#303641" href="javascript:void(0)">
-                                            <i class="entypo-ccw"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>-->
-
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
-                                    <div class="col-sm-8 input-group">
-                                        <input class="form-control opportunitytags" name="Tags" type="text" >
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!--<div class="col-md-6 margin-top-group pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Text Color</label>
-                                    <div class="col-sm-7 input-group paddingright-0">
-                                        <input name="TextColour" type="text" class="form-control colorpicker" value="" />
-                                        <div class="input-group-addon">
-                                            <i class="color-preview"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-1 paddingleft-0">
-                                        <a class="btn btn-primary btn-xs reset" data-color="#ffffff" href="javascript:void(0)">
-                                            <i class="entypo-ccw"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>-->
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="hidden" name="OpportunityID">
-                        <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <input type="hidden" name="TaskID">
+                        <button type="submit" id="task-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
                         </button>
@@ -711,15 +730,15 @@
         </div>
     </div>
 
-    <div class="modal fade" id="add-view-modal-opportunity-comments" data-backdrop="static">
+    <div class="modal fade" id="add-view-modal-task-comments" data-backdrop="static">
         <div id="card-features-details" class="modal-dialog">
             <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Opportunity Name</h4>
+                        <h4 class="modal-title">Task Name</h4>
                     </div>
                     <div class="modal-body">
-                        <form id="add-opportunity-comments-form" method="post" enctype="multipart/form-data">
+                        <form id="add-task-comments-form" method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <div class="col-md-12 text-left">
                                     <h4>Add Comment</h4>
@@ -739,7 +758,7 @@
                                     </span>
                                 </div>
                                 <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
-                                    <input type="hidden" name="OpportunityID" >
+                                    <input type="hidden" name="TaskID" >
                                     <input type="hidden" name="AccountID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
                                         <i class="entypo-floppy"></i>
@@ -757,10 +776,10 @@
                         <div id="attachments" class="form-group">
                         </div>
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
-                        <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
+                        <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-12" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
-                                <input type="hidden" name="OpportunityID" >
+                                <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                <input type="hidden" name="TaskID" >
                             </div>
                         </form>
                     </div>

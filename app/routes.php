@@ -639,6 +639,37 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');
     Route::any('/opportunitycomments/{id}/ajax_opportunitycomments', 'OpportunityCommentsController@ajax_opportunityComments');
 
+    //Task
+
+    Route::any('/task/manage', 'TaskController@manage');
+    Route::any('/task/{id}/configure', 'OpportunityBoardController@configure');
+    Route::any('/task/create', 'TaskController@create');
+    Route::any('/task/{id}/saveattachment', 'TaskController@saveattachment');
+    Route::any('/task/{id}/getlead', 'TaskController@getLead');
+    Route::any('/task/{id}/getDropdownLeadAccount', 'TaskController@getDropdownLeadAccount');
+    Route::any('/task/{id}/getopportunity', 'TaskController@getopportunity');
+    Route::any('/task/{id}/update', 'TaskController@update');
+    Route::any('/task/{id}/deleteattachment/{attachmentid}', 'TaskController@deleteAttachment');
+    Route::any('/task/{id}/updateColumnOrder', 'TaskController@updateColumnOrder');
+    Route::any('/task/{id}/ajax_task_board', 'TaskController@ajax_task_board');
+    Route::any('/task/{id}/ajax_task_grid', 'TaskController@ajax_task_grid');
+    Route::any('/task/{id}/ajax_getattachments', 'TaskController@ajax_getattachments');
+    Route::any('/task/{id}/updatetaggeduser', 'TaskController@updateTaggedUser');
+
+    //task boards column
+
+    Route::any('/taskboardcolumn', 'OpportunityBoardColumnController@index');
+    Route::any('/taskboardcolumn/create', 'OpportunityBoardColumnController@create');
+    Route::any('/taskboardcolumn/{id}/update', 'OpportunityBoardColumnController@update');
+    Route::any('/taskboardcolumn/{id}/delete', 'OpportunityBoardColumnController@delete');
+    Route::any('/taskboardcolumn/{id}/ajax_datacolumn', 'OpportunityBoardColumnController@ajax_datacolumn');
+    Route::any('/taskboardcolumn/{id}/updateColumnOrder', 'OpportunityBoardColumnController@updateColumnOrder');
+
+    //Task Comments
+
+    Route::any('/taskcomment/create', 'TaskCommentsController@create');
+    Route::any('/taskcomments/{id}/ajax_taskcomments', 'TaskCommentsController@ajax_taskComments');
+
 	//Product
 
 	Route::any('/products', 'ProductsController@index');

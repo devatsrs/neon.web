@@ -1,47 +1,59 @@
 <ul class="board-inner no-select" id="deals-dashboard">
-    @if(count($boradsWithOpportunities)>0)
-        @foreach($boradsWithOpportunities as $index=>$board )
+    @if(count($boardsWithTask)>0)
+        @foreach($boardsWithTask as $index=>$board )
             <?php//$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
             <header>
                 <h5>{{$columns[$index]['Name']}} {{(!empty($board[0])?'('.count($board).')':'')}}</h5>
             </header>
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
-                    @foreach($board as $curent=>$opportunity)
-                        @if(!empty($opportunity))
+                    @foreach($board as $curent=>$task)
+                        @if(!empty($task))
                             <?php
-                        $taggedUser = $opportunity['TaggedUser'];
-                        $opportunity = $opportunity['opportunity'];
-                        $backgroundcolour = '';//$opportunity['BackGroundColour']==''?'':'style="background-color:'.$opportunity['BackGroundColour'].';"';
-                        $textcolour = '';//$opportunity['TextColour']==''?'':'style="color:'.$opportunity['TextColour'].';"';
+                        $priorityarray = [Task::High=>'entypo-up-bold',Task::Medium=>'entypo-record',Task::Low=>'entypo-down-bold'];
+                        $taggedUser = $task['TaggedUser'];
+                        $task = $task['task'];
+                        $backgroundcolour = '';//$task['BackGroundColour']==''?'':'style="background-color:'.$task['BackGroundColour'].';"';
+                        $textcolour = '';//$task['TextColour']==''?'':'style="color:'.$task['TextColour'].';"';
+                        switch ($task['Priority']) {
+                            case 1:
+                                $priority='style="color:red;font-size:15px;"';
+                                break;
+                            case 2:
+                                $priority='style="color:#FAD839;font-size:15px;"';
+                                break;
+                            case 3:
+                                $priority='style="color:green;font-size:15px;"';
+                                break;
+                        }
                         $hidden = '';
-                        foreach($opportunity as $i=>$val){
+                        foreach($task as $i=>$val){
                             $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
                         }
 
-                        $ContactName = '';
+                        /*$ContactName = '';
                         $Owner = '';
-                        if(!empty($opportunity['ContactName'])){
-                            $ContactNameArray = explode(" ", $opportunity['ContactName']);
+                        if(!empty($task['ContactName'])){
+                            $ContactNameArray = explode(" ", $task['ContactName']);
                             foreach ($ContactNameArray as $w) {
                                 $ContactName .= $w[0];
                             }
                         }
-                        if(!empty($opportunity['Owner'])){
-                            $OwnerArray = explode(" ", $opportunity['Owner']);
+                        if(!empty($task['Owner'])){
+                            $OwnerArray = explode(" ", $task['Owner']);
                             foreach ($OwnerArray as $w) {
                                 $Owner .= $w[0];
                             }
-                        }
+                        }*/
                         ?>
-                            <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
+                            <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
+                                <div class="pull-left"><i class="edit-deal {{$priorityarray[$task['Priority']]}}" {{$priority}}></i></div>
                                 <div class="pull-right"><i class="edit-deal entypo-pencil" {{$textcolour}}></i></div>
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
                                 <div class="info">
-                                    <p {{$textcolour}} class="title">{{$opportunity['OpportunityName']}}</p>
-                                    <p {{$textcolour}} class="name">{{$opportunity['Company']}}</p>
+                                    <p {{$textcolour}} class="title">{{$task['Subject']}}</p>
                                 </div>
                                 <div class="pull-right bottom">
                                     @if(count($taggedUser)>0)
@@ -50,8 +62,6 @@
                                             <span {{$color}} class="badge badge-warning tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
                                         @endforeach
                                     @endif
-                                    <span class="badge badge-info tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{strtoupper($Owner)}}</span>
-                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
                                 </div>
                             </li>
                         @endif

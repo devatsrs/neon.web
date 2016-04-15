@@ -18,4 +18,10 @@ class CRMBoard extends \Eloquent {
         }
         return $opportunity;
     }
+
+    public static function getTaskBoard(){
+        $compantID = User::get_companyID();
+        $taskBoard = CRMBoard::where(['CompanyID'=>$compantID,'BoardType'=>CRMBoard::TaskBoard])->get();
+        return $taskBoard;
+    }
 }

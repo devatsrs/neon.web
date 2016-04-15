@@ -9,7 +9,7 @@
                 <a href="index.html"><i class="entypo-home"></i>Home</a>
             </li>
             <li class="active">
-                <a href="{{URL::to('opportunityboards')}}"> Board</a>
+                <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
             </li>
             <li class="active">
                 <strong>{{$Board->BoardName}}</strong>
@@ -17,7 +17,7 @@
         </ol>
     </div>
 
-    <h3>Configure Board</h3>
+    <h3>Manage Board</h3>
     <div id="manage-board">
         <p style="text-align: right;">
             <a href="{{URL::to('/opportunityboards')}}" class="btn btn-danger btn-sm btn-icon icon-left">

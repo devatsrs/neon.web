@@ -9,21 +9,24 @@
             <strong>Opportunity Board</strong>
         </li>
     </ol>
-
     <div class="tab-content">
         <div class="tab-pane active">
-            <div class="row">
-                <div class="col-md-12 clearfix">
-                    <h2>Boards
-                    </h2>
-                </div>
-            </div>
-            <div class="clear"></div>
-            <br>
             <p style="text-align: right;">
-                <a href="#" id="add-new-opportunityboard" class="btn btn-primary ">
+                <a href="#" id="add-new-taskboard" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
-                    Add New Board
+                    Add Task Board
+                </a>
+                <a href="javascript:void(0)" id="configure-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary ">
+                    <i class="entypo-cog"></i>
+                    Configure Task Board
+                </a>
+                <a href="javascript:void(0)" id="manage-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary ">
+                    <i class="entypo-cog"></i>
+                    Manage Task Board
+                </a>
+                <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
+                    <i class="entypo-plus"></i>
+                    Add Opportunity Board
                 </a>
             </p>
             <div class="row">
@@ -78,6 +81,8 @@
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
+                var opportunityBoard = '{{CRMBoard::OpportunityBoard}}';
+                var taskBoard = '{{CRMBoard::TaskBoard}}';
                 jQuery(document).ready(function ($) {
                     public_vars.$body = $("body");
                     $searchFilter.BoardName = $("#opportunityboard_filter [name='BoardName']").val();
@@ -189,17 +194,35 @@
                         $('#add-edit-modal-opportunity-board').modal('show');
                     });
 
-                    $('#add-new-opportunityboard').click(function (ev) {
+                    $('#add-new-opportunityboard,#add-new-taskboard').click(function (ev) {
                         ev.preventDefault();
+                        var id = $(this).attr('id');
                         $('#add-edit-opportunitybaord-form').trigger("reset");
                         $("#add-edit-opportunitybaord-form [name='BoardID']").val('');
-                        $('#add-edit-modal-opportunity-board h4').html('Add New Opportunity Board');
+                        var BoardType = id=='add-new-opportunityboard'?opportunityBoard:taskBoard;
+                        if(id=='add-new-taskboard'){
+                            $('.toHidden').addClass('hidden');
+                        }else{
+                            $('.toHidden').removeClass('hidden');
+                        }
+                        $("#add-edit-opportunitybaord-form [name='BoardType']").val(BoardType);
+                        $('#add-edit-modal-opportunity-board h4').html('Add New Board');
                         $('#add-edit-modal-opportunity-board').modal('show');
+                    });
+
+                    $('#configure-taskboard,#manage-taskboard').click(function(){
+                        var taskBoradID = $(this).attr('data-id');
+                        if(taskBoradID){
+                            var url = $(this).attr('id')=='configure-taskboard'?'{{URL::to('task/{id}/configure')}}':'{{URL::to('task/manage')}}';
+                            window.location = url.replace('{id}',taskBoradID);
+                        }else{
+                            toastr.error('Please create Task Board first.', "Error", toastr_opts);
+                        }
                     });
 
                     $('#add-edit-opportunitybaord-form').submit(function(e){
                         e.preventDefault();
-                        var BoardID = $("#add-edit-opportunitybaord-form [name='BoardID']").val()
+                        var BoardID = $("#add-edit-opportunitybaord-form [name='BoardID']").val();
                         if( typeof BoardID != 'undefined' && BoardID != ''){
                             update_new_url = baseurl + '/opportunityboards/'+BoardID+'/update';
                         }else{
@@ -293,10 +316,11 @@
                                     <label for="field-5" class="control-label">Board Name *</label>
                                     <input type="text" name="BoardName" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="BoardID" />
+                                    <input type="hidden" name="BoardType" value="{{CRMBoard::OpportunityBoard}}" />
                                 </div>
                             </div>
                             </div>
-                        <div class="row">
+                        <div class="row toHidden">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="control-label">Active</label>

@@ -24,7 +24,8 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function index(){
-        return View::make('opportunityboards.index', compact(''));
+        $taskBoard = CRMBoard::getTaskBoard();
+        return View::make('opportunityboards.index', compact('taskBoard'));
     }
 
 
@@ -35,7 +36,7 @@ class OpportunityBoardController extends \BaseController {
 
     public function manage($id){
         $Board = CRMBoard::find($id);
-        $account_owners = User::getOwnerUsersbyRole();
+        $account_owners = User::getUserIDList(0);
         $where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
