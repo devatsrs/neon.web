@@ -302,14 +302,9 @@
 			var criteria='';
 			var criteriaCountry='';
 			if(code_check == 1) { //bit for indicating Code Blocking unblocking
-			var Code_check_empty = $("#block_by_code_form [name='Code']").val();			
-			if(Code_check_empty!='')
-			{
+				
 				var ajax_data = $('#block_by_code_form').serialize() + '&' + $('#bulk-update-vendor-code-form').serialize();
-			}else
-			{
-				var ajax_data = $('#bulk-update-vendor-code-form').serialize();
-			}
+				
 				if($('#selectallbutton').is(':checked')) {
 					criteriaCountry=$searchFilter.Country;
 					ajax_data += '&criteria=1&criteriaCountry='+criteriaCountry;
@@ -366,6 +361,7 @@
 			$searchFilter.Trunk = $("#block_by_code_form select[name='Trunk']").val();
 			$searchFilter.Country = $("#block_by_code_form select[name='Country']").val();
 			$searchFilter.Code = $("#block_by_code_form [name='Code']").val();
+			
 			if(typeof $searchFilter.Trunk  == 'undefined' || $searchFilter.Trunk == '' ){
 				toastr.error("Please Select a Trunk", "Error", toastr_opts);
 				return false;
@@ -488,7 +484,7 @@
 		$("#blockSelectedCode,#unblockSelectedCode").click(function(){
 			var id = $(this).attr('id');
 			if (typeof $searchFilter.Trunk == 'undefined' || $searchFilter.Trunk == '') {
-				toastr.error("Please Search Code First", "Error", toastr_opts);
+				toastr.error("Please Search Code First", "Error", toastr_opts); 
 				return false;
 			}else if($searchFilter.Country == '0'){
 				toastr.error("Please Search Code First", "Error", toastr_opts);
