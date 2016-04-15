@@ -340,11 +340,6 @@
 
         //Bulk Clear Submit
         $("#clear-bulk-rate").click(function() {
-            var responsecheck = confirm('Are you sure?');
-            if(!responsecheck){
-                return false;
-            }
-
             var RateTableRateIDs = [];
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
@@ -640,7 +635,6 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
-                                <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label for="field-4" class="control-label">Effective Date</label>
 
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
@@ -651,7 +645,6 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
-                                <input type="checkbox" name="updateRate" class="" />
                                 <label for="field-5" class="control-label">Rate</label> <input
                                     type="text" name="Rate" class="form-control" id="field-5"
                                     placeholder="">
@@ -665,7 +658,6 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
-                                <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-4" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
 
@@ -676,7 +668,6 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
-                                <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-5" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
 
@@ -688,7 +679,6 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="checkbox" name="updateConnectionFee" class="" />
                                 <label for="field-5" class="control-label">Connection Fee</label>
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
