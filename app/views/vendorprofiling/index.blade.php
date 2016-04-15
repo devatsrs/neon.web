@@ -126,7 +126,12 @@
                     </div>
                 </div>
                 <div class="tab-pane " id="tab2" >
-                    <form id="block_by_country_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                 <ul class="nav nav-tabs">
+            <li class="active"><a class="shift_tab" href="#tab3">Block by Country</a></li>
+            <li ><a href="#tab4" class="shift_tab">Block by Code</a></li>
+        </ul>
+        <div class="shift_div_area" id="tab3">
+                    <form id="block_by_country_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -161,7 +166,9 @@
                         Unblock
                     </button>
                 </div>
-                    <form id="block_by_code_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                </div>
+                <div style="display:none;" class="shift_div_area" id="tab4">
+                    <form id="block_by_code_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -220,6 +227,7 @@
                         <tbody>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -362,7 +370,7 @@
 				"iDisplayLength": '{{Config::get('app.pageSize')}}',
 				"sPaginationType": "bootstrap",
 				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-				"aaSorting": [[3, 'desc']],
+				"aaSorting": [[1, 'asc']],
 				"fnServerParams": function(aoData) {
 					aoData.push({"name": "Trunk", "value": $searchFilter.Trunk},  {"name": "Country", "value": $searchFilter.Country},{"name": "Code", "value": $searchFilter.Code});
 					data_table_extra_params.length = 0;
@@ -558,6 +566,10 @@ function sort_table(table){
 }
 	function initCustomerGrid(tableID,OwnerFilter){
 		first_call = true;
+		var criteria =0;
+		if($('#selectallbutton').is(':checked')) {
+			criteria =1;
+		}
 		$searchFilter.OwnerFilter = "";
 		var data_table_new = $("#"+tableID).dataTable({
 			"bDestroy": true, // Destroy when resubmit form
@@ -572,7 +584,8 @@ function sort_table(table){
 						{"name": "Country", "value": $searchFilter.Country},
 						{"name": "Code", "value": $searchFilter.Code},
 						{"name": "SelectedCodes", "value": $searchFilter.SelectedCodes},
-						{"name": "action", "value": action_click}
+						{"name": "action", "value": action_click},
+						{"name": "criteria", "value": criteria}
 
 				);
 			},
@@ -625,6 +638,15 @@ function sort_table(table){
 		});
 	}
 
+	$(document).ready(function(e) {
+        $('.shift_tab').click(function(e) {
+			$(".shift_tab").parent().removeClass("active");
+			$(this).parent().addClass("active");
+            var show_div  = $(this).attr('href');
+			$('.shift_div_area').hide();
+			$(""+show_div).show();
+        });
+    });
 </script>
 <style>
 	.controle{
