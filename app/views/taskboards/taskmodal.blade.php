@@ -55,8 +55,8 @@
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
             $('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
-            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $('#add-task-form [name="AccountIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $('#add-task-form [name="UsersIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $('#add-task-form [name="AccountIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $('#add-modal-task h4').text('Add task');
             if(!BoardID){
                 accountID =$(this).attr('data-id');
