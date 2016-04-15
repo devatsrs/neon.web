@@ -264,26 +264,47 @@ class CodeDecksController extends \BaseController {
 
             $data = Input::all();
             $updatedta = array();
+            $error = array();
+            $rules = array();
             if(!empty($data['updateCountryID']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN'])){
-                if(!empty($data['updateCountryID']) && !empty($data['CountryID'])){
+                if(!empty($data['updateCountryID'])){
                     $updatedta['CountryID'] = $data['CountryID'];
                 }
-                if(!empty($data['updateDescription']) && !empty($data['Description'])){
-                    $updatedta['Description'] = $data['Description'];
+                if(!empty($data['updateDescription'])){
+                    if(!empty($data['Description'])){
+                        $updatedta['Description'] = $data['Description'];
+                    }else{
+
+                        $rules['Description'] = 'required';
+                    }
+
                 }
-                if(!empty($data['updateInterval1']) && !empty($data['Interval1'])){
-                    $updatedta['Interval1'] = $data['Interval1'];
+                if(!empty($data['updateInterval1'])){
+                    if(!empty($data['Interval1'])){
+                        $updatedta['Interval1'] = $data['Interval1'];
+                    }else{
+                        $rules['Interval1'] = 'required | numeric';
+                        //return Response::json(array("status" => "failed", "message" => "Please Insert Interval."));
+                    }
+
                 }
-                if(!empty($data['updateIntervalN']) && !empty($data['IntervalN'])){
-                    $updatedta['IntervalN'] = $data['IntervalN'];
+                if(!empty($data['updateIntervalN'])){
+                    if(!empty($data['IntervalN'])){
+                        $updatedta['IntervalN'] = $data['IntervalN'];
+                    }else{
+                        $rules['IntervalN'] = 'required | numeric';
+
+                    }
+
                 }
 
-                if(count($updatedta)==0){
-                    return Response::json(array("status" => "failed", "message" => "Please Insert Data."));
+                $validator = Validator::make($data, $rules);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
                 }
 
             }else{
-                return Response::json(array("status" => "failed", "message" => "Please Insert Data."));
+                return Response::json(array("status" => "failed", "message" => "Please check tic box and it's appropriate select value."));
             }
 
             $companyID = User::get_companyID();

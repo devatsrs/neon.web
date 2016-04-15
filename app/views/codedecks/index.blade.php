@@ -478,9 +478,13 @@ var postdata;
 
     });
 
-
-
-
+        $("#numbercheck").keypress(function (e) {
+            //if the letter is not digit then display error and don't type anything
+            if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                //display error message
+                return false;
+            }
+        });
 
 
     });
@@ -494,9 +498,9 @@ function bulk_update(fullurl,data){
         success: function(response) {
             $("#codedeck-update").button('reset');
             $(".btn").button('reset');
-            $('#modal-Codedeck').modal('hide');
 
             if (response.status == 'success') {
+                $('#modal-Codedeck').modal('hide');
                 $('#add-new-modal').modal('hide');
                 toastr.success(response.message, "Success", toastr_opts);
                 if( typeof data_table !=  'undefined'){
@@ -634,14 +638,14 @@ function bulk_update(fullurl,data){
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-5" class="control-label">Interval 1</label>
-                                <input type="text" value="1" name="Interval1" class="form-control" id="field-5" placeholder="">
+                                <input type="text" value="1" name="Interval1" class="form-control"  id="numbercheck" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-4" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN"  class="form-control" value="1" />
+                                <input type="text" name="IntervalN"  class="form-control" value="1"  id="numbercheck" />
                             </div>
                         </div>
                     </div>
