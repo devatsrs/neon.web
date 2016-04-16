@@ -82,7 +82,7 @@
                             </div>
                             <div class="checkbox ">
                                 <input type="hidden" name="CheckFile" value="0" >
-                                <label><input type="checkbox" id="rd-1" name="CheckFile" value="1"> Verify this file</label>
+                                <label><input type="checkbox" id="rd-1" name="CheckFile" checked value="1"> Verify this file</label>
                             </div>
                         </div>
                     </div>

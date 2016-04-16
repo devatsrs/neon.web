@@ -103,7 +103,7 @@
                                     <td><input type="checkbox" name="VendorTrunk[{{{$trunk->TrunkID}}}][Status]" class="rowcheckbox" value="1" @if(isset($vendor_trunks[$trunk->TrunkID]->Status) && $vendor_trunks[$trunk->TrunkID]->Status == 1) checked @endif ></td>
                                     <td>{{$trunk->Trunk}}</td>
                                     <td><input type="text" class="form-control" name="VendorTrunk[{{{$trunk->TrunkID}}}][Prefix]" value="@if(isset($vendor_trunks[$trunk->TrunkID]->Prefix)){{$vendor_trunks[$trunk->TrunkID]->Prefix}}@endif"  /></td>
-                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="VendorTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if((isset($vendor_trunks[$trunk->TrunkID]->UseInBilling) && $vendor_trunks[$trunk->TrunkID]->UseInBilling == 1)  || CompanySetting::getKeyVal('UseInBilling') == 1 ) checked @endif  ></td>
+                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="VendorTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if( ( isset($vendor_trunks[$trunk->TrunkID]->UseInBilling) && $vendor_trunks[$trunk->TrunkID]->UseInBilling == 1)  || (CompanySetting::getKeyVal('UseInBilling') == 1 && !isset($vendor_trunks[$trunk->TrunkID]->UseInBilling)) ) checked @endif  ></td>
                                     <td>
                                     <?php $CodeDeckId =  isset($vendor_trunks[$trunk->TrunkID])? $vendor_trunks[$trunk->TrunkID]->CodeDeckId:''?>
                                         {{ Form::select('VendorTrunk['.$trunk->TrunkID.'][CodeDeckId]', $codedecklist, $CodeDeckId , array("class"=>"select2 codedeckid")) }}
