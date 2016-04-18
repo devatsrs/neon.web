@@ -114,6 +114,17 @@
 
                 </div>
             </div>
+            <div class="form-group effective">
+                <label for="field-1" class="col-sm-3 control-label">Effective</label>
+                <div class="col-sm-5">
+
+                    <select name="Effective" class="selectboxit" data-allow-clear="true" data-placeholder="Select Effective">
+                        <option value="Now">Now</option>
+                        <option value="Future">Future</option>
+                        <option value="All">All</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group">
                 <label for="field-1" class="col-sm-3 control-label">Merge Output file By Trunk</label>
                 <div class="col-sm-5">

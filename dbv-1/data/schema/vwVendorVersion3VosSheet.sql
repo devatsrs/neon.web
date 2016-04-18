@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `vwVendorVersion3VosSheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorVersion3VosSheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT, IN `p_Effective` VARCHAR(50))
 BEGIN
 
 
@@ -20,7 +20,7 @@ BEGIN
 			AccountID int,
 			TrunkID int
 	);
-	 Call vwVendorCurrentRates(p_AccountID,p_Trunks);	
+	 Call vwVendorCurrentRates(p_AccountID,p_Trunks,p_Effective);	
 	 
 	 
 INSERT INTO tmp_VendorVersion3VosSheet_	 
