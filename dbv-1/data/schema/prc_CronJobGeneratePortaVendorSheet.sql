@@ -25,7 +25,8 @@ BEGIN
 								  	OR 
 								  	(p_Effective = 'All')
 								);
-
+								
+		 DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate4_;		
        CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate4_ as (select * from tmp_VendorRate_);	        
       DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
  	   AND n1.TrunkID = n2.TrunkID
