@@ -361,6 +361,7 @@ class RateTablesController extends \BaseController {
         $RateTableRate['Rate'] = $data['Rate'];
         $RateTableRate['Interval1'] = $data['Interval1'];
         $RateTableRate['IntervalN'] = $data['IntervalN'];
+        $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
         $rules = RateTableRate::$rules;
         $rules['RateID'] = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
         $validator = Validator::make($RateTableRate, $rules);
