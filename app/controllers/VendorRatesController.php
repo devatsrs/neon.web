@@ -741,10 +741,11 @@ class VendorRatesController extends \BaseController
         }else{
             $data['action'] = 1;
         }
-        
+
         $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.",".$criteria.")";
-        $accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
-        return $accounts->make();
+        //$accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
+        //return $accounts->make();
+        return DataTableSql::of($query)->make();
     }
 
     public function vendordownloadtype($id,$type){

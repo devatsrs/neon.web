@@ -104,7 +104,7 @@ class VendorProfilingController extends \BaseController {
                     $isCountry = 1;
                     $CountryIDs='';
                     if(!empty($data['criteriaCountry'])){
-                        if($data['criteriaCountry'][0]=','){
+                        if($data['criteriaCountry'][0]==','){
                             $CountryIDs = ltrim($data['criteriaCountry'],',');
                         }else{
                             $CountryIDs = $data['criteriaCountry'];
