@@ -187,13 +187,13 @@ $(".codedeckid").bind('change',function (e) {
             dataType: 'json',
             success: function(response) {
                 if(response > 0){
-                    changeConfirmation = confirm("Are you sure? Realated Rates will be deleted");
+                    changeConfirmation = confirm("Are you sure? Related Rates will be deleted");
                     if(changeConfirmation){
                         prev_val = current_obj.val();
                         current_obj.prop('selected', prev_val);
                         current_obj.parent().find('select.select2').select2().select2('val',prev_val);
-                        selectBox.selectOption("");
-                        current_obj.parent().find('[name="codedeckid"]').val(prev_val)
+                        //selectBox.selectOption('');
+                        current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                         current_obj.select2().select2('val',prev_val);
                         submit_ajax(baseurl + '/vendor_rates/{{$id}}/delete_vendorrates','Trunkid='+trunkid)
                     }else{

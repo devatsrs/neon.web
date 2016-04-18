@@ -236,13 +236,14 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	    });
 
 	    $(".codedeckid").bind('change',function (e) {
-	        var prev_val = $(this).parent().find('[name="codedeckid"]').val()
-	        var trunkid = $(this).parent().find('[name="trunkid"]').val()
+
+	        var prev_val = $(this).parent().find('[name="codedeckid"]').val();
+	        var trunkid = $(this).parent().find('[name="trunkid"]').val();
 	        var current_obj = $(this);
 	        var selectBox = current_obj.parent().next().find('.ratetableid').selectBoxIt().data("selectBox-selectBoxIt");
 	        selectBox.remove();
             var json = JSON.parse(ratabale);
-            selectBox.add({'text':'Select a Rate Table','value':''})
+            selectBox.add({'text':'Select a Rate Table','value':''});
             if( typeof  json[trunkid] != 'undefined'){
                 selectBox.add(json[trunkid][current_obj.val()]);
             }
@@ -253,13 +254,13 @@ var ratabale = '{{json_encode($rate_tables)}}';
                     dataType: 'json',
                     success: function(response) {
                         if(response > 0){
-                            changeConfirmation = confirm("Are you sure? Realated Rates will be deleted");
+                            changeConfirmation = confirm("Are you sure? Related Rates will be deleted");
                             if(changeConfirmation){
                                 prev_val = current_obj.val();
                                 current_obj.prop('selected', prev_val);
                                 current_obj.parent().find('select.select2').select2().select2('val',prev_val);
-                                selectBox.selectOption("");
-                                current_obj.parent().find('[name="codedeckid"]').val(prev_val)
+                                selectBox.selectOption('');
+                                current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
                                 submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid)
                             }else{
