@@ -134,6 +134,7 @@ class VendorBlockingsController extends \BaseController {
     }
 
     public function blockbycountry($id){
+        $AccountID = $id;
         $data = Input::all();
         $rules = array('CountryID' => 'required', 'Trunk' => 'required',);
         if(empty($data['CountryID']) && !empty($data['criteria']))
@@ -152,31 +153,48 @@ class VendorBlockingsController extends \BaseController {
         $results ='';
         $message ='';
         if(!empty($data['action'])){
+
+                $Code  = '';
+                $RateID  = '';
+                if($data['action']=='block') {
+                    $p_action = 'country_block';
+                    $message = "Vendor blocked";
+                }elseif($data['action']=='unblock'){
+                    $p_action = 'country_unblock';
+                    $message = "Vendor Unblocked";
+                }
                 if(empty($data['CountryID']) && !empty($data['criteria']))
                 {
                     $criteria = json_decode($data['criteria'],true);
-                    $criteria['Country'] = $criteria['Country'] != '' ? $criteria['Country'] : null;
-                    if($data['action']=='block') {
-                        /*@TODO: dev-mysql merge - need to fix*/
-                        $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID.", " . $id . "," . $criteria['Trunk'] . ",'" . $criteria['Country'] . "',null,'".$username."','".$criteria['Status']."',null,'country',1);");
-                        $message = "Vendor blocked";
-                    }elseif($data['action']=='unblock'){
-                        /*@TODO: dev-mysql merge - need to fix*/
-                        $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID.", " . $id . "," . $criteria['Trunk'] . ",'" . $criteria['Country'] . "',null,'".$username."','".$criteria['Status']."',null,'country',2);");
-                        $message = "Vendor Unblocked";
-                    }
+                    $TrunkID = $criteria['Trunk'];
+                    $CountryID = $criteria['Country'];
 
                 }else{
-                    if($data['action']=='block') {
-                        /*@TODO: dev-mysql merge - need to fix*/
-                        $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID."," . $id . "," . $data['Trunk'] . ",'" . $data['CountryID'] . "',null,'".$username."','All',null,'country',1);");
-                        $message = "Vendor blocked";
-                    }elseif($data['action']=='unblock'){
-                        /*@TODO: dev-mysql merge - need to fix*/
-                        $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID."," . $id . "," . $data['Trunk'] . ",'" . $data['CountryID'] . "',null,'".$username."','All',null,'country',2);");
-                        $message = "Vendor Unblocked";
-                    }
+                    $TrunkID = $data['Trunk'];
+                    $CountryID = $data['CountryID'];
                 }
+
+                $proc_args  =
+                    " ".$companyID          . ", ".
+                    " ".$AccountID          . ", ".
+                    "'".$Code               . "',".
+                    "'".$RateID             . "',".     //RateIDs
+                    "'".$CountryID         . "',".     //CountryIDs
+                    " ".$TrunkID            . ", ".
+                    "'".$username           . "',".
+                    "'".$p_action           . "' ";
+
+                /*IN `p_CompanyId` int,
+                IN `p_AccountId` int,
+                IN `p_code` VARCHAR(50),
+                `p_RateId` longtext,
+                IN `p_CountryId` longtext,
+                IN `p_TrunkID` varchar(50) ,
+                IN  IN `p_Username` varchar(100),
+                IN `p_action` varchar(100)*/
+
+                $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$proc_args.");");
+
                 if ($results) {
                     $success = true;
                 }
@@ -191,6 +209,7 @@ class VendorBlockingsController extends \BaseController {
     }
 
     public function blockbycode($id){
+        $AccountID = $id;
         $data = Input::all();
         $rules = array('RateID' => 'required', 'Trunk' => 'required',);
         if(empty($data['RateID']) && !empty($data['criteria']))
@@ -209,27 +228,51 @@ class VendorBlockingsController extends \BaseController {
         $results ='';
         $message ='';
         if(!empty($data['action'])){
+
+
+            $CountryID = '';
+            if($data['action']=='block') {
+                $p_action = 'code_block';
+                $message = "Vendor blocked";
+            }elseif($data['action']=='unblock'){
+                $p_action = 'code_unblock';
+                $message = "Vendor Unblocked";
+            }
+
             if(empty($data['RateID']) && !empty($data['criteria']))
             {
                 $criteria = json_decode($data['criteria'],true);
-                $criteria['Country'] = $criteria['Country'] != '' ? $criteria['Country'] : null;
-                $criteria['Code'] = $criteria['Code'] != ''?"'".$criteria['Code']."'":'null';
-                if($data['action']=='block') {
-                    $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID.", " . $id . "," . $criteria['Trunk'] . ",'" . $criteria['Country'] . "',null,'".$username."','".$criteria['Status']."',".$criteria['Code'].",'code',1);");
-                    $message = "Vendor blocked";
-                }elseif($data['action']=='unblock'){
-                    $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID.", " . $id . "," . $criteria['Trunk'] . ",'" . $criteria['Country'] . "',null,'".$username."','".$criteria['Status']."',".$criteria['Code'].",'code',2);");
-                    $message = "Vendor Unblocked";
-                }
+                $Code  = $criteria['Code'];
+                $TrunkID = $criteria['Trunk'];
+                $RateID = '';
+
             }else{
-                if($data['action']=='block') {
-                    $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID.", " . $id . "," . $data['Trunk'] . ",'','".$data['RateID']."','".$username."','All',null,'code',1);");
-                    $message = "Vendor blocked";
-                }elseif($data['action']=='unblock'){
-                    $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$companyID."," . $id . "," . $data['Trunk'] . ",'','".$data['RateID']."','".$username."','All',null,'code',2);");
-                    $message = "Vendor Unblocked";
-                }
+                $Code  = '';
+                $TrunkID = $data['Trunk'];
+                $RateID = $data['RateID'];
+
             }
+
+            $proc_args  =
+                " ".$companyID          . ", ".
+                " ".$AccountID          . ", ".
+                "'".$Code               . "',".
+                "'".$RateID             . "',".     //RateIDs
+                "'".$CountryID         . "',".     //CountryIDs
+                " ".$TrunkID            . ", ".
+                "'".$username           . "',".
+                "'".$p_action           . "' ";
+
+            /*IN `p_CompanyId` int,
+            IN `p_AccountId` int,
+            IN `p_code` VARCHAR(50),
+            `p_RateId` longtext,
+            IN `p_CountryId` longtext,
+            IN `p_TrunkID` varchar(50) ,
+            IN  IN `p_Username` varchar(100),
+            IN `p_action` varchar(100)*/
+
+            $results = DB::statement("call prc_VendorBlockUnblockByAccount (".$proc_args.");");
             if ($results) {
                 $success = true;
             }

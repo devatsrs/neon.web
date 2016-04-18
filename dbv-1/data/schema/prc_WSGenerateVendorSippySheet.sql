@@ -1,9 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVendorSippySheet`(IN `p_VendorID` INT  , IN `p_Trunks` varchar(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVendorSippySheet`(IN `p_VendorID` INT  , IN `p_Trunks` VARCHAR(200), IN `p_Effective` VARCHAR(50))
 BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
          
-        call vwVendorSippySheet(p_VendorID,p_Trunks); 
+        call vwVendorSippySheet(p_VendorID,p_Trunks,p_Effective); 
         SELECT 
 				 `Action [A|D|U|S|SA`,
                 id ,

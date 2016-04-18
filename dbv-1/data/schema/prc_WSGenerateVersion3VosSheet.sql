@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVersion3VosSheet`(IN `p_CustomerID` INT , IN `p_trunks` varchar(200) )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVersion3VosSheet`(IN `p_CustomerID` INT , IN `p_trunks` VARCHAR(200), IN `p_Effective` VARCHAR(50))
 BEGIN
 		DECLARE v_codedeckid_  INT;
 		DECLARE v_ratetableid_ INT;
@@ -89,13 +89,21 @@ BEGIN
                 WHERE   tblAccount.AccountID = p_CustomerID
                         AND tblRateTableRate.Rate > 0
                         And FIND_IN_SET(tblTrunk.TrunkId,p_trunks)!= 0
-                        AND ( EffectiveDate <= now() or ( v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW()) )
+                        -- AND ( EffectiveDate <= now() or ( v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW()) )
+                        AND 	(
+										    (p_Effective = 'Now' AND EffectiveDate <= NOW() OR (v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW() ) )
+										 OR (p_Effective = 'Future' AND EffectiveDate > NOW())
+										 OR  p_Effective = 'All'
+										)
                ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC;
-    
+         
+    		DROP TEMPORARY TABLE IF EXISTS tmp_RateTable4_;
     		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTable4_ as (select * from tmp_RateTable_);	        
          DELETE n1 FROM tmp_RateTable_ n1, tmp_RateTable4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
 	 	   AND n1.Trunk = n2.Trunk
-		   AND  n1.RateId = n2.RateId;
+		   AND  n1.RateId = n2.RateId
+		   AND n1.EffectiveDate <= now()
+			AND n2.EffectiveDate <= now() ;
 		   
 		   
         INSERT INTO tmp_CustomerRate_
@@ -134,14 +142,22 @@ BEGIN
                 WHERE   tblAccount.AccountID = p_CustomerID
                         AND tblCustomerRate.Rate > 0 
                         And FIND_IN_SET(tblTrunk.TrunkId,p_trunks)!= 0
-                        AND EffectiveDate <= now()
+                        AND (
+									  	(p_Effective = 'Now' AND EffectiveDate <= NOW()) 
+									  	OR 
+									  	(p_Effective = 'Future' AND EffectiveDate > NOW())
+									  	OR 
+									  	(p_Effective = 'All')
+									) 
                ORDER BY tblCustomerRate.CustomerId,tblCustomerRate.TrunkId,tblCustomerRate.RateID,tblCustomerRate.effectivedate DESC;
 		
-		
+			DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;		
 			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRate_);	        
          DELETE n1 FROM tmp_CustomerRate_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
 	 	   AND n1.Trunk = n2.Trunk
-		   AND  n1.RateId = n2.RateId;
+		   AND  n1.RateId = n2.RateId
+		   AND n1.EffectiveDate <= now()
+			AND n2.EffectiveDate <= now() ;
     
          INSERT INTO tmp_tbltblRate_
 			SELECT    RateID
