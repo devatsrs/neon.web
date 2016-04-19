@@ -131,7 +131,7 @@ class AccountActivityController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
+		
         try{
             $status = sendMail('emails.account.AccountEmailSend',$data);
             if($status['status'] == 1){
@@ -147,6 +147,40 @@ class AccountActivityController extends \BaseController {
 
 
     }
+	
+	public function sendMailApi($AccountID)
+	{		
+	    $data 					= 	Input::all();
+		$data['AccountID']		=   $AccountID;
+       
+		if (Input::hasFile('emailattachment')) {
+            $emailattachment 	= 	Input::file('emailattachment');
+            $data['file'] 		= 	NeonAPI::base64byte($emailattachment);
+        }
+		
+		
+		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);		
+		//print_r($data);
+		echo "___________________________________________________________";
+		print_r($response);
+		exit;
+		if(!isset($response->status_code )){
+				return  json_response_api($response);
+			}
+			
+			if ($response->status_code == 200) {			
+				$response = $response->data->result;
+				$response->type = 2;
+				
+			}
+			else{
+			 return  json_response_api($response);
+			}
+			
+			$key 			= $data['scrol']!=""?$data['scrol']:0;	
+			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+	}
 
     public function delete_email_log($AccountID,$logID){
         if( intval($logID) > 0){

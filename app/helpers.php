@@ -32,7 +32,8 @@ function json_response_api($response){
                 }
             }
         }
-    }else{
+    }else{		
+		print_r($response); exit;
         $errors = $response->message;
     }
     return  Response::json(array("status" => "failed", "message" => $errors));
@@ -122,6 +123,25 @@ function sendMail($view,$data){
     if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
         $data['EmailTo']  = explode(',',$data['EmailTo']);
     }
+	
+	if(is_array($data['cc']))	
+	{
+		foreach($data['cc'] as $cc_address)
+		{
+			$user_data = User::where(["EmailAddress" => $cc_address])->get();
+			$mail->AddCC($cc_address, $user_data[0]['FirstName'].' '.$user_data[0]['LastName']);
+		}
+	}
+	
+	if(is_array($data['bcc']))	
+	{
+		foreach($data['bcc'] as $bcc_address)
+		{
+			$user_data = User::where(["EmailAddress" => $bcc_address])->get();
+			
+			$mail->AddBCC($bcc_address, $user_data[0]['FirstName'].' '.$user_data[0]['LastName']);
+		}
+	}
 
     if(is_array($data['EmailTo'])){
         foreach((array)$data['EmailTo'] as $email_address){
@@ -594,6 +614,16 @@ function email_log($data){
     if(is_array($data['EmailTo'])){
         $data['EmailTo'] = implode(',',$data['EmailTo']);
     }
+	
+	if(!isset($data['cc']) || !is_array($data['cc']))
+	{
+		$data['cc'] = array();
+	}
+	
+	if(!isset($data['bcc']) || !is_array($data['bcc']))
+	{
+		$data['bcc'] = array();
+	}
 
     $logData = ['EmailFrom'=>User::get_user_email(),
         'EmailTo'=>$data['EmailTo'],
@@ -602,7 +632,9 @@ function email_log($data){
         'AccountID'=>$data['AccountID'],
         'CompanyID'=>User::get_companyID(),
         'UserID'=>User::get_userID(),
-        'CreatedBy'=>User::get_user_full_name()];
+        'CreatedBy'=>User::get_user_full_name(),
+		'Cc'=>implode(",",$data['cc']),
+		'Bcc'=>implode(",",$data['bcc'])];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;
     }

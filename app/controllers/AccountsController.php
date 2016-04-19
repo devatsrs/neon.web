@@ -199,29 +199,40 @@ class AccountsController extends \BaseController {
             return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
     }
 	
-	    public function show1($id) {
-		
-            $account 			= 	Account::find($id);
-            $companyID 			= 	User::get_companyID();
-            $account_owner 		= 	User::find($account->Owner);
-            $notes 				= 	Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
-            $contacts 			= 	Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-            $verificationflag 	= 	AccountApprovalList::isVerfiable($id);
-            $outstanding 		= 	Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
-            $currency 			= 	Currency::getCurrencySymbol($account->CurrencyId);
-            $activity_type 		= 	AccountActivity::$activity_type;
-            $activity_status 	=	[1 => 'Open', 2 => 'Closed'];
-
-            $data['iDisplayStart'] 	   =	0;
-            $data['iDisplayStart'] 	  +=	1;
-            $data['iDisplayLength']    =    10;
-            $data['AccountID']         =    $id;
-
-            $PageNumber                =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
-            $RowsPerPage               =    $data['iDisplayLength'];
-            $response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
-
-            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response'));
+	    public function show1($id) {		
+            $account 					= 	 Account::find($id);
+            $companyID 					= 	 User::get_companyID();
+            $account_owner 				= 	 User::find($account->Owner);
+            $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
+            $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+			$verificationflag 			= 	 AccountApprovalList::isVerfiable($id);
+            $outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $currency 					= 	 Currency::getCurrencySymbol($account->CurrencyId);
+            $activity_type 				= 	 AccountActivity::$activity_type;
+            $activity_status 			=	 [1 => 'Open', 2 => 'Closed'];
+			$UserList				  	=	 USer::getUserIDList();			
+            $data['iDisplayStart'] 	    =	 0;          
+            $data['iDisplayLength']     =    10;
+            $data['AccountID']          =    $id;
+            $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
+            $RowsPerPage                =    $data['iDisplayLength'];
+			$message 					= 	 '';
+            $response 				    = 	 NeonAPI::request('account/GetTimeLine',$data,false);
+			$sql 						= 	 "call prc_GetAccounts (1,0,0,0,1,2,'','','".$account->AccountName."','',1 ,50,'AccountName','asc',0)";
+			$Account_card  				= 	 DB::select($sql);
+	
+			// echo Session::get("api_token"); exit;
+			//echo "<pre>";			print_r($response);	exit;
+			 if (isset($response->status_code) && $response->status_code == 200) {			
+				$response = $response->data->result->aaData;
+			}else{				
+			 	$message	=	isset($response->message)?$response->message:$response->error;
+			 	Session::set('error_message',$message);
+			}
+			
+			$per_scroll 			=   $data['iDisplayLength'];
+			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card'));
     }
 	
 	
@@ -232,6 +243,32 @@ class AccountsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
+	 
+	 public function GetTimeLineSrollData($id,$start)
+	 {
+		  	$data = Input::all();
+		 	$data['iDisplayStart'] 	   =	$start;
+            $data['iDisplayLength']    =    10;
+            $data['AccountID']         =    $id;			
+			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
+
+			if(!isset($response->status_code )){
+				return  json_response_api($response);
+			}
+			
+			if ($response->status_code == 200) {			
+				$response = $response->data->result->aaData;
+			}
+			else{
+			 return  json_response_api($response);
+			}
+			
+			$key = $data['scrol'];
+			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
+			
+	 }
+	 
     public function edit($id) {
             $account = Account::find($id);
             $companyID = User::get_companyID();
@@ -383,9 +420,27 @@ class AccountsController extends \BaseController {
         $data['CompanyID'] 		= 	$companyID;
         $data['AccountID'] 		= 	$id;
         $data['created_by'] 	=	$user_name;
-        $data["Note"] 			= 	nl2br($data["Note"]);		
+        $data["Note"] 			= 	nl2br($data["Note"]);
+		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
+		unset($data["scrol"]);		
  		$response 				= 	NeonAPI::request('account/add_note',$data);
-	    return json_response_api($response);
+		
+		if(!isset($response->status_code )){
+			return  json_response_api($response);
+		}
+		
+		if ($response->status_code == 200) {			
+			$response = $response->data->result;
+			$response->type = 3;
+			
+		}
+		else{
+		 return  json_response_api($response);
+		}
+		
+		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+		///
     }
 
     /**

@@ -37,8 +37,24 @@
 
         //After Note Save.
         FnAddNoteSuccess = function(response){
+			  $(".save.btn").button('reset');
+            if (response.message) {
+				 ShowToastr("error",response.message);
+            } else {
+				per_scroll = count;
+                ShowToastr("success","Note Successfully Created");                         
+                $('#timeline-ul li:eq(0)').before(response);
+				document.getElementById('notes-from').reset();
+            }
+      			
+			
+			}
+		
+		//After Email Save.
+        FnAddEmailSuccess = function(response){
+			alert(response);
             $(".save.btn").button('reset');
-            if (response.NoteID) {
+            if (response.AccountEmailLogID) {
                 ShowToastr("success",response.message);
                 var getClass = $(".count-li");
                 var count = 0;
@@ -47,7 +63,7 @@
                 });
                 var addCount = count + 1;
                 var noteContent = $("#note-content").val();
-                var html = '<li id="timeline-' + addCount + '" class="count-li"><time class="cbp_tmtime" datetime="2014-03-27T03:45"><span>Now</span></time><div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div><div class="cbp_tmlabel"><h2 onclick="expandTimeLine(' + addCount + ')">You <span>added a note</span></h2><a id="show-more-' + addCount + '" onclick="expandTimeLine(' + addCount + ')" class="pull-right show-less">Show More<i class="entypo-down-open"></i></a><div id="hidden-timeline-' + addCount + '"   class="details no-display"><p>' + noteContent + '</p><a class="pull-right show-less" onclick="hideDetail(' + addCount + ')">Show Less<i class="entypo-up-open"></i></a></div></div></li>';
+                var html = '<li id="timeline-' + addCount + '" class="count-li"><time class="cbp_tmtime" datetime="2014-03-27T03:45"><span>Now</span></time><div class="cbp_tmicon bg-success"><i class="entypo-mail"></i></div><div class="cbp_tmlabel"><h2 onclick=emailDialog()>You <span>sent an email to </span>' + response.EmailTo + '</h2><a id="show-more-' + addCount + '" onclick="expandTimeLine(' + addCount + ')" class="pull-right show-less">Show More<i class="entypo-down-open"></i></a><div id="hidden-timeline-' + addCount + '" class="details no-display"><p>CC: &nbsp; '+response.EmailTo+' </p><p>BCC: &nbsp; '+response.EmailTo+'</p><p>Subject: &nbsp; '+response.Subject+'</p><p>Email: &nbsp; '+response.EmailTo+'</p><a class="pull-right show-less" onclick="hideDetail(' + addCount + ')">Show Less<i class="entypo-up-open"></i></a></div></div></li>';
                 $('#timeline-ul li:eq(0)').before(html);
 
             } else {

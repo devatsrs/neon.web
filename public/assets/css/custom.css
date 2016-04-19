@@ -1386,3 +1386,11 @@ dialog {
 	}	
 }
 /*account tineline css end*/
+
+
+.comment-box-options {
+    text-align: right;
+    position: relative;
+    top: -20px;
+    right: 3px;
+}
