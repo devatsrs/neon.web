@@ -703,7 +703,6 @@ class VendorRatesController extends \BaseController
     public  function search_vendor_grid($id){
         $CompanyID = User::get_companyID();
         $data = Input::all();
-
         $UserID = 0;
         $SelectedCodes = 0;
         $isCountry = 1;
@@ -717,25 +716,50 @@ class VendorRatesController extends \BaseController
         if (isset($data['OwnerFilter']) && $data['OwnerFilter'] != 0) {
             $UserID = $data['OwnerFilter'];
         }
-        if(isset($data['SelectedCodes']) && !empty($data['SelectedCodes']) &&empty($data['criteria'])){
-            $SelectedCodes = $data['SelectedCodes'];
-            $isCountry = 0;
-            $criteria = 0;
+
+        //block by contry
+        if(isset($data['block_by']) && $data['block_by']=='country')
+        {
+            $isCountry=1;
+            if(in_array(0,explode(',',$data['Country']))){
+                $isall = 1;
+            }elseif(!empty($data['Country'])){
+                $isall = 0;
+                $countries = $data['Country'];
+            }
+
         }
 
-        if(isset($data['Code']) && !empty($data['Code']) && !empty($data['criteria'])){
-            $SelectedCodes = $data['Code'];
-            $isCountry = 0;
-            $criteria = 1;
+        //block by code
+        if(isset($data['block_by']) && $data['block_by']=='code')
+        {
+            $isCountry=0;
+            $isall = 0;
+            // by critearia
+            if(!empty($data['criteria']) && $data['criteria']==1){
+                if(!empty($data['Code']) || !empty($data['Country'])){
+                    if(!empty($data['Code'])){
+                        $criteria = 1;
+                        $SelectedCodes = $data['Code'];
+                    }else{
+                        $criteria = 2;
+                        if(!empty($data['Country'])){
+                            $isall = 0;
+                            $countries = $data['Country'];
+                        }
+                    }
+                }else{
+                    $criteria = 3;
+                }
+
+            }elseif(!empty($data['SelectedCodes'])){
+                //by code
+                $SelectedCodes = $data['SelectedCodes'];
+                $criteria = 0;
+            }
+
         }
 
-
-        if(in_array(0,explode(',',$data['Country']))){
-            $isall = 1;
-        }
-        if(!empty($data['Country'])){
-            $countries = $data['Country'];
-        }
         if($data['action'] == 'block'){
             $data['action'] = 0;
         }else{

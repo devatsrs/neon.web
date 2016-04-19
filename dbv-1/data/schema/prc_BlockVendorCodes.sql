@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_BlockVendorCodes`(IN `p_companyid` INT , IN `p_AccountId` TEXT, IN `p_trunkID` INT, IN `p_CountryIDs` TEXT, IN `p_Codes` TEXT, IN `p_Username` VARCHAR(100), IN `p_action` TEXT, IN `p_isCountry` INT, IN `p_isAllCountry` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_BlockVendorCodes`(IN `p_companyid` INT , IN `p_AccountId` TEXT, IN `p_trunkID` INT, IN `p_CountryIDs` TEXT, IN `p_Codes` TEXT, IN `p_Username` VARCHAR(100), IN `p_action` INT, IN `p_isCountry` INT, IN `p_isAllCountry` INT, IN `p_criteria` INT)
 BEGIN	 
 
 		
@@ -10,6 +10,7 @@ BEGIN
 	THEN	
 		SELECT GROUP_CONCAT(CountryID) INTO p_CountryIDs  FROM tblCountry;
 	END IF;
+	
 	IF p_isCountry = 0
 	THEN
 		DROP TEMPORARY TABLE IF EXISTS tmp_codes_;
@@ -17,7 +18,8 @@ BEGIN
 				Code varchar(20)
 		);
 	END IF;	
-   		IF p_isAllCountry = 2 -- code with selected row
+	
+   		IF p_criteria = 0 and p_isCountry = 0 -- code with selected row
 		THEN
    		insert into tmp_codes_
 		   SELECT  distinct tblRate.Code 
@@ -27,7 +29,7 @@ BEGIN
            WHERE    tblRate.CompanyID = p_companyid  AND ( p_Codes  = '' OR FIND_IN_SET(tblRate.Code,p_Codes) != 0 );
         END IF;   
 
-        IF p_isAllCountry = 3 -- code with critearea
+        IF p_criteria = 1 and p_isCountry = 0 -- code with critearea
 		THEN
    		insert into tmp_codes_
 		   SELECT  distinct tblRate.Code 
@@ -35,6 +37,26 @@ BEGIN
           INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
           INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
            WHERE    tblRate.CompanyID = p_companyid  AND ( p_Codes  = '' OR Code LIKE REPLACE(p_Codes,'*', '%') );
+        END IF; 
+		
+		IF p_criteria = 2 and p_isCountry = 0 -- country with critearea
+		THEN
+   		insert into tmp_codes_
+		   SELECT  distinct tblRate.Code 
+            FROM    tblRate
+          INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
+          INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
+           WHERE    tblRate.CompanyID = p_companyid  AND ( p_CountryIDs  = 0 OR FIND_IN_SET(tblRate.CountryID,p_CountryIDs) != 0 );
+        END IF; 
+		
+		IF p_criteria = 3 and p_isCountry = 0 -- all rate
+		THEN
+   		insert into tmp_codes_
+		   SELECT  distinct tblRate.Code 
+            FROM    tblRate
+          INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
+          INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
+           WHERE    tblRate.CompanyID = p_companyid;
         END IF; 
 	
 	 
