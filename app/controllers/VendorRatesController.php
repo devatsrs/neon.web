@@ -328,7 +328,8 @@ class VendorRatesController extends \BaseController
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            return Redirect::back()->withInput(Input::all())->withErrors($validator);
+            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
+            return json_validator_response($validator);
         }
         $username = User::get_user_full_name();
         $VendorIDs = explode(",", $data['VendorRateID']);
