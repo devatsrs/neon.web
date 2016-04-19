@@ -547,7 +547,7 @@ class EstimatesController extends \BaseController {
             }
 			else
 			{
-                return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
+                return Response::json(array("status" => "failed", "message" => "You cannot create estimate as no Invoice Template assigned to this account." ));
             }			
             return Response::json(compact($return));
         }
