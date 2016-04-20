@@ -148,6 +148,8 @@ BEGIN
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
 		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates3_;
 	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
+	   DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates5_;
+	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates5_ as (select * from tmp_CustomerRates_);
 
     INSERT INTO tmp_RateTableRate_
             SELECT
@@ -184,6 +186,7 @@ BEGIN
                           FROM tmp_CustomerRates_ as cr
                           WHERE cr.RateID = tblRateTableRate.RateID
 								)
+							AND (SELECT count(*) from tmp_CustomerRates5_ cr where cr.RateID = tblRateTableRate.RateID AND cr.EffectiveDate <= NOW() ) = 0  
 						)
 						or  (  SELECT count(*) from tmp_CustomerRates3_ cr where cr.RateID = tblRateTableRate.RateID ) = 0
 					)
@@ -328,7 +331,9 @@ BEGIN
                 )
             OR p_Effective = 'All'
 
-            )) allRates
+            )
+				
+				) allRates
             ON allRates.RateID = r.RateID
          LEFT JOIN tblTrunk on tblTrunk.TrunkID = RoutinePlan
         WHERE (p_contryID IS NULL OR r.CountryID = p_contryID)
