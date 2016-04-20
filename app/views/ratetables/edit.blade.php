@@ -125,7 +125,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-	var codedeckid = '{{$id}}';
+    var codedeckid = '{{$id}}';
     var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
     jQuery(document).ready(function($) {
 
@@ -195,9 +195,15 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports",
-                                    sButtonClass: "save-collection"
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/xlsx",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/csv",
+                                    sButtonClass: "save-collection btn-sm"
                                 }
                             ]
                         },
@@ -493,7 +499,7 @@
             submit_ajax(fullurl,$("#new-rate-form").serialize());
         return false;
         });
-		$('#rateid_list').select2({
+        $('#rateid_list').select2({
             placeholder: 'Enter a Code',
             minimumInputLength: 1,
             ajax: {

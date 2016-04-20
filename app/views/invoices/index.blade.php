@@ -14,7 +14,10 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+<style>
+#table-4_wrapper{padding-left:15px; padding-right:15px;}
+.small-row{margin-left:0px; margin-right:0px;}
+</style>
 
 
 <p style="text-align: right;">
@@ -41,7 +44,7 @@
 </p>
 <div class="row">
     <div class="col-md-12">
-        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -53,59 +56,60 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Type</label>
                         <div class="col-sm-2">
                             {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Account</label>
+                        <label for="field-1" class="col-sm-1 control-label">Account</label>
                         <div class="col-sm-2">
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Status</label>
                         <div class="col-sm-2">
                             {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
-
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Number</label>
+            <label for="field-1" class="col-sm-1 control-label">Hide Zero Invoice Value</label>
                         <div class="col-sm-2">
-                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
-                        </div>
-                         <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
-                        <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
                             </p>
                         </div>
+
                     </div>
-                    <p style="text-align: right;">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
+                        <div class="col-sm-2">
+                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
+                        </div>
+                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
+                        <div class="col-sm-2">
+                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                        </div>
+                        <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
+                        <div class="col-sm-2">
+                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                        </div>
+                   
+            
+                          <label for="field-1" class="col-sm-1 control-label">Currency</label>
+                     <div class="col-sm-2">
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
+                    </div>                  
+                </div>
+                  <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-search"></i>
                             Search
                         </button>
                     </p>
-                </div>
             </div>
         </form>
     </div>
 </div>
-<div class="row">
+<div class="row small-row">
  <div  class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:230px;">
+        <div class="input-group-btn pull-right" style="width:180px;">
             <span style="text-align: right;padding-right: 10px;"><button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button></span>
             <!--<span style="text-align: right;padding-right: 10px;"><button type="button" id="selectallbutton"  class="btn btn-primary "><i class="entypo-check"></i><span>Select all found Accounts</span></button></span>-->
             @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
@@ -161,15 +165,15 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="5%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
                 <div class="pull-right"> Sent/Receive</div></th>
-        <th width="20%">Account Name</th>
+        <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
         <th width="10%">Grand Total</th>
         <th width="10%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
-        <th width="25%">Action</th>
+        <th width="20%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -196,20 +200,21 @@ var postdata;
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
         $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+		$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
             },
              "aoColumns":
             [
@@ -264,7 +269,7 @@ var postdata;
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
                 {  "bSortable": true },  // 4 GrandTotal
-                {  "bSortable": true },  // 4 GrandTotal
+                {  "bSortable": true },  // 4 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
                         return invoicestatus[full[6]];
@@ -354,13 +359,20 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/invoice/ajax_datagrid", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/csv", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },
            "fnDrawCallback": function() {
+				   get_total_grand(); //get result total
                 $('#table-4 tbody tr').each(function(i, el) {
                     if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                         if (checked != '') {
@@ -440,9 +452,54 @@ var postdata;
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+			$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
             data_table.fnFilter('', 0);
             return false;
         });
+		
+		
+				function get_total_grand()
+		{
+			 $.ajax({
+                url: baseurl + "/invoice/ajax_datagrid_total",
+                type: 'GET',
+                dataType: 'json',
+				data:{
+			"InvoiceType":$("#invoice_filter [name='InvoiceType']").val(),
+			"AccountID":$("#invoice_filter select[name='AccountID']").val(),
+			"InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
+			"InvoiceStatus":$("#invoice_filter select[name='InvoiceStatus']").val(),
+			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
+			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
+			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
+			"CurrencyID":$("#invoice_filter [name='CurrencyID']").val(),
+			"bDestroy": true,
+            "bProcessing":true,
+            "bServerSide":true,
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[3, 'desc']],},
+                success: function(response1) {
+					console.log("sum of result"+response1);
+						if(response1.total_grand!=null)
+						{ 
+						$('.result_row').remove();
+						$('.result_row').hide();
+							var selected_currency  =	 $("#invoice_filter [name='CurrencyID']").val();
+							var concat_currency    = 	 '';
+							if(selected_currency!='')
+							{							
+		//						concat_currency = $("#invoice_filter [name='CurrencyID'] option:selected").text()+' ';		
+								var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
+								var concat_currency = currency_txt.substr(0,1);
+							}
+				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
+						}
+					},
+			});	
+		}
 		
 		
 		
@@ -949,6 +1006,7 @@ var postdata;
                 processData: false
             });
         });
+		
         $("#test").click(function(e){
             e.preventDefault();
             $("#BulkMail-form").find('[name="test"]').val(1);
@@ -1027,7 +1085,7 @@ var postdata;
                     data_table.fnFilter('', 0);
                 },1000);
         });
-
+ 
 });
 
 </script>
@@ -1099,7 +1157,7 @@ var postdata;
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Start Date</label>
                         <div class="col-sm-2">
-                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                         </div>
                         <div class="col-sm-2">
                             <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">

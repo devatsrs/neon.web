@@ -10,12 +10,13 @@ class LeadsController extends \BaseController {
     }
 
     public function ajax_datagrid(){
-
+	
        $companyID = User::get_companyID();
        $userID = User::get_userID();
         $data = Input::all();
-        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'Address1','Address2','Address3','City','Country','Picture'];
-        $leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
+        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
+        //$leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
+		$leads = Account::select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 
         if (User::is('AccountManager')) { // Account Manager
             $leads->where(["tblAccount.Owner" => $userID ]);
@@ -32,13 +33,9 @@ class LeadsController extends \BaseController {
         }
         if(trim($data['account_name']) != '') {
             $leads->where('tblAccount.AccountName', 'like','%'.trim($data['account_name']).'%');
-        }
-        if(trim($data['account_number']) != '') {
-            $leads->where('tblAccount.Number','like', '%'.trim($data['account_number']).'%');
-        }
+        }       
         if(trim($data['contact_name']) != '') {
-            $leads->leftjoin('tblContact', 'tblContact.Owner', '=', 'tblAccount.AccountID');
-            $leads->whereRaw(  " concat(tblContact.FirstName,' ', tblContact.LastName) like '%".trim($data['contact_name'])."%'");
+            $leads->whereRaw("concat(tblAccount.FirstName,' ', tblAccount.LastName) like '%".trim($data['contact_name'])."%'");
         }
         if(trim($data['tag']) != '') {
             $leads->where('tblAccount.tags', 'like','%'.trim($data['tag']).'%');
@@ -322,25 +319,36 @@ class LeadsController extends \BaseController {
     }
 
 
-    public function exports()
+    public function exports($type)
     {
             $companyID = User::get_companyID();
             $userID = User::get_userID();
             $data = Input::all();
             if (isset($data['sSearch_0']) && ($data['sSearch_0'] == '' || $data['sSearch_0'] == '1')) {
                 if (User::is_admin() || User::is('AccountManager')) { // Account Manager
-                    $accounts = Account::where(["Status" => 1, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName", "Phone", "Email"]);
+                    $accounts = Account::where(["Status" => 1, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as Company",DB::raw('CONCAT(FirstName,LastName) as Name'), "Phone", "Email"]);
                 }
             } else {
                 if (User::is_admin() || User::is('AccountManager')) { // Account Manager
-                    $accounts = Account::where(["Status" => 0, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName", "Phone", "Email"]);
+                    $accounts = Account::where(["Status" => 0, "AccountType" => 0, "CompanyID" => $companyID])->orderBy("AccountID", "desc")->get(["AccountName as LeadName",DB::raw('CONCAT(FirstName,LastName) as Name'), "Phone", "Email"]);
                 }
             }
-            Excel::create('Leads', function ($excel) use ($accounts) {
+            $excel_data = json_decode(json_encode($accounts),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Leads.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Leads.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Leads', function ($excel) use ($accounts) {
                 $excel->sheet('Leads', function ($sheet) use ($accounts) {
                     $sheet->fromArray($accounts);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
     public function bulk_mail(){

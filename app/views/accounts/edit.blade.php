@@ -19,6 +19,12 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+@if($account->VerificationStatus == Account::NOT_VERIFIED)
+     <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
+        <i class="entypo-check"></i>
+        Verify
+    </a>
+    @endif
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Authentication Rule
@@ -578,6 +584,44 @@
 </div>
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
+		//account status start
+		$(".change_verification_status").click(function(e) {
+		if (!confirm('Are you sure you want to change verification status?')) {
+			return false;
+		}
+		
+
+		var id = $(this).attr("data-id");
+		varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/'+{{Account::VERIFIED}}
+		varification_url = varification_url.replace('{id}',id);
+
+		$.ajax({
+			url: varification_url,
+			type: 'POST',
+			dataType: 'json',
+			success: function(response) {
+				$(this).button('reset');
+				if (response.status == 'success') {
+					$('.toast-error').remove();
+					$('.change_verification_status').remove();
+					toastr.success(response.message, "Success", toastr_opts);					
+				} else {
+					toastr.error(response.message, "Error", toastr_opts);
+				}
+			},
+
+			// Form data
+			//data: {},
+			cache: false,
+			contentType: false,
+			processData: false
+		});
+		return false;
+	});
+		//account status end
+		
+		
+		
         $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
         $("#save_account").click(function (ev) {
             ev.preventDefault();
@@ -762,8 +806,6 @@
 
             @if ($account->VerificationStatus == Account::NOT_VERIFIED)
                 $(".btn-toolbar .btn").first().button("toggle");
-            @elseif ($account->VerificationStatus == Account::PENDING_VERIFICATION)
-                $(".btn-toolbar .btn").first().next().button("toggle");
             @elseif ($account->VerificationStatus == Account::VERIFIED)
                 $(".btn-toolbar .btn").last().button("toggle");
             @endif

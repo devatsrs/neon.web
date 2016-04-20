@@ -103,7 +103,7 @@
                                     <td><input type="checkbox" name="VendorTrunk[{{{$trunk->TrunkID}}}][Status]" class="rowcheckbox" value="1" @if(isset($vendor_trunks[$trunk->TrunkID]->Status) && $vendor_trunks[$trunk->TrunkID]->Status == 1) checked @endif ></td>
                                     <td>{{$trunk->Trunk}}</td>
                                     <td><input type="text" class="form-control" name="VendorTrunk[{{{$trunk->TrunkID}}}][Prefix]" value="@if(isset($vendor_trunks[$trunk->TrunkID]->Prefix)){{$vendor_trunks[$trunk->TrunkID]->Prefix}}@endif"  /></td>
-                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="VendorTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if((isset($vendor_trunks[$trunk->TrunkID]->UseInBilling) && $vendor_trunks[$trunk->TrunkID]->UseInBilling == 1)  || CompanySetting::getKeyVal('UseInBilling') == 1 ) checked @endif  ></td>
+                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="VendorTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if( ( isset($vendor_trunks[$trunk->TrunkID]->UseInBilling) && $vendor_trunks[$trunk->TrunkID]->UseInBilling == 1)  || (CompanySetting::getKeyVal('UseInBilling') == 1 && !isset($vendor_trunks[$trunk->TrunkID]->UseInBilling)) ) checked @endif  ></td>
                                     <td>
                                     <?php $CodeDeckId =  isset($vendor_trunks[$trunk->TrunkID])? $vendor_trunks[$trunk->TrunkID]->CodeDeckId:''?>
                                         {{ Form::select('VendorTrunk['.$trunk->TrunkID.'][CodeDeckId]', $codedecklist, $CodeDeckId , array("class"=>"select2 codedeckid")) }}
@@ -187,13 +187,13 @@ $(".codedeckid").bind('change',function (e) {
             dataType: 'json',
             success: function(response) {
                 if(response > 0){
-                    changeConfirmation = confirm("Are you sure? Realated Rates will be deleted");
+                    changeConfirmation = confirm("Are you sure? Related Rates will be deleted");
                     if(changeConfirmation){
                         prev_val = current_obj.val();
                         current_obj.prop('selected', prev_val);
                         current_obj.parent().find('select.select2').select2().select2('val',prev_val);
-                        selectBox.selectOption("");
-                        current_obj.parent().find('[name="codedeckid"]').val(prev_val)
+                        //selectBox.selectOption('');
+                        current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                         current_obj.select2().select2('val',prev_val);
                         submit_ajax(baseurl + '/vendor_rates/{{$id}}/delete_vendorrates','Trunkid='+trunkid)
                     }else{

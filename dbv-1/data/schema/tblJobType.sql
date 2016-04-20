@@ -8,5 +8,5 @@ CREATE TABLE `tblJobType` (
   `ModifiedDate` datetime DEFAULT NULL,
   `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`JobTypeID`),
-  UNIQUE KEY `Code` (`Code`)
+  UNIQUE KEY `UNIQUE_Code` (`Code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

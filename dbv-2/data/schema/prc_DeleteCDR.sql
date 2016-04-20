@@ -9,16 +9,16 @@ BEGIN
 		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 		WHERE AccountID = p_AccountID AND (p_GatewayID = 0 OR ga.CompanyGatewayID = p_GatewayID)
 		LIMIT 1;
-
+			
 		SET v_BillingTime_ = IFNULL(v_BillingTime_,1);
-
-
-        CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetail_ AS
+        
+        
+        CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetail_ AS 
         (
 
 	        SELECT
 	        UsageDetailID
-
+	        
 	        FROM (SELECT
 	            uh.AccountID,
 	            a.AccountName,
@@ -32,8 +32,8 @@ BEGIN
 	            cost,
 	            connect_time,
 	            disconnect_time
-
-			FROM `LocalRMCdr`.tblUsageDetails  ud
+	
+			FROM `LocalRMCdr`.tblUsageDetails  ud 
 			INNER JOIN `LocalRMCdr`.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
 	        LEFT JOIN LocalRatemanagement.tblAccount a
@@ -44,18 +44,18 @@ BEGIN
 	        AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	        AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
 	        AND (p_CDRType = '' OR ud.is_inbound = p_CDRType)
-
+	        
 	        ) tbl
-	        WHERE
-
+	        WHERE 
+	    
 	        (v_BillingTime_ =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)
-	        OR
+	        OR 
 	        (v_BillingTime_ =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
 	        AND billed_duration > 0
         );
 
 
-
+		
 		 delete ud.*
         From `LocalRMCdr`.tblUsageDetails ud
         inner join tmp_tblUsageDetail_ uds on ud.UsageDetailID = uds.UsageDetailID;

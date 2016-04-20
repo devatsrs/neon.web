@@ -21,9 +21,24 @@ BEGIN
    EXECUTE stmt2;
 	DEALLOCATE PREPARE stmt2;
 	
+	set @stm6 = CONCAT('
+	insert into tblVendorCDRFailed (VendorCDRHeaderID,billed_duration, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	select VendorCDRHeaderID,billed_duration, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+		 from  `' , p_tbltempusagedetail_name , '` d left join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
+		AND h.CompanyGatewayID = d.CompanyGatewayID
+		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
+		
+	where   processid = "' , p_processId , '" AND  billed_duration = 0 and buying_cost = 0 ;
+	');
+	
+	PREPARE stmt6 FROM @stm6;
+   EXECUTE stmt6;
+	DEALLOCATE PREPARE stmt6;
+	
 	
 	set @stm3 = CONCAT('
-	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  and billed_duration = 0 and selling_cost = 0;
+	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  and billed_duration = 0 and buying_cost = 0;
 	');
 	
 	PREPARE stmt3 FROM @stm3;

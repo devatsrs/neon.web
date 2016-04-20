@@ -1,35 +1,23 @@
 @extends('layout.main')
 
 @section('content')
-
 <ol class="breadcrumb bc-3">
-    <li>
-        <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
-    </li>
-    <li>
-        <a>CDR</a>
-    </li>
-    <li class="active">
-        <strong>Vendor CDR</strong>
-    </li>
+  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+  <li> <a>CDR</a> </li>
+  <li class="active"> <strong>Vendor CDR</strong> </li>
 </ol>
 <h3>Vendor CDR</h3>
-
 @include('includes.errors')
 @include('includes.success')
-<ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li >
-        <a href="{{ URL::to('cdr_show') }}" >
-            <span class="hidden-xs">Customer CDR</span>
-        </a>
-    </li>
-    <li class="active">
-        <a href="{{ URL::to('/vendorcdr_show') }}" >
-            <span class="hidden-xs">Vendor CDR</span>
-        </a>
-    </li>
+<ul class="nav nav-tabs bordered">
+  <!-- available classes "bordered", "right-aligned" -->
+  <li > <a href="{{ URL::to('cdr_show') }}" > <span class="hidden-xs">Customer CDR</span> </a> </li>
+  <li class="active"> <a href="{{ URL::to('/vendorcdr_show') }}" > <span class="hidden-xs">Vendor CDR</span> </a> </li>
 </ul>
-
+<style>
+.end_date{width:80.6667%;}
+.small_label{width:5.0%;}
+</style>
 <!--
 <div class="row">
 <div  class="col-md-12">
@@ -42,87 +30,90 @@
             </li>
         </ul>
 
-    </div><!-- /btn-group -->
+    </div><!-- /btn-group --> 
 <!--</div>
 <div class="clear"></div>
 </div>-->
 <div class="tab-content">
-    <div class="tab-pane active">
-        <div class="row">
-            <div class="col-md-12">
-                <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-                    <div data-collapsed="0" class="panel panel-primary">
-                        <div class="panel-heading">
-                            <div class="panel-title">
-                                Filter
-                            </div>
-                            <div class="panel-options">
-                                <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" for="field-1">Start Date</label>
-                                <div class="col-sm-2">
-                                    <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
-                                </div>
-                                <div class="col-sm-2">
-                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-                                </div>
-                                <label class="col-sm-2 control-label" for="field-1">End Date</label>
-                                <div class="col-sm-2">
-                                    <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
-                                </div>
-                                <div class="col-sm-2">
-                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" for="field-1">Gateway</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
-                                </div>
-                                <label class="col-sm-2 control-label" for="field-1">Account</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-
-                            </div>
-                            <p style="text-align: right;">
-                                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                                    <i class="entypo-search"></i>
-                                    Search
-                                </button>
-                            </p>
-                        </div>
-                    </div>
-                </form>
+  <div class="tab-pane active">
+    <div class="row">
+      <div class="col-md-12">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
+          <div data-collapsed="0" class="panel panel-primary">
+            <div class="panel-heading">
+              <div class="panel-title"> Filter </div>
+              <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table table-bordered datatable" id="table-4">
-                    <thead>
-                    <tr>
-                        <th width="15%" >Account Name</th>
-                        <th width="15%" >Connect Time</th>
-                        <th width="10%" >Disconnect Time</th>
-                        <th width="10%" >Billed Duration</th>
-                        <th width="10%" >Selling Cost</th>
-                        <th width="10%" >Buying Cost</th>
-                        <th width="15%" >CLI</th>
-                        <th width="15%" >CLD</th>
-
-                    </tr>
-                    </thead>
-                    <tbody>
-                   </tbody>
-                </table>
+            <div class="panel-body">
+              <div class="form-group">
+                <label class="col-sm-1 control-label small_label" for="field-1">Start Date</label>
+                <div class="col-sm-2">
+                  <input type="text" name="StartDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                </div>
+                <div class="col-sm-2">
+                  <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
+                </div>
+                <label class="col-sm-1 control-label small_label" for="field-1">End Date</label>
+                <div class="col-sm-2">
+                  <input type="text" name="EndDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                </div>
+                <div class="col-sm-2">
+                  <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
+                </div>
+                       <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Hide Zero Cost</label>
+                <div class="col-sm-1">
+                  <p class="make-switch switch-small">
+                    <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
+                  </p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
+                <div class="col-sm-2"> {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }} </div>
+                <label class="col-sm-1 control-label" for="field-1">Account</label>
+                <div class="col-sm-2"> {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }} </div>
+            
+                <label class="col-sm-1 control-label" for="field-1">CLI</label>
+                <div class="col-sm-2">
+                  <input type="text" name="CLI" class="form-control "  value=""  />
+                </div>
+                <label class="col-sm-1 control-label" for="field-1">CLD</label>
+                <div class="col-sm-2">
+                  <input type="text" name="CLD" class="form-control "  value=""  />
+                </div>
+             
+                  
+              </div>
+              <p style="text-align: right;">
+                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
+              </p>
             </div>
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table table-bordered datatable" id="table-4">
+          <thead>
+            <tr>
+              <th width="15%" >Account Name</th>
+              <th width="15%" >Connect Time</th>
+              <th width="10%" >Disconnect Time</th>
+              <th width="10%" >Billed Duration</th>
+			<!--<th width="10%" >Selling Cost</th>-->
+              <th width="10%" >Cost</th>
+              <th width="15%" >CLI</th>
+              <th width="15%" >CLD</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
-
 <script type="text/javascript">
 var $searchFilter = {};
 var update_new_url;
@@ -163,10 +154,15 @@ var postdata;
             if(starttime =='0:00:01'){
                 starttime = '0:00:00';
             }
-            $searchFilter.StartDate = $("#cdr_filter [name='StartDate']").val();
-            $searchFilter.EndDate = $("#cdr_filter [name='EndDate']").val();
-            $searchFilter.CompanyGatewayID = $("#cdr_filter [name='CompanyGatewayID']").val();
-            $searchFilter.AccountID = $("#cdr_filter [name='AccountID']").val();
+            $searchFilter.StartDate 				= 		$("#cdr_filter [name='StartDate']").val();
+            $searchFilter.EndDate 					= 		$("#cdr_filter [name='EndDate']").val();
+            $searchFilter.CompanyGatewayID 			= 		$("#cdr_filter [name='CompanyGatewayID']").val();
+            $searchFilter.AccountID 				= 		$("#cdr_filter [name='AccountID']").val();			
+			$searchFilter.CLI 						= 		$("#cdr_filter [name='CLI']").val();
+			$searchFilter.CLD 						= 		$("#cdr_filter [name='CLD']").val();			
+			//$searchFilter.zerovaluesellingcost 		= 		$("#cdr_filter [name='zerovaluesellingcost']").prop("checked");			
+			$searchFilter.zerovaluebuyingcost 		= 		$("#cdr_filter [name='zerovaluebuyingcost']").prop("checked");
+			
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
                toastr.error("Please Select a Start date", "Error", toastr_opts);
                return false;
@@ -182,13 +178,13 @@ var postdata;
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
-                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr",
+                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/type",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID});
+                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[0, 'asc']],
@@ -197,9 +193,15 @@ var postdata;
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr",
-                            sButtonClass: "save-collection"
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/csv",
+                            sButtonClass: "save-collection btn-sm"
                         }
                     ]
                 },
@@ -208,8 +210,7 @@ var postdata;
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
+                    { "bSortable": true },                    
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true } /*,
@@ -265,4 +266,4 @@ var postdata;
     right: 30px !important;
 }
 </style>
-@stop
+@stop 

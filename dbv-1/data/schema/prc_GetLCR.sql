@@ -52,8 +52,8 @@ BEGIN
                                                 Rate,
                                                 EffectiveDate,
                                                 preference_rank,
-                                                @rank := CASE WHEN (@prev_Code2 COLLATE utf8_unicode_ci   = Code  AND @prev_Rate2 <  Rate) THEN @rank+1
-                                                	   		  WHEN (@prev_Code2 COLLATE utf8_unicode_ci   = Code  AND @prev_Rate2 =  Rate) THEN @rank
+                                                @rank := CASE WHEN (@prev_Code2  = Code  AND @prev_Rate2 <  Rate) THEN @rank+1
+                                                	   		  WHEN (@prev_Code2  = Code  AND @prev_Rate2 =  Rate) THEN @rank
                                                 				  ELSE
 																					1
 																				  END
@@ -68,8 +68,8 @@ BEGIN
                                                     Preference,
                                                     Rate,
                                                     EffectiveDate,
-                                                    @preference_rank := CASE WHEN (@prev_Code COLLATE utf8_unicode_ci   = Code AND @prev_Preference = Preference AND @prev_Rate2 <  Rate) THEN @preference_rank+1
-					                                                	   		  WHEN (@prev_Code COLLATE utf8_unicode_ci   = Code  AND @prev_Preference = Preference AND @prev_Rate2 =  Rate) THEN @preference_rank
+                                                    @preference_rank := CASE WHEN (@prev_Code  = Code AND @prev_Preference = Preference AND @prev_Rate2 <  Rate) THEN @preference_rank+1
+					                                                	   		  WHEN (@prev_Code  = Code  AND @prev_Preference = Preference AND @prev_Rate2 =  Rate) THEN @preference_rank
                					                                 				  ELSE
 																										1
 																									  END as preference_rank,
@@ -151,11 +151,11 @@ BEGIN
 
         SELECT  
         	 CONCAT(t.Code , ' : ' , ANY_VALUE(t.Description)) as Destination,
-          GROUP_CONCAT(if(ANY_VALUE(rankname) = 1, CONCAT(ANY_VALUE(t.Rate), "\r\n", ANY_VALUE(t.AccountName) , "\r\n", DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'), "\r\n"), NULL))AS `Position 1`,
-          GROUP_CONCAT(if(ANY_VALUE(rankname) = 2, CONCAT(ANY_VALUE(t.Rate), "\r\n", ANY_VALUE(t.AccountName), "\r\n", DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),  "\r\n"), NULL))AS `Position 2`,
-          GROUP_CONCAT(if(ANY_VALUE(rankname) = 3, CONCAT(ANY_VALUE(t.Rate), "\r\n", ANY_VALUE(t.AccountName) , "\r\n" , DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),"\r\n"), NULL))AS `Position 3`,
-          GROUP_CONCAT(if(ANY_VALUE(rankname) = 4, CONCAT(ANY_VALUE(t.Rate), "\r\n", ANY_VALUE(t.AccountName) , "\r\n" , DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),"\r\n"), NULL))AS `Position 4`,
-          GROUP_CONCAT(if(ANY_VALUE(rankname) = 5, CONCAT(ANY_VALUE(t.Rate), "\r\n", ANY_VALUE(t.AccountName) , "\r\n" , DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),"\r\n"), NULL))AS `Position 5`
+          GROUP_CONCAT(if(ANY_VALUE(rankname) = 1, CONCAT(ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'<br>'), NULL))AS `Position 1`,
+          GROUP_CONCAT(if(ANY_VALUE(rankname) = 2, CONCAT(ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'<br>'), NULL))AS `Position 2`,
+          GROUP_CONCAT(if(ANY_VALUE(rankname) = 3, CONCAT(ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'<br>'), NULL))AS `Position 3`,
+          GROUP_CONCAT(if(ANY_VALUE(rankname) = 4, CONCAT(ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'<br>'), NULL))AS `Position 4`,
+          GROUP_CONCAT(if(ANY_VALUE(rankname) = 5, CONCAT(ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'<br>'), NULL))AS `Position 5`
         FROM tmp_VendorRate_  t
           GROUP BY  t.Code
           ORDER BY `Destination` ASC;

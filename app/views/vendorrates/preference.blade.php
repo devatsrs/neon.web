@@ -164,7 +164,7 @@ jQuery(document).ready(function($) {
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference",
+            "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/type",
             "fnServerParams": function(aoData) {
                 aoData.push( {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
                 data_table_extra_params.length = 0;
@@ -173,7 +173,7 @@ jQuery(document).ready(function($) {
             "iDisplayLength":'{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
              "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-             "aaSorting": [[0, "asc"], [1, "asc"]],
+             "aaSorting": [[1, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
@@ -181,9 +181,9 @@ jQuery(document).ready(function($) {
                             return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         },
-                        {}, //1 Code
-                        {}, //1 Code
-                        {}, //8 updated by
+                        {"bSortable": true}, //1 Code
+                        {"bSortable": true}, //2 Prefrence
+                        {"bSortable": true}, //8 Discription
                         {// 9 VendorPreferenceID
                             mRender: function(id, type, full) {
                                 var action;
@@ -204,9 +204,15 @@ jQuery(document).ready(function($) {
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference",
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },
@@ -307,7 +313,7 @@ jQuery(document).ready(function($) {
         if($('#selectallbutton').is(':checked')){
         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
             criteria = JSON.stringify($searchFilter);
-            if(criteria=''){
+            if(criteria==''){
                 return false;
             }
         }

@@ -214,7 +214,7 @@ class ContactsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Problem Deleting Contact."));
         }
     }
-    public function exports() {
+    public function exports($type) {
             $companyID = User::get_companyID();
             // if CRM or Account Manager show ony their Contacts.
             if (User::is('AccountManager') || User::is('CRM')) {
@@ -230,12 +230,22 @@ class ContactsController extends \BaseController {
                     ->get([DB::raw("  concat(tblContact.FirstName,' ',tblContact.LastName)  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email"]);
             }
 
+            $excel_data = json_decode(json_encode($contacts),true);
 
-            Excel::create('Contacts', function ($excel) use ($contacts) {
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Contacts.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Contacts.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Contacts', function ($excel) use ($contacts) {
                 $excel->sheet('Contacts', function ($sheet) use ($contacts) {
                     $sheet->fromArray($contacts);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
 }

@@ -2,19 +2,24 @@
 
 class InvoiceTemplatesController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod')->get();
-            Excel::create('Invoice Template', function ($excel) use ($invoiceCompanies) {
-                $excel->sheet('Invoice Template', function ($sheet) use ($invoiceCompanies) {
-                    $sheet->fromArray($invoiceCompanies);
-                });
-            })->download('xls');
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix')->get();
+            $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Template.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($invoiceCompanies);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Template.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($invoiceCompanies);
+            }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -68,6 +73,10 @@ class InvoiceTemplatesController extends \BaseController {
             if(!isset($data['InvoiceStartNumber'])){
                 //If saved from view.
                 unset($rules['InvoiceStartNumber']);
+            }
+			if(!isset($data['EstimateStartNumber'])){
+                //If saved from view.
+                unset($rules['EstimateStartNumber']);
             }
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');

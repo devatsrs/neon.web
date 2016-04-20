@@ -100,7 +100,7 @@ class TrunkController extends BaseController {
 
     }
 
-    public function exports(){
+    public function exports($type){
             $companyID = User::get_companyID();
             $data = Input::all();
             if (isset($data['sSearch_0']) && ($data['sSearch_0'] == '' || $data['sSearch_0'] == '1')) {
@@ -108,11 +108,16 @@ class TrunkController extends BaseController {
             } else {
                 $trunks = Trunk::where(["CompanyID" => $companyID, "Status" => 0])->orderBy("TrunkID", "desc")->get(["Trunk", "RatePrefix", "AreaPrefix", "Prefix"]);
             }
+            $trunks = json_decode(json_encode($trunks),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Trunks.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($trunks);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Trunks.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($trunks);
+            }
 
-            Excel::create('Trunks', function ($excel) use ($trunks) {
-                $excel->sheet('Trunks', function ($sheet) use ($trunks) {
-                    $sheet->fromArray($trunks);
-                });
-            })->download('xls');
     }
 }

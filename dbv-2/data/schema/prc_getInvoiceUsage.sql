@@ -9,16 +9,16 @@ BEGIN
 
 	
 	SELECT BillingTime INTO v_BillingTime_
-	FROM Ratemanagement3.tblCompanyGateway cg
+	FROM LocalRatemanagement.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE AccountID = p_AccountID AND (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
 	LIMIT 1;
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,''); 
+	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
 
-	Select CDRType  INTO v_CDRType_ from  Ratemanagement3.tblAccount where AccountID = p_AccountID;
+	Select CDRType  INTO v_CDRType_ from  LocalRatemanagement.tblAccount where AccountID = p_AccountID;
 
 
             

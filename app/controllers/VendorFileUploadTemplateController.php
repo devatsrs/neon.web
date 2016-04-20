@@ -2,11 +2,25 @@
 
 class VendorFileUploadTemplateController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $select = ['Title','created_at','VendorFileUploadTemplateID'];
         $vendorfileuploadtemplate = VendorFileUploadTemplate::select($select)->where(['CompanyID'=>$CompanyID]);
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $Vendortemplate = VendorFileUploadTemplate::where(["CompanyID" => $CompanyID])->orderBy("Title", "asc")->get(["Title", "created_at as Created at"]);
+            $excel_data = json_decode(json_encode($Vendortemplate),true);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Template.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Template.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
         return Datatables::of($vendorfileuploadtemplate)->make();
     }
 

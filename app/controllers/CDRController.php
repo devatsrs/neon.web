@@ -179,25 +179,38 @@ class CDRController extends BaseController {
         }
         return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr'));
     }
-    public function ajax_datagrid(){
-        $data = Input::all();
-        $data['iDisplayStart'] +=1;
-        $companyID = User::get_companyID();
-        $columns = array('AccountName','connect_time','disconnect_time','duration','cost','cli','cld');
-        $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+    public function ajax_datagrid($type){
+        $data						 =   Input::all();
+        $data['iDisplayStart'] 		+=	 1;
+        $companyID 					 =	 User::get_companyID();
+        $columns 					 = 	 array('AccountName','connect_time','disconnect_time','duration','cost','cli','cld');
+        $sort_column 				 = 	 $columns[$data['iSortCol_0']];
+		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
+
+		
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('CDR', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/CDR.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/CDR.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('CDR', function ($excel) use ($excel_data) {
                 $excel->sheet('CDR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
-        $query .=',0)';
-
+         $query .=',0)';
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
     public function delete_cdr(){
@@ -271,16 +284,26 @@ class CDRController extends BaseController {
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
-                'TemplateFile' => 'required');
+                'TemplateFile' => 'required',
+                );
         }else{
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,NULL,FileUploadTemplateID',
-                'TemplateFile' => 'required');
+                'TemplateFile' => 'required',
+                );
         }
+        $rules['Account'] = 'required';
+        $rules['Authentication'] = 'required';
         if($data['RateFormat'] == Company::CHARGECODE) {
             $rules['ChargeCode'] = 'required';
         }
         if(!empty($data['selection']['ChargeCode'])){
             $data['ChargeCode'] = $data['selection']['ChargeCode'];
+        }
+        if(!empty($data['selection']['Account'])){
+            $data['Account'] = $data['selection']['Account'];
+        }
+        if(!empty($data['selection']['Authentication'])){
+            $data['Authentication'] = $data['selection']['Authentication'];
         }
         $validator = Validator::make($data, $rules);
 
@@ -389,6 +412,7 @@ class CDRController extends BaseController {
                 $data['Escape'] = $options['option']['Escape'];
                 $data['Firstrow'] = $options['option']['Firstrow'];
             }
+		 
             if (!empty($file_name)) {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;
@@ -407,22 +431,34 @@ class CDRController extends BaseController {
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         return View::make('cdrupload.vendorcdr',compact('gateway'));
     }
-    public function ajax_datagrid_vendorcdr(){
-        $data = Input::all();
-        $data['iDisplayStart'] +=1;
-        $companyID = User::get_companyID();
-        $columns = array('AccountName','connect_time','disconnect_time','billed_duration','selling_cost','cli','cld');
-        $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+    public function ajax_datagrid_vendorcdr($type){
+        $data 							 =   Input::all();
+        $data['iDisplayStart'] 			+=	 1;
+        $companyID 						 = 	 User::get_companyID();
+        $columns 						 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
+        $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
+		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
+		
+        $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Vendor CDR', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Vendor CDR', function ($excel) use ($excel_data) {
                 $excel->sheet('Vendor CDR', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 
@@ -473,6 +509,7 @@ class CDRController extends BaseController {
                 $data['Escape'] = $options['option']['Escape'];
                 $data['Firstrow'] = $options['option']['Firstrow'];
             }
+			
             if (!empty($file_name)) {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;

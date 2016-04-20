@@ -97,9 +97,15 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/customers_rates/{{$id}}/history_exports", 
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/customers_rates/{{$id}}/history_exports/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/customers_rates/{{$id}}/history_exports/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     }

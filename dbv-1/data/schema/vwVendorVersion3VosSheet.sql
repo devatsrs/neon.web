@@ -1,5 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorVersion3VosSheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorVersion3VosSheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT, IN `p_Effective` VARCHAR(50))
 BEGIN
+
+
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorVersion3VosSheet_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorVersion3VosSheet_(
@@ -18,7 +20,7 @@ BEGIN
 			AccountID int,
 			TrunkID int
 	);
-	 Call vwVendorCurrentRates(p_AccountID,p_Trunks);	
+	 Call vwVendorCurrentRates(p_AccountID,p_Trunks,p_Effective);	
 	 
 	 
 INSERT INTO tmp_VendorVersion3VosSheet_	 
@@ -71,5 +73,7 @@ LEFT OUTER JOIN tblVendorBlocking AS blockCountry
 INNER JOIN tblTrunk
     ON tblTrunk.TrunkID = vendorRate.TrunkId
 WHERE (vendorRate.Rate > 0);
+
+
 
 END

@@ -2,8 +2,8 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
-        <title>Neon</title>
-        <link href="<?php echo URL::to('/'); ?>/assets/images/favicon.ico" rel="icon">
+         @if(Session::get('user_site_configrations.FavIcon')!='')<link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">@endif         
+        <title>{{Session::get('user_site_configrations.Title')}}</title>
 
 
         <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/js/jquery-ui/css/no-theme/jquery-ui-1.10.3.custom.min.css" />

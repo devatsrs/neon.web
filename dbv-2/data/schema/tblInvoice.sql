@@ -30,6 +30,7 @@ CREATE TABLE `tblInvoice` (
   `updated_at` datetime DEFAULT NULL,
   `ItemInvoice` tinyint(3) unsigned DEFAULT NULL,
   `FooterTerm` longtext COLLATE utf8_unicode_ci,
+  `EstimateID` int(11) DEFAULT NULL,
   PRIMARY KEY (`InvoiceID`),
   KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`InvoiceStatus`,`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

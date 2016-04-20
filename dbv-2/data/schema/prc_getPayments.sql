@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_isExport` INT )
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_paymentStartDate` DATETIME, IN `p_paymentEndDate` DATETIME, IN `p_isExport` INT )
 BEGIN
 		
     	DECLARE v_OffSet_ int;
@@ -46,6 +46,8 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
             ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
@@ -101,7 +103,9 @@ BEGIN
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
-            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod));
+            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
 
 	END IF;
 	IF p_isExport = 1
@@ -130,7 +134,9 @@ BEGIN
             AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
-            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod));
+            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
 	END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

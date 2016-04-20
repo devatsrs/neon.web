@@ -56,7 +56,7 @@ BEGIN
         ratesheetdetailsid int,
         RateID int ,
         RateSheetID int,
-        Destination varchar(50),
+        Destination varchar(200),
         Code varchar(50),
         Rate DECIMAL(18, 6),
         `change` varchar(50),

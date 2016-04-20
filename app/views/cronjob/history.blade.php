@@ -33,7 +33,7 @@
         data_table = $("#table-4").dataTable({
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}",
+            "sAjaxSource": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -41,7 +41,6 @@
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"Export","value":1});
             },
-            "oTableTools": {},
             "aaSorting": [[3, 'desc']],
             "aoColumns":
                     [
@@ -64,9 +63,15 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}",
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     }

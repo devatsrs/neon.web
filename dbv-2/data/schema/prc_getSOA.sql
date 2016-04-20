@@ -58,7 +58,7 @@ BEGIN
         FROM tblInvoice
         LEFT JOIN tblInvoiceDetail
             ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )/* ProductType =2 = INVOICE USAGE AND InvoiceType = 1 Invoice sent and InvoiceType =2 invoice recevied */
-        INNER JOIN Ratemanagement3.tblAccount
+        INNER JOIN LocalRatemanagement.tblAccount
             ON tblInvoice.AccountID = tblAccount.AccountID
         LEFT JOIN tblInvoiceTemplate  on tblAccount.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
         LEFT JOIN tblPayment
@@ -105,7 +105,7 @@ BEGIN
             tblPayment.created_at,
             tblPayment.PaymentID
         FROM tblPayment
-        INNER JOIN Ratemanagement3.tblAccount
+        INNER JOIN LocalRatemanagement.tblAccount
             ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.Status = 'Approved'
         AND tblPayment.Recall = 0
@@ -124,23 +124,24 @@ BEGIN
         PeriodCover,
         InvoiceAmount,
         ' ' AS spacer,
-         CASE
-        WHEN p_isExport = 0
-        THEN
-        GROUP_CONCAT(PaymentDate SEPARATOR '<br/>')
-		  ELSE
-		   GROUP_CONCAT(PaymentDate SEPARATOR "\r\n") 
-		  END	as PaymentDate,
-        SUM(Amount) AS payment,
+        -- CASE
+      --  WHEN p_isExport = 0
+      --  THEN
+       -- GROUP_CONCAT(PaymentDate SEPARATOR '<br/>')
+		--  ELSE
+		--   GROUP_CONCAT(PaymentDate SEPARATOR "\r\n") 
+		--  END	as PaymentDate,
+	     PaymentDate,
+        Amount AS payment,
         NULL AS ballence,
         CASE
         WHEN p_isExport = 0
         THEN
-            MAX(PaymentsID)
-        END PaymentID 
+            PaymentsID
+			END PaymentID 
     FROM tmp_AOS_
     WHERE Type = 1
-    GROUP BY InvoiceNo,PeriodCover,InvoiceAmount,StartDate
+    -- GROUP BY InvoiceNo,PeriodCover,InvoiceAmount,StartDate
     ORDER BY StartDate desc;
 
     SELECT

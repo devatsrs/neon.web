@@ -190,6 +190,7 @@ jQuery(document).ready(function($) {
         }
         data_table = $("#table-4").dataTable({
             "bDestroy": true, // Destroy when resubmit form
+            "bAutoWidth": false,
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid",
@@ -250,9 +251,15 @@ jQuery(document).ready(function($) {
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports",
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },

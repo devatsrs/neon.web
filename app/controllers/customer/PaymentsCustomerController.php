@@ -3,7 +3,7 @@
 class PaymentsCustomerController extends \BaseController {
 
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
@@ -15,15 +15,27 @@ class PaymentsCustomerController extends \BaseController {
         $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0";
+		$data['p_paymentstart']			 =		'null';		
+		$data['p_paymentend']			 =		'null';
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Payment', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Payment.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Payment.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Payment', function ($excel) use ($excel_data) {
                 $excel->sheet('Payment', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();
@@ -115,7 +127,9 @@ class PaymentsCustomerController extends \BaseController {
         $data['paymentmethod'] = $data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
+		$data['p_paymentstart']			 =		'null';		
+		$data['p_paymentend']			 =		'null';
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['p_paymentstart'].",".$data['p_paymentend'].",1)";
 
         $excel_data  = DB::connection('sqlsrv2')->select($query);
         $excel_data = json_decode(json_encode($excel_data),true);

@@ -1,16 +1,12 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_salesDashboard`(IN `p_CompanyID` INT, IN `p_gatewayid` INT, IN `p_UserID` INT, IN `p_isAdmin` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_PrevStartDate` DATETIME, IN `p_PrevEndDate` DATETIME, IN `p_Executive` INT 
 )
 BEGIN
-
-	DECLARE v_Round_ int;
    
+   DECLARE v_Round_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-   
    SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
-
-   
-	 SELECT
-        ROUND(IFNULL(CAST(SUM(TotalCharges) as DECIMAL(16,5)),0),v_Round_) AS TotalCharges
+	SELECT
+        ROUND(ifNull(CAST(SUM(TotalCharges) as DECIMAL(16,5)),0),v_Round_) AS TotalCharges
     FROM tblUsageDaily ud
     LEFT JOIN Ratemanagement3.tblAccount a
         ON ud.AccountID = a.AccountID 
@@ -52,7 +48,7 @@ BEGIN
     
 
     SELECT
-         ROUND(CAST(SUM(TotalCharges) as DECIMAL(16,5)),v_Round_) AS TotalCharges,
+        ROUND(CAST(SUM(TotalCharges) as DECIMAL(16,5)),v_Round_) AS TotalCharges,
         ud.DailyDate AS sales_date
     FROM tblUsageDaily ud
     LEFT JOIN Ratemanagement3.tblAccount a
@@ -82,7 +78,7 @@ BEGIN
 
     SELECT  
         Max(ifnull(c.Country,'OTHER')) as Country,
-       ROUND(CAST(SUM(TotalCharges) as DECIMAL(16,5)),v_Round_) AS TotalCharges
+        ROUND(CAST(SUM(TotalCharges) as DECIMAL(16,5)),v_Round_) AS TotalCharges
     FROM tblUsageDaily ud
     LEFT JOIN Ratemanagement3.tblAccount a
         ON ud.AccountID = a.AccountID  
@@ -118,7 +114,7 @@ BEGIN
     IF p_Executive = 1
     THEN
         SELECT
-            ROUND(IFNULL(CAST(SUM(TotalCharges) as DECIMAL(16,5) ),0),v_Round_) AS TotalCharges,a.Owner,(CONCAT(MAX(u.FirstName),' ',MAX(u.LastName))) as FullName
+            ROUND(ifNull(CAST(SUM(TotalCharges) as DECIMAL(16,5) ),0),v_Round_) AS TotalCharges,a.Owner,(concat(max(u.FirstName),' ',max(u.LastName))) as FullName
         FROM tblUsageDaily ud
         LEFT JOIN Ratemanagement3.tblAccount a
             ON ud.AccountID = a.AccountID 
@@ -134,7 +130,7 @@ BEGIN
         IF p_PrevStartDate != ''
         THEN
         SELECT
-            ROUND(IFNULL(CAST(SUM(TotalCharges) as DECIMAL(16,5)),0),v_Round_) AS TotalCharges,a.Owner,(concat(max(u.FirstName),' ',max(u.LastName))) as FullName
+            ROUND(IFNull(CAST(SUM(TotalCharges) as DECIMAL(16,5)),0),v_Round_) AS TotalCharges,a.Owner,(concat(max(u.FirstName),' ',max(u.LastName))) as FullName
         FROM tblUsageDaily ud
         LEFT JOIN Ratemanagement3.tblAccount a
             ON ud.AccountID = a.AccountID 

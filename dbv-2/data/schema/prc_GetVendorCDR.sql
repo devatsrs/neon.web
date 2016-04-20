@@ -1,20 +1,20 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetVendorCDR`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetVendorCDR`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT, IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_ZeroValueBuyingCost` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
 BEGIN 
 
-	   DECLARE v_OffSet_ int;
-	   DECLARE v_BillingTime_ int;
-	   SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+   	DECLARE v_OffSet_ int;
+   	DECLARE v_BillingTime_ int;
+   	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-		SELECT BillingTime INTO v_BillingTime_
-		FROM Ratemanagement3.tblCompanyGateway cg
-		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
-		WHERE AccountID = p_AccountID AND (p_CompanyGatewayID = '' OR ga.CompanyGatewayID = p_CompanyGatewayID)
-		LIMIT 1;
-		
-		SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	SELECT BillingTime INTO v_BillingTime_
+	FROM LocalRatemanagement.tblCompanyGateway cg
+	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
+	WHERE AccountID = p_AccountID AND (p_CompanyGatewayID = '' OR ga.CompanyGatewayID = p_CompanyGatewayID)
+	LIMIT 1;
+	
+	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
     
-    Call fnVendorUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_);
+    Call fnVendorUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CLI,p_CLD,p_ZeroValueBuyingCost);
 
 	IF p_isExport = 0
 	THEN 
@@ -24,7 +24,6 @@ BEGIN
         connect_time,
         disconnect_time,        
         billed_duration,
-        selling_cost,
         buying_cost,
         cli,
         cld,
@@ -106,7 +105,7 @@ BEGIN
 		        connect_time,
 		        disconnect_time,        
 		        billed_duration,
-		        selling_cost,
+		        Cost,
 		        cli,
 		        cld
 			from(
@@ -119,6 +118,7 @@ BEGIN
 		            uh.cli,
 		            uh.cld,
 						format(uh.selling_cost,6) as selling_cost,
+						format(uh.buying_cost ,6) as Cost,
 						AccountID
 		        FROM tmp_tblVendorUsageDetails_ uh
 		    ) AS TBL;

@@ -1,7 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertGatewayVendorAccount`(IN `p_processId` VARCHAR(200), IN `p_tbltempusagedetail_name` VARCHAR(200))
 BEGIN
     
-	 SET @stm = CONCAT('INSERT INTO tblGatewayAccount (CompanyID, CompanyGatewayID, GatewayAccountID, AccountName,IsVendor)
+	SET @stm = CONCAT('INSERT INTO tblGatewayAccount (CompanyID, CompanyGatewayID, GatewayAccountID, AccountName,IsVendor)
 		SELECT
 			distinct
 			ud.CompanyID,
@@ -19,9 +19,7 @@ BEGIN
 		AND ga.GatewayAccountID IS NULL
 		AND ud.GatewayAccountID IS NOT NULL');
 		
-	 PREPARE stmt FROM @stm;
+	PREPARE stmt FROM @stm;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-		
- 
 END

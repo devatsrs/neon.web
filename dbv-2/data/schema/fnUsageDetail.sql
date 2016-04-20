@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT   
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_isAdmin` INT, IN `p_billing_time` INT   
 
 , IN `p_cdr_type` CHAR(1))
 BEGIN
@@ -55,6 +55,9 @@ BEGIN
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
+	AND (p_CLI = '' OR (p_CLI!= '' AND cli = p_CLI)) 
+	AND (p_CLD = '' OR (p_CLD!= '' AND cld = p_CLD)) 
+	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))
 	) tbl
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)

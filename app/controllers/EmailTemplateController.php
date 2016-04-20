@@ -150,17 +150,21 @@ class EmailTemplateController extends \BaseController {
         }
     }
 
-    public function exports()
+    public function exports($type)
     {
         $companyID = User::get_companyID();
         $data = Input::all();
         $select = ["TemplateName","Subject","CreatedBy","updated_at"];
-        $template = EmailTemplate::select($select);
-        $template->where(["CompanyID" => $companyID]);
-        Excel::create('templates', function ($excel) use ($template) {
-            $excel->sheet('templates', function ($sheet) use ($template) {
-                $sheet->fromArray($template->get());
-            });
-        })->download('xls');
+        $template = EmailTemplate::select($select)->where(["CompanyID" => $companyID])->get();
+        $excel_data = json_decode(json_encode($template),true);
+        if($type=='csv'){
+            $file_path = getenv('UPLOAD_PATH') .'/Templates.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($excel_data);
+        }elseif($type=='xlsx'){
+            $file_path = getenv('UPLOAD_PATH') .'/Templates.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($excel_data);
+        }
     }
 }
