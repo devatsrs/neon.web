@@ -114,7 +114,7 @@ class TrunkController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($trunks);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Trunks.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Trunks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($trunks);
             }

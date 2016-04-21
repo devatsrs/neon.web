@@ -66,7 +66,8 @@
                                 <thead>
                                     <tr>
                                         <th width="30%">Name</th>
-                                        <th width="30%">Currency</th>
+                                        <th width="20%">Currency</th>
+                                        <th width="28%">Codedeck</th>
                                         <th width="20%">last update</th>
                                          <th width="20%">Action</th>
                                     </tr>
@@ -98,7 +99,7 @@
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[2, "desc"]],
+            "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID});
                 data_table_extra_params.length = 0;
@@ -109,6 +110,7 @@
             },
             "aoColumns":
                     [
+                        {},
                         {},
                         {},
                         {},

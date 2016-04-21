@@ -67,123 +67,78 @@ class VendorProfilingController extends \BaseController {
         $isall = 0;
         $block = 0;
         $isCountry = 0;
+        $CountryIDs=0;
+        $criteria = 0;
+        $Codes = 0;
         if(!empty($data['AccountID']) && is_array($data['AccountID'])) {
 
             $AccountIDs = implode(",",array_filter($data['AccountID'],'intval'));
 
-            if(!empty($data['criteria'])){
-                /* select all found records */
-                if(!empty($data['Code'])){
-                    $Codes = $data['Code'];
-                    /*
-                     * Block by Code
-                     * */
-                    if ($data['action'] == 'block') {
-                        $block=1;
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //1 for Unblock
-                        if ($results) {
-                            return Response::json(array("status" => "success", "message" => "Code Blocked Successfully."));
-                        } else {
-                            return Response::json(array("status" => "failed", "message" => "Problem Blocking Code."));
+            if(!empty($data['block_by'])){
+                //block by code
+                if(isset($data['block_by']) && $data['block_by'] == 'code'){
+                    // by critearia
+                    if(!empty($data['criteria']) && $data['criteria']==1){
+
+                        if(!empty($data['Code']) || !empty($data['Country'])){
+                            if(!empty($data['Code'])){
+                                $criteria = 1;
+                                $Codes = $data['Code'];
+                            }else{
+                                $criteria = 2;
+                                if(!empty($data['Country'])){
+                                    $isall = 0;
+                                    $CountryIDs='';
+                                    if(!empty($data['criteriaCountry'])){
+                                        if($data['criteriaCountry'][0]==','){
+                                            $CountryIDs = ltrim($data['criteriaCountry'],',');
+                                        }else{
+                                            $CountryIDs = $data['criteriaCountry'];
+                                        }
+                                    }
+
+                                }
+                            }
+
+                        }else{
+                            // all record
+                            $criteria = 3;
+
                         }
 
-                    } else { // Unblock
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //2 for Unblock
-                        if ($results) {
-                            return Response::json(array("status" => "success", "message" => "Code Unblock Successfully."));
-                        } else {
-                            return Response::json(array("status" => "failed", "message" => "Problem Unblocking Code."));
-                        }
-                    }
-                }else{
-                    $isCountry = 1;
-                    $CountryIDs='';
-                    if(!empty($data['criteriaCountry'])){
-                        if($data['criteriaCountry'][0]=','){
-                            $CountryIDs = ltrim($data['criteriaCountry'],',');
-                        }else{
-                            $CountryIDs = $data['criteriaCountry'];
-                        }
                     }else{
+                        //select record
+                        $Codes = $data['Codes'];
+                    }
+                }
+
+                //block unblock by country
+                if(isset($data['block_by']) && $data['block_by'] == 'country'){
+
+                    $isCountry = 1;
+                    if(in_array(0,explode(',',$data['countries']))){
                         $isall = 1;
                     }
+                    $CountryIDs = $data['countries'];
+                }
+            }
 
-                    /*
-                     * Block by Country
-                     * */
-                    if ($data['action'] == 'block') {
-                        $block=1;
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //1 for Unblock
-                        if ($results) {
-                            return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
-                        } else {
-                            return Response::json(array("status" => "failed", "message" => "Problem blocking Country."));
-                        }
-
-                    } else { // Unblock
-                        $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //2 for Unblock
-                        if ($results) {
-                            return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
-                        } else {
-                            return Response::json(array("status" => "failed", "message" => "Problem Unblocking Country."));
-                        }
-                    }
+            if ($data['action'] == 'block') {
+                $block=1;
+                $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
+                if ($results) {
+                    return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem blocking Country."));
                 }
 
-            }elseif(isset($data['Codes']) && !empty($data['Codes'])){
-
-
-                $Codes = $data['Codes'];
-
-                /*
-                 * Block by Code
-                 * */
-                if ($data['action'] == 'block') {
-                    $block=1;
-                    $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //1 for Unblock
-                    if ($results) {
-                        return Response::json(array("status" => "success", "message" => "Code Blocked Successfully."));
-                    } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Blocking Code."));
-                    }
-
-                } else { // Unblock
-                    $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, '', $Codes, $username, $block,$isCountry,$isall)); //2 for Unblock
-                    if ($results) {
-                        return Response::json(array("status" => "success", "message" => "Code Unblock Successfully."));
-                    } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Unblocking Code."));
-                    }
+            } else { // Unblock
+                $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
+                if ($results) {
+                    return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Unblocking Country."));
                 }
-
-            }else if(isset($data['countries']) && ($data['countries']==0 || !empty($data['countries']))){
-                $isCountry = 1;
-                if(in_array(0,explode(',',$data['countries']))){
-                    $isall = 1;
-                }
-                $CountryIDs = $data['countries'];
-
-                /*
-                 * Block by Country
-                 * */
-                if ($data['action'] == 'block') {
-                    $block=1;
-                    $results = DB::statement(' call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //1 for Unblock
-                    if ($results) {
-                        return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
-                    } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem blocking Country."));
-                    }
-
-                } else { // Unblock
-                    $results = DB::statement('call prc_BlockVendorCodes ( ?,?,?,?,?,?,?,?,? ); ', array($CompanyID, $AccountIDs, $TrunkID, $CountryIDs, '', $username, $block,$isCountry,$isall)); //2 for Unblock
-                    if ($results) {
-                        return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
-                    } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Unblocking Country."));
-                    }
-                }
-
             }
 
 

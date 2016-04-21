@@ -18,7 +18,8 @@ BEGIN
 			cost decimal(18,6),
 			connect_time datetime,
 			disconnect_time datetime,
-			is_inbound tinyint(1) default 0
+			is_inbound tinyint(1) default 0,
+			ID int
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -38,7 +39,8 @@ BEGIN
 		cost,
 		connect_time,
 		disconnect_time,
-		ud.is_inbound
+		ud.is_inbound,
+		ud.ID
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID

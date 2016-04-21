@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CronJobGeneratePortaVendorSheet`(IN `p_AccountID` INT , IN `p_trunks` varchar(200) )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CronJobGeneratePortaVendorSheet`(IN `p_AccountID` INT , IN `p_trunks` VARCHAR(200), IN `p_Effective` VARCHAR(50))
 BEGIN
 		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 		
@@ -17,12 +17,22 @@ BEGIN
         SELECT   `TrunkID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee`
 		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID 
 								AND FIND_IN_SET(tblVendorRate.TrunkId,p_trunks) != 0 
-                        AND EffectiveDate <= NOW();
-
-      CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate4_ as (select * from tmp_VendorRate_);	        
+                        AND 
+								(
+					  				(p_Effective = 'Now' AND EffectiveDate <= NOW()) 
+								  	OR 
+								  	(p_Effective = 'Future' AND EffectiveDate > NOW())
+								  	OR 
+								  	(p_Effective = 'All')
+								);
+								
+		 DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate4_;		
+       CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate4_ as (select * from tmp_VendorRate_);	        
       DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
  	   AND n1.TrunkID = n2.TrunkID
-	   AND  n1.RateId = n2.RateId;
+	   AND  n1.RateId = n2.RateId
+		AND n1.EffectiveDate <= NOW()
+		AND n2.EffectiveDate <= NOW();
                         
          
        

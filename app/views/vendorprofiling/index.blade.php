@@ -226,6 +226,7 @@
 </div>
 <script>
 	var action_click;
+	var block_by;
 	var $searchFilter = {};
 	var checked='';
 	$searchFilter.SelectedCodes='';
@@ -317,6 +318,9 @@
 			if(action_click == 'block' || action_click == 'unblock'){
 				ajax_data+='&action='+action_click;
 			}
+			if(block_by == 'code' || block_by == 'country'){
+				ajax_data+='&block_by='+block_by;
+			}
 			submit_ajax(ajax_full_url,ajax_data);
 			return false;
 		});
@@ -362,7 +366,7 @@
 				"iDisplayLength": '{{Config::get('app.pageSize')}}',
 				"sPaginationType": "bootstrap",
 				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-				"aaSorting": [[3, 'desc']],
+				"aaSorting": [[1, 'asc']],
 				"fnServerParams": function(aoData) {
 					aoData.push({"name": "Trunk", "value": $searchFilter.Trunk},  {"name": "Country", "value": $searchFilter.Country},{"name": "Code", "value": $searchFilter.Code});
 					data_table_extra_params.length = 0;
@@ -507,6 +511,7 @@
 				text = 'Bulk Vendor unBlock';
 			}
 			code_check = 1;
+			block_by = 'code';
 			var modal = $("#modal-bulkaccount");
 			modal.find('.modal-header h4').text(text);
 			modal.modal('show');
@@ -537,6 +542,7 @@
 				text = 'Bulk Vendor unBlock';
 			}
 			code_check = 0;
+			block_by = 'country';
 			var modal = $("#modal-bulkaccount");
 			modal.find('.modal-header h4').text(text);
 			modal.modal('show');
@@ -558,6 +564,10 @@ function sort_table(table){
 }
 	function initCustomerGrid(tableID,OwnerFilter){
 		first_call = true;
+		var criteria =0;
+		if($('#selectallbutton').is(':checked')) {
+			criteria =1;
+		}
 		$searchFilter.OwnerFilter = "";
 		var data_table_new = $("#"+tableID).dataTable({
 			"bDestroy": true, // Destroy when resubmit form
@@ -572,7 +582,9 @@ function sort_table(table){
 						{"name": "Country", "value": $searchFilter.Country},
 						{"name": "Code", "value": $searchFilter.Code},
 						{"name": "SelectedCodes", "value": $searchFilter.SelectedCodes},
-						{"name": "action", "value": action_click}
+						{"name": "action", "value": action_click},
+						{"name": "criteria", "value": criteria},
+						{"name": "block_by", "value": block_by}
 
 				);
 			},

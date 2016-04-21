@@ -229,7 +229,7 @@ class CodeDecksController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($codedecks);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($codedecks);
             }
@@ -263,6 +263,50 @@ class CodeDecksController extends \BaseController {
     public  function update_selected(){
 
             $data = Input::all();
+            $updatedta = array();
+            $error = array();
+            $rules = array();
+            if(!empty($data['updateCountryID']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN'])){
+                if(!empty($data['updateCountryID'])){
+                    $updatedta['CountryID'] = $data['CountryID'];
+                }
+                if(!empty($data['updateDescription'])){
+                    if(!empty($data['Description'])){
+                        $updatedta['Description'] = $data['Description'];
+                    }else{
+
+                        $rules['Description'] = 'required';
+                    }
+
+                }
+                if(!empty($data['updateInterval1'])){
+                    if(!empty($data['Interval1'])){
+                        $updatedta['Interval1'] = $data['Interval1'];
+                    }else{
+                        $rules['Interval1'] = 'required | numeric';
+                        //return Response::json(array("status" => "failed", "message" => "Please Insert Interval."));
+                    }
+
+                }
+                if(!empty($data['updateIntervalN'])){
+                    if(!empty($data['IntervalN'])){
+                        $updatedta['IntervalN'] = $data['IntervalN'];
+                    }else{
+                        $rules['IntervalN'] = 'required | numeric';
+
+                    }
+
+                }
+
+                $validator = Validator::make($data, $rules);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No field selected to Update."));
+            }
+
             $companyID = User::get_companyID();
             $rateids='';
             if(empty($data['CodeDecks']) && !empty($data['criteria'])){
@@ -288,17 +332,18 @@ class CodeDecksController extends \BaseController {
                 $rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
             }
             //$companyID = User::get_companyID();
-            $rules = array(
-                'CountryID' => 'required',
+            /*$rules = array(
+                //'CountryID' => 'required',
                 'Description' => 'required',
             );
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
-            }
+            }*/
             if(is_array($rateids) && !empty($rateids)){
-                $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->update(array('CountryID'=>$data['CountryID'],'Description'=>$data['Description'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN']));
+
+                $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->update($updatedta);
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Updated"));
                 } else {
@@ -445,7 +490,7 @@ class CodeDecksController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

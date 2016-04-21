@@ -199,7 +199,7 @@ class CDRController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/CDR.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -284,16 +284,26 @@ class CDRController extends BaseController {
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
-                'TemplateFile' => 'required');
+                'TemplateFile' => 'required',
+                );
         }else{
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,NULL,FileUploadTemplateID',
-                'TemplateFile' => 'required');
+                'TemplateFile' => 'required',
+                );
         }
+        $rules['Account'] = 'required';
+        $rules['Authentication'] = 'required';
         if($data['RateFormat'] == Company::CHARGECODE) {
             $rules['ChargeCode'] = 'required';
         }
         if(!empty($data['selection']['ChargeCode'])){
             $data['ChargeCode'] = $data['selection']['ChargeCode'];
+        }
+        if(!empty($data['selection']['Account'])){
+            $data['Account'] = $data['selection']['Account'];
+        }
+        if(!empty($data['selection']['Authentication'])){
+            $data['Authentication'] = $data['selection']['Authentication'];
         }
         $validator = Validator::make($data, $rules);
 
@@ -440,7 +450,7 @@ class CDRController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -500,10 +510,6 @@ class CDRController extends BaseController {
                 $data['Firstrow'] = $options['option']['Firstrow'];
             }
 			
-			$path = str_replace('/', '\\', $file_name); 
-			copy($path, './uploads/' . basename($path)); 
-			
-			 $file_name =   public_path().'/uploads/' . basename($path);  
             if (!empty($file_name)) {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;

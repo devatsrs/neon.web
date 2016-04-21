@@ -203,7 +203,7 @@
                     </div>
                 </div>
 
-                <div class="panel-body">
+                <div class="panel-body scrollx">
                     <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
                     <table class="table table-bordered datatable" id="table-4">
                         <thead>

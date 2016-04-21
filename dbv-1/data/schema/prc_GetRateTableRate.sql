@@ -141,6 +141,7 @@ BEGIN
             Description,
             Interval1,
             IntervalN,
+            ConnectionFee,
             Rate,
             EffectiveDate,
             updated_at,

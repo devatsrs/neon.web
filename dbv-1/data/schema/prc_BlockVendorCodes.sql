@@ -1,11 +1,64 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_BlockVendorCodes`(IN `p_companyid` INT , IN `p_AccountId` VARCHAR(500), IN `p_trunkID` INT, IN `p_CountryIDs` VARCHAR(500), IN `p_Codes` VARCHAR(500), IN `p_Username` VARCHAR(100), IN `p_action` VARCHAR(100), IN `p_isCountry` INT, IN `p_isAllCountry` INT)
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_BlockVendorCodes`(IN `p_companyid` INT , IN `p_AccountId` TEXT, IN `p_trunkID` INT, IN `p_CountryIDs` TEXT, IN `p_Codes` TEXT, IN `p_Username` VARCHAR(100), IN `p_action` INT, IN `p_isCountry` INT, IN `p_isAllCountry` INT, IN `p_criteria` INT)
+BEGIN	 
+
+		
 	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;	
 	 
+	 
+		
   	IF p_isAllCountry = 1		
 	THEN	
-		SELECT CONCAT(CountryID) INTO p_CountryIDs  FROM tblCountry;
+		SELECT GROUP_CONCAT(CountryID) INTO p_CountryIDs  FROM tblCountry;
 	END IF;
+	
+	IF p_isCountry = 0
+	THEN
+		DROP TEMPORARY TABLE IF EXISTS tmp_codes_;
+	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_codes_(
+				Code varchar(20)
+		);
+	END IF;	
+	
+   		IF p_criteria = 0 and p_isCountry = 0 -- code with selected row
+		THEN
+   		insert into tmp_codes_
+		   SELECT  distinct tblRate.Code 
+            FROM    tblRate
+          INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
+          INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
+           WHERE    tblRate.CompanyID = p_companyid  AND ( p_Codes  = '' OR FIND_IN_SET(tblRate.Code,p_Codes) != 0 );
+        END IF;   
+
+        IF p_criteria = 1 and p_isCountry = 0 -- code with critearea
+		THEN
+   		insert into tmp_codes_
+		   SELECT  distinct tblRate.Code 
+            FROM    tblRate
+          INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
+          INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
+           WHERE    tblRate.CompanyID = p_companyid  AND ( p_Codes  = '' OR Code LIKE REPLACE(p_Codes,'*', '%') );
+        END IF; 
+		
+		IF p_criteria = 2 and p_isCountry = 0 -- country with critearea
+		THEN
+   		insert into tmp_codes_
+		   SELECT  distinct tblRate.Code 
+            FROM    tblRate
+          INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
+          INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
+           WHERE    tblRate.CompanyID = p_companyid  AND ( p_CountryIDs  = 0 OR FIND_IN_SET(tblRate.CountryID,p_CountryIDs) != 0 );
+        END IF; 
+		
+		IF p_criteria = 3 and p_isCountry = 0 -- all rate
+		THEN
+   		insert into tmp_codes_
+		   SELECT  distinct tblRate.Code 
+            FROM    tblRate
+          INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId  AND tblVendorRate.TrunkID = p_trunkID   
+          INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId  AND tblVendorTrunk.TrunkID = p_trunkID   
+           WHERE    tblRate.CompanyID = p_companyid;
+        END IF; 
+	
 	 
 	IF p_isCountry = 0 AND p_action = 1 -- block Code
    THEN 
@@ -15,11 +68,14 @@ BEGIN
 			FROM tblVendorRate
 			INNER JOIN tblRate ON tblRate.RateID = tblVendorRate.RateId 
 				AND tblRate.CompanyID = p_companyid
+			Inner join tmp_codes_ c on c.Code = tblRate.Code
 			LEFT JOIN tblVendorBlocking ON tblVendorBlocking.AccountId = tblVendorRate.AccountId 
 				AND tblVendorBlocking.RateId = tblRate.RateID 
 				AND tblVendorBlocking.TrunkID = p_trunkID
-					
-			WHERE tblVendorBlocking.VendorBlockingId IS NULL AND FIND_IN_SET(tblRate.Code,p_Codes) != 0 AND tblVendorRate.TrunkID = p_trunkID AND FIND_IN_SET (tblVendorRate.AccountID,p_AccountId) != 0 ;
+			WHERE tblVendorBlocking.VendorBlockingId IS NULL
+			 -- AND FIND_IN_SET(tblRate.Code,p_Codes) != 0 
+			 AND tblVendorRate.TrunkID = p_trunkID 
+			 AND FIND_IN_SET (tblVendorRate.AccountID,p_AccountId) != 0 ;
 	END IF; 
 
 	IF p_isCountry = 0 AND p_action = 0 -- unblock Code
@@ -29,7 +85,8 @@ BEGIN
 	  	INNER JOIN tblVendorRate ON tblVendorRate.RateID = tblVendorBlocking.RateId
 			AND tblVendorRate.TrunkID =  p_trunkID
 	  	INNER JOIN tblRate ON  tblRate.RateID = tblVendorRate.RateId AND tblRate.CompanyID = p_companyid
-		WHERE FIND_IN_SET (tblVendorRate.AccountID,p_AccountId) != 0 AND FIND_IN_SET(tblRate.Code,p_Codes) != 0 ;
+	  	Inner join tmp_codes_ c on c.Code = tblRate.Code
+		WHERE FIND_IN_SET (tblVendorRate.AccountID,p_AccountId) != 0 ;
 	END IF;
 	
 	

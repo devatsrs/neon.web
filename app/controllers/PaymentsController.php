@@ -47,7 +47,7 @@ class PaymentsController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -66,7 +66,8 @@ class PaymentsController extends \BaseController {
         $id=0;
         $companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
-        $currency = Currency::getCurrencyDropdownList();
+        $currency = Currency::getCurrencyDropdownList(); 
+		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
         $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
         $InvoiceNoarray = array();
         foreach($InvoiceNo as $Invoicerow){
@@ -74,15 +75,15 @@ class PaymentsController extends \BaseController {
         }
         $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates'));
-    }
+        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates','currency_ids'));
+	}
 
-    /**
-     * Show the form for creating a new resource.
-     * GET /payments/create
-     *
-     * @return Response
-     */
+	/**
+	 * Show the form for creating a new resource.
+	 * GET /payments/create
+	 *
+	 * @return Response
+	 */
     public function create()
     {
         $isvalid = Payment::validate();

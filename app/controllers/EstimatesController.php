@@ -8,7 +8,7 @@ class EstimatesController extends \BaseController {
 		$data['iDisplayStart'] 		 =	0;
         $data['iDisplayStart'] 		+=	1;
 		$data['iSortCol_0']			 =  0;
-		$data['sSortDir_0']			 =  'desc';
+		$data['sSortDir_0']			 =  strtoupper('desc');
         $companyID 					 =  User::get_companyID();
         $columns 					 =  ['EstimateID','AccountName','EstimateNumber','IssueDate','GrandTotal','PendingAmount','EstimateStatus','EstimateID'];
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
@@ -47,13 +47,13 @@ class EstimatesController extends \BaseController {
         $data 						 = 	Input::all();
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID();
-        $columns 					 =  ['EstimateID','AccountName','EstimateNumber','IssueDate','GrandTotal','EstimateStatus','EstimateID','converted'];   
+        $columns 					 =  ['EstimateID','AccountName','EstimateNumber','EstimateID','GrandTotal','EstimateStatus','EstimateID','converted'];   
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
 		
-        $query = "call prc_getEstimate (".$companyID.",".intval($data['AccountID']).",'".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getEstimate (".$companyID.",".intval($data['AccountID']).",'".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."',".intval($data['CurrencyID'])."";
 		
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
@@ -65,7 +65,7 @@ class EstimatesController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Estimate.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -547,7 +547,7 @@ class EstimatesController extends \BaseController {
             }
 			else
 			{
-                return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
+                return Response::json(array("status" => "failed", "message" => "You cannot create estimate as no Invoice Template assigned to this account." ));
             }			
             return Response::json(compact($return));
         }

@@ -130,19 +130,22 @@ class VendorRatesController extends \BaseController
             
             $data = Input::all();
             
-            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required' );
+            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
 
-            if(empty($data['downloadtype'])){
-                $data['downloadtype'] = 'csv';
-            }
+
             $validator = Validator::make($data, $rules);
             
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+            if(!empty($data['filetype'])){
+                $data['downloadtype'] = $data['filetype'];
+                unset($data['filetype']);
+            }
+
             
             //Inserting Job Log
             try {
@@ -230,7 +233,7 @@ class VendorRatesController extends \BaseController
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates History.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -263,7 +266,7 @@ class VendorRatesController extends \BaseController
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_rates);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_rates);
             }
@@ -325,7 +328,8 @@ class VendorRatesController extends \BaseController
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            return Redirect::back()->withInput(Input::all())->withErrors($validator);
+            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
+            return json_validator_response($validator);
         }
         $username = User::get_user_full_name();
         $VendorIDs = explode(",", $data['VendorRateID']);
@@ -500,7 +504,7 @@ class VendorRatesController extends \BaseController
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Preference.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Vendor Preference.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -705,6 +709,7 @@ class VendorRatesController extends \BaseController
         $isCountry = 1;
         $countries = 0;
         $isall = 0;
+        $criteria =0;
 
         if (User::is('AccountManager')) {
             $UserID = User::get_userID();
@@ -712,24 +717,68 @@ class VendorRatesController extends \BaseController
         if (isset($data['OwnerFilter']) && $data['OwnerFilter'] != 0) {
             $UserID = $data['OwnerFilter'];
         }
-        if(isset($data['SelectedCodes']) && !empty($data['SelectedCodes'])){
-            $SelectedCodes = $data['SelectedCodes'];
-            $isCountry = 0;
+
+        //block by contry
+        if(isset($data['block_by']) && $data['block_by']=='country')
+        {
+            $isCountry=1;
+            if(in_array(0,explode(',',$data['Country']))){
+                $isall = 1;
+            }elseif(!empty($data['Country'])){
+                $isall = 0;
+                $countries = $data['Country'];
+            }
+
         }
-        if(in_array(0,explode(',',$data['Country']))){
-            $isall = 1;
+
+        //block by code
+        if(isset($data['block_by']) && $data['block_by']=='code')
+        {
+            $isCountry=0;
+            $isall = 0;
+            // by critearia
+            if(!empty($data['criteria']) && $data['criteria']==1){
+                if(!empty($data['Code']) || !empty($data['Country'])){
+                    if(!empty($data['Code'])){
+                        $criteria = 1;
+                        $SelectedCodes = $data['Code'];
+                    }else{
+                        $criteria = 2;
+                        if(!empty($data['Country'])){
+                            $isall = 0;
+                            $countries = $data['Country'];
+                        }
+                    }
+                }else{
+                    $criteria = 3;
+                }
+
+            }elseif(!empty($data['SelectedCodes'])){
+                //by code
+                $SelectedCodes = $data['SelectedCodes'];
+                $criteria = 0;
+            }
+
         }
-        if(!empty($data['Country'])){
-            $countries = $data['Country'];
-        }
+
         if($data['action'] == 'block'){
             $data['action'] = 0;
         }else{
             $data['action'] = 1;
         }
 
-        $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.")";
-        $accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
-        return $accounts->make();
+        $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.",".$criteria.")";
+        //$accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
+        //return $accounts->make();
+        return DataTableSql::of($query)->make();
+    }
+
+    public function vendordownloadtype($id,$type){
+        if($type=='Vos 3.2'){
+            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+        }else{
+            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+        }
+        return $downloadtype;
     }
 }

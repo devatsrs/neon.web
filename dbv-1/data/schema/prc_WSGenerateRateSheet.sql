@@ -56,7 +56,7 @@ BEGIN
         ratesheetdetailsid int,
         RateID int ,
         RateSheetID int,
-        Destination varchar(50),
+        Destination varchar(200),
         Code varchar(50),
         Rate DECIMAL(18, 6),
         `change` varchar(50),
@@ -200,11 +200,11 @@ BEGIN
              tbl.EffectiveDate
       FROM   (
 			SELECT
-				rt.RateID,				
-				rt.Interval1,
-				rt.IntervalN,
-				rt.Rate,
-				rt.EffectiveDate
+				rt.RateID,
+         	rt.Interval1,
+            rt.IntervalN,
+            rt.Rate,
+            rt.EffectiveDate
          FROM   tmp_RateTableRate_ rt
          LEFT JOIN tblRateSheet
          	ON tblRateSheet.RateSheetID =
@@ -216,7 +216,7 @@ BEGIN
 			UNION
 
 			SELECT
-				trc2.RateID,            
+				trc2.RateID,
             trc2.Interval1,
             trc2.IntervalN,
             trc2.Rate,

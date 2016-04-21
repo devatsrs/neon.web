@@ -35,7 +35,7 @@ class TransactionLogController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice Transaction Log.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Transaction Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -55,7 +55,8 @@ class TransactionLogController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
 
-        $columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
+        //$columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
+		$columns = array('InvoiceNumber','Notes','Status','created_at','InvoiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
@@ -71,7 +72,7 @@ class TransactionLogController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice Log.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

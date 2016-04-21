@@ -44,9 +44,9 @@
                         </div>
 
 
-                        <label for="field-1" class="col-sm-1 control-label">Country</label>
+                        <label for="field-1" class="col-sm-1 control-label">Currency</label>
                         <div class="col-sm-2">
-                            {{ Form::select('Country', $countries, Input::get('Country') , array("class"=>"select2")) }}
+                            {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
                         </div>
 
 
@@ -110,9 +110,9 @@
 
         $("#lcr-search-form").submit(function(e) {
 
-            var Code, Description, Country,CodeDeck,Use_Preference;
+            var Code, Description, Currency,CodeDeck,Use_Preference;
             Code = $("#lcr-search-form input[name='Code']").val();
-            Country = $("#lcr-search-form select[name='Country']").val();
+            Currency = $("#lcr-search-form select[name='Currency']").val();
             Trunk = $("#lcr-search-form select[name='Trunk']").val();
             CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
             Use_Preference = $("#lcr-search-form [name='Use_Preference']").prop("checked");
@@ -130,11 +130,18 @@
                 toastr.error("Please Select a CodeDeck", "Error", toastr_opts);
                 return false;
             }
-            if((Code == '' && Country == '') ){
+            if(typeof Code  == 'undefined' || Code == '' ){
                 setTimeout(function(){
                     $('.btn').button('reset');
                 },10);
-                toastr.error("Please Enter Code or Select a Country", "Error", toastr_opts);
+                toastr.error("Please Enter a Code", "Error", toastr_opts);
+                return false;
+            }
+            if(typeof Currency  == 'undefined' || Currency == '' ){
+                setTimeout(function(){
+                    $('.btn').button('reset');
+                },10);
+                toastr.error("Please Select a Currency", "Error", toastr_opts);
                 return false;
             }
             data_table = $("#table-4").dataTable({
@@ -143,9 +150,9 @@
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name": "Code", "value": Code},  {"name": "Country", "value": Country}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference});
+                    aoData.push({"name": "Code", "value": Code},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name": "Code", "value": Code},  {"name": "Country", "value": Country}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name": "Code", "value": Code},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Export","value":1});
                 },
                 "iDisplayLength": 10,
                 "sPaginationType": "bootstrap",

@@ -243,7 +243,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customers_rates/{id}/exports', 'CustomersRatesController@exports');
 	Route::any('/customers_rates/{id}/history_exports/{type}', 'CustomersRatesController@history_exports');
 	Route::any('/customers_rates/{id}/download_excel_file/{JobID}', 'CustomersRatesController@download_excel_file')->where('JobID', '(.[09]*)+');
+	Route::any('/customers_rates/{id}/customerdownloadtype/{type}', 'CustomersRatesController@customerdownloadtype');
 	Route::any('/vendor_merge', 'CustomersRatesController@vendor_merge');
+
 
 	Route::resource('customers_rates', 'CustomersRatesController');
 	Route::controller('customers_rates', 'CustomersRatesController');
@@ -298,6 +300,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/vendor_rates/{id}/ajaxfilegrid', 'VendorRatesController@ajaxfilegrid');
     Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
     Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
+	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
 
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
@@ -695,7 +698,7 @@ Route::group(array('before' => 'auth'), function () {
 
     //VendorFileUploadTemplate
     Route::any('/uploadtemplate','VendorFileUploadTemplateController@index');
-    Route::any('/uploadtemplate/ajax_datagrid','VendorFileUploadTemplateController@ajax_datagrid');
+    Route::any('/uploadtemplate/ajax_datagrid/{type}','VendorFileUploadTemplateController@ajax_datagrid');
     Route::any('/uploadtemplate/ajaxfilegrid','VendorFileUploadTemplateController@ajaxfilegrid');
     Route::any('/uploadtemplate/create','VendorFileUploadTemplateController@create');
     Route::any('/uploadtemplate/{id}/edit','VendorFileUploadTemplateController@edit');

@@ -39,15 +39,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                        <label for="field-1" class="col-sm-1 control-label">Company</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_name"  type="text" >
-                        </div>
-                        <label for="field-1" class="col-sm-1 control-label">Account Number</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" name="account_number" type="text"  >
-                        </div>
-                        <label class="col-sm-1 control-label">Contact Name</label>
+                        </div>            
+                        <label class="col-sm-2 control-label">Contact Name</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="contact_name" type="text" >
                         </div>
@@ -738,6 +734,17 @@
 
 
 </script>
+<style>
+    .dataTables_filter label{
+        display:none !important;
+    }
+    .dataTables_wrapper .export-data{
+        right: 30px !important;
+    }
+    #selectcheckbox{
+        padding: 15px 10px;
+    }
+</style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
