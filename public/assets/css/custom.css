@@ -1738,19 +1738,22 @@ margin-top:10px;
     font-size:13px;
 text-align:left
 }
-@media (max-width: 767px) {
-dialog {
-    width: 100%;
-    background: #fff;
-    border: 1px solid #dadada;
-    font-family: sans-serif;
-    top:100px;
-    z-index: 99999;
-    border-radius: 5px;
-    position:absolute;
-    
+
+.description{
+    overflow: hidden;
+    resize: horizontal;
+    word-wrap: break-word;
+    min-height: 200px;
 }
+
+/*.select2-container,
+.select2-choice,
+.select2-chosen{
+    max-height: 30px;
 }
+.select2-chosen,.select2-arrow{
+    margin-top:-5px;
+}*/
 
 .cbp_tmtimeline {
 	margin: 30px 0 0 0;
@@ -1918,4 +1921,4 @@ dialog {
 	}	
 }
 /*account tineline css end*/
->>>>>>> bc5b6004b1c8271155287f2cfe4be9b0a7778760
+

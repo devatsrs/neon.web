@@ -20,7 +20,7 @@
     <h3>Configure Board</h3>
     <div id="manage-board">
         <p style="text-align: right;">
-            <a href="{{URL::to('/opportunityboards')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+            <a href="{{URL::to('/task')}}" class="btn btn-danger btn-sm btn-icon icon-left">
                 <i class="entypo-cancel"></i>
                 Close
             </a>

@@ -3,9 +3,6 @@
         .margin-top{
             margin-top:10px;
         }
-        .margin-top{
-            margin-top:10px;
-        }
         .margin-top-group{
             margin-top:15px;
         }
@@ -55,9 +52,9 @@
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
             $('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
-            $('#add-task-form [name="UsersIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $('#add-task-form [name="AccountIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $('#add-modal-task h4').text('Add task');
+            $('#add-modal-task h4').text('Add Task');
             if(!BoardID){
                 accountID =$(this).attr('data-id');
                 $('#add-task-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
@@ -132,21 +129,21 @@
                         </div>
                         <div class="col-md-6 pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Subject *</label>
+                                <label for="field-5" class="control-label col-sm-4">Assign To</label>
+                                <div class="col-sm-8">
+                                    {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2",$disabled))}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 margin-top pull-left">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">Task Subject *</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="Subject" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top pull-left">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Priority</label>
-                                <div class="col-sm-8">
-                                    {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Due Date</label>
@@ -155,16 +152,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 margin-top pull-left">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Assign To</label>
-                                <div class="col-sm-8">
-                                    {{Form::select('UsersIDs[]',$account_owners,'',array("class"=>"select2","multiple"=>"multiple",$disabled))}}
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="col-md-6 margin-top pull-right">
+                        <div class="col-md-6 margin-top pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Company</label>
                                 <div class="col-sm-8">
@@ -173,11 +162,20 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top pull-left">
+                        <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Description</label>
+                                <label for="field-5" class="control-label col-sm-4">Priority</label>
                                 <div class="col-sm-8">
-                                    <textarea name="Description" class="form-control resizevertical"> </textarea>
+                                    {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 margin-top pull-left">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-2">Description</label>
+                                <div class="col-sm-10">
+                                    <textarea name="Description" class="form-control description autogrow resizevertical"> </textarea>
                                 </div>
                             </div>
                         </div>

@@ -33,7 +33,7 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('taskboards')}}">Task Board</a>
+            <a href="{{URL::to('taskboards')}}">Task</a>
         </li>
         <li class="active">
             <strong>{{$Board[0]->BoardName}}</strong>
@@ -72,7 +72,7 @@
                                 @if(User::is_admin())
                                     <label for="field-1" class="col-sm-1 control-label">Task Assign To</label>
                                     <div class="col-sm-2">
-                                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2",'multiple'))}}
+                                        {{Form::select('AccountOwner',$account_owners,Input::get('AccountOwner'),array("class"=>"select2"))}}
                                     </div>
                                 @endif
                                 <label for="field-1" class="col-sm-1 control-label">Priority</label>
@@ -82,7 +82,13 @@
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                                    <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Status</label>
+                                <div class="col-sm-2">
+                                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"selectboxit"))}}
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -107,22 +113,21 @@
         </p>
 
         <section class="deals-board">
-            <table class="table table-bordered datatable hidden" id="taskGrid">
+            <table class="table table-bordered datatable" id="taskGrid">
                 <thead>
                 <tr>
-                    <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th width="25%" >Subject</th>
-                    <th width="10%" >Due Date</th>
-                    <th width="10%" >Status</th>
-                    <th width="5%">Priority</th>
-                    <th width="35%">Assigned To</th>
-                    <th width="10%">Action</th>
+                    <th width="20%" >Subject</th>
+                    <th width="15%" >Due Date</th>
+                    <th width="15%" >Status</th>
+                    <th width="15%">Priority</th>
+                    <th width="20%">Assigned To</th>
+                    <th width="15%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
-            <div id="board-start" class="board scroller" style="height: 500px;overflow: auto !important;">
+            <div id="board-start" class="board scroller hidden" style="height: 500px;overflow: auto !important;">
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
@@ -137,9 +142,10 @@
         $(document).ready(function(){
 
             $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
-            $searchFilter.account_owners = $("#search-task-filter [name='account_owners']").val();
+            $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
             $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
             $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
+            $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
             var task = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -183,22 +189,17 @@
                 "fnServerParams": function (aoData) {
                     aoData.push(
                             {"name": "taskName", "value": $searchFilter.taskName},
-                            {"name": "account_owners","value": $searchFilter.account_owners},
+                            {"name": "AccountOwner","value": $searchFilter.AccountOwner},
                             {"name": "Priority","value": $searchFilter.Priority},
-                            {"name": "DueDate","value": $searchFilter.DueDate}
+                            {"name": "DueDate","value": $searchFilter.DueDate},
+                            {"name": "TaskStatus","value": $searchFilter.TaskStatus}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[2, 'desc']],
+                "aaSorting": [[1, 'desc']],
                 "aoColumns": [
-                    {
-                        "bSortable": false,
-                        mRender: function (id, type, full) {
-                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[2] + '" class="rowcheckbox" ></div>';
-                        }
-                    },
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
@@ -225,7 +226,7 @@
                         }
                     },
                     {
-                        "bSortable": false, //Assign To
+                        "bSortable": true, //Assign To
                         mRender: function (id, type, full) {
                             return full[4];
                         }
@@ -263,6 +264,11 @@
 
             $('#search-task-filter').submit(function(e){
                 e.preventDefault();
+                $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
+                $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
+                $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
+                $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
+                $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
                 getTask();
                 data_table.fnFilter('',0);
             });
@@ -281,7 +287,7 @@
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
                     //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
-                        if(task[i]=='TaggedUser' || task[i]=='UsersIDs' || task[i]=='AccountIDs') {
+                        if(task[i]=='TaggedUser' || task[i]=='AccountIDs') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         } else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
@@ -649,17 +655,27 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 margin-top pull-right">
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Task Status *</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}}
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Assign To</label>
+                                    <div class="col-sm-8">
+                                        {{Form::select('UsersIDs',$account_owners,'',array("class"=>"select2"))}}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Subject *</label>
+                                    <label for="field-5" class="control-label col-sm-4">Task Subject *</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="Subject" class="form-control" id="field-5" placeholder="">
                                     </div>
@@ -668,25 +684,9 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Priority</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Due Date</label>
                                     <div class="col-sm-8">
                                         <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Assign To</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('UsersIDs[]',$account_owners,'',array("class"=>"select2","multiple"=>"multiple"))}}
                                     </div>
                                 </div>
                             </div>
@@ -702,9 +702,18 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Description</label>
+                                    <label for="field-5" class="control-label col-sm-4">Priority</label>
                                     <div class="col-sm-8">
-                                        <textarea name="Description" class="form-control resizevertical"> </textarea>
+                                        {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-2">Description</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="Description" class="form-control description autogrow resizevertical"> </textarea>
                                     </div>
                                 </div>
                             </div>

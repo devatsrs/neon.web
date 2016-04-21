@@ -14,7 +14,7 @@ class TaskController extends \BaseController {
     public function ajax_task_board($id){
         $data = Input::all();
         if(User::is('AccountManager')){
-            $data['account_owners'] = User::get_userID();
+            $data['AccountOwners'] = User::get_userID();
         }
         $data['fetchType'] = 'Board';
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data,true,true);
@@ -39,7 +39,7 @@ class TaskController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         if(User::is('AccountManager')){
-            $data['account_owners'] = User::get_userID();
+            $data['AccountOwners'] = User::get_userID();
         }
         $data['fetchType'] = 'Grid';
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data);
@@ -80,7 +80,8 @@ class TaskController extends \BaseController {
 
     public function manage(){
         $Board = CRMBoard::getTaskBoard();
-        $account_owners = User::getUserIDList(0);
+        $account_owners = User::getUserIDList();
+        $taskStatus = CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
         $priority = Task::$priority;
 
         $where['Status']=1;
@@ -89,7 +90,7 @@ class TaskController extends \BaseController {
         }
         $leadOrAccount = Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
         $tasktags = json_encode(Tags::getTagsArray(Tags::Task_tag));
-        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags'));
+        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus'));
     }
 	/**
 	 * Show the form for creating a new resource.
