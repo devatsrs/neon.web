@@ -12,15 +12,15 @@
     <div class="tab-content">
         <div class="tab-pane active">
             <p style="text-align: right;">
-                <a href="#" id="add-new-taskboard" class="btn btn-primary ">
+                <a href="#" id="add-new-taskboard" class="btn btn-primary hidden">
                     <i class="entypo-plus"></i>
                     Add Task Board
                 </a>
-                <a href="javascript:void(0)" id="configure-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary ">
+                <a href="javascript:void(0)" id="configure-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary hidden">
                     <i class="entypo-cog"></i>
                     Configure Task Board
                 </a>
-                <a href="javascript:void(0)" id="manage-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary ">
+                <a href="javascript:void(0)" id="manage-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary hidden">
                     <i class="entypo-cog"></i>
                     Manage Task Board
                 </a>

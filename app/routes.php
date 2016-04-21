@@ -641,7 +641,7 @@ Route::group(array('before' => 'auth'), function () {
 
     //Task
 
-    Route::any('/task/manage', 'TaskController@manage');
+    Route::any('/task', 'TaskController@manage');
     Route::any('/task/{id}/configure', 'OpportunityBoardController@configure');
     Route::any('/task/create', 'TaskController@create');
     Route::any('/task/{id}/saveattachment', 'TaskController@saveattachment');

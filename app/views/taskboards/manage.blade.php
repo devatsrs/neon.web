@@ -97,12 +97,12 @@
             </div>
         </div>
 
-        <p id="tools" style="text-align: right;">
-            <button class="btn btn-default active" type="button">Grid</button>
-            <button class="btn btn-primary" type="button">List</button>
-            <a href="javascript:void(0)" class="btn btn-primary task">
+        <p id="tools">
+            <a class="btn btn-primary toggle list active" href="#"><i class="entypo-list"></i></a>
+            <a class="btn btn-primary toggle grid" href="#"><i class="entypo-book-open"></i></a>
+            <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                 <i class="entypo-plus"></i>
-                Add New Task
+                Add Task
             </a>
         </p>
 
@@ -299,19 +299,15 @@
                 $('#edit-modal-task').modal('show');
             });
 
-            $('#tools button').click(function(){
-                if($(this).text()=='List'){
-                    $(this).addClass('btn-default active');
-                    $(this).removeClass('btn-primary');
-                    $(this).siblings('button').removeClass('btn-default active');
-                    $(this).siblings('button').addClass('btn-primary');
+            $('#tools .toggle').click(function(){
+                if($(this).hasClass('list')){
+                    $(this).addClass('active');
+                    $(this).siblings('.toggle').removeClass('active');
                     $('#board-start').addClass('hidden');
                     $('#taskGrid_wrapper,#taskGrid').removeClass('hidden');
                 }else{
-                    $(this).addClass('btn-default active');
-                    $(this).removeClass('btn-primary');
-                    $(this).siblings('button').removeClass('btn-default active');
-                    $(this).siblings('button').addClass('btn-primary');
+                    $(this).addClass('active');
+                    $(this).siblings('.toggle').removeClass('active');
                     $('#board-start').removeClass('hidden');
                     $('#taskGrid_wrapper,#taskGrid').addClass('hidden');
                 }
