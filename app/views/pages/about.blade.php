@@ -13,13 +13,49 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.01</h1>
+    <h1>NEON - 4.02</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.01</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.02</strong></div>
 </p>
+</div>
+
+<h2>
+    <span class="label label-success">4.02</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>21-04-2016</h4>
+                    1.  Added an option to create Estimates<br>
+                    2.  Added an option to create Themes<br>
+                    3.  Added filter by CLI , CLD and Zero Cost under CDR<br>
+                    4.  Added Payment date filter on Payments page.<br>
+                    5.  Add totals in Invoice section<br>
+                    6.  Added option to setup Quarterly and Fortnightly invoices<br>
+                    7.  Added Payment Method ‘Direct Debit’<br>
+                    8.  Added an option to download Current, Future and All rates<br>
+                    9.  Added an option to download files in Excel and CSV<br>
+                    10. Added an option to export grids in Excel and CSV<br>
+                    11. Added  new logic to calculate LCR and implemented same logic in Rate Generator<br>
+                    12. Added an option to specify which field to change in Code deck bulk edit.<br>
+                    13. Fixed issues with CDR re rating<br>
+                    14. Changed Account/Lead cards layout<br>
+                    15. Fixed issues with Vendor Blocking By Code under Vendor profiling<br>
+                    16. Fixed rate table page as it was bit slow<br>
+                    17. Added an option to add currency symbol against currency<br>
+                    18. Displaying currency symbol instead of currency name<br>
+
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 <h2>
