@@ -98,8 +98,8 @@
         </div>
 
         <p id="tools">
-            <a class="btn btn-primary toggle list active" href="#"><i class="entypo-list"></i></a>
-            <a class="btn btn-primary toggle grid" href="#"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list active" href="javascript:void(0)"><i class="entypo-list"></i></a>
+            <a class="btn btn-primary toggle grid" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
             <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                 <i class="entypo-plus"></i>
                 Add Task
