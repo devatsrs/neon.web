@@ -17,7 +17,7 @@ CREATE TABLE `tblCustomerRate` (
   KEY `IX_tblCustomerRate_CustomerID_9494E` (`CustomerID`),
   KEY `IX_tblCustomerRate_CustomerID_EffectiveDate_61B1F` (`CustomerID`,`EffectiveDate`),
   KEY `IX_tblCustomerRate_CustomerID_TrunkID_Rate_FDB55` (`CustomerID`,`TrunkID`,`Rate`),
-  KEY `IX_tblCustomerRate_RateID_CustomerID_effectivedate` (`CustomerID`,`TrunkID`,`RateID`),
   KEY `FKtblcustomerrate_tblrate_rateid` (`RateID`),
+  KEY `IX_tblCustomerRate_CustomerID_TrunkID_effectivedate` (`CustomerID`,`TrunkID`,`EffectiveDate`),
   CONSTRAINT `FKtblcustomerrate_tblrate_rateid` FOREIGN KEY (`RateID`) REFERENCES `tblRate` (`RateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
