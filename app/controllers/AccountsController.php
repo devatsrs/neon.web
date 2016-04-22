@@ -225,7 +225,7 @@ class AccountsController extends \BaseController {
 			$Board 						=	 CRMBoard::getTaskBoard();
 			$emailTemplates 			= 	$this->ajax_getEmailTemplate(0,1);
 	
-				
+			echo "<pre>"; print_r($response);	 exit;
 			// echo Session::get("api_token"); exit;
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data->result;
