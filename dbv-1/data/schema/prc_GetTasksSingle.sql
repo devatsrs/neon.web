@@ -16,7 +16,7 @@ BEGIN
 		bc.BoardColumnName as TaskStatus,
 		t.created_at,
 		t.CreatedBy as created_by
-	FROM tbltask t
+	FROM tblTask t
 	INNER JOIN tblCRMBoardColumn bc on  t.BoardColumnID = bc.BoardColumnID	
 	INNER JOIN tblUser u on  u.UserID = t.UsersIDs		
 	WHERE t.TaskID = p_TaskID;
