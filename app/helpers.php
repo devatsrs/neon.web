@@ -32,9 +32,14 @@ function json_response_api($response){
                 }
             }
         }
-    }else{		
-		print_r($response); exit;
-        $errors = $response->message;
+    }else{	
+		if(isset($response->message)){
+			$errors = $response->message;
+		}
+		else{
+			$errors  = "No More Record Found.";
+			}
+        
     }
     return  Response::json(array("status" => "failed", "message" => $errors));
 }
@@ -793,7 +798,7 @@ function validfilepath($path){
 
 function create_site_configration_cache(){
 	
-	$domain_url 					=   addhttp($_SERVER['HTTP_HOST']);
+	$domain_url 					=   $_SERVER['HTTP_HOST'];
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 	
 	if($result){  //url found	
