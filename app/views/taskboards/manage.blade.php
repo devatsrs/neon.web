@@ -720,7 +720,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Company</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('AccountIDs[]',$leadOrAccount,'',array("class"=>"select2","multiple"=>"multiple"))}}
+                                        {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2","multiple"=>"multiple"))}}
                                     </div>
                                 </div>
                             </div>
