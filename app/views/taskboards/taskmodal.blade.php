@@ -54,7 +54,7 @@
             $('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
             $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             //$('#add-task-form [name="UsersIDs"]').select2().select2('val',usetId);
-            $('#add-task-form [name="AccountIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $('#add-task-form [name="AccountIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $('#add-modal-task h4').text('Add Task');
             if(!BoardID){
                 accountID =$(this).attr('data-id');
@@ -159,7 +159,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Company</label>
                                 <div class="col-sm-8">
-                                    {{Form::select('AccountIDs[]',$leadOrAccount,'',array("class"=>"select2","multiple"=>"multiple",$disabled))}}
+                                    {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2",$disabled))}}
                                 </div>
                             </div>
                         </div>

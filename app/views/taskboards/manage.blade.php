@@ -88,7 +88,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    <?php $datefilter = array("1"=> "Today Task","2"=>"Tomorrows Task","3"=>"This Week Task",'4'=>'Custome Date'); ?>
+                                    <?php $datefilter = array("1"=> "Todays Tasks","2"=>"Tomorrows Tasks","3"=>"This Weeks Tasks",'4'=>'Overdue Tasks','5'=>'Custom Date'); ?>
                                     {{Form::select('DueDateFilter',$datefilter,'',array("class"=>"selectboxit"))}}
                                 </div>
                                 <div class="col-sm-2">
@@ -125,7 +125,7 @@
                     <th width="15%" >Status</th>
                     <th width="10%">Priority</th>
                     <th width="20%">Assigned To</th>
-                    <th width="20%">related To</th>
+                    <th width="20%">Related To</th>
                     <th width="10%">Action</th>
                 </tr>
                 </thead>
@@ -159,6 +159,7 @@
                 'UsersIDs',
                 'Users',
                 'AccountIDs',
+                'company',
                 'Subject',
                 'Description',
                 'DueDate',
@@ -458,7 +459,7 @@
             });
 
             $('#search-task-filter [name="DueDateFilter"]').change(function(){
-                if($(this).val()==4){
+                if($(this).val()==5){
                     var datefliter = $('#search-task-filter [name="DueDate"]');
                     datefliter.removeClass('hidden');
                 }else{

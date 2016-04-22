@@ -89,6 +89,9 @@ class TaskController extends \BaseController {
             $where['Owner'] = User::get_userID();
         }
         $leadOrAccount = Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
+        }
         $tasktags = json_encode(Tags::getTagsArray(Tags::Task_tag));
         return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus'));
     }
