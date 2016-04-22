@@ -114,7 +114,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/{id}/show', array('as' => 'accounts_show', 'uses' => 'AccountsController@show'));
 	Route::any('/accounts/{id}/show1', array('as' => 'accounts_show1', 'uses' => 'AccountsController@show1'));
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
-	
+	Route::any('/task/create', 'TaskController@create');
 	
 	Route::any('/accounts/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'AccountsController@store_note'));
 	Route::any('/accounts/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'AccountsController@delete_note'));

@@ -204,7 +204,7 @@ class AccountsController extends \BaseController {
             $companyID 					= 	 User::get_companyID();
             $account_owner 				= 	 User::find($account->Owner);
             $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
-            $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
 			$verificationflag 			= 	 AccountApprovalList::isVerfiable($id);
             $outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
             $currency 					= 	 Currency::getCurrencySymbol($account->CurrencyId);
@@ -219,12 +219,16 @@ class AccountsController extends \BaseController {
 			$message 					= 	 '';
             $response 				    = 	 NeonAPI::request('account/GetTimeLine',$data,false);
 			$sql 						= 	 "call prc_GetAccounts (1,0,0,0,1,2,'','','".$account->AccountName."','',1 ,50,'AccountName','asc',0)";
-			$Account_card  				= 	 DB::select($sql);
+			$Account_card  				= 	 DB::select($sql);			
+			$account_owners 			= 	 User::getUserIDList(0);
+			$priority 					= 	 Task::$priority;
+			$Board 						=	 CRMBoard::getTaskBoard();
+			$emailTemplates 			= 	$this->ajax_getEmailTemplate(0,1);
 	
+				
 			// echo Session::get("api_token"); exit;
-			//echo "<pre>";			print_r($response);	exit;
 			 if (isset($response->status_code) && $response->status_code == 200) {			
-				$response = $response->data->result->aaData;
+				$response = $response->data->result;
 			}else{				
 			 	$message	=	isset($response->message)?$response->message:$response->error;
 			 	Session::set('error_message',$message);
@@ -232,7 +236,7 @@ class AccountsController extends \BaseController {
 			
 			$per_scroll 			=   $data['iDisplayLength'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card'));
+            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates'));
     }
 	
 	
@@ -245,8 +249,8 @@ class AccountsController extends \BaseController {
      */
 	 
 	 public function GetTimeLineSrollData($id,$start)
-	 {
-		  	$data = Input::all();
+	 { 
+		  	$data 					   = 	Input::all();
 		 	$data['iDisplayStart'] 	   =	$start;
             $data['iDisplayLength']    =    10;
             $data['AccountID']         =    $id;			
@@ -255,18 +259,32 @@ class AccountsController extends \BaseController {
 			if(!isset($response->status_code )){
 				return  json_response_api($response);
 			}
-			
 			if ($response->status_code == 200) {			
-				$response = $response->data->result->aaData;
+				if(isset($response->data->result->aaData)){
+					$response = $response->data->result->aaData;
+				}
+				else if(isset($response->data->result))
+				{
+					$response = $response->data->result;
+				}
+				else{
+					$array = array("status"=>"failed","message"=>"No More Record Founds.");
+					return  json_response_api($array);
+				}				
 			}
-			else{
+			else{				
 			 return  json_response_api($response);
 			}
 			
-			$key = $data['scrol'];
-			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
+			if(count($response)<1)
+			{
+					$array = array("status"=>"failed","message"=>"No More Record Founds.");
+					return  json_response_api($array);
+			}
 			
+			$key 					= 	$data['scrol'];
+			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
 	 }
 	 
     public function edit($id) {
@@ -424,6 +442,7 @@ class AccountsController extends \BaseController {
 		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
 		unset($data["scrol"]);		
  		$response 				= 	NeonAPI::request('account/add_note',$data);
+		//print_r($response); exit;
 		
 		if(!isset($response->status_code )){
 			return  json_response_api($response);
@@ -431,10 +450,8 @@ class AccountsController extends \BaseController {
 		
 		if ($response->status_code == 200) {			
 			$response = $response->data->result;
-			$response->type = 3;
-			
-		}
-		else{
+			$response->type = 3;			
+		}else{
 		 return  json_response_api($response);
 		}
 		

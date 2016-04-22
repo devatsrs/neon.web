@@ -159,19 +159,16 @@ class AccountActivityController extends \BaseController {
         }
 		
 		
-		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);		
-		//print_r($data);
-		echo "___________________________________________________________";
-		print_r($response);
-		exit;
-		if(!isset($response->status_code )){
+		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
+		if(!isset($response->status_code)){
 				return  json_response_api($response);
 			}
 			
-			if ($response->status_code == 200) {			
-				$response = $response->data->result;
-				$response->type = 2;
-				
+			if ($response->status_code == 200) {	
+				$logID 	  		 = 	$response->LogID;					
+				$response 		 = 	$response->data->result;
+				$response->type  = 	2;				
+				$response->LogID = 	$logID;
 			}
 			else{
 			 return  json_response_api($response);

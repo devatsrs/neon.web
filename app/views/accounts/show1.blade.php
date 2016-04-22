@@ -1,3 +1,5 @@
+<?php $disabled='';$leadOrAccountExist = 'No';$leadOrAccountID = '';$leadOrAccountCheck='';  $BoardID = $Board[0]->BoardID; ?>
+
 @extends('layout.main')
 @section('content')
 <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
@@ -9,68 +11,58 @@
   </ol>
   @include('includes.errors')
   @include('includes.success')
-  <p style="text-align: right;">
-      <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-floppy"></i>
-        Edit Account
-    </a>
-   </p>
   <?php $Account = $account;?>
   @include('accounts.errormessage')
   <div id="account-timeline">
-    <div class="row">
-      <div class="col-md-10 clearfix">
-        <h2>{{$account->AccountName}} </h2>
-      </div>
-    </div>
     <section>
-      <div id="contact-column" class="about-account col-md-3 col-sm-12 col-xs-12 pull-left">
-		<!--Account card start -->
+      <div id="contact-column" class="about-account col-md-3 col-sm-12 col-xs-12 pull-left"> 
+        <!--Account card start --> 
         @if(isset($Account_card) && count($Account_card)>0)
         <div class="gridview">
-        <ul class="clearfix grid col-md-12">
-    <li>
-      <div class="box clearfix ">
-        <div class="col-sm-12 header padding-left-1"> <span class="head">{{$Account_card[0]->AccountName}}</span><br>
-          <span class="meta complete_name"> </span></div>
-        <div class="col-sm-6 padding-0">
-          <div class="block">
-            <div class="meta">Email</div>
-            <div><a class="sendemail" href="javascript:void(0)">{{$Account_card[0]->Email}}</a></div>
-          </div>
-          <div class="cellNo">
-            <div class="meta">Phone</div>
-            <div><a href="tel:{{$Account_card[0]->Phone}}">{{$Account_card[0]->Phone}}</a></div>
-          </div>
-          <div>
-            <div class="meta">Outstanding</div>
-            <div>{{$Account_card[0]->OutStandingAmount}}</div>
-          </div>
+          <ul class="clearfix grid col-md-12">
+            <li>
+              <div class="box clearfix ">
+                <div class="col-sm-12 header padding-left-1"> <span class="head">{{$Account_card[0]->AccountName}}</span><br>
+                  <span class="meta complete_name"> </span></div>
+                <div class="col-sm-6 padding-0">
+                  <div class="block">
+                    <div class="meta">Email</div>
+                    <div><a class="sendemail" href="javascript:void(0)">{{$Account_card[0]->Email}}</a></div>
+                  </div>
+                  <div class="cellNo">
+                    <div class="meta">Phone</div>
+                    <div><a href="tel:{{$Account_card[0]->Phone}}">{{$Account_card[0]->Phone}}</a></div>
+                  </div>
+                  <div class="block blockSmall">
+                    <div class="meta">Outstanding</div>
+                    <div>{{$Account_card[0]->OutStandingAmount}}</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 padding-0">
+                  <div class="block">
+                    <div class="meta">Address</div>
+                    <div class="address account-address">
+                      <?php isset($Account_card[0]->Address1) ? $Account_card[0]->Address1."<br>":""; ?>
+                      <?php isset($Account_card[0]->Address2) ? $Account_card[0]->Address2."<br>":""; ?>
+                      <?php isset($Account_card[0]->Address3) ? $Account_card[0]->Address3."<br>":""; ?>
+                      <?php isset($Account_card[0]->City) ? $Account_card[0]->City."<br>":""; ?>
+                      <?php isset($Account_card[0]->PostCode) ? $Account_card[0]->PostCode."<br>":""; ?>
+                      <?php isset($Account_card[0]->Country) ? $Account_card[0]->Country."<br>":""; ?>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}">Edit </a>&nbsp; <a class="btn-default btn-sm label padding-3" href="{{ URL::to('accounts/'.$account->AccountID.'/show')}}">View </a>&nbsp;
+                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;
+                  @endif
+                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}">Vendor</a> @endif </div>
+              </div>
+            </li>
+          </ul>
         </div>
-        <div class="col-sm-6 padding-0">
-          <div class="block">
-            <div class="meta">Address</div>
-            <div class="address account-address">
-           <?php isset($Account_card[0]->Address1) ? $Account_card[0]->Address1."<br>":""; ?>
-           <?php isset($Account_card[0]->Address2) ? $Account_card[0]->Address2."<br>":""; ?>
-           <?php isset($Account_card[0]->Address3) ? $Account_card[0]->Address3."<br>":""; ?>           
-           <?php isset($Account_card[0]->City) ? $Account_card[0]->City."<br>":""; ?>
-           <?php isset($Account_card[0]->PostCode) ? $Account_card[0]->PostCode."<br>":""; ?>
-           <?php isset($Account_card[0]->Country) ? $Account_card[0]->Country."<br>":""; ?>
-		</div>
-          </div>
-        </div>
-        <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}">Edit </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('accounts/'.$account->AccountID.'/show')}}">View </a>&nbsp;<a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;<a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}">Vendor</a>
-
-        </div>
-      </div>
-    </li>
-  </ul>
-</div>
-@endif
-        <!--Account card end -->       
+        @endif 
+        <!--Account card end --> 
         
-      </div>      
+      </div>
       <div id="text-boxes" class="timeline col-md-9 col-sm-12 col-xs-12  upper-box">
         <div class="row">
           <ul id="tab-btn" class="interactions-list">
@@ -83,12 +75,13 @@
         <div class="row margin-top-5" id="box-1">
           <div class="col-md-12">
             <form role="form" id="notes-from" action="{{URL::to('accounts/'.$account->AccountID.'/store_note/')}}" method="post">
-              <div class="form-group">
-                <textarea id="note-content" class="form-control wysihtml5" data-stylesheet-url="<?php echo URL::to('/'); ?>/assets/css/wysihtml5-color.css" name="Note">
-                </textarea>
+              <div class="compose-message-editor">
+                   <textarea name="Note" id="note-content" class="form-control autogrow"  placeholder="I will grow as you type new lines." style="height: 170px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
               </div>
-              <div class="form-group end-buttons-timeline"> <!-- <a data-loading-text="Loading..." id="save-note" class=" pull-right save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Save</a>-->
-                <button id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+              <div class="form-group end-buttons-timeline"> 
+                <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+                
+                 <button style="margin-right:10px;" value="save_follow" id="save-note-follow" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save and create follow up task</button>
               </div>
             </form>
           </div>
@@ -105,57 +98,92 @@
                 </div>
                 <div class="form-group hidden">
                   <label for="cc">CC:</label>
-                  {{ Form::select('cc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"cc","tabindex"=>"2")) }}
-                </div>
+                  {{ Form::select('cc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"cc","tabindex"=>"2")) }} </div>
                 <div class="form-group hidden">
                   <label for="bcc">BCC:</label>
-                   {{ Form::select('bcc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"bcc","tabindex"=>"3")) }}
-                </div>
+                  {{ Form::select('bcc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"bcc","tabindex"=>"3")) }}
+                  </div>
+                   
+                            <div class="form-Group" style="margin-bottom: 15px;">
+                                <label >Email Template</label>                               
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2"))}}                                
+                            </div>
+                        
                 <div class="form-group">
                   <label for="subject">Subject:</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
                 </div>
-                <div class="compose-message-editor">
-                  <label for="Email">Email:</label>
-                  <textarea name="Message" id="Message" class="form-control autogrow" id="Textarea4" placeholder="I will grow as you type new lines." style="height: 48px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
-                  <p class="comment-box-options">
-                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
-                                            <i class="entypo-attach"></i>
-                                        </a>
-                               </p>        
+                <div class="form-group">
+                  <label for="Email">Email:</label>                 
+                  <textarea id="Message" class="form-control message" name="Message"></textarea>
+                </div>
+                <div class="form-group">
+                <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
                 </div>
                 <div class="form-group">
                   <input id="filecontrole" type="file" name="emailattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />
-
                 </div>
-                <div class="form-group end-buttons-timeline">
-                                                                                          
-                 <a href="#" id="save-mail" class=" pull-right save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-mail"></i>Send</a> </div>
+                <div class="form-group end-buttons-timeline">                 
+                                 <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>                
+                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and create follow up task</button>
+                </div>
               </form>
             </div>
           </div>
         </div>
         <div class="row no-display margin-top-5" id="box-3">
           <div class="col-md-12">
-            <form role="form" method="post">
-              <div class="form-group">
-                <label for="to">Task Name:</label>
-                <input type="text" id="task-name" class="form-control" id="Text2" tabindex="1" />
+            <form id="save-task-form" role="form" method="post">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="to">Task Status:</label>
+                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"selectboxit"))}} </div>
               </div>
-              <div class="form-group">
-                <label for="to">Task Assign to:</label>
-                <!--<input type="text" class="form-control" id="Text1" value="Sumera Saeed" tabindex="1" />-->
-                <select id="task-assign-to" class="form-control">
-                  <option></option>
-                  <option selected>Sumera Saeed</option>
-                  <option>Aamir Saaed</option>
-                </select>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="to">Task Assign to:</label>
+                  {{Form::select('UsersIDs[]',$account_owners,'',array("class"=>"selectboxit"))}} </div>
               </div>
-              <div class="form-group">
-                <label for="to">Description:</label>
-                <textarea class="form-control autogrow" id="task-description" placeholder="I will grow as you type new lines." style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 48px;"></textarea>
+             </div> 
+              <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="to">Priority:</label>
+                  {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}} </div>
               </div>
-              <div class="form-group"> <a style="margin-bottom: 10px;" href="#" id="save-task" class="pull-right save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Save</a> </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="to">Due Date:</label>
+                  <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                </div>
+              </div>
+			</div>
+            <div class="row">              
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="to">Task Subject:</label>
+                  <input type="text" id="Subject" name="Subject" class="form-control"  tabindex="1" />
+                </div>
+              </div>
+             </div>
+             <div class="row"> 
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="to">Description:</label>
+                  <textarea class="form-control autogrow" id="Description" name="Description" placeholder="I will grow as you type new lines." style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 48px;"></textarea>
+                </div>
+              </div>
+              </div>
+              <div class="row">
+              <div class="col-md-12">
+                <div class="form-group end-buttons-timeline">
+                  <button id="save-task" class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+                  <input type="hidden" value="{{$BoardID}}" name="BoardID">
+                  <input type="hidden" value="{{$account->AccountID}}" name="AccountIDs[]">
+                </div>
+              </div>
+              </div>
             </form>
           </div>
         </div>
@@ -177,36 +205,93 @@
       </div>
     </section>
     <section>
-    <div class="row">
-      <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
-      <div class="timeline col-md-9 col-sm-10 col-xs-10 pull-right"> @if(count($response)>0 && $message=='')
-        <ul class="cbp_tmtimeline" id="timeline-ul">
-          <?php  foreach($response as $key => $rows){ ?>
-          @if(isset($rows[0]) && $rows[0]==2)
-          <li id="timeline-{{$key}}" class="count-li">
-            <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows[18])); ?>">
-              <?php if(date("Y-m-d h:i",strtotime($rows[18])) == date('Y-m-d h:i')) { ?>
-              <span>Now</span>
-              <?php }else{ ?>
-              <span><?php echo date("h:i a",strtotime($rows[18]));  ?></span> <span>
-              <?php if(date("d",strtotime($rows[18])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows[18]));} ?>
-              </span>
-              <?php } ?>
-            </time>
-            <div class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-            <div class="cbp_tmlabel">
-              <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a>
-             <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less">  &#x2B; </a>
-              <h2 onclick="expandTimeLine({{$key}})">@if($rows[17]==$current_user_title) You @else {{$rows[17]}}  @endif <span>sent an email to</span> @if($rows[8]==$current_user_title) You @else {{$rows[8]}}  @endif</h2>
-
-              <div id="hidden-timeline-{{$key}}" class="details no-display">
-                <p>CC: {{$rows[11]}}</p>
-                <p>BCC: {{$rows[12]}}</p>
-                <p>Subject: {{$rows[9]}}</p>
-                 <?php
-	  if($rows[13]!='')
+      <div class="row"> 
+      <!-- -->
+             <div class="col-md-3 col-sm-2 col-xs-2">
+        <div class="">
+          <button style="margin:8px 25px 0 0;" redirecto="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" type="button" class="btn btn-black btn-xs pull-right">
+						<i class="entypo-plus"></i>
+					</button>
+   <h1>Contacts</h2>
+   
+   </div>
+   <div class="clearfix"></div>
+   
+             <div class="list-contact-slide" style="height:500px; overflow-x:scroll;"> 
+            
+            <!--Account card start --> 
+            
+            <div class="gridview">
+              <ul class="clearfix grid col-md-12">
+              @if(isset($contacts) && count($contacts)>0)
+                @foreach($contacts as $contacts_row)
+                <li>
+                  <div class="box clearfix ">
+                    <div class="col-sm-12 headerSmall padding-left-1"> <span class="head">{{$contacts_row['NamePrefix']}} {{$contacts_row['FirstName']}} {{$contacts_row['LastName']}}</span><br>
+                      <span class="meta complete_name"> </span></div>
+                    <div class="col-sm-12 padding-0">
+                      <div class="block blockSmall">
+                        <div class="meta">Department: <a class="sendemail">{{$contacts_row['Department']}}</a></div>
+                      </div>
+                      <div class="block blockSmall">
+                        <div class="meta">Job Title: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Title']}}</a></div>
+                      </div>
+                      <div class="block blockSmall">
+                        <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
+                      </div>
+                      <div class="cellNo cellNoSmall">
+                        <div class="meta">Phone: <a href="tel:{{$Account_card[0]->Phone}}">{{$contacts_row['Phone']}}</a></div>
+                      </div>
+                      <div class="cellNo cellNoSmall">
+                        <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
+                      </div>
+                      <div class="block blockSmall">
+                        <div class="meta">Skype: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Skype']}}</a></div>
+                      </div>
+                    </div>
+                    <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}">Edit </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}">View </a> </div>
+                  </div>
+                </li>
+                @endforeach
+                @endif 
+              </ul>
+            </div>
+            
+            <!--Account card end --> 
+            
+          </div>
+        </div>
+      <!-- -->
+        <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
+        <div class="timeline col-md-9 col-sm-10 col-xs-10"> 
+          <ul class="cbp_tmtimeline" id="timeline-ul">
+          <li></li>
+          @if(count($response)>0 && $message=='')
+            <?php  foreach($response as $key => $rows){
+			  $rows = json_decode(json_encode($rows), True); //convert std array to simple array
+			   ?>
+            @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==2)
+            <li id="timeline-{{$key}}" class="count-li">
+              <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
+                <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
+                <span>Now</span>
+                <?php }else{ ?>
+                <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
+                <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+                </span>
+                <?php } ?>
+              </time>
+              <div class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
+              <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
+                <h2 onclick="expandTimeLine({{$key}})">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
+                <div id="hidden-timeline-{{$key}}" class="details no-display">
+                  <p>CC: {{$rows['EmailCc']}}</p>
+                  <p>BCC: {{$rows['EmailBcc']}}</p>
+                  <p>Subject: {{$rows['EmailSubject']}}</p>
+                  <?php
+	  if($rows['EmailAttachments']!='')
 	  {
-    		$attachments = unserialize($rows[13]);
+    		$attachments = unserialize($rows['EmailAttachments']);
 			
 			if(count($attachments)>0)
 			{
@@ -233,111 +318,129 @@
 			}			
 	  }	 
 	   ?>
-                <p>Email : {{$rows[10]}}. </p>
-               </div>
-            </div>
-          </li>
-          @elseif(isset($rows[0]) && $rows[0]==1)
-          <li id="timeline-{{$key}}" class="count-li">
-           <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows[18])); ?>">
-              <?php if(date("Y-m-d h:i",strtotime($rows[18])) == date('Y-m-d h:i')) { ?>
-              <span>Now</span>
-              <?php }else{ ?>
-              <span><?php echo date("h:i a",strtotime($rows[18]));  ?></span> <span>
-              <?php if(date("d",strtotime($rows[18])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows[18]));} ?>
-              </span>
-              <?php } ?>
-            </time>
-            <div class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-            <div class="cbp_tmlabel">
-              <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a>
-              <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less">  &#x2B; </a>
-              <h2 onclick="expandTimeLine({{$key}})">@if($rows[17]==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows[8]==$current_user_title) You @else {{$current_user_title}} @endif in a</span>Task</h2>
-              <div id="hidden-timeline-{{$key}}"  class="details no-display">
-                <p>Change hospitality weather widget.</p>
-                 </div>
-            </div>
-          </li>
-          @elseif(isset($rows[0]) && $rows[0]==3)
-          <li id="timeline-{{$key}}" class="count-li">
-            <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows[18])); ?>">
-              <?php if(date("Y-m-d h:i",strtotime($rows[18])) == date('Y-m-d h:i')) { ?>
-              <span>Now</span>
-              <?php }else{ ?>
-              <span><?php echo date("h:i a",strtotime($rows[18]));  ?></span> <span>
-              <?php if(date("d",strtotime($rows[18])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows[18]));} ?>
-              </span>
-              <?php } ?>
-            </time>
-            <div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-            <div class="cbp_tmlabel">
-            <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a>
-             <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less">  &#x2B; </a>
-             <h2 onclick="expandTimeLine({{$key}})">@if($rows[17]==$current_user_title) You @else {{$rows[17]}}  @endif <span>added a note</span></h2>              <div id="hidden-timeline-{{$key}}" class="details no-display">
-                <p>{{$rows[16]}}</p>
+                  <p>Email : {{$rows['EmailMessage']}}. </p>
                 </div>
-            </div>
-          </li>
-          @endif
-          <?php  } ?>
-        </ul>
-        @endif 
-        <div id="last_msg_loader"></div>
-        </div>
-        <div class="col-md-3 col-sm-2 col-xs-2 pull-left">
-          <p>
-         
-      <a href="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-floppy"></i>
-        Add Contact
-    </a>
-   </p>
-		<div class="list-contact-slide" style="height:500px; overflow-x:scroll;">
+              </div>
+            </li>
+            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==1)
+            <li id="timeline-{{$key}}" class="count-li">
+              <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
+                <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
+                <span>Now</span>
+                <?php }else{ ?>
+                <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
+                <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+                </span>
+                <?php } ?>
+              </time>
+              <div class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
+              <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
+                <h2 onclick="expandTimeLine({{$key}})">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span>Task</h2>
+                <div id="hidden-timeline-{{$key}}"  class="details no-display">
+                  <p>Subject: {{$rows['TaskTitle']}}</p>
+                  <p>Assign To: {{$rows['TaskName']}}</p>
+                  <p>priority: {{$rows['TaskPriority']}}</p>
+                  <p>Due Date: {{$rows['DueDate']}}</p>
+                  <p>Status: {{$rows['TaskStatus']}}. </p>
+                  <p>Description: {{$rows['TaskDescription']}} </p>
+                </div>
+              </div>
+            </li>
+            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==3)
+            <li id="timeline-{{$key}}" class="count-li">
+              <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
+                <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
+                <span>Now</span>
+                <?php }else{ ?>
+                <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
+                <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+                </span>
+                <?php } ?>
+              </time>
+              <div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
+              <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
+                <h2 onclick="expandTimeLine({{$key}})">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
+                <div id="hidden-timeline-{{$key}}" class="details no-display">
+                  <p>{{$rows['Note']}}</p>
+                </div>
+              </div>
+            </li>
+            @endif
+            <?php  } ?>
+            @endif
+          </ul>
           
-           		<!--Account card start -->
-        @if(isset($contacts) && count($contacts)>0)
-        <div class="gridview">
-        <ul class="clearfix grid col-md-12">
-        @foreach($contacts as $contacts_row) 
-    <li>
-      <div class="box clearfix ">
-        <div class="col-sm-12 headerSmall padding-left-1"> <span class="head">{{$contacts_row['NamePrefix']}} {{$contacts_row['FirstName']}} {{$contacts_row['LastName']}}</span><br>
-          <span class="meta complete_name"> </span></div>
-        <div class="col-sm-12 padding-0">
-          <div class="block blockSmall">
-            <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
-          </div>
-          <div class="cellNo cellNoSmall">
-            <div class="meta">Phone: <a href="tel:{{$Account_card[0]->Phone}}">{{$contacts_row['Phone']}}</a></div>
-          </div>
-             <div class="cellNo cellNoSmall">
-            <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
-          </div>
+          <div id="last_msg_loader"></div>
         </div>
-
-        <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}">Edit </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}">View </a>
-
-        </div>
+ 
+        
       </div>
-    </li>
-     @endforeach
-  </ul>
-</div>
-@endif
-        <!--Account card end -->             
-     
-            
-        </div>
-        </div>
-        </div>
     </section>
   </div>
 </div>
 @include('includes.submit_note_script',array("controller"=>"accounts")) 
+@include("accounts.taskmodal") 
+
 <script type="text/javascript">
+var show_popup=0;
     jQuery(document).ready(function ($) {
 		var per_scroll 		= 	{{$per_scroll}};
 		var per_scroll_inc  = 	per_scroll;
+		
+		  $("#email-from [name=email_template]").change(function(e){
+            var templateID = $(this).val();
+            if(templateID>0) {
+                var url = baseurl + '/accounts/' + templateID + '/ajax_template';
+                $.get(url, function (data, status) {
+                    if (Status = "success") {
+                        editor_reset(data);
+                    } else {
+                        toastr.error(status, "Error", toastr_opts);
+                    }
+                });
+            }
+        });
+
+		        function editor_reset(data){					
+            var modal = $(".mail-compose");
+            modal.find('.message').wysihtml5({
+                "font-styles": true,
+                "emphasis": true,
+                "lists": true,
+                "html": true,
+                "link": true,
+                "image": true,
+                "color": false,
+                parser: function(html) {
+                    return html;
+                }
+            });
+        
+					
+           
+            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+            modal.find('.message').show();
+            if(!Array.isArray(data)){
+                var EmailTemplate = data['EmailTemplate'];
+                modal.find('[name="Subject"]').val(EmailTemplate.Subject);
+                modal.find('.message').val(EmailTemplate.TemplateBody);
+            }else{
+                modal.find('[name="Subject"]').val('');
+                modal.find('.message').val('');
+            }
+            modal.find('.message').wysihtml5({
+                "font-styles": true,
+                "emphasis": true,
+                "lists": true,
+                "html": true,
+                "link": true,
+                "image": true,
+                "color": false,
+                parser: function(html) {
+                    return html;
+                }
+            });
+        }
 		
     // When Lead is converted to account.
     @if(Session::get('is_converted'))
@@ -364,7 +467,6 @@
 	var count = 0;
 	var getClass = $(".count-li");
     getClass.each(function () {count++;}); 	
-	per_scroll 		= 	per_scroll_inc+per_scroll;	
 	var ID			=	$(".message_box:last").attr("id");
 	var url_scroll 	= 	"{{ URL::to('accounts/{id}/GetTimeLineSrollData')}}";
 	url_scroll 	   	= 	url_scroll.replace("{id}",{{$account->AccountID}});
@@ -379,7 +481,11 @@
                 dataType: 'html',
 				async :false,
                 success: function(response1) {
-					if (response1 != "") {
+						if (isJson(response1)) {
+					var response_json  =  JSON.parse(response1);
+					ShowToastr("error",response_json.message);
+				} else {
+						per_scroll 		= 	per_scroll_inc+per_scroll;	
 						$("#timeline-ul").append(response1); 
 					}
 						$('div#last_msg_loader').empty();
@@ -401,8 +507,7 @@ setTimeout(function() {
 });
 	//////////
     });
-</script> 
-<script type="text/javascript">
+
         function showDiv(divName, ctrl) {
             $("#box-1").addClass("no-display");
             $("#box-2").addClass("no-display");
@@ -437,15 +542,6 @@ setTimeout(function() {
                 $('.file-input-name').html(fileText);
             });
 				
-			
-            //if ($(window).width() < 992)
-            //{
-            //    $("#contact-column").addClass('no-display');
-            //}
-			
-			////////////
-			
-            
 			//////////////
         });
         $("#check-lead").click(function () {
@@ -505,9 +601,11 @@ setTimeout(function() {
 
 
         });
-        $("#save-note").click(function (event) {
+        $("#notes-from").submit(function (event) {
             event.stopImmediatePropagation();
-            event.preventDefault();
+            event.preventDefault();			
+			var type_submit  = $(this).val();			
+
             var formData = new FormData($('#notes-from')[0]);
 		    var getClass = $(".count-li");
             var count = 0;
@@ -523,32 +621,84 @@ setTimeout(function() {
 				async :false,
                 success: function(response) {
 					
+			   $(".save-note-btn").button('reset');
+			   $(".save-note-btn").removeClass('disabled');
+					
 			  $(".save.btn").button('reset');
-            if (response.message) {
-				 ShowToastr("error",response.message);
-            } else {
+            	if (isJson(response)) {
+					var response_json  =  JSON.parse(response);
+					ShowToastr("error",response_json.message);
+				} else {
 				per_scroll = count;
                 ShowToastr("success","Note Successfully Created");                     
                 $('#timeline-ul li:eq(0)').before(response);
 				document.getElementById('notes-from').reset();
-            }
+				if(show_popup==1)
+				{				
+					document.getElementById('add-task-form').reset();
+					$('#Task_type').val(3);
+					$('#Task_ParentID').val($('#timeline-ul li:eq(0)').attr('row-id'));					
+					$('#add-modal-task').modal('show');        	
+				}
+
+            } show_popup=0;
       			},
 			});
 
         });
-        $("#save-task").click(function () {
-            var getClass = $(".count-li");
-            var count = 0;
-            getClass.each(function () {
-                count++;
+        $("#save-task-form").submit(function (e) {
+			
+			//////////////
+			 $('#save-task').addClass('disabled');  $('#save-task').button('loading');
+			
+            e.preventDefault();
+			e.stopImmediatePropagation();
+            var formid 			= 	$(this).attr('id');            
+            var formData 		= 	new FormData($('#'+formid)[0]);
+			var count 			= 	0;
+			var getClass 		= 	$(".count-li");
+            getClass.each(function () {count++;}); 	
+			var update_new_url 	= 	baseurl + '/task/create?scrol='+count;
+			
+            $.ajax({
+                url: update_new_url,  //Server script to process data
+                type: 'POST',
+                dataType: 'html',
+                success: function (response) {                  
+					
+					if (isJson(response)) {
+						var response_json  =  JSON.parse(response);
+						 ShowToastr("error",response_json.message);
+					} else {
+						per_scroll = count;
+						ShowToastr("success","Task Successfully Created");                     
+						$('#timeline-ul li:eq(0)').before(response);
+						document.getElementById('save-task-form').reset();
+					}
+                    show_popup=0;
+				    $("#save-task").button('reset');
+			   	    $("#save-task").removeClass('disabled');
+                    //getOpportunities();
+                },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
             });
-            var addCount = count + 1;
-            var taskname = $("#task-name").val();
-            var taskDescription = $("#task-description").val();
-            var taskAssignTo = $("#task-assign-to").val();
-            var html = '<li id="timeline-' + addCount + '" class="count-li"><time class="cbp_tmtime" datetime="2014-03-27T03:45"><span>Now</span></time><div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div><div class="cbp_tmlabel"><h2 onclick="expandTimeLine(' + addCount + ')">You <span>assigned a task </span>' + taskname + '</h2><a id="show-more-' + addCount + '" onclick="expandTimeLine(' + addCount + ')" class="pull-right show-less">Show More<i class="entypo-down-open"></i></a><div id="hidden-timeline-' + addCount + '"   class="details no-display"><p>Assign To:&nbsp; '+taskAssignTo+'</p><p>' + taskDescription + '</p><a class="pull-right show-less" onclick="hideDetail(' + addCount + ')">Show Less<i class="entypo-up-open"></i></a></div></div></li>';
-            $('#timeline-ul li:eq(0)').before(html);
+        
+			//////////////
         });
+		
+		function isJson(str) {
+		try {
+			JSON.parse(str);
+		} catch (e) {			
+			return false;
+		}
+    	return true;
+}
 
         $("#save-log").click(function () {
             var getClass = $(".count-li");
@@ -593,7 +743,15 @@ setTimeout(function() {
             var html = '<li id="timeline-' + addCount + '" class="count-li"><time class="cbp_tmtime" datetime="2014-03-27T03:45"><span>Now</span></time><div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div><div class="cbp_tmlabel"><h2 a onclick="dealsDialog()" >You <span>added a new opportunity </span>' + dealName + '</h2><a id="show-more-' + addCount + '" onclick="expandTimeLine(' + addCount + ')" class="pull-right show-less">Show More<i class="entypo-down-open"></i></a><div id="hidden-timeline-' + addCount + '" class="details no-display"><p>Company: &nbsp; ' + dealCompany + '</p><p>Contact Person: &nbsp; ' + dealContact + '</p><p>Phone Number: &nbsp;' + dealPhone + '</p><p>Email Address: &nbsp; ' + dealEmail + '</p><a class="pull-right show-less" onclick="hideDetail('+addCount+')">Show Less<i class="entypo-up-open"></i></a></div></div></li>';
             $('#timeline-ul li:eq(0)').before(html);
         });
-        $("#save-mail").click(function (event) {
+		
+		$('#save-mail').click(function(e) { $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
+		$('#save-email-follow').click(function(e) {  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		
+		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');      show_popup = 0; });
+		$('#save-note-follow').click(function(e) {  $('.save-note-btn').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		
+		
+        $("#email-from").submit(function (event) {
 		    var getClass = $(".count-li");
             var count = 0;
             getClass.each(function () {count++;}); 			
@@ -602,34 +760,41 @@ setTimeout(function() {
             event.preventDefault();			
 			var formData = new FormData($('#email-from')[0]);
 			// formData.push({ name: "emailattachment", value: $('#emailattachment').val() });
-			console.log(formData);
 			// showAjaxScript(email_url, formData, FnAddEmailSuccess);
 			
 			 $.ajax({
                 url: email_url,
                 type: 'POST',
-                dataType: 'json',
+                dataType: 'html',
 				data:formData,
 				async :false,
 				cache: false,
                 contentType: false,
                 processData: false,
-                success: function(response) {
-					
-			  $(".save.btn").button('reset');
-            if (response.message) {
-				 ShowToastr("error",response.message);
-            } else {
+                success: function(response) {		
+			   $(".btn-send-mail").button('reset');
+			   $(".btn-send-mail").removeClass('disabled');
+			   
+ 	           if (isJson(response)) {
+					var response_json  =  JSON.parse(response);
+					ShowToastr("error",response_json.message);
+				} else {
 				per_scroll = count;
                 ShowToastr("success","Email Sent Successfully");                         
                 $('#timeline-ul li:eq(0)').before(response);
 				document.getElementById('email-from').reset();
-            }
+				
+				if(show_popup==1)
+				{				
+					document.getElementById('add-task-form').reset();
+					$('#Task_type').val(2);
+					$('#Task_ParentID').val($('#timeline-ul li:eq(0)').attr('row-id'));					
+					$('#add-modal-task').modal('show');        	
+				}
+            } show_popup=0;
       			},
 			});	
 		 });
-		 
-		 
 		 
 		 /////////        
         function expandTimeLine(id)
@@ -645,9 +810,9 @@ setTimeout(function() {
         }
     </script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 <style>
 #last_msg_loader{text-align:center;} .file-input-name{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
-ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;}
+ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
 </style>
 @stop
