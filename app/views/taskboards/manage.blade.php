@@ -88,7 +88,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    <?php $datefilter = array("1"=> "Due ToDay","2"=>"Due This Week",'3'=>'Custome Date'); ?>
+                                    <?php $datefilter = array("1"=> "Today Task","2"=>"Tomorrows Task","3"=>"This Week Task",'4'=>'Custome Date'); ?>
                                     {{Form::select('DueDateFilter',$datefilter,'',array("class"=>"selectboxit"))}}
                                 </div>
                                 <div class="col-sm-2">
@@ -120,12 +120,13 @@
             <table class="table table-bordered datatable" id="taskGrid">
                 <thead>
                 <tr>
-                    <th width="20%" >Subject</th>
+                    <th width="10%" >Subject</th>
                     <th width="15%" >Due Date</th>
                     <th width="15%" >Status</th>
-                    <th width="15%">Priority</th>
+                    <th width="10%">Priority</th>
                     <th width="20%">Assigned To</th>
-                    <th width="15%">Action</th>
+                    <th width="20%">related To</th>
+                    <th width="10%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -209,13 +210,13 @@
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
-                            return full[6];
+                            return full[7];
                         }
                     },
                     {
                         "bSortable": true, //Due Date
                         mRender: function (id, type, full) {
-                            return full[8];
+                            return full[9];
                         }
                     },
                     {
@@ -228,13 +229,19 @@
                         "bSortable": true, //Priority
                         mRender: function (id, type, full) {
 
-                            return Priority[full[10]-1]+full[11];
+                            return Priority[full[11]-1]+full[12];
                         }
                     },
                     {
                         "bSortable": true, //Assign To
                         mRender: function (id, type, full) {
                             return full[4];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Related To
+                        mRender: function (id, type, full) {
+                            return full[6];
                         }
                     },
                     {
@@ -451,7 +458,7 @@
             });
 
             $('#search-task-filter [name="DueDateFilter"]').change(function(){
-                if($(this).val()==3){
+                if($(this).val()==4){
                     var datefliter = $('#search-task-filter [name="DueDate"]');
                     datefliter.removeClass('hidden');
                 }else{
@@ -701,7 +708,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Due Date*</label>
+                                    <label for="field-5" class="control-label col-sm-4">Due Date</label>
                                     <div class="col-sm-8">
                                         <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>

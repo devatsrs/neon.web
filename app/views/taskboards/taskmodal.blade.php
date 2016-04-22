@@ -81,7 +81,7 @@
                 success: function (response) {
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
-                        $('#add-modal-opportunity').modal('hide');
+                        $('#add-modal-task').modal('hide');
                         if(BoardID){
                             $('#search-task-filter').submit();
                         }
@@ -146,7 +146,7 @@
 
                         <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Due Date*</label>
+                                <label for="field-5" class="control-label col-sm-4">Due Date</label>
                                 <div class="col-sm-8">
                                     <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
