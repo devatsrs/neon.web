@@ -48,7 +48,7 @@ SET v_OffSet_ = p_Start;
 		bc.BoardColumnName as TaskStatus,
 		'' as Emailfrom ,'' as EmailTo,'' as EmailToName,'' as EmailSubject,'' as Message,''as EmailCc,''as EmailBcc,''as EmailAttachments,0 as AccountEmailLogID,0 as NoteID,'' as Note ,
 		t.CreatedBy,t.created_at, t.updated_at
-	FROM tbltask t
+	FROM tblTask t
 	INNER JOIN tblCRMBoardColumn bc on  t.BoardColumnID = bc.BoardColumnID	
 	JOIN tblUser u on  u.UserID = t.UsersIDs		
 	WHERE t.AccountIDs = p_AccountID and t.CompanyID =p_CompanyID;
