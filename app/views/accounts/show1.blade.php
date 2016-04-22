@@ -76,7 +76,7 @@
           <div class="col-md-12">
             <form role="form" id="notes-from" action="{{URL::to('accounts/'.$account->AccountID.'/store_note/')}}" method="post">
               <div class="compose-message-editor">
-                   <textarea name="Note" id="note-content" class="form-control autogrow"  placeholder="I will grow as you type new lines." style="height: 170px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+                   <textarea name="Note" id="note-content" class="form-control autogrow"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
               </div>
               <div class="form-group end-buttons-timeline"> 
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
