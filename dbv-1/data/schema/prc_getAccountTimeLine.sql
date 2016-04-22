@@ -63,7 +63,7 @@ SET v_OffSet_ = p_Start;
             else concat(tu.FirstName,' ',tu.LastName)
        end as EmailToName, 
 	Subject,Message,Cc,Bcc,AttachmentPaths as EmailAttachments,AccountEmailLogID,0 as NoteID,'' as Note ,ael.CreatedBy,ael.created_at, ael.updated_at from `AccountEmailLog` ael
-	left JOIN LocalRatemanagement.tblUser tu
+	left JOIN tblUser tu
 		ON tu.EmailAddress = ael.EmailTo
 	where (ael.AccountID = p_AccountID and ael.CompanyID = p_CompanyID) order by ael.created_at desc;
 	
