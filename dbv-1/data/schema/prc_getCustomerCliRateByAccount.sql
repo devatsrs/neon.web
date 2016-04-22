@@ -1,9 +1,4 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCliRateByAccount`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_TrunkID` INT , IN `p_processId` varchar(200), IN `p_tbltempusagedetail_name` VARCHAR(50))
-	LANGUAGE SQL
-	NOT DETERMINISTIC
-	CONTAINS SQL
-	SQL SECURITY DEFINER
-	COMMENT ''''
 BEGIN
     
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;

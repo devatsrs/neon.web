@@ -770,13 +770,13 @@ function getUploadedFileRealPath($files)
 }
 
 function validfilepath($path){
-    $path = AmazonS3::unSignedUrl($path);
-    if (!is_numeric(strpos($path, "https://"))) {
+    $path = AmazonS3::unSignedImageUrl($path);
+    /*if (!is_numeric(strpos($path, "https://"))) {
         //$path = str_replace('/', '\\', $path);
         if (copy($path, './uploads/' . basename($path))) {
             $path = URL::to('/') . '/uploads/' . basename($path);
         }
-    }
+    }*/
     return $path;
 }
 

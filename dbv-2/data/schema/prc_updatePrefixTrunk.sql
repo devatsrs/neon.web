@@ -76,11 +76,11 @@ BEGIN
         SELECT
     		  TempUsageDetailID,
             r.Code AS prefix
-        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-        INNER JOIN LocalRatemanagement.tblCustomerTrunk ct 
+        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud FORCE INDEX (IX_' , p_tbltempusagedetail_name , '_CID_CGID_PID)
+        INNER JOIN LocalRatemanagement.tblCustomerTrunk ct FORCE INDEX (IX_AccountIDTrunkID_Unique)
             ON ct.AccountID = ud.AccountID AND ct.Status =1  
             AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
-        INNER JOIN LocalRatemanagement.tblCustomerRate cr 
+        INNER JOIN LocalRatemanagement.tblCustomerRate cr FORCE INDEX (IX_tblCustomerRate_CustomerID_TrunkID_effectivedate)
             ON cr.CustomerID = ud.AccountID
             AND  cr.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
             AND cr.EffectiveDate <= Now()
@@ -108,11 +108,11 @@ BEGIN
         SELECT
     		  TempUsageDetailID,
             r.Code AS prefix
-        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-        INNER JOIN LocalRatemanagement.tblCustomerTrunk ct 
+        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud FORCE INDEX (IX_' , p_tbltempusagedetail_name , '_CID_CGID_PID)
+        INNER JOIN LocalRatemanagement.tblCustomerTrunk ct FORCE INDEX (IX_AccountIDTrunkID_Unique)
             ON ct.AccountID = ud.AccountID AND ct.Status =1  
             AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
-        INNER JOIN LocalRatemanagement.tblRateTableRate rtr 
+        INNER JOIN LocalRatemanagement.tblRateTableRate rtr FORCE INDEX (IX_RateTableId_RateID_EffectiveDate)
             ON rtr.RateTableId = ct.RateTableID and ud.processId = "' , p_processId , '"
             AND rtr.EffectiveDate <= Now()
         INNER JOIN LocalRatemanagement.tblRate r 

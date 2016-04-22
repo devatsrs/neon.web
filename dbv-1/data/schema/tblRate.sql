@@ -13,6 +13,7 @@ CREATE TABLE `tblRate` (
   `Interval1` int(11) DEFAULT '1',
   `IntervalN` int(11) DEFAULT '1',
   PRIMARY KEY (`RateID`),
+  UNIQUE KEY `IXUnique_CompanyID_Code_CodedeckID` (`CompanyID`,`Code`,`CodeDeckId`),
   KEY `IX_tblRate_CountryId` (`CountryID`),
   KEY `IX_tblRate_companyId_codedeckid` (`CompanyID`,`CodeDeckId`,`RateID`,`CountryID`,`Code`,`Description`),
   KEY `IX_country_company_codedeck` (`CountryID`,`CompanyID`,`CodeDeckId`),

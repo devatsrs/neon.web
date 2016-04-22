@@ -163,7 +163,7 @@ BEGIN
                     a.CDRType
                 FROM Ratemanagement3.tblAccount  a
                 INNER JOIN tblGatewayAccount ga
-                    ON FIND_IN_SET(a.CustomerCLI,ga.AccountName) != 0
+                    ON FIND_IN_SET(ga.AccountName,a.CustomerCLI) != 0
                 AND a.Status = 1  
                 WHERE GatewayAccountID IS NOT NULL
                 AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
