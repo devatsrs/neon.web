@@ -242,6 +242,8 @@ class HomeController extends BaseController {
 
         if ( $user_created && $company_created ) {
             $result  = false;
+            $taskBoard = ['CompanyID'=>$CompanyID,'BoardName'=>'Task Board','Status'=>1,'BoardType'=>CRMBoard::TaskBoard];
+            CRMBoard::create($taskBoard);
             $admin_email = Config::get("app.super_admin_emails");
             Mail::send('emails.admin.registration', array("data"=>$data), function($message) use ($admin_email) {
                 $message->to($admin_email['registration']['email'], $admin_email['registration']['from_name'])->subject('RM: Thanks for Registration!');

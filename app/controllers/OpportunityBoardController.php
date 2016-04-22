@@ -30,8 +30,13 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function configure($id){
+        $taskBoard = CRMBoard::getTaskBoard();
         $Board = CRMBoard::find($id);
-        return View::make('opportunityboards.configure', compact('id','Board'));
+        $urlto = 'opportunityboards';
+        if($taskBoard[0]->BoardID==$id){
+            $urlto = 'task';
+        }
+        return View::make('opportunityboards.configure', compact('id','Board','urlto'));
     }
 
     public function manage($id){

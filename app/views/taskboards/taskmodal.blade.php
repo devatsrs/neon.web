@@ -52,7 +52,7 @@
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
             $('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
-            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption({{User::get_userID()}});
             $('#add-task-form [name="AccountIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $('#add-modal-task h4').text('Add Task');
             if(!BoardID){
@@ -129,9 +129,9 @@
                         </div>
                         <div class="col-md-6 pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Assign To</label>
+                                <label for="field-5" class="control-label col-sm-4">Assign To *</label>
                                 <div class="col-sm-8">
-                                    {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2",$disabled))}}
+                                    {{Form::select('UsersIDs',$account_owners,'',array("class"=>"select2",$disabled))}}
                                 </div>
                             </div>
                         </div>
@@ -146,7 +146,7 @@
 
                         <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Due Date</label>
+                                <label for="field-5" class="control-label col-sm-4">Due Date*</label>
                                 <div class="col-sm-8">
                                     <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
@@ -164,7 +164,7 @@
 
                         <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Priority</label>
+                                <label for="field-5" class="control-label col-sm-4">Priority*</label>
                                 <div class="col-sm-8">
                                     {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
                                 </div>

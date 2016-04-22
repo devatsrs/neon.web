@@ -2692,7 +2692,7 @@ $(document).ajaxComplete(function(event, xhr, settings) {
 $(document).on('click','[redirecto]',function(){
     var url = $(this).attr('redirecto');
     window.location.href=url;
-})
+});
 
 
 

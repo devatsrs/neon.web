@@ -65,14 +65,14 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Task Name</label>
+                                <label for="field-1" class="col-sm-1 control-label">Name</label>
                                 <div class="col-sm-2">
                                     <input class="form-control" name="taskName"  type="text" >
                                 </div>
                                 @if(User::is_admin())
-                                    <label for="field-1" class="col-sm-1 control-label">Task Assign To</label>
+                                    <label for="field-1" class="col-sm-1 control-label">Assign To</label>
                                     <div class="col-sm-2">
-                                        {{Form::select('AccountOwner',$account_owners,Input::get('AccountOwner'),array("class"=>"select2"))}}
+                                        {{Form::select('AccountOwner',$account_owners,User::get_userID(),array("class"=>"select2"))}}
                                     </div>
                                 @endif
                                 <label for="field-1" class="col-sm-1 control-label">Priority</label>
@@ -80,15 +80,19 @@
                                     <?php $priority = array(""=> "Select a Priority")+$priority; ?>
                                     {{Form::select('Priority',$priority,Input::get('AccountID'),array("class"=>"selectboxit"))}}
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label">Due Date</label>
-                                <div class="col-sm-2">
-                                    <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
                                 <div class="col-sm-2">
                                     {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"selectboxit"))}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Due Date</label>
+                                <div class="col-sm-2">
+                                    <?php $datefilter = array("1"=> "Due ToDay","2"=>"Due This Week",'3'=>'Custome Date'); ?>
+                                    {{Form::select('DueDateFilter',$datefilter,'',array("class"=>"selectboxit"))}}
+                                </div>
+                                <div class="col-sm-2">
+                                    <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker hidden"  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -144,6 +148,7 @@
             $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
             $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
             $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
+            $searchFilter.DueDateFilter = $("#search-task-filter [name='DueDateFilter']").val();
             $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
             $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
             var task = [
@@ -188,11 +193,12 @@
                 "sAjaxSource": baseurl + "/task/"+BoardID+"/ajax_task_grid",
                 "fnServerParams": function (aoData) {
                     aoData.push(
-                            {"name": "taskName", "value": $searchFilter.taskName},
-                            {"name": "AccountOwner","value": $searchFilter.AccountOwner},
-                            {"name": "Priority","value": $searchFilter.Priority},
-                            {"name": "DueDate","value": $searchFilter.DueDate},
-                            {"name": "TaskStatus","value": $searchFilter.TaskStatus}
+                        {"name": "taskName", "value": $searchFilter.taskName},
+                        {"name": "AccountOwner","value": $searchFilter.AccountOwner},
+                        {"name": "Priority","value": $searchFilter.Priority},
+                        {"name": "DueDateFilter","value": $searchFilter.DueDateFilter},
+                        {"name": "DueDate","value": $searchFilter.DueDate},
+                        {"name": "TaskStatus","value": $searchFilter.TaskStatus}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -267,6 +273,7 @@
                 $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
                 $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
                 $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
+                $searchFilter.DueDateFilter = $("#search-task-filter [name='DueDateFilter']").val();
                 $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
                 $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
                 getTask();
@@ -441,6 +448,16 @@
             });
             $(document).on('click','.viewattachments',function(){
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
+            });
+
+            $('#search-task-filter [name="DueDateFilter"]').change(function(){
+                if($(this).val()==3){
+                    var datefliter = $('#search-task-filter [name="DueDate"]');
+                    datefliter.removeClass('hidden');
+                }else{
+                    var datefliter = $('#search-task-filter [name="DueDate"]');
+                    datefliter.addClass('hidden');
+                }
             });
 
             function initEnhancement(){
@@ -649,7 +666,7 @@
 
                             <div class="col-md-12 text-left">
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
-                                <div class="col-sm-10">
+                                <div class="col-sm-10" style="padding: 0px 10px;">
                                     <?php unset($account_owners['']); ?>
                                     {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
@@ -666,7 +683,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Assign To</label>
+                                    <label for="field-5" class="control-label col-sm-4">Assign To*</label>
                                     <div class="col-sm-8">
                                         {{Form::select('UsersIDs',$account_owners,'',array("class"=>"select2"))}}
                                     </div>
@@ -684,7 +701,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Due Date</label>
+                                    <label for="field-5" class="control-label col-sm-4">Due Date*</label>
                                     <div class="col-sm-8">
                                         <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
@@ -702,7 +719,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Priority</label>
+                                    <label for="field-5" class="control-label col-sm-4">Priority*</label>
                                     <div class="col-sm-8">
                                         {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
                                     </div>
