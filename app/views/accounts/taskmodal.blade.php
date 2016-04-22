@@ -111,7 +111,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Assign To</label>
                                 <div class="col-sm-8">
-                                    {{Form::select('UsersIDs[]',$account_owners,User::get_userID(),array("class"=>"select2"))}}
+                                    {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2"))}}
                                 </div>
                             </div>
                         </div>
