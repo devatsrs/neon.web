@@ -52,7 +52,8 @@
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
             $('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
-            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption({{User::get_userID()}});
+            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            //$('#add-task-form [name="UsersIDs"]').select2().select2('val',usetId);
             $('#add-task-form [name="AccountIDs[]"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             $('#add-modal-task h4').text('Add Task');
             if(!BoardID){
@@ -60,6 +61,7 @@
                 $('#add-task-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
             }
             $('#add-task-form [name="BoardID"]').val(BoardID);
+            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
             $('#add-modal-task').modal('show');
         });
 
