@@ -143,7 +143,7 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Assign to:</label>
-                  {{Form::select('UsersIDs[]',$account_owners,'',array("class"=>"selectboxit"))}} </div>
+                  {{Form::select('UsersIDs',$account_owners,'',array("class"=>"selectboxit"))}} </div>
               </div>
              </div> 
               <div class="row">
@@ -212,7 +212,7 @@
           <button style="margin:8px 25px 0 0;" redirecto="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" type="button" class="btn btn-black btn-xs pull-right">
 						<i class="entypo-plus"></i>
 					</button>
-   <h1>Contacts</h2>
+   <h1>Contacts</h1>
    
    </div>
    <div class="clearfix"></div>
@@ -318,7 +318,7 @@
 			}			
 	  }	 
 	   ?>
-                  <p>Email : {{$rows['EmailMessage']}}. </p>
+                  <div>Email : {{$rows['EmailMessage']}}. </div>
                 </div>
               </div>
             </li>
