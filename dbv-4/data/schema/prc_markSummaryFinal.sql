@@ -1,0 +1,13 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_markSummaryFinal`(IN `p_CompanyID` INT, IN `p_Date` DATE)
+BEGIN
+	DECLARE v_TimeId_ INT ;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT date_id INTO v_TimeId_ FROM tblDimDate WHERE date = p_Date  LIMIT 1;
+	
+	UPDATE tblUsageSummary SET FinalStatus = 1 WHERE date_id < v_TimeId_;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END
