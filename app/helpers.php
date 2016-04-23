@@ -735,9 +735,10 @@ function validfilepath($path){
 
 function create_site_configration_cache(){
 	
-	$domain_url 					=   addhttp($_SERVER['HTTP_HOST']);
+	//$domain_url 					=   addhttp($_SERVER['HTTP_HOST']);
+    $domain_url 					=   $_SERVER['HTTP_HOST'];//change by umer
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
-	
+
 	if($result){  //url found	
 		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
 		$cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
@@ -759,6 +760,7 @@ function create_site_configration_cache(){
 	Session::put('user_site_configrations', $cache);
 }
 
+//not in use
 function addhttp($url) {
     if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
         $url = "http://" . $url;
