@@ -573,7 +573,8 @@ class InvoicesController extends \BaseController {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
             $CurrencySymbol 	=  	Currency::getCurrencySymbol($Account->CurrencyId);
-			$companyID 			= 	$Account->CompanyID; // User::get_companyID();
+            //$companyID 			= 	User::get_companyID();
+			$companyID 			= 	$Account->CompanyId; // User::get_companyID();
 			$query 				= 	"CALL `prc_getInvoicePayments`('".$id."','".$companyID."');";			
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
