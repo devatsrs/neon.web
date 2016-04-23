@@ -64,14 +64,14 @@ BEGIN
         SELECT
     		  TempVendorCDRID,
             r.Code AS prefix
-        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-        LEFT JOIN LocalRatemanagement.tblVendorTrunk ct 
+        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud FORCE INDEX (IX_' , p_tbltempusagedetail_name , '_CID_CGID_PID)
+        INNER JOIN LocalRatemanagement.tblVendorTrunk ct FORCE INDEX (IX_AccountID_TrunkID_Status)
             ON ct.AccountID = ud.AccountID AND ct.Status =1  
             AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
-        LEFT JOIN LocalRatemanagement.tblVendorRate cr 
+        INNER JOIN LocalRatemanagement.tblVendorRate cr FORCE INDEX (IX_tblVendorRate_RateId_TrunkID_EffectiveDate)
             ON cr.AccountId = ud.AccountID
             AND  cr.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-        LEFT JOIN LocalRatemanagement.tblRate r 
+        INNER JOIN LocalRatemanagement.tblRate r 
             ON cr.RateID = r.RateID and ud.processId = "' , p_processId , '"
         WHERE  
     	  	  ud.CompanyID = "' , p_CompanyID , '"
