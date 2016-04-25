@@ -37,7 +37,7 @@ function json_response_api($response){
 			$errors = $response->message;
 		}
 		else{
-				$errors  = "No More Record Found.";
+				$errors  = "infinity";
 			}
         
     }
@@ -796,8 +796,7 @@ function validfilepath($path){
     return $path;
 }
 
-function create_site_configration_cache(){
-	
+function create_site_configration_cache(){	
 	$domain_url 					=   $_SERVER['HTTP_HOST'];
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 	

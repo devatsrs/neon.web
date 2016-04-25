@@ -256,6 +256,7 @@ class AccountsController extends \BaseController {
 			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
 
 			if(!isset($response->status_code )){
+				print_r($response);	 exit;
 				return  json_response_api($response);
 			}
 			if ($response->status_code == 200) {			
@@ -267,17 +268,17 @@ class AccountsController extends \BaseController {
 					$response = $response->data->result;
 				}
 				else{
-					$array = array("status"=>"failed","message"=>"No More Record Founds.");
+					$array = array("status"=>"success","message"=>"infinity");
 					return  json_response_api($array);
 				}				
 			}
-			else{				
+			else{	
 			 return  json_response_api($response);
 			}
 			
 			if(count($response)<1)
 			{
-					$array = array("status"=>"failed","message"=>"No More Record Founds.");
+					$array = array("status"=>"success","message"=>"infinity");
 					return  json_response_api($array);
 			}
 			

@@ -10,12 +10,12 @@
     </span>
               <?php } ?>
             </time>
-  <div class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-  <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
-              <h2 onclick="expandTimeLine({{$key}})">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif</h2>
+  <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
+  <div class="cbp_tmlabel">  
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif</h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
-      <p>CC: {{$response->Cc}}</p>
-      <p>BCC: {{$response->Bcc}}</p>
+      @if($response->Cc)<p>CC: {{$response->Cc}}</p>@endif
+      @if($response->Bcc)<p>BCC: {{$response->Bcc}}</p>@endif
       <p>Subject: {{$response->Subject}}</p>
       <?php
 	  if($response->AttachmentPaths!='')
@@ -36,16 +36,16 @@
 						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 					}			
 					if($key==(count($attachments)-1)){
-						echo "<a href=".$Attachmenturl.">".$attachments_data['filename']."</a>";
+						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a>";
 					}else{
-						echo "<a href=".$Attachmenturl.">".$attachments_data['filename']."</a>,";
+						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a>,";
 					}
 				}
 				echo "</p>";
 			}			
 	  }
 	   ?>
-      <p>Email : {{$response->Message}}. </p>
+      <p>Message:<br>{{$response->Message}}. </p>
     </div>
             </div>
 </li>
@@ -61,11 +61,11 @@
               </span>
               <?php } ?>
             </time>
-            <div class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
+            <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel">
-              <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a>
-              <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less">  &#x2B; </a>
-              <h2 onclick="expandTimeLine({{$key}})">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span>Task</h2>
+              
+              
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span>Task</h2>
               <div id="hidden-timeline-{{$key}}"  class="details no-display">
                 <p>Subject: {{$response->Subject}}</p>
                 <p>Assign To: {{$response->Name}}</p>
@@ -87,9 +87,9 @@
     </span>
     <?php } ?>
   </time>
-  <div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-  <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
-    <h2 onclick="expandTimeLine({{$key}})">@if($response->created_by==$current_user_title) You @else {{$response->created_by}}  @endif <span>added a note</span></h2>
+  <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
+  <div class="cbp_tmlabel">  
+    <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$response->created_by}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response->Note}}</p>
     </div>

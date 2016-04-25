@@ -2041,7 +2041,8 @@ dialog {
 	bottom: 0;
 	width: 10px;
 	background: #afdcf8;
-	left: 20%;
+	/*left: 20%;*/
+	left: 16%;
 	margin-left: -10px;
 }
 
@@ -2052,7 +2053,8 @@ dialog {
 
 .cbp_tmtimeline > li .cbp_tmtime {
 	display: block;
-	width: 25%;
+	/*width: 25%;*/
+	width: 22%;
 	padding-right: 100px;
 	position: absolute;
 }
@@ -2078,7 +2080,8 @@ dialog {
 
 /* Right content */
 .cbp_tmtimeline > li .cbp_tmlabel {
-	margin: 0 0 15px 25%;
+	/*margin: 0 0 15px 25%;*/
+	margin: 0 0 15px 20%;
 	background: #3594cb;
 	color: #fff;
 	padding: 2em;
@@ -2135,7 +2138,8 @@ dialog {
 	border-radius: 50%;
 	box-shadow: 0 0 0 8px #afdcf8;
 	text-align: center;
-	left: 20%;
+	/*left: 20%;*/
+	left: 16%;
 	top: 0;
 	margin: 0 0 0 -25px;
 }
@@ -2199,4 +2203,19 @@ dialog {
     position: relative;
     top: -35px;
     right: 3px;
+}
+.email-cc-text{
+	font-size:10px;
+}
+
+.cbp_tmicon{
+	cursor:pointer;
+}
+
+.end_timeline_logo{
+	box-shadow:0 0 0 8px #afdcf8 !important;
+}
+.end_timeline{
+	visibility:hidden;
+	padding-bottom:0px !important;
 }

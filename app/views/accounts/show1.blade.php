@@ -2,7 +2,6 @@
 
 @extends('layout.main')
 @section('content')
-<link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <div  style="min-height: 1050px;">
   <ol class="breadcrumb bc-3">
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -68,15 +67,18 @@
           <ul id="tab-btn" class="interactions-list">
             <li id="1" class="interactions-tab"> <a href="#Note" class="interaction-link note" onclick="showDiv('box-1',1)"><i class="entypo-doc-text"></i>New Note</a> </li>
             <li id="2" class="interactions-tab"> <a href="#task" class="interaction-link activity" onclick="showDiv('box-3',2)"><i class="entypo-doc-text"></i>Create Task</a> </li>
-            <li id="3" class="interactions-tab"> <a href="#schedule" class="interaction-link task" onclick="showDiv('box-4',3)"><i class="entypo-phone"></i>Log Activity</a> </li>
+    <!--        <li id="3" class="interactions-tab"> <a href="#schedule" class="interaction-link task" onclick="showDiv('box-4',3)"><i class="entypo-phone"></i>Log Activity</a> </li>-->
             <li id="4" class="interactions-tab"> <a href="#email" class="interaction-link task" onclick="showDiv('box-2',4)"><i class="entypo-mail"></i>Email</a> </li>
           </ul>
         </div>
-        <div class="row margin-top-5" id="box-1">
+        <div class="row margin-top-5 box-min" id="box-1">
           <div class="col-md-12">
             <form role="form" id="notes-from" action="{{URL::to('accounts/'.$account->AccountID.'/store_note/')}}" method="post">
-              <div class="compose-message-editor">
-                   <textarea name="Note" id="note-content" class="form-control autogrow"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+              <div class="form-group ">
+             
+                    <textarea name="Note" id="note-content" class="form-control autogrow"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+
+                       
               </div>
               <div class="form-group end-buttons-timeline"> 
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
@@ -86,7 +88,7 @@
             </form>
           </div>
         </div>
-        <div class="row no-display margin-top-5" id="box-2" style="margin-bottom: 5px;">
+        <div class="row no-display margin-top-5 box-min" id="box-2" style="margin-bottom: 5px;">
           <div class="col-md-12">
             <div class="mail-compose">
               <form method="post" id="email-from" role="form" enctype="multipart/form-data">
@@ -94,7 +96,7 @@
                   <label for="to">To:</label>
                   <!--{{ Form::select('email-to', USer::getUserIDList(), '', array("class"=>"select2","id"=>"email-to","tabindex"=>"1")) }}-->
                   <input type="text" class="form-control" value="{{$account->Email}}" id="email-to" name="email-to" tabindex="1"  />
-                  <div class="field-options"> <a href="javascript:;" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </div>
+                  <div class="field-options"> <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </div>
                 </div>
                 <div class="form-group hidden">
                   <label for="cc">CC:</label>
@@ -113,15 +115,17 @@
                   <label for="subject">Subject:</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
                 </div>
-                <div class="form-group">
-                  <label for="Email">Email:</label>                 
-                  <textarea id="Message" class="form-control message" name="Message"></textarea>
+                <div class="form-group">  
+                <label for="subject">Email:</label>                            
+                 <textarea id="Message" class="form-control message"    name="Message"></textarea>
                 </div>
                 <div class="form-group">
                 <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
                 </div>
                 <div class="form-group">
                   <input id="filecontrole" type="file" name="emailattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />
+                    <input id="images" type="hidden" name="images[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />
+                  <span class="file-input-names"></span>
                 </div>
                 <div class="form-group end-buttons-timeline">                 
                                  <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>                
@@ -131,7 +135,7 @@
             </div>
           </div>
         </div>
-        <div class="row no-display margin-top-5" id="box-3">
+        <div class="row no-display margin-top-5 box-min" id="box-3">
           <div class="col-md-12">
             <form id="save-task-form" role="form" method="post">
             <div class="row">
@@ -187,7 +191,7 @@
             </form>
           </div>
         </div>
-        <div class="row no-display margin-top-5" id="box-4">
+        <div class="row no-display margin-top-5 box-min" id="box-4">
           <div class="col-md-12">
             <form role="form" method="post">
               <div class="form-group">
@@ -217,8 +221,8 @@
    </div>
    <div class="clearfix"></div>
    
-             <div class="list-contact-slide" style="height:500px; overflow-x:scroll;"> 
-            
+             <!--<div class="list-contact-slide" style="height:500px; overflow-x:scroll;"> -->
+            <div class="list-contact-slide">
             <!--Account card start --> 
             
             <div class="gridview">
@@ -263,7 +267,7 @@
         </div>
       <!-- -->
         <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
-        <div class="timeline col-md-9 col-sm-10 col-xs-10"> 
+        <div class="timeline col-md-9 col-sm-10 col-xs-10 big-col"> 
           <ul class="cbp_tmtimeline" id="timeline-ul">
           <li></li>
           @if(count($response)>0 && $message=='')
@@ -281,12 +285,12 @@
                 </span>
                 <?php } ?>
               </time>
-              <div class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-              <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
-                <h2 onclick="expandTimeLine({{$key}})">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
+              <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
+              <div class="cbp_tmlabel">  
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
-                  <p>CC: {{$rows['EmailCc']}}</p>
-                  <p>BCC: {{$rows['EmailBcc']}}</p>
+                  @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
+                  @if($rows['EmailBcc'])<p>BCC: {{$rows['EmailBcc']}}</p>@endif
                   <p>Subject: {{$rows['EmailSubject']}}</p>
                   <?php
 	  if($rows['EmailAttachments']!='')
@@ -318,7 +322,7 @@
 			}			
 	  }	 
 	   ?>
-                  <div>Email : {{$rows['EmailMessage']}}. </div>
+                  <div>Message:<br>{{$rows['EmailMessage']}}. </div>
                 </div>
               </div>
             </li>
@@ -333,9 +337,9 @@
                 </span>
                 <?php } ?>
               </time>
-              <div class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-              <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
-                <h2 onclick="expandTimeLine({{$key}})">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span>Task</h2>
+              <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
+              <div class="cbp_tmlabel">  
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span>Task</h2>
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
                   <p>Assign To: {{$rows['TaskName']}}</p>
@@ -357,9 +361,9 @@
                 </span>
                 <?php } ?>
               </time>
-              <div class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-              <div class="cbp_tmlabel"> <a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>
-                <h2 onclick="expandTimeLine({{$key}})">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
+              <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
+              <div class="cbp_tmlabel">  
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   <p>{{$rows['Note']}}</p>
                 </div>
@@ -382,7 +386,11 @@
 @include("accounts.taskmodal") 
 
 <script type="text/javascript">
-var show_popup=0;
+
+
+var show_popup		=  0;
+var rowData 		=  [];
+var scroll_more 	=  1;
     jQuery(document).ready(function ($) {
 		var per_scroll 		= 	{{$per_scroll}};
 		var per_scroll_inc  = 	per_scroll;
@@ -401,45 +409,39 @@ var show_popup=0;
             }
         });
 
-		        function editor_reset(data){					
-            var modal = $(".mail-compose");
-            modal.find('.message').wysihtml5({
-                "font-styles": true,
-                "emphasis": true,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": false,
-                parser: function(html) {
-                    return html;
-                }
-            });
-        
-					
-           
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-            modal.find('.message').show();
+		        function editor_reset(data){
+				var doc = $('.mail-compose');
+		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        		doc.find('.message').show();
+						
+			
+			
+									
+            var doc = $(".mail-compose");
             if(!Array.isArray(data)){
+				
                 var EmailTemplate = data['EmailTemplate'];
-                modal.find('[name="Subject"]').val(EmailTemplate.Subject);
-                modal.find('.message').val(EmailTemplate.TemplateBody);
+                doc.find('[name="Subject"]').val(EmailTemplate.Subject);
+                doc.find('.message').val(EmailTemplate.TemplateBody);
+					var doc = $('.mail-compose');
+			 doc.find('.message').wysihtml5({
+				"font-styles": true,
+				"Crm":true,
+				"emphasis": true,
+				"lists": true,
+				"html": true,
+				"link": true,
+				"image": true,
+				"color": false,
+				parser: function(html) {
+					return html;
+				}
+			});
             }else{
-                modal.find('[name="Subject"]').val('');
-                modal.find('.message').val('');
+                doc.find('[name="Subject"]').val('');
+                doc.find('.message').val('');
             }
-            modal.find('.message').wysihtml5({
-                "font-styles": true,
-                "emphasis": true,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": false,
-                parser: function(html) {
-                    return html;
-                }
-            });
+           
         }
 		
     // When Lead is converted to account.
@@ -464,6 +466,11 @@ var show_popup=0;
 	//////////
 	function last_msg_funtion() 
 {  
+
+	if(scroll_more==0)
+	{
+		return false;
+	}
 	var count = 0;
 	var getClass = $(".count-li");
     getClass.each(function () {count++;}); 	
@@ -482,7 +489,17 @@ var show_popup=0;
 				async :false,
                 success: function(response1) {
 						if (isJson(response1)) {
+							
 					var response_json  =  JSON.parse(response1);
+					if(response_json.message=='infinity')
+					{
+						var html_end  ='<li><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
+						$("#timeline-ul").append(html_end);	
+						scroll_more= 0;	
+						$('div#last_msg_loader').empty();
+						console.log("Results completed");
+						return false;
+					}
 					ShowToastr("error",response_json.message);
 				} else {
 						per_scroll 		= 	per_scroll_inc+per_scroll;	
@@ -509,6 +526,7 @@ setTimeout(function() {
     });
 
         function showDiv(divName, ctrl) {
+			
             $("#box-1").addClass("no-display");
             $("#box-2").addClass("no-display");
             $("#box-3").addClass("no-display");
@@ -517,6 +535,28 @@ setTimeout(function() {
             $("#" + divName).removeClass("no-display");
             $("#tab-btn").children("li").removeClass("active");
             $("#" + ctrl).addClass("active");
+			if(divName=='box-2')
+			{
+        	var doc = $('.mail-compose');
+       	 doc.find('.message').wysihtml5({
+            "Crm":true,
+			"font-styles": false,
+            "emphasis": true,			
+			"leadoptions":false,
+            "lists": true,
+            "html": true,
+            "link": true,
+            "image": true,
+            "color": false,
+            parser: function(html) {
+                return html;
+            }
+        });
+			}else{
+				 var doc = $('.mail-compose');
+		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        		doc.find('.message').show();
+			}
         }
         $(document).ready(function () {
             if (window.location.href.indexOf("#box-2") >= 0) {
@@ -529,6 +569,26 @@ setTimeout(function() {
         });
         
         $(document).ready(function ($) {
+			//id_toggle="{{$key}}"
+			$( document ).on("click",".cbp_tmicon" ,function(e) {
+				var id_toggle = $(this).attr('id_toggle');
+				if(id_toggle)
+				{
+               		$('#hidden-timeline-'+id_toggle).toggle();
+				}
+            });
+			
+			$(document).on("click",".toggle_open", function(e) {
+				var id_toggle = $(this).attr('id_toggle');
+				if(id_toggle)
+				{
+					if( $('#hidden-timeline-'+id_toggle).css('display').toLowerCase() != 'block') {
+							$('#hidden-timeline-'+id_toggle).css('display','block');	
+					}
+				}
+                
+            });
+			
 		 $('#addTtachment').click(function(){
                 $('#filecontrole').click();
             });
@@ -538,10 +598,31 @@ setTimeout(function() {
                 var fileText = '';
                 for(i=0;i<files.length;i++){
                     fileText+=files[i].name+'<br>';
-                }
-                $('.file-input-name').html(fileText);
+					 if (indexOfFile(rowData, files[i].name) === -1) {
+							///////
+							
+							///////////
+						
+						}
+				}
+                $('.file-input-names').append(fileText);
+				 console.log(rowData);
             });
 				
+				
+			function indexOfFile(data, file) {
+			var index;
+		
+			for (index = 0; index < data.length; ++index) {
+				// Note that the 0 may need to be changed if the
+				// `rowData.push([file])` line above doesn't put
+				// the filename at index 0
+				if (data[index][0] === file) {
+					return index;
+				}
+			}
+			return -1;
+		}	
 			//////////////
         });
         $("#check-lead").click(function () {
@@ -744,8 +825,8 @@ setTimeout(function() {
             $('#timeline-ul li:eq(0)').before(html);
         });
 		
-		$('#save-mail').click(function(e) { $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
-		$('#save-email-follow').click(function(e) {  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		$('#save-mail').click(function(e) { alert(rowData); $('#images').val(JSON.stringify(rowData)); $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
+		$('#save-email-follow').click(function(e) { $('#images').val(JSON.stringify(rowData));  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
 		
 		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');      show_popup = 0; });
 		$('#save-note-follow').click(function(e) {  $('.save-note-btn').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
@@ -759,6 +840,8 @@ setTimeout(function() {
           	event.stopImmediatePropagation();
             event.preventDefault();			
 			var formData = new FormData($('#email-from')[0]);
+			console.log(rowData);
+			
 			// formData.push({ name: "emailattachment", value: $('#emailattachment').val() });
 			// showAjaxScript(email_url, formData, FnAddEmailSuccess);
 			
@@ -808,11 +891,17 @@ setTimeout(function() {
             $("#hidden-timeline-" + id).addClass('no-display');
             $("#show-more-" + id).removeClass('no-display');
         }
+		
+		
     </script> 
+ <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">   
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+
+
 <style>
-#last_msg_loader{text-align:center;} .file-input-name{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
+#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;}
 </style>
 @stop
