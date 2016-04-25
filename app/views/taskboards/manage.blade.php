@@ -88,8 +88,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    <?php $datefilter = array("1"=> "Todays Tasks","2"=>"Tomorrows Tasks","3"=>"This Weeks Tasks",'4'=>'Overdue Tasks','5'=>'Custom Date'); ?>
-                                    {{Form::select('DueDateFilter',$datefilter,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"selectboxit"))}}
                                 </div>
                                 <div class="col-sm-2">
                                     <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker hidden"  data-date-format="yyyy-mm-dd" value="" />
@@ -459,7 +458,7 @@
             });
 
             $('#search-task-filter [name="DueDateFilter"]').change(function(){
-                if($(this).val()==5){
+                if($(this).val()==4){
                     var datefliter = $('#search-task-filter [name="DueDate"]');
                     datefliter.removeClass('hidden');
                 }else{
