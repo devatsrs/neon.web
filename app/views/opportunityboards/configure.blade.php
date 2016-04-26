@@ -45,7 +45,7 @@
 
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
-            var BoardID = {{$id}};
+            var BoardID = '{{$id}}';
             fillColumns();
             $('#add-colomn').click(function(){
                 $('#add-edit-columnname-form').trigger("reset");
@@ -62,8 +62,12 @@
                 $('#add-edit-columnname-form [name="BoardID"]').val(BoardID);
                 $('#add-edit-columnname-form [name="BoardColumnID"]').val(BoardColumnID);
                 $('#add-edit-columnname-form [name="BoardColumnName"]').val(BoardColumnName);
-                /*@ToDO*/
-                $('#add-edit-columnname-form [name="SetCompleted"]').prop('checked', SetCompleted);
+
+                if($(this).attr('data-setcompleted')==1){
+                    $('#add-edit-columnname-form').find('[name="SetCompleted"]').prop('checked', true);
+                }else{
+                    $('#add-edit-columnname-form').find('[name="SetCompleted"]').prop('checked', false);
+                }
                 $('#add-edit-columnname-modal h4').text('Edit Column');
                 $('#add-edit-columnname-modal').modal('show');
             });
@@ -210,9 +214,9 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="control-label">Set Completed</label>
-                                    <p class="make-switch switch-small">
-                                        <input name="SetCompleted" type="checkbox" value="1" >
-                                    </p>
+                                    <div class="">
+                                        <input type="checkbox" name="SetCompleted" value="1">
+                                    </div>
                                 </div>
                             </div>
                         </div>

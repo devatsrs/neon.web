@@ -740,9 +740,9 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Priority</label>
                                     <div class="col-sm-4">
-                                        <p class="make-switch switch-small">
+                                        <div class="">
                                             <input name="Priority" type="checkbox" value="1" >
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
