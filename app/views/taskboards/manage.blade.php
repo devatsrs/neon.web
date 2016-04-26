@@ -75,10 +75,11 @@
                                         {{Form::select('AccountOwner',$account_owners,User::get_userID(),array("class"=>"select2"))}}
                                     </div>
                                 @endif
-                                <label for="field-1" class="col-sm-1 control-label">Priority</label>
+                                <label class="col-sm-1 control-label">Priority</label>
                                 <div class="col-sm-2">
-                                    <?php $priority = array(""=> "Select a Priority")+$priority; ?>
-                                    {{Form::select('Priority',$priority,Input::get('AccountID'),array("class"=>"selectboxit"))}}
+                                    <p class="make-switch switch-small">
+                                        <input name="Priority" type="checkbox" value="1" >
+                                    </p>
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
                                 <div class="col-sm-2">
@@ -107,8 +108,8 @@
         </div>
 
         <p id="tools">
-            <a class="btn btn-primary toggle list active" href="javascript:void(0)"><i class="entypo-list"></i></a>
-            <a class="btn btn-primary toggle grid" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list" href="javascript:void(0)"><i class="entypo-list"></i></a>
+            <a class="btn btn-primary toggle grid active" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
             <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                 <i class="entypo-plus"></i>
                 Add Task
@@ -131,7 +132,7 @@
                 <tbody>
                 </tbody>
             </table>
-            <div id="board-start" class="board scroller hidden" style="height: 500px;overflow: auto !important;">
+            <div id="board-start" class="board scroller" style="height: 500px;overflow: auto !important;">
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
@@ -144,16 +145,10 @@
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function(){
-
-            $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
-            $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
-            $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
-            $searchFilter.DueDateFilter = $("#search-task-filter [name='DueDateFilter']").val();
-            $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
-            $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
             var task = [
                 'BoardColumnID',
                 'BoardColumnName',
+                'SetCompleted',
                 'TaskID',
                 'UsersIDs',
                 'Users',
@@ -162,15 +157,15 @@
                 'Subject',
                 'Description',
                 'DueDate',
+                'StartTime',
                 'TaskStatus',
                 'Priority',
                 'PriorityText',
                 'TaggedUser',
                 'BoardID'
             ];
-            var Priority = ['<i style="color:red;font-size:15px;" class="edit-deal entypo-up-bold"></i>',
-                            '<i style="color:#FAD839;font-size:15px;" class="edit-deal entypo-record"></i>',
-                            '<i style="color:green;font-size:15px;" class="edit-deal entypo-down-bold"></i>'];
+            var Priority = ['','<i style="color:red;font-size:15px;" class="entypo-record"></i>',
+                            ];
             var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
             var nicescroll_default = {cursorcolor:'#d4d4d4',
@@ -210,13 +205,13 @@
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
-                            return full[7];
+                            return full[8];
                         }
                     },
                     {
                         "bSortable": true, //Due Date
                         mRender: function (id, type, full) {
-                            return full[9];
+                            return full[10]!='0000-00-00'?full[10]:'';
                         }
                     },
                     {
@@ -229,19 +224,19 @@
                         "bSortable": true, //Priority
                         mRender: function (id, type, full) {
 
-                            return Priority[full[11]-1]+full[12];
+                            return Priority[full[13]]+full[14]!=null?full[14]:'';
                         }
                     },
                     {
                         "bSortable": true, //Assign To
                         mRender: function (id, type, full) {
-                            return full[4];
+                            return full[5];
                         }
                     },
                     {
                         "bSortable": true, //Related To
                         mRender: function (id, type, full) {
-                            return full[6];
+                            return full[7];
                         }
                     },
                     {
@@ -265,36 +260,31 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-
-                    if($('#tools .active').text()=='Grid'){
+                    $(this)
+                    if($('#tools .active').hasClass('grid')){
                         $('#taskGrid_wrapper').addClass('hidden');
+                        $('#taskGrid').addClass('hidden');
                     }else{
+                        $('#taskGrid_wrapper').removeClass('hidden');
                         $('#taskGrid').removeClass('hidden');
                     }
                 }
 
             });
-
+            getRecord();
             $('#search-task-filter').submit(function(e){
                 e.preventDefault();
-                $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
-                $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
-                $searchFilter.Priority = $("#search-task-filter [name='Priority']").val();
-                $searchFilter.DueDateFilter = $("#search-task-filter [name='DueDateFilter']").val();
-                $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
-                $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
-                getTask();
-                data_table.fnFilter('',0);
+                getRecord();
             });
 
-            $(document).on('click','#board-start ul.sortable-list li i.edit-deal,#taskGrid .edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#taskGrid .edit-deal',function(e){
                 e.stopPropagation();
                 if($(this).is('a')){
                     var rowHidden = $(this).prev('div.hiddenRowData');
                 }else {
                     var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 }
-                var select = ['UsersIDs','AccountIDs','TaskStatus','Priority','TaggedUser'];
+                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUser'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< task.length; i++){
                     var val = rowHidden.find('input[name="'+task[i]+'"]').val();
@@ -303,7 +293,7 @@
                     if(select.indexOf(task[i])!=-1){
                         if(task[i]=='TaggedUser' || task[i]=='AccountIDs') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
-                        } else {
+                        }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -312,6 +302,12 @@
                             /*setcolor(elem,val);*/
                         }else if(task[i]=='Tags'){
                             elem.val(val).trigger("change");
+                        }else if(task[i]=='Priority'){
+                            if(val==1) {
+                                $('#edit-task-form [name="Priority"]').prop('checked', true);
+                            }else{
+                                $('#edit-task-form [name="Priority"]').prop('checked', false);
+                            }
                         }
                     }
                 }
@@ -467,6 +463,7 @@
                 }
             });
 
+
             function initEnhancement(){
                 var nicescroll_defaults = {
                     cursorcolor: '#d4d4d4',
@@ -515,6 +512,18 @@
                         $tooltip.addClass(popover_class);
                     });
                 });
+            }
+
+            function getRecord(){
+                $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
+                $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
+                $searchFilter.Priority = $("#search-task-filter [name='Priority']").prop("checked");
+                $searchFilter.DueDateFilter = $("#search-task-filter [name='DueDateFilter']").val();
+                $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
+                $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
+                console.log($searchFilter);
+                getTask();
+                data_table.fnFilter('',0);
             }
 
             function getTask(){
@@ -709,8 +718,11 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Due Date</label>
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-5">
                                         <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
                                     </div>
                                 </div>
                             </div>
@@ -726,9 +738,11 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Priority*</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
+                                    <label class="col-sm-4 control-label">Priority</label>
+                                    <div class="col-sm-4">
+                                        <p class="make-switch switch-small">
+                                            <input name="Priority" type="checkbox" value="1" >
+                                        </p>
                                     </div>
                                 </div>
                             </div>

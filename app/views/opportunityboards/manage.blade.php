@@ -158,7 +158,7 @@
             });
 
 
-            $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 var select = ['UserID','BoardID','TaggedUser','Title'];

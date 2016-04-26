@@ -35,7 +35,7 @@
                         }
                         ?>
                             <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
-                                <div class="pull-right"><i class="edit-deal entypo-pencil" {{$textcolour}}></i></div>
+                                <button type="button" title="Edit Opportunity" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
@@ -47,11 +47,11 @@
                                     @if(count($taggedUser)>0)
                                         @foreach($taggedUser as $user)
                                             <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>
-                                            <span {{$color}} class="badge badge-warning tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
+                                            <span {{$color}} class="badge badge-warning badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
                                         @endforeach
                                     @endif
-                                    <span class="badge badge-info tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{strtoupper($Owner)}}</span>
-                                    <span class="badge badge-success tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
+                                    <span class="badge badge-info badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{strtoupper($Owner)}}</span>
+                                    <span class="badge badge-success badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
                                 </div>
                             </li>
                         @endif

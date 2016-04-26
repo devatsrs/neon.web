@@ -82,7 +82,6 @@ class TaskController extends \BaseController {
         $Board = CRMBoard::getTaskBoard();
         $account_owners = User::getUserIDList();
         $taskStatus = CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
-        $priority = Task::$priority;
 
         $where['Status']=1;
         if(User::is('AccountManager')){

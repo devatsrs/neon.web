@@ -108,7 +108,7 @@
                 <li><a href="{{URL::to('/opportunityboards')}}"><i class="entypo-pencil"></i><span>Opportunity Board</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
-                <li><a href="{{URL::to('/task')}}"><i class="entypo-pencil"></i><span>Task</span></a></li>
+                <li><a href="{{URL::to('/task')}}"><i class="entypo-pencil"></i><span>Tasks</span></a></li>
             @endif
         </ul>
     </li>

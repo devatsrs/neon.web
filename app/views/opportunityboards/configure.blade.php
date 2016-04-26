@@ -51,21 +51,19 @@
                 $('#add-edit-columnname-form').trigger("reset");
                 $('#add-edit-columnname-form [name="BoardID"]').val(BoardID);
                 $('#add-edit-columnname-form [name="BoardColumnID"]').val('');
-                $('#add-edit-columnname-form [name="Height"]').val('100%');
-                $('#add-edit-columnname-form [name="Width"]').val('195px');
+                $('#add-edit-columnname-form [name="SetCompleted"]').prop('checked', false);
                 $('#add-edit-columnname-modal h4').text('Add New Column');
                 $('#add-edit-columnname-modal').modal('show');
             });
             $(document).on('click','.edit-column',function(){
                 var BoardColumnID = $(this).attr('data-id');
                 var BoardColumnName = $(this).attr('data-name');
-                var Height = $(this).attr('data-height')!=''?$(this).attr('data-height'):'100%';
-                var Width = $(this).attr('data-width')!=''?$(this).attr('data-width'):'195px';
+                var SetCompleted = $(this).attr('data-setcompleted')==1?true:false;
                 $('#add-edit-columnname-form [name="BoardID"]').val(BoardID);
                 $('#add-edit-columnname-form [name="BoardColumnID"]').val(BoardColumnID);
                 $('#add-edit-columnname-form [name="BoardColumnName"]').val(BoardColumnName);
-                $('#add-edit-columnname-form [name="Height"]').val(Height);
-                $('#add-edit-columnname-form [name="Width"]').val(Width);
+                /*@ToDO*/
+                $('#add-edit-columnname-form [name="SetCompleted"]').prop('checked', SetCompleted);
                 $('#add-edit-columnname-modal h4').text('Edit Column');
                 $('#add-edit-columnname-modal').modal('show');
             });
@@ -143,7 +141,7 @@
                 var items = '<li id="'+item.BoardColumnID+'" class="board-column count-li" style="position: relative;">';
                 items += '   <header>';
                 items += '    <h5>'+item.BoardColumnName;
-                items += '        <a class="edit-column" data-name="'+item.BoardColumnName+'" data-id="'+item.BoardColumnID+'" data-height="'+item.Height+'" data-width="'+item.Width+'"><i class="edit-button-color entypo-pencil pull-right"></i></a>';
+                items += '        <a class="edit-column" data-name="'+item.BoardColumnName+'" data-id="'+item.BoardColumnID+'" data-height="'+item.Height+'" data-setcompleted="'+item.SetCompleted+'" data-width="'+item.Width+'"><i class="edit-button-color entypo-pencil pull-right"></i></a>';
                 items += '    </h5>';
                 items += '   </header>';
                 items += '</li>';
@@ -205,10 +203,16 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Column Name</label>
-                                    <div class="col-sm-5">
-                                        <input name="BoardColumnName" type="text" class="form-control">
-                                    </div>
+                                    <label class="control-label">Column Name</label>
+                                    <input name="BoardColumnName" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Set Completed</label>
+                                    <p class="make-switch switch-small">
+                                        <input name="SetCompleted" type="checkbox" value="1" >
+                                    </p>
                                 </div>
                             </div>
                         </div>

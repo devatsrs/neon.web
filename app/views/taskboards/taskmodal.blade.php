@@ -51,7 +51,7 @@
         //getOpportunities();
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
-            $('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
+            //$('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
             $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             //$('#add-task-form [name="UsersIDs"]').select2().select2('val',usetId);
             $('#add-task-form [name="AccountIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
@@ -149,8 +149,11 @@
                         <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Due Date</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-5">
                                     <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                                </div>
+                                <div class="col-sm-3">
+                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
                                 </div>
                             </div>
                         </div>
@@ -166,9 +169,11 @@
 
                         <div class="col-md-6 margin-top pull-right">
                             <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Priority*</label>
-                                <div class="col-sm-8">
-                                    {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}}
+                                <label class="col-sm-4 control-label">Priority</label>
+                                <div class="col-sm-4">
+                                    <p class="make-switch switch-small">
+                                        <input name="Priority" type="checkbox" value="1" >
+                                    </p>
                                 </div>
                             </div>
                         </div>

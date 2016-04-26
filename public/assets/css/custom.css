@@ -947,6 +947,7 @@ button.close {
 }
 .count-cards .info{
     padding: 15px 0px 0px 5px;
+    min-height: 70px;
 }
 .count-cards .info .title,
 .count-cards .info .name {
@@ -963,9 +964,11 @@ button.close {
     text-align: right;
     margin-top:20px;
 }
-.count-cards .bottom .badge{
-    margin:3px 0px 0 0;
+.count-cards .badge{
+    margin-top:3px;
     min-width: 32px;
+    /*padding:5px 7px;
+    border-radius: 2px;*/
 }
 .input-group{
     top:-5px;
@@ -1423,10 +1426,10 @@ display:none;
     padding: 8px 0;
     border-radius: 3px 3px 0 0;
     padding-left:5px;
-    height: 10%;
+    height: 8%;
 }
 ul.board-column-list {
-    height: 90%;
+    height: 92%;
     width: 100%;
     text-align: center;
     overflow-y: auto;
