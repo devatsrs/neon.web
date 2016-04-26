@@ -105,10 +105,10 @@
                   {{ Form::select('bcc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"bcc","tabindex"=>"3")) }}
                   </div>
                    
-                            <div class="form-Group" style="margin-bottom: 15px;">
-                                <label >Email Template</label>                               
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2"))}}                                
-                            </div>
+                <div class="form-Group" style="margin-bottom: 15px;">
+                    <label >Email Template</label>                               
+                        {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2"))}}                                
+                </div>
                         
                 <div class="form-group">
                   <label for="subject">Subject:</label>
@@ -416,18 +416,20 @@ var file_count 		=  0;
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 						
-			
-			
-									
+								
             var doc = $(".mail-compose");
-            if(!Array.isArray(data)){
-				
+            if(!Array.isArray(data)){				
                 var EmailTemplate = data['EmailTemplate'];
                 doc.find('[name="Subject"]').val(EmailTemplate.Subject);
                 doc.find('.message').val(EmailTemplate.TemplateBody);
-					var doc = $('.mail-compose');
-			 doc.find('.message').wysihtml5({
+            }else{
+                doc.find('[name="Subject"]').val('');
+                doc.find('.message').val('');
+            }
+			
+			doc.find('.message').wysihtml5({
 				"font-styles": true,
+				"leadoptions":false,
 				"Crm":true,
 				"emphasis": true,
 				"lists": true,
@@ -439,10 +441,6 @@ var file_count 		=  0;
 					return html;
 				}
 			});
-            }else{
-                doc.find('[name="Subject"]').val('');
-                doc.find('.message').val('');
-            }
            
         }
 		
@@ -541,19 +539,20 @@ setTimeout(function() {
 			{
         	var doc = $('.mail-compose');
        	 doc.find('.message').wysihtml5({
-            "Crm":true,
-			"font-styles": false,
-            "emphasis": true,			
-			"leadoptions":false,
-            "lists": true,
-            "html": true,
-            "link": true,
-            "image": true,
-            "color": false,
-            parser: function(html) {
-                return html;
-            }
-        });
+				"font-styles": true,
+				"leadoptions":false,
+				"Crm":true,
+				"emphasis": true,
+				"lists": true,
+				"html": true,
+				"link": true,
+				"image": true,
+				"color": false,
+				parser: function(html) {
+					return html;
+				}
+			});
+
 			}else{
 				 var doc = $('.mail-compose');
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
