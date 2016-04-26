@@ -75,7 +75,9 @@
             <form role="form" id="notes-from" action="{{URL::to('accounts/'.$account->AccountID.'/store_note/')}}" method="post">
               <div class="form-group ">
              
-                    <textarea name="Note" id="note-content" class="form-control autogrow"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+                  <textarea name="Note" id="note-content" class="form-control autogrow editor-note"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+             
+
 
                        
               </div>
@@ -215,7 +217,7 @@
           <button style="margin:8px 25px 0 0;" redirecto="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" type="button" class="btn btn-black btn-xs pull-right">
 						<i class="entypo-plus"></i>
 					</button>
-   <h1>Contacts</h1>
+   <h3>Contacts</h3>
    
    </div>
    <div class="clearfix"></div>
@@ -536,7 +538,7 @@ setTimeout(function() {
             $("#tab-btn").children("li").removeClass("active");
             $("#" + ctrl).addClass("active");
 			if(divName=='box-2')
-			{
+			{				
         	var doc = $('.mail-compose');
        	 doc.find('.message').wysihtml5({
 				"font-styles": true,
@@ -558,6 +560,33 @@ setTimeout(function() {
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 			}
+			if(divName=='box-1')
+			{	
+				var doc = $('#box-1');
+			 doc.find('#note-content').wysihtml5({
+					"font-styles": true,
+					"leadoptions":false,
+					"Crm":false,
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+					parser: function(html) {
+						return html;
+					}
+			});
+			}
+			else
+			{
+				var doc = $('#box-1');
+		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        		doc.find('#note-content').show();
+			
+			}
+			
+			
         }
         $(document).ready(function () {
             if (window.location.href.indexOf("#box-2") >= 0) {
