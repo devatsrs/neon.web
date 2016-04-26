@@ -20,13 +20,12 @@
                         $seconds = '';
                         if($task['DueDate']!='0000-00-00'){
                             $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffInDays();
-                            if($datediff>2){
-                                $date =  \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
-                            }else{
-                                $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
-                            }
+                            $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
                             if(strpos($date,'ago')){
                                 $datediff=-1;
+                            }
+                            if($datediff>2){
+                                $date =  \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             }
                             switch (TRUE) {
                                 case ($datediff<0  && $task['SetCompleted']!=1):
