@@ -291,7 +291,7 @@
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
                     //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
-                        if(task[i]=='TaggedUser' || task[i]=='AccountIDs') {
+                        if(task[i]=='TaggedUser') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
@@ -731,7 +731,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Company</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2","multiple"=>"multiple"))}}
+                                        {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
                                     </div>
                                 </div>
                             </div>
