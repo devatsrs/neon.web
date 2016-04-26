@@ -118,7 +118,7 @@
                 <label for="subject">Email:</label>                            
                  <textarea id="Message" class="form-control message"    name="Message"></textarea>
                 </div>
-                <div class="form-group">
+                <div class="form-group no_margin_bt">
                 <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
                 </div>
                 <div class="form-group email_attachment">
@@ -923,6 +923,6 @@ setTimeout(function() {
 <style>
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;} 
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 </style>
 @stop
