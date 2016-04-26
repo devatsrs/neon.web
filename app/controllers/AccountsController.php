@@ -256,7 +256,7 @@ class AccountsController extends \BaseController {
 			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
 
 			if(!isset($response->status_code )){
-				print_r($response);	 exit;
+				
 				return  json_response_api($response);
 			}
 			if ($response->status_code == 200) {			

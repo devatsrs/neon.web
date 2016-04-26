@@ -59,7 +59,7 @@ class InvoicesController extends \BaseController {
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
 	}
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
@@ -68,6 +68,7 @@ class InvoicesController extends \BaseController {
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
+        $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -77,11 +78,22 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Invoice', function ($excel) use ($excel_data) {
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
+            /*Excel::create('Invoice', function ($excel) use ($excel_data) {
                 $excel->sheet('Invoice', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
             $query = $query.',0,0,1,"")';
@@ -1343,13 +1355,14 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
-        $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','',''";
+        $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','','".$criteria['CurrencyID']."' ";
         if(!empty($criteria['zerovalueinvoice'])){
             $query = $query.',2,0,1';
         }else{
             $query = $query.',2,0,0';
         }
         $query .= ",'')";
+		Log::info($query); 
         $exceldatas  = DB::connection('sqlsrv2')->select($query);
         $exceldatas = json_decode(json_encode($exceldatas),true);
         $invoiceid='';
@@ -1387,7 +1400,7 @@ class InvoicesController extends \BaseController {
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
 			 $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];
     	    $criteria['IssueDateEnd']        =  empty($criteria['IssueDateEnd'])?'0000-00-00 00:00:00':$criteria['IssueDateEnd'];
-            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',''";
+            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',' ".$criteria['CurrencyID']." '";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2';
             }else{
@@ -1399,6 +1412,7 @@ class InvoicesController extends \BaseController {
                 $query = $query.',0';
             }
             $query .= ",'')";
+			Log::info($query);
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
             Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {

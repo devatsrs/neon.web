@@ -36,7 +36,7 @@ function json_response_api($response){
 		if(isset($response->message)){
 			$errors = $response->message;
 		}
-		else{
+		else{				
 				$errors  = "infinity";
 			}
         
