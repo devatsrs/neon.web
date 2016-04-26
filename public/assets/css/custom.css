@@ -1650,6 +1650,9 @@ padding-left:5px;
 .board-column.count-li a {
 cursor:pointer;
 }
+#card-features-details .modal-body div{
+    padding-left: 0px;
+}
 #card-features-details .comments-list > li:nth-child(odd) {
 background: #f5f5f6;
 margin-bottom:5px;

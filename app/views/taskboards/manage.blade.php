@@ -796,7 +796,7 @@
                                 </div>
                                 <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
-                                    <span id="label-switch" class="make-switch switch-mini">
+                                    <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">
                                     </span>
                                 </div>
