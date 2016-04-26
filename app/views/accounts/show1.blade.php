@@ -841,7 +841,7 @@ setTimeout(function() {
             $('#timeline-ul li:eq(0)').before(html);
         });
 		
-		$('#save-mail').click(function(e) { alert(rowData); $('#images').val(JSON.stringify(rowData)); $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
+		$('#save-mail').click(function(e) {  $('#images').val(JSON.stringify(rowData)); $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
 		$('#save-email-follow').click(function(e) { $('#images').val(JSON.stringify(rowData));  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
 		
 		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');      show_popup = 0; });
