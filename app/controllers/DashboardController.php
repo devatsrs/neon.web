@@ -139,6 +139,15 @@ class DashboardController extends BaseController {
        return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate'));
 
     }
+    public function moniterdashboard(){
+
+        $companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate'));
+
+    }
 
     public function ajax_get_recent_due_sheets(){
         $companyID = User::get_companyID();
@@ -215,7 +224,11 @@ class DashboardController extends BaseController {
     public function ajax_get_recent_accounts(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.")";
+        $AccountManager = 0;
+        if (User::is('AccountManager')) { // Account Manager
+            $AccountManager = 1;
+        }
+        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.','.$AccountManager.")";
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';
