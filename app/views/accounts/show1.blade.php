@@ -1,5 +1,4 @@
 <?php $disabled='';$leadOrAccountExist = 'No';$leadOrAccountID = '';$leadOrAccountCheck='';  $BoardID = $Board[0]->BoardID; ?>
-
 @extends('layout.main')
 @section('content')
 <div  style="min-height: 1050px;">
@@ -122,9 +121,9 @@
                 <div class="form-group">
                 <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
                 </div>
-                <div class="form-group">
-                  <input id="filecontrole" type="file" name="emailattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />
-                    <input id="images" type="hidden" name="images[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />
+                <div class="form-group email_attachment">
+               <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
+                    
                   <span class="file-input-names"></span>
                 </div>
                 <div class="form-group end-buttons-timeline">                 
@@ -310,11 +309,12 @@
 					else
 					{
 						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
-					}			
+					}	
+							
 					if($key_acttachment==(count($attachments)-1)){
-						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a>";
+						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
 					}else{
-						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a>,";
+						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br>";
 					}
 					
 				}
@@ -391,6 +391,8 @@
 var show_popup		=  0;
 var rowData 		=  [];
 var scroll_more 	=  1;
+var file_count 		=  0;
+
     jQuery(document).ready(function ($) {
 		var per_scroll 		= 	{{$per_scroll}};
 		var per_scroll_inc  = 	per_scroll;
@@ -590,14 +592,28 @@ setTimeout(function() {
             });
 			
 		 $('#addTtachment').click(function(){
-                $('#filecontrole').click();
+			 file_count++;                
+				var html_img = '<input id="filecontrole'+file_count+'" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+				$('.email_attachment').append(html_img);
+				$('#filecontrole'+file_count).click();
+				
             });
+			
+			$(document).on("click",".del_attachment",function(ee){
+				var current_del_id  = $(this).attr('del_img_id');
+				$('#'+current_del_id).remove();
+				$('.imgspan_'+current_del_id).remove();
+				
+				
+			});
+			
 
-            $(document).on('change','#filecontrole',function(e){
+            $(document).on('change','.fileUploads',function(e){
+				var current_input_id =  $(this).attr('id');
                 var files = e.target.files;
                 var fileText = '';
                 for(i=0;i<files.length;i++){
-                    fileText+=files[i].name+'<br>';
+                    fileText+='<span class="file_upload_span imgspan_'+current_input_id+'">'+files[i].name+' <a class="del_attachment" del_img_id="'+current_input_id+'"> X </a><br></span>';
 					 if (indexOfFile(rowData, files[i].name) === -1) {
 							///////
 							
@@ -862,6 +878,11 @@ setTimeout(function() {
 					var response_json  =  JSON.parse(response);
 					ShowToastr("error",response_json.message);
 				} else {
+				//reset file upload	
+				file_count = 0;
+				$('.fileUploads').remove();
+				$('.file_upload_span').remove();
+				
 				per_scroll = count;
                 ShowToastr("success","Email Sent Successfully");                         
                 $('#timeline-ul li:eq(0)').before(response);
@@ -899,9 +920,10 @@ setTimeout(function() {
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 
 
+
 <style>
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;}
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;} 
 </style>
 @stop

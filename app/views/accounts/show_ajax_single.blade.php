@@ -36,9 +36,9 @@
 						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 					}			
 					if($key==(count($attachments)-1)){
-						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a>";
+						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
 					}else{
-						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a>,";
+						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br>";
 					}
 				}
 				echo "</p>";

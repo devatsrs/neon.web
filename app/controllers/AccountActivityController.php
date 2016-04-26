@@ -150,8 +150,6 @@ class AccountActivityController extends \BaseController {
 	
 	public function sendMailApi($AccountID)
 	{		
-		
-		
 	    $data 					= 	Input::all();
 		$data['AccountID']		=   $AccountID;
        
