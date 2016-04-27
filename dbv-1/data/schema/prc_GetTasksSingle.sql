@@ -15,6 +15,7 @@ BEGIN
 		t.Description,
 		bc.BoardColumnName as TaskStatus,
 		t.created_at,
+		t.Task_type as followup_task,
 		t.CreatedBy as created_by
 	FROM tblTask t
 	INNER JOIN tblCRMBoardColumn bc on  t.BoardColumnID = bc.BoardColumnID	
