@@ -59,6 +59,58 @@
         </div>
         @endif 
         <!--Account card end --> 
+                <div class="">
+          <button style="margin:8px 25px 0 0;" redirecto="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" type="button" class="btn btn-black btn-xs pull-right">
+						<i class="entypo-plus"></i>
+					</button>
+   <h3>Contacts</h3>
+   
+   </div>
+   <div class="clearfix"></div>
+        
+                     <!--<div class="list-contact-slide" style="height:500px; overflow-x:scroll;"> -->
+            <div class="list-contact-slide">
+            <!--contacts card start --> 
+            
+            <div class="gridview">
+              <ul class="clearfix grid col-md-12">
+              @if(isset($contacts) && count($contacts)>0)
+                @foreach($contacts as $contacts_row)
+                <li>
+                  <div class="box clearfix ">
+                    <div class="col-sm-12 headerSmall padding-left-1"> <span class="head">{{$contacts_row['NamePrefix']}} {{$contacts_row['FirstName']}} {{$contacts_row['LastName']}}</span><br>
+                      <span class="meta complete_name"> </span></div>
+                    <div class="col-sm-12 padding-0">
+                      <div class="block blockSmall">
+                        <div class="meta">Department: <a class="sendemail">{{$contacts_row['Department']}}</a></div>
+                      </div>
+                      <div class="block blockSmall">
+                        <div class="meta">Job Title: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Title']}}</a></div>
+                      </div>
+                      <div class="block blockSmall">
+                        <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
+                      </div>
+                      <div class="cellNo cellNoSmall">
+                        <div class="meta">Phone: <a href="tel:{{$Account_card[0]->Phone}}">{{$contacts_row['Phone']}}</a></div>
+                      </div>
+                      <div class="cellNo cellNoSmall">
+                        <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
+                      </div>
+                      <div class="block blockSmall">
+                        <div class="meta">Skype: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Skype']}}</a></div>
+                      </div>
+                    </div>
+                    <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}">Edit </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}">View </a> </div>
+                  </div>
+                </li>
+                @endforeach
+                @endif 
+              </ul>
+            </div>
+            
+            <!--contacts card end --> 
+            
+          </div>
         
       </div>
       <div id="text-boxes" class="timeline col-md-9 col-sm-12 col-xs-12  upper-box">
@@ -125,12 +177,14 @@
                 </div>
                 <div class="form-group email_attachment">
                <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
+               
+               <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
                     
                   <span class="file-input-names"></span>
                 </div>
                 <div class="form-group end-buttons-timeline">                 
                                  <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>                
-                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and create follow up task</button>
+                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and Create follow up task</button>
                 </div>
               </form>
             </div>
@@ -208,67 +262,16 @@
           </div>
         </div>
       </div>
-    </section>
-    <section>
-      <div class="row"> 
+      
+  <!--  </section>
+    <section>-->
+    
+     
       <!-- -->
-             <div class="col-md-3 col-sm-2 col-xs-2">
-        <div class="">
-          <button style="margin:8px 25px 0 0;" redirecto="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" type="button" class="btn btn-black btn-xs pull-right">
-						<i class="entypo-plus"></i>
-					</button>
-   <h3>Contacts</h3>
-   
-   </div>
-   <div class="clearfix"></div>
-   
-             <!--<div class="list-contact-slide" style="height:500px; overflow-x:scroll;"> -->
-            <div class="list-contact-slide">
-            <!--Account card start --> 
             
-            <div class="gridview">
-              <ul class="clearfix grid col-md-12">
-              @if(isset($contacts) && count($contacts)>0)
-                @foreach($contacts as $contacts_row)
-                <li>
-                  <div class="box clearfix ">
-                    <div class="col-sm-12 headerSmall padding-left-1"> <span class="head">{{$contacts_row['NamePrefix']}} {{$contacts_row['FirstName']}} {{$contacts_row['LastName']}}</span><br>
-                      <span class="meta complete_name"> </span></div>
-                    <div class="col-sm-12 padding-0">
-                      <div class="block blockSmall">
-                        <div class="meta">Department: <a class="sendemail">{{$contacts_row['Department']}}</a></div>
-                      </div>
-                      <div class="block blockSmall">
-                        <div class="meta">Job Title: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Title']}}</a></div>
-                      </div>
-                      <div class="block blockSmall">
-                        <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
-                      </div>
-                      <div class="cellNo cellNoSmall">
-                        <div class="meta">Phone: <a href="tel:{{$Account_card[0]->Phone}}">{{$contacts_row['Phone']}}</a></div>
-                      </div>
-                      <div class="cellNo cellNoSmall">
-                        <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
-                      </div>
-                      <div class="block blockSmall">
-                        <div class="meta">Skype: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Skype']}}</a></div>
-                      </div>
-                    </div>
-                    <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}">Edit </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}">View </a> </div>
-                  </div>
-                </li>
-                @endforeach
-                @endif 
-              </ul>
-            </div>
-            
-            <!--Account card end --> 
-            
-          </div>
-        </div>
       <!-- -->
         <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
-        <div class="timeline col-md-9 col-sm-10 col-xs-10 big-col"> 
+        <div class="timeline col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
           <ul class="cbp_tmtimeline" id="timeline-ul">
           <li></li>
           @if(count($response)>0 && $message=='')
@@ -341,7 +344,7 @@
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
               <div class="cbp_tmlabel">  
-                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span>Task</h2>
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span> @if($rows['followup_task']) follow up @endif Task</h2>
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
                   <p>Assign To: {{$rows['TaskName']}}</p>
@@ -380,7 +383,7 @@
         </div>
  
         
-      </div>
+     
     </section>
   </div>
 </div>
@@ -388,12 +391,13 @@
 @include("accounts.taskmodal") 
 
 <script type="text/javascript">
-
-
-var show_popup		=  0;
-var rowData 		=  [];
-var scroll_more 	=  1;
-var file_count 		=  0;
+var show_popup		  = 	 	0;
+var rowData 		  = 	 	[];
+var scroll_more 	  =  		1;
+var file_count 		  =  		0;
+var current_tab       =  		'';
+var allow_extensions  = 		{{$response_extensions}};
+var email_file_list	  =  		new Array();
 
     jQuery(document).ready(function ($) {
 		var per_scroll 		= 	{{$per_scroll}};
@@ -529,6 +533,9 @@ setTimeout(function() {
 
         function showDiv(divName, ctrl) {
 			
+			if(divName== current_tab)
+			{return false;}
+			
             $("#box-1").addClass("no-display");
             $("#box-2").addClass("no-display");
             $("#box-3").addClass("no-display");
@@ -560,6 +567,7 @@ setTimeout(function() {
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 			}
+			
 			if(divName=='box-1')
 			{	
 				var doc = $('#box-1');
@@ -576,7 +584,7 @@ setTimeout(function() {
 					parser: function(html) {
 						return html;
 					}
-			});
+				});
 			}
 			else
 			{
@@ -585,7 +593,7 @@ setTimeout(function() {
         		doc.find('#note-content').show();
 			
 			}
-			
+			current_tab = divName;
 			
         }
         $(document).ready(function () {
@@ -599,7 +607,6 @@ setTimeout(function() {
         });
         
         $(document).ready(function ($) {
-			//id_toggle="{{$key}}"
 			$( document ).on("click",".cbp_tmicon" ,function(e) {
 				var id_toggle = $(this).attr('id_toggle');
 				if(id_toggle)
@@ -621,52 +628,97 @@ setTimeout(function() {
 			
 		 $('#addTtachment').click(function(){
 			 file_count++;                
-				var html_img = '<input id="filecontrole'+file_count+'" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+				var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
 				$('.email_attachment').append(html_img);
 				$('#filecontrole'+file_count).click();
 				
             });
 			
 			$(document).on("click",".del_attachment",function(ee){
-				var current_del_id  = $(this).attr('del_img_id');
-				$('#'+current_del_id).remove();
-				$('.imgspan_'+current_del_id).remove();
+				var file_delete_url 	= 	baseurl + '/account/delete_actvity_attachment_file';
+			
 				
+				var del_file_name   =  $(this).attr('del_file_name');
+				$(this).parent().remove();
+				var index_file = email_file_list.indexOf(del_file_name);
+				 email_file_list.splice(index_file, 1);
+				 
+				$.ajax({
+                url: file_delete_url,
+                type: 'POST',
+                dataType: 'html',
+				data:{file:del_file_name},
+				async :false,
+                success: function(response1) {},
+			});	
 				
 			});
 			
 
             $(document).on('change','.fileUploads',function(e){
+				
 				var current_input_id =  $(this).attr('id');
-                var files = e.target.files;
-                var fileText = '';
-                for(i=0;i<files.length;i++){
-                    fileText+='<span class="file_upload_span imgspan_'+current_input_id+'">'+files[i].name+' <a class="del_attachment" del_img_id="'+current_input_id+'"> X </a><br></span>';
-					 if (indexOfFile(rowData, files[i].name) === -1) {
-							///////
-							
-							///////////
-						
-						}
+                var files 			 = e.target.files;				
+                var fileText 		 = '';
+				
+				///////
+        var filesArr = Array.prototype.slice.call(files);
+        filesArr.forEach(function(f) {          
+		var ext_current_file  = f.name.split('.').pop();
+            if(allow_extensions.indexOf(ext_current_file) > -1 )			
+			{            
+            
+            var reader = new FileReader();
+			
+ 
+            reader.onload = function (e) {
+				var base_64   = e.target.result;
+				var name_file = f.name;
+				
+				var index_file = email_file_list.indexOf(f.name);
+				if(index_file>0)
+				{
+					ShowToastr("error",f.name+" file already selected.");	
+					return;
 				}
-                $('.file-input-names').append(fileText);
-				 console.log(rowData);
+				
+				var file_upload_url 	= 	baseurl + '/account/upload_file';
+				setTimeout(
+				function() 
+ 				 {
+				$.ajax({
+                url: file_upload_url,
+                type: 'POST',
+                dataType: 'html',
+				async :false,
+				data:{name_file:name_file,file_data:base_64,file_ext:ext_current_file},
+				async :false,
+                success: function(response) {					
+					 fileText ='<span class="file_upload_span imgspan_'+current_input_id+'">'+f.name+' <a class="del_attachment" del_file_name = "'+f.name+'" del_img_id="'+current_input_id+'"> X </a><br></span>';
+					 $('.file-input-names').append(fileText);
+					email_file_list.push(f.name);
+					},
+			}) }, 1000);
+				
+                    
+           		 }
+			}
+			else
+			{
+				ShowToastr("error",ext_current_file+" file type not allowed.");
+				return;
+			}
+			
+            reader.readAsDataURL(f); 
+        });
+        
+    
+				
+
             });
 				
 				
-			function indexOfFile(data, file) {
-			var index;
-		
-			for (index = 0; index < data.length; ++index) {
-				// Note that the 0 may need to be changed if the
-				// `rowData.push([file])` line above doesn't put
-				// the filename at index 0
-				if (data[index][0] === file) {
-					return index;
-				}
-			}
-			return -1;
-		}	
+			
 			//////////////
         });
         $("#check-lead").click(function () {
@@ -758,6 +810,7 @@ setTimeout(function() {
                 ShowToastr("success","Note Successfully Created");                     
                 $('#timeline-ul li:eq(0)').before(response);
 				document.getElementById('notes-from').reset();
+				$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
 				if(show_popup==1)
 				{				
 					document.getElementById('add-task-form').reset();
@@ -869,12 +922,18 @@ setTimeout(function() {
             $('#timeline-ul li:eq(0)').before(html);
         });
 		
-		$('#save-mail').click(function(e) {  $('#images').val(JSON.stringify(rowData)); $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
-		$('#save-email-follow').click(function(e) { $('#images').val(JSON.stringify(rowData));  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		$('#save-mail').click(function(e) {  empty_images_inputs();  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
+		$('#save-email-follow').click(function(e) { empty_images_inputs();  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
 		
 		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');      show_popup = 0; });
 		$('#save-note-follow').click(function(e) {  $('.save-note-btn').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
 		
+		
+		function empty_images_inputs()
+		{
+			$('.fileUploads').val();
+			$('#emailattachment_sent').val(email_file_list);
+		}
 		
         $("#email-from").submit(function (event) {
 		    var getClass = $(".count-li");
@@ -900,17 +959,18 @@ setTimeout(function() {
                 processData: false,
                 success: function(response) {		
 			   $(".btn-send-mail").button('reset');
-			   $(".btn-send-mail").removeClass('disabled');
-			   
+			   $(".btn-send-mail").removeClass('disabled');			   
  	           if (isJson(response)) {
 					var response_json  =  JSON.parse(response);
+					
 					ShowToastr("error",response_json.message);
 				} else {
 				//reset file upload	
 				file_count = 0;
+				email_file_list = [];
 				$('.fileUploads').remove();
 				$('.file_upload_span').remove();
-				
+				 $('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
 				per_scroll = count;
                 ShowToastr("success","Email Sent Successfully");                         
                 $('#timeline-ul li:eq(0)').before(response);
@@ -953,5 +1013,6 @@ setTimeout(function() {
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
 .col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
+#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
 </style>
 @stop

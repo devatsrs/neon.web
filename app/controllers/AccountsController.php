@@ -199,10 +199,9 @@ class AccountsController extends \BaseController {
             return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
     }
 	
-	    public function show1($id) {		
+		public function show1($id) {		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
-            $account_owner 				= 	 User::find($account->Owner);
             $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
 			$verificationflag 			= 	 AccountApprovalList::isVerfiable($id);
@@ -220,11 +219,13 @@ class AccountsController extends \BaseController {
             $response 				    = 	 NeonAPI::request('account/GetTimeLine',$data,false);
 			$sql 						= 	 "call prc_GetAccounts (1,0,0,0,1,2,'','','".$account->AccountName."','',1 ,50,'AccountName','asc',0)";
 			$Account_card  				= 	 DB::select($sql);			
-			$account_owners 			= 	 User::getUserIDList(0);
+			$account_owners 			= 	 User::getUserIDList();
 			$priority 					= 	 Task::$priority;
 			$Board 						=	 CRMBoard::getTaskBoard();
 			$emailTemplates 			= 	$this->ajax_getEmailTemplate(0,1);
-	
+			
+			$response_extensions 		= 	 json_encode(NeonAPI::request('get_allowed_extensions',[],false));
+			
 			// echo Session::get("api_token"); exit;
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data->result;
@@ -235,7 +236,7 @@ class AccountsController extends \BaseController {
 			
 			$per_scroll 			=   $data['iDisplayLength'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates'));
+            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates','response_extensions'));
     }
 	
 	
@@ -803,4 +804,31 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
     }
+	
+	function upload_file()
+	{
+		$data = Input::all();
+		
+		$files_array	=	Session::get("activty_email_attachments");
+           	 $files_array[$data['name_file']] = array(
+                'mimeType'=>'',
+                'fileExtension'=>$data['file_ext'],
+                'fileName'=>$data['name_file'],
+                'file' => $data['file_data']
+            );
+			
+			Session::set("activty_email_attachments", $files_array);
+        
+	}
+	
+	function delete_upload_file()
+	{
+		$data 			= 	Input::all();
+		$files_array	=	Session::get("activty_email_attachments");
+		unset($files_array[$data['file']]);
+		Session::set("activty_email_attachments", $files_array);
+        
+	}
+	
+	
 }

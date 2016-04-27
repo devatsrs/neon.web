@@ -67,7 +67,7 @@
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
               <div class="cbp_tmlabel">  
-                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span>Task</h2>
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span>@if($rows['followup_task']) follow up @endif Task</h2>
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
                   <p>Assign To: {{$rows['TaskName']}}</p>

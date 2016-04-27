@@ -152,14 +152,28 @@ class AccountActivityController extends \BaseController {
 	{		
 	    $data 					= 	Input::all();
 		$data['AccountID']		=   $AccountID;
-       
-		if (Input::hasFile('emailattachment')) {
-            $emailattachment 	= 	Input::file('emailattachment');
-            $data['file'] 		= 	NeonAPI::base64byte($emailattachment);
-        }
+		$emailattachments		=   $data['emailattachment_sent'];		
+		$all_files 				=	Session::get("activty_email_attachments");
+		Log::info($all_files);
+		$email_files_sent		=	array();
+		if($emailattachments!='')       
+		{
+			$emailattachments_array = explode(",",$emailattachments);
+			if(is_array($emailattachments_array))
+			{
+				foreach($emailattachments_array as $emailattachments_data)
+				{
+					$email_files_sent[] = $all_files[$emailattachments_data];
+				}
+			
+			}
+		}
 		
-		
+		Log::info($email_files_sent);
+       	$data['file']		=	$email_files_sent;
+	   
 		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
+		
 		if(!isset($response->status_code)){
 				return  json_response_api($response);
 			}

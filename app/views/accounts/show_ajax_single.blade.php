@@ -65,7 +65,7 @@
             <div class="cbp_tmlabel">
               
               
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span>Task</h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span> @if($response->followup_task) follow up @endif Task</h2>
               <div id="hidden-timeline-{{$key}}"  class="details no-display">
                 <p>Subject: {{$response->Subject}}</p>
                 <p>Assign To: {{$response->Name}}</p>
