@@ -7,9 +7,10 @@
 
             <!-- List of Comments -->
             <ul class="comments-list">
-                @if(!empty($taskComments))
-                    @foreach($taskComments as $comment)
+                @if(!empty($Comments))
+                    @foreach($Comments as $comment)
                         <li class="countComments" id="comment-1">
+                            <div class="name">{{$comment['CreatedBy']}}</div>
                             <div class="comment-details">
                                 <p class="comment-text">
                                     {{nl2br($comment['CommentText'])}}

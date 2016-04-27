@@ -13,17 +13,17 @@ class OpportunityCommentsController extends \BaseController {
         $comments ='';
         if(isset($response->status_code)) {
             if ($response->status_code == 200) {
-                $comments = $response->data->result;
+                $result = $response->data->result;
             }else{
                 return json_response_api($response);
             }
         }else{
             return json_response_api($response);
         }
-        $opportunityComments=[];
+        $Comments=[];
         $commentcount = 0;
-        if(!empty($comments)) {
-            foreach ($comments as $comment) {
+        if(!empty($result)) {
+            foreach ($result as $comment) {
                 $attachments = '';
                 $attachmentPaths = json_decode($comment->AttachmentPaths);
                 if (!empty($attachmentPaths)) {
@@ -32,14 +32,16 @@ class OpportunityCommentsController extends \BaseController {
                         $attachments[] = ['filename'=>$item->filename,'filepath'=>$path];
                     }
                 }
-                $opportunityComments[] = ['CommentText' => $comment->CommentText,
-                                            'AttachmentPaths' => $attachments,
-                                            'created_at' => \Carbon\Carbon::createFromTimeStamp(strtotime($comment->created_at))->diffForHumans(),
+                $Comments[] = [
+                    'CommentText' => $comment->CommentText,
+                    'AttachmentPaths' => $attachments,
+                    'created_at' => \Carbon\Carbon::createFromTimeStamp(strtotime($comment->created_at))->diffForHumans(),
+                    'CreatedBy'=>$comment->CreatedBy
                 ];
                 $commentcount++;
             }
         }
-        return View::make('opportunitycomments.comments', compact('opportunityComments','commentcount'))->render();
+        return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
     }
 
 	/**

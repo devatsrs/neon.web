@@ -101,7 +101,6 @@
                 <div id="board-start" class="board" style="height: 600px;" >
                 </div>
 
-
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
                 <input type="hidden" name="BoardColumnID" />

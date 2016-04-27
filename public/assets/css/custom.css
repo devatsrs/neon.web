@@ -847,16 +847,6 @@ button.close {
     top:-20px;
     right:3px;
 }
-#card-features-details .comments-list > li:nth-child(odd) {
-    background: #f5f5f6;
-    margin-bottom:5px;
-
-}
-#card-features-details .comments-list > li:nth-child(even) {
-    background: #f5f5f6;
-    margin-bottom:5px;
-
-}
 #card-features-details .comments-list > li .comment-details .comment-footer {
     border:none;
     margin-top:0px;
@@ -947,7 +937,7 @@ button.close {
 }
 .count-cards .info{
     padding: 15px 0px 0px 5px;
-    min-height: 70px;
+    min-height: 90px;
 }
 .count-cards .info .title,
 .count-cards .info .name {
@@ -957,12 +947,15 @@ button.close {
     text-align:left;
     color: #303641;
 }
+.count-cards .info .name span.badge{
+    margin-top: 30px;
+}
 .count-cards .info .title{
     font-size:12px;
 }
 .count-cards .bottom{
     text-align: right;
-    margin-top:20px;
+    /*margin-top:20px;*/
 }
 .count-cards .badge{
     margin-top:3px;
@@ -1003,16 +996,23 @@ button.close {
     list-style:none;
     float:left;
     clear:left;
-    border-radius: 10px;
-    max-width: 100%;
-    border-bottom: 3px solid #D6CFCF;
-    border-right: 3px solid #D6CFCF;
-    border-top: 1px solid #D6CFCF;
-    border-left: 1px solid #D6CFCF;
+    border-bottom: 0 solid #ebebeb;
+}
+#allComments .comments-list > li .name{
+    font-weight: 600;
+    font-size: 13px;
 }
 #allComments .comments-list > li .comment-details{
     width: 100%;
     padding: 5px;
+    border-radius: 10px;
+    max-width: 100%;
+    background: #f5f5f6;
+    margin-bottom:5px;
+    border-bottom: 3px solid #D6CFCF;
+    border-right: 3px solid #D6CFCF;
+    border-top: 1px solid #D6CFCF;
+    border-left: 1px solid #D6CFCF;
 }
 #allComments .comments-list > li .comment-details .comment-text{
     margin: 0px;
@@ -1107,12 +1107,15 @@ button.close {
         position: absolute;
         top:15px;
         right:150px;
-        width:65px;
+        width:93px;
     }
 
     .change-view header .list-style-buttons {
         position: absolute;
         right: 0;
+    }
+    .change-view header .list-style-buttons a {
+       margin-left: 2px;
     }
     .padding-0{
         padding: 0px !important;
@@ -1653,21 +1656,7 @@ cursor:pointer;
 #card-features-details .modal-body div{
     padding-left: 0px;
 }
-#card-features-details .comments-list > li:nth-child(odd) {
-background: #f5f5f6;
-margin-bottom:5px;
 
-}
-#card-features-details .comments-list > li:nth-child(even) {
-background: #f5f5f6;
-margin-bottom:5px;
-
-}
-#card-features-details .comments-list > li .comment-details .comment-footer {
-border:none;
-margin-top:0px;
-margin-bottom:0px
-}
 .searchBar {
 list-style: none;
     margin: 0;

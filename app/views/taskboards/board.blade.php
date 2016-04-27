@@ -27,6 +27,7 @@
                             if($datediff>2){
                                 $date =  \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             }
+                            $date = '<i class="entypo-clock"></i>'.$date;
                             switch (TRUE) {
                                 case ($datediff<0  && $task['SetCompleted']!=1):
                                     $badgeClass = "badge badge-danger badge-roundless";
@@ -47,13 +48,14 @@
                         }
                         ?>
                             <li class="tile-stats sortable-item count-cards" data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
+                                <span class="pull-left">{{$priority}}</span>
                                 <button type="button" title="Edit Task" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
                                 <div class="info">
                                     <p class="title">{{$task['Subject']}}</p>
-                                    <p class="name"><span class="{{$badgeClass}} pull-left">{{$date}}</span><span class="pull-right">{{$priority}}</span></p>
+                                    <p class="name"><span class="{{$badgeClass}} pull-right">{{$date}}</span></p>
                                 </div>
                                 <div class="bottom pull-right">
                                     @if(count($taggedUser)>0)
@@ -76,6 +78,6 @@
 
 <script>
     @if(!empty($message))
-        toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
+        toastr.error("{{$message}}", "Error", toastr_opts);
     @endif
 </script>

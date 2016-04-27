@@ -179,7 +179,6 @@
                         $('#add-edit-opportunitybaord-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-
                             if(list_fields[i] == 'Status'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
                                     $('#add-edit-opportunitybaord-form [name="Status"]').prop('checked',true)

@@ -239,20 +239,15 @@
                 "fnDrawCallback": function() {
                     $(".dropdown").removeClass("hidden");
                     var toggle = '<header>';
-                    toggle += '   <span class="list-style-buttons">';
-
+                    toggle += '<span class="list-style-buttons">';
                     if(view==1){
-                        var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                        var desctiveurl = baseurl + '/assets/images/list-view.png';
-                        toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl+'"></a>';
-                        toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="'+desctiveurl+'"></a>';
+                        toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
+                        toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher grid active"><i class="entypo-book-open"></i></a>';
                     }else{
-                        var activeurl = baseurl + '/assets/images/list-view-active.png';
-                        var desctiveurl = baseurl + '/assets/images/grid-view.png';
-                        toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+desctiveurl+'"></a>';
-                        toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="'+activeurl+'"></a>';
+                        toggle = '<a href="javascript:void(0)" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
+                        toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher grid"><i class="entypo-book-open"></i></a>';
                     }
-                    toggle += '   </span>';
+                    toggle +='</span>';
                     toggle += '</header>';
                     $('.change-view').html(toggle);
                     var html = '<ul class="clearfix grid col-md-12">';
@@ -648,20 +643,13 @@
             }
             var activeurl;
             var desctiveurl;
-            if(self.attr('id')=='gridview'){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
+            if(self.hasClass('grid')){
                 view = 1;
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
                 view = 2;
             }
-            self.find('img').attr('src',activeurl);
             self.addClass('active');
-            var sibling = self.siblings('a');
-            sibling.find('img').attr('src',desctiveurl);
-            sibling.removeClass('active');
+            var sibling = self.siblings('a').removeClass('active');
             $('.gridview').toggleClass('hidden');
             $('#table-4').toggleClass('hidden');
         });

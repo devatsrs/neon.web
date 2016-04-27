@@ -91,8 +91,13 @@
                                 <div class="col-sm-2">
                                     {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"selectboxit"))}}
                                 </div>
+                                <label for="field-1" class="col-sm-1 control-label hidden tohidden">From</label>
                                 <div class="col-sm-2">
-                                    <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker hidden"  data-date-format="yyyy-mm-dd" value="" />
+                                    <input autocomplete="off" type="text" name="DueDateFrom" class="form-control datepicker hidden tohidden"  data-date-format="yyyy-mm-dd" value="" />
+                                </div>
+                                <label for="field-1" class="col-sm-1 control-label hidden tohidden">To</label>
+                                <div class="col-sm-2">
+                                    <input autocomplete="off" type="text" name="DueDateTo" class="form-control datepicker hidden tohidden"  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -189,12 +194,13 @@
                 "sAjaxSource": baseurl + "/task/"+BoardID+"/ajax_task_grid",
                 "fnServerParams": function (aoData) {
                     aoData.push(
-                        {"name": "taskName", "value": $searchFilter.taskName},
-                        {"name": "AccountOwner","value": $searchFilter.AccountOwner},
-                        {"name": "Priority","value": $searchFilter.Priority},
-                        {"name": "DueDateFilter","value": $searchFilter.DueDateFilter},
-                        {"name": "DueDate","value": $searchFilter.DueDate},
-                        {"name": "TaskStatus","value": $searchFilter.TaskStatus}
+                            {"name": "taskName", "value": $searchFilter.taskName},
+                            {"name": "AccountOwner","value": $searchFilter.AccountOwner},
+                            {"name": "Priority","value": $searchFilter.Priority},
+                            {"name": "DueDateFilter","value": $searchFilter.DueDateFilter},
+                            {"name": "DueDateFrom","value": $searchFilter.DueDateFrom},
+                            {"name": "DueDateTo","value": $searchFilter.DueDateTo},
+                            {"name": "TaskStatus","value": $searchFilter.TaskStatus}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -454,12 +460,10 @@
             });
 
             $('#search-task-filter [name="DueDateFilter"]').change(function(){
-                if($(this).val()==4){
-                    var datefliter = $('#search-task-filter [name="DueDate"]');
-                    datefliter.removeClass('hidden');
-                }else{
-                    var datefliter = $('#search-task-filter [name="DueDate"]');
-                    datefliter.addClass('hidden');
+                if($(this).val()==3){
+                    $('#search-task-filter .tohidden').removeClass('hidden');
+                }else{;
+                    $('#search-task-filter .tohidden').addClass('hidden');
                 }
             });
 
@@ -519,7 +523,8 @@
                 $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
                 $searchFilter.Priority = $("#search-task-filter [name='Priority']").prop("checked");
                 $searchFilter.DueDateFilter = $("#search-task-filter [name='DueDateFilter']").val();
-                $searchFilter.DueDate = $("#search-task-filter [name='DueDate']").val();
+                $searchFilter.DueDateFrom = $("#search-task-filter [name='DueDateFrom']").val();
+                $searchFilter.DueDateTo = $("#search-task-filter [name='DueDateTo']").val();
                 $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
                 console.log($searchFilter);
                 getTask();
