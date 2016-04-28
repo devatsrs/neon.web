@@ -163,14 +163,17 @@ class AccountActivityController extends \BaseController {
 			{
 				foreach($emailattachments_array as $emailattachments_data)
 				{
-					$email_files_sent[] = $all_files[$emailattachments_data];
+					
+					$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$AccountID.'/'.$emailattachments_data;
+					$email_files_sent[]		= 	$temp_path;
 				}
 			
 			}
 		}
 		
 		Log::info($email_files_sent);
-       	$data['file']		=	$email_files_sent;
+		
+       	$data['file']			=	NeonAPI::base64byte_uploaded($email_files_sent);
 	   
 		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
 		

@@ -826,7 +826,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             );
 			
 			Session::set("activty_email_attachments", $files_array);
-        
+			
+				$file_data 				= 	$data['file_data'];
+				list($type, $file_data) = 	explode(';', $file_data);
+				list(, $file_data)      = 	explode(',', $file_data);
+				$file_data 				=	base64_decode($file_data);
+				$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$data['account'];
+				
+				if(!file_exists($temp_path))
+				{
+					mkdir($temp_path,0777);
+				}
+				
+				file_put_contents($temp_path.'/'.$data['name_file'], $file_data);
 	}
 	
 	function delete_upload_file()
@@ -835,7 +847,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		$files_array	=	Session::get("activty_email_attachments");
 		unset($files_array[$data['file']]);
 		Session::set("activty_email_attachments", $files_array);
-        
+		
+		$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$data['account'].'/'.$data['file'];
+        unlink($temp_path);
 	}
 	
 	

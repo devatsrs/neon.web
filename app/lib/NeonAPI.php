@@ -118,5 +118,23 @@ class NeonAPI{
         }
         return $files_array;
     }
+
+
+    public static function base64byte_uploaded($files){
+        $files_array = [];
+        foreach ($files as $file) {
+            $filename 	= $file;
+            $f			= new Symfony\Component\HttpFoundation\File\File($file);
+            $handle    	= fopen($filename, "r");
+            $data      	= fread($handle, filesize($filename));
+            $files_array[] = array(
+                'mimeType'=>$f->getMimeType(),
+                'fileExtension'=>$file->getClientOriginalExtension(),
+                'fileName'=>$file->getClientOriginalName(),
+                'file' => base64_encode($data)
+            );
+        }
+        return $files_array;
+    }
 	
 }

@@ -397,7 +397,9 @@ var scroll_more 	  =  		1;
 var file_count 		  =  		0;
 var current_tab       =  		'';
 var allow_extensions  = 		{{$response_extensions}};
+var account_id		  =			{{$account->AccountID}};
 var email_file_list	  =  		new Array();
+
 
     jQuery(document).ready(function ($) {
 		var per_scroll 		= 	{{$per_scroll}};
@@ -647,7 +649,7 @@ setTimeout(function() {
                 url: file_delete_url,
                 type: 'POST',
                 dataType: 'html',
-				data:{file:del_file_name},
+				data:{file:del_file_name,account:account_id},
 				async :false,
                 success: function(response1) {},
 			});	
@@ -691,7 +693,7 @@ setTimeout(function() {
                 type: 'POST',
                 dataType: 'html',
 				async :false,
-				data:{name_file:name_file,file_data:base_64,file_ext:ext_current_file},
+				data:{name_file:name_file,file_data:base_64,file_ext:ext_current_file,account:account_id},
 				async :false,
                 success: function(response) {					
 					 fileText ='<span class="file_upload_span imgspan_'+current_input_id+'">'+f.name+' <a class="del_attachment" del_file_name = "'+f.name+'" del_img_id="'+current_input_id+'"> X </a><br></span>';
