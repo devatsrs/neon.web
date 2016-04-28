@@ -45,7 +45,7 @@ class OpportunityController extends \BaseController {
         }else{
             return json_response_api($response);
         }
-        return View::make('opportunitycomments.attachments', compact('attachementPaths'))->render();
+        return View::make('crmcomments.attachments', compact('attachementPaths'))->render();
     }
 
     public function saveattachment($id){
