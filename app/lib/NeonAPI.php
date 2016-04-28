@@ -129,8 +129,8 @@ class NeonAPI{
             $data      	= fread($handle, filesize($filename));
             $files_array[] = array(
                 'mimeType'=>$f->getMimeType(),
-                'fileExtension'=>$file->getClientOriginalExtension(),
-                'fileName'=>$file->getClientOriginalName(),
+                'fileExtension'=>$f->getExtension(),
+                'fileName'=>basename($filename),
                 'file' => base64_encode($data)
             );
         }
