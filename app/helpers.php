@@ -812,3 +812,34 @@ function addhttp($url) {
     }
     return $url;
 }
+function getimageicons($url){
+    $file = new SplFileInfo($url);
+    $ext  = $file->getExtension();
+    $icons = [
+        '7z'=>URL::to('/').'/assets/images/icons/7z.png',
+        'bmp'=>URL::to('/').'/assets/images/icons/bmp.png',
+        'csv'=>URL::to('/').'/assets/images/icons/csv.png',
+        'doc'=>URL::to('/').'/assets/images/icons/doc.png',
+        'docx'=>URL::to('/').'/assets/images/icons/docx.png',
+        'gif'=>URL::to('/').'/assets/images/icons/gif.png',
+        'ini'=>URL::to('/').'/assets/images/icons/ini.png',
+        'jpg'=>URL::to('/').'/assets/images/icons/jpg.png',
+        'msg'=>URL::to('/').'/assets/images/icons/msg.png',
+        'odt'=>URL::to('/').'/assets/images/icons/odt.png',
+        'pdf'=>URL::to('/').'/assets/images/icons/pdf.png',
+        'png'=>URL::to('/').'/assets/images/icons/png.png',
+        'ppt'=>URL::to('/').'/assets/images/icons/ppt.png',
+        'pptx'=>URL::to('/').'/assets/images/icons/pptx.png',
+        'rar'=>URL::to('/').'/assets/images/icons/rar.png',
+        'rtf'=>URL::to('/').'/assets/images/icons/rtf.png',
+        'txt'=>URL::to('/').'/assets/images/icons/txt.png',
+        'xls'=>URL::to('/').'/assets/images/icons/xls.png',
+        'xlsx'=>URL::to('/').'/assets/images/icons/xlsx.png',
+        'zip'=>URL::to('/').'/assets/images/icons/zip.png'
+        ];
+    if(array_key_exists($ext,$icons)){
+        return $icons[$ext];
+    }else{
+        return URL::to('/').'/assets/images/icons/file.png';
+    }
+}
