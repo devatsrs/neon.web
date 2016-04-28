@@ -288,7 +288,7 @@ setTimeout(function() {
 				var name_file = f.name;
 				
 				var index_file = email_file_list.indexOf(f.name);
-				if(index_file>0)
+				if(index_file == 0)
 				{
 					ShowToastr("error",f.name+" file already selected.");	
 					return;
