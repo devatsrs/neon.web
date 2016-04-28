@@ -998,6 +998,9 @@ button.close {
     clear:left;
     border-bottom: 0 solid #ebebeb;
 }
+#allComments .comments-list > li:nth-child(2n){
+    background: #ffffff none repeat scroll 0 0;
+}
 #allComments .comments-list > li .name{
     font-weight: 600;
     font-size: 13px;
