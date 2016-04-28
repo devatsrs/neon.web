@@ -831,7 +831,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 				list($type, $file_data) = 	explode(';', $file_data);
 				list(, $file_data)      = 	explode(',', $file_data);
 				$file_data 				=	base64_decode($file_data);
+				$temp_path_main			=	getenv('TEMP_PATH').'/email_attachment';
 				$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$data['account'];
+				
+				
+				if(!file_exists($temp_path_main))
+				{
+					mkdir($temp_path_main,0777);
+				}
 				
 				if(!file_exists($temp_path))
 				{
