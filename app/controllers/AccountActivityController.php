@@ -173,7 +173,7 @@ class AccountActivityController extends \BaseController {
 		
 		Log::info($email_files_sent);
 		
-       	$data['file']			=	NeonAPI::base64byte_uploaded($email_files_sent);
+       	$data['file']			=	NeonAPI::base64byte($email_files_sent);
 	   
 		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
 		

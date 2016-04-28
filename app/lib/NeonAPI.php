@@ -104,37 +104,34 @@ class NeonAPI{
 
     public static function base64byte($files){
         $files_array = [];
-        foreach ($files as $file) {
-            $filename = $file->getRealPath();
-            $f = new Symfony\Component\HttpFoundation\File\File($file->getRealPath());
-            $handle    = fopen($filename, "r");
-            $data      = fread($handle, filesize($filename));
-            $files_array[] = array(
-                'mimeType'=>$f->getMimeType(),
-                'fileExtension'=>$file->getClientOriginalExtension(),
-                'fileName'=>$file->getClientOriginalName(),
-                'file' => base64_encode($data)
-            );
+        foreach ($files as $file){
+				if(is_object($file)){
+				$filename = $file->getRealPath();
+				$f = new Symfony\Component\HttpFoundation\File\File($file->getRealPath());
+				$handle    = fopen($filename, "r");
+				$data      = fread($handle, filesize($filename));
+				$files_array[] = array(
+					'mimeType'=>$f->getMimeType(),
+					'fileExtension'=>$file->getClientOriginalExtension(),
+					'fileName'=>$file->getClientOriginalName(),
+					'file' => base64_encode($data)
+				);
+			}
+			else
+			{
+				$filename 	= $file;
+				$f			= new Symfony\Component\HttpFoundation\File\File($file);
+				$handle    	= fopen($filename, "r");
+				$data      	= fread($handle, filesize($filename));
+				$files_array[] = array(
+					'mimeType'=>$f->getMimeType(),
+					'fileExtension'=>$f->getExtension(),
+					'fileName'=>basename($filename),
+					'file' => base64_encode($data)
+				);			
+			}
         }
         return $files_array;
     }
 
-
-    public static function base64byte_uploaded($files){
-        $files_array = [];
-        foreach ($files as $file) {
-            $filename 	= $file;
-            $f			= new Symfony\Component\HttpFoundation\File\File($file);
-            $handle    	= fopen($filename, "r");
-            $data      	= fread($handle, filesize($filename));
-            $files_array[] = array(
-                'mimeType'=>$f->getMimeType(),
-                'fileExtension'=>$f->getExtension(),
-                'fileName'=>basename($filename),
-                'file' => base64_encode($data)
-            );
-        }
-        return $files_array;
-    }
-	
 }
