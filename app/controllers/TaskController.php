@@ -107,17 +107,39 @@ class TaskController extends \BaseController {
 		
 		if ($response->status_code == 200) {			
 			$response = $response->data->result[0];
-			$response->type = 1;
-			
+			$response->type = 1;			
 		}
 		else{
 		 return  json_response_api($response);
 		}
 		
-		$key = $data['scrol'];		
+		$key = $data['scrol'];	
 		
-		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+		if(isset($data['Task_type']) && $data['Task_type']>0)	
+		{
+			if($data['Task_type']==3) //note
+			{
+				$response_note 			= 	 NeonAPI::request('account/get_note',array('NoteID'=>$data['ParentID']),false,true);	
+				$response_data 			= 	$response_note['data']['Note'][0];
+				$response_data['type']  = 	3;
+			}
+			
+			if($data['Task_type']==2) //email
+			{
+				$response_email 		= 	NeonAPI::request('account/get_email',array('EmailID'=>$data['ParentID']),false,true);	
+				$response_data 			= 	$response_email['data']['Email'][0];
+				$response_data['type']  = 	2;
+			}
+			
+			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax_single_followup', compact('response','current_user_title','key','data','response_data')); 
+			exit; 			
+		}
+		else
+		{
+			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+		}
         //return json_response_api($response);
     }
 

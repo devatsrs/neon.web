@@ -661,9 +661,7 @@ display:none;
 .page-body .main-content #account-timeline .cbp_tmtimeline > li .cbp_tmlabel:after {
 border-right-color:#fff;
 }
-.cbp_tmlabel h2 {
-cursor:pointer;
-}
+
 .show-less {
 font-size:10px;
 cursor:pointer;
@@ -1463,9 +1461,7 @@ display:none;
 }
 
 /*Time line settings go here*/
-.page-body .main-content #account-timeline .cbp_tmtimeline > li .cbp_tmlabel:after {
-border-right-color:#fff;
-}
+
 .cbp_tmlabel h2 {
 cursor:pointer;
 }
@@ -1573,9 +1569,6 @@ background-color:#fff;
     padding-right: 70px;
 }*/
 
-#account-timeline .cbp_tmtimeline > li .cbp_tmlabel {
-    background: #fff;
-}
 #account-timeline .about-account {
 padding-left:0px;
 }
@@ -2103,7 +2096,7 @@ dialog {
 }
 
 /* The triangle */
-.cbp_tmtimeline > li .cbp_tmlabel:after {
+.cbp_tmtimeline > li .normal:after {
 	right: 100%;
 	border: solid transparent;
 	content: " ";

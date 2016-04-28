@@ -11,7 +11,7 @@
               <?php } ?>
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-  <div class="cbp_tmlabel">  
+  <div class="cbp_tmlabel normal">  
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif</h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response->Cc)<p>CC: {{$response->Cc}}</p>@endif
@@ -62,9 +62,7 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-            <div class="cbp_tmlabel">
-              
-              
+            <div class="cbp_tmlabel normal">
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span> @if($response->followup_task) follow up @endif Task</h2>
               <div id="hidden-timeline-{{$key}}"  class="details no-display">
                 <p>Subject: {{$response->Subject}}</p>
@@ -88,7 +86,7 @@
     <?php } ?>
   </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-  <div class="cbp_tmlabel">  
+  <div class="cbp_tmlabel normal">  
     <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$response->created_by}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response->Note}}</p>
