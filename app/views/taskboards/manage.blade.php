@@ -310,9 +310,21 @@
                             elem.val(val).trigger("change");
                         }else if(task[i]=='Priority'){
                             if(val==1) {
-                                $('#edit-task-form [name="Priority"]').prop('checked', true);
+                                var make = '<span class="make-switch switch-small">';
+                                make += '<input name="Priority" value="1" checked type="checkbox">';
+                                make +='</span>';
+                                var container = $('#edit-modal-task').find('.make');
+                                container.empty();
+                                container.html(make);
+                                container.find('.make-switch').bootstrapSwitch();
                             }else{
-                                $('#edit-task-form [name="Priority"]').prop('checked', false);
+                                var make = '<span class="make-switch switch-small">';
+                                make += '<input name="Priority" value="1" type="checkbox">';
+                                make +='</span>';
+                                var container = $('#edit-modal-task').find('.make');
+                                container.empty();
+                                container.html(make);
+                                container.find('.make-switch').bootstrapSwitch();
                             }
                         }
                     }
@@ -744,10 +756,10 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Priority</label>
-                                    <div class="col-sm-4">
-                                        <div class="">
-                                            <input name="Priority" type="checkbox" value="1" >
-                                        </div>
+                                    <div class="col-sm-4 make">
+                                        <span class="make-switch switch-small">
+                                            <input name="Priority" value="1" type="checkbox">
+                                        </span>
                                     </div>
                                 </div>
                             </div>
