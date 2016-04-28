@@ -807,11 +807,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 	
 	function upload_file()
 	{
-		$data = Input::all();
+		$data 				= 	Input::all();
 		
-		$files_array	=	Session::get("activty_email_attachments");
+		$files_array		=	Session::get("activty_email_attachments");
+		
+		$imgdata 			= 	base64_decode($data['file_data']);
+
+		$f 					= 	finfo_open();
+		
+		$mime_type 			= 	finfo_buffer($f, $imgdata, FILEINFO_MIME_TYPE);
+		
+		
            	 $files_array[$data['name_file']] = array(
-                'mimeType'=>'',
+                'mimeType'=>$mime_type,
                 'fileExtension'=>$data['file_ext'],
                 'fileName'=>$data['name_file'],
                 'file' => $data['file_data']

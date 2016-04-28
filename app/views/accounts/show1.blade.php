@@ -665,7 +665,7 @@ setTimeout(function() {
         var filesArr = Array.prototype.slice.call(files);
         filesArr.forEach(function(f) {          
 		var ext_current_file  = f.name.split('.').pop();
-            if(allow_extensions.indexOf(ext_current_file) > -1 )			
+            if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )			
 			{            
             
             var reader = new FileReader();
