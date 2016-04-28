@@ -96,18 +96,23 @@ class NeonAPI{
 
     public static function base64byte($files){
         $files_array = [];
-        foreach ($files as $file) {
-            $filename = $file->getRealPath();
-            $f = new Symfony\Component\HttpFoundation\File\File($file->getRealPath());
+        foreach ($files as $file){
+            if(is_object($file)){
+                $filename = $file->getRealPath();
+            } else {
+                $filename = $file;
+            }
+            $f = new Symfony\Component\HttpFoundation\File\File($filename);
             $handle    = fopen($filename, "r");
             $data      = fread($handle, filesize($filename));
             $files_array[] = array(
                 'mimeType'=>$f->getMimeType(),
-                'fileExtension'=>$file->getClientOriginalExtension(),
-                'fileName'=>$file->getClientOriginalName(),
+                'fileExtension'=>$f->getExtension(),
+                'fileName'=>$f->getFilename(),
                 'file' => base64_encode($data)
             );
         }
+        Log::info($files_array);
         return $files_array;
     }
 }

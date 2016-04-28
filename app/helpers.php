@@ -782,7 +782,7 @@ function validfilepath($path){
 
 function create_site_configration_cache(){
 
-	$domain_url 					=   addhttp($_SERVER['HTTP_HOST']);
+	$domain_url 					=   $_SERVER['HTTP_HOST'];
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
 	if($result){  //url found

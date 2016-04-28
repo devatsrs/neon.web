@@ -26,6 +26,10 @@
         resize:vertical;
     }
 
+    .file-input-names span{
+        cursor: pointer;
+    }
+
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -173,6 +177,9 @@
                             ];
             var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
+            var allow_extensions  =   '{{$response_extensions}}';
+            var email_file_list   =    new Array();
+            var file_count     =    0;
             var nicescroll_default = {cursorcolor:'#d4d4d4',
                 cursoropacitymax:0.7,
                 oneaxismousemode:false,
@@ -379,6 +386,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        $(".file-input-names").empty();
                         $("#commentadd").button('reset');
                         $('#add-task-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
@@ -456,17 +464,21 @@
             });
 
             $('#addTtachment').click(function(){
-                $('#filecontrole').click();
+                file_count++;
+                var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+                $('.email_attachment').append(html_img);
+                $('#filecontrole'+file_count).click();
+                //$('#filecontrole').click();
             });
 
-            $(document).on('change','#filecontrole',function(e){
+            /*$(document).on('change','#filecontrole',function(e){
                 var files = e.target.files;
                 var fileText = '';
                 for(i=0;i<files.length;i++){
                     fileText+=files[i].name+'<br>';
                 }
                 $('#commentadd').siblings('.file-input-name').html(fileText);
-            });
+            });*/
             $(document).on('click','.viewattachments',function(){
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
@@ -477,6 +489,89 @@
                 }else{;
                     $('#search-task-filter .tohidden').addClass('hidden');
                 }
+            });
+
+            $(document).on('change','.fileUploads',function(e){
+
+                var current_input_id =  $(this).attr('id');
+                var files     = e.target.files;
+                var fileText    = '';
+
+                ///////
+                var filesArr = Array.prototype.slice.call(files);
+                filesArr.forEach(function(f) {
+                    var ext_current_file  = f.name.split('.').pop();
+                    if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )
+                    {
+
+                        var reader = new FileReader();
+
+
+                        reader.onload = function (e) {
+                            var base_64   = e.target.result;
+                            var name_file = f.name;
+
+                            var index_file = email_file_list.indexOf(f.name);
+                            if(index_file == 0)
+                            {
+                                ShowToastr("error",f.name+" file already selected.");
+                                return;
+                            }
+
+                            var file_upload_url  =  baseurl + '/account/upload_file';
+                            setTimeout(
+                                    function()
+                                    {
+                                        $.ajax({
+                                            url: file_upload_url,
+                                            type: 'POST',
+                                            dataType: 'html',
+                                            async :false,
+                                            data:{name_file:name_file,file_data:base_64,file_ext:ext_current_file},
+                                            async :false,
+                                            success: function(response) {
+                                                fileText ='<span class="file_upload_span imgspan_'+current_input_id+'">'+f.name+' <a class="del_attachment" del_file_name = "'+f.name+'" del_img_id="'+current_input_id+'"> X </a><br></span>';
+                                                $('.file-input-names').append(fileText);
+                                                email_file_list.push(f.name);
+                                                $('.fileUploads').val();
+                                                $('#emailattachment_sent').val(email_file_list);
+                                            },
+                                        }) }, 1000);
+
+
+                        }
+                    }
+                    else
+                    {
+                        ShowToastr("error",ext_current_file+" file type not allowed.");
+                        return;
+                    }
+
+                    reader.readAsDataURL(f);
+                });
+            });
+
+            $(document).on("click",".del_attachment",function(ee){
+                var file_delete_url  =  baseurl + '/account/delete_actvity_attachment_file';
+
+
+                var del_file_name   =  $(this).attr('del_file_name');
+                $(this).parent().remove();
+                var index_file = email_file_list.indexOf(del_file_name);
+                email_file_list.splice(index_file, 1);
+
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{file:del_file_name},
+                    async :false,
+                    success: function(response1) {
+                        $('.fileUploads').val();
+                        $('#emailattachment_sent').val(email_file_list);
+                    }
+                });
+
             });
 
 
@@ -825,7 +920,10 @@
                                         Add Comment
                                     </button>
                                     <br>
-                                    <input id="filecontrole" type="file" name="commentattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                    <div class="email_attachment">
+                                        <div class="file-input-names"></div>
+                                        <input id="emailattachment_sent" type="hidden" name="commentattachment" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                    </div>
                                 </div>
                             </div>
                         </form>

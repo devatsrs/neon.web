@@ -92,7 +92,8 @@ class TaskController extends \BaseController {
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $tasktags = json_encode(Tags::getTagsArray(Tags::Task_tag));
-        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus'));
+        $response_extensions = getenv('CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS');
+        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus','response_extensions'));
     }
 	/**
 	 * Show the form for creating a new resource.

@@ -1,4 +1,4 @@
-<div class="col-md-12">
+<div class="col-md-6">
     <h4>Total Comments: {{$commentcount}}</h4>
 </div>
 <div class="col-md-12 fancyscroll" style="max-height:600px; overflow-y:auto">

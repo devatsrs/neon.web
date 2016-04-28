@@ -53,7 +53,8 @@ class OpportunityBoardController extends \BaseController {
         $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $BoardID = $id;
-        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags'));
+        $response_extensions = getenv('CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS');
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions'));
     }
 
 	/**
