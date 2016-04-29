@@ -145,7 +145,15 @@ class DashboardController extends BaseController {
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate'));
+        $isAdmin = User::is_admin();
+        $where['Status'] = 1;
+        $where['VerificationStatus'] = Account::VERIFIED;
+        $where['CompanyID']=User::get_companyID();
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+        $newAccountCount = Account::where($where)->where('created_at','>=',$original_startdate)->count();
+        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount'));
 
     }
 

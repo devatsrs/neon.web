@@ -13,6 +13,8 @@ CREATE TABLE `tblUsageSummary` (
   `TotalBilledDuration` int(11) DEFAULT NULL,
   `TotalDuration` int(11) DEFAULT NULL,
   `NoOfCalls` int(11) DEFAULT NULL,
+  `ACD` int(11) DEFAULT NULL,
+  `ASR` int(11) DEFAULT NULL,
   `FinalStatus` int(11) DEFAULT '0',
   PRIMARY KEY (`UsageSummaryID`),
   KEY `FK_tblUsageSummary_dim_date` (`date_id`),

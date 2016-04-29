@@ -77,6 +77,14 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/dashboard/ajax_get_processed_files', "DashboardController@ajax_get_processed_files");
     Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
     Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
+
+	//new Dashboards ajax
+	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
+	Route::any('/getTrunkData', "ChartDashboardController@getTrunkData");
+	Route::any('/getGatewayData', "ChartDashboardController@getGatewayData");
+	Route::any('/getPrefixData', "ChartDashboardController@getPrefixData");
+
+
 	//Trunk
 	Route::any('trunk/edit/{id}', array('as' => 'edit_trunk', 'uses' => 'TrunkController@edit'));
 	Route::any('trunks/update/{id}', array('as' => 'update_trunk', 'uses' => 'TrunkController@update'));

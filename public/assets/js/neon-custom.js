@@ -2480,6 +2480,7 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             break;
         case 401:
             toastr.error('Unauthorized', "Error", toastr_opts);
+            window.location.href = baseurl+'/login';
             break;
         case 403:
             toastr.error('Forbidden', "Error", toastr_opts);
