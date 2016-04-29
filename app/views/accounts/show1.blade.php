@@ -157,7 +157,7 @@
                   </div>
                 <div class="form-group hidden">
                   <label for="bcc">BCC:</label>
-                  {{ Form::select('bcc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"bcc","tabindex"=>"3")) }}
+                  <input type="text" name="bcc"  class="form-control tags"  id="bcc" />
                   </div>
                    
                 <div class="form-Group" style="margin-bottom: 15px;">
