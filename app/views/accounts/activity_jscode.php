@@ -583,7 +583,7 @@ $('#emai_attachments_form').submit(function(e) {
 				//reset file upload	
 				file_count = 0;
 				email_file_list = [];
-				$('.fileUploads').remove();
+				//$('.fileUploads').remove();
 				$('.file_upload_span').remove();
 				 $('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
                 ShowToastr("success","Email Sent Successfully"); 
