@@ -381,12 +381,13 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
+                            email_file_list = [];
+                            $(".file-input-names").empty();
                             toastr.success(response.message, "Success", toastr_opts);
                             $('#add-task-comments-form').trigger("reset");
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        $(".file-input-names").empty();
                         $("#commentadd").button('reset');
                         $('#add-task-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
