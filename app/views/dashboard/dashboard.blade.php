@@ -36,7 +36,7 @@
     <div class="row">
         <div class="col-md-3 col-sm-6">
             <div class="tile-stats tile-white stat-tile">
-                <h3>Total Salse 0</h3>
+                <h3>Total Sales 0</h3>
                 <p>Today's Total Sales per hour</p>
                 <span class="hourly-sales-cost"></span>
             </div>

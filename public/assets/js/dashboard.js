@@ -47,7 +47,7 @@ function loadDashboard(){
                             }
                         }
                     });
-                    $(".hourly-sales-cost").parent().find('h3').html('Total Salse '+data.TotalCost)
+                    $(".hourly-sales-cost").parent().find('h3').html('Total Sales '+data.TotalCost)
                 }else{
                     $(".hourly-sales-cost").html('<h3>NO DATA!!</h3>');
                 }
