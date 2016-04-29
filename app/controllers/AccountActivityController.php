@@ -193,6 +193,8 @@ class AccountActivityController extends \BaseController {
 				$response 		 = 	$response->data->result;
 				$response->type  = 	2;				
 				$response->LogID = 	$logID;
+				unset($files_array[$data['token_attachment']]);
+				Session::set("activty_email_attachments", $files_array); 
 			}
 			else{
 			 return  json_response_api($response);
