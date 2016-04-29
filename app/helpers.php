@@ -830,3 +830,7 @@ function addhttp($url) {
     }
     return $url;
 }
+
+function get_random_number(){
+	return md5(uniqid(rand(), true));
+}

@@ -8,6 +8,7 @@ var current_tab       =  		'';
 var allow_extensions  = 		<?php echo $response_extensions; ?>;
 var account_id		  =			<?php echo $AccountID; ?>;
 var email_file_list	  =  		new Array();
+var token			  =			'<?php echo $token ; ?>';
 
 
     jQuery(document).ready(function ($) {
@@ -240,9 +241,9 @@ setTimeout(function() {
 			
 		 $('#addTtachment').click(function(){
 			 file_count++;                
-				var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
-				$('.email_attachment').append(html_img);
-				$('#filecontrole'+file_count).click();
+				//var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+				//$('.emai_attachments_span').html(html_img);
+				$('#filecontrole1').click();
 				
             });
 			
@@ -259,73 +260,70 @@ setTimeout(function() {
                 url: file_delete_url,
                 type: 'POST',
                 dataType: 'html',
-				data:{file:del_file_name,account:account_id},
+				data:{file:del_file_name,token:token},
 				async :false,
                 success: function(response1) {},
-			});	
+				});	
 				
 			});
 			
 
-            $(document).on('change','.fileUploads',function(e){
-				
-				var current_input_id =  $(this).attr('id');
-                var files 			 = e.target.files;				
-                var fileText 		 = '';
-				
-				///////
-        var filesArr = Array.prototype.slice.call(files);
-        filesArr.forEach(function(f) {          
-		var ext_current_file  = f.name.split('.').pop();
-            if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )			
-			{            
-            
-            var reader = new FileReader();
-			
- 
-            reader.onload = function (e) {
-				var base_64   = e.target.result;
-				var name_file = f.name;
-				
-				var index_file = email_file_list.indexOf(f.name);
-				if(index_file == 0)
-				{
-					ShowToastr("error",f.name+" file already selected.");	
-					return;
-				}
-				
-				var file_upload_url 	= 	baseurl + '/account/upload_file';
-				setTimeout(
-				function() 
- 				 {
-				$.ajax({
+
+$('#emai_attachments_form').submit(function(e) {
+	e.stopImmediatePropagation();
+    e.preventDefault();		
+    var formData_attachment = 	new FormData(this);
+	var file_upload_url 	= 	baseurl + '/account/upload_file';
+	
+		$.ajax({
                 url: file_upload_url,
                 type: 'POST',
                 dataType: 'html',
 				async :false,
-				data:{name_file:name_file,file_data:base_64,file_ext:ext_current_file,account:account_id},
-				async :false,
-                success: function(response) {					
-					 fileText ='<span class="file_upload_span imgspan_'+current_input_id+'">'+f.name+' <a class="del_attachment" del_file_name = "'+f.name+'" del_img_id="'+current_input_id+'"> X </a><br></span>';
-					 $('.file-input-names').append(fileText);
-					email_file_list.push(f.name);
+				data:formData_attachment,
+				cache: false,
+				contentType: false,
+				processData: false,
+                success: function(response) {
+					$('.file-input-names').html(response);
 					},
-			}) }, 1000);
-				
-                    
-           		 }
-			}
-			else
-			{
-				ShowToastr("error",ext_current_file+" file type not allowed.");
-				return;
-			}
-			
-            reader.readAsDataURL(f); 
+			})
+});
+            $(document).on('change','#filecontrole1',function(e){
+				e.stopImmediatePropagation();
+  				e.preventDefault();		
+                var files 			 = e.target.files;				
+                var fileText 		 = new Array();
+				///////
+	        var filesArr = Array.prototype.slice.call(files);
+		
+			filesArr.forEach(function(f) {          
+				var ext_current_file  = f.name.split('.').pop();
+				if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )			
+				{            
+					var name_file = f.name;
+					var index_file = email_file_list.indexOf(f.name);
+					if(index_file >-1 )
+					{
+						ShowToastr("error",f.name+" file already selected.");							
+					}
+					else
+					{
+						email_file_list.push(f.name);
+						fileText.push(f.name);
+					}
+					
+				}
+				else
+				{
+					ShowToastr("error",ext_current_file+" file type not allowed.");
+					
+				}
         });
-        
-    
-				
+        		if(fileText.length>0)
+				{
+   					$('#emai_attachments_form').submit();	
+				}
 
             });
 				
@@ -624,5 +622,6 @@ setTimeout(function() {
             $("#show-more-" + id).removeClass('no-display');
         }
 		
+	
 		
     </script> 

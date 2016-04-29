@@ -81,6 +81,7 @@
               </span>
               <?php } ?>
             </time>
+            <div id_toggle="{{$key+1}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
          <div class="cbp_tmlabel">
               <h2 class="toggle_open" id_toggle="{{$key+1}}">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span> follow up Task</h2>
               <div id="hidden-timeline-{{$key+1}}"  class="details no-display">

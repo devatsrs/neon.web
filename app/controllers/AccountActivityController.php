@@ -154,7 +154,6 @@ class AccountActivityController extends \BaseController {
 		$data['AccountID']		=   $AccountID;
 		$emailattachments		=   $data['emailattachment_sent'];		
 		$all_files 				=	Session::get("activty_email_attachments");
-		Log::info($all_files);
 		$email_files_sent		=	array();
 		if($emailattachments!='')       
 		{
@@ -171,9 +170,11 @@ class AccountActivityController extends \BaseController {
 			}
 		}
 		
-		Log::info($email_files_sent);
-		
        	$data['file']			=	NeonAPI::base64byte($email_files_sent);
+		
+		$data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
+		
+		$data['address']		=    Auth::user()->EmailAddress;
 	   
 		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
 		

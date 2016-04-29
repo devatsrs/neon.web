@@ -153,7 +153,8 @@
                 </div>
                 <div class="form-group hidden">
                   <label for="cc">CC:</label>
-                  {{ Form::select('cc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"cc","tabindex"=>"2")) }} </div>
+                  <input type="text" name="cc"  class="form-control tags"  id="cc" />
+                  </div>
                 <div class="form-group hidden">
                   <label for="bcc">BCC:</label>
                   {{ Form::select('bcc[]', USer::getUserIDListOnly(), '', array("class"=>"select2","Multiple","id"=>"bcc","tabindex"=>"3")) }}
@@ -167,6 +168,7 @@
                 <div class="form-group">
                   <label for="subject">Subject:</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
+                  <input  hidden="" name="token_attachment" value="{{$random_token}}" />
                 </div>
                 <div class="form-group">  
                 <label for="subject">Email:</label>                            
@@ -343,7 +345,7 @@
                 <?php } ?>
               </time>
               
-              @if(!$rows['followup_task'])<div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div> @endif
+              <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
               <div class="cbp_tmlabel @if(!$rows['followup_task'])normal @endif ">  
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span> @if($rows['followup_task']) follow up @endif Task</h2>
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
@@ -391,15 +393,35 @@
 </ul>
 
 </div>
+<form id="emai_attachments_form" class="hidden" name="emai_attachments_form">
+<span class="emai_attachments_span">
+<input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple="" id="filecontrole1">
+</span>
+<input  hidden="" name="account_id" value="{{$account->AccountID}}" />
+<input  hidden="" name="token_attachment" value="{{$random_token}}" />
+
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+</form>
+
 @include('includes.submit_note_script',array("controller"=>"accounts")) 
 @include("accounts.taskmodal") 
-@include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll)) 
+@include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token)) 
+
+
 
  <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">   
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 
+<script src="<?php echo URL::to('/'); ?>/assets/js/select2/select2.js"></script>
 
+<script>
+	$(".tags").select2({
+                        tags:<?php echo $users; ?>
+
+        });
+
+</script>
 
 <style>
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
@@ -409,4 +431,5 @@ ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-heigh
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;}
 
 </style>
+
 @stop
