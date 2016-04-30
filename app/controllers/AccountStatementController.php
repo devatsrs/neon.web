@@ -47,7 +47,8 @@ class AccountStatementController extends \BaseController {
                 }else{
                     $temp = $vertual;
                 }
-                $targetArray[] = array('InvoiceNo'=>$data['InvoiceNo'],
+                $targetArray[] = array(
+                    'InvoiceNo'=>$data['InvoiceNo'],
                     'PeriodCover'=>$data['PeriodCover'],
                     'InvoiceAmount'=>$data['InvoiceAmount'],
                     'spacer'=>$data['spacer'],
@@ -71,9 +72,12 @@ class AccountStatementController extends \BaseController {
                 }else{
                     $temp = $vertual;
                 }
-                $targetArray[] = array('InvoiceNo'=>$temp['InvoiceNo'],
+                $targetArray[] = array(
+                    'InvoiceNo'=>$temp['InvoiceNo'],
                     'PeriodCover'=>$temp['PeriodCover'],
                     'InvoiceAmount'=>$temp['InvoiceAmount'],
+                    'DisputeDifference'=>$data['DisputeDifference'],
+                    'MinutesDifference'=>$data['MinutesDifference'],
                     'spacer'=>$temp['spacer'],
                     'PaymentID'=>$temp['PaymentID'],
                     'payment'=>$temp['payment'],

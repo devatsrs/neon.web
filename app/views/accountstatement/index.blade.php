@@ -76,7 +76,7 @@
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th colspan="3" style="text-align: center;">{{$CompanyName}} INVOICE</th>
+                    <th colspan="4" style="text-align: center;">{{$CompanyName}} INVOICE</th>
                     <th colspan="5"></th>
                     <th colspan="4" style="text-align: center;">INVOICE</th>
                     <th colspan="3"></th>
@@ -85,6 +85,7 @@
                     <th width="6%">INVOICE NO</th>
                     <th width="14%">PERIOD COVERED</th>
                     <th width="6%">AMOUNT</th>
+                    <th width="6%">PENDING DISPUTE</th>
                     <th width="2%"></th>
                     <th width="9%">Payment Date</th>
                     <th width="6%">PAYMENT</th>
@@ -153,9 +154,12 @@
                                 $('#table-4 > thead > tr:nth-child(2) > th:nth-child(6)').html(AccountName + " PAYMENT");
                                 $('#table-4 > tbody > tr').remove();
                                 $('#table-4 > tbody').append('<tr></tr>');
+                                var TotalDispute = 0;
                                 for (i = 0; i < data.length; i++) {
                                     var InvoiceAmount=0;
                                     var payment=0;
+                                    var DisputeDifference = 0;
+                                    var PendingDispute = '';
                                     var ballence=0;
                                     var InvoiceAmounts=0;
                                     var payments=0;
@@ -164,6 +168,7 @@
                                     var PaymentDates='';
                                     var roundplaces = data[i]['roundplaces'];
                                     var CurencySymbol = data[i]['CurencySymbol'];
+                                    console.log(data);
                                     if(data[i]['InvoiceAmount']!= null){
                                         InvoiceAmount = parseFloat(Math.round(data[i]['InvoiceAmount'] * 100) / 100).toFixed(roundplaces);
                                     }
@@ -171,6 +176,13 @@
                                         if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
                                             payment = parseFloat(Math.round(data[i]['payment'] * 100) / 100).toFixed(roundplaces);
                                         }
+                                    }
+                                    if( data[i]['DisputeDifference'] != null ){
+
+                                        DisputeDifference = parseFloat(data[i]['DisputeDifference']).toFixed(roundplaces);
+                                        PendingDispute =  DisputeDifference;
+
+                                        TotalDispute = parseFloat(TotalDispute + DisputeDifference).toFixed(roundplaces);
                                     }
                                     if(data[i]['ballence']!= null){
                                         ballence = parseFloat(Math.round(data[i]['ballence'] * 100) / 100).toFixed(roundplaces);
@@ -212,6 +224,7 @@
                                     "<td>"+data[i]['InvoiceNo']+"</td>" +
                                     "<td>"+data[i]['PeriodCover']+"</td>" +
                                     "<td>"+InvoiceAmount+"</td>" +
+                                    "<td>"+PendingDispute+"</td>" +
                                     "<td>"+data[i]['spacer']+"</td>" +
                                     "<td>"+PaymentDate+"</td>" +
                                     "<td>"+hyperlink1+"</td>" +
@@ -258,7 +271,7 @@
                                 '<td>'+ CurencySymbol+Ballance2+'</td>' +
                                 '</tr>'+
                                 '<tr><td colspan="15"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td colspan="13">'+CurencySymbol+TotalBallance+'</td></tr>';
+                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td>'+CurencySymbol+TotalBallance+'</td><td>'+CurencySymbol+TotalDispute+'</td><td colspan="14"></td></tr>';
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();
