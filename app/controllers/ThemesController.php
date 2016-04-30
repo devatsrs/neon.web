@@ -34,13 +34,13 @@ class ThemesController extends \BaseController {
             ->edit_column('Logo',function($row){
 				if($row->Logo!='')
 				{
-					$path = AmazonS3::unSignedUrl($row->Logo);
-					if (!is_numeric(strpos($path, "https://"))) {
+					$path = AmazonS3::unSignedImageUrl($row->Logo);
+					/*if (!is_numeric(strpos($path, "https://"))) {
 						$path = str_replace('/', '\\', $path);
 						if (copy($path, './uploads/' . basename($path))) {
 							$path = URL::to('/') . '/uploads/' . basename($path);
 						}
-					}
+					}*/
 				}
 				else
 				{
@@ -51,13 +51,13 @@ class ThemesController extends \BaseController {
             })->edit_column('Favicon',function($row){
 				if($row->Favicon!='')
 				{
-					$path = AmazonS3::unSignedUrl($row->Favicon);
-					if (!is_numeric(strpos($path, "https://"))) {
+					$path = AmazonS3::unSignedImageUrl($row->Favicon);
+					/*if (!is_numeric(strpos($path, "https://"))) {
 						$path = str_replace('/', '\\', $path);
 						if (copy($path, './uploads/' . basename($path))) {
 							$path = URL::to('/') . '/uploads/' . basename($path);
 						}
-					}
+					}*/
 				}
 				else
 				{
@@ -137,7 +137,7 @@ class ThemesController extends \BaseController {
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
-                'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl|url', 
+				'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl',
 				//'FooterUrl' => 'url',               
             );
 			
@@ -288,7 +288,7 @@ class ThemesController extends \BaseController {
             ///////////
 
             $rules = array(
-                'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl,'.$id.',ThemeID|url',
+				'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl,'.$id.',ThemeID',
                // 'FooterUrl' => 'url',
             );
 			
