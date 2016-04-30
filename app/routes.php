@@ -581,7 +581,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
-	
+	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
+
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
