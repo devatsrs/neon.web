@@ -7,26 +7,7 @@
             }, 60000);
             loadDashboard();
         });
-        function toggleFullScreen() {
-            if (!document.fullscreenElement &&    // alternative standard method
-                    !document.mozFullScreenElement && !document.webkitFullscreenElement) {  // current working methods
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) {
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                }
-            } else {
-                if (document.cancelFullScreen) {
-                    document.cancelFullScreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitCancelFullScreen) {
-                    document.webkitCancelFullScreen();
-                }
-            }
-        }
+
 
    </script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
@@ -35,313 +16,366 @@
     </form>
     <div class="row">
         <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-white stat-tile">
-                <h3>Total Sales 0</h3>
-                <p>Today's Total Sales per hour</p>
+            <div class="tile-stats tile-white stat-tile panel loading">
+                <h3>Sales 0</h3>
+                <p>Today Sales by hour</p>
                 <span class="hourly-sales-cost"></span>
             </div>
         </div>
 
         <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-white stat-tile">
-                <h3>Total Minutes 0</h3>
-                <p>Today's Total Minutes per hour</p>
+            <div class="tile-stats tile-white stat-tile panel loading">
+                <h3>Minutes 0</h3>
+                <p>Today Minutes by hour</p>
                 <span class="hourly-sales-minutes"></span>
             </div>
         </div>
-
-
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-white stat-tile">
-                <h3>Sales By Gateway</h3>
-                <p>Today's gateway sales</p>
-                <p class="gateway_desc"></p>
-                <span class="gateway-pie-chart pie-chart"></span>
-            </div>
-        </div>
-
-
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-white stat-tile">
-                <h3>Sales By trunk</h3>
-                <p>Today's Top 2 trunk</p>
-                <p class="trunk_desc"></p>
-                <span class="trunk-pie-chart pie-chart"></span>
-            </div>
-        </div>
     </div>
 
     <br />
 
     <div class="row">
-        <div class="col-md-9">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
+            <li ><a href="#tab2" data-toggle="tab">Prefix</a></li>
+            <li ><a href="#tab3" data-toggle="tab">Trunk</a></li>
+            <li ><a href="#tab4" data-toggle="tab">Gateway</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab1" >
+                <div class="col-md-4">
 
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Destination</div>
 
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
 
-            <div class="tile-group tile-group-2">
-                <div class="tile-left tile-white">
-                    <div class="tile-entry">
-                        <h3>Top Destination </h3>
-                        <span>Where do our calls go</span>
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Destination - Call Count. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="destination-call-count-pie-chart"></span>
+                            </div>
+                            <p class="call_count_desc"></p>
+                        </div>
                     </div>
-                    <ul class="country-list">
-                        <li><span class="badge badge-info">1</span>  Pakistan</li>
-                        <li><span class="badge badge-info">2</span>  India</li>
-                        <li><span class="badge badge-info">3</span>  Pakistan</li>
-                    </ul>
                 </div>
+                <div class="col-md-4">
 
-                <div class="tile-right">
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Destination</div>
 
-                    <div id="map-2" class="map"></div>
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
 
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Destination - Call Cost. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="destination-call-cost-pie-chart"></span>
+                            </div>
+                            <p class="call_cost_desc"></p>
+                        </div>
+                    </div>
                 </div>
+                <div class="col-md-4">
 
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Destination</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Destination - Call Minutes. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="destination-call-minutes-pie-chart"></span>
+                            </div>
+                            <p class="call_minutes_desc"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <div class="tab-pane" id="tab2" >
+                <div class="col-md-4">
 
-        </div>
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Prefix</div>
 
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
 
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Destination - Call Count. </p>
+                            <br />
 
-        <div class="col-md-3">
-            <div class="tile-stats tile-neon-blue">
-                <div class="icon"><i class="entypo-phone"></i></div>
-                <div class="num" data-start="0" data-end="1165848" data-postfix="" data-duration="1400" data-delay="0">0</div>
+                            <div class="text-center">
+                                <span class="prefix-call-count-pie-chart"></span>
+                            </div>
+                            <p class="call_count_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
 
-                <h3>Calls</h3>
-                <p>Today's Total Calls</p>
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Prefix</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Destination - Call Cost. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="prefix-call-cost-pie-chart"></span>
+                            </div>
+                            <p class="call_cost_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Prefix</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Destination - Call Minutes. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="prefix-call-minutes-pie-chart"></span>
+                            </div>
+                            <p class="call_minutes_desc"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <div class="tab-pane" id="tab3" >
+                <div class="col-md-4">
 
-            <br />
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Trunks</div>
 
-            <div class="tile-stats tile-primary">
-                <div class="icon"><i class="entypo-users"></i></div>
-                <div class="num" data-start="0" data-end="{{$newAccountCount}}" data-postfix="" data-duration="1400" data-delay="0">0</div>
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
 
-                <h3>New Accounts</h3>
-                <p>Statistics this week</p>
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Trunk - Call Count. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="trunk-call-count-pie-chart"></span>
+                            </div>
+                            <p class="call_count_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Trunks</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Trunk - Call Cost. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="trunk-call-cost-pie-chart"></span>
+                            </div>
+                            <p class="call_cost_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Trunks</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Trunk - Call Minutes. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="trunk-call-minutes-pie-chart"></span>
+                            </div>
+                            <p class="call_minutes_desc"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <div class="tab-pane" id="tab4" >
+                <div class="col-md-4">
 
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Gateways</div>
 
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Gateways - Call Count. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="gateway-call-count-pie-chart"></span>
+                            </div>
+                            <p class="call_count_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Gateways</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Gateways - Call Cost. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="gateway-call-cost-pie-chart"></span>
+                            </div>
+                            <p class="call_cost_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Gateways</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            <p>By Gateways - Call Minutes. </p>
+                            <br />
+
+                            <div class="text-center">
+                                <span class="gateway-call-minutes-pie-chart"></span>
+                            </div>
+                            <p class="call_minutes_desc"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="row">
-
-        <div class="col-md-4">
-
-            <div class="panel panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
-                <!-- panel head -->
-                <div class="panel-heading">
-                    <div class="panel-title">By Prefix – Displaying top 5 prefixes</div>
-
-                    {{--<div class="panel-options">
-                        <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>--}}
-                </div>
-
-                <!-- panel body -->
-                <div class="panel-body">
-                    <p>by prefix - call count. </p>
-                    <br />
-
-                    <div class="text-center">
-                        <span class="prefix-call-count-pie-chart"></span>
-                    </div>
-                    <p class="call_count_desc"></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-
-            <div class="panel panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
-                <!-- panel head -->
-                <div class="panel-heading">
-                    <div class="panel-title">By Prefix – Displaying top 5 prefixes</div>
-
-                    {{--<div class="panel-options">
-                        <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>--}}
-                </div>
-
-                <!-- panel body -->
-                <div class="panel-body">
-                    <p>by prefix - cost. </p>
-                    <br />
-
-                    <div class="text-center">
-                        <span class="prefix-call-cost-pie-chart"></span>
-                    </div>
-                    <p class="call_cost_desc"></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-
-            <div class="panel panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
-                <!-- panel head -->
-                <div class="panel-heading">
-                    <div class="panel-title">By Prefix – Displaying top 5 prefixes</div>
-
-                    {{--<div class="panel-options">
-                        <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>--}}
-                </div>
-
-                <!-- panel body -->
-                <div class="panel-body">
-                    <p>by prefix - cost. </p>
-                    <br />
-
-                    <div class="text-center">
-                        <span class="prefix-call-minutes-pie-chart"></span>
-                    </div>
-                    <p class="call_minutes_desc"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <br />
-
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="panel panel-primary panel-table">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        <h3>Top Grossing Customer</h3>
-                        <span>Weekly statistics from AppStore</span>
-                    </div>
-
-                    {{--<div class="panel-options">
-                        <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-1" class="bg"><i class="entypo-cog"></i></a>
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>--}}
-                </div>
-                <div class="panel-body">
-                    <table class="table table-responsive">
-                        <thead>
-                        <tr>
-                            <th>Account Name</th>
-                            <th>Download</th>
-                            <th class="text-center">Graph</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        <tr>
-                            <td>Flappy Bird</td>
-                            <td>2,215,215</td>
-                            <td class="text-center"><span class="top-apps">4,3,5,4,5,6,3,2,5,3</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>Angry Birds</td>
-                            <td>1,001,001</td>
-                            <td class="text-center"><span class="top-apps">3,2,5,4,3,6,7,5,7,9</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>Asphalt 8</td>
-                            <td>998,003</td>
-                            <td class="text-center"><span class="top-apps">1,3,4,3,5,4,3,6,9,8</span></td>
-                        </tr>
-
-
-                        <tr>
-                            <td>Viber</td>
-                            <td>512,015</td>
-                            <td class="text-center"><span class="top-apps">9,2,5,7,2,4,6,7,2,6</span></td>
-                        </tr>
-
-
-                        <tr>
-                            <td>Whatsapp</td>
-                            <td>504,135</td>
-                            <td class="text-center"><span class="top-apps">1,4,5,4,4,3,2,5,4,3</span></td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-        <div class="col-sm-4">
-            <div class="panel panel-primary panel-table">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        <h3>Top Grossing Vendor</h3>
-                        <span>Weekly statistics from AppStore</span>
-                    </div>
-
-                   {{-- <div class="panel-options">
-                        <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-1" class="bg"><i class="entypo-cog"></i></a>
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>--}}
-                </div>
-                <div class="panel-body">
-                    <table class="table table-responsive">
-                        <thead>
-                        <tr>
-                            <th>Account Name</th>
-                            <th>Sales</th>
-                            <th class="text-center">Graph</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        <tr>
-                            <td>Flappy Bird</td>
-                            <td>2,215,215</td>
-                            <td class="text-center"><span class="top-apps">4,3,5,4,5,6,3,2,5,3</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>Angry Birds</td>
-                            <td>1,001,001</td>
-                            <td class="text-center"><span class="top-apps">3,2,5,4,3,6,7,5,7,9</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>Asphalt 8</td>
-                            <td>998,003</td>
-                            <td class="text-center"><span class="top-apps">1,3,4,3,5,4,3,6,9,8</span></td>
-                        </tr>
-
-
-                        <tr>
-                            <td>Viber</td>
-                            <td>512,015</td>
-                            <td class="text-center"><span class="top-apps">9,2,5,7,2,4,6,7,2,6</span></td>
-                        </tr>
-
-
-                        <tr>
-                            <td>Whatsapp</td>
-                            <td>504,135</td>
-                            <td class="text-center"><span class="top-apps">1,4,5,4,4,3,2,5,4,3</span></td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <link rel="stylesheet" href="assets/js/jvectormap/jquery-jvectormap-1.2.2.css">
-    <script src="assets/js/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-    <script src="assets/js/jvectormap/jquery-jvectormap-europe-merc-en.js"></script>
+    <button id="toNocWall" onclick="toggleFullScreen();" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>
 @stop

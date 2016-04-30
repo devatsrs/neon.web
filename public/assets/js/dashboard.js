@@ -2,197 +2,221 @@ function loadDashboard(){
     jQuery(document).ready(function ($) {
 
         /* get hourly data for today and display in first bar chart*/
-        $.ajax({
-            type: 'GET',
-            url: baseurl+'/getHourlyData',
-            dataType: 'json',
-            data:$('#hidden_form').serialize(),
-            aysync: true,
-            success: function(data) {
-                if(data.TotalCost > 0) {
-                    $(".hourly-sales-cost").sparkline(data.TotalCostChart.split(','), {
-                        type: 'bar',
-                        barColor: '#333399',
-                        height: '55px',
-                        width: '100%',
-                        barWidth: 14,
-                        barSpacing: 1,
-                        tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Sales)',
-                        tooltipValueLookups: {
-                            names: {
-                                0: '0 Hour',
-                                1: '1 Hour',
-                                2: '2 Hour',
-                                3: '3 Hour',
-                                4: '4 Hour',
-                                5: '5 Hour',
-                                6: '6 Hour',
-                                7: '7 Hour',
-                                8: '8 Hour',
-                                9: '9 Hour',
-                                10: '10 Hour',
-                                11: '11 Hour',
-                                12: '12 Hour',
-                                13: '13 Hour',
-                                14: '14 Hour',
-                                15: '15 Hour',
-                                16: '16 Hour',
-                                17: '17 Hour',
-                                18: '18 Hour',
-                                19: '19 Hour',
-                                20: '20 Hour',
-                                21: '21 Hour',
-                                22: '22 Hour',
-                                23: '23 Hour'
-                            }
-                        }
-                    });
-                    $(".hourly-sales-cost").parent().find('h3').html('Total Sales '+data.TotalCost)
-                }else{
-                    $(".hourly-sales-cost").html('<h3>NO DATA!!</h3>');
-                }
+        getHourlyChart();
 
-                if(parseInt(data.TotalMinutes) > 0) {
-                    $(".hourly-sales-minutes").sparkline(data.TotalMinutesChart.split(','), {
-                        type: 'bar',
-                        barColor: '#3399FF',
-                        height: '55px',
-                        width: '100%',
-                        barWidth: 14,
-                        barSpacing: 1,
-                        tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Minutes)',
-                        tooltipValueLookups: {
-                            names: {
-                                0: '0 Hour',
-                                1: '1 Hour',
-                                2: '2 Hour',
-                                3: '3 Hour',
-                                4: '4 Hour',
-                                5: '5 Hour',
-                                6: '6 Hour',
-                                7: '7 Hour',
-                                8: '8 Hour',
-                                9: '9 Hour',
-                                10: '10 Hour',
-                                11: '11 Hour',
-                                12: '12 Hour',
-                                13: '13 Hour',
-                                14: '14 Hour',
-                                15: '15 Hour',
-                                16: '16 Hour',
-                                17: '17 Hour',
-                                18: '18 Hour',
-                                19: '19 Hour',
-                                20: '20 Hour',
-                                21: '21 Hour',
-                                22: '22 Hour',
-                                23: '23 Hour'
-                            }
-                        }
-                    });
-                    $(".hourly-sales-minutes").parent().find('h3').html('Total Minutes '+data.TotalMinutes)
-                }else{
-                    $(".hourly-sales-minutes").html('<h3>NO DATA!!</h3>');
-                }
-            }
-        });
-        /* get trunk data for today and display in pie chart*/
-        $.ajax({
-            type: 'GET',
-            url: baseurl+'/getTrunkData',
-            dataType: 'json',
-            data:$('#hidden_form').serialize(),
-            aysync: true,
-            success: function(data) {
-                $(".trunk-pie-chart").sparkline(data.TrunkReport.split(','), {
-                    type: 'pie',
-                    width: '115',
-                    height: '115',
-                    sliceColors: ['#3399FF', '#333399','#3366CC'],
-                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Sales({{value}})',
-                    tooltipValueLookups: {
-                        names: {
-                            0: data.FirstTrunk,
-                            1: data.SecondTrunk,
-                            2: 'Other'
-                        }
-                    }
-
-                });
-                $(".trunk-pie-chart").parent().find('.trunk_desc').html(data.TrunkHtml);
-
-            }
-        });
-        /* get gateway data for today and display in pie two chart*/
-        $.ajax({
-            type: 'GET',
-            url: baseurl+'/getGatewayData',
-            dataType: 'json',
-            data:$('#hidden_form').serialize(),
-            aysync: true,
-            success: function(data) {
-                $(".gateway-pie-chart").sparkline(data.GatewayCost.split(','), {
-                    type: 'pie',
-                    width: '115',
-                    height: '115',
-                    sliceColors: data.GatewayColors.split(','),
-                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Sales({{value}})',
-                    tooltipValueLookups: {
-                        names: data.GatewayNames.split(',')
-                    }
-
-                });
-                $(".gateway-pie-chart").parent().find('.gateway_desc').html(data.GatewayHtml);
-
-            }
-        });
+        /* get destination data for today and display in pie three chart*/
+        getReportData('destination');
 
         /* get prefix data for today and display in pie three chart*/
-        $.ajax({
-            type: 'GET',
-            url: baseurl+'/getPrefixData',
-            dataType: 'json',
-            data:$('#hidden_form').serialize(),
-            aysync: true,
-            success: function(data) {
-                $(".prefix-call-count-pie-chart").sparkline(data.PrefixCallCountVal.split(','), {
-                    type: 'pie',
-                    width: '200',
-                    height: '200',
-                    sliceColors: data.PrefixColors.split(','),
-                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Calls({{value}})',
+        getReportData('prefix');
+
+        /* get trunk data for today and display in three chart*/
+        getReportData('trunk');
+
+        /* get gateway data for today and display in three chart*/
+        getReportData('gateway');
+
+    });
+}
+function loading(table,bit){
+    var panel = jQuery(table).closest('.loading');
+    if(bit==1){
+        blockUI(panel);
+        panel.addClass('reloading');
+    }else{
+        unblockUI(panel);
+        panel.removeClass('reloading');
+    }
+}
+function getReportData(chart_type){
+    loading("."+chart_type+"-call-count-pie-chart",1);
+    loading("."+chart_type+"-call-cost-pie-chart",1);
+    loading("."+chart_type+"-call-minutes-pie-chart",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getReportData',
+        dataType: 'json',
+        data:$('#hidden_form').serialize()+'&chart_type='+chart_type,
+        aysync: true,
+        success: function(data) {
+            loading("."+chart_type+"-call-count-pie-chart",0);
+            loading("."+chart_type+"-call-cost-pie-chart",0);
+            loading("."+chart_type+"-call-minutes-pie-chart",0);
+            $("."+chart_type+"-call-count-pie-chart").sparkline(data.CallCountVal.split(','), {
+                type: 'pie',
+                width: '200',
+                height: '200',
+                sliceColors: data.ChartColors.split(','),
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Calls({{value}})',
+                tooltipValueLookups: {
+                    names: data.CallCount.split(',')
+                }
+
+            });
+            $("."+chart_type+"-call-count-pie-chart").parent().parent().find('.call_count_desc').html(data.CallCountHtml);
+            $("."+chart_type+"-call-cost-pie-chart").sparkline(data.CallCostVal.split(','), {
+                type: 'pie',
+                width: '200',
+                height: '200',
+                sliceColors: data.ChartColors.split(','),
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Sales({{value}})',
+                tooltipValueLookups: {
+                    names: data.CallCost.split(',')
+                }
+
+            });
+            $("."+chart_type+"-call-cost-pie-chart").parent().parent().find('.call_cost_desc').html(data.CallCostHtml);
+            $("."+chart_type+"-call-minutes-pie-chart").sparkline(data.CallMinutesVal.split(','), {
+                type: 'pie',
+                width: '200',
+                height: '200',
+                sliceColors: data.ChartColors.split(','),
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Minutes({{value}})',
+                tooltipValueLookups: {
+                    names: data.CallMinutes.split(',')
+                }
+
+            });
+            $("."+chart_type+"-call-minutes-pie-chart").parent().parent().find('.call_minutes_desc').html(data.CallMinutesHtml);
+
+        }
+    });
+}
+function getHourlyChart(){
+    loading('.hourly-sales-cost',1);
+    loading('.hourly-sales-minutes',1);
+
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getHourlyData',
+        dataType: 'json',
+        data:$('#hidden_form').serialize(),
+        aysync: true,
+        success: function(data) {
+            loading('.hourly-sales-cost',0);
+            loading('.hourly-sales-minutes',0);
+            if(data.TotalCost > 0) {
+                $(".hourly-sales-cost").sparkline(data.TotalCostChart.split(','), {
+                    type: 'bar',
+                    barColor: '#333399',
+                    height: '55px',
+                    width: '100%',
+                    barWidth: 14,
+                    barSpacing: 1,
+                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Sales)',
                     tooltipValueLookups: {
-                        names: data.PrefixCallCount.split(',')
+                        names: {
+                            0: '0 Hour',
+                            1: '1 Hour',
+                            2: '2 Hour',
+                            3: '3 Hour',
+                            4: '4 Hour',
+                            5: '5 Hour',
+                            6: '6 Hour',
+                            7: '7 Hour',
+                            8: '8 Hour',
+                            9: '9 Hour',
+                            10: '10 Hour',
+                            11: '11 Hour',
+                            12: '12 Hour',
+                            13: '13 Hour',
+                            14: '14 Hour',
+                            15: '15 Hour',
+                            16: '16 Hour',
+                            17: '17 Hour',
+                            18: '18 Hour',
+                            19: '19 Hour',
+                            20: '20 Hour',
+                            21: '21 Hour',
+                            22: '22 Hour',
+                            23: '23 Hour'
+                        }
                     }
-
                 });
-                $(".prefix-call-count-pie-chart").parent().parent().find('.call_count_desc').html(data.PrefixCallCountHtml);
-                $(".prefix-call-cost-pie-chart").sparkline(data.PrefixCallCostVal.split(','), {
-                    type: 'pie',
-                    width: '200',
-                    height: '200',
-                    sliceColors: data.PrefixColors.split(','),
-                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Sales({{value}})',
-                    tooltipValueLookups: {
-                        names: data.PrefixCallCost.split(',')
-                    }
-
-                });
-                $(".prefix-call-cost-pie-chart").parent().parent().find('.call_cost_desc').html(data.PrefixCallCostHtml);
-                $(".prefix-call-minutes-pie-chart").sparkline(data.PrefixCallMinutesVal.split(','), {
-                    type: 'pie',
-                    width: '200',
-                    height: '200',
-                    sliceColors: data.PrefixColors.split(','),
-                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Minutes({{value}})',
-                    tooltipValueLookups: {
-                        names: data.PrefixCallMinutes.split(',')
-                    }
-
-                });
-                $(".prefix-call-minutes-pie-chart").parent().parent().find('.call_minutes_desc').html(data.PrefixCallMinutesHtml);
-
+                $(".hourly-sales-cost").parent().find('h3').html('Sales '+data.TotalCost)
+            }else{
+                $(".hourly-sales-cost").html('<h3>NO DATA!!</h3>');
             }
-        });
+
+            if(parseInt(data.TotalMinutes) > 0) {
+                $(".hourly-sales-minutes").sparkline(data.TotalMinutesChart.split(','), {
+                    type: 'bar',
+                    barColor: '#3399FF',
+                    height: '55px',
+                    width: '100%',
+                    barWidth: 14,
+                    barSpacing: 1,
+                    tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Minutes)',
+                    tooltipValueLookups: {
+                        names: {
+                            0: '0 Hour',
+                            1: '1 Hour',
+                            2: '2 Hour',
+                            3: '3 Hour',
+                            4: '4 Hour',
+                            5: '5 Hour',
+                            6: '6 Hour',
+                            7: '7 Hour',
+                            8: '8 Hour',
+                            9: '9 Hour',
+                            10: '10 Hour',
+                            11: '11 Hour',
+                            12: '12 Hour',
+                            13: '13 Hour',
+                            14: '14 Hour',
+                            15: '15 Hour',
+                            16: '16 Hour',
+                            17: '17 Hour',
+                            18: '18 Hour',
+                            19: '19 Hour',
+                            20: '20 Hour',
+                            21: '21 Hour',
+                            22: '22 Hour',
+                            23: '23 Hour'
+                        }
+                    }
+                });
+                $(".hourly-sales-minutes").parent().find('h3').html('Minutes '+data.TotalMinutes)
+            }else{
+                $(".hourly-sales-minutes").html('<h3>NO DATA!!</h3>');
+            }
+        }
+    });
+}
+function toggleFullScreen() {
+    /*var fullscreen_ele = $("#content")[0];
+    if (!fullscreen_ele.fullscreenElement &&    // alternative standard method
+        !fullscreen_ele.mozFullScreenElement && !fullscreen_ele.webkitFullscreenElement) {  // current working methods
+        if (fullscreen_ele.requestFullscreen) {
+            fullscreen_ele.requestFullscreen();
+        } else if (fullscreen_ele.mozRequestFullScreen) {
+            fullscreen_ele.mozRequestFullScreen();
+        } else if (fullscreen_ele.webkitRequestFullscreen) {
+            fullscreen_ele.webkitRequestFullscreen();
+        }
+        $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
+    } else {
+        if (fullscreen_ele.cancelFullScreen) {
+            fullscreen_ele.cancelFullScreen();
+        } else if (fullscreen_ele.mozCancelFullScreen) {
+            fullscreen_ele.mozCancelFullScreen();
+        } else if (fullscreen_ele.webkitCancelFullScreen) {
+            fullscreen_ele.webkitCancelFullScreen();
+        }
+        $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
+    }*/
+    const target = $('.main-content')[0]; // Get DOM element from jQuery collection
+
+    $('#toNocWall').click(function(){
+        if(screenfull.isFullscreen){
+            $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
+            $('#content').removeAttrs('style');
+        }else{
+            $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
+            $('#content').attr('style','background-color:#F1F1F1');
+        }
+        if (screenfull.enabled) {
+            screenfull.toggle(target);
+        }
     });
 }

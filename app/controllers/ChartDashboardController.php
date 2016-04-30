@@ -28,144 +28,59 @@ class ChartDashboardController extends BaseController {
         $response['TotalCostChart'] = implode(',',$hourChartCost);
         return $response;
     }
-    /* trunk report */
-    public function getTrunkData(){
+    /* all tab report */
+    public function getReportData(){
         $data = Input::all();
         $companyID = User::get_companyID();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['AccountID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $query = "call prc_getTrunkReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
-        $TrunkReports = DB::connection('neon_report')->select($query);
-
-        /* get top two trunk and rest mark as other*/
-        $FirstTrunk = $SecondTrunk = $TrunkHtml = '';
-        $trunkcount = 1;
-        $otherTrunkCost = $FirstTrunkCost = $SecondTrunkCost = 0;
-        foreach((array)$TrunkReports as $TrunkReport){
-            if($TrunkReport->Trunk != 'Other' && $trunkcount <= 2 ){
-                if($trunkcount == 1){
-                    $FirstTrunk = $TrunkReport->Trunk;
-                    $FirstTrunkCost = $TrunkReport->TotalCost;
-                }
-                if($trunkcount == 2){
-                    $SecondTrunk = $TrunkReport->Trunk;
-                    $SecondTrunkCost = $TrunkReport->TotalCost;
-                }
-                $trunkcount++;
-            }else{
-                $otherTrunkCost += $TrunkReport->TotalCost;
-            }
+        if($data['chart_type'] == 'destination') {
+            $query = "call prc_getDestinationReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+        }elseif($data['chart_type'] == 'prefix') {
+            $query = "call prc_getPrefixReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+        }elseif($data['chart_type'] == 'trunk') {
+            $query = "call prc_getTrunkReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+        }elseif($data['chart_type'] == 'gateway') {
+            $query = "call prc_getGatewayReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
         }
-        if(count($TrunkReports)) {
-            $TrunkHtml = '<span style="color: #3399FF">&#9679;</span> ' . $FirstTrunk . ' - ' . $FirstTrunkCost . ' Sales <br><span style="color: #333399">&#9679;</span> ' . $SecondTrunk . ' - ' . $SecondTrunkCost . ' Sales<br><span style="color: #3366CC">&#9679;</span> Other - ' . $otherTrunkCost.' Sales';
-        }else{
-            $TrunkHtml = '<h3>NO DATA!!</h3>';
-        }
-        $TrunkReportarray[] = $FirstTrunkCost;
-        $TrunkReportarray[] = $SecondTrunkCost;
-        $TrunkReportarray[] = $otherTrunkCost;
-        $response['TrunkReport'] = implode(',',$TrunkReportarray);
-        $response['FirstTrunk'] = $FirstTrunk;
-        $response['SecondTrunk'] = $SecondTrunk;
-        $response['TrunkHtml'] = $TrunkHtml;
-        return $response;
-    }
-    /* gateway report */
-    public function getGatewayData(){
-        $data = Input::all();
-        $companyID = User::get_companyID();
-        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $data['UserID'] = empty($data['UserID'])?'0':$data['AccountID'];
-        $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $query = "call prc_getGatewayReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
-        $GatewayReports = DB::connection('neon_report')->select($query);
+        $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
 
-        /* get gateway cost*/
-        $GatewayHtml = '';
-        $gatenames = array();
-        $gatecost = array();
-        $chartColor = array('#333399','#3399FF','#3366CC','#2D89FF','#287AFF','#236BFF','#1E5BFF','#194CFF','#143DFF','#0F2DFF','#0A1EFF','#050FFF','#0000FF');
         $indexcount = 0;
-        foreach((array)$GatewayReports as $GatewayReport){
-            $gatenames[$indexcount] = CompanyGateway::getCompanyGatewayName($GatewayReport->CompanyGatewayID);
-            $gatecost[$indexcount] = $GatewayReport->TotalCost;
-            $GatewayHtml .= '<span style="color:' . $chartColor[$indexcount] . ' ">&#9679;</span> ' . $gatenames[$indexcount] . ' - ' . $gatecost[$indexcount].' Sales<br>';
+        $alldata = array();
+        $alldata['grid_type'] = 'call_count';
+        $alldata['call_count_html'] = $alldata['call_cost_html'] =  $alldata['call_minutes_html'] = '';
+        foreach((array)$TopReports['data']['CallCount'] as $CallCount){
+            $alldata['call_count'][$indexcount] = $CallCount->ChartVal;
+            $alldata['call_count_val'][$indexcount] = $CallCount->CallCount;
+            $alldata['call_count_acd'][$indexcount] = $CallCount->ACD;
             $indexcount++;
         }
-        if(empty($gatenames)){
-            $GatewayHtml = '<h3>NO DATA!!</h3>';
-        }
-        $response['GatewayNames'] = implode(',',$gatenames);
-        $response['GatewayCost'] = implode(',',$gatecost);
-        $response['GatewayColors'] = implode(',',$chartColor);
-        $response['GatewayHtml'] = $GatewayHtml;
-        return $response;
-    }
-    /* prefix report */
-    public function getPrefixData(){
-        $data = Input::all();
-        $companyID = User::get_companyID();
-        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $data['UserID'] = empty($data['UserID'])?'0':$data['AccountID'];
-        $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $query = "call prc_getTopPrefix ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
-        $TopPrefixReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('PrefixCallCount','PrefixCallCost','PrefixCallMinutes'));
+        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
 
 
-        /* get gateway cost*/
-        $GatewayHtml = '';
-        $gatenames = array();
-        $gatecost = array();
-        $chartColor = array('#333399','#3399FF','#3366CC','#2D89FF','#287AFF','#236BFF','#1E5BFF','#194CFF','#143DFF','#0F2DFF','#0A1EFF','#050FFF','#0000FF');
         $indexcount = 0;
-        $callcountprefix  =   $callcountprefixcost =  $callcostprefix = $callcostprefixcost = $callminutesprefix = $callminutesprefixcost = array();
-        $PrefixCallCountHtml = $PrefixCallcostHtml =  $PrefixCallminutesHtml = '';
-        foreach((array)$TopPrefixReports['data']['PrefixCallCount'] as $PrefixCallCount){
-            $callcountprefix[$indexcount] = $PrefixCallCount->area_prefix;
-            $callcountprefixcost[$indexcount] = $PrefixCallCount->CallCount;
-            $PrefixCallCountHtml .= '<span style="color:' . $chartColor[$indexcount] . ' ">&#9679;</span> ' . $PrefixCallCount->area_prefix . ' - ' . $PrefixCallCount->CallCount.' No Of calls<br>';
+        $alldata['grid_type'] = 'cost';
+        foreach((array)$TopReports['data']['CallCost'] as $CallCost){
+            $alldata['call_cost'][$indexcount] = $CallCost->ChartVal;
+            $alldata['call_cost_val'][$indexcount] = $CallCost->TotalCost;
+            $alldata['call_cost_acd'][$indexcount] = $CallCost->ACD;
             $indexcount++;
         }
+        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+
+
         $indexcount = 0;
-        foreach((array)$TopPrefixReports['data']['PrefixCallCost'] as $PrefixCallCost){
-            $callcostprefix[$indexcount] = $PrefixCallCost->area_prefix;
-            $callcostprefixcost[$indexcount] = $PrefixCallCost->TotalCost;
-            $PrefixCallcostHtml .= '<span style="color:' . $chartColor[$indexcount] . ' ">&#9679;</span> ' . $PrefixCallCost->area_prefix . ' - ' . $PrefixCallCost->TotalCost.' Sales<br>';
+        $alldata['grid_type'] = 'minutes';
+        foreach((array)$TopReports['data']['CallMinutes'] as $CallMinutes){
+
+            $alldata['call_minutes'][$indexcount] = $CallMinutes->ChartVal;
+            $alldata['call_minutes_val'][$indexcount] = $CallMinutes->TotalMinutes;
+            $alldata['call_minutes_acd'][$indexcount] = $CallMinutes->ACD;
             $indexcount++;
         }
-        $indexcount = 0;
-        foreach((array)$TopPrefixReports['data']['PrefixCallMinutes'] as $PrefixCallMinutes){
-            $callminutesprefix[$indexcount] = $PrefixCallMinutes->area_prefix;
-            $callminutesprefixcost[$indexcount] = $PrefixCallMinutes->TotalMinutes;
-            $PrefixCallminutesHtml .= '<span style="color:' . $chartColor[$indexcount] . ' ">&#9679;</span> ' . $PrefixCallMinutes->area_prefix . ' - ' . $PrefixCallMinutes->TotalMinutes.' Minutes <br>';
-            $indexcount++;
-        }
-        if(empty($callminutesprefix)){
-            $PrefixCallminutesHtml = '<h3>NO DATA!!</h3>';
-        }
-        if(empty($callcostprefix)){
-            $PrefixCallcostHtml = '<h3>NO DATA!!</h3>';
-        }
-        if(empty($callcountprefix)){
-            $PrefixCallCountHtml = '<h3>NO DATA!!</h3>';
-        }
-
-        $response['PrefixCallCount'] = implode(',',$callcountprefix);
-        $response['PrefixCallCountVal'] = implode(',',$callcountprefixcost);
-        $response['PrefixCallCountHtml'] =  $PrefixCallCountHtml;
-
-        $response['PrefixCallCost'] = implode(',',$callcostprefix);
-        $response['PrefixCallCostVal'] = implode(',',$callcostprefixcost);
-        $response['PrefixCallCostHtml'] = $PrefixCallcostHtml;
-
-        $response['PrefixCallMinutes'] = implode(',',$callminutesprefix);
-        $response['PrefixCallMinutesVal'] = implode(',',$callminutesprefixcost);
-        $response['PrefixCallMinutesHtml'] = $PrefixCallminutesHtml;
-
-        $response['PrefixColors'] = implode(',',$chartColor);
-
-        return $response;
+        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        return chart_reponse($alldata);
     }
 
 

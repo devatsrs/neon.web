@@ -139,7 +139,7 @@ class DashboardController extends BaseController {
        return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate'));
 
     }
-    public function moniterdashboard(){
+    public function monitor_dashboard(){
 
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");

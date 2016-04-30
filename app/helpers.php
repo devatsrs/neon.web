@@ -767,3 +767,31 @@ function addhttp($url) {
     }
     return $url;
 }
+function chart_reponse($alldata){
+
+    $chartColor = array('#333399','#3399FF','#3366CC','#2D89FF','#287AFF','#236BFF','#1E5BFF','#194CFF','#143DFF','#0F2DFF','#0A1EFF','#050FFF','#0000FF');
+    $response['CallCount'] = implode(',',$alldata['call_count']);
+    $response['CallCountVal'] = implode(',',$alldata['call_count_val']);
+    $response['CallCountHtml'] =  $alldata['call_count_html'];
+
+    $response['CallCost'] = implode(',',$alldata['call_cost']);
+    $response['CallCostVal'] = implode(',',$alldata['call_cost_val']);
+    $response['CallCostHtml'] = $alldata['call_cost_html'];
+
+    $response['CallMinutes'] = implode(',',$alldata['call_minutes']);
+    $response['CallMinutesVal'] = implode(',',$alldata['call_minutes_val']);
+    $response['CallMinutesHtml'] = $alldata['call_minutes_html'];
+
+    $response['ChartColors'] = implode(',',$chartColor);
+
+    if(empty($alldata['call_count'])) {
+        $response['CallCountHtml'] = '<h3>NO DATA!!</h3>';
+    }
+    if(empty($alldata['call_cost'])) {
+        $response['CallCostHtml'] = '<h3>NO DATA!!</h3>';
+    }
+    if(empty($alldata['call_minutes'])) {
+        $response['CallMinutesHtml'] = '<h3>NO DATA!!</h3>';
+    }
+    return $response;
+}

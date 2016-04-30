@@ -9,8 +9,14 @@ BEGIN
 		 
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,0,DATE(NOW()),CONCAT(DATE(NOW()),' 23:59:59'),p_UserID,p_isAdmin,1,'','','',0);
 	
-	/* total cost by gateway*/
-	SELECT CompanyGatewayID,ROUND(COALESCE(SUM(cost),0), v_Round_) as TotalCost FROM tmp_tblUsageDetails_ GROUP BY CompanyGatewayID;
+	/* top 10 prefix by call count */	
+	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,COUNT(*) AS CallCount, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_  GROUP BY CompanyGatewayID HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
+	
+	/* top 10 prefix by call cost */	
+	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(cost),0), v_Round_) as TotalCost, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_  GROUP BY CompanyGatewayID HAVING SUM(cost) > 0 ORDER BY TotalCost DESC LIMIT 10;
+	
+	/* top 10 gateway by call minutes */	
+	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(billed_duration),0)/ 60,0) as TotalMinutes, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_  GROUP BY CompanyGatewayID HAVING SUM(billed_duration) > 0 ORDER BY TotalMinutes DESC LIMIT 10;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

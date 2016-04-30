@@ -70,7 +70,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
-	Route::any('/moniter', "DashboardController@moniterdashboard");
+	Route::any('/monitor', "DashboardController@monitor_dashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
     Route::any('/dashboard/ajax_get_jobs', "DashboardController@ajax_get_jobs");
@@ -80,9 +80,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	//new Dashboards ajax
 	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
-	Route::any('/getTrunkData', "ChartDashboardController@getTrunkData");
-	Route::any('/getGatewayData', "ChartDashboardController@getGatewayData");
-	Route::any('/getPrefixData', "ChartDashboardController@getPrefixData");
+	Route::any('/getReportData', "ChartDashboardController@getReportData");
 
 
 	//Trunk

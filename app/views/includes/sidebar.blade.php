@@ -47,9 +47,6 @@
         @if(User::checkCategoryPermission('SalesDashboard','All'))
         <li> <a href="{{action('salesdashboard')}}"> <i class="entypo-pencil"></i> <span>Sales Dashboard</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('BillingDashboard','All'))
-        <li> <a href="{{Url::to('/billingdashboard')}}"> <i class="entypo-pencil"></i> <span>Billing Dashboard</span> </a> </li>
-        @endif
         @endif
       </ul>
     </li>
@@ -115,6 +112,9 @@
         @endif
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}"> <i class="entypo-pencil"></i> <span>Invoices</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('BillingDashboard','All'))
+            <li> <a href="{{Url::to('/billingdashboard')}}"> <i class="entypo-pencil"></i> <span>Billing Analysis</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('BillingSubscription','View'))
         <li> <a href="{{URL::to('/billing_subscription')}}"> <i class="entypo-pencil"></i> <span>Subscription</span> </a> </li>
