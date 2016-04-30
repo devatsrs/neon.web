@@ -9,10 +9,10 @@ BEGIN
 		 
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,0,DATE(NOW()),CONCAT(DATE(NOW()),' 23:59:59'),p_UserID,p_isAdmin,1,'','','',0);
 	
-	/* top 10 prefix by call count */	
+	/* top 10 gateway by call count */	
 	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,COUNT(*) AS CallCount, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_  GROUP BY CompanyGatewayID HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
 	
-	/* top 10 prefix by call cost */	
+	/* top 10 gateway by call cost */	
 	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(cost),0), v_Round_) as TotalCost, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_  GROUP BY CompanyGatewayID HAVING SUM(cost) > 0 ORDER BY TotalCost DESC LIMIT 10;
 	
 	/* top 10 gateway by call minutes */	
