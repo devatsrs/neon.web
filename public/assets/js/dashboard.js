@@ -208,13 +208,6 @@ function toggleFullScreen() {
     const target = $('.main-content')[0]; // Get DOM element from jQuery collection
 
     $('#toNocWall').click(function(){
-        if(screenfull.isFullscreen){
-            $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
-            $('#content').removeAttrs('style');
-        }else{
-            $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
-            $('#content').attr('style','background-color:#F1F1F1');
-        }
         if (screenfull.enabled) {
             screenfull.toggle(target);
         }

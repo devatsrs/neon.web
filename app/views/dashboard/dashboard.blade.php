@@ -6,6 +6,13 @@
                 loadDashboard()
             }, 60000);
             loadDashboard();
+            $(document).on(screenfull.raw.fullscreenchange, function() {
+                if(screenfull.isFullscreen){
+                    $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
+                }else{
+                    $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
+                }
+            });
         });
 
 
