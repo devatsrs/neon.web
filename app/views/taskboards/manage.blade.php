@@ -418,10 +418,10 @@
                         if(response.status =='success'){
                             toastr.success(response.message, "Success", toastr_opts);
                             $('#add-task-attachment-form').trigger("reset");
-                            $('#attachment_processing').addClass('hidden');
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        $('#attachment_processing').addClass('hidden');
                         $('#add-task-attachment-form').trigger("reset");
                         $('#addattachmentop .file-input-name').empty();
                         getTaskAttachment();
@@ -702,7 +702,7 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#attachments').html(response);
+                        $('#attachments').html(response);x
                     },
                     // Form data
                     data: [],
