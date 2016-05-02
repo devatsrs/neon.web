@@ -9,9 +9,11 @@ var allow_extensions  = 		<?php echo $response_extensions; ?>;
 var account_id		  =			<?php echo $AccountID; ?>;
 var email_file_list	  =  		new Array();
 var token			  =			'<?php echo $token ; ?>';
+var max_file_size_txt =	        '<?php echo $max_file_size; ?>';
+var max_file_size	  =	        <?php echo str_replace("M","",$max_file_size); ?>;
 
-
-    jQuery(document).ready(function ($) {
+    jQuery(document).ready(function ($) {	
+		
 		var per_scroll 		= 	<?php echo $per_scroll; ?>;
 		var per_scroll_inc  = 	per_scroll;
 		
@@ -289,30 +291,43 @@ $('#emai_attachments_form').submit(function(e) {
 					},
 			})
 });
+
+	function bytesToSize(filesize) {
+  var sizeInMB = (filesize / (1024*1024)).toFixed(2);
+  if(sizeInMB>max_file_size)
+  {return 1;}else{return 0;}  
+}
             $(document).on('change','#filecontrole1',function(e){
 				e.stopImmediatePropagation();
   				e.preventDefault();		
                 var files 			 = e.target.files;				
                 var fileText 		 = new Array();
+				var file_check		 =	1; 
+				var local_array		 =  new Array();
 				///////
 	        var filesArr = Array.prototype.slice.call(files);
 		
-			filesArr.forEach(function(f) {          
+			filesArr.forEach(function(f) {     
 				var ext_current_file  = f.name.split('.').pop();
 				if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )			
-				{            
+				{         
 					var name_file = f.name;
 					var index_file = email_file_list.indexOf(f.name);
 					if(index_file >-1 )
 					{
 						ShowToastr("error",f.name+" file already selected.");							
 					}
-					else
+					else if(bytesToSize(f.size))
 					{
-						email_file_list.push(f.name);
+						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");	
+						file_check = 0;
+						
+					}else
+					{
+						//email_file_list.push(f.name);
+						local_array.push(f.name);
 						fileText.push(f.name);
-					}
-					
+					}					
 				}
 				else
 				{
@@ -320,8 +335,8 @@ $('#emai_attachments_form').submit(function(e) {
 					
 				}
         });
-        		if(fileText.length>0)
-				{
+        		if(fileText.length>0 && file_check ==1)
+				{	 email_file_list = email_file_list.concat(local_array);
    					$('#emai_attachments_form').submit();	
 				}
 

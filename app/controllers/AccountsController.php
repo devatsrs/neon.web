@@ -240,9 +240,12 @@ class AccountsController extends \BaseController {
 			 	Session::set('error_message',$message);
 			}
 			
-			$per_scroll 			=   $data['iDisplayLength'];
-			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates','response_extensions','random_token','users'));
+			$max_file_env				=	getenv('MAX_UPLOAD_FILE_SIZE');
+			$max_file_size				=	!empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+			
+			$per_scroll 				=   $data['iDisplayLength'];
+			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates','response_extensions','random_token','users','max_file_size'));
     }
 	
 	
@@ -823,6 +826,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($emailattachment)){
             $data['file'] = NeonAPI::base64byte($emailattachment);          
         }
+		
+		
 		
 		$files_array		=	Session::get("activty_email_attachments");
 		
