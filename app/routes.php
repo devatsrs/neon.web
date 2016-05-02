@@ -137,9 +137,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
 
-    //File Upload
-    Route::any('/account/upload_file', 'AccountsController@upload_file');
-    Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
@@ -662,6 +659,10 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/task/{id}/ajax_task_grid', 'TaskController@ajax_task_grid');
     Route::any('/task/{id}/ajax_getattachments', 'TaskController@ajax_getattachments');
     Route::any('/task/{id}/updatetaggeduser', 'TaskController@updateTaggedUser');
+
+    //File Upload
+    Route::any('/task/upload_file', 'TaskController@upload_file');
+    Route::any('/task/delete_attachment_file', 'TaskController@delete_upload_file');
 
     //task boards column
 

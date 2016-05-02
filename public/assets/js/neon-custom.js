@@ -2694,5 +2694,14 @@ $(document).on('click','[redirecto]',function(){
     window.location.href=url;
 });
 
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 
 

@@ -843,3 +843,50 @@ function getimageicons($url){
         return URL::to('/').'/assets/images/icons/file.png';
     }
 }
+
+function get_random_number(){
+    return md5(uniqid(rand(), true));
+}
+
+function check_upload_file($files,$session,$allowed_extensions,$data){
+    $return_txt     = '';
+    $files_array          = Session::get($session);
+
+    if(isset($files_array[$data['token_attachment']])) {
+        $files_array[$data['token_attachment']] = array_merge($files_array[$data['token_attachment']],$files);
+    } else {
+        $files_array[$data['token_attachment']] = $files;
+    }
+
+    Session::set($session, $files_array);
+
+    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
+        if(in_array($array_file_data['fileExtension'],$allowed_extensions)) {
+            $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
+        }
+    }
+    return $return_txt;
+}
+
+function delete_file($session,$data){
+    $files_array = Session::get($session);
+    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
+        if($array_file_data['fileName'] == $data['file']) {
+            unset($files_array[$data['token_attachment']][$key]);
+        }
+    }
+    Session::set($session, $files_array);
+}
+
+function get_uploaded_files($session,$data){
+    $files='';
+    if (Session::has($session)){
+        $files_array = Session::get($session);
+        if(isset($files_array[$data['token_attachment']])) {
+            $files = $files_array[$data['token_attachment']];
+            unset($files_array[$data['token_attachment']]);
+            Session::set($session, $files_array);
+        }
+    }
+    return $files;
+}
