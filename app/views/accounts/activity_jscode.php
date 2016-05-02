@@ -287,7 +287,12 @@ $('#emai_attachments_form').submit(function(e) {
 				contentType: false,
 				processData: false,
                 success: function(response) {
-					$('.file-input-names').html(response);
+                    if (isJson(response)) {
+                        var response_json  =  JSON.parse(response);
+                        ShowToastr("error",response_json.message);
+                    } else {
+                        $('.file-input-names').html(response);
+                    }
 					},
 			})
 });
@@ -321,14 +326,12 @@ $('#emai_attachments_form').submit(function(e) {
 					{
 						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");	
 						return false;
-						file_check = 0;
 						
 					}else
 					{
 						//email_file_list.push(f.name);
 						local_array.push(f.name);
-						fileText.push(f.name);
-					}					
+					}
 				}
 				else
 				{
@@ -336,7 +339,7 @@ $('#emai_attachments_form').submit(function(e) {
 					
 				}
         });
-        		if(fileText.length>0 && file_check ==1)
+        		if(local_array.length>0)
 				{	 email_file_list = email_file_list.concat(local_array);
    					$('#emai_attachments_form').submit();	
 				}

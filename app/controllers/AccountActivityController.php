@@ -160,25 +160,12 @@ class AccountActivityController extends \BaseController {
 		$files_array	=	Session::get("activty_email_attachments");
 		
 		
-		/*if($emailattachments!='')       
-		{
-			$emailattachments_array = explode(",",$emailattachments);
-			if(is_array($emailattachments_array))
-			{
-				foreach($emailattachments_array as $emailattachments_data)
-				{
-					
-					$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$AccountID.'/'.$emailattachments_data;
-					$email_files_sent[]		= 	$temp_path;
-				}
-			
-			}
-		}*/
+
 		
        	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
 		if(isset($files_array[$data['token_attachment']]))
 		{
-			$data['file']			=	$files_array[$data['token_attachment']];
+			$data['file']		=	$files_array[$data['token_attachment']];
 		}
 		
 		$data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;

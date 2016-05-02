@@ -834,3 +834,56 @@ function addhttp($url) {
 function get_random_number(){
 	return md5(uniqid(rand(), true));
 }
+
+function delete_file($session,$data)
+{
+    $files_array	=	Session::get($session);
+
+    foreach($files_array[$data['token']] as $key=> $array_file_data)
+    {
+        if($array_file_data['fileName'] == $data['file'])
+        {
+            unset($files_array[$data['token']][$key]);
+        }
+    }
+
+    //unset($files_array[$data['token_attachment']]);
+    Session::set($session, $files_array);
+}
+
+
+function check_upload_file($files,$session,$allowed_extensions,$data)
+{
+    $data 						= 	Input::all();
+   // $data['file']				=	array();
+    $return_txt 				=	'';
+
+
+    $files_array		        =	Session::get($session);
+
+
+    if(isset($files_array[$data['token_attachment']]))
+    {
+        $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
+    }
+    else
+    {
+        $files_array[$data['token_attachment']]	=	$files;
+    }
+
+
+    Session::set($session, $files_array);
+
+    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
+    {
+
+        //$array_file_data['fileExtension']
+        if(in_array($array_file_data['fileExtension'],$allowed_extensions))
+        {
+            $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
+        }
+    }
+
+    Log::info($files_array[$data['token_attachment']]);
+    return $return_txt;
+}

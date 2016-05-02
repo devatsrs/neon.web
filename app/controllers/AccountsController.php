@@ -820,98 +820,28 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		$data['file']				=	array();
 		$emailattachment 			= 	Input::file('emailattachment');
 		$return_txt 				=	'';
-		
-		$response_extensions 		= 	 NeonAPI::request('get_allowed_extensions',[],false);
-		
-        if(!empty($emailattachment)){
-            $data['file'] = NeonAPI::base64byte($emailattachment);          
-        }
-		
-		
-		
-		$files_array		=	Session::get("activty_email_attachments");
-		
-		
-		if(isset($files_array[$data['token_attachment']]))
-		{
-			$files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$data['file']);
-		}
-		else
-		{
-			$files_array[$data['token_attachment']]	=	$data['file'];
-		}
-		
-		
-		Session::set("activty_email_attachments", $files_array);
-		
-		foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-		{
-			
-			//$array_file_data['fileExtension']
-			if(in_array($array_file_data['fileExtension'],$response_extensions))
-			{
-				$return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
-			}
-		}
-		
-		Log::info($files_array[$data['token_attachment']]);
-		echo $return_txt;
-		
-		/*$imgdata 			= 	base64_decode($data['file_data']);
 
-		$f 					= 	finfo_open();
-		
-		$mime_type 			= 	finfo_buffer($f, $imgdata, FILEINFO_MIME_TYPE);
-		
-		
-           	 $files_array[$data['name_file']] = array(
-                'mimeType'=>$mime_type,
-                'fileExtension'=>$data['file_ext'],
-                'fileName'=>$data['name_file'],
-                'file' => $data['file_data']
-            );
-		*/	
-			
-			
-			/*	$file_data 				= 	$data['file_data'];
-				list($type, $file_data) = 	explode(';', $file_data);
-				list(, $file_data)      = 	explode(',', $file_data);
-				$file_data 				=	base64_decode($file_data);
-				$temp_path_main			=	getenv('TEMP_PATH').'/email_attachment';
-				$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$data['account'];
-				
-				
-				if(!file_exists($temp_path_main))
-				{
-					mkdir($temp_path_main,0777);
-				}
-				
-				if(!file_exists($temp_path))
-				{
-					mkdir($temp_path,0777);
-				}
-				
-				file_put_contents($temp_path.'/'.$data['name_file'], $file_data);*/
+		$response_extensions 		= 	 NeonAPI::request('get_allowed_extensions',[],false);
+
+        if(!empty($emailattachment)){
+            $data['file'] = NeonAPI::base64byte($emailattachment);
+        }
+
+       try {
+           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $response_extensions, $data);
+           return $return_str;
+       }catch (Exception $ex)
+       {
+           return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+       }
+
 	}
 	
 	function delete_upload_file()
 	{
-		$data 			= 	Input::all();
-		$files_array	=	Session::get("activty_email_attachments");
-		
-		foreach($files_array[$data['token']] as $key=> $array_file_data)
-		{	
-			if($array_file_data['fileName'] == $data['file'])
-			{
-				unset($files_array[$data['token']][$key]);
-			}
-		}
-		
-		//unset($files_array[$data['token_attachment']]);
-		Session::set("activty_email_attachments", $files_array);
-		
-		//$temp_path				=	getenv('TEMP_PATH').'/email_attachment/'.$data['account'].'/'.$data['file'];
-       // unlink($temp_path);
+        $data 			= 	Input::all();
+        delete_file('activty_email_attachments',$data);
+
 	}
 	
 	
