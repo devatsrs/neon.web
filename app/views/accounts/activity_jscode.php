@@ -323,9 +323,10 @@ $('#emai_attachments_form').submit(function(e) {
 						ShowToastr("error",f.name+" file already selected.");							
 					}
 					else if(bytesToSize(f.size))
-					{
-						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");	
-						return false;
+					{						
+						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");						
+						file_check = 0;
+						 return false;
 						
 					}else
 					{
@@ -339,7 +340,7 @@ $('#emai_attachments_form').submit(function(e) {
 					
 				}
         });
-        		if(local_array.length>0)
+        		if(local_array.length>0 && file_check==1)
 				{	 email_file_list = email_file_list.concat(local_array);
    					$('#emai_attachments_form').submit();	
 				}
