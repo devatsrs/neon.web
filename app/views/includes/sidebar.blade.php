@@ -1,4 +1,4 @@
-<?php $LicenceApiResponse = Session::get('LicenceApiResponse','');  check_uri(); ?>
+<?php $LicenceApiResponse = Session::get('LicenceApiResponse','');  ?>
 <div class="sidebar-menu">
   <header class="logo-env"> 
     <!-- logo -->
