@@ -854,11 +854,7 @@ function delete_file($session,$data)
 
 function check_upload_file($files,$session,$allowed_extensions,$data)
 {
-    $data 						= 	Input::all();
    // $data['file']				=	array();
-    $return_txt 				=	'';
-
-
     $files_array		        =	Session::get($session);
 
 
@@ -887,3 +883,56 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
     Log::info($files_array[$data['token_attachment']]);
     return $return_txt;
 }
+
+	function check_uri($parent_link='')
+	{
+		$Path 			  =    Route::currentRouteAction();
+		$path_array 	  =    explode("Controller",$Path);
+		$array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
+		$array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate");
+		$array_summary    =    array("Summary");
+		$array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+		$array_template   =    array("EmailTemplate");
+		$array_dashboard  =    array("Dashboard");
+		$array_billing    =    array('Estimates','Invoices','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+		
+		if(count($path_array)>0)
+		{	//print_r($path_array[0]); exit;
+			$controller = $path_array[0];
+			if(in_array($controller,$array_billing) && $parent_link =='Billing')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_settings) && $parent_link =='Settings')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_admin) && $parent_link =='Admin')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_summary) && $parent_link =='Summary')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_rates) && $parent_link =='Rates')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_template) && $parent_link =='Template')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
+			{
+				return 'opened';
+			}	
+		}		
+	}
+	

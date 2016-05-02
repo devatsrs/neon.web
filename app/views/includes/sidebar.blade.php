@@ -1,4 +1,4 @@
-<?php $LicenceApiResponse = Session::get('LicenceApiResponse',''); ?>
+<?php $LicenceApiResponse = Session::get('LicenceApiResponse','');  check_uri(); ?>
 <div class="sidebar-menu">
   <header class="logo-env"> 
     <!-- logo -->
@@ -36,7 +36,7 @@
                     </form>
                 </li>--> 
     @if( User::checkCategoryPermission('RmDashboard','All')  || User::checkCategoryPermission('SalesDashboard','All')||User::checkCategoryPermission('BillingDashboard','All'))
-    <li class=""> <a href="#"> <i class="entypo-gauge"></i> <span>Dashboard</span> </a>
+    <li class="{{check_uri('Dashboard')}}"> <a href="#"> <i class="entypo-gauge"></i> <span>Dashboard</span> </a>
       <ul>
         @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
         @if(User::checkCategoryPermission('RmDashboard','All'))
@@ -64,7 +64,7 @@
     <li> <a href="{{URL::to('/accounts')}}"> <i class="entypo-layout"></i> <span>Accounts</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('EmailTemplate','View'))
-    <li> <a href="#"> <i class="entypo-layout"></i> <span>Template Management</span> </a>
+    <li class="{{check_uri('Template')}}"> <a href="#"> <i class="entypo-layout"></i> <span>Template Management</span> </a>
       <ul>
         <li> <a href="{{URL::to('/email_template')}}"> <i class="entypo-pencil"></i> <span>Email Templates</span> </a> </li>
       </ul>
@@ -73,7 +73,7 @@
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
     User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All'))
-    <li> <a href="#"> <i class="entypo-layout"></i> <span>Rate Management</span> </a>
+    <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="entypo-layout"></i> <span>Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateTables','View'))
         <li> <a href="{{URL::to('/rate_tables')}}"> <i class="entypo-pencil"></i> <span>Rate Tables</span> </a> </li>
@@ -94,7 +94,7 @@
     
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('SummaryReports','All'))
-    <li > <a href="#"> <i class="entypo-layout"></i> <span>Summary Reports</span> </a>
+    <li class="{{check_uri('Summary')}}" > <a href="#"> <i class="entypo-layout"></i> <span>Summary Reports</span> </a>
       <ul>
         <li> <a href="{{URL::to('/summaryreport')}}"> <i class="entypo-pencil"></i> <span>Summary reports  by prefix </span> </a> </li>
         <li> <a href="{{URL::to('/summaryreport/summrybycountry')}}"> <i class="entypo-pencil"></i> <span>Summary reports  by country </span> </a> </li>
@@ -108,7 +108,7 @@
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View') )
-    <li> <a href="#"> <i class="entypo-layout"></i> <span>Billing</span> </a>
+    <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="entypo-layout"></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/estimates')}}"> <i class="entypo-pencil"></i> <span>Estimates</span> </a> </li>
@@ -160,7 +160,7 @@
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
     User::checkCategoryPermission('Currency','View') || User::checkCategoryPermission('ExchangeRate','View') ||
     User::checkCategoryPermission('CodeDecks','View'))
-    <li> <a href="#"> <i class="entypo-layout"></i> <span>Settings</span> </a>
+    <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="entypo-layout"></i> <span>Settings</span> </a>
       <ul>
         @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') )
         <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}"> <i class="entypo-pencil"></i> <span>My Profile</span> </a> </li>
@@ -185,7 +185,7 @@
     @endif
     @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
     User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
-    <li> <a href="#"> <i class="entypo-layout"></i> <span>Admin</span> </a>
+    <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="entypo-layout"></i> <span>Admin</span> </a>
       <ul>
         @if( User::checkCategoryPermission('Users','View'))
         <li> <a href="{{Url::to('users')}}"> <i class="entypo-pencil"></i> <span>Users</span> </a> </li>
