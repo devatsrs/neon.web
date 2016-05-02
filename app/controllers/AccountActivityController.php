@@ -176,7 +176,10 @@ class AccountActivityController extends \BaseController {
 		}*/
 		
        	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
-		$data['file']			=	$files_array[$data['token_attachment']];
+		if(isset($data['token_attachment']))
+		{
+			$data['file']			=	$files_array[$data['token_attachment']];
+		}
 		
 		$data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
 		
