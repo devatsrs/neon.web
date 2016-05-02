@@ -498,6 +498,7 @@
                 var files     = e.target.files;
                 var fileText    = '';
 
+
                 ///////
                 var filesArr = Array.prototype.slice.call(files);
                 filesArr.forEach(function(f) {
@@ -536,7 +537,7 @@
                                                 email_file_list.push(f.name);
                                                 $('.fileUploads').val();
                                                 $('#emailattachment_sent').val(email_file_list);
-                                            },
+                                            }
                                         }) }, 1000);
 
 
@@ -669,17 +670,20 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#allComments').html(response);
-                        var nicescroll_defaults = {
-                            cursorcolor: '#d4d4d4',
-                            cursorborder: '1px solid #ccc',
-                            railpadding: {right: 3},
-                            cursorborderradius: 1,
-                            autohidemode: true,
-                            sensitiverail: false
-                        };
-                        $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
-
+                        if(response.status){
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }else {
+                            $('#allComments').html(response);
+                            var nicescroll_defaults = {
+                                cursorcolor: '#d4d4d4',
+                                cursorborder: '1px solid #ccc',
+                                railpadding: {right: 3},
+                                cursorborderradius: 1,
+                                autohidemode: true,
+                                sensitiverail: false
+                            };
+                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                        }
                     },
                     // Form data
                     data: [],

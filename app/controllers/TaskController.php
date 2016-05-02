@@ -30,7 +30,7 @@ class TaskController extends \BaseController {
                 $message=$response['message'];
             }
         }else{
-            $message=$response->error;
+            $message=$response['error'];
         }
         return View::make('taskboards.board', compact('columns','boardsWithTask','message'))->render();
     }
