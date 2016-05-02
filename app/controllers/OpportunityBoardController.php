@@ -54,7 +54,10 @@ class OpportunityBoardController extends \BaseController {
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $BoardID = $id;
         $response_extensions = getenv('CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS');
-        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions'));
+        $token    = get_random_number();
+        $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
+        $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size'));
     }
 
 	/**

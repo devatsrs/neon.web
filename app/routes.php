@@ -638,6 +638,10 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/ajax_getattachments', 'OpportunityController@ajax_getattachments');
     Route::any('/opportunity/{id}/updatetaggeduser', 'OpportunityController@updateTaggedUser');
 
+    //File Upload
+    Route::any('/opportunity/upload_file', 'OpportunityController@upload_file');
+    Route::any('/opportunity/delete_attachment_file', 'OpportunityController@delete_upload_file');
+
     //Opportunity Comments
 
     Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');

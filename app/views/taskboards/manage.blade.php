@@ -481,7 +481,6 @@
             });
 
             $(document).on('change','#filecontrole1',function(e){
-                alert('i am here');
                 e.stopImmediatePropagation();
                 e.preventDefault();
                 var files     = e.target.files;
@@ -544,7 +543,7 @@
                     url: file_delete_url,
                     type: 'POST',
                     dataType: 'html',
-                    data:{file:del_file_name,token:token},
+                    data:{file:del_file_name,token_attachment:token},
                     async :false,
                     success: function(response1) {}
                 });
