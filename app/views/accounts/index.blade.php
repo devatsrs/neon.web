@@ -368,9 +368,13 @@
 				{
                     html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                 }
+				var account_title = childrens.eq(2).text();
+				if(account_title.length>22){
+					account_title  = account_title.substring(0,22)+"...";	
+				}
                 html += '  <div class="box clearfix ' + select + '">';
                // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + childrens.eq(2).text() + '</span><br>';
+                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
                 html += '  <span class="meta complete_name">' + childrens.eq(3).text() + '</span></div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
