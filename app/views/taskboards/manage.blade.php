@@ -702,7 +702,7 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#attachments').html(response);x
+                        $('#attachments').html(response);
                     },
                     // Form data
                     data: [],

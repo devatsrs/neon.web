@@ -837,8 +837,8 @@ function getimageicons($url){
         'xlsx'=>URL::to('/').'/assets/images/icons/xlsx.png',
         'zip'=>URL::to('/').'/assets/images/icons/zip.png'
         ];
-    if(array_key_exists($ext,$icons)){
-        return $icons[$ext];
+    if(array_key_exists(strtolower($ext),$icons)){
+        return $icons[strtolower($ext)];
     }else{
         return URL::to('/').'/assets/images/icons/file.png';
     }
