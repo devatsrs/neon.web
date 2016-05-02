@@ -320,7 +320,7 @@ $('#emai_attachments_form').submit(function(e) {
 					else if(bytesToSize(f.size))
 					{
 						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");	
-						retrun false;
+						return false;
 						file_check = 0;
 						
 					}else
