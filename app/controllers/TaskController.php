@@ -117,7 +117,8 @@ class TaskController extends \BaseController {
 				return  json_response_api($response);				
 			}			
 			//$response = $response->data->result[0];
-			$response = json_response_api($response,true);
+			$response = json_decode(json_response_api($response,true));
+			Log::info($response);
 			$response = $response[0];
 			$response->type = 1;			
 		}
