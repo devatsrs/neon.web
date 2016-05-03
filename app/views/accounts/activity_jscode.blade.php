@@ -115,7 +115,7 @@ var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
 						if (isJson(response1)) {
 							
 					var response_json  =  JSON.parse(response1);
-					if(response_json.message=='infinity')
+					if(response_json.scroll=='end')
 					{
 						var html_end  ='<li><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
 						$("#timeline-ul").append(html_end);	
@@ -266,7 +266,7 @@ setTimeout(function() {
                 url: file_delete_url,
                 type: 'POST',
                 dataType: 'html',
-				data:{file:del_file_name,token:token},
+				data:{file:del_file_name,token_attachment:token},
 				async :false,
                 success: function(response1) {},
 				});	

@@ -165,6 +165,7 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
       
 
@@ -234,11 +235,14 @@
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
-                                <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="entypo-ticket"></i> </button>';
                                 <?php } ?>
-                                action += '&nbsp;<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
-
+                                <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                                //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php } ?>
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -307,20 +311,15 @@
 
             $(".dropdown").removeClass("hidden");
             var toggle = '<header>';
-            toggle += '   <span class="list-style-buttons">';
-
+            toggle += '<span class="list-style-buttons">';
             if(view==1){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
-                toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl+'"></a>';
-                toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="'+desctiveurl+'"></a>';
+                toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
+                toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher grid active"><i class="entypo-book-open"></i></a>';
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
-                toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+desctiveurl+'"></a>';
-                toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="'+activeurl+'"></a>';
+                toggle = '<a href="javascript:void(0)" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
+                toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher grid"><i class="entypo-book-open"></i></a>';
             }
-            toggle += '   </span>';
+            toggle +='</span>';
             toggle += '</header>';
             $('.change-view').html(toggle);
             var html = '<ul class="clearfix grid col-md-12">';
@@ -340,7 +339,7 @@
                     $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
                     $(this).addClass('label');
-                    $(this).addClass('padding-3');
+                    $(this).addClass('padding-4');
                 });
                 $(temp).find('.select2-container').remove();
                 $(temp).find('select[name="varification_status"]').remove();
@@ -737,7 +736,7 @@
             var el = $('#account_filter').find('[name="tags"]');
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$accountTags}}});
         });
 
         $("#bulk-tags").click(function() {
@@ -745,7 +744,7 @@
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
             el.val('');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$accountTags}}});
             $('#modal-BulkTags').find('[name="SelectedIDs"]').val('');
             $('.save').button('reset');
             $('#modal-BulkTags').modal('show');
@@ -758,24 +757,36 @@
             }
             var activeurl;
             var desctiveurl;
-            if(self.attr('id')=='gridview'){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
+            if(self.hasClass('grid')){
                 view = 1;
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
                 view = 2;
             }
-            self.find('img').attr('src',activeurl);
             self.addClass('active');
-            var sibling = self.siblings('a');
-            sibling.find('img').attr('src',desctiveurl);
-            sibling.removeClass('active');
+            var sibling = self.siblings('a').removeClass('active');
             $('.gridview').toggleClass('hidden');
             $('#table-4').toggleClass('hidden');
         });
 
+        $('#add-edit-modal-opportunity .reset').click(function(){
+            var colorPicker = $(this).parents('.form-group').find('[type="text"].colorpicker');
+            var color = $(this).attr('data-color');
+            setcolor(colorPicker,color);
+        });
+
+        $(document).on('mouseover','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            setrating(currentrateid);
+        });
+        $(document).on('click','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            $('#rating input[name="Rating"]').val(currentrateid);
+            setrating(currentrateid);
+        });
+        $(document).on('mouseleave','#rating',function(){
+            var defultrateid = $('#rating input[name="Rating"]').val();
+            setrating(defultrateid);
+        });
 
         $("#BulkTag-form").submit(function(e){
             e.preventDefault();
@@ -817,8 +828,12 @@
             }
         });
 
-        $(".tags").select2({
-            tags:{{$tags}}
+        $(".accountTags").select2({
+            tags:{{$accountTags}}
+        });
+
+        $('.opportunityTags').select2({
+            tags:{{$opportunityTags}}
         });
 
         function drodown_reset(){
@@ -901,6 +916,7 @@
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+@include('opportunityboards.opportunitymodal')
 @stop
 
 @section('footer_ext')

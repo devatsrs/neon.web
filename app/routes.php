@@ -128,6 +128,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/accounts/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'AccountsController@store_note'));
 	Route::any('/accounts/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'AccountsController@delete_note'));
+    Route::any('/accounts/{id}/createOpportunity', array('as' => 'opportunity_create', 'uses' => 'AccountsController@createOpportunity'));
 	Route::any('accounts/upload/{id}', 'AccountsController@upload');
 	Route::any('accounts/download_doc/{id}', 'AccountsController@download_doc');
 	Route::any('accounts/download_doc_file/{id}', 'AccountsController@download_doc_file');
@@ -149,6 +150,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
 	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
+
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
@@ -210,6 +212,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
 	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
 	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));
+    Route::any('/leads/{id}/createOpportunity', array('as' => 'opportunity_create', 'uses' => 'LeadsController@createOpportunity'));
     Route::any('/leads/{id}/ajax_template', 'LeadsController@ajax_template');
     Route::any('/leads/bulk_mail', 'LeadsController@bulk_mail');
     Route::any('/leads/bulk_tags', 'LeadsController@bulk_tags');
@@ -447,6 +450,11 @@ Route::group(array('before' => 'auth'), function () {
 
 	//payment
 	Route::any('/payments', 'PaymentsController@index');
+
+    Route::any('/payments/{id}/upload', 'PaymentsController@upload');
+    Route::any('/payments/check_upload', 'PaymentsController@check_upload');
+    Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
+    Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
     Route::any('/payments/upload', 'PaymentsController@upload');
 	Route::any('/payments/create', 'PaymentsController@create');
 	Route::any('/payments/{id}/update', 'PaymentsController@update');
@@ -612,6 +620,84 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/themes/themes_change_Status', 'ThemesController@themes_change_Status');	
 	Route::any('/themes/themes_delete_bulk', 'ThemesController@delete_bulk');	
 
+    //Opportunity boards
+
+    Route::any('/opportunityboards', 'OpportunityBoardController@index');
+    Route::any('/opportunityboards/create', 'OpportunityBoardController@create');
+    Route::any('/opportunityboards/{id}/configure', 'OpportunityBoardController@configure');
+    Route::any('/opportunityboards/{id}/manage/', 'OpportunityBoardController@manage');
+    Route::any('/opportunityboards/{id}/update', 'OpportunityBoardController@update');
+    Route::any('/opportunityboards/{id}/delete', 'OpportunityBoardController@delete');
+    Route::any('/opportunityboards/ajax_datagrid', 'OpportunityBoardController@ajax_datagrid');
+
+
+    //opportunity boards column
+
+    Route::any('/opportunityboardcolumn', 'OpportunityBoardColumnController@index');
+    Route::any('/opportunityboardcolumn/create', 'OpportunityBoardColumnController@create');
+    Route::any('/opportunityboardcolumn/{id}/update', 'OpportunityBoardColumnController@update');
+    Route::any('/opportunityboardcolumn/{id}/delete', 'OpportunityBoardColumnController@delete');
+    Route::any('/opportunityboardcolumn/{id}/ajax_datacolumn', 'OpportunityBoardColumnController@ajax_datacolumn');
+    Route::any('/opportunityboardcolumn/{id}/updateColumnOrder', 'OpportunityBoardColumnController@updateColumnOrder');
+
+    //Opportunity
+
+    Route::any('/opportunity/create', 'OpportunityController@create');
+    Route::any('/opportunity/{id}/saveattachment', 'OpportunityController@saveattachment');
+    Route::any('/opportunity/{id}/getlead', 'OpportunityController@getLead');
+    Route::any('/opportunity/{id}/getDropdownLeadAccount', 'OpportunityController@getDropdownLeadAccount');
+    Route::any('/opportunity/{id}/getopportunity', 'OpportunityController@getopportunity');
+    Route::any('/opportunity/{id}/update', 'OpportunityController@update');
+    Route::any('/opportunity/{id}/deleteattachment/{attachmentid}', 'OpportunityController@deleteAttachment');
+    Route::any('/opportunity/{id}/updateColumnOrder', 'OpportunityController@updateColumnOrder');
+    Route::any('/opportunity/{id}/ajax_opportunity', 'OpportunityController@ajax_opportunity');
+    Route::any('/opportunity/{id}/ajax_getattachments', 'OpportunityController@ajax_getattachments');
+    Route::any('/opportunity/{id}/updatetaggeduser', 'OpportunityController@updateTaggedUser');
+
+    //File Upload
+    Route::any('/opportunity/upload_file', 'OpportunityController@upload_file');
+    Route::any('/opportunity/delete_attachment_file', 'OpportunityController@delete_upload_file');
+
+    //Opportunity Comments
+
+    Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');
+    Route::any('/opportunitycomments/{id}/ajax_opportunitycomments', 'OpportunityCommentsController@ajax_opportunityComments');
+
+    //Task
+
+    Route::any('/task', 'TaskController@manage');
+    Route::any('/task/{id}/configure', 'OpportunityBoardController@configure');
+    Route::any('/task/create', 'TaskController@create');
+    Route::any('/task/{id}/saveattachment', 'TaskController@saveattachment');
+    Route::any('/task/{id}/getlead', 'TaskController@getLead');
+    Route::any('/task/{id}/getDropdownLeadAccount', 'TaskController@getDropdownLeadAccount');
+    Route::any('/task/{id}/getopportunity', 'TaskController@getopportunity');
+    Route::any('/task/{id}/update', 'TaskController@update');
+    Route::any('/task/{id}/deleteattachment/{attachmentid}', 'TaskController@deleteAttachment');
+    Route::any('/task/{id}/updateColumnOrder', 'TaskController@updateColumnOrder');
+    Route::any('/task/{id}/ajax_task_board', 'TaskController@ajax_task_board');
+    Route::any('/task/{id}/ajax_task_grid', 'TaskController@ajax_task_grid');
+    Route::any('/task/{id}/ajax_getattachments', 'TaskController@ajax_getattachments');
+    Route::any('/task/{id}/updatetaggeduser', 'TaskController@updateTaggedUser');
+
+    //File Upload
+    Route::any('/task/upload_file', 'TaskController@upload_file');
+    Route::any('/task/delete_attachment_file', 'TaskController@delete_upload_file');
+
+    //task boards column
+
+    Route::any('/taskboardcolumn', 'OpportunityBoardColumnController@index');
+    Route::any('/taskboardcolumn/create', 'OpportunityBoardColumnController@create');
+    Route::any('/taskboardcolumn/{id}/update', 'OpportunityBoardColumnController@update');
+    Route::any('/taskboardcolumn/{id}/delete', 'OpportunityBoardColumnController@delete');
+    Route::any('/taskboardcolumn/{id}/ajax_datacolumn', 'OpportunityBoardColumnController@ajax_datacolumn');
+    Route::any('/taskboardcolumn/{id}/updateColumnOrder', 'OpportunityBoardColumnController@updateColumnOrder');
+
+    //Task Comments
+
+    Route::any('/taskcomment/create', 'TaskCommentsController@create');
+    Route::any('/taskcomments/{id}/ajax_taskcomments', 'TaskCommentsController@ajax_taskComments');
+
 	//Product
 
 	Route::any('/products', 'ProductsController@index');
@@ -688,15 +774,16 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
     Route::get('/l/{id}', function($id){
-		Session::flush();
-		Auth::logout();
-		$user = User::find($id);
+        Session::flush();
+        Auth::logout();
+        $user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
+
         if(!empty($user) ){
 			create_site_configration_cache();
             Auth::login($user);
-			NeonAPI::login_by_id($id);
-			User::setUserPermission();
+            NeonAPI::login_by_id($id);
+            User::setUserPermission();
             Session::set("admin", 1 );
             return Redirect::to($redirect_to);
         }

@@ -12,42 +12,59 @@ function json_validator_response($validator){
 
 }
 
-
-function json_response_api($response){
+function json_response_api($response,$datareturn=false){
     $errors = '';
     if(is_array($response)){
         $response = (object)$response;
     }
-	
+
     if(isset($response->status_code)) {
         if ($response->status_code == 200) {
             if (isset($response->data)) {
-                return json_encode($response->data->result);
+                if($datareturn){
+                    if(is_array($response->data)){
+						$result = $response->data['result'];
+                    }
+					else{
+				   $result = $response->data->result;
+					}
+
+					if((is_object($result)))
+					{
+						$result_obj = (array)$result;	
+						
+					}
+					if((is_object($result) && empty($result_obj)) || (is_array($result) && empty($result)) )
+					{
+						return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end"));	//scroll variable for infinite sroll		
+					}
+				}
+				else{
+				 $result = $response->data->result;	
+				}
+
+                return json_encode($result);
             } else {
                 return Response::json(array("status" => "success", "message" => $response->message));
             }
-        } elseif ($response->status_code == 432) {	
-				//print_r($response->message); exit;
+        } elseif ($response->status_code == 432) {
             $validator = json_decode($response->message, true);
-			
             if (count($validator) > 0) {
                 foreach ($validator as $index => $error) {
                     $errors .= $error[0] . "<br>";
                 }
             }
         }
-    }else{	
-		if(isset($response->message)){
-			$errors = $response->message;
-		}
-		else{				
-				$errors  = "infinity";
-			}
-        
+
+    }else{
+        if(isset($response->error)){
+            $errors = $response->error;
+        }else{
+            $errors = 'Api not responded';//$response->message;
+        }
     }
     return  Response::json(array("status" => "failed", "message" => $errors));
 }
-
 
 function validator_response($validator){
 
@@ -752,6 +769,7 @@ function getDashBoardController($key){
 }
 
 function formatSmallDate($date,$dateformat='d-m-y') {
+
     if(ctype_digit($date) && strlen($date)==5){
         $UNIX_DATE = ($date - 25569) * 86400;
         $datetime = gmdate("Y-m-d", $UNIX_DATE);
@@ -806,11 +824,21 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     }
     return $datetime;
 }
+
 function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
 }
 
+
+function getUploadedFileRealPath($files)
+{
+    $realPaths = [];
+    foreach ($files as $file) {
+        $realPaths[] = '@' . $file->getRealPath() . ';filename=' . $file->getClientOriginalName();
+    }
+    return $realPaths;
+}
 
 function validfilepath($path){
     $path = AmazonS3::unSignedImageUrl($path);
@@ -823,28 +851,29 @@ function validfilepath($path){
     return $path;
 }
 
-function create_site_configration_cache(){	
+
+function create_site_configration_cache(){
 	$domain_url 					=   $_SERVER['HTTP_HOST'];
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
-	if($result){  //url found	
+	if($result){  //url found
 		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
 		$cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
-		$cache['Title']				=	$result[0]->Title;		
+		$cache['Title']				=	$result[0]->Title;
 		$cache['FooterText']		=	$result[0]->FooterText;
 		$cache['FooterUrl']			=	$result[0]->FooterUrl;
 		$cache['LoginMessage']		=	$result[0]->LoginMessage;
-		$cache['CustomCss']			=	$result[0]->CustomCss;			
-	}else{		
+		$cache['CustomCss']			=	$result[0]->CustomCss;
+	}else{
 		$cache['FavIcon'] 			=	URL::to('/').'/assets/images/favicon.ico';
 		$cache['Logo'] 	  			=	URL::to('/').'/assets/images/logo@2x.png';
-		$cache['Title']				=	'Neon';		
+		$cache['Title']				=	'Neon';
 		$cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
 		$cache['FooterUrl']			=	'http://www.code-desk.com';
 		$cache['LoginMessage']		=	'Dear user, log in to access RM!';
 		$cache['CustomCss']			=	'';
 	}
-	
+
 	Session::put('user_site_configrations', $cache);
 }
 
@@ -856,6 +885,7 @@ function addhttp($url) {
     return $url;
 }
 
+
 function get_random_number(){
 	return md5(uniqid(rand(), true));
 }
@@ -864,11 +894,11 @@ function delete_file($session,$data)
 {
     $files_array	=	Session::get($session);
 
-    foreach($files_array[$data['token']] as $key=> $array_file_data)
+    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
     {
         if($array_file_data['fileName'] == $data['file'])
         {
-            unset($files_array[$data['token']][$key]);
+            unset($files_array[$data['token_attachment']][$key]);
         }
     }
 
@@ -881,7 +911,7 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
 {
    // $data['file']				=	array();
     $files_array		        =	Session::get($session);
-
+	$return_txt					=	'';
 
     if(isset($files_array[$data['token_attachment']]))
     {
@@ -961,3 +991,48 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
 		}		
 	}
 	
+
+function getimageicons($url){
+    $file = new SplFileInfo($url);
+    $ext  = $file->getExtension();
+    $icons = [
+        '7z'=>URL::to('/').'/assets/images/icons/7z.png',
+        'bmp'=>URL::to('/').'/assets/images/icons/bmp.png',
+        'csv'=>URL::to('/').'/assets/images/icons/csv.png',
+        'doc'=>URL::to('/').'/assets/images/icons/doc.png',
+        'docx'=>URL::to('/').'/assets/images/icons/docx.png',
+        'gif'=>URL::to('/').'/assets/images/icons/gif.png',
+        'ini'=>URL::to('/').'/assets/images/icons/ini.png',
+        'jpg'=>URL::to('/').'/assets/images/icons/jpg.png',
+        'msg'=>URL::to('/').'/assets/images/icons/msg.png',
+        'odt'=>URL::to('/').'/assets/images/icons/odt.png',
+        'pdf'=>URL::to('/').'/assets/images/icons/pdf.png',
+        'png'=>URL::to('/').'/assets/images/icons/png.png',
+        'ppt'=>URL::to('/').'/assets/images/icons/ppt.png',
+        'pptx'=>URL::to('/').'/assets/images/icons/pptx.png',
+        'rar'=>URL::to('/').'/assets/images/icons/rar.png',
+        'rtf'=>URL::to('/').'/assets/images/icons/rtf.png',
+        'txt'=>URL::to('/').'/assets/images/icons/txt.png',
+        'xls'=>URL::to('/').'/assets/images/icons/xls.png',
+        'xlsx'=>URL::to('/').'/assets/images/icons/xlsx.png',
+        'zip'=>URL::to('/').'/assets/images/icons/zip.png'
+        ];
+    if(array_key_exists(strtolower($ext),$icons)){
+        return $icons[strtolower($ext)];
+    }else{
+        return URL::to('/').'/assets/images/icons/file.png';
+    }
+}
+
+function get_uploaded_files($session,$data){
+    $files='';
+    if (Session::has($session)){
+        $files_array = Session::get($session);
+        if(isset($files_array[$data['token_attachment']])) {
+            $files = $files_array[$data['token_attachment']];
+            unset($files_array[$data['token_attachment']]);
+            Session::set($session, $files_array);
+        }
+    }
+    return $files;
+}

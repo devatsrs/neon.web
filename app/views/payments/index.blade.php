@@ -366,10 +366,10 @@
                     });
 
 
-                        // Replace Checboxes
-                        $(".pagination a").click(function (ev) {
-                            replaceCheckboxes();
-                        });
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
 
                     $('#upload-payments').click(function(ev){
                         ev.preventDefault();
@@ -489,7 +489,6 @@
 
                                     $('#confirm-modal-payment h4').text('File validation');
                                     message = '<b>Warnings</b><br/>'+ response.message.replace(new RegExp('\r\n', 'g'), '<br>');
-                                    var ProcessID = response.ProcessID;
                                     $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                     if(!response.confirmshow){
                                         $('#confirm-payments').addClass('hidden');
@@ -796,10 +795,10 @@
                         dataType: 'json',
                         beforeSend: function(){
                             /*$('.btn.upload').button('loading');
-                            show_loading_bar({
-                                pct: 50,
-                                delay: 5
-                            });*/
+                             show_loading_bar({
+                             pct: 50,
+                             delay: 5
+                             });*/
 
                         },
                         afterSend: function(){

@@ -16,6 +16,7 @@ class NeonAPI{
 			"LicenceHost" =>$_SERVER['HTTP_HOST'],
 			"LicenceIP" => $_SERVER['SERVER_ADDR'],
 			"LicenceKey" =>  getenv('LICENCE_KEY'),
+
         ));
         $curl->close();
         $response = json_decode($curl->response);
@@ -25,6 +26,7 @@ class NeonAPI{
         }
         return false;
     }
+
 	
 	public static function logout()
 	{
@@ -41,7 +43,6 @@ class NeonAPI{
         $curl->close();
 
         $response = json_decode($curl->response);
-		
         if(isset($response->token)){
             self::setToken($response->token);
             return true;
@@ -61,7 +62,7 @@ class NeonAPI{
         $api_token = Session::get("api_token",'');
         return $api_token;
     }
-    public static function request($call_method,$post_data=array(),$post=true,$is_array=false,$is_upload=false){
+    public static function request($call_method,$post_data=array(),$post=true,$is_array=false,$is_upload=false){		
         self::$api_url = getenv('Neon_API_URL');
         $token = self::getToken();
         $curl = new Curl\Curl();
@@ -78,9 +79,10 @@ class NeonAPI{
         }else{
             $curl->get(self::$api_url.$call_method,$post_data);
         }
-		
+
         $curl->close();
         self::parse_header($curl->response_headers);		
+			Log::info($curl->response);
         return json_decode($curl->response,$is_array);
     }
     protected static function parse_header($response_headers){
@@ -106,18 +108,17 @@ class NeonAPI{
     public static function base64byte($files){
         $files_array = [];
         foreach ($files as $file){
-				$filename = $file->getRealPath();
-				$f = new Symfony\Component\HttpFoundation\File\File($file->getRealPath());
-				$handle    = fopen($filename, "r");
-				$data      = fread($handle, filesize($filename));
-				$files_array[] = array(
-					'mimeType'=>$f->getMimeType(),
-					'fileExtension'=>$file->getClientOriginalExtension(),
-					'fileName'=>$file->getClientOriginalName(),
-					'file' => base64_encode($data)
-				);			
+            $filename = $file->getRealPath();
+            $f = new Symfony\Component\HttpFoundation\File\File($file->getRealPath());
+            $handle    = fopen($filename, "r");
+            $data      = fread($handle, filesize($filename));
+            $files_array[] = array(
+                'mimeType'=>$f->getMimeType(),
+                'fileExtension'=>$file->getClientOriginalExtension(),
+                'fileName'=>$file->getClientOriginalName(),
+                'file' => base64_encode($data)
+            );
         }
         return $files_array;
     }
-
 }

@@ -65,24 +65,26 @@ class LeadsController extends \BaseController {
      */
     public function index()
     {
-            $companyID = User::get_companyID();
-            $userID = User::get_userID();
-            $tags = json_encode(Tags::getTagsArray());
-            $account_owners = User::getOwnerUsersbyRole();
-            $emailTemplates = array();
-            $templateoption = ['' => 'Select', 1 => 'New Create', 2 => 'Update'];
-            $accounts = Account::getAccountIDList(array("AccountType" => 0));
-            $privacy = EmailTemplate::$privacy;
-            $type = EmailTemplate::$Type;
-            //$leads = DB::table('tblAccount')->where([ "AccountType"=>0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
-            $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
-            if (User::is('AccountManager')) { // Account Manager
-                $leads = DB::table('tblAccount')->where(["AccountType" => 0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
-            } else {
-                $leads = DB::table('tblAccount')->where(["AccountType" => 0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
-            }
+        $companyID = User::get_companyID();
+        $userID = User::get_userID();
+        $account_owners = User::getOwnerUsersbyRole();
+        $emailTemplates = array();
+        $templateoption = ['' => 'Select', 1 => 'New Create', 2 => 'Update'];
+        $accounts = Account::getAccountIDList(array("AccountType" => 0));
+        $privacy = EmailTemplate::$privacy;
+        $type = EmailTemplate::$Type;
+        //$leads = DB::table('tblAccount')->where([ "AccountType"=>0, "CompanyID" => $companyID])->orderBy('AccountID', 'desc')->get();
+        $leadTags = json_encode(Tags::getTagsArray(Tags::Lead_tag));
 
-            return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'tags', 'accounts', 'privacy', 'tags', 'type'));
+        $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+
+        $leads = Lead::getLeadList();
+        $leadOrAccountID = '';
+        $leadOrAccount = $leads;
+        $leadOrAccountCheck = 'lead';
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
     }
 
     /**
@@ -162,15 +164,23 @@ class LeadsController extends \BaseController {
      */
     public function edit($id)
     {
-            $lead = Lead::find($id);
-            $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
-            $companyID = User::get_companyID();
-            $account_owners = User::getOwnerUsersbyRole();
-            $countries = $this->countries;
-            $text = 'Edit Lead';
-            $url = URL::to('leads/update/' . $lead->AccountID);
-            $url2 = 'leads/update/' . $lead->AccountID;
-            return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2'));
+        $lead = Lead::find($id);
+        $tags = json_encode(Tags::getTagsArray(Tags::Account_tag));
+        $companyID = User::get_companyID();
+        $account_owners = User::getOwnerUsersbyRole();
+        $countries = $this->countries;
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $leads = Lead::getLeadList();
+        $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
+        $text = 'Edit Lead';
+        $url = URL::to('leads/update/' . $lead->AccountID);
+        $url2 = 'leads/update/' . $lead->AccountID;
+        $leads = Lead::getLeadList();
+        $leadOrAccountID = $id;
+        $leadOrAccount = $leads;
+        $leadOrAccountCheck = 'lead';
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2','opportunityTags','leads','boards','opportunitytags','leadOrAccountCheck','leadOrAccount','leadOrAccountID'));
     }
 
     /**
@@ -184,12 +194,7 @@ class LeadsController extends \BaseController {
     {
         $data = Input::all();
         $lead = Lead::find($id);
-        $newTags = array_diff(explode(',',$data['tags']),Tags::getTagsArray());
-        if(count($newTags)>0){
-            foreach($newTags as $tag){
-                Tags::create(array('TagName'=>$tag,'CompanyID'=>User::get_companyID(),'TagType'=>Tags::Account_tag));
-            }
-        }
+        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Lead_tag]);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;

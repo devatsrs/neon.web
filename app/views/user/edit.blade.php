@@ -99,6 +99,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Color</label>
+
+                        <div class="col-sm-6 input-group">
+                            <input name="Color" type="text" class="form-control colorpicker" value="{{$user->Color}}" />
+                            <div class="input-group-addon">
+                                <i class="color-preview"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Active</label>
                         <div class="col-sm-6">
                             <div class="make-switch switch-small">

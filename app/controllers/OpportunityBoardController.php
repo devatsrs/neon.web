@@ -3,7 +3,7 @@
 
 class OpportunityBoardController extends \BaseController {
 
-    var $model = 'OpportunityBoard';
+    var $model = 'CRMBoard';
 	/**
 	 * Display a listing of the resource.
 	 * GET /Opportunity board
@@ -24,18 +24,24 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function index(){
-        return View::make('opportunityboards.index', compact(''));
+        $taskBoard = CRMBoard::getTaskBoard();
+        return View::make('opportunityboards.index', compact('taskBoard'));
     }
 
 
     public function configure($id){
-        $OpportunityBoard = OpportunityBoard::find($id);
-        return View::make('opportunityboards.configure', compact('id','OpportunityBoard'));
+        $taskBoard = CRMBoard::getTaskBoard();
+        $Board = CRMBoard::find($id);
+        $urlto = 'opportunityboards';
+        if($taskBoard[0]->BoardID==$id){
+            $urlto = 'task';
+        }
+        return View::make('opportunityboards.configure', compact('id','Board','urlto'));
     }
 
     public function manage($id){
-        $OpportunityBoard = OpportunityBoard::find($id);
-        $account_owners = User::getOwnerUsersbyRole();
+        $Board = CRMBoard::find($id);
+        $account_owners = User::getUserIDList();
         $where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -44,10 +50,14 @@ class OpportunityBoardController extends \BaseController {
         if(!empty($leadOrAccount)){
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
-        $boards = OpportunityBoard::getBoards();
+        $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $OpportunityBoardID = $id;
-        return View::make('opportunityboards.manage', compact('OpportunityBoardID','OpportunityBoard','account_owners','leadOrAccount','boards','opportunitytags'));
+        $BoardID = $id;
+        $response_extensions = getenv('CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS');
+        $token    = get_random_number();
+        $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
+        $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size'));
     }
 
 	/**

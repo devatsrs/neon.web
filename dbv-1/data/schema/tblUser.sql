@@ -15,5 +15,6 @@ CREATE TABLE `tblUser` (
   `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `EmailFooter` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Color` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`UserID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

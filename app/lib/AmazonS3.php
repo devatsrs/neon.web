@@ -31,6 +31,7 @@ class AmazonS3 {
         'RATETABLE_UPLOAD'=>'RateTableUpload',
         'WYSIHTML5_FILE_UPLOAD'=>'Wysihtml5fileupload',
         'PAYMENT_UPLOAD'=>'PaymentUpload',
+        'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
 		'THEMES_IMAGES'=>'ThemeImages'
     );
 

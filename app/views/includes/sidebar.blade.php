@@ -102,6 +102,16 @@
       </ul>
     </li>
     @endif
+    <li><a href="#"><i class="entypo-layout"></i><span>CRM</span></a>
+        <ul>
+            @if(User::checkCategoryPermission('OpportunityBoard','View'))
+                <li><a href="{{URL::to('/opportunityboards')}}"><i class="entypo-pencil"></i><span>Opportunity Board</span></a></li>
+            @endif
+            @if(User::checkCategoryPermission('Task','View'))
+                <li><a href="{{URL::to('/task')}}"><i class="entypo-pencil"></i><span>Tasks</span></a></li>
+            @endif
+        </ul>
+    </li>
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||

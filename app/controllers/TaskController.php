@@ -30,7 +30,7 @@ class TaskController extends \BaseController {
                 $message=$response['message'];
             }
         }else{
-            $message=$response->error;
+            $message=$response['error'];
         }
         return View::make('taskboards.board', compact('columns','boardsWithTask','message'))->render();
     }
@@ -39,7 +39,7 @@ class TaskController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         if(User::is('AccountManager')){
-            $data['account_owners'] = User::get_userID();
+            $data['AccountOwners'] = User::get_userID();
         }
         $data['fetchType'] = 'Grid';
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data);
@@ -58,7 +58,7 @@ class TaskController extends \BaseController {
         }else{
             return json_response_api($response);
         }
-        return View::make('taskcomments.attachments', compact('attachementPaths'))->render();
+        return View::make('crmcomments.attachments', compact('attachementPaths'))->render();
     }
 
     public function saveattachment($id){
@@ -80,16 +80,23 @@ class TaskController extends \BaseController {
 
     public function manage(){
         $Board = CRMBoard::getTaskBoard();
-        $account_owners = User::getUserIDList(0);
-        $priority = Task::$priority;
-
+        $account_owners = User::getUserIDList();
+        $taskStatus = CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
+		
         $where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
         }
         $leadOrAccount = Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
+        }
         $tasktags = json_encode(Tags::getTagsArray(Tags::Task_tag));
-        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags'));
+        $response_extensions = getenv('CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS');
+        $token    = get_random_number();
+        $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
+        $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus','response_extensions','token','max_file_size'));
     }
 	/**
 	 * Show the form for creating a new resource.
@@ -105,15 +112,20 @@ class TaskController extends \BaseController {
 			return  json_response_api($response);
 		}
 		
-		if ($response->status_code == 200) {			
-			$response = $response->data->result[0];
+		if ($response->status_code == 200) {	
+			if(isset($data['Task_view'])){
+				return  json_response_api($response);				
+			}			
+			//$response = $response->data->result[0];
+			$response = json_response_api($response,true);
+			$response = $response[0];
 			$response->type = 1;			
 		}
 		else{
 		 return  json_response_api($response);
 		}
 		
-		$key = $data['scrol'];	
+		$key = isset($data['scrol'])?$data['scrol']:0;	
 		
 		if(isset($data['Task_type']) && $data['Task_type']>0)	
 		{
@@ -209,4 +221,27 @@ class TaskController extends \BaseController {
         }
     }
 
+    //////////////////////
+    function upload_file(){
+        $data       =  Input::all();
+        $data['file']    = array();
+        $attachment    =  Input::file('commentattachment');
+        $response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+
+        if(!empty($attachment)){
+            $data['file'] = NeonAPI::base64byte($attachment);
+        }
+        try {
+            $return_str = check_upload_file($data['file'], 'email_attachments', $response_extensions, $data);
+            return $return_str;
+        }catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+
+    }
+
+    function delete_upload_file(){
+        $data    =  Input::all();
+        delete_file('email_attachments',$data);
+    }
 }

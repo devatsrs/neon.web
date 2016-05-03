@@ -92,16 +92,21 @@ class AccountsController extends \BaseController {
      */
     public function index() {
 
-            $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
-            $tags = json_encode(Tags::getTagsArray());
-            $account_owners = User::getOwnerUsersbyRole();
-            $accounts = Account::getAccountIDList();
-            $emailTemplates = array();
-            $privacy = EmailTemplate::$privacy;
-			
-			
-            $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
-            return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'tags', 'privacy', 'type', 'trunks', 'rate_sheet_formates'));
+        $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
+        $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
+        $account_owners = User::getOwnerUsersbyRole();
+        $emailTemplates = array();
+        $privacy = EmailTemplate::$privacy;
+        $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $accounts = Account::getAccountIDList();
+        $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
+        $leadOrAccountID = '';
+        $leadOrAccount = $accounts;
+        $leadOrAccountCheck = 'account';
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
+
     }
 
     /**
@@ -232,11 +237,12 @@ class AccountsController extends \BaseController {
 			$sql 						= 	 "call prc_GetAccounts (1,0,0,0,1,2,'','','".$account->AccountName."','',1 ,50,'AccountName','asc',0)";
 			$Account_card  				= 	 DB::select($sql);			
 			$account_owners 			= 	 User::getUserIDList();
-			$priority 					= 	 Task::$priority;
+			$Board 						= 	 CRMBoard::getTaskBoard();
+			$priority 					= 	 CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
 			$Board 						=	 CRMBoard::getTaskBoard();
-			$emailTemplates 			= 	$this->ajax_getEmailTemplate(0,1);
-			$random_token				=	get_random_number();
-			
+			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(0,1);
+			$random_token				=	 get_random_number();
+			 
 			$response_extensions 		= 	 json_encode(NeonAPI::request('get_allowed_extensions',[],false));
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 		 	 $users						=	 json_encode(array_merge(array(""),$users));
@@ -275,32 +281,12 @@ class AccountsController extends \BaseController {
             $data['iDisplayLength']    =    10;
             $data['AccountID']         =    $id;			
 			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
-
-			if(!isset($response->status_code )){
-				
-				return  json_response_api($response);
-			}
-			if ($response->status_code == 200) {			
-				if(isset($response->data->result->aaData)){
-					$response = $response->data->result->aaData;
-				}
-				else if(isset($response->data->result))
-				{
-					$response = $response->data->result;
-				}
-				else{
-					$array = array("status"=>"success","message"=>"infinity");
-					return  json_response_api($array);
-				}				
-			}
-			else{	
-			 return  json_response_api($response);
-			}
-			
-			if(count($response)<1)
+			$response 				   = 	json_decode(json_response_api($response,true));
+			Log::info($response);
+			if(empty($response))
 			{
-					$array = array("status"=>"success","message"=>"infinity");
-					return  json_response_api($array);
+			    return  Response::json(array("status" => "failed", "message" => "No Result Found","scroll"=>"end"));
+
 			}
 			
 			$key 					= 	$data['scrol'];
@@ -309,27 +295,35 @@ class AccountsController extends \BaseController {
 	 }
 	 
     public function edit($id) {
-            $account = Account::find($id);
-            $companyID = User::get_companyID();
-            $account_owners = User::getOwnerUsersbyRole();
-            $countries = $this->countries;
-            $tags = json_encode(Tags::getTagsArray());
-            $products = Product::getProductDropdownList();
-            $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
-            $currencies = Currency::getCurrencyDropdownIDList();
-            $taxrates = TaxRate::getTaxRateDropdownIDList();
-            if(isset($taxrates[""])){unset($taxrates[""]);}
-            $timezones = TimeZone::getTimeZoneDropdownList();
-            $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+        $account = Account::find($id);
+        $companyID = User::get_companyID();
+        $account_owners = User::getOwnerUsersbyRole();
+        $countries = $this->countries;
+        $tags = json_encode(Tags::getTagsArray());
+        $products = Product::getProductDropdownList();
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
+        $currencies = Currency::getCurrencyDropdownIDList();
+        $taxrates = TaxRate::getTaxRateDropdownIDList();
+        if(isset($taxrates[""])){unset($taxrates[""]);}
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
 
-            $AccountApproval = AccountApproval::getList($id);
-            $doc_status = Account::$doc_status;
-            $verificationflag = AccountApprovalList::isVerfiable($id);
-            $invoice_count = Account::getInvoiceCount($id);
-            if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
-                unset($doc_status[Account::VERIFIED]);
-            }
-            return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes'));
+        $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
+        $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $accounts = Account::getAccountList();
+
+        $AccountApproval = AccountApproval::getList($id);
+        $doc_status = Account::$doc_status;
+        $verificationflag = AccountApprovalList::isVerfiable($id);
+        $invoice_count = Account::getInvoiceCount($id);
+        if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
+            unset($doc_status[Account::VERIFIED]);
+        }
+        $leadOrAccountID = $id;
+        $leadOrAccount = $accounts;
+        $leadOrAccountCheck = 'account';
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags'));
     }
 
     /**
@@ -342,12 +336,7 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $data = Input::all();
         $account = Account::find($id);
-        $newTags = array_diff(explode(',',$data['tags']),Tags::getTagsArray());
-        if(count($newTags)>0){
-            foreach($newTags as $tag){
-                Tags::create(array('TagName'=>$tag,'CompanyID'=>User::get_companyID(),'TagType'=>Tags::Account_tag));
-            }
-        }
+        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;

@@ -55,14 +55,14 @@ class PaymentsController extends \BaseController {
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
-	/**
-	 * Display a listing of the resource.
-	 * GET /payments
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
+    /**
+     * Display a listing of the resource.
+     * GET /payments
+     *
+     * @return Response
+     */
+    public function index()
+    {
         $id=0;
         $companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
@@ -175,13 +175,13 @@ class PaymentsController extends \BaseController {
     }
 
 
-	/**
-	 * Update the specified resource in storage.
-	 * PUT /payments/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Update the specified resource in storage.
+     * PUT /payments/{id}
+     *
+     * @param  int  $id
+     * @return Response
+     */
     public function update($id)
     {
         if( $id > 0 ) {
@@ -369,7 +369,6 @@ class PaymentsController extends \BaseController {
         }
 
         $response = Payment::validate_payments($data);
-
         if ( $response['status'] != 'Success' ) {
             return Response::json(array("status" => "failed", "message" => $response['message']  ,"ProcessID" => $response["ProcessID"],'confirmshow'=>$response["confirmshow"] ));
         }else{
@@ -381,7 +380,6 @@ class PaymentsController extends \BaseController {
     public function confirm_bulk_upload() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $file_name = $data['TemplateFile'];
         $ProcessID = $data['ProcessID'];
 
         $file_name = basename($data['TemplateFile']);
