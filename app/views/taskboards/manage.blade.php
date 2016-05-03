@@ -173,8 +173,7 @@
                 'TaggedUser',
                 'BoardID'
             ];
-            var Priority = ['','<i style="color:#cc2424;font-size:15px;" class="entypo-record"></i>',
-                            ];
+
             var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
             var allow_extensions    =   '{{$response_extensions}}';
@@ -236,8 +235,7 @@
                     {
                         "bSortable": true, //Priority
                         mRender: function (id, type, full) {
-
-                            return Priority[full[13]]+full[14]!=null?full[14]:'';
+                            return full[13]==1?'<i style="color:#cc2424;font-size:15px;" class="entypo-record"></i> High':'';
                         }
                     },
                     {
