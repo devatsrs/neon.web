@@ -173,7 +173,7 @@
                 'TaggedUser',
                 'BoardID'
             ];
-            var Priority = ['','<i style="color:red;font-size:15px;" class="entypo-record"></i>',
+            var Priority = ['','<i style="color:#cc2424;font-size:15px;" class="entypo-record"></i>',
                             ];
             var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
