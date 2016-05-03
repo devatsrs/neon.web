@@ -7,6 +7,13 @@ class AccountStatementCustomerController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['AccountID'] = User::get_userID();
+        $account = Account::find($data['AccountID']);
+        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');//Rounding Add by Abubakar
+        if(!empty($account->RoundChargesAmount)){
+            $roundplaces = $account->RoundChargesAmount;
+        }
+        $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+
         //$query = "prc_getSOA ".$CompanyID.",".$data['AccountID'].",0";
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',0)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
@@ -53,7 +60,9 @@ class AccountStatementCustomerController extends \BaseController {
                     'PaymentIDs'=>$temp['PaymentID'],
                     'payments'=>$temp['payment'],
                     'PaymentDates'=>$temp['PaymentDate'],
-                    'ballences'=>$temp['ballence']);
+                    'ballences'=>$temp['ballence'],
+                    'roundplaces'=>$roundplaces,
+                    'CurencySymbol'=>$CurencySymbol);
             }else{
                 if($index<$countinInvoices){
                     $temp = $inInvoices[$index];
@@ -75,6 +84,8 @@ class AccountStatementCustomerController extends \BaseController {
                     'payments'=>$data['payment'],
                     'PaymentDates'=>$data['PaymentDate'],
                     'ballences'=>$data['ballence'],
+                    'roundplaces'=>$roundplaces,
+                    'CurencySymbol'=>$CurencySymbol
                 );
             }
 
@@ -103,10 +114,15 @@ class AccountStatementCustomerController extends \BaseController {
         echo json_encode($result);
     }
 
-    public function exports() {
+    public function exports($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['AccountID'] = User::get_userID();
+        $account = Account::find($data['AccountID']);
+        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');//Rounding Add by Abubakar
+        if(!empty($account->RoundChargesAmount)){
+            $roundplaces = $account->RoundChargesAmount;
+        }
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',1)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
         $inInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -117,6 +133,7 @@ class AccountStatementCustomerController extends \BaseController {
         $account_statement['outInvoices'] = $outInvoices;
         $account_statement['firstCompany'] = Company::getName($CompanyID);
         $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
+        $account_statement['roundplaces'] = $roundplaces;
         self::generateExcel($account_statement);
     }
 
@@ -205,7 +222,7 @@ class AccountStatementCustomerController extends \BaseController {
 
                         foreach($rowData as $cellValue) {
                             if(is_numeric($cellValue)){
-                                $sheet->cell($currentColumn . $startRow, function($cell) use($cellValue,$valid,$count) {
+                                $sheet->cell($currentColumn . $startRow, function($cell) use($cellValue,$valid,$count,$account_statement) {
                                     AccountStatementController::formateCell($cell,false);
                                     if($count == 6){
                                         if($valid==1){
@@ -214,6 +231,7 @@ class AccountStatementCustomerController extends \BaseController {
                                             $cell->setValue('');
                                         }
                                     }else{
+                                        $cellValue = '=ROUND('.$cellValue.','.$account_statement['roundplaces'].')';
                                         $cell->setValue($cellValue);
                                     }
 
@@ -306,7 +324,7 @@ class AccountStatementCustomerController extends \BaseController {
                         }
                         foreach ($rowData as $cellValue) {
                             if (is_numeric($cellValue)) {
-                                $sheet->cell($currentColumn . $startRow, function ($cell) use ($cellValue,$valid,$count) {
+                                $sheet->cell($currentColumn . $startRow, function ($cell) use ($cellValue,$valid,$count,$account_statement) {
                                     AccountStatementController::formateCell($cell,false);
                                     if($count == 6){
                                         if($valid==1){
@@ -315,6 +333,7 @@ class AccountStatementCustomerController extends \BaseController {
                                             $cell->setValue('');
                                         }
                                     }else{
+                                        $cellValue = '=ROUND('.$cellValue.','.$account_statement['roundplaces'].')';
                                         $cell->setValue($cellValue);
                                     }
                                 });

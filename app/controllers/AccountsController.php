@@ -336,7 +336,7 @@ class AccountsController extends \BaseController {
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }
             if(isset($data['password'])) {
-                $this->sendPasswordEmail($account, $password, $data);
+               // $this->sendPasswordEmail($account, $password, $data);
             }
             $PaymentGatewayID = PaymentGateway::where(['Title'=>PaymentGateway::$gateways['Authorize']])
                 ->where(['CompanyID'=>$companyID])

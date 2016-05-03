@@ -48,7 +48,9 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Password</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                        <input class="hide">
+                        <input type="password" class="hide">
+                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value=""/>
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">Picture</label>
@@ -224,7 +226,9 @@
             @endif
     });
 </script>
-
+<style>
+    .hide{ display:none; }
+</style>
 @include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('customer/profile/update')))
 
 @stop

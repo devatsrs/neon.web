@@ -137,7 +137,7 @@ class ThemesController extends \BaseController {
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
-                'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl|url', 
+				'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl',
 				//'FooterUrl' => 'url',               
             );
 			
@@ -288,7 +288,7 @@ class ThemesController extends \BaseController {
             ///////////
 
             $rules = array(
-                'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl,'.$id.',ThemeID|url',
+				'DomainUrl' => 'required|unique:tblCompanyThemes,DomainUrl,'.$id.',ThemeID',
                // 'FooterUrl' => 'url',
             );
 			

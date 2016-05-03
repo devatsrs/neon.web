@@ -566,20 +566,42 @@ function bulk_mail($type,$data){
 }
 
 
-function formatDate($date,$dateformat='d-m-Y') {
-    if ($dateformat == 'm-d-Y' && strpos($date,'-') !== false){
-        $date = str_replace('-', '/', $date);
-        $date = date($dateformat.' H:i:s', strtotime($date));
-    }else if ($dateformat == 'd-m-Y' && strpos($date,'/') !== false){
-        $date = str_replace('/', '-', $date);
-        $date = date($dateformat.' H:i:s', strtotime($date));
-    }else{
-        $date = date($dateformat.' H:i:s', strtotime($date));
+function formatDate($date,$dateformat='d-m-y',$smallDate = false) {
+    $date = str_replace('/', '-', $date);
+
+    if(!$smallDate){
+
+        if(strpos($date,":" ) !== FALSE ) {
+            $dateformat = $dateformat . " H:i:s";
+
+            if (strpos(strtolower($date), "am") !== FALSE || strpos(strtolower($date), "pm") !== FALSE) {
+                $dateformat = $dateformat . " A";
+            }
+        }
     }
-    if(date('Y', strtotime($date)) == '1970'){
-        throw new Exception('Invalid Date Format!!');
+
+    $_date_time = date_parse_from_format($dateformat, $date);
+
+    if (isset($_date_time['warning_count']) &&  isset($_date_time['warnings']) && count($_date_time['warnings']) > 0 ) {
+
+        $error  = $date . ': Date Format Error  ' . implode(",",(array)$_date_time['warnings']);
+        //throw new Exception($error);
     }
-    return $date;
+
+    if (isset($_date_time['error_count']) && $_date_time['error_count'] > 0 && isset($_date_time['errors'])) {
+
+        $error = $date . ': Date Format Error  ' . implode(",",(array)$_date_time['errors']);
+        //throw new Exception($error);
+
+    }
+
+    $datetime = $_date_time['year'].'-'.$_date_time['month'].'-'.$_date_time['day'];
+
+    if(is_numeric($_date_time['hour']) && is_numeric($_date_time['minute']) && is_numeric($_date_time['second'])){
+
+        $datetime = $datetime . ' '. $_date_time['hour'].':'.$_date_time['minute'].':'.$_date_time['second'];
+    }
+    return $datetime;
 }
 
 function email_log($data){
@@ -806,6 +828,7 @@ function create_site_configration_cache(){
 	Session::put('user_site_configrations', $cache);
 }
 
+//not in use
 function addhttp($url) {
     if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
         $url = "http://" . $url;

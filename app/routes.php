@@ -12,6 +12,9 @@ Route::group(array('before' => 'auth'), function () {
     //Route::any('customer/invoice/{id}/print_preview', 'InvoicesCustomerController@print_preview'); Not in use.
     //Route::any('customer/invoice/{id}/print', 'InvoicesCustomerController@pdf_view');
     Route::any('customer/invoice/pay_now', 'InvoicesCustomerController@pay_now');
+    Route::any('customer/invoice/download_invoice_file/{id}', 'InvoicesCustomerController@download_invoice_file');
+	Route::any('customer/invoice/ajax_datagrid_total', 'InvoicesCustomerController@ajax_datagrid_total');
+	Route::any('customer/invoice/getInvoiceDetail', 'InvoicesCustomerController@getInvoiceDetail');
 
     //payment
     Route::any('customer/payments', 'PaymentsCustomerController@index');
@@ -24,7 +27,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/account_statement', 'AccountStatementCustomerController@index');
     Route::any('customer/account_statement/payment', 'AccountStatementCustomerController@getPayment');
     Route::any('customer/account_statement/ajax_datagrid', 'AccountStatementCustomerController@ajax_datagrid');
-    Route::any('customer/account_statement/exports', 'AccountStatementCustomerController@exports');
+    Route::any('customer/account_statement/exports/{type}', 'AccountStatementCustomerController@exports');
 
     //credit card
     Route::any('customer/PaymentMethodProfiles/paynow', 'PaymentProfileCustomerController@paynow');
@@ -35,6 +38,11 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
+
+	//cdr
+
+	Route::any('customer/cdr', 'CDRCustomerController@index');
+	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
 
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
@@ -589,7 +597,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
-	
+	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
+
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');

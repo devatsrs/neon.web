@@ -34,6 +34,12 @@
 
     <ul id="main-menu" class="">
         <li>
+            <a href="{{Url::to('customer/dashboard')}}">
+                <i class="entypo-layout"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
             <a href="#">
                 <i class="entypo-layout"></i>
                 <span>Billing</span>
@@ -66,6 +72,12 @@
                     </a>
                 </li>
                 @endif
+                <li>
+                    <a href="{{URL::to('customer/cdr')}}">
+                        <i class="entypo-pencil"></i>
+                        <span>CDR</span>
+                    </a>
+                </li>
             </ul>
         </li>
         <li>

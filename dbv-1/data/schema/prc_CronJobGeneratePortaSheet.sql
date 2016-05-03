@@ -63,7 +63,7 @@ BEGIN
     WHILE v_pointer_ <= v_rowCount_
     DO
          
-        SET v_TrunkID_ = (SELECT TrunkID FROM tmp_trunks_ t WHERE t.TrunkID = v_pointer_);
+        SET v_TrunkID_ = (SELECT TrunkID FROM tmp_trunks_ t WHERE t.RowNo = v_pointer_);
      
         CALL prc_GetCustomerRate(v_companyid_,p_CustomerID,v_TrunkID_,null,null,null,p_Effective,1,0,0,0,'','',2);
         

@@ -86,6 +86,8 @@ class ProfileController extends \BaseController {
             if(!empty($account->Picture)){
                 AmazonS3::delete($account->Picture);
             }
+        }else{
+            unset($data['Picture']);
         }
         if ($account->update($data)) {
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
