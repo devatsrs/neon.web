@@ -60,9 +60,10 @@
         @endif 
         <!--Account card end --> 
                 <div class="">
-          <button style="margin:8px 25px 0 0;" redirecto="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" type="button" class="btn btn-black btn-xs pull-right">
+          <button style="margin:8px 25px 0 0;"  id="redirect_add_link" type="button" class="btn btn-black btn-xs pull-right">
 						<i class="entypo-plus"></i>
 					</button>
+                  <a href="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" id="create_contact" target="_blank" class="hidden">Add Contact</a>
    <h3>Contacts</h3>
    
    </div>
@@ -136,7 +137,7 @@
               <div class="form-group end-buttons-timeline"> 
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
                 
-                 <button style="margin-right:10px;" value="save_follow" id="save-note-follow" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save and create follow up task</button>
+                 <button style="margin-right:10px;" value="save_follow" id="save-note-follow" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save and Create follow up task</button>
               </div>
             </form>
           </div>
@@ -204,19 +205,28 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Assign to:</label>
-                  {{Form::select('UsersIDs',$account_owners,'',array("class"=>"selectboxit"))}} </div>
+                  {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"selectboxit"))}} </div>
               </div>
              </div> 
               <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="to">Priority:</label>
-                  {{Form::select('Priority',$priority,'',array("class"=>"selectboxit"))}} </div>
+                  <label class="control-label col-sm-12" for="to">Priority:</label>
+                   <p class="make-switch switch-small">
+                                        <input name="Priority" type="checkbox" value="1" >
+                                    </p>
+                   </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="to">Due Date:</label>
+                  <label class="control-label col-sm-12 " for="to">Due Date:</label>
+                  <div class="col-sm-8">
                   <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                  </div>
+                  <div class="col-sm-4">
+                                 <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                  </div>
+                  
                 </div>
               </div>
 			</div>
@@ -346,8 +356,18 @@
               </time>
               
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-              <div class="cbp_tmlabel @if(!$rows['followup_task'])normal @endif ">  
-                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else $current_user_title  @endif <span>tagged @if($rows['TaskName']==$current_user_title) You @else {{$rows['TaskName']}} @endif in a</span> @if($rows['followup_task']) follow up @endif Task</h2>
+              <div class="cbp_tmlabel @if(!$rows['followup_task']) normal @endif ">  
+                
+           <h2 class="toggle_open" id_toggle="{{$key}}"> 
+         @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
+           
+                @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span>
+                 @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assign @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> 
+                 @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  You </span>
+                 @else  <span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> 
+                 @endif
+</h2>                
+                
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
                   <p>Assign To: {{$rows['TaskName']}}</p>
@@ -395,7 +415,7 @@
 </div>
 <form id="emai_attachments_form" class="hidden" name="emai_attachments_form">
 <span class="emai_attachments_span">
-<input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple="" id="filecontrole1">
+<input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole1">
 </span>
 <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
 <input  hidden="" name="token_attachment" value="{{$random_token}}" />

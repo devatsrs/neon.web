@@ -13,6 +13,10 @@ var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
 
     jQuery(document).ready(function ($) {	
+	
+	$('#redirect_add_link').click(function(e) {
+		$('#create_contact')[0].click();
+    });
 		
 		var per_scroll 		= 	{{$per_scroll}};
 		var per_scroll_inc  = 	per_scroll;

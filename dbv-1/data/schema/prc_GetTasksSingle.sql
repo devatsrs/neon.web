@@ -5,12 +5,8 @@ BEGIN
 		 group_concat( concat(u.FirstName,' ',u.LastName)separator ',') as Name,		
 		 case when t.Priority =1
 			  then 'High'
-			  else
-		 case when t.Priority =2
-			  then 'Medium'
 			    else
-		 case when t.Priority =3
-			  then 'Low' end end end as Priority,
+			  'Low' end as Priority,
 			DueDate,
 		t.Description,
 		bc.BoardColumnName as TaskStatus,

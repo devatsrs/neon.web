@@ -63,7 +63,15 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel normal">
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$current_user_title}}  @endif <span>tagged @if($response->Name==$current_user_title) You @else {{$response->Name}} @endif in a</span> @if($response->followup_task) follow up @endif Task</h2>
+                  <h2 class="toggle_open" id_toggle="{{$key}}">
+                @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
+                @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>you created a task</span>
+                 @elseif ($response->created_by==$current_user_title && $response->Name!=$current_user_title)<span>You assign task to {{$response->Name}} </span> 
+                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assign task to  You </span>
+                 @else  <span> {{$response->created_by}} assign task to  {{$response->Name}} </span> 
+                 @endif
+</h2>
+              
               <div id="hidden-timeline-{{$key}}"  class="details no-display">
                 <p>Subject: {{$response->Subject}}</p>
                 <p>Assign To: {{$response->Name}}</p>

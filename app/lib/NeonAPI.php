@@ -31,16 +31,17 @@ class NeonAPI{
 		NeonAPI::request('logout',[]);		 
 	}
 	
-    public static function login_by_id($id){
+   public static function login_by_id($id){
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-        $api_url = getenv('NeonApiUrl');
+        $api_url = getenv('Neon_API_URL');
 
         $curl->get($api_url.$call_method, array());
         $curl->close();
 
         $response = json_decode($curl->response);
+		
         if(isset($response->token)){
             self::setToken($response->token);
             return true;

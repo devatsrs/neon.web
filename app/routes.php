@@ -685,6 +685,7 @@ Route::group(array('before' => 'guest'), function () {
         if(!empty($user) ){
 			create_site_configration_cache();
             Auth::login($user);
+			NeonAPI::login_by_id($id);
 			User::setUserPermission();
             Session::set("admin", 1 );
             return Redirect::to($redirect_to);
