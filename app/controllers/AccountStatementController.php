@@ -47,7 +47,8 @@ class AccountStatementController extends \BaseController {
                 }else{
                     $temp = $vertual;
                 }
-                $targetArray[] = array('InvoiceNo'=>$data['InvoiceNo'],
+                $targetArray[] = array(
+                    'InvoiceNo'=>$data['InvoiceNo'],
                     'PeriodCover'=>$data['PeriodCover'],
                     'InvoiceAmount'=>$data['InvoiceAmount'],
                     'spacer'=>$data['spacer'],
@@ -71,9 +72,12 @@ class AccountStatementController extends \BaseController {
                 }else{
                     $temp = $vertual;
                 }
-                $targetArray[] = array('InvoiceNo'=>$temp['InvoiceNo'],
+                $targetArray[] = array(
+                    'InvoiceNo'=>$temp['InvoiceNo'],
                     'PeriodCover'=>$temp['PeriodCover'],
                     'InvoiceAmount'=>$temp['InvoiceAmount'],
+                    'DisputeDifference'=>$data['DisputeDifference'],
+                    'MinutesDifference'=>$data['MinutesDifference'],
                     'spacer'=>$temp['spacer'],
                     'PaymentID'=>$temp['PaymentID'],
                     'payment'=>$temp['payment'],
@@ -116,7 +120,7 @@ class AccountStatementController extends \BaseController {
         echo json_encode($result);
     }
 
-    public function exports() {
+    public function exports($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['AccountID'] = $data['AccountID']!= ''?$data['AccountID']:0;
@@ -138,12 +142,12 @@ class AccountStatementController extends \BaseController {
         $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
         $account_statement['roundplaces'] = $roundplaces;
         if(count($account_statement['inInvoices']) || count($account_statement['outInvoices'])){
-            AccountStatementController::generateExcel($account_statement);
+            AccountStatementController::generateExcel($account_statement,$type);
         }
-        AccountStatementController::generateExcel($account_statement);
+        AccountStatementController::generateExcel($account_statement,$type);
     }
 
-    static function generateExcel($account_statement){
+    static function generateExcel($account_statement,$type){
         Excel::create('Account Statement', function ($excel) use ($account_statement) {
             $excel->sheet('Account Statement', function ($sheet) use ($account_statement) {
                 //$sheet->mergeCells('A4:D4');

@@ -273,7 +273,7 @@
                                 <th>Contact Name</th>
                                 <th>Phone</th>
                                 <th>Email</th>
-                                <th>Actions</th>
+                                <!--<th>Actions</th>-->
                             </tr>
                             </thead>
                             <tbody>
@@ -283,7 +283,7 @@
                                 <td>{{$contact->NamePrefix}} {{$contact->FirstName}} {{$contact->LastName}}</td>
                                 <td>{{$contact->Phone}}</td>
                                 <td>{{$contact->Email}}</td>
-                                <td class="center">
+                                <!--<td class="center">
                                     <a href="{{ URL::to('contacts/'.$contact->ContactID.'/edit')}}"
                                        class="btn btn-default btn-sm btn-icon icon-left">
                                         <i class="entypo-pencil"></i>
@@ -308,7 +308,7 @@
                                         Customer
                                     </a>
                                     @endif
-                                </td>
+                                </td>-->
                             </tr>
                             @endforeach
                             @endif

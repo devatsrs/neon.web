@@ -3,23 +3,19 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-      -- update trunk with first trunk if not set UseInBilling
-   set @stm1 = CONCAT(' UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-    LEFT JOIN tblGatewayAccount  ga 
-        ON ud.GatewayAccountID = ga.GatewayAccountID
-        AND ud.CompanyGatewayID = ga.CompanyGatewayID
-        AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblVendorTrunk ct 
-        ON ct.AccountID = ga.AccountID AND ct.Status =1 
+    -- update trunk with first trunk if not set UseInBilling
+    SET @stm1 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
+    LEFT JOIN LocalRatemanagement.tblVendorTrunk ct 
+        ON ct.AccountID = ud.AccountID AND ct.Status =1 
         AND UseInBilling = 0 and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblTrunk t 
+    LEFT JOIN LocalRatemanagement.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-	 SET ud.trunk = IFNULL(t.Trunk,"Other")
+	   SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
-    ud.processId = "' , p_processId , '"
-    AND ud.CompanyID = "' , p_CompanyID , '"
+        ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.selling_cost > 0);
+    AND ud.processId = "' , p_processId , '"
+    AND (ud.billed_duration >0 OR ud.buying_cost > 0);
     ');
 
     PREPARE stmt1 FROM @stm1;
@@ -28,23 +24,19 @@ BEGIN
 	
 
 
- -- update trunk if set UseInBilling
-     set @stm2 = CONCAT(' UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-    LEFT JOIN tblGatewayAccount  ga 
-        ON ud.GatewayAccountID = ga.GatewayAccountID
-        AND ud.CompanyGatewayID = ga.CompanyGatewayID
-        AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblVendorTrunk ct 
-        ON ct.AccountID = ga.AccountID AND ct.Status =1 and ud.processId = "' , p_processId , '"
+    -- update trunk if set UseInBilling
+    SET @stm2 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
+    LEFT JOIN LocalRatemanagement.tblVendorTrunk ct 
+        ON ct.AccountID = ud.AccountID AND ct.Status =1 and ud.processId = "' , p_processId , '"
         AND UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-    LEFT JOIN Ratemanagement3.tblTrunk t 
+    LEFT JOIN LocalRatemanagement.tblTrunk t 
         ON t.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-	 SET ud.trunk = IFNULL(t.Trunk,"Other")
+	   SET ud.trunk = IFNULL(t.Trunk,"Other")
     WHERE 
-    ud.processId = "' , p_processId , '"
-	 AND  ud.CompanyID = "' , p_CompanyID , '"
+	     ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.selling_cost > 0)
+    AND ud.processId = "' , p_processId , '"
+    AND (ud.billed_duration >0 OR ud.buying_cost > 0)
     AND t.Trunk IS NOT NULL;
     ');
 
@@ -52,51 +44,63 @@ BEGIN
     EXECUTE stmt2;
     DEALLOCATE PREPARE stmt2;
     
-   DROP TEMPORARY TABLE IF EXISTS tmp_TempVendorCDR_;
-   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempVendorCDR_(
+    DROP TEMPORARY TABLE IF EXISTS tmp_TempVendorCDR_;
+    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempVendorCDR_(
 			TempVendorCDRID int,
-			prefix varchar(50)
+			prefix varchar(50),
+			INDEX IX_TempUsageDetailID(`TempVendorCDRID`)
 	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempVendorCDR2_;
+    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempVendorCDR2_(
+			TempVendorCDRID int,
+			prefix varchar(50),
+			INDEX IX_TempUsageDetailID2(`TempVendorCDRID`)
+	);
+    
+    
 	
-	
-	set @stm3 = CONCAT('
-	 INSERT INTO tmp_TempVendorCDR_
-    SELECT
-		  TempVendorCDRID,
-        MAX(r.Code) AS prefix
-    FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-    LEFT JOIN tblGatewayAccount ga 
-        ON ud.GatewayAccountID = ga.GatewayAccountID
-        AND ud.CompanyGatewayID = ga.CompanyGatewayID
-        AND ud.CompanyID = ga.CompanyID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblVendorTrunk ct 
-        ON ct.AccountID = ga.AccountID AND ct.Status =1  
-        AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblVendorRate cr 
-        ON cr.AccountId = ga.AccountID
-        AND  cr.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
-    LEFT JOIN Ratemanagement3.tblRate r 
-        ON cr.RateID = r.RateID and ud.processId = "' , p_processId , '"
-    WHERE  
- 	 ud.processId = "' , p_processId , '"
-	 AND ud.CompanyID = "' , p_CompanyID , '"
-    AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
-    AND (ud.billed_duration >0 OR ud.selling_cost > 0)
-    AND (
-            (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
-            or 
-            (ct.UseInBilling = 0 AND ( (ct.AccountID is not null and cld LIKE CONCAT(r.Code , "%")) or (cld LIKE CONCAT(r.Code , "%")) ) ) 
-        )
-    GROUP BY  TempVendorCDRID;
+	SET @stm3 = CONCAT('
+	INSERT INTO tmp_TempVendorCDR_
+        SELECT
+    		  TempVendorCDRID,
+            r.Code AS prefix
+        FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud FORCE INDEX (IX_' , p_tbltempusagedetail_name , '_CID_CGID_PID)
+        INNER JOIN LocalRatemanagement.tblVendorTrunk ct FORCE INDEX (IX_AccountID_TrunkID_Status)
+            ON ct.AccountID = ud.AccountID AND ct.Status =1  
+            AND ((ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")) OR ct.UseInBilling = 0 ) and ud.processId = "' , p_processId , '"
+        INNER JOIN LocalRatemanagement.tblVendorRate cr FORCE INDEX (IX_tblVendorRate_RateId_TrunkID_EffectiveDate)
+            ON cr.AccountId = ud.AccountID
+            AND  cr.TrunkID = ct.TrunkID and ud.processId = "' , p_processId , '"
+        INNER JOIN LocalRatemanagement.tblRate r 
+            ON cr.RateID = r.RateID and ud.processId = "' , p_processId , '"
+        WHERE  
+    	  	  ud.CompanyID = "' , p_CompanyID , '"
+        AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
+        AND ud.processId = "' , p_processId , '"
+        AND (ud.billed_duration >0 OR ud.buying_cost > 0)
+        AND (
+                (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
+                or 
+                (ct.UseInBilling = 0 AND ( (ct.AccountID is not null and cld LIKE CONCAT(r.Code , "%")) or (cld LIKE CONCAT(r.Code , "%")) ) ) 
+            );
 	');
 
     PREPARE stmt3 FROM @stm3;
     EXECUTE stmt3;
     DEALLOCATE PREPARE stmt3;
+    
+    SET @stm7 = CONCAT('INSERT INTO tmp_TempVendorCDR2_
+    SELECT tbl.TempVendorCDRID,MAX(tbl.prefix)  
+	FROM tmp_TempVendorCDR_ tbl
+	GROUP BY tbl.TempVendorCDRID;');
+    
+    PREPARE stmt7 FROM @stm7;
+    EXECUTE stmt7;
+    DEALLOCATE PREPARE stmt7;
    
 	
-	set @stm4 = CONCAT('UPDATE RMCDR3.' , p_tbltempusagedetail_name , ' tbl2
-    INNER JOIN tmp_TempVendorCDR_ tbl
+	SET @stm4 = CONCAT('UPDATE LocalRMCdr.' , p_tbltempusagedetail_name , ' tbl2
+    INNER JOIN tmp_TempVendorCDR2_ tbl
         ON tbl2.TempVendorCDRID = tbl.TempVendorCDRID
     SET area_prefix = prefix
     WHERE tbl2.processId = "' , p_processId , '"

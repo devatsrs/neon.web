@@ -100,7 +100,6 @@
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"Type","value":$searchFilter.Type},{"name":"Export","value":1},{"name":"Status","value":$searchFilter.Status},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"JobLoggedUserID","value":$searchFilter.JobLoggedUserID});
             },
-            "oTableTools": {},
             "aaSorting": [[3, 'desc']],
             "aoColumns":
                     [
@@ -126,9 +125,15 @@
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/jobs/exports", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/jobs/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/jobs/exports/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },

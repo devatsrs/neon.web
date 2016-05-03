@@ -42,7 +42,7 @@ class EstimatesController extends \BaseController {
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
 	}
 
-    public function ajax_datagrid()
+    public function ajax_datagrid($type)
 	{
         $data 						 = 	Input::all();
         $data['iDisplayStart'] 		+=	1;
@@ -51,6 +51,7 @@ class EstimatesController extends \BaseController {
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
+        $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
 		
         $query = "call prc_getEstimate (".$companyID.",".intval($data['AccountID']).",'".$data['EstimateNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['EstimateStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."',".intval($data['CurrencyID'])."";
 		
@@ -59,13 +60,22 @@ class EstimatesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
 			
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Estimate', function ($excel) use ($excel_data)
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+           /* Excel::create('Estimate', function ($excel) use ($excel_data)
 			{
                 $excel->sheet('Estimate', function ($sheet) use ($excel_data)
 				{
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
 		
 
@@ -537,7 +547,7 @@ class EstimatesController extends \BaseController {
             }
 			else
 			{
-                return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
+                return Response::json(array("status" => "failed", "message" => "You cannot create estimate as no Invoice Template assigned to this account." ));
             }			
             return Response::json(compact($return));
         }

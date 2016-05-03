@@ -16,7 +16,6 @@
 </ol>
 <h3>Vendor Preference</h3>
 @include('accounts.errormessage')
-<div class="tab-content">
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
 <li >
     <a href="{{ URL::to('vendor_rates/'.$id) }}" >
@@ -64,11 +63,9 @@
 </li>
 @endif
 </ul>
-
-  <div class="tab-pane active" id="customer_rate_tab_content">
-    <div class="row">
+<div class="row">
 <div class="col-md-12">
-       <form role="form" id="vendor-rate-search" method="get"  action="{{URL::to('vendor_rates/'.$id.'/search')}}" class="form-horizontal form-groups-bordered validate" novalidate>
+       <form role="form" id="vendor-rate-search" method="get"  action="{{URL::to('vendor_rates/'.$id.'/search')}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -115,7 +112,7 @@
         </div>
     </form>
 </div>
-<!--</div>-->
+</div>
 <div style="text-align: right;padding:10px 0 ">
     <!--<a class="btn btn-primary btn-sm btn-icon icon-left" id="bulk_set_vendor_rate" href="javascript:;">
         <i class="entypo-floppy"></i>
@@ -132,13 +129,13 @@
 <table class="table table-bordered datatable" id="table-4">
 <thead>
     <tr>
-        <th width="15%"><input type="checkbox" id="selectall" name="checkbox[]" class="" />
+        <th width="6%"><input type="checkbox" id="selectall" name="checkbox[]" class="" />
             <!--<button type="button" id="selectallbutton"  class="btn btn-primary btn-xs" title="Select All Preference" alt="Select All Preference"><i class="entypo-check"></i></button>-->
         </th>
-        <th width="20%">Code</th>
-        <th width="15%">Preference</th>
-        <th width="25%">Description</th>
-        <th width="25%">Action</th>
+        <th width="13%">Code</th>
+        <th width="10%">Preference</th>
+        <th width="10%">Description</th>
+        <th width="15%">Action</th>
     </tr>
 </thead>
 <tbody>
@@ -147,7 +144,7 @@
 </table>
  
 <script type="text/javascript">
-jQuery(document).ready(function($) {	
+jQuery(document).ready(function($) {
     //var data_table;
     var Code, Description, Country,Trunk;
     var $searchFilter = {};
@@ -167,16 +164,16 @@ jQuery(document).ready(function($) {
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference",
-			 "iDisplayLength":'{{Config::get('app.pageSize')}}',
-            "sPaginationType": "bootstrap",
+            "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/type",
             "fnServerParams": function(aoData) {
                 aoData.push( {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push(  {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description},{"name":"Export","value":1});
-            },          
-          	 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-             "aaSorting": [[0, "asc"]],
+            },
+            "iDisplayLength":'{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+             "aaSorting": [[1, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
@@ -184,12 +181,11 @@ jQuery(document).ready(function($) {
                             return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         },
-                        {}, //1 Code
-                        {}, //1 Code
-                        {}, //8 updated by
+                        {"bSortable": true}, //1 Code
+                        {"bSortable": true}, //2 Prefrence
+                        {"bSortable": true}, //8 Discription
                         {// 9 VendorPreferenceID
                             mRender: function(id, type, full) {
-								$('#table-4').css("width","100%"); 
                                 var action;
                                 action = '<div class = "hiddenRowData" >';
                                 for(var i = 0 ; i< list_fields.length; i++){
@@ -208,14 +204,20 @@ jQuery(document).ready(function($) {
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference",
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },
                "fnDrawCallback": function() {
-$('#table-4').css("width","100%"); 
+
                    $('#table-4 tbody tr').each(function(i, el) {
                        if (checked!='') {
                            $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
@@ -283,7 +285,6 @@ $('#table-4').css("width","100%");
                            }
                        }
                    });
-				$('#table-4').css("width","100%"); 
                }
 
 
@@ -305,14 +306,14 @@ $('#table-4').css("width","100%");
     $(".pagination a").click(function(ev) {
         replaceCheckboxes();
     });
-$("#vendor-rate-search").submit();
+
     //Bulk Edit Button
     $("#changeSelectedVendorRates").click(function(ev) {
         var criteria='';
         if($('#selectallbutton').is(':checked')){
         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
             criteria = JSON.stringify($searchFilter);
-            if(criteria=''){
+            if(criteria==''){
                 return false;
             }
         }
@@ -424,34 +425,19 @@ $("#vendor-rate-search").submit();
 });
 </script>
 <style>
-/*.dataTables_filter label{
+.dataTables_filter label{
     display:none !important;
-}*/
+}
 .dataTables_wrapper .export-data{
     right: 30px !important;
 }
 #selectcheckbox{
     padding: 15px 10px;
 }
-
-
-#table-4 .dataTables_filter label{
-    display:none !important;
-}
-
- #table-5_filter label{
-    display:block !important;
-}
-
 </style>
-</div>
-</div>
-</div>
-
 @stop
 
 @section('footer_ext')
-
 @parent
 <!-- Bulk Update -->
 <div class="modal fade" id="modal-BulkVendorRate">

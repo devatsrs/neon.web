@@ -1,10 +1,10 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_InvoiceStatus` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT, IN `p_sageExport` INT, IN `p_zerovalueinvoice` INT, IN `p_InvoiceID` LONGTEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_InvoiceStatus` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT, IN `p_sageExport` INT, IN `p_zerovalueinvoice` INT, IN `p_InvoiceID` LONGTEXT)
 BEGIN
     DECLARE v_OffSet_ int;
     DECLARE v_Round_ int;
-     SET SESSION sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+    
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	        
+	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';       
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
 	 SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
@@ -14,7 +14,12 @@ BEGIN
 
         SELECT inv.InvoiceType ,
         ac.AccountName,
-        CONCAT(ltrim(rtrim(IFNULL(it.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))) as InvoiceNumber,
+        CASE WHEN inv.InvoiceStatus = 1 THEN
+	        CONCAT(ltrim(rtrim(IFNULL(it.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))) 
+		  ELSE
+			  ltrim(rtrim(inv.InvoiceNumber)) 
+		  END
+		  as InvoiceNumber,
         inv.IssueDate,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) as GrandTotal2,
 		  CONCAT(IFNULL(cr.Symbol,''),format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_),'/',IFNULL(cr.Symbol,''),format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_)) as `PendingAmount`,

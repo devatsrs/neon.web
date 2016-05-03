@@ -160,7 +160,7 @@ class HomeController extends BaseController {
                 }
             }
             //if Normal User
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login()) {
+            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ))) {
                 User::setUserPermission();
 				create_site_configration_cache();
                 $redirect_to = URL::to($this->dashboard_url);

@@ -76,7 +76,7 @@ BEGIN
         ON t.Code = c.Code
         AND t.ProcessId = p_processId
     SET t.CountryId = c.CountryID;
-  
+  		/*
           IF ( SELECT COUNT(*)
                  FROM   tblTempCodeDeck
                  WHERE  tblTempCodeDeck.ProcessId = p_processId
@@ -92,7 +92,7 @@ BEGIN
         
         
             
-            END IF;   
+            END IF;   */
 
 
  IF ( SELECT COUNT(*)
@@ -172,8 +172,8 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
     DELETE  FROM tblTempCodeDeck WHERE   tblTempCodeDeck.ProcessId = p_processId;
- 	 SELECT * from tmp_JobLog_;
+ 	 SELECT * from tmp_JobLog_ limit 0 , 20;
 	      
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-    SELECT * from tmp_JobLog_ limit 0 , 20;
+
 END

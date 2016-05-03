@@ -93,7 +93,7 @@
             "bDestroy": true,
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/accounts/ajax_datagrid_sheet",
+            "sAjaxSource": baseurl + "/accounts/ajax_datagrid_sheet/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -130,9 +130,15 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl+'/accounts/ajax_datagrid_sheet',
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl+'/accounts/ajax_datagrid_sheet/xlsx',
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl+'/accounts/ajax_datagrid_sheet/csv',
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },

@@ -234,6 +234,7 @@
 </div>
 <script>
 	var action_click;
+	var block_by;
 	var $searchFilter = {};
 	var checked='';
 	$searchFilter.SelectedCodes='';
@@ -327,8 +328,14 @@
 			if(action_click == 'block' || action_click == 'unblock'){
 				ajax_data+='&action='+action_click;
 			}
+<<<<<<< HEAD
 			console.log(ajax_data);
 			console.log(ajax_full_url);			 
+=======
+			if(block_by == 'code' || block_by == 'country'){
+				ajax_data+='&block_by='+block_by;
+			}
+>>>>>>> bc2e295c6bedfb1ff8a38acb325f9b6a66d7b496
 			submit_ajax(ajax_full_url,ajax_data);
 			return false;
 		});
@@ -520,6 +527,7 @@
 				text = 'Bulk Vendor unBlock';
 			}
 			code_check = 1;
+			block_by = 'code';
 			var modal = $("#modal-bulkaccount");
 			modal.find('.modal-header h4').text(text);
 			modal.modal('show');
@@ -550,6 +558,7 @@
 				text = 'Bulk Vendor unBlock';
 			}
 			code_check = 0;
+			block_by = 'country';
 			var modal = $("#modal-bulkaccount");
 			modal.find('.modal-header h4').text(text);
 			modal.modal('show');
@@ -590,8 +599,8 @@ function sort_table(table){
 						{"name": "Code", "value": $searchFilter.Code},
 						{"name": "SelectedCodes", "value": $searchFilter.SelectedCodes},
 						{"name": "action", "value": action_click},
-						{"name": "criteria", "value": criteria}
-
+						{"name": "criteria", "value": criteria},
+						{"name": "block_by", "value": block_by}
 				);
 			},
 			"sAjaxSource": baseurl + "/vendor_rates/0/search_vendor_grid",

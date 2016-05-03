@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getSOA`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_StartDate` datetime, IN `p_EndDate` datetime, IN `p_isExport` INT )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getSOA`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_StartDate` datetime, IN `p_EndDate` datetime, IN `p_isExport` INT )
 BEGIN
 	
 		
@@ -13,6 +13,8 @@ BEGIN
         PaymentDate LONGTEXT,
         PaymentMethod VARCHAR(20),
         Amount NUMERIC(18, 8),
+		  DisputeDifference NUMERIC(18, 8),
+        MinutesDifference NUMERIC(18, 8),        
         Currency VARCHAR(15),
         PeriodCover VARCHAR(30),
 		  StartDate datetime,
@@ -38,6 +40,8 @@ BEGIN
             END AS dates,
             tblPayment.PaymentMethod,
             tblPayment.Amount,
+            tblDispute.DisputeDifference,
+            tblDispute.MinutesDifference,
             tblPayment.CurrencyID,
             CASE
             	WHEN (tblInvoice.ItemInvoice = 1 AND p_isExport = 1) THEN
@@ -58,8 +62,9 @@ BEGIN
         FROM tblInvoice
         LEFT JOIN tblInvoiceDetail
             ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )/* ProductType =2 = INVOICE USAGE AND InvoiceType = 1 Invoice sent and InvoiceType =2 invoice recevied */
-        INNER JOIN Ratemanagement3.tblAccount
+        INNER JOIN LocalRatemanagement.tblAccount
             ON tblInvoice.AccountID = tblAccount.AccountID
+		  LEFT JOIN tblDispute on tblDispute.CompanyID = tblInvoice.CompanyID  and tblDispute.InvoiceID = tblInvoice.InvoiceID 
         LEFT JOIN tblInvoiceTemplate  on tblAccount.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
         LEFT JOIN tblPayment
             ON (tblInvoice.InvoiceNumber = tblPayment.InvoiceNo OR REPLACE(tblPayment.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tblInvoice.InvoiceNumber)) ) )
@@ -90,6 +95,8 @@ BEGIN
             END AS dates,
             tblPayment.PaymentMethod,
             tblPayment.Amount,
+            '' as DisputeDifference,
+            '' as MinutesDifference,
             tblPayment.CurrencyID,
             '' AS dates,
 			tblPayment.PaymentDate,
@@ -105,7 +112,7 @@ BEGIN
             tblPayment.created_at,
             tblPayment.PaymentID
         FROM tblPayment
-        INNER JOIN Ratemanagement3.tblAccount
+        INNER JOIN LocalRatemanagement.tblAccount
             ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.Status = 'Approved'
         AND tblPayment.Recall = 0
@@ -124,23 +131,24 @@ BEGIN
         PeriodCover,
         InvoiceAmount,
         ' ' AS spacer,
-         CASE
-        WHEN p_isExport = 0
-        THEN
-        GROUP_CONCAT(PaymentDate SEPARATOR '<br/>')
-		  ELSE
-		   GROUP_CONCAT(PaymentDate SEPARATOR "\r\n") 
-		  END	as PaymentDate,
-        SUM(Amount) AS payment,
+        -- CASE
+      --  WHEN p_isExport = 0
+      --  THEN
+       -- GROUP_CONCAT(PaymentDate SEPARATOR '<br/>')
+		--  ELSE
+		--   GROUP_CONCAT(PaymentDate SEPARATOR "\r\n") 
+		--  END	as PaymentDate,
+	     PaymentDate,
+        Amount AS payment,
         NULL AS ballence,
         CASE
         WHEN p_isExport = 0
         THEN
-            MAX(PaymentsID)
-        END PaymentID 
+            PaymentsID
+			END PaymentID 
     FROM tmp_AOS_
     WHERE Type = 1
-    GROUP BY InvoiceNo,PeriodCover,InvoiceAmount,StartDate
+    -- GROUP BY InvoiceNo,PeriodCover,InvoiceAmount,StartDate
     ORDER BY StartDate desc;
 
     SELECT
@@ -148,6 +156,8 @@ BEGIN
         IFNULL(InvoiceNo,'') as InvoiceNo,
         PeriodCover,
         InvoiceAmount,
+        DisputeDifference,
+        MinutesDifference,
         ' ' AS spacer,
         PaymentDate,
         Amount AS payment,

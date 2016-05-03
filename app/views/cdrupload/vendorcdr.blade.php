@@ -178,7 +178,7 @@ var postdata;
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
-                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr",
+                "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/type",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
@@ -193,9 +193,15 @@ var postdata;
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr",
-                            sButtonClass: "save-collection"
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/csv",
+                            sButtonClass: "save-collection btn-sm"
                         }
                     ]
                 },

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(IN `p_company_id` INT, IN `p_gatewayid` INT, IN `p_UserID` INT, IN `p_isAdmin` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(IN `p_company_id` INT, IN `p_gatewayid` INT, IN `p_UserID` INT, IN `p_isAdmin` INT, IN `p_NameFormat` VARCHAR(50))
 BEGIN
 
     DECLARE v_NameFormat_ VARCHAR(10);
@@ -22,6 +22,10 @@ BEGIN
 		RowNo INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		AuthRule VARCHAR(50)
 	);
+	
+		IF p_NameFormat = ''
+		THEN
+	
     	 INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 	  	 SELECT  case when Settings like '%"NameFormat":"NAMENUB"%'
 			  then 'NAMENUB'
@@ -46,7 +50,14 @@ BEGIN
         WHERE Settings LIKE '%NameFormat%' AND
         CompanyGatewayID = p_gatewayid
         limit 1;
-       
+      END IF;
+      
+      IF p_NameFormat != ''
+      THEN
+	      INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+	      	SELECT p_NameFormat;
+      END IF;
+      
 		 INSERT INTO tmp_AuthenticateRules_  (AuthRule)  
        SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL
 		 UNION 
@@ -152,7 +163,7 @@ BEGIN
                     a.CDRType
                 FROM Ratemanagement3.tblAccount  a
                 INNER JOIN tblGatewayAccount ga
-                    ON FIND_IN_SET(a.CustomerCLI,ga.AccountName) != 0
+                    ON FIND_IN_SET(ga.AccountName,a.CustomerCLI) != 0
                 AND a.Status = 1  
                 WHERE GatewayAccountID IS NOT NULL
                 AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))

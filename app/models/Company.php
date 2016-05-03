@@ -168,11 +168,20 @@ class Company extends \Eloquent {
     public static function getLicenceResponse(){
 
         $LicenceApiResponse = Session::get('LicenceApiResponse','');
-		  if(empty($LicenceApiResponse)) { // if first time login ...
+
+        if(empty($LicenceApiResponse)) { // if first time login ...
             $valresponse = Company::ValidateLicenceKey();
             Session::set('LicenceApiResponse', $valresponse);
             $LicenceApiResponse = $valresponse;
         }
         return $LicenceApiResponse;
+    }
+
+    public static function getCompanyTimeZone($companyID=0){
+            if($companyID>0){
+                return Company::find($companyID)->TimeZone;
+            }else{
+                return Company::find(User::get_companyID())->TimeZone;
+            }
     }
 }

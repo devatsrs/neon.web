@@ -194,7 +194,7 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt){
         "bDestroy": true,
         "bProcessing": true,
         "bServerSide": true,
-        "sAjaxSource": baseurl + "/billing_dashboard/ajaxgrid_top_pincode",
+        "sAjaxSource": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/type",
         "fnServerParams": function (aoData) {
             aoData.push(
                     {"name": "Pincode", "value": Pincode},
@@ -226,9 +226,15 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt){
             "aButtons": [
                 {
                     "sExtends": "download",
-                    "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode", //baseurl + "/generate_xls.php",
-                    sButtonClass: "save-collection"
+                    "sButtonText": "EXCEL",
+                    "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/xlsx", //baseurl + "/generate_xls.php",
+                    sButtonClass: "save-collection btn-sm"
+                },
+                {
+                    "sExtends": "download",
+                    "sButtonText": "CSV",
+                    "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/csv", //baseurl + "/generate_csv.php",
+                    sButtonClass: "save-collection btn-sm"
                 }
             ]
         },

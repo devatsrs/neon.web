@@ -7,6 +7,7 @@ CREATE TABLE `tblInvoiceDetail` (
   `EndDate` datetime DEFAULT NULL,
   `Price` decimal(18,6) NOT NULL,
   `Qty` int(11) DEFAULT NULL,
+  `TotalMinutes` bigint(20) DEFAULT NULL,
   `Discount` decimal(18,2) DEFAULT NULL,
   `TaxRateID` int(11) DEFAULT NULL,
   `TaxAmount` decimal(18,6) NOT NULL DEFAULT '0.000000',

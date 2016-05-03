@@ -12,6 +12,7 @@ function json_validator_response($validator){
 
 }
 
+
 function json_response_api($response){
     $errors = '';
     if(is_array($response)){
@@ -46,6 +47,7 @@ function json_response_api($response){
     }
     return  Response::json(array("status" => "failed", "message" => $errors));
 }
+
 
 function validator_response($validator){
 
@@ -584,20 +586,42 @@ function bulk_mail($type,$data){
 }
 
 
-function formatDate($date,$dateformat='d-m-Y') {
-    if ($dateformat == 'm-d-Y' && strpos($date,'-') !== false){
-        $date = str_replace('-', '/', $date);
-        $date = date($dateformat.' H:i:s', strtotime($date));
-    }else if ($dateformat == 'd-m-Y' && strpos($date,'/') !== false){
-        $date = str_replace('/', '-', $date);
-        $date = date($dateformat.' H:i:s', strtotime($date));
-    }else{
-        $date = date($dateformat.' H:i:s', strtotime($date));
+function formatDate($date,$dateformat='d-m-y',$smallDate = false) {
+    $date = str_replace('/', '-', $date);
+
+    if(!$smallDate){
+
+        if(strpos($date,":" ) !== FALSE ) {
+            $dateformat = $dateformat . " H:i:s";
+
+            if (strpos(strtolower($date), "am") !== FALSE || strpos(strtolower($date), "pm") !== FALSE) {
+                $dateformat = $dateformat . " A";
+            }
+        }
     }
-    if(date('Y', strtotime($date)) == '1970'){
-        throw new Exception('Invalid Date Format!!');
+
+    $_date_time = date_parse_from_format($dateformat, $date);
+
+    if (isset($_date_time['warning_count']) &&  isset($_date_time['warnings']) && count($_date_time['warnings']) > 0 ) {
+
+        $error  = $date . ': Date Format Error  ' . implode(",",(array)$_date_time['warnings']);
+        //throw new Exception($error);
     }
-    return $date;
+
+    if (isset($_date_time['error_count']) && $_date_time['error_count'] > 0 && isset($_date_time['errors'])) {
+
+        $error = $date . ': Date Format Error  ' . implode(",",(array)$_date_time['errors']);
+        //throw new Exception($error);
+
+    }
+
+    $datetime = $_date_time['year'].'-'.$_date_time['month'].'-'.$_date_time['day'];
+
+    if(is_numeric($_date_time['hour']) && is_numeric($_date_time['minute']) && is_numeric($_date_time['second'])){
+
+        $datetime = $datetime . ' '. $_date_time['hour'].':'.$_date_time['minute'].':'.$_date_time['second'];
+    }
+    return $datetime;
 }
 
 function email_log($data){
@@ -789,20 +813,20 @@ function SortBillingType(){
 
 
 function validfilepath($path){
-    $path = AmazonS3::unSignedUrl($path);
-    if (!is_numeric(strpos($path, "https://"))) {
+    $path = AmazonS3::unSignedImageUrl($path);
+    /*if (!is_numeric(strpos($path, "https://"))) {
         //$path = str_replace('/', '\\', $path);
         if (copy($path, './uploads/' . basename($path))) {
             $path = URL::to('/') . '/uploads/' . basename($path);
         }
-    }
+    }*/
     return $path;
 }
 
 function create_site_configration_cache(){	
 	$domain_url 					=   $_SERVER['HTTP_HOST'];
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
-	
+
 	if($result){  //url found	
 		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
 		$cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
@@ -824,6 +848,7 @@ function create_site_configration_cache(){
 	Session::put('user_site_configrations', $cache);
 }
 
+//not in use
 function addhttp($url) {
     if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
         $url = "http://" . $url;

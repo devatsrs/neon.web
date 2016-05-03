@@ -64,6 +64,13 @@
             <div class="col-sm-12">{{$Format}}</div>
         </div>
         @endif
+                @if(isset($Options->Effective) && !empty($Options->Effective))
+                    <?php $Effective = $Options->Effective; ?>
+                    <div class="form-group">
+                        <label for="field-1" class="control-label col-sm-12 bold">Effective</label>
+                        <div class="col-sm-12">{{$Effective}}</div>
+                    </div>
+                @endif
         <?php $Accountname = array();?>
         @if(isset($Options->AccountID) && is_array($Options->AccountID))
         @foreach($Options->AccountID as $row=>$AccountID)

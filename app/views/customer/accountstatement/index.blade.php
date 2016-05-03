@@ -57,7 +57,7 @@
                         <div class="export-data">
                             <div class="DTTT btn-group">
                                 <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_0">
-                                    <undefined>Export Data</undefined>
+                                    <undefined>EXCEL</undefined>
                                 </a>
                             </div>
                         </div>
@@ -141,27 +141,29 @@
                                     var ballences=0;
                                     var PaymentDate='';
                                     var PaymentDates='';
+                                    var roundplaces = data[i]['roundplaces'];
+                                    var CurencySymbol = data[i]['CurencySymbol'];
                                     if(data[i]['InvoiceAmount']!= null){
-                                        InvoiceAmount = parseFloat(Math.round(data[i]['InvoiceAmount'] * 100) / 100).toFixed(2);
+                                        InvoiceAmount = parseFloat(Math.round(data[i]['InvoiceAmount'] * 100) / 100).toFixed(roundplaces);
                                     }
                                     if(data[i]['payment']!= null){
                                         if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                            payment = parseFloat(Math.round(data[i]['payment'] * 100) / 100).toFixed(2);
+                                            payment = parseFloat(Math.round(data[i]['payment'] * 100) / 100).toFixed(roundplaces);
                                         }
                                     }
                                     if(data[i]['ballence']!= null){
-                                        ballence = parseFloat(Math.round(data[i]['ballence'] * 100) / 100).toFixed(2);
+                                        ballence = parseFloat(Math.round(data[i]['ballence'] * 100) / 100).toFixed(roundplaces);
                                     }
                                     if(data[i]['InvoiceAmounts']!= null){
-                                        InvoiceAmounts = parseFloat(Math.round(data[i]['InvoiceAmounts'] * 100) / 100).toFixed(2);
+                                        InvoiceAmounts = parseFloat(Math.round(data[i]['InvoiceAmounts'] * 100) / 100).toFixed(roundplaces);
                                     }
                                     if(data[i]['payments']!= null){
                                         if((check2 != data[i]['InvoiceNos']) ||(data[i]['InvoiceNos']=='')) {
-                                            payments = parseFloat(Math.round(data[i]['payments'] * 100) / 100).toFixed(2);
+                                            payments = parseFloat(Math.round(data[i]['payments'] * 100) / 100).toFixed(roundplaces);
                                         }
                                     }
                                     if(data[i]['ballences']!= null){
-                                        ballences = parseFloat(Math.round(data[i]['ballences'] * 100) / 100).toFixed(2);
+                                        ballences = parseFloat(Math.round(data[i]['ballences'] * 100) / 100).toFixed(roundplaces);
                                     }
                                     if(data[i]['PaymentDate']!= null){
                                         if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
@@ -214,28 +216,28 @@
                                     check1 = data[i]['InvoiceNo'];
                                     check2 = data[i]['InvoiceNos'];
                                 }
-                                var Ballance1 = InvoiceOutAmount-PaymentsInAmount;
-                                var Ballance2 = InvoiceInAmount-PaymentsOutAmount;
+                                var Ballance1 = parseFloat(InvoiceOutAmount-PaymentsInAmount).toFixed(roundplaces);
+                                var Ballance2 = parseFloat(InvoiceInAmount-PaymentsOutAmount).toFixed(roundplaces);
                                 var TotalBallance = (parseFloat((InvoiceOutAmount-PaymentsInAmount)-(InvoiceInAmount-PaymentsOutAmount))).toFixed(2);
                                 newRow = '<tr>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(InvoiceOutAmount * 100) / 100).toFixed(2)+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(PaymentsInAmount * 100) / 100).toFixed(2)+'</td>' +
-                                '<td>'+Ballance1+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+CurencySymbol+Ballance1+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(InvoiceInAmount * 100) / 100).toFixed(2)+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ parseFloat(Math.round(PaymentsOutAmount * 100) / 100).toFixed(2)+'</td>' +
-                                '<td>'+ Ballance2+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+Ballance2+'</td>' +
                                 '</tr>'+
                                 '<tr><td colspan="15"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td colspan="13">'+TotalBallance+'</td></tr>';
+                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td colspan="13">'+CurencySymbol+TotalBallance+'</td></tr>';
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();
@@ -247,7 +249,7 @@
                     $('#ToolTables_table-4_0').click(function(){
                         var StartDate = $("#account-statement-search [name='StartDate']").val();
                         var EndDate =  $("#account-statement-search [name='EndDate']").val();
-                        var url = baseurl + "/customer/account_statement/exports?&StartDate="+StartDate+"&EndDate="+EndDate;
+                        var url = baseurl + "/customer/account_statement/exports/xlsx?&StartDate="+StartDate+"&EndDate="+EndDate;
                         $( "#RemotingIFrame" ).contents().find("form").attr('action',url);
                         window.open(url, "RemotingIFrame");
                     });

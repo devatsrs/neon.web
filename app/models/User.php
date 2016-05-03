@@ -269,14 +269,36 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     public static function getOwnerUsersbyRole(){
         $companyID = User::get_companyID();
         $account_owners = array();
-        $account_owners = DB::table('tblUser')->where(["CompanyID" => $companyID, "Status" => 1])->where(function($query) {
+        /*$account_owners = DB::table('tblUser')->where(["CompanyID" => $companyID, "Status" => 1])->where(function($query) {
             $query->where('Roles', 'like', '%Account Manager%')
                   ->orwhere('Roles', 'like', '%Admin%');
         })
+            ->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');*/
+
+        $user = array();
+        $result = DB::table('tblResourceCategories')->select('ResourceCategoryID')->where(["CompanyID" => $companyID, "ResourceCategoryName" => 'AccountManager'])->first();
+        if(count($result)>0 && !empty($result->ResourceCategoryID)){
+            $user1 = array();
+            $query = "call prc_GetAjaxUserList (".$companyID.",'".$result->ResourceCategoryID."','0',2)";
+            $data  = DB::select($query);
+            $userdatas = json_decode(json_encode($data),true);
+            foreach($userdatas as $userdata){
+                if($userdata['Checked'] == 'true' || $userdata['AddRemove'] =='add'){
+                    $user1['UserID'] = $userdata['UserID'];
+                    $user[]=$user1['UserID'];
+                }
+            }
+        }
+        $account_owners = DB::table('tblUser')->where(["CompanyID" => $companyID, "Status" => 1])->where(function($query) use ($user) {
+            $query->where('AdminUser', '=', '1')
+                ->orwhereIn('UserID',$user);
+        })
             ->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
+
         if(!empty($account_owners)){
             $account_owners = array(""=> "Select Owner")+$account_owners;
         }
+
         return $account_owners;
 
     }

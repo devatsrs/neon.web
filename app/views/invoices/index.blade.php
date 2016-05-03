@@ -504,6 +504,8 @@ var postdata;
 		
 		
          $('#invoice-in').click(function(ev){
+
+
                 ev.preventDefault();
                 $('#add-invoice_in_template-form').trigger("reset");
                 $('#modal-invoice-in h4').html('Add Invoice');
@@ -511,6 +513,8 @@ var postdata;
                 $("#add-invoice_in_template-form [name='InvoiceID']").val('');
                 $('.file-input-name').text('');
                 $('#modal-invoice-in').modal('show');
+                reset_dispute();
+
         });
          $("#add-invoice_in_template-form [name='AccountID']").change(function(){
             $("#add-invoice_in_template-form [name='AccountName']").val( $("#add-invoice_in_template-form [name='AccountID'] option:selected").text());
@@ -521,10 +525,110 @@ var postdata;
                  });
              }
         });
+
+        $(".btn.ignore").click(function(e){
+
+            reset_dispute();
+
+        });
+
+        $(".btn.reconcile").click(function(e){
+
+
+            e.preventDefault();
+            var curnt_obj = $(this);
+            curnt_obj.button('loading');
+
+
+            var formData =$('#add-invoice_in_template-form').serializeArray();
+
+            reconcile_url = baseurl + '/invoice/reconcile';
+            ajax_json(reconcile_url,formData, function(response){
+
+                $(".btn").button('reset');
+
+                if (response.status == 'success') {
+
+                    console.log(response);
+                    set_dispute(response);
+                }
+
+            });
+
+
+        });
+
+        function set_dispute(response){
+
+            if(typeof response.DisputeID != 'undefined'){
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeID]").val(response.DisputeID);
+
+            }else{
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeID]").val("");
+
+            }
+
+            if(typeof response.DisputeTotal == 'undefined'){
+
+                $(".reconcile_table").addClass("hidden");
+                $(".btn.ignore").addClass("hidden");
+
+
+            }else{
+
+                $(".reconcile_table").removeClass("hidden");
+                $(".btn.ignore").removeClass("hidden");
+            }
+
+
+
+            $('#add-invoice_in_template-form').find("table .DisputeTotal").text(response.DisputeTotal);
+            $('#add-invoice_in_template-form').find("table .DisputeDifference").text(response.DisputeDifference);
+            $('#add-invoice_in_template-form').find("table .DisputeDifferencePer").text(response.DisputeDifferencePer);
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val(response.DisputeTotal);
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val(response.DisputeDifference);
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val(response.DisputeDifferencePer);
+
+            $('#add-invoice_in_template-form').find("table .DisputeMinutes").text(response.DisputeMinutes);
+            $('#add-invoice_in_template-form').find("table .MinutesDifference").text(response.MinutesDifference);
+            $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text(response.MinutesDifferencePer);
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeMinutes]").val(response.DisputeMinutes);
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifference]").val(response.MinutesDifference);
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val(response.MinutesDifferencePer);
+
+        }
+
+        function reset_dispute(){
+
+            $('#add-invoice_in_template-form').find("table .DisputeTotal").text("");
+            $('#add-invoice_in_template-form').find("table .DisputeDifference").text("");
+            $('#add-invoice_in_template-form').find("table .DisputeDifferencePer").text("");
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val("");
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val("");
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val("");
+
+            $('#add-invoice_in_template-form').find("table .DisputeMinutes").text("");
+            $('#add-invoice_in_template-form').find("table .MinutesDifference").text("");
+            $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text("");
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeMinutes]").val("");
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifference]").val("");
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val("");
+
+            $(".reconcile_table").addClass("hidden");
+            $(".btn.ignore").addClass("hidden");
+
+        }
+
         $("#add-invoice_in_template-form").submit(function(e){
             e.preventDefault();
             var formData = new FormData($('#add-invoice_in_template-form')[0]);
-             var InvoiceID = $("#add-invoice_in_template-form [name='InvoiceID']").val()
+             var InvoiceID = $("#add-invoice_in_template-form [name='InvoiceID']").val();
             if( typeof InvoiceID != 'undefined' && InvoiceID != ''){
                 update_new_url = baseurl + '/invoice/update_invoice_in/'+InvoiceID;
             }else{
@@ -551,6 +655,10 @@ var postdata;
                      $("#add-invoice_in_template-form [name='EndTime']").val(response.EndTime);
                      $("#add-invoice_in_template-form [name='Description']").val(response.Description);
                      $("#add-invoice_in_template-form [name='InvoiceDetailID']").val(response.InvoiceDetailID);
+                     $("#add-invoice_in_template-form [name='TotalMinutes']").val(response.TotalMinutes);
+
+                     set_dispute(response);
+
                  },
                  type: 'POST'
              });
@@ -1191,6 +1299,56 @@ var postdata;
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="field-1">Total Minutes</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="TotalMinutes" class="form-control"  value="" />
+                        </div>
+                    </div>
+                    <div class="form-group ">
+                        <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
+                        <div class="col-sm-4">
+                            <table class="reconcile_table table table-bordered datatable  hidden">
+                                <thead>
+                                <th></th>
+                                <th>Total</th>
+                                <th>Difference</th>
+                                <th>Difference %</th>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th>Amount</th>
+                                    <td><span class="DisputeTotal"></span></td>
+                                    <td><span class="DisputeDifference"></span></td>
+                                    <td><span class="DisputeDifferencePer"></span></td>
+                                </tr>
+                                <tr>
+                                    <th>Minutes</th>
+                                    <td><span class="DisputeMinutes"></span></td>
+                                    <td><span class="MinutesDifference"></span></td>
+                                    <td><span class="MinutesDifferencePer"></span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button" data-loading-text="Loading...">
+                                <i class="entypo-pencil"></i>
+                                Reconcile
+                            </button>
+                            <button class="btn ignore btn-danger btn-sm btn-icon icon-left hidden" type="button" data-loading-text="Loading...">
+                                <i class="entypo-pencil"></i>
+                                Ignore
+                            </button>
+
+                            <input type="hidden" name="DisputeID">
+                            <input type="hidden" name="DisputeTotal">
+                            <input type="hidden" name="DisputeDifference">
+                            <input type="hidden" name="DisputeDifferencePer">
+
+                            <input type="hidden" name="DisputeMinutes">
+                            <input type="hidden" name="MinutesDifference">
+                            <input type="hidden" name="MinutesDifferencePer">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Description</label>
                         <div class="col-sm-4">
                             <input type="text" name="Description" class="form-control"  value="" />
@@ -1205,6 +1363,7 @@ var postdata;
                             <!--<br><span class="file-input-name"></span>-->
                         </div>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                      <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
