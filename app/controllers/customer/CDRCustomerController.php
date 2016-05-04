@@ -59,4 +59,28 @@ class CDRCustomerController extends BaseController {
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
 
+    public function ajax_datagrid_total(){
+        $data						 =   Input::all();
+        $data['iDisplayStart'] 		 =	0;
+        $data['iDisplayStart'] 		+=	1;
+        $data['iSortCol_0']			 =  0;
+        $data['sSortDir_0']			 =  'desc';
+        $companyID 					 =	 User::get_companyID();
+        $columns 					 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
+        $sort_column 				 = 	 $columns[$data['iSortCol_0']];
+        $data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
+        $data['AccountID']           = User::get_userID();
+
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
+        $result2  = $result['data']['Total_grand_field'][0]->total_duration;
+        $result4  = array(
+            "total_duration"=>$result['data']['Total_grand_field'][0]->total_duration,
+            "total_cost"=>$result['data']['Total_grand_field'][0]->total_cost,
+            // "os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
+        );
+
+        return json_encode($result4,JSON_NUMERIC_CHECK);
+    }
+
 }

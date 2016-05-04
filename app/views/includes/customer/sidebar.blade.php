@@ -3,9 +3,8 @@
 
         <!-- logo -->
         <div class="logo">
-            <a href="#">
-                <img src="<?php echo URL::to('/'); ?>/assets/images/logo@2x.png" width="120" alt="" />
-            </a>
+            @if(Session::get('user_site_configrations.Logo')!='')<a href="#"> <img src="{{Session::get('user_site_configrations.Logo')}}" width="120" alt="" /> </a>
+            @endif
             @if(strtolower(getenv('APP_ENV'))!='production')
                 <br/>
                 <br/>
@@ -79,6 +78,12 @@
                     </a>
                 </li>
             </ul>
+        </li>
+        <li>
+            <a href="{{URL::to('customer/customers_rates')}}">
+                <i class="entypo-layout"></i>
+                <span>Commercial</span>
+            </a>
         </li>
         <li>
             <a href="{{URL::to('customer/profile')}}">

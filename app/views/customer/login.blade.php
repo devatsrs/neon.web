@@ -3,9 +3,11 @@
     <div class="login-container">
         <div class="login-header login-caret">
             <div class="login-content">
-                <a href="<?php echo URL::to('/'); ?>" class="logo">
+                @if(Session::get('user_site_configrations.Logo')!='')<a href="<?php echo URL::to('/'); ?>"> <img src="{{Session::get('user_site_configrations.Logo')}}" width="120" alt="" /> </a>
+                @endif
+                <!--<a href="<?php echo URL::to('/'); ?>" class="logo">
                     <img src="<?php echo URL::to('/'); ?>/assets/images/logo@2x.png" width="120" alt="" />
-                </a>
+                </a>-->
                 <p class="description" style="color:#fff">Dear user, log in to access your account!</p>
                 <!-- progress bar indicator -->
                 <div class="login-progressbar-indicator">

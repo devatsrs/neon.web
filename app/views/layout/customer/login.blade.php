@@ -3,8 +3,8 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-         <link href="<?php echo URL::to('/'); ?>/assets/images/favicon.ico" rel="icon">
-        <title>Neon</title>
+        <link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">
+        <title>{{Session::get('user_site_configrations.Title')}}</title>
 
          @include('includes.customer.login-css')
          
@@ -17,7 +17,11 @@
                 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
        <script type="text/javascript">var baseurl = '<?php echo URL::to('/');?>';</script>
-
+        @if(Session::get('user_site_configrations.CustomCss'))
+            <style>
+                {{Session::get('user_site_configrations.CustomCss')}}
+            </style>
+        @endif
     </head>
     <body class="page-body login-page login-form-fall" data-url="">
         <!-- This is needed when you send requests via Ajax -->

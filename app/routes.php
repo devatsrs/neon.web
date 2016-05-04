@@ -20,6 +20,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments', 'PaymentsCustomerController@index');
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
+    Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
 
 
     //Account Statement
@@ -43,6 +44,13 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');
 	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
+	Route::any('customer/cdr/ajax_datagrid_total', 'CDRCustomerController@ajax_datagrid_total');
+
+	//commercial
+
+	Route::any('customer/customers_rates', 'RateCustomerController@index');
+	Route::any('customer/customers_rates/{id}/search_ajax_datagrid/{type}', 'RateCustomerController@search_ajax_datagrid');
+	Route::any('customer/customers_rates/settings', 'RateCustomerController@settings');
 
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));

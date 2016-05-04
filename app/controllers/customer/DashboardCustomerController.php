@@ -9,7 +9,9 @@ class DashboardCustomerController extends BaseController {
     public function home() {
         $CustomerID = Customer::get_accountID();
         $account = Account::find($CustomerID);
-        return View::make('customer.index',compact('account'));
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        return View::make('customer.index',compact('account','original_startdate','original_enddate'));
     }
     public function invoice_expense_chart(){
         $data = Input::all();
