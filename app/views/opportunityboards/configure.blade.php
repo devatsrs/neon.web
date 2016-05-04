@@ -227,6 +227,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @if($urlto=='task')
                             <div class="col-md-12 margin-top pull-left">
                                 <div class="form-group">
                                     <label class="control-label col-sm-3">Set Completed</label>
@@ -237,6 +238,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">

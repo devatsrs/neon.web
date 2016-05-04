@@ -893,9 +893,13 @@ function check_upload_file($files,$session,$allowed_extensions,$data){
 
 function delete_file($session,$data){
     $files_array = Session::get($session);
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
-        if($array_file_data['fileName'] == $data['file']) {
-            unset($files_array[$data['token_attachment']][$key]);
+    if(isset($data['destroy'])){
+        unset($files_array[$data['token_attachment']]);
+    }else {
+        foreach ($files_array[$data['token_attachment']] as $key => $array_file_data) {
+            if ($array_file_data['fileName'] == $data['file']) {
+                unset($files_array[$data['token_attachment']][$key]);
+            }
         }
     }
     Session::set($session, $files_array);

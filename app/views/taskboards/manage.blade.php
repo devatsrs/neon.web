@@ -355,12 +355,12 @@
                 $('#allComments,#attachments').empty();
                 var taskID = rowHidden.find('[name="TaskID"]').val();
                 var accountID = rowHidden.find('[name="AccountID"]').val();
-                var taskName = rowHidden.find('[name="taskName"]').val();
+                var subject = rowHidden.find('[name="Subject"]').val();
                 $('#add-task-comments-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="AccountID"]').val(accountID);
                 $('#add-task-comments-form [name="AccountID"]').val(accountID);
-                $('#add-view-modal-task-comments h4.modal-title').text(taskName);
+                $('#add-view-modal-task-comments h4.modal-title').text(subject);
                 getComments();
                 getTaskAttachment();
                 $('#add-view-modal-task-comments').modal('show');
@@ -419,6 +419,7 @@
                         $('#attachment_processing').addClass('hidden');
                         $('#add-task-attachment-form').trigger("reset");
                         $('#addattachmentop .file-input-name').empty();
+                        getComments();
                         getTaskAttachment();
                     },
                     // Form data
@@ -448,6 +449,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        getComments();
                         getTaskAttachment();
                     },
                     // Form data
@@ -542,6 +544,21 @@
                     async :false,
                     success: function(response1) {}
                 });
+            });
+
+            $('#add-view-modal-task-comments').on('shown.bs.modal', function(event){
+                email_file_list = [];
+                $(".file-input-names").empty();
+                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{token_attachment:token,destroy:1},
+                    async :false,
+                    success: function(response1) {}
+                });
+
             });
 
 

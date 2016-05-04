@@ -306,6 +306,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        getComments();
                         getOpportunityAttachment();
                     },
                     // Form data
@@ -415,6 +416,21 @@
                     async :false,
                     success: function(response1) {}
                 });
+            });
+
+            $('#add-view-modal-opportunity-comments').on('shown.bs.modal', function(event){
+                email_file_list = [];
+                $(".file-input-names").empty();
+                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{token_attachment:token,destroy:1},
+                    async :false,
+                    success: function(response1) {}
+                });
+
             });
 
             function initEnhancement(){

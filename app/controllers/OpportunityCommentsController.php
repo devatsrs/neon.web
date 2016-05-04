@@ -52,12 +52,17 @@ class OpportunityCommentsController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
+        $files_array	=	Session::get("email_attachments");
         $file = get_uploaded_files('email_attachments',$data);
         if(!empty($file)){
             $data['file'] = $file;
         }
         $response = NeonAPI::request('opportunitycomment/add_comment',$data,true,false,true);
-        return json_response_api($response);
+        if ($response->status_code == 200) {
+            unset($files_array[$data['token_attachment']]);
+            Session::set("email_attachments", $files_array);
+        }
+        return  json_response_api($response);
     }
 
 }

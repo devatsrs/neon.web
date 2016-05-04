@@ -53,7 +53,10 @@ class OpportunityBoardController extends \BaseController {
         $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $BoardID = $id;
-        $response_extensions = getenv('CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS');
+        $response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        if(!empty($response_extensions)){
+            $response_extensions = implode(',',$response_extensions);
+        }
         $token    = get_random_number();
         $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
         $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
