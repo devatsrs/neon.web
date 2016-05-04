@@ -173,7 +173,7 @@ class LeadsController extends \BaseController {
             $RowsPerPage                =    $data['iDisplayLength'];
 			$message 					= 	 '';
             $response 				    = 	 NeonAPI::request('account/GetTimeLine',$data,false);
-			$sql 						= 	 "select `tblAccount`.`AccountName`, concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername, `tblAccount`.`Phone`, `tblAccount`.`Email`, `tblAccount`.`AccountID`, `IsCustomer`, `IsVendor`, `tblAccount`.`Address1`, `tblAccount`.`Address2`, `tblAccount`.`Address3`, `tblAccount`.`City`, `tblAccount`.`Country`, `Picture`, `tblAccount`.`PostCode` from `tblAccount` where (`tblAccount`.`AccountType` = '0') and `tblAccount`.`AccountName` like '%3G Telekom%' limit 1"; 
+			 $sql 						= 	 "select `tblAccount`.`AccountName`, concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername, `tblAccount`.`Phone`, `tblAccount`.`Email`, `tblAccount`.`AccountID`, `IsCustomer`, `IsVendor`, `tblAccount`.`Address1`, `tblAccount`.`Address2`, `tblAccount`.`Address3`, `tblAccount`.`City`, `tblAccount`.`Country`, `Picture`, `tblAccount`.`PostCode` from `tblAccount` where (`tblAccount`.`AccountType` = '0') and `tblAccount`.`AccountID` = '".$id."' limit 1";  
 			$Account_card  				= 	 DB::select($sql);			
 			$account_owners 			= 	 User::getUserIDList();
 			$Board 						= 	 CRMBoard::getTaskBoard();

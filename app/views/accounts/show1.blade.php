@@ -21,7 +21,7 @@
             <li>
               <div class="box clearfix ">
                 <div class="col-sm-12 header padding-left-1"> <span class="head">{{$Account_card[0]->AccountName}}</span><br>
-                  <span class="meta complete_name">{{$Account_card[0]->Ownername}} </span></div>
+                  <span class="meta complete_name">@if(strlen($Account_card[0]->Ownername)>40) {{substr($Account_card[0]->Ownername,0,40)."..."}} @else {{$Account_card[0]->Ownername}} @endif </span></div>
                 <div class="col-sm-6 padding-0">
                   <div class="block">
                     <div class="meta">Email</div>
