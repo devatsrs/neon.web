@@ -445,10 +445,7 @@ $('#emai_attachments_form').submit(function(e) {
 					ShowToastr("error",response_json.message);
 				} else {
 					
-					if($("#timeline-ul").length == 0) {
-						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
-						$('.timeline_start').html(html_ul);
-					}
+					
 				
                 ShowToastr("success","Note Successfully Created");  
 				document.getElementById('notes-from').reset();
@@ -463,6 +460,10 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				else
 				{
+					if($("#timeline-ul").length == 0) {
+						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+						$('.timeline_start').html(html_ul);
+					}
 					per_scroll = count;
 					 $('#timeline-ul li:eq(0)').before(response);
 				}
@@ -617,10 +618,7 @@ $('#emai_attachments_form').submit(function(e) {
 					
 					ShowToastr("error",response_json.message);
 				} else {
-					if($("#timeline-ul").length == 0) {
-						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
-						$('.timeline_start').html(html_ul);
-					}
+					
 					
 				//reset file upload	
 				file_count = 0;
@@ -641,6 +639,10 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				else
 				{
+					if($("#timeline-ul").length == 0) {
+						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+						$('.timeline_start').html(html_ul);
+					}
 					 per_scroll = count;
 					 $('#timeline-ul li:eq(0)').before(response);
 				}

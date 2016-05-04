@@ -57,7 +57,7 @@
 
     <div class="row">
             <div class="col-md-12">
-                <form id="search-task-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <form id="search-task-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
                     <div class="panel panel-primary" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -845,7 +845,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-2">Description</label>
                                     <div class="col-sm-10">
-                                        <textarea name="Description" class="form-control description autogrow resizevertical"> </textarea>
+                                        <textarea name="Description" class="form-control descriptions autogrow resizevertical"> </textarea>
                                     </div>
                                 </div>
                             </div>
@@ -904,7 +904,7 @@
                                     <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
-                                        <input id="filecontrole1" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input id="filecontrole1" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
                                     </div>
                                 </div>
@@ -919,7 +919,7 @@
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-12" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="TaskID" >
                             </div>
                         </form>

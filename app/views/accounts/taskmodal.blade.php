@@ -178,7 +178,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-2">Description</label>
                 <div class="col-sm-10">
-                  <textarea name="Description" class="form-control description autogrow resizevertical"> </textarea>
+                  <textarea name="Description" class="form-control descriptions autogrow resizevertical"> </textarea>
                 </div>
               </div>
             </div>
