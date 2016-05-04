@@ -1032,6 +1032,10 @@ button.close {
     padding-left:5px;
 }
 
+.margin-top{
+    margin-top:10px;
+}
+
 /*grid css start*/
 
     ul.grid {

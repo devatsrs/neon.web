@@ -315,11 +315,11 @@
             var toggle = '<header>';
             toggle += '<span class="list-style-buttons">';
             if(view==1){
-                toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
                 toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher grid active"><i class="entypo-book-open"></i></a>';
+                toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
             }else{
-                toggle = '<a href="javascript:void(0)" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
                 toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher grid"><i class="entypo-book-open"></i></a>';
+                toggle += '<a href="javascript:void(0)" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
             }
             toggle +='</span>';
             toggle += '</header>';

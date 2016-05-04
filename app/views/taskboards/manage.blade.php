@@ -7,9 +7,6 @@
         height: 26px;
     }
 
-    .margin-top{
-        margin-top:10px;
-    }
     .margin-top-group{
         margin-top:15px;
     }
@@ -80,13 +77,13 @@
                                     </div>
                                 @endif
                                 <label class="col-sm-1 control-label">Priority</label>
-                                <div class="col-sm-2">
+                                <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input name="Priority" type="checkbox" value="1" >
                                     </p>
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
-                                <div class="col-sm-2">
+                                <div class="col-sm-3">
                                     {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"selectboxit"))}}
                                 </div>
                             </div>
@@ -117,8 +114,8 @@
         </div>
 
         <p id="tools">
-            <a class="btn btn-primary toggle list" href="javascript:void(0)"><i class="entypo-list"></i></a>
             <a class="btn btn-primary toggle grid active" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list" href="javascript:void(0)"><i class="entypo-list"></i></a>
             <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                 <i class="entypo-plus"></i>
                 Add Task
@@ -715,7 +712,7 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
-                            getTask();
+                            getRecord();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                             fillColumns();

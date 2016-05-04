@@ -64,6 +64,20 @@
                 $('#add-edit-columnname-form [name="BoardColumnName"]').val(BoardColumnName);
 
                 if($(this).attr('data-setcompleted')==1){
+                    var make = '<span class="make-switch switch-small">';
+                    make += '<input name="SetCompleted" value="1" checked type="checkbox">';
+                    make +='</span>';
+                }else{
+                    var make = '<span class="make-switch switch-small">';
+                    make += '<input name="SetCompleted" value="1" type="checkbox">';
+                    make +='</span>';
+                }
+                var container = $('#add-edit-columnname-modal').find('.make');
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
+
+                if($(this).attr('data-setcompleted')==1){
                     $('#add-edit-columnname-form').find('[name="SetCompleted"]').prop('checked', true);
                 }else{
                     $('#add-edit-columnname-form').find('[name="SetCompleted"]').prop('checked', false);
@@ -205,17 +219,21 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 margin-top">
                                 <div class="form-group">
-                                    <label class="control-label">Column Name</label>
-                                    <input name="BoardColumnName" type="text" class="form-control">
+                                    <label class="control-label col-sm-3">Column Name</label>
+                                    <div class="col-sm-9">
+                                        <input name="BoardColumnName" type="text" class="form-control">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-12 margin-top pull-left">
                                 <div class="form-group">
-                                    <label class="control-label">Set Completed</label>
-                                    <div class="">
-                                        <input type="checkbox" name="SetCompleted" value="1">
+                                    <label class="control-label col-sm-3">Set Completed</label>
+                                    <div class="make col-sm-9">
+                                        <span class="make-switch switch-small">
+                                            <input type="checkbox" name="SetCompleted" value="1">
+                                        </span>
                                     </div>
                                 </div>
                             </div>
