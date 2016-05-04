@@ -121,7 +121,7 @@ var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
 						var response_json  =  JSON.parse(response1);
 						if(response_json.scroll=='end')
 						{
-							if($("#timeline-end").length > 0) {
+							if($(".timeline-end").length > 0) {
 								return false;
 					}
 							
