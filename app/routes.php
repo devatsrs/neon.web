@@ -125,6 +125,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/task/create', 'TaskController@create');
 	Route::any('/account/upload_file', 'AccountsController@upload_file');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
+	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
+	
+	
 
 	Route::any('/accounts/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'AccountsController@store_note'));
 	Route::any('/accounts/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'AccountsController@delete_note'));
@@ -209,6 +212,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/leads/store', array('as' => 'leads_store', 'uses' => 'LeadsController@store'));
 	Route::any('/leads/update/{id}', array('as' => 'leads_update', 'uses' => 'LeadsController@update'));
 	Route::any('/leads/{id}/show', array('as' => 'accounts_show', 'uses' => 'LeadsController@show'));
+	Route::any('/leads/{id}/show1', array('uses' => 'LeadsController@show1'));
 	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
 	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
 	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));

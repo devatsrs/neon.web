@@ -2246,3 +2246,10 @@ text-align:left
 	visibility:hidden;
 	padding-bottom:0px !important;
 }
+.head_title
+{
+	font-size:22px;
+	font-weight: 700;
+	color:#373e4a;
+	word-wrap: break-word;
+}

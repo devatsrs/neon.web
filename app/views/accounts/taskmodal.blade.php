@@ -20,6 +20,36 @@
 </style>
 <script>
     $(document).ready(function ($) {
+		
+		        $('#add-modal-task').on('hidden.bs.modal', function(event){
+       			var task_type_del 		=    $('#add-modal-task #Task_type').val();
+				var del_parent_id   	=	 $('#add-modal-task #Task_ParentID').val();
+				var url_delete_parent	=	 baseurl+"/accounts/delete_task_prent"
+				
+				$('body').removeClass('modal-open'); 
+				
+				if(task_type_del==0){
+					return false;
+				}
+				
+				/////////////
+		
+				 $.ajax({
+					url: url_delete_parent,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:{parent_type:task_type_del,parent_id:del_parent_id},
+					success: function(response1) {
+					
+					},
+				});	
+			
+		//////////////
+				
+        });
+
+		
         var task = [
             'BoardColumnID',
             'BoardColumnName',
@@ -67,7 +97,9 @@
 						per_scroll = count;
 						ShowToastr("success","Task Successfully Created");                     
 						$('#timeline-ul li:eq(0)').before(response);
-						document.getElementById('save-task-form').reset();
+						document.getElementById('add-task-form').reset();
+						$('#add-modal-task #Task_type').val(0);
+						$('#add-modal-task #Task_ParentID').val(0);
 						$("#task-add").button('reset');
 						//$("#add-task-form .btn-danger").click();
 						$('#add-modal-task').modal('hide');						
@@ -153,8 +185,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" id="Task_type" name="Task_type">
-          <input type="hidden" id="Task_ParentID" name="ParentID">
+          <input type="hidden" id="Task_type"  value="0" name="Task_type">
+          <input type="hidden" id="Task_ParentID" value="0" name="ParentID">
           <input type="hidden" id="BoardID" name="BoardID" value="13">
           <input type="hidden" id="AccountIDs" name="AccountIDs" value="{{$account->AccountID}}">
           <button type="submit" id="task-add"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>

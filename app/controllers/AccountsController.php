@@ -242,10 +242,17 @@ class AccountsController extends \BaseController {
 			$Board 						=	 CRMBoard::getTaskBoard();
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(0,1);
 			$random_token				=	 get_random_number();
-			 
 			$response_extensions 		= 	 json_encode(NeonAPI::request('get_allowed_extensions',[],false));
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
-		 	 $users						=	 json_encode(array_merge(array(""),$users));
+	 		$users						=	 json_encode(array_merge(array(""),$users));
+			
+			$boards 					= 	 CRMBoard::getBoards(CRMBoard::OpportunityBoard); //opperturnity variables start
+			$accounts 					= 	 Account::getAccountIDList();
+		 	$leadOrAccountID 			= 	 '';
+	        $leadOrAccount 				= 	 $accounts;
+    	    $leadOrAccountCheck 		= 	 'account';
+			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+			
 			
 			// echo Session::get("api_token"); exit;
 			//echo "<pre>";			print_r($users);			exit;
@@ -261,7 +268,7 @@ class AccountsController extends \BaseController {
 			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates','response_extensions','random_token','users','max_file_size'));
+            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards'));
     }
 	
 	
@@ -847,8 +854,28 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 	
 	function delete_upload_file()
 	{
-        $data 			= 	Input::all();
+        $data 		= 	Input::all();
         delete_file('activty_email_attachments',$data);
+
+	}
+	
+	function Delete_task_parent()
+	{
+		$data 		= 	Input::all();
+		
+		if($data['parent_type']==3)
+		{
+			$data_send  	=  	array("NoteID" => $data['parent_id']);
+			$result 		=  	NeonAPI::request('account/delete_note',$data_send);
+		}
+		
+		if($data['parent_type']==2)
+		{
+			$data_send  	=  array("AccountEmailLogID" => $data['parent_id']);
+			$result 		=  NeonAPI::request('account/delete_email',$data_send);
+			
+		}
+		return  json_response_api($result);
 
 	}
 	

@@ -76,7 +76,7 @@
               <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
               <span>Now</span>
               <?php }else{ ?>
-              <span><?php echo date("h:i a",strtotime($rows->created_at));  ?></span> <span>
+              <span><?php echo date("h:i a",strtotime($response->created_at));  ?></span> <span>
               <?php if(date("d",strtotime($response->created_at)) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($response->created_at));} ?>
               </span>
               <?php } ?>
@@ -86,9 +86,9 @@
                  <h2 class="toggle_open" id_toggle="{{$key+1}}">
                  @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                  
-                @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>you created a follow up task</span>
+                @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>You created a follow up task</span>
                  @elseif ($response->created_by==$current_user_title && $response->Name!=$current_user_title)<span>You assign follow up task to {{$response->Name}} </span> 
-                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assign follow up task to  You</span>
+                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assign follow up task to  you</span>
                  @else  <span> {{$response->created_by}} assign follow up task to  {{$response->Name}} </span> 
                  @endif
 </h2>

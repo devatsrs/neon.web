@@ -14,8 +14,10 @@ var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
 
     jQuery(document).ready(function ($) {	
 	
-	$('#redirect_add_link').click(function(e) {
-		$('#create_contact')[0].click();
+	$('.redirect_link').click(function(e) {
+		var id_redirect = $(this).attr('href_id');
+		
+		$('#'+id_redirect)[0].click();
     });
 		
 		var per_scroll 		= 	{{$per_scroll}};
@@ -89,54 +91,56 @@ var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
     <?php } ?>
 	//////////
 	function last_msg_funtion() 
-{  
+	{  
+		if($("#timeline-ul").length == 0) {
+			return false;  //it doesn't exist
+		}
 
-	if(scroll_more==0)
-	{
-		return false;
-	}
-	var count = 0;
-	var getClass =  $("#timeline-ul .count-li");
-    getClass.each(function () {count++;}); 	
-	var ID			=	$(".message_box:last").attr("id");
-	var url_scroll 	= 	"<?php echo URL::to('accounts/{id}/GetTimeLineSrollData'); ?>";
-	url_scroll 	   	= 	url_scroll.replace("{id}",<?php echo $AccountID; ?>);
-	
-	$('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
-	
-	/////////////
-	
-			 $.ajax({
-                url: url_scroll+'/'+per_scroll+"?scrol="+count,
-                type: 'POST',
-                dataType: 'html',
-				async :false,
-                success: function(response1) {
-						if (isJson(response1)) {
-							
-					var response_json  =  JSON.parse(response1);
-					if(response_json.scroll=='end')
-					{
-						var html_end  ='<li><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
-						$("#timeline-ul").append(html_end);	
-						scroll_more= 0;	
-						$('div#last_msg_loader').empty();
-						console.log("Results completed");
-						return false;
-					}
-					ShowToastr("error",response_json.message);
-				} else {
-						per_scroll 		= 	per_scroll_inc+per_scroll;	
-						$("#timeline-ul").append(response1); 
-					}
-						$('div#last_msg_loader').empty();
-					
-					},
-			});	
+		if(scroll_more==0){
+			return false;
+		}
+		var count = 0;
+		var getClass =  $("#timeline-ul .count-li");
+		getClass.each(function () {count++;}); 	
+		var ID			=	$(".message_box:last").attr("id");
+		var url_scroll 	= 	"<?php echo URL::to('accounts/{id}/GetTimeLineSrollData'); ?>";
+		url_scroll 	   	= 	url_scroll.replace("{id}",<?php echo $AccountID; ?>);
 		
-	//////////////
+		$('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
+		
+		/////////////
+		
+				 $.ajax({
+					url: url_scroll+'/'+per_scroll+"?scrol="+count,
+					type: 'POST',
+					dataType: 'html',
+					async :false,
+					success: function(response1) {
+							if (isJson(response1)) {
+								
+						var response_json  =  JSON.parse(response1);
+						if(response_json.scroll=='end')
+						{
+							var html_end  ='<li><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
+							$("#timeline-ul").append(html_end);	
+							scroll_more= 0;	
+							$('div#last_msg_loader').empty();
+							console.log("Results completed");
+							return false;
+						}
+						ShowToastr("error",response_json.message);
+					} else {
+							per_scroll 		= 	per_scroll_inc+per_scroll;	
+							$("#timeline-ul").append(response1); 
+						}
+							$('div#last_msg_loader').empty();
+						
+						},
+				});	
+			
+		//////////////
 	
-}
+	}
 
 $(window).scroll(function(){
 if ($(window).scrollTop() == $(document).height() - $(window).height()){
@@ -440,6 +444,11 @@ $('#emai_attachments_form').submit(function(e) {
 					var response_json  =  JSON.parse(response);
 					ShowToastr("error",response_json.message);
 				} else {
+					
+					if($("#timeline-ul").length == 0) {
+						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+						$('.timeline_start').html(html_ul);
+					}
 				
                 ShowToastr("success","Note Successfully Created");  
 				document.getElementById('notes-from').reset();
@@ -487,6 +496,10 @@ $('#emai_attachments_form').submit(function(e) {
 						var response_json  =  JSON.parse(response);
 						 ShowToastr("error",response_json.message);
 					} else {
+						if($("#timeline-ul").length == 0) {
+						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+						$('.timeline_start').html(html_ul);
+						}
 						per_scroll = count;
 						ShowToastr("success","Task Successfully Created");                     
 						$('#timeline-ul li:eq(0)').before(response);
@@ -561,8 +574,8 @@ $('#emai_attachments_form').submit(function(e) {
             $('#timeline-ul li:eq(0)').before(html);
         });
 		
-		$('#save-mail').click(function(e) {  empty_images_inputs();  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
-		$('#save-email-follow').click(function(e) { empty_images_inputs();  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		$('#save-mail').click(function(e) {  empty_images_inputs(); $('#email_send').val(1);  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
+		$('#save-email-follow').click(function(e) { empty_images_inputs(); $('#email_send').val(0); $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
 		
 		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');      show_popup = 0; });
 		$('#save-note-follow').click(function(e) {  $('.save-note-btn').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
@@ -599,11 +612,16 @@ $('#emai_attachments_form').submit(function(e) {
                 success: function(response) {		
 			   $(".btn-send-mail").button('reset');
 			   $(".btn-send-mail").removeClass('disabled');			   
- 	           if (isJson(response)) {
+ 	           if (isJson(response)) {				   
 					var response_json  =  JSON.parse(response);
 					
 					ShowToastr("error",response_json.message);
 				} else {
+					if($("#timeline-ul").length == 0) {
+						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+						$('.timeline_start').html(html_ul);
+					}
+					
 				//reset file upload	
 				file_count = 0;
 				email_file_list = [];

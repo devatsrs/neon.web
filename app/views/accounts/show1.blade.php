@@ -1,4 +1,4 @@
-<?php $disabled='';$leadOrAccountExist = 'No';$leadOrAccountID = '';$leadOrAccountCheck='';  $BoardID = $Board[0]->BoardID; ?>
+<?php $BoardID = $Board[0]->BoardID;  ?>
 @extends('layout.main')
 @section('content')
 <div  style="min-height: 1050px;">
@@ -21,7 +21,7 @@
             <li>
               <div class="box clearfix ">
                 <div class="col-sm-12 header padding-left-1"> <span class="head">{{$Account_card[0]->AccountName}}</span><br>
-                  <span class="meta complete_name"> </span></div>
+                  <span class="meta complete_name">{{$Account_card[0]->Ownername}} </span></div>
                 <div class="col-sm-6 padding-0">
                   <div class="block">
                     <div class="meta">Email</div>
@@ -31,28 +31,39 @@
                     <div class="meta">Phone</div>
                     <div><a href="tel:{{$Account_card[0]->Phone}}">{{$Account_card[0]->Phone}}</a></div>
                   </div>
+                  @if($leadOrAccountCheck=='account')
                   <div class="block blockSmall">
                     <div class="meta">Outstanding</div>
                     <div>{{$Account_card[0]->OutStandingAmount}}</div>
                   </div>
+                  @endif
                 </div>
                 <div class="col-sm-6 padding-0">
                   <div class="block">
                     <div class="meta">Address</div>
                     <div class="address account-address">
-                      <?php isset($Account_card[0]->Address1) ? $Account_card[0]->Address1."<br>":""; ?>
-                      <?php isset($Account_card[0]->Address2) ? $Account_card[0]->Address2."<br>":""; ?>
-                      <?php isset($Account_card[0]->Address3) ? $Account_card[0]->Address3."<br>":""; ?>
-                      <?php isset($Account_card[0]->City) ? $Account_card[0]->City."<br>":""; ?>
-                      <?php isset($Account_card[0]->PostCode) ? $Account_card[0]->PostCode."<br>":""; ?>
-                      <?php isset($Account_card[0]->Country) ? $Account_card[0]->Country."<br>":""; ?>
+                      <?php  if(!empty($Account_card[0]->Address1)){ echo $Account_card[0]->Address1."<br>";} ?>                      
+                      <?php  if(!empty($Account_card[0]->Address2)){ echo $Account_card[0]->Address2."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->Address3)){ echo $Account_card[0]->Address3."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->City)){ echo $Account_card[0]->City."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->PostCode)){ echo $Account_card[0]->PostCode."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->Country)){ echo $Account_card[0]->Country."<br>";} ?>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}">Edit </a>&nbsp; <a class="btn-default btn-sm label padding-3" href="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}">View </a>&nbsp;
+                <div class="col-sm-11 padding-0 action">                
+                  <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="entypo-ticket"></i> </button>
+                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>  
+                  <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>                                  
+                <!--  <button type="button" data-id="{{$account->AccountID}}" title="View Account" class="btn btn-default btn-xs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}"> <i class="entypo-search"></i> </button> -->
+                 @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;
                   @endif
-                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}">Vendor</a> @endif </div>
+                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}">Vendor</a> @endif
+                  @endif
+                
+                  
+                   </div>
               </div>
             </li>
           </ul>
@@ -60,11 +71,11 @@
         @endif 
         <!--Account card end --> 
                 <div class="">
-          <button style="margin:8px 25px 0 0;"  id="redirect_add_link" type="button" class="btn btn-black btn-xs pull-right">
+          <button style="margin:8px 25px 0 0;"  href_id="create_contact" id="redirect_add_link" type="button" class="btn btn-black redirect_link btn-xs pull-right">
 						<i class="entypo-plus"></i>
 					</button>
                   <a href="{{ URL::to('contacts/create?AccountID='.$account->AccountID)}}" id="create_contact" target="_blank" class="hidden">Add Contact</a>
-   <h3>Contacts</h3>
+   <span class="head_title">Contacts</span>
    
    </div>
    <div class="clearfix"></div>
@@ -179,6 +190,7 @@
                 <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
                 </div>
                 <div class="form-group email_attachment">
+                <input type="hidden" value="1" name="email_send" id="email_send"  />
                <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
                
                <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
@@ -283,10 +295,10 @@
             
       <!-- -->
         <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
-        <div class="timeline col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
-          <ul class="cbp_tmtimeline" id="timeline-ul">
-          <li></li>
+        <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
           @if(count($response)>0 && $message=='')
+           <ul class="cbp_tmtimeline" id="timeline-ul">
+          <li></li>
             <?php  foreach($response as $key => $rows){
 			  $rows = json_decode(json_encode($rows), True); //convert std array to simple array
 			   ?>
@@ -399,10 +411,12 @@
             </li>
             @endif
             <?php  } ?>
-            @endif
-          </ul>
-          
+            </ul>          
           <div id="last_msg_loader"></div>
+            @else
+            <span style="padding:1px;"><h3>No Record Found.</h3></span>
+            @endif
+          
         </div> 
     </section>
   </div>
@@ -425,6 +439,8 @@
 
 @include('includes.submit_note_script',array("controller"=>"accounts")) 
 @include("accounts.taskmodal") 
+<?php unset($BoardID); ?>
+@include('opportunityboards.opportunitymodal')
 @include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token)) 
 
 
@@ -440,6 +456,11 @@
                         tags:<?php echo $users; ?>
 
         });
+		
+		 $('.opportunityTags').select2({
+            tags:{{$opportunitytags}}
+        });
+
 
 </script>
 
@@ -448,7 +469,7 @@
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
 .col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
-.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;}
+.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
 
 </style>
 
