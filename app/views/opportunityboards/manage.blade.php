@@ -100,7 +100,7 @@
             </a>
         </p>
 
-        <section class="deals-board row" >
+        <section class="deals-board" >
 
                 <div id="board-start" class="board" style="height: 600px;" >
                 </div>
