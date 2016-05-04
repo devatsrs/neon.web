@@ -411,9 +411,18 @@
               </div>
             </li>
             @endif
-            <?php  } ?>
-            </ul>          
+            <?php  }
+			if(count($response)<10)
+			{
+			?>
+            <li><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>
+            <?php
+			}
+			 ?>
+            </ul>
+            @if(count($response)>($data['iDisplayLength'])-1)
           <div id="last_msg_loader"></div>
+			@endif
             @else
             <span style="padding:1px;"><h3>No Record Found.</h3></span>
             @endif
