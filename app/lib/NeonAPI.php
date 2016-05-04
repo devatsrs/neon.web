@@ -19,6 +19,7 @@ class NeonAPI{
 
         ));
         $curl->close();
+		Log::info($curl->response);
         $response = json_decode($curl->response);
         if(isset($response->token)){
             self::setToken($response->token);
