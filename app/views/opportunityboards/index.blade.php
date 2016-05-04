@@ -12,18 +12,6 @@
     <div class="tab-content">
         <div class="tab-pane active">
             <p style="text-align: right;">
-                <a href="#" id="add-new-taskboard" class="btn btn-primary hidden">
-                    <i class="entypo-plus"></i>
-                    Add Task Board
-                </a>
-                <a href="javascript:void(0)" id="configure-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary hidden">
-                    <i class="entypo-cog"></i>
-                    Configure Task Board
-                </a>
-                <a href="javascript:void(0)" id="manage-taskboard" data-id="{{!empty($taskBoard) && count($taskBoard) > 0?$taskBoard[0]->BoardID:''}}" class="btn btn-primary hidden">
-                    <i class="entypo-cog"></i>
-                    Manage Task Board
-                </a>
                 <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
                     Add Opportunity Board
@@ -193,17 +181,12 @@
                         $('#add-edit-modal-opportunity-board').modal('show');
                     });
 
-                    $('#add-new-opportunityboard,#add-new-taskboard').click(function (ev) {
+                    $('#add-new-opportunityboard').click(function (ev) {
                         ev.preventDefault();
                         var id = $(this).attr('id');
                         $('#add-edit-opportunitybaord-form').trigger("reset");
                         $("#add-edit-opportunitybaord-form [name='BoardID']").val('');
                         var BoardType = id=='add-new-opportunityboard'?opportunityBoard:taskBoard;
-                        if(id=='add-new-taskboard'){
-                            $('.toHidden').addClass('hidden');
-                        }else{
-                            $('.toHidden').removeClass('hidden');
-                        }
                         $("#add-edit-opportunitybaord-form [name='BoardType']").val(BoardType);
                         $('#add-edit-modal-opportunity-board h4').html('Add New Board');
                         $('#add-edit-modal-opportunity-board').modal('show');
@@ -319,7 +302,7 @@
                                 </div>
                             </div>
                             </div>
-                        <div class="row toHidden">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="control-label">Active</label>
