@@ -452,9 +452,7 @@ $('#emai_attachments_form').submit(function(e) {
 					
 					
 				
-                ShowToastr("success","Note Successfully Created");  
-				document.getElementById('notes-from').reset();
-				$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
+                
 				if(show_popup==1)
 				{
 					$('.followup_task_data ul li:eq(0)').before(response);
@@ -465,6 +463,9 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				else
 				{
+					$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
+					ShowToastr("success","Note Successfully Created");  
+				document.getElementById('notes-from').reset();
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
 						$('.timeline_start').html(html_ul);
@@ -630,9 +631,9 @@ $('#emai_attachments_form').submit(function(e) {
 				email_file_list = [];
 				//$('.fileUploads').remove();
 				$('.file_upload_span').remove();
-				 $('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
-                ShowToastr("success","Email Sent Successfully"); 
-				document.getElementById('email-from').reset();				
+				 
+               
+					
 				///
 				if(show_popup==1)
 				{
@@ -644,6 +645,10 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				else
 				{
+					 ShowToastr("success","Email Sent Successfully"); 
+					 document.getElementById('email-from').reset();	
+					 $('.email_template').change();		
+					$('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
 						$('.timeline_start').html(html_ul);

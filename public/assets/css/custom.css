@@ -530,7 +530,7 @@ em {
         min-height: 66px;
     }
     ul.grid li div.block {
-        min-height: 80px;
+        min-height: 60px;
         word-wrap: break-word;
     }
     ul.grid li div.cellNo{
@@ -1364,7 +1364,7 @@ text-align:center;
         min-height: 66px;
     }
     ul.grid li div.block {
-        min-height: 80px;
+        min-height: 60px;
         word-wrap: break-word;
     }
     ul.grid li div.cellNo{

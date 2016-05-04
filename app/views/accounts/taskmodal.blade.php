@@ -95,6 +95,21 @@
 						 $("#task-add").button('reset');
 					} else {
 						per_scroll = count;
+						var task_type_del 		=    $('#add-modal-task #Task_type').val();
+						if(task_type_del==3)
+						{
+							$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
+							ShowToastr("success","Note Successfully Created");  
+							document.getElementById('notes-from').reset();
+						}
+						if(task_type_del==2)
+						{
+							 document.getElementById('email-from').reset();	
+							 $('.email_template').change();		
+							 $('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
+						}
+						
+						$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
 						ShowToastr("success","Task Successfully Created");                     
 						$('#timeline-ul li:eq(0)').before(response);
 						document.getElementById('add-task-form').reset();
@@ -137,7 +152,7 @@
             </div>
             <div class="col-md-6 pull-right">
               <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Assign To</label>
+                <label for="field-5" class="control-label col-sm-4">Assign To *</label>
                 <div class="col-sm-8"> {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2"))}} </div>
               </div>
             </div>

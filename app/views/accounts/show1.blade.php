@@ -13,7 +13,7 @@
     </li>
     <li>
 
-        <a href="{{URL::to('/leads')}}">leads</a>
+        <a href="{{URL::to('/leads')}}">Leads</a>
     </li>
     <li class="active">
         <strong>View Lead</strong>
@@ -191,7 +191,7 @@
                    
                 <div class="form-Group" style="margin-bottom: 15px;">
                     <label >Email Template</label>                               
-                        {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2"))}}                                
+                        {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template"))}}                                
                 </div>
                         
                 <div class="form-group">
