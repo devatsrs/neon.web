@@ -76,12 +76,12 @@
             </div>
             <div class="clear"></div>
             <br>
-            <p style="text-align: right;">
+            <!--<p style="text-align: right;">
                 <a href="#" id="add-new-payment" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
                     Add New Payment Request
                 </a>
-            </p>
+            </p>-->
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
@@ -531,10 +531,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <form id="add-edit-payment-form" method="post">
-                    <div class="modal-header">
+                    <!--<div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Add New payment Request</h4>
-                    </div>
+                    </div>-->
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
