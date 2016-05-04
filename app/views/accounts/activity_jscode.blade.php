@@ -122,6 +122,7 @@ var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
 						if(response_json.scroll=='end')
 						{
 							if($(".timeline-end").length > 0) {
+								scroll_more= 0;	
 								return false;
 					}
 							
