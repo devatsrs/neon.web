@@ -3,14 +3,30 @@
 @section('content')
 <div  style="min-height: 1050px;">
   <ol class="breadcrumb bc-3">
+  @if(leadOrAccountCheck=='account')
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
     <li> <a href="{{URL::to('accounts')}}">Accounts</a> </li>
     <li class="active"> <strong>View Account</strong> </li>
+  @elseif(leadOrAccountCheck=='lead')  
+      <li>
+        <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
+    </li>
+    <li>
+
+        <a href="{{URL::to('/leads')}}">leads</a>
+    </li>
+    <li class="active">
+        <strong>View Lead</strong>
+    </li>
+    @endif
   </ol>
+  
   @include('includes.errors')
   @include('includes.success')
   <?php $Account = $account;?>
+  @if(leadOrAccountCheck=='account')
   @include('accounts.errormessage')
+  @endif
   <div id="account-timeline">
     <section>
       <div id="contact-column" class="about-account col-md-3 col-sm-12 col-xs-12 pull-left"> 
