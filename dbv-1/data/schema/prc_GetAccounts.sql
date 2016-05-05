@@ -6,7 +6,7 @@ BEGIN
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
  
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-		SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+		SELECT cs.Value INTO v_Round_ from tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 		
 	IF p_isExport = 0
 	THEN
@@ -17,7 +17,7 @@ BEGIN
 		 	tblAccount.AccountID,
 			tblAccount.Number, 
 			tblAccount.AccountName,
-			CONCAT(tblUser.FirstName,' ',tblUser.LastName) as Ownername,
+			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
 			tblAccount.Phone, 
 			
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
@@ -45,6 +45,7 @@ BEGIN
 		AND((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 		AND((p_tags = '' OR tblAccount.tags like Concat(p_tags,'%')))
 		AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+		group by tblAccount.AccountID
 			ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN tblAccount.AccountName
@@ -93,26 +94,15 @@ BEGIN
 	AND((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
 	AND((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 	AND((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
-	AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')));
-
+	AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+	group by tblAccount.AccountID;
 	END IF;
 	IF p_isExport = 1
     THEN
         SELECT
-            tblAccount.Number, tblAccount.AccountName,CONCAT(tblUser.FirstName,' ',tblUser.LastName) as Ownername,tblAccount.Phone, 
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OutStandingAmount ,
-			tblAccount.Email, tblAccount.IsCustomer, tblAccount.IsVendor,
-			Case
-				when tblAccount.VerificationStatus = 0 Then 'Not Verified'
-				when tblAccount.VerificationStatus = 1 Then 'Pending Verification'
-				when tblAccount.VerificationStatus = 2 Then 'Verified'
-			End as VerificationStatus,
-			tblAccount.Address1,
-			tblAccount.Address2,
-			tblAccount.Address3,
-			tblAccount.City,
-			tblAccount.Country,
-			tblAccount.Picture
+            tblAccount.Number as NO, tblAccount.AccountName,CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Name,tblAccount.Phone, 
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OS ,
+			tblAccount.Email
 			FROM tblAccount
 			LEFT JOIN tblUser ON tblAccount.Owner = tblUser.UserID
 			LEFT JOIN tblContact ON tblContact.Owner=tblAccount.AccountID
@@ -126,7 +116,8 @@ BEGIN
 			AND((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
 			AND((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 			AND((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
-			AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')));
+			AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			group by tblAccount.AccountID;
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
