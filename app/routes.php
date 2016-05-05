@@ -48,9 +48,11 @@ Route::group(array('before' => 'auth'), function () {
 
 	//commercial
 
-	Route::any('customer/customers_rates', 'RateCustomerController@index');
+	Route::any('customer/customers_rates', 'RateCustomerController@settings');
 	Route::any('customer/customers_rates/{id}/search_ajax_datagrid/{type}', 'RateCustomerController@search_ajax_datagrid');
-	Route::any('customer/customers_rates/settings', 'RateCustomerController@settings');
+	Route::any('customer/customers_rates/rate', 'RateCustomerController@index');
+	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
+	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
 
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));

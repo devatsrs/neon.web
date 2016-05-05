@@ -41,7 +41,7 @@ class PaymentsCustomerController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){

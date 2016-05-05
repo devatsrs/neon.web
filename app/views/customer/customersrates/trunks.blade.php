@@ -8,16 +8,23 @@
 <h3>Settings</h3>
 <!--@include('accounts.errormessage')-->
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li>
-        <a href="{{ URL::to('/customer/customers_rates') }}" >
-             Customer Rate
-        </a>
-    </li>
     <li class="active">
-        <a href="{{ URL::to('/customer/customers_rates/settings') }}" >
-             Settings
+        <a href="{{ URL::to('/customer/customers_rates') }}" >
+            Settings
         </a>
     </li>
+    <li>
+        <a href="{{ URL::to('/customer/customers_rates/rate') }}" >
+            outbound Rate
+        </a>
+    </li>
+    @if(isset($displayinbound) && $displayinbound>0)
+    <li>
+        <a href="{{ URL::to('/customer/customers_rates/inboundrate') }}" >
+            Inbound Rate
+        </a>
+    </li>
+    @endif
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="customer_rate_tab_content">

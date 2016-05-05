@@ -4,25 +4,25 @@
 
     <ol class="breadcrumb bc-3">
         <li>
-            <a href="#"><i class="entypo-home"></i>Rate</a>
+            <a href="#"><i class="entypo-home"></i>Inbound Rate</a>
         </li>
     </ol>
 
-<h3>Outbound Rate</h3>
+<h3>Inbound Rate</h3>
 {{--@include('accounts.errormessage')--}}
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li  >
+    <li>
         <a href="{{ URL::to('/customer/customers_rates') }}" >
             Settings
         </a>
     </li>
-    <li class="active">
+    <li>
         <a href="{{ URL::to('/customer/customers_rates/rate') }}" >
            Outbound Rate
         </a>
     </li>
     @if(isset($displayinbound) && $displayinbound>0)
-        <li>
+        <li class="active">
             <a href="{{ URL::to('/customer/customers_rates/inboundrate') }}" >
                 Inbound Rate
             </a>
@@ -71,10 +71,10 @@
                                    </select>
                                </div>
 
-                               <label for="field-1" class="col-sm-1 control-label">Trunk</label>
+                               <!--<label for="field-1" class="col-sm-1 control-label">Trunk</label>
                                <div class="col-sm-2">
                                    {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2",'id'=>'ct_trunk')) }}
-                               </div>
+                               </div>-->
 
                               <!--<label class="col-sm-2 control-label">Show Applied Rates</label>
                                <div class="col-sm-1">
@@ -88,10 +88,10 @@
                                    {{ Form::select('Country', $countries, Input::get('Country') , array("class"=>"select2")) }}
                                </div>
 
-                              <label for="field-1" class="col-sm-1 control-label RoutinePlan">Routing Plan</label>
+                            <!--  <label for="field-1" class="col-sm-1 control-label RoutinePlan">Routing Plan</label>
                               <div class="col-sm-3">
                                  {{ Form::select('RoutinePlanFilter', $trunks_routing, '', array("class"=>"select2 RoutinePlan")) }}
-                              </div>
+                              </div>-->
 
 
                            </div>
@@ -131,7 +131,6 @@
                     <th width="5%">Interval 1</th>
                     <th width="5%">Interval N</th>
                     <th width="5%">Connection Fee</th>
-                    <th width="5%" class="RoutinePlan">Routing plan</th>
                     <th width="5%">Rate ({{$CurrencySymbol}})</th>
                     <th width="10%">Effective Date</th>
                 </tr>
@@ -147,7 +146,7 @@
             var checked='';
             var update_new_url;
             var first_call = true;
-            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','EffectiveDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
+            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
             var routinejson ='{{json_encode($routine)}}';
                     jQuery(document).ready(function($) {
                         //var data_table;
@@ -170,17 +169,13 @@
                             $searchFilter.Effected_Rates_on_off = $("#customer-rate-table-search input[name='Effected_Rates_on_off']").prop("checked");
                             $searchFilter.RoutinePlanFilter = $("#customer-rate-table-search select[name='RoutinePlanFilter']").val();
 
-                            if($searchFilter.Trunk == '' || typeof $searchFilter.Trunk  == 'undefined' || $searchFilter.Trunk  == null){
-                               toastr.error("Please Select a Trunk", "Error", toastr_opts);
-                               return false;
-                            }
 
 
                             data_table = $("#table-4").dataTable({
                                 "bDestroy": true, // Destroy when resubmit form
                                 "bProcessing": true,
                                 "bServerSide": true,
-                                "sAjaxSource": baseurl + "/customer/customers_rates/{{$id}}/search_ajax_datagrid/type",
+                                "sAjaxSource": baseurl + "/customer/customers_rates/{{$id}}/search_inbound_ajax_datagrid/type",
                                 "fnServerParams": function(aoData) {
                                     aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter});
                                     data_table_extra_params.length = 0;
@@ -200,11 +195,6 @@
                                             {}, //2Description
                                             {}, //3Interval1
                                             {}, //4IntervalN
-                                            {@if(count($trunks_routing) ==0 || count($routine)  == 0)
-                                                "visible": false
-                                               @endif
-
-                                            }, //4IntervalN
                                             {}, //5 ConnectionFee
                                             {}, //5Rate
                                             {} //6Effective Date
@@ -215,19 +205,19 @@
                                                 {
                                                     "sExtends": "download",
                                                     "sButtonText": "EXCEL",
-                                                    "sUrl": baseurl + "/customer/customers_rates/{{$id}}/search_ajax_datagrid/xlsx",
+                                                    "sUrl": baseurl + "/customer/customers_rates/{{$id}}/search_inbound_ajax_datagrid/xlsx",
                                                     sButtonClass: "save-collection btn-sm"
                                                 },
                                                 {
                                                     "sExtends": "download",
                                                     "sButtonText": "CSV",
-                                                    "sUrl": baseurl + "/customer/customers_rates/{{$id}}/search_ajax_datagrid/csv",
+                                                    "sUrl": baseurl + "/customer/customers_rates/{{$id}}/search_inbound_ajax_datagrid/csv",
                                                     sButtonClass: "save-collection btn-sm"
                                                 }
                                             ]
                                         },
                                 "fnDrawCallback": function() {
-                                    checkrouting($searchFilter.Trunk);
+                                  //  checkrouting($searchFilter.Trunk);
 
                                     $(".dataTables_wrapper select").select2({
                                         minimumResultsForSearch: -1
@@ -236,9 +226,6 @@
 
                                 }
                             });
-                            @if(count($trunks_routing) ==0 || count($routine)  == 0)
-                                $("#table-4 td:nth-child(6)").hide();
-                            @endif
 
                         });
                         $("#ct_trunk").change(function(ev) {

@@ -32,7 +32,7 @@ $(function() {
                         data: sales_data_2,
                         xkey: 'x',
                         ykeys: ['y','z','a'],
-                        labels:['Payment Received','Total Invoice','Total Outstanding'],
+                        labels:['Payment Deposited','Total Invoice','Total Outstanding'],
                         barColors: ['#3399FF', '#333399', '#3366CC']
 
                     });

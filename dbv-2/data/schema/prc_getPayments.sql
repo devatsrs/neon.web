@@ -140,6 +140,38 @@ BEGIN
 			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
 	END IF;
 	
+	
+	-- export data for customer panel
+	IF p_isExport = 2
+    THEN
+
+		SELECT 
+            AccountName,
+            CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
+            CASE WHEN p_isCustomer = 1 THEN
+              CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
+              END
+            ELSE  PaymentType
+            END as PaymentType,
+            PaymentDate,
+            tblPayment.Status,
+            InvoiceNo,
+            tblPayment.PaymentMethod,
+            Notes 
+			from tblPayment
+            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            LEFT JOIN LocalRatemanagement.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
+            where tblPayment.CompanyID = p_CompanyID
+            AND(tblPayment.Recall = p_RecallOnOff)
+            AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+            AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
+            AND((p_Status IS NULL OR tblPayment.Status = p_Status))
+            AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
+            AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+            AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
+	END IF;
+	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
 END

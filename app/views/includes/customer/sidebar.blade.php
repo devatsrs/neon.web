@@ -79,12 +79,14 @@
                 </li>
             </ul>
         </li>
+        @if(getenv('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
                 <i class="entypo-layout"></i>
                 <span>Commercial</span>
             </a>
         </li>
+        @endif
         <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="entypo-layout"></i>

@@ -85,13 +85,12 @@
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="14%">Invoice No</th>
-                    <th width="14%">Amount</th>
-                    <th width="14%">Type</th>
-                    <th width="15%">Payment Date</th>
-                    <th width="14%">Status</th>
-                    <th width="15%">CreatedBy</th>
-                    <th width="14%">Action</th>
+                    <th width="15%">Invoice No</th>
+                    <th width="20%">Amount</th>
+                    <th width="15%">Type</th>
+                    <th width="20%">Payment Date</th>
+                    <th width="15%">Status</th>
+                    <th width="15%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -180,12 +179,6 @@
                                     "bSortable": true, //status
                                     mRender: function (id, type, full) {
                                         return full[7]
-                                    }
-                                },
-                                {
-                                    "bSortable": true, //Created by
-                                    mRender: function (id, type, full) {
-                                        return full[8]
                                     }
                                 },
                                 {                       //3  Action
