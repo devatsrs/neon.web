@@ -450,9 +450,6 @@ $('#emai_attachments_form').submit(function(e) {
 					ShowToastr("error",response_json.message);
 				} else {
 					
-					
-				
-                
 				if(show_popup==1)
 				{
 					$('.followup_task_data ul li:eq(0)').before(response);
@@ -465,13 +462,20 @@ $('#emai_attachments_form').submit(function(e) {
 				{
 					$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
 					ShowToastr("success","Note Successfully Created");  
-				document.getElementById('notes-from').reset();
+					document.getElementById('notes-from').reset();
+					var empty_ul = 0;
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
 						$('.timeline_start').html(html_ul);
+						empty_ul = 1;
 					}
 					per_scroll = count;
 					 $('#timeline-ul li:eq(0)').before(response);
+					 if(empty_ul)
+					 {
+					 		var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
+							$("#timeline-ul").append(html_end);	
+					 }
 				}
 
             } show_popup=0;
@@ -503,13 +507,22 @@ $('#emai_attachments_form').submit(function(e) {
 						var response_json  =  JSON.parse(response);
 						 ShowToastr("error",response_json.message);
 					} else {
+						var empty_ul = 0;
 						if($("#timeline-ul").length == 0) {
-						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
-						$('.timeline_start').html(html_ul);
+							var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+							$('.timeline_start').html(html_ul);
+							empty_ul = 1;
+						
 						}
 						per_scroll = count;
-						ShowToastr("success","Task Successfully Created");                     
+						ShowToastr("success","Task Successfully Created"); 
+						                    
 						$('#timeline-ul li:eq(0)').before(response);
+						if(empty_ul)
+						 {
+					 		var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
+							$("#timeline-ul").append(html_end);	
+						 }
 						document.getElementById('save-task-form').reset();
 					}
                     show_popup=0;
@@ -649,12 +662,19 @@ $('#emai_attachments_form').submit(function(e) {
 					 document.getElementById('email-from').reset();	
 					 $('.email_template').change();		
 					$('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
+					var empty_ul = 0;
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
 						$('.timeline_start').html(html_ul);
+						empty_ul = 1;
 					}
 					 per_scroll = count;
 					 $('#timeline-ul li:eq(0)').before(response);
+					 if(empty_ul)
+					 {
+					 		var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
+							$("#timeline-ul").append(html_end);	
+					 }
 				}
 				///				
 				

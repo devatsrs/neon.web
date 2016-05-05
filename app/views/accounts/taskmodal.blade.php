@@ -110,8 +110,21 @@
 						}
 						
 						$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
-						ShowToastr("success","Task Successfully Created");                     
+						ShowToastr("success","Task Successfully Created");              
+						var empty_ul = 0;
+						if($("#timeline-ul").length == 0) {
+							var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
+							$('.timeline_start').html(html_ul);
+							empty_ul = 1;
+						}	
+						       
 						$('#timeline-ul li:eq(0)').before(response);
+						
+						if(empty_ul)
+						 {
+								var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
+								$("#timeline-ul").append(html_end);	
+						 }
 						document.getElementById('add-task-form').reset();
 						$('#add-modal-task #Task_type').val(0);
 						$('#add-modal-task #Task_ParentID').val(0);
