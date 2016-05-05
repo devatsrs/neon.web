@@ -746,6 +746,16 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/Wysihtml5/getfiles','Wysihtml5Controller@getfiles');
     Route::any('/Wysihtml5/file_upload','Wysihtml5Controller@file_upload');
 
+	//Disputes
+	Route::any('/disputes','DisputeController@index');
+	Route::any('/disputes/reconcile', 'DisputeController@reconcile');
+	Route::any('/disputes/ajax_datagrid/{type}','DisputeController@ajax_datagrid');
+	Route::any('/disputes/{id}/delete','DisputeController@delete');
+	Route::any('/disputes/{id}/update','DisputeController@update');
+	Route::any('/disputes/create','DisputeController@create');
+	Route::any('/disputes/change_status','DisputeController@change_status');
+
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
