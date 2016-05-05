@@ -289,7 +289,7 @@
             });
 
             $(document).on('click','#attachments i.delete-file',function(){
-                var con = confirm('Do you delete current attachment?');
+                var con = confirm('Are you sure you want to delete this attachments?');
                 if(!con){
                     return true;
                 }
@@ -431,6 +431,21 @@
                     success: function(response1) {}
                 });
 
+            });
+
+            $(document).on('mouseover','#attachments a',
+                    function(){
+                        var a = $(this).attr('alt');
+                        $(this).html(a);
+                    }
+            );
+
+            $(document).on('mouseout','#attachments a',function(){
+                var a = $(this).attr('alt');
+                if(a.length>8){
+                    a  = a.substring(0,8)+"..";
+                }
+                $(this).html(a);
             });
 
             function initEnhancement(){

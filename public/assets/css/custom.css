@@ -1211,6 +1211,9 @@ text-align:center;
     width:100%;
     height:auto;
 }
+.fileinput-new p a{
+ word-wrap: break-word;
+}
 #manage-board .board-column {
     display: inline-block;
 }
@@ -1346,11 +1349,11 @@ text-align:center;
     .clearfix {
         display: block;
     }
-	
+
     ul.grid li {
         box-sizing: border-box;
-        padding: 6px 8px 4px 4px;		
-		
+        padding: 6px 8px 4px 4px;
+
     }
     ul.grid li div.box{
         border: 1px solid #b6bdbe;
@@ -1378,7 +1381,7 @@ text-align:center;
         height: 116px;
         overflow-y:auto;
     }
-	
+
 	ul.grid li .account-address
 	{
 		height: 120px !important;
@@ -1566,7 +1569,7 @@ margin-top:5px;
      border: 1px solid #e6e6e6;
 }
 .left-card {
-background-color: #fff; 
+background-color: #fff;
 width: 99%;
 }
 .account-details-info {
@@ -1575,7 +1578,7 @@ margin-top: 15px;
   margin-left: 15px;
 }
 .timeline-cards {
-background-color: #fff; 
+background-color: #fff;
 margin-top: 5px;
 }
 .searchBox button {
@@ -1597,7 +1600,7 @@ margin-top: 5px;
 .margin-top-5 {
 margin-top:5px;
 
-    
+
 }
 .timeline.upper-box {
 background-color:#fff;
@@ -1630,7 +1633,7 @@ margin-left:100px;
 margin-left:0px;
 }
 
-    
+
 }
 @media (max-width: 500px) {
 .interactions-list .interactions-tab {
@@ -1642,8 +1645,8 @@ margin-left:0px;
     clear:both;
     }
 }
-  dialog {  
-    width: 580px;  
+  dialog {
+    width: 580px;
     background:#fff;
     border: 1px solid #dadada;
     font-family:sans-serif;
@@ -1682,7 +1685,7 @@ display:none;
 }
 .deal-details img {
     width: 100px;
-    
+
     margin-left: auto;
     margin-right: auto;
 }
@@ -1786,7 +1789,7 @@ background-color:#f1f1f1;
 height: 200px;
 }
 #manage-board .manage-board-inner {
-margin-top:10px; 
+margin-top:10px;
 margin-bottom:10px;
 padding-left:0px;
 }
@@ -2025,11 +2028,7 @@ text-align:center;
 .comment-attachment {
 /*display:inline-block;*/
 }
-.fileinput-new {
-width:100%;
 
-height:auto;
-}
 #manage-board .board-column {
         display: inline-block;
 }
