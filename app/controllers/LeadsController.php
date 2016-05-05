@@ -143,7 +143,7 @@ class LeadsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
-    public function show($id)
+    public function show_old($id)
     {
 
                 $lead = Lead::find($id);
@@ -155,7 +155,7 @@ class LeadsController extends \BaseController {
 
     }
 	
-		public function show1($id) {		
+		public function show($id) {
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
             $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
@@ -194,8 +194,7 @@ class LeadsController extends \BaseController {
 			$leadOrAccountCheck 		= 	'lead';
 			$opportunitytags 			= 	json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-			// echo Session::get("api_token"); exit;
-			//echo "<pre>";			print_r($users);			exit;
+
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data->result;
 			}else{				

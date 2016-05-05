@@ -192,7 +192,7 @@
                             edit_ = "{{ URL::to('leads/{id}/edit')}}";
                             clone_ = "{{ URL::to('leads/{id}/clone')}}";
                             //show_ = "{{ URL::to('leads/{id}/show')}}";
-							show_ = "{{ URL::to('leads/{id}/show1')}}";
+							show_ = "{{ URL::to('leads/{id}/show')}}";
 
                             edit_ = edit_.replace('{id}', id);
                             clone_ = clone_.replace('{id}', id);

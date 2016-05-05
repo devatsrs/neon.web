@@ -278,7 +278,6 @@ class EstimatesController extends \BaseController {
                         $Estimate->update(["PDF" => $pdf_path]);
                     }
 
-                    Log::info('PDF fullPath ' . $pdf_path);
 
                     DB::connection('sqlsrv2')->commit();
 
@@ -404,7 +403,7 @@ class EstimatesController extends \BaseController {
                                 $i++;
                             }
                         }
-                        //print_r($EstimateDetailData);
+
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);

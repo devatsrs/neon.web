@@ -119,8 +119,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Account
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
 	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));	
-	Route::any('/accounts/{id}/show1', array('uses' => 'AccountsController@show1'));
-	//Route::any('/accounts/{id}/show', array('as' => 'accounts_show', 'uses' => 'AccountsController@show'));	
+	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::any('/account/upload_file', 'AccountsController@upload_file');
@@ -211,8 +210,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Leads
 	Route::any('/leads/store', array('as' => 'leads_store', 'uses' => 'LeadsController@store'));
 	Route::any('/leads/update/{id}', array('as' => 'leads_update', 'uses' => 'LeadsController@update'));
-	Route::any('/leads/{id}/show', array('as' => 'accounts_show', 'uses' => 'LeadsController@show'));
-	Route::any('/leads/{id}/show1', array('uses' => 'LeadsController@show1'));
+	Route::any('/leads/{id}/show', array('uses' => 'LeadsController@show'));
 	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
 	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
 	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));

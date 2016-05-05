@@ -19,7 +19,6 @@ class NeonAPI{
 
         ));
         $curl->close();
-		Log::info($curl->response);
         $response = json_decode($curl->response);
         if(isset($response->token)){
             self::setToken($response->token);
@@ -101,7 +100,6 @@ class NeonAPI{
             $f = new Symfony\Component\HttpFoundation\File\File($file->getRealPath());
             $mime = $f->getMimeType();
             $postfields['image'] = new CURLFile($file->getRealPath(),$mime,$file->getClientOriginalName());
-            Log::info($file->getRealPath());
         }
         return $postfields;
     }

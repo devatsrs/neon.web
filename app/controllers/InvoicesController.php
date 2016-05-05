@@ -276,7 +276,6 @@ class InvoicesController extends \BaseController {
                         $Invoice->update(["PDF" => $pdf_path]);
                     }
 
-                    Log::info('PDF fullPath ' . $pdf_path);
 
                     DB::connection('sqlsrv2')->commit();
 
@@ -388,7 +387,7 @@ class InvoicesController extends \BaseController {
                                 $i++;
                             }
                         }
-                        //print_r($InvoiceDetailData);
+
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
@@ -399,7 +398,6 @@ class InvoicesController extends \BaseController {
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
-                            Log::info('PDF fullPath ' . $pdf_path);
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
                         }
@@ -1438,7 +1436,6 @@ class InvoicesController extends \BaseController {
                 $query = $query.',0';
             }
             $query .= ",'')";
-			Log::info($query);
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 

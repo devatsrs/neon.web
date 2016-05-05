@@ -938,7 +938,6 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
         }
     }
 
-    Log::info($files_array[$data['token_attachment']]);
     return $return_txt;
 }
 
@@ -955,7 +954,7 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
 		$array_billing    =    array('Estimates','Invoices','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
 		
 		if(count($path_array)>0)
-		{	//print_r($path_array[0]); exit;
+		{
 			$controller = $path_array[0];
 			if(in_array($controller,$array_billing) && $parent_link =='Billing')
 			{

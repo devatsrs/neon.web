@@ -18,7 +18,6 @@ class TaskController extends \BaseController {
         }
         $data['fetchType'] = 'Board';
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data,true,true);
-        //print_r($response);exit();
         $columns =[];
         $message = '';
         $boardsWithTask = [];
@@ -121,7 +120,6 @@ class TaskController extends \BaseController {
 			}			
 			//$response = $response->data->result[0];
 			$response = json_decode(json_response_api($response,true));
-			Log::info($response);
 			$response = $response[0];
 			$response->type = 1;			
 		}
