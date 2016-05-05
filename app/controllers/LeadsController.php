@@ -143,7 +143,7 @@ class LeadsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
-    public function show($id)
+    public function show_old($id)
     {
 
                 $lead = Lead::find($id);
@@ -155,7 +155,7 @@ class LeadsController extends \BaseController {
 
     }
 	
-		public function show1($id) {		
+		public function show($id) {
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
             $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
