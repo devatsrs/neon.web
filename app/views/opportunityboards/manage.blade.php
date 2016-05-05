@@ -100,7 +100,7 @@
             </a>
         </p>
 
-        <section class="deals-board row" >
+        <section class="deals-board" >
 
                 <div id="board-start" class="board" style="height: 600px;" >
                 </div>
@@ -289,7 +289,7 @@
             });
 
             $(document).on('click','#attachments i.delete-file',function(){
-                var con = confirm('Do you delete current attachment?');
+                var con = confirm('Are you sure you want to delete this attachments?');
                 if(!con){
                     return true;
                 }
@@ -306,6 +306,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        getComments();
                         getOpportunityAttachment();
                     },
                     // Form data
@@ -415,6 +416,36 @@
                     async :false,
                     success: function(response1) {}
                 });
+            });
+
+            $('#add-view-modal-opportunity-comments').on('shown.bs.modal', function(event){
+                email_file_list = [];
+                $(".file-input-names").empty();
+                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{token_attachment:token,destroy:1},
+                    async :false,
+                    success: function(response1) {}
+                });
+
+            });
+
+            $(document).on('mouseover','#attachments a',
+                    function(){
+                        var a = $(this).attr('alt');
+                        $(this).html(a);
+                    }
+            );
+
+            $(document).on('mouseout','#attachments a',function(){
+                var a = $(this).attr('alt');
+                if(a.length>8){
+                    a  = a.substring(0,8)+"..";
+                }
+                $(this).html(a);
             });
 
             function initEnhancement(){

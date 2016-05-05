@@ -7,9 +7,6 @@
         height: 26px;
     }
 
-    .margin-top{
-        margin-top:10px;
-    }
     .margin-top-group{
         margin-top:15px;
     }
@@ -80,13 +77,13 @@
                                     </div>
                                 @endif
                                 <label class="col-sm-1 control-label">Priority</label>
-                                <div class="col-sm-2">
+                                <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input name="Priority" type="checkbox" value="1" >
                                     </p>
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
-                                <div class="col-sm-2">
+                                <div class="col-sm-3">
                                     {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"selectboxit"))}}
                                 </div>
                             </div>
@@ -117,8 +114,8 @@
         </div>
 
         <p id="tools">
-            <a class="btn btn-primary toggle list" href="javascript:void(0)"><i class="entypo-list"></i></a>
-            <a class="btn btn-primary toggle grid active" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
             <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                 <i class="entypo-plus"></i>
                 Add Task
@@ -358,12 +355,12 @@
                 $('#allComments,#attachments').empty();
                 var taskID = rowHidden.find('[name="TaskID"]').val();
                 var accountID = rowHidden.find('[name="AccountID"]').val();
-                var taskName = rowHidden.find('[name="taskName"]').val();
+                var subject = rowHidden.find('[name="Subject"]').val();
                 $('#add-task-comments-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="AccountID"]').val(accountID);
                 $('#add-task-comments-form [name="AccountID"]').val(accountID);
-                $('#add-view-modal-task-comments h4.modal-title').text(taskName);
+                $('#add-view-modal-task-comments h4.modal-title').text(subject);
                 getComments();
                 getTaskAttachment();
                 $('#add-view-modal-task-comments').modal('show');
@@ -422,6 +419,7 @@
                         $('#attachment_processing').addClass('hidden');
                         $('#add-task-attachment-form').trigger("reset");
                         $('#addattachmentop .file-input-name').empty();
+                        getComments();
                         getTaskAttachment();
                     },
                     // Form data
@@ -434,7 +432,7 @@
             });
 
             $(document).on('click','#attachments i.delete-file',function(){
-                var con = confirm('Do you delete current attachment?');
+                var con = confirm('Are you sure you want to delete this attachments?');
                 if(!con){
                     return true;
                 }
@@ -451,6 +449,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        getComments();
                         getTaskAttachment();
                     },
                     // Form data
@@ -545,6 +544,36 @@
                     async :false,
                     success: function(response1) {}
                 });
+            });
+
+            $('#add-view-modal-task-comments').on('shown.bs.modal', function(event){
+                email_file_list = [];
+                $(".file-input-names").empty();
+                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{token_attachment:token,destroy:1},
+                    async :false,
+                    success: function(response1) {}
+                });
+
+            });
+
+            $(document).on('mouseover','#attachments a',
+                    function(){
+                        var a = $(this).attr('alt');
+                        $(this).html(a);
+                    }
+            );
+
+            $(document).on('mouseout','#attachments a',function(){
+                var a = $(this).attr('alt');
+                if(a.length>8){
+                    a  = a.substring(0,8)+"..";
+                }
+                $(this).html(a);
             });
 
 
@@ -715,7 +744,7 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
-                            getTask();
+                            getRecord();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                             fillColumns();
