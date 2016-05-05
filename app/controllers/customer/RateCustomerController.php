@@ -28,7 +28,7 @@ class RateCustomerController extends \BaseController {
 
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1)');
+            $excel_data  = DB::select($query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
                 $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.csv';
@@ -104,9 +104,24 @@ class RateCustomerController extends \BaseController {
             //echo '<pre>';print_r($rate_tables);exit;
 
             // Debugbar::addMessage($customer_trunks);
-            //print_r($customer_trunks);
 
-            return View::make('customer.customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
+            $activetrunks = array();
+            $alltrunk = array();
+            if(count($trunks)>0 && count($customer_trunks)>0){
+                foreach($trunks as $trunk){
+                    foreach($customer_trunks as $ct){
+                        if($trunk->TrunkID==$ct->TrunkID && $ct->Status==1){
+                            $alltrunk['Trunk']=$trunk->Trunk;
+                            $alltrunk['Prefix']=$ct->Prefix;
+                            $activetrunks[]=$alltrunk;
+                        }
+                    }
+                }
+            }
+
+        //    echo '<pre>';print_r($customer_trunks);echo '<pre>';exit;
+
+            return View::make('customer.customersrates.trunks', compact('id', 'trunks','activetrunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
     }
 
     public function update_trunks($id) {

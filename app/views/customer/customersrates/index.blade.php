@@ -12,7 +12,7 @@
 {{--@include('accounts.errormessage')--}}
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li class="active">
-        <a href="{{ URL::to('/customer/customers_rates/'.$id) }}" >
+        <a href="{{ URL::to('/customer/customers_rates') }}" >
             Customer Rate
         </a>
     </li>
@@ -127,8 +127,6 @@
                     <th width="5%" class="RoutinePlan">Routing plan</th>
                     <th width="5%">Rate ({{$CurrencySymbol}})</th>
                     <th width="10%">Effective Date</th>
-                    <th width="10%">Modified Date</th>
-                    <th width="10%">Modified By</th>
                 </tr>
             </thead>
             <tbody>
@@ -145,7 +143,6 @@
             var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','EffectiveDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
             var routinejson ='{{json_encode($routine)}}';
                     jQuery(document).ready(function($) {
-
                         //var data_table;
 
                         //$searchFilter.Code = $("#customer-rate-table-search input[name='Code']").val();
@@ -166,8 +163,7 @@
                             $searchFilter.Effected_Rates_on_off = $("#customer-rate-table-search input[name='Effected_Rates_on_off']").prop("checked");
                             $searchFilter.RoutinePlanFilter = $("#customer-rate-table-search select[name='RoutinePlanFilter']").val();
 
-
-                            if($searchFilter.Trunk == '' || typeof $searchFilter.Trunk  == 'undefined'){
+                            if($searchFilter.Trunk == '' || typeof $searchFilter.Trunk  == 'undefined' || $searchFilter.Trunk  == null){
                                toastr.error("Please Select a Trunk", "Error", toastr_opts);
                                return false;
                             }
@@ -204,9 +200,7 @@
                                             }, //4IntervalN
                                             {}, //5 ConnectionFee
                                             {}, //5Rate
-                                            {}, //6Effective Date
-                                            {}, //7LastModifiedDate
-                                            {}
+                                            {} //6Effective Date
                                         ],
                                         "oTableTools":
                                         {
