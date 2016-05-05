@@ -13,8 +13,13 @@ class NeonAPI{
         $curl->post(self::$api_url.$call_method, array(
             'EmailAddress' => Input::get('email'),
             'password' => Input::get('password'),
+			"LicenceHost" =>$_SERVER['HTTP_HOST'],
+			"LicenceIP" => $_SERVER['SERVER_ADDR'],
+			"LicenceKey" =>  getenv('LICENCE_KEY'),
+
         ));
         $curl->close();
+		Log::info($curl->response);
         $response = json_decode($curl->response);
         if(isset($response->token)){
             self::setToken($response->token);
@@ -22,7 +27,14 @@ class NeonAPI{
         }
         return false;
     }
-    public static function login_by_id($id){
+
+	
+	public static function logout()
+	{
+		NeonAPI::request('logout',[]);		 
+	}
+	
+   public static function login_by_id($id){
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
@@ -51,7 +63,7 @@ class NeonAPI{
         $api_token = Session::get("api_token",'');
         return $api_token;
     }
-    public static function request($call_method,$post_data=array(),$post=true,$is_array=false,$is_upload=false){
+    public static function request($call_method,$post_data=array(),$post=true,$is_array=false,$is_upload=false){		
         self::$api_url = getenv('Neon_API_URL');
         $token = self::getToken();
         $curl = new Curl\Curl();
@@ -70,8 +82,8 @@ class NeonAPI{
         }
 
         $curl->close();
-        self::parse_header($curl->response_headers);
-
+        self::parse_header($curl->response_headers);		
+			Log::info($curl->response);
         return json_decode($curl->response,$is_array);
     }
     protected static function parse_header($response_headers){

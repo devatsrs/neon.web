@@ -1,7 +1,7 @@
 CREATE TABLE `tblTask` (
   `TaskID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL,
-  `UsersIDs` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `UsersIDs` int(11) NOT NULL,
   `AccountIDs` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `BoardID` int(11) NOT NULL,
   `BoardColumnID` int(11) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `tblTask` (
   `Subject` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `Description` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
   `DueDate` datetime NOT NULL,
-  `Priority` int(11) NOT NULL,
+  `Priority` tinyint(4) NOT NULL DEFAULT '0',
   `Order` int(11) NOT NULL,
   `Tags` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `TaggedUser` varchar(100) COLLATE utf8_unicode_ci NOT NULL,

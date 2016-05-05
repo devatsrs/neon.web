@@ -19,7 +19,7 @@
 <p style="text-align: right;">
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
-        Create Opportunity
+        Add Opportunity
     </a>
     <button type="button" id="leadsave"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>

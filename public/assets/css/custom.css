@@ -499,6 +499,7 @@ em {
 }
 /*grid css start*/
 
+
     ul.grid {
         list-style: outside none none;
         margin: 0 auto;
@@ -530,7 +531,7 @@ em {
         min-height: 66px;
     }
     ul.grid li div.block {
-        min-height: 80px;
+        min-height: 60px;
         word-wrap: break-word;
     }
     ul.grid li div.cellNo{
@@ -1371,7 +1372,7 @@ text-align:center;
         min-height: 66px;
     }
     ul.grid li div.block {
-        min-height: 80px;
+        min-height: 60px;
         word-wrap: break-word;
     }
     ul.grid li div.cellNo{
@@ -2047,7 +2048,7 @@ margin-top:10px;
 text-align:left
 }
 
-.description{
+.descriptions{
     overflow: hidden;
     resize: horizontal;
     word-wrap: break-word;

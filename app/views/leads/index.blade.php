@@ -191,7 +191,8 @@
                             id = full[4];
                             edit_ = "{{ URL::to('leads/{id}/edit')}}";
                             clone_ = "{{ URL::to('leads/{id}/clone')}}";
-                            show_ = "{{ URL::to('leads/{id}/show')}}";
+                            //show_ = "{{ URL::to('leads/{id}/show')}}";
+							show_ = "{{ URL::to('leads/{id}/show1')}}";
 
                             edit_ = edit_.replace('{id}', id);
                             clone_ = clone_.replace('{id}', id);
@@ -206,7 +207,7 @@
                             <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
                             //action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
                             <?php } ?>
-                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="View Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
+                            action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';
                             action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
@@ -290,10 +291,20 @@
                          }else{
                              html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                          }
+						 var account_title = childrens.eq(1).text();
+				if(account_title.length>22){
+					account_title  = account_title.substring(0,22)+"...";	
+				}
+				
+				var account_name = childrens.eq(2).text();
+				if(account_name.length>40){
+					account_name  = account_name.substring(0,40)+"...";	
+				}
+						 
                          html += '  <div class="box clearfix ' + select + '">';
                          //html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                         html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + childrens.eq(1).text() + '</span><br>';
-                         html += '  <span class="meta complete_name">' + childrens.eq(2).text() + '</span></div>';
+                         html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
+                         html += '  <span class="meta complete_name">' + account_name + '</span></div>';
                          html += '  <div class="col-sm-6 padding-0">';
                          html += '  <div class="block">';
                          html += '     <div class="meta">Email</div>';

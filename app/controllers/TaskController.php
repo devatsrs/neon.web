@@ -14,7 +14,7 @@ class TaskController extends \BaseController {
     public function ajax_task_board($id){
         $data = Input::all();
         if(User::is('AccountManager')){
-            $data['AccountOwners'] = User::get_userID();
+            $data['account_owners'] = User::get_userID();
         }
         $data['fetchType'] = 'Board';
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data,true,true);
@@ -82,7 +82,7 @@ class TaskController extends \BaseController {
         $Board = CRMBoard::getTaskBoard();
         $account_owners = User::getUserIDList();
         $taskStatus = CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
-
+		
         $where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -109,8 +109,54 @@ class TaskController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
-        $response = NeonAPI::request('task/add_task',$data);
-        return json_response_api($response);
+        $response = NeonAPI::request('task/add_task',$data);		
+
+		if(!isset($response->status_code )){
+			return  json_response_api($response);
+		}
+		
+		if ($response->status_code == 200) {	
+			if(isset($data['Task_view'])){
+				return  json_response_api($response);				
+			}			
+			//$response = $response->data->result[0];
+			$response = json_decode(json_response_api($response,true));
+			Log::info($response);
+			$response = $response[0];
+			$response->type = 1;			
+		}
+		else{
+		 return  json_response_api($response);
+		}
+		
+		$key = isset($data['scrol'])?$data['scrol']:0;	
+		
+		if(isset($data['Task_type']) && $data['Task_type']>0)	
+		{
+			if($data['Task_type']==3) //note
+			{
+				$response_note 			= 	 NeonAPI::request('account/get_note',array('NoteID'=>$data['ParentID']),false,true);	
+				$response_data 			= 	$response_note['data']['Note'][0];
+				$response_data['type']  = 	3;
+			}
+			
+			if($data['Task_type']==2) //email
+			{
+				$response_email 		= 	NeonAPI::request('account/get_email',array('EmailID'=>$data['ParentID']),false,true);	
+				$response_data 			= 	$response_email['data']['Email'][0];
+				$response_data['type']  = 	2;
+			}
+			
+			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax_single_followup', compact('response','current_user_title','key','data','response_data')); 
+			exit; 			
+		}
+		else
+		{
+			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+		}
+        //return json_response_api($response);
     }
 
 
@@ -202,5 +248,4 @@ class TaskController extends \BaseController {
         $data    =  Input::all();
         delete_file('email_attachments',$data);
     }
-
 }

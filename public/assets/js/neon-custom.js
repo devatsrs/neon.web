@@ -22,13 +22,17 @@ toastr_opts = {
     "hideMethod": "fadeOut"
 };
 
-;
 (function($, window, undefined) {
 
     "use strict";
 
     $(document).ready(function()
     {
+		
+		$(document).on('click','[redirecto]',function(){
+    var url = $(this).attr('redirecto');
+    window.location.href=url;
+});
 
         // Sidebar Menu var
         public_vars.$body = $("body");

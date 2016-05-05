@@ -177,9 +177,9 @@ class HomeController extends BaseController {
             }
         }
     }
-
+	
     public function dologout() {
-
+		NeonAPI::logout();
         Session::flush();
         Auth::logout();
         return Redirect::to('/login')->with('message', 'Your are now logged out!');

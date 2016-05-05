@@ -1,6 +1,7 @@
 CREATE TABLE `tblCRMComments` (
   `CommentID` int(11) NOT NULL AUTO_INCREMENT,
   `ParentID` int(11) NOT NULL,
+  `UserID` int(11) NOT NULL,
   `CommentText` longtext COLLATE utf8_unicode_ci,
   `AttachmentPaths` longtext COLLATE utf8_unicode_ci,
   `CommentType` int(11) NOT NULL,

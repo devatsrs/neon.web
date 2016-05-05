@@ -17,16 +17,33 @@ function json_response_api($response,$datareturn=false){
     if(is_array($response)){
         $response = (object)$response;
     }
+
     if(isset($response->status_code)) {
         if ($response->status_code == 200) {
             if (isset($response->data)) {
                 if($datareturn){
                     if(is_array($response->data)){
-                        return $response->data['result'];
+						$result = $response->data['result'];
                     }
-                   return $response->data->result;
-                }
-                return json_encode($response->data->result);
+					else{
+				   $result = $response->data->result;
+					}
+
+					if((is_object($result)))
+					{
+						$result_obj = (array)$result;	
+						
+					}
+					if((is_object($result) && empty($result_obj)) || (is_array($result) && empty($result)) )
+					{
+						return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end"));	//scroll variable for infinite sroll		
+					}
+				}
+				else{
+				 $result = $response->data->result;	
+				}
+
+                return json_encode($result);
             } else {
                 return Response::json(array("status" => "success", "message" => $response->message));
             }
@@ -38,6 +55,7 @@ function json_response_api($response,$datareturn=false){
                 }
             }
         }
+
     }else{
         if(isset($response->error)){
             $errors = $response->error;
@@ -132,6 +150,25 @@ function sendMail($view,$data){
     if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
         $data['EmailTo']  = explode(',',$data['EmailTo']);
     }
+	
+	if(is_array($data['cc']))	
+	{
+		foreach($data['cc'] as $cc_address)
+		{
+			$user_data = User::where(["EmailAddress" => $cc_address])->get();
+			$mail->AddCC($cc_address, $user_data[0]['FirstName'].' '.$user_data[0]['LastName']);
+		}
+	}
+	
+	if(is_array($data['bcc']))	
+	{
+		foreach($data['bcc'] as $bcc_address)
+		{
+			$user_data = User::where(["EmailAddress" => $bcc_address])->get();
+			
+			$mail->AddBCC($bcc_address, $user_data[0]['FirstName'].' '.$user_data[0]['LastName']);
+		}
+	}
 
     if(is_array($data['EmailTo'])){
         foreach((array)$data['EmailTo'] as $email_address){
@@ -626,6 +663,16 @@ function email_log($data){
     if(is_array($data['EmailTo'])){
         $data['EmailTo'] = implode(',',$data['EmailTo']);
     }
+	
+	if(!isset($data['cc']) || !is_array($data['cc']))
+	{
+		$data['cc'] = array();
+	}
+	
+	if(!isset($data['bcc']) || !is_array($data['bcc']))
+	{
+		$data['bcc'] = array();
+	}
 
     $logData = ['EmailFrom'=>User::get_user_email(),
         'EmailTo'=>$data['EmailTo'],
@@ -634,7 +681,9 @@ function email_log($data){
         'AccountID'=>$data['AccountID'],
         'CompanyID'=>User::get_companyID(),
         'UserID'=>User::get_userID(),
-        'CreatedBy'=>User::get_user_full_name()];
+        'CreatedBy'=>User::get_user_full_name(),
+		'Cc'=>implode(",",$data['cc']),
+		'Bcc'=>implode(",",$data['bcc'])];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;
     }
@@ -802,8 +851,8 @@ function validfilepath($path){
     return $path;
 }
 
-function create_site_configration_cache(){
 
+function create_site_configration_cache(){
 	$domain_url 					=   $_SERVER['HTTP_HOST'];
 	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
@@ -835,6 +884,117 @@ function addhttp($url) {
     }
     return $url;
 }
+
+
+function get_random_number(){
+	return md5(uniqid(rand(), true));
+}
+
+function delete_file($session,$data)
+{
+    $files_array	=	Session::get($session);
+
+	if(isset($files_array[$data['token_attachment']])){
+		
+		foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
+		{
+			if($array_file_data['fileName'] == $data['file'])
+			{
+				unset($files_array[$data['token_attachment']][$key]);
+			}
+		}
+	}
+
+    //unset($files_array[$data['token_attachment']]);
+    Session::set($session, $files_array);
+}
+
+
+function check_upload_file($files,$session,$allowed_extensions,$data)
+{
+   // $data['file']				=	array();
+    $files_array		        =	Session::get($session);
+	$return_txt					=	'';
+
+    if(isset($files_array[$data['token_attachment']]))
+    {
+        $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
+    }
+    else
+    {
+        $files_array[$data['token_attachment']]	=	$files;
+    }
+
+
+    Session::set($session, $files_array);
+
+    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
+    {
+
+        //$array_file_data['fileExtension']
+        if(in_array($array_file_data['fileExtension'],$allowed_extensions))
+        {
+            $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
+        }
+    }
+
+    Log::info($files_array[$data['token_attachment']]);
+    return $return_txt;
+}
+
+	function check_uri($parent_link='')
+	{
+		$Path 			  =    Route::currentRouteAction();
+		$path_array 	  =    explode("Controller",$Path);
+		$array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
+		$array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate");
+		$array_summary    =    array("Summary");
+		$array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+		$array_template   =    array("EmailTemplate");
+		$array_dashboard  =    array("Dashboard");
+		$array_billing    =    array('Estimates','Invoices','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+		
+		if(count($path_array)>0)
+		{	//print_r($path_array[0]); exit;
+			$controller = $path_array[0];
+			if(in_array($controller,$array_billing) && $parent_link =='Billing')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_settings) && $parent_link =='Settings')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_admin) && $parent_link =='Admin')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_summary) && $parent_link =='Summary')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_rates) && $parent_link =='Rates')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_template) && $parent_link =='Template')
+			{
+				return 'opened';
+			}
+			
+			if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
+			{
+				return 'opened';
+			}	
+		}		
+	}
+	
+
 function getimageicons($url){
     $file = new SplFileInfo($url);
     $ext  = $file->getExtension();
@@ -865,44 +1025,6 @@ function getimageicons($url){
     }else{
         return URL::to('/').'/assets/images/icons/file.png';
     }
-}
-
-function get_random_number(){
-    return md5(uniqid(rand(), true));
-}
-
-function check_upload_file($files,$session,$allowed_extensions,$data){
-    $return_txt     = '';
-    $files_array          = Session::get($session);
-
-    if(isset($files_array[$data['token_attachment']])) {
-        $files_array[$data['token_attachment']] = array_merge($files_array[$data['token_attachment']],$files);
-    } else {
-        $files_array[$data['token_attachment']] = $files;
-    }
-
-    Session::set($session, $files_array);
-
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
-        if(in_array($array_file_data['fileExtension'],$allowed_extensions)) {
-            $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
-        }
-    }
-    return $return_txt;
-}
-
-function delete_file($session,$data){
-    $files_array = Session::get($session);
-    if(isset($data['destroy'])){
-        unset($files_array[$data['token_attachment']]);
-    }else {
-        foreach ($files_array[$data['token_attachment']] as $key => $array_file_data) {
-            if ($array_file_data['fileName'] == $data['file']) {
-                unset($files_array[$data['token_attachment']][$key]);
-            }
-        }
-    }
-    Session::set($session, $files_array);
 }
 
 function get_uploaded_files($session,$data){

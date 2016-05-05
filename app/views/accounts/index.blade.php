@@ -24,8 +24,6 @@
     </a>
 @endif    
 </p>
-
-
 <div class="row">
     <div class="col-md-12">
         <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -228,7 +226,7 @@
                                 var action , edit_ , show_ ;
                                 action='';
                                 edit_ = "{{ URL::to('accounts/{id}/edit')}}";
-                                show_ = "{{ URL::to('accounts/{id}/show')}}";
+                                show_ = "{{ URL::to('accounts/{id}/show1')}}"; 
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
 
@@ -375,10 +373,19 @@
 				{
                     html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                 }
+				var account_title = childrens.eq(2).text();
+				if(account_title.length>22){
+					account_title  = account_title.substring(0,22)+"...";	
+				}
+				
+				var account_name = childrens.eq(3).text();
+				if(account_name.length>40){
+					account_name  = account_name.substring(0,40)+"...";	
+				}
                 html += '  <div class="box clearfix ' + select + '">';
                // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + childrens.eq(2).text() + '</span><br>';
-                html += '  <span class="meta complete_name">' + childrens.eq(3).text() + '</span></div>';
+                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
+                html += '  <span class="meta complete_name">' + account_name + '</span></div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Email</div>';

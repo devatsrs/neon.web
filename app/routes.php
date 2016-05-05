@@ -118,8 +118,17 @@ Route::group(array('before' => 'auth'), function () {
 
 	//Account
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
-	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));
-	Route::any('/accounts/{id}/show', array('as' => 'accounts_show', 'uses' => 'AccountsController@show'));
+	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));	
+	Route::any('/accounts/{id}/show1', array('uses' => 'AccountsController@show1'));
+	//Route::any('/accounts/{id}/show', array('as' => 'accounts_show', 'uses' => 'AccountsController@show'));	
+	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
+	Route::any('/task/create', 'TaskController@create');
+	Route::any('/account/upload_file', 'AccountsController@upload_file');
+	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
+	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
+	
+	
+
 	Route::any('/accounts/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'AccountsController@store_note'));
 	Route::any('/accounts/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'AccountsController@delete_note'));
     Route::any('/accounts/{id}/createOpportunity', array('as' => 'opportunity_create', 'uses' => 'AccountsController@createOpportunity'));
@@ -169,6 +178,7 @@ Route::group(array('before' => 'auth'), function () {
     //Account email log
     Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
     Route::any('accounts/{id}/activities/sendemail', 'AccountActivityController@sendMail');
+	Route::any('accounts/{id}/activities/sendemail/api', 'AccountActivityController@sendMailApi');
     Route::any('accounts/{id}/activities/{log_id}/view_email_log', 'AccountActivityController@view_email_log')->where('log_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
 
@@ -202,6 +212,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/leads/store', array('as' => 'leads_store', 'uses' => 'LeadsController@store'));
 	Route::any('/leads/update/{id}', array('as' => 'leads_update', 'uses' => 'LeadsController@update'));
 	Route::any('/leads/{id}/show', array('as' => 'accounts_show', 'uses' => 'LeadsController@show'));
+	Route::any('/leads/{id}/show1', array('uses' => 'LeadsController@show1'));
 	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
 	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
 	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));

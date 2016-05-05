@@ -22,7 +22,7 @@
 
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
-        Create Opportunity
+        Add Opportunity
     </a>
 
 @if($account->VerificationStatus == Account::NOT_VERIFIED)

@@ -182,7 +182,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-2">Description</label>
                                 <div class="col-sm-10">
-                                    <textarea name="Description" class="form-control description autogrow resizevertical"> </textarea>
+                                    <textarea name="Description" class="form-control descriptions autogrow resizevertical"> </textarea>
                                 </div>
                             </div>
                         </div>
@@ -191,6 +191,7 @@
                 <div class="modal-footer">
                     <input type="hidden" name="TaskID">
                     <input type="hidden" name="BoardID">
+                    <input type="hidden" value="1" name="Task_view">
                     <button type="submit" id="task-add"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
