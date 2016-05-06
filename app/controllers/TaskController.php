@@ -91,10 +91,15 @@ class TaskController extends \BaseController {
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $tasktags = json_encode(Tags::getTagsArray(Tags::Task_tag));
-        $response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        //Backup code for getting extensions from api
+        /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions = json_response_api($response_extensions,true);
         if(!empty($response_extensions)){
-            $response_extensions = implode(',',$response_extensions);
-        }
+            if(!isJson($response_extensions)){
+                $response_extensions = implode(',',$response_extensions);
+            }
+        }*/
+        $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
         $token    = get_random_number();
         $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
         $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
