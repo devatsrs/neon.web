@@ -189,7 +189,7 @@ class LeadsController extends \BaseController {
                     $response_extensions = implode(',',$response_extensions);
                 }
             }*/
-            $response_extensions     =  "'".getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS")."'";
+            $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
