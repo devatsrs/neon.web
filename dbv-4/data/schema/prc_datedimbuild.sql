@@ -71,10 +71,10 @@ BEGIN
 					YEAR(v_full_date),
 					CONCAT(WEEK(v_full_date) - WEEK(DATE_ADD(v_full_date,INTERVAL -DAY(v_full_date)+1 DAY)),'-',DATE_FORMAT( v_full_date , "%M")),
 					NULL,
+					CONCAT(WEEK(date),'-',DATE_FORMAT( date , "%Y")),
 					NULL,
-					NULL,
-					NULL,
-					NULL
+					CONCAT(month_abbrev,'-',year),
+					CONCAT(quarter_of_year,'-',year)
         );
 
         SET v_full_date = DATE_ADD(v_full_date, INTERVAL 1 DAY);

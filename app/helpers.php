@@ -643,6 +643,7 @@ function getDashBoards(){
     $DashBoards = [''=>'Select'];
     if(Company::isRMLicence()){
         $DashBoards['/dashboard'] = 'RM Dashboard';
+        $DashBoards['/monitor'] = 'Monitor Dashboard';
     }
     if(Company::isBillingLicence()){
         $DashBoards['/salesdashboard'] = 'Sales Dashboard';
@@ -658,6 +659,7 @@ function getDashBoardController($key){
     $DashBoards['/dashboard'] = 'RmDashboard';
     $DashBoards['/salesdashboard'] = 'SalesDashboard';
     $DashBoards['/billingdashboard'] = 'BillingDashboard';
+    $DashBoards['/monitor'] = 'MonitorDashboard';
     return $DashBoards[$key];
 }
 
@@ -770,28 +772,76 @@ function addhttp($url) {
 function chart_reponse($alldata){
 
     $chartColor = array('#333399','#3399FF','#3366CC','#2D89FF','#287AFF','#236BFF','#1E5BFF','#194CFF','#143DFF','#0F2DFF','#0A1EFF','#050FFF','#0000FF');
-    $response['CallCount'] = implode(',',$alldata['call_count']);
-    $response['CallCountVal'] = implode(',',$alldata['call_count_val']);
-    $response['CallCountHtml'] =  $alldata['call_count_html'];
-
-    $response['CallCost'] = implode(',',$alldata['call_cost']);
-    $response['CallCostVal'] = implode(',',$alldata['call_cost_val']);
-    $response['CallCostHtml'] = $alldata['call_cost_html'];
-
-    $response['CallMinutes'] = implode(',',$alldata['call_minutes']);
-    $response['CallMinutesVal'] = implode(',',$alldata['call_minutes_val']);
-    $response['CallMinutesHtml'] = $alldata['call_minutes_html'];
-
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
         $response['CallCountHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallCount'] = '';
+        $response['CallCountVal'] = '';
+    }else{
+        $response['CallCount'] = implode(',',$alldata['call_count']);
+        $response['CallCountVal'] = implode(',',$alldata['call_count_val']);
+        $response['CallCountHtml'] =  $alldata['call_count_html'];
     }
     if(empty($alldata['call_cost'])) {
         $response['CallCostHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallCost'] = '';
+        $response['CallCostVal'] = '';
+    }else{
+        $response['CallCost'] = implode(',',$alldata['call_cost']);
+        $response['CallCostVal'] = implode(',',$alldata['call_cost_val']);
+        $response['CallCostHtml'] = $alldata['call_cost_html'];
     }
     if(empty($alldata['call_minutes'])) {
         $response['CallMinutesHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallMinutes'] = '';
+        $response['CallMinutesVal'] = '';
+    }else{
+        $response['CallMinutes'] = implode(',',$alldata['call_minutes']);
+        $response['CallMinutesVal'] = implode(',',$alldata['call_minutes_val']);
+        $response['CallMinutesHtml'] = $alldata['call_minutes_html'];
     }
     return $response;
+}
+function get_report_type($date11,$date22){
+    $date1 = new DateTime($date11);
+    $date2 = new DateTime($date22);
+    $interval = $date1->diff($date2);
+
+    $report_type = 1;
+    if($interval->y > 0 && $interval->y < 2){
+        $report_type = 5;
+    }else if($interval->y > 2) {
+        $report_type = 6;
+    }else if($interval->m > 9 && $interval->m < 12) {
+        $report_type = 4;
+    }else if($interval->m > 6 && $interval->m < 9) {
+        $report_type = 4;
+    }else if($interval->m > 3 && $interval->m < 6) {
+        $report_type = 3;
+    }else if($interval->m > 1 && $interval->m < 3) {
+        $report_type = 3;
+    }else if($interval->d > 15 && $interval->d < 30) {
+        $report_type = 2;
+    }else if($interval->d > 0 && $interval->d < 15) {
+        $report_type = 2;
+    }
+    return $report_type;
+}
+function get_report_title($report_type){
+    $report_title = 'Call Analysis By Time';
+    if($report_type == 1){
+        $report_title = 'Hourly Call Analysis';
+    }else if($report_type == 2) {
+        $report_title = 'Daily Call Analysis';
+    }else if($report_type == 3) {
+        $report_title = 'Weekly Call Analysis';
+    }else if($report_type == 4) {
+        $report_title = 'Monthly Call Analysis';
+    }else if($report_type == 5) {
+        $report_title = 'Quarterly Call Analysis';
+    }else if($report_type == 6) {
+        $report_title = 'Yearly Call Analysis';
+    }
+    return $report_title;
 }

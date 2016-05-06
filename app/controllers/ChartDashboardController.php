@@ -11,7 +11,7 @@ class ChartDashboardController extends BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $data['UserID'] = empty($data['UserID'])?'0':$data['AccountID'];
+        $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
         $query = "call prc_getHourlyReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
         $HourlyChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('TotalCost','HourCost','TotalMinutes','HourMinutes'));
@@ -33,7 +33,7 @@ class ChartDashboardController extends BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $data['UserID'] = empty($data['UserID'])?'0':$data['AccountID'];
+        $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
         if($data['chart_type'] == 'destination') {
             $query = "call prc_getDestinationReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
@@ -50,6 +50,7 @@ class ChartDashboardController extends BaseController {
         $alldata = array();
         $alldata['grid_type'] = 'call_count';
         $alldata['call_count_html'] = $alldata['call_cost_html'] =  $alldata['call_minutes_html'] = '';
+        $alldata['call_count'] =  $alldata['call_cost'] = $alldata['call_minutes'] = array();
         foreach((array)$TopReports['data']['CallCount'] as $CallCount){
             $alldata['call_count'][$indexcount] = $CallCount->ChartVal;
             $alldata['call_count_val'][$indexcount] = $CallCount->CallCount;

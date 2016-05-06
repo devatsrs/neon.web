@@ -647,6 +647,14 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/Wysihtml5/getfiles','Wysihtml5Controller@getfiles');
     Route::any('/Wysihtml5/file_upload','Wysihtml5Controller@file_upload');
 
+	//Analysis
+	Route::any('/analysis', "AnalysisController@index");
+	Route::any('/analysis/ajax_datagrid/{type}', "AnalysisController@ajax_datagrid");
+	Route::any('/analysis/getAnalysisData', "AnalysisController@getAnalysisData");
+	Route::any('/analysis/getAnalysisBarData', "AnalysisController@getAnalysisBarData");
+
+
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {

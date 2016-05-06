@@ -8,7 +8,7 @@ CREATE TABLE `tblUsageSummary` (
   `CompanyGatewayID` int(11) NOT NULL,
   `Trunk` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AreaPrefix` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Country` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CountryID` int(11) DEFAULT NULL,
   `TotalCharges` double DEFAULT NULL,
   `TotalBilledDuration` int(11) DEFAULT NULL,
   `TotalDuration` int(11) DEFAULT NULL,

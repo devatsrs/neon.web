@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT   
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_CompanyGatewayID` int , IN `p_AccountID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT   
 
 , IN `p_cdr_type` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT)
 BEGIN
@@ -6,7 +6,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
 			AccountID int,
-			AccountName varchar(50),
+			AccountName varchar(100),
 			trunk varchar(50),
 			area_prefix varchar(50),
 			pincode VARCHAR(50),
@@ -56,7 +56,7 @@ BEGIN
 	AND uh.CompanyID = p_CompanyID
 	AND uh.AccountID is not null
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
-	AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+	AND (p_CompanyGatewayID = 0 OR CompanyGatewayID = p_CompanyGatewayID)
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
 	AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
 	AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	

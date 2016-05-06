@@ -6,6 +6,7 @@
 
 var public_vars = public_vars || {};
 var data_table ;
+var
 /* Dev updated */
 toastr_opts = {
     "closeButton": true,
