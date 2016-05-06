@@ -588,17 +588,19 @@ var postdata;
             $('#add-invoice_in_template-form').find("table .DisputeDifference").text(response.DisputeDifference);
             $('#add-invoice_in_template-form').find("table .DisputeDifferencePer").text(response.DisputeDifferencePer);
 
-            $('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val(response.DisputeTotal);
-            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val(response.DisputeDifference);
-            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val(response.DisputeDifferencePer);
 
             $('#add-invoice_in_template-form').find("table .DisputeMinutes").text(response.DisputeMinutes);
             $('#add-invoice_in_template-form').find("table .MinutesDifference").text(response.MinutesDifference);
             $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text(response.MinutesDifferencePer);
 
+            $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val(response.DisputeDifference);
+
+            /*$('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val(response.DisputeTotal);
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val(response.DisputeDifference);
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val(response.DisputeDifferencePer);
             $('#add-invoice_in_template-form').find("input[name=DisputeMinutes]").val(response.DisputeMinutes);
             $('#add-invoice_in_template-form').find("input[name=MinutesDifference]").val(response.MinutesDifference);
-            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val(response.MinutesDifferencePer);
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val(response.MinutesDifferencePer);*/
 
         }
 
@@ -608,17 +610,22 @@ var postdata;
             $('#add-invoice_in_template-form').find("table .DisputeDifference").text("");
             $('#add-invoice_in_template-form').find("table .DisputeDifferencePer").text("");
 
-            $('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val("");
-            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val("");
-            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val("");
 
             $('#add-invoice_in_template-form').find("table .DisputeMinutes").text("");
             $('#add-invoice_in_template-form').find("table .MinutesDifference").text("");
             $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text("");
 
+
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val("")
+
+            /*$('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val("");
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val("");
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val("");
+
             $('#add-invoice_in_template-form').find("input[name=DisputeMinutes]").val("");
             $('#add-invoice_in_template-form').find("input[name=MinutesDifference]").val("");
-            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val("");
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val("");*/
 
             $(".reconcile_table").addClass("hidden");
             $(".btn.ignore").addClass("hidden");
@@ -1338,14 +1345,18 @@ var postdata;
                                 Ignore
                             </button>
 
+                            <input type="hidden" name="DisputeAmount">
                             <input type="hidden" name="DisputeID">
-                            <input type="hidden" name="DisputeTotal">
-                            <input type="hidden" name="DisputeDifference">
-                            <input type="hidden" name="DisputeDifferencePer">
 
-                            <input type="hidden" name="DisputeMinutes">
-                            <input type="hidden" name="MinutesDifference">
-                            <input type="hidden" name="MinutesDifferencePer">
+                            {{--<input type="hidden" name="DisputeTotal">--}}
+                            {{--<input type="hidden" name="DisputeDifference">--}}
+                            {{--<input type="hidden" name="DisputeDifferencePer">--}}
+
+                            {{--<input type="hidden" name="DisputeMinutes">--}}
+                            {{--<input type="hidden" name="MinutesDifference">--}}
+                            {{--<input type="hidden" name="MinutesDifferencePer">--}}
+
+
                         </div>
                     </div>
                     <div class="form-group">

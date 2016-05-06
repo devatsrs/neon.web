@@ -804,9 +804,11 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData["CreatedBy"] = $CreatedBy;
             InvoiceDetail::insert($InvoiceDetailData);
 
-            if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
+            //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
+            if( $data["DisputeAmount"] > 0 ){
 
-                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+                //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeDifference"]));
 
             }
 
@@ -879,9 +881,11 @@ class InvoicesController extends \BaseController {
         if(Invoice::find($id)->update($InvoiceData)) {
             if(InvoiceDetail::find($data['InvoiceDetailID'])->update($InvoiceDetailData)) {
 
-                if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
+                //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
+                if( $data["DisputeID"] > 0 && $data["DisputeAmount"] > 0 ){
 
-                    Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+                    //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+                    Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeDifference"]));
                 }
                 return Response::json(["status" => "success", "message" => "Invoice in updated successfully"]);
             }else{
@@ -1454,7 +1458,7 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         $result = array();
 
-        if(!isset($data["InvoiceID"]) && isset($data["InvoiceNumber"]) ){
+        /*if(!isset($data["InvoiceID"]) && isset($data["InvoiceNumber"]) ){
             $CompanyID = User::get_companyID();
             $Invoice = Invoice::where(["CompanyID"=>$CompanyID, "InvoiceNumber" => trim($data['InvoiceNumber'])])->select(["InvoiceID","GrandTotal"])->first();
 
@@ -1462,8 +1466,7 @@ class InvoicesController extends \BaseController {
 
             $result["GrandTotal"] = $Invoice->GrandTotal;
 
-        }
-
+        }*/
 
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $data['InvoiceID']])->select(["InvoiceDetailID","StartDate", "EndDate","Description", "TotalMinutes"])->first();
 
@@ -1480,17 +1483,20 @@ class InvoicesController extends \BaseController {
         $result['EndTime'] = $EndTime[1];
         $result['TotalMinutes'] = $InvoiceDetail->TotalMinutes;
 
-        $Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
+        //$Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
+        $Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeAmount"])->first();
 
         if(isset($Dispute->InvoiceID)){
 
             $result["DisputeID"] = $Dispute->DisputeID;
-            $result["DisputeTotal"] = $Dispute->DisputeTotal;
+            $result["DisputeAmount"] = $Dispute->DisputeAmount;
+
+            /*$result["DisputeTotal"] = $Dispute->DisputeTotal;
             $result["DisputeDifference"] = $Dispute->DisputeDifference;
             $result["DisputeDifferencePer"] = $Dispute->DisputeDifferencePer;
             $result["DisputeMinutes"] = $Dispute->DisputeMinutes;
             $result["MinutesDifference"] = $Dispute->MinutesDifference;
-            $result["MinutesDifferencePer"] = $Dispute->MinutesDifferencePer;
+            $result["MinutesDifferencePer"] = $Dispute->MinutesDifferencePer;*/
         }
         return Response::json($result);
 

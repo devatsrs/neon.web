@@ -68,18 +68,20 @@ class Dispute extends \Eloquent {
 
 		$data['CompanyID'] =  User::get_companyID();
 
-		$data['DisputeDifferencePer'] = str_replace( "%" , "" , $data['DisputeDifferencePer']);
-		$data['MinutesDifferencePer'] = str_replace( "%" , "" , $data['MinutesDifferencePer']);
+		/*$data['DisputeDifferencePer'] = str_replace( "%" , "" , $data['DisputeDifferencePer']);
+		$data['MinutesDifferencePer'] = str_replace( "%" , "" , $data['MinutesDifferencePer']);*/
 
 		$rules = array(
 			'CompanyID' => 'required|numeric',
-			'InvoiceID' => 'required|numeric',
-			'DisputeTotal' => 'required|numeric',
+			'AccountID' => 'required|numeric',
+			'DisputeAmount' => 'required|numeric',
+
+			/*'DisputeTotal' => 'required|numeric',
 			'DisputeDifference' => 'required|numeric',
 			'DisputeDifferencePer' => 'required|numeric',
 			'DisputeMinutes' => 'required|numeric',
 			'MinutesDifference' => 'required|numeric',
-			'MinutesDifferencePer' => 'required|numeric',
+			'MinutesDifferencePer' => 'required|numeric',*/
 		);
 
 
@@ -96,14 +98,17 @@ class Dispute extends \Eloquent {
 		}
 
 		$disputeData["CompanyID"]               = $data["CompanyID"];
-		$disputeData["InvoiceID"]               = $data["InvoiceID"];
-		$disputeData["DisputeTotal"]            = $data["DisputeTotal"];
+		$disputeData["InvoiceNo"]               = $data["InvoiceNo"];
+		$disputeData["AccountID"]               = $data["AccountID"];
+		$disputeData["DisputeAmount"]           = $data["DisputeAmount"];
+
+		/*$disputeData["DisputeTotal"]            = $data["DisputeTotal"];
 		$disputeData["DisputeDifference"]       = $data["DisputeDifference"];
 		$disputeData["DisputeDifferencePer"]    = $data["DisputeDifferencePer"];
 
 		$disputeData["DisputeMinutes"]          = $data["DisputeMinutes"];
 		$disputeData["MinutesDifference"]       = $data["MinutesDifference"];
-		$disputeData["MinutesDifferencePer"]    = $data["MinutesDifferencePer"];
+		$disputeData["MinutesDifferencePer"]    = $data["MinutesDifferencePer"];*/
 
 		$disputeData["Status"]      = isset($data["Status"])?$data["Status"]:0;
 		$disputeData["Notes"]      = isset($data["Notes"])?$data["Notes"]:"";

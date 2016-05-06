@@ -126,6 +126,9 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}"> <i class="entypo-doc-text"></i> <span>Invoices</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('Disputes','View'))
+        <li> <a href="{{URL::to('/disputes')}}"> <i class="entypo-doc-text"></i> <span>Disputes</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('BillingSubscription','View'))
         <li> <a href="{{URL::to('/billing_subscription')}}"> <i class="entypo-doc-text"></i> <span>Subscription</span> </a> </li>
         @endif

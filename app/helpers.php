@@ -951,7 +951,7 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
 		$array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
 		$array_template   =    array("EmailTemplate");
 		$array_dashboard  =    array("Dashboard");
-		$array_billing    =    array('Estimates','Invoices','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+		$array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
 		
 		if(count($path_array)>0)
 		{
