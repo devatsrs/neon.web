@@ -233,7 +233,8 @@ class TaskController extends \BaseController {
         $data       =  Input::all();
         $data['file']    = array();
         $attachment    =  Input::file('commentattachment');
-        $response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        //$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
 
         if(!empty($attachment)){
             $data['file'] = NeonAPI::base64byte($attachment);
