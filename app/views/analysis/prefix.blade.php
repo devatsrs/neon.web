@@ -17,7 +17,7 @@
                     </div>
                     <label class="col-sm-1 control-label" for="field-1">End date</label>
                     <div class="col-sm-2">
-                        <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime(" +1 day"))}}" data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}" />
+                        <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
                     </div>
                     <label class="col-sm-1 control-label" for="field-1">Gateway Account</label>
                     <div class="col-sm-2">
