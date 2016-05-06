@@ -76,22 +76,21 @@
             </div>
             <div class="clear"></div>
             <br>
-            <p style="text-align: right;">
+            <!--<p style="text-align: right;">
                 <a href="#" id="add-new-payment" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
                     Add New Payment Request
                 </a>
-            </p>
+            </p>-->
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="14%">Invoice No</th>
-                    <th width="14%">Amount</th>
-                    <th width="14%">Type</th>
-                    <th width="15%">Payment Date</th>
-                    <th width="14%">Status</th>
-                    <th width="15%">CreatedBy</th>
-                    <th width="14%">Action</th>
+                    <th width="15%">Invoice No</th>
+                    <th width="20%">Amount</th>
+                    <th width="15%">Type</th>
+                    <th width="20%">Payment Date</th>
+                    <th width="15%">Status</th>
+                    <th width="15%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -182,12 +181,6 @@
                                         return full[7]
                                     }
                                 },
-                                {
-                                    "bSortable": true, //Created by
-                                    mRender: function (id, type, full) {
-                                        return full[8]
-                                    }
-                                },
                                 {                       //3  Action
 
                                     "bSortable": false,
@@ -242,6 +235,7 @@
                                 ]
                             },
                             "fnDrawCallback": function () {
+                                get_total_grand(); //get result total
                                 $(".dataTables_wrapper select").select2({
                                     minimumResultsForSearch: -1
                                 });
@@ -367,6 +361,40 @@
                     var $this = $('#PaymentProof');
                     var label = attrDefault($this, 'label', 'Browse');
                     $this.bootstrapFileInput(label);
+                }
+
+                function get_total_grand(){
+                    $.ajax({
+                        url: baseurl + "/customer/payments/ajax_datagrid_total",
+                        type: 'GET',
+                        dataType: 'json',
+                        data:{
+                            "AccountID":$("#payment-table-search select[name='AccountID']").val(),
+                            "InvoiceNo" : $("#payment-table-search [name='InvoiceNo']").val(),
+                            "type" : $("#payment-table-search select[name='type']").val(),
+                            "paymentmethod" : $("#payment-table-search select[name='paymentmethod']").val(),
+                            "PaymentDate_StartDate" : $("#payment-table-search input[name='PaymentDate_StartDate']").val(),
+                            "PaymentDate_StartTime" : $("#payment-table-search input[name='PaymentDate_StartTime']").val(),
+                            "PaymentDate_EndDate" : $("#payment-table-search input[name='PaymentDate_EndDate']").val(),
+                            "PaymentDate_EndTime" : $("#payment-table-search input[name='PaymentDate_EndTime']").val(),
+                            "bDestroy": true,
+                            "bProcessing":true,
+                            "bServerSide":true,
+                            "sAjaxSource": baseurl + "/customer/payments/ajax_datagrid/type",
+                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                            "sPaginationType": "bootstrap",
+                            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                            "aaSorting": [[3, 'desc']],},
+                        success: function(response1) {
+                            console.log("sum of result"+response1);
+                            if(response1.total_grand!=null)
+                            {
+                                $('.result_row').remove();
+                                $('.result_row').hide();
+                                $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td align="right" colspan="3"></td><td></td><td colspan="2"></td></tr>');
+                            }
+                        }
+                    });
                 }
 
                 // Replace Checboxes
@@ -496,10 +524,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <form id="add-edit-payment-form" method="post">
-                    <div class="modal-header">
+                    <!--<div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Add New payment Request</h4>
-                    </div>
+                    </div>-->
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">

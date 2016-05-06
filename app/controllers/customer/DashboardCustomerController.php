@@ -9,20 +9,24 @@ class DashboardCustomerController extends BaseController {
     public function home() {
         $CustomerID = Customer::get_accountID();
         $account = Account::find($CustomerID);
-        return View::make('customer.index',compact('account'));
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        return View::make('customer.index',compact('account','original_startdate','original_enddate'));
     }
     public function invoice_expense_chart(){
         $data = Input::all();
         $CurrencyID = "";
         $CustomerID = Customer::get_accountID();
+        $CurrencySymbol = '';
         if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
             $CurrencyID = $data["CurrencyID"];
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
         $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
-        return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense'));
+        return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
 
     }
 

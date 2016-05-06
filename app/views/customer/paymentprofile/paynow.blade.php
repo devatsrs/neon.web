@@ -234,6 +234,9 @@
                 .dataTables_wrapper .export-data{
                     right: 30px !important;
                 }
+                .export-data{
+                    display: none;
+                }
             </style>
 
 

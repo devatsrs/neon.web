@@ -130,6 +130,11 @@
                             },
                             dataType: 'json',
                             success: function(data) {
+                                if(data.length<1){
+                                    $('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
+                                    $('#table-4_processing').hide();
+                                    return false;
+                                }
                                 $('#table-4 > tbody > tr').remove();
                                 $('#table-4 > tbody').append('<tr></tr>');
                                 for (i = 0; i < data.length; i++) {
