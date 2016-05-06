@@ -328,14 +328,11 @@
 			if(action_click == 'block' || action_click == 'unblock'){
 				ajax_data+='&action='+action_click;
 			}
-<<<<<<< HEAD
-			console.log(ajax_data);
-			console.log(ajax_full_url);			 
-=======
+
 			if(block_by == 'code' || block_by == 'country'){
 				ajax_data+='&block_by='+block_by;
 			}
->>>>>>> bc2e295c6bedfb1ff8a38acb325f9b6a66d7b496
+
 			submit_ajax(ajax_full_url,ajax_data);
 			return false;
 		});

@@ -3,9 +3,8 @@
 
         <!-- logo -->
         <div class="logo">
-            <a href="#">
-                <img src="<?php echo URL::to('/'); ?>/assets/images/logo@2x.png" width="120" alt="" />
-            </a>
+            @if(Session::get('user_site_configrations.Logo')!='')<a href="#"> <img src="{{Session::get('user_site_configrations.Logo')}}" width="120" alt="" /> </a>
+            @endif
             @if(strtolower(getenv('APP_ENV'))!='production')
                 <br/>
                 <br/>
@@ -35,54 +34,62 @@
     <ul id="main-menu" class="">
         <li>
             <a href="{{Url::to('customer/dashboard')}}">
-                <i class="entypo-layout"></i>
+                <i class="entypo-gauge"></i>
                 <span>Dashboard</span>
             </a>
         </li>
-        <li>
+        <li class="{{check_uri('Customer_billing')}}">
             <a href="#">
-                <i class="entypo-layout"></i>
+                <i class="entypo-doc-text-inv"></i>
                 <span>Billing</span>
             </a>
 
             <ul>
                 <li>
                     <a href="{{Url::to('customer/invoice')}}">
-                        <i class="entypo-pencil"></i>
+                        <i class="entypo-doc-text"></i>
                         <span>Invoices</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{URL::to('customer/payments')}}">
-                        <i class="entypo-pencil"></i>
+                        <i class="entypo-doc-text"></i>
                         <span>Payments</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{URL::to('customer/account_statement')}}">
-                        <i class="entypo-pencil"></i>
+                        <i class="entypo-doc-text"></i>
                         <span>Account Statement</span>
                     </a>
                 </li>
                 @if (is_authorize())
                 <li>
                     <a href="{{URL::to('customer/PaymentMethodProfiles')}}">
-                        <i class="entypo-pencil"></i>
+                        <i class="entypo-doc-text"></i>
                         <span>Payment Method Profiles</span>
                     </a>
                 </li>
                 @endif
                 <li>
                     <a href="{{URL::to('customer/cdr')}}">
-                        <i class="entypo-pencil"></i>
+                        <i class="entypo-doc-text"></i>
                         <span>CDR</span>
                     </a>
                 </li>
             </ul>
         </li>
+        @if(getenv('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
+        <li>
+            <a href="{{URL::to('customer/customers_rates')}}">
+                <i class="glyphicon glyphicon-usd"></i>
+                <span>Commercial</span>
+            </a>
+        </li>
+        @endif
         <li>
             <a href="{{URL::to('customer/profile')}}">
-                <i class="entypo-layout"></i>
+                <i class="glyphicon glyphicon-user"></i>
                 <span>Profile</span>
             </a>
         </li>

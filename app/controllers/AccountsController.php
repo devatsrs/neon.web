@@ -216,7 +216,7 @@ class AccountsController extends \BaseController {
     }
 
 	
-		public function show($id) {		
+		public function show($id) {
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
             $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
@@ -253,9 +253,7 @@ class AccountsController extends \BaseController {
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-			
-			// echo Session::get("api_token"); exit;
-			//echo "<pre>";			print_r($users);			exit;
+
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data->result;
 			}else{				
@@ -289,7 +287,6 @@ class AccountsController extends \BaseController {
             $data['AccountID']         =    $id;			
 			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
 			$response 				   = 	json_decode(json_response_api($response,true));
-			Log::info($response);
 			if(empty($response))
 			{
 			    return  Response::json(array("status" => "failed", "message" => "No Result Found","scroll"=>"end"));
@@ -459,7 +456,6 @@ class AccountsController extends \BaseController {
 		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
 		unset($data["scrol"]);		
  		$response 				= 	NeonAPI::request('account/add_note',$data);
-		//print_r($response); exit;
 		
 		if(!isset($response->status_code )){
 			return  json_response_api($response);

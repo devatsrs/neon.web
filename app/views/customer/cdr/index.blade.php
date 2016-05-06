@@ -243,6 +243,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                              }*/
                 ],
                 "fnDrawCallback": function() {
+                    get_total_grand(); //get result total
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -251,7 +252,39 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 });
             });
 
-
+            function get_total_grand(){
+                $.ajax({
+                    url: baseurl + "/customer/cdr/ajax_datagrid_total",
+                    type: 'GET',
+                    dataType: 'json',
+                    data:{
+                        "StartDate" : $("#cdr_filter [name='StartDate']").val()+' '+$("#cdr_filter [name='StartTime']").val(),
+                        "EndDate" : $("#cdr_filter [name='EndDate']").val()+' '+$("#cdr_filter [name='EndTime']").val(),
+                        "CompanyGatewayID" : '',
+                        "AccountID" : '',
+                        "CDRType" : $("#cdr_filter [name='CDRType']").val(),
+                        "CLI" : $("#cdr_filter [name='CLI']").val(),
+                        "CLD" : $("#cdr_filter [name='CLD']").val(),
+                        "zerovaluecost" : $("#cdr_filter [name='zerovaluecost']").prop("checked"),
+                        "bDestroy": true,
+                        "bProcessing":true,
+                        "bServerSide":true,
+                        "sAjaxSource": baseurl + "/customer/cdr/ajax_datagrid/type",
+                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "sPaginationType": "bootstrap",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "aaSorting": [[0, 'asc']],},
+                    success: function(response1) {
+                        console.log("sum of result"+response1);
+                        if(response1.total_duration!=null)
+                        {
+                            $('.result_row').remove();
+                            $('.result_row').hide();
+                            $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="2"></td><td><strong>'+response1.total_duration+'</strong></td><td><strong>'+response1.total_cost+'</strong></td><td></td></tr>');
+                        }
+                    }
+                });
+            }
 
             });
 

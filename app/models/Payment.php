@@ -1,7 +1,7 @@
 <?php
 
 class Payment extends \Eloquent {
-    protected $fillable = [];
+	protected $fillable = [];
     protected $connection = 'sqlsrv2';
     protected $guarded = array('PaymentID');
     protected $table = 'tblPayment';

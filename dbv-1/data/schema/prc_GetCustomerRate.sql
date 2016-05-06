@@ -450,7 +450,22 @@ BEGIN
             LastModifiedBy from tmp_customerrate_;
 
     END IF;
-    
+
+
+	-- for customer panel export
+	IF p_isExport = 2
+    THEN
+			 
+          select 
+            Code,
+            Description,
+            Interval1,
+            IntervalN,
+            ConnectionFee,
+            Rate,
+            EffectiveDate from tmp_customerrate_;
+
+    END IF;    
     
  
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

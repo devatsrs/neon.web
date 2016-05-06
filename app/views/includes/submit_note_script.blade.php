@@ -36,7 +36,6 @@
         $(".deleteNote").click(FnDeleteNote); // Delete Note
 
         //After Note Save.
-
         FnSubmitNoteSuccess = function(response){
             $(".save.btn").button('reset');
             if (response.status == 'success') {

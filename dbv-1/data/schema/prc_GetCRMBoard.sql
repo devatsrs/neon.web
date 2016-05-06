@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCRMBoard`(IN `p_CompanyID` INT, IN `p_Status` INT, IN `p_BoardName` VARCHAR(30), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(30), IN `p_SortOrder` INT, IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCRMBoard`(IN `p_CompanyID` INT, IN `p_Status` INT, IN `p_BoardName` VARCHAR(30), IN `p_BoardType` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(30), IN `p_SortOrder` VARCHAR(10), IN `p_isExport` INT)
 BEGIN
 
 DECLARE v_OffSet_ int;
@@ -39,8 +39,9 @@ DECLARE v_OffSet_ int;
 		SELECT COUNT(*) AS totalcount
 		FROM tblCRMBoards op 
 		WHERE (op.CompanyID = p_CompanyID) 
+			AND (op.BoardType = p_BoardType)
 			AND ( p_Status = 2 OR op.`Status` = p_Status)
-			AND (p_BoardName ='' OR `OpportunityBoardName` like Concat('%',p_BoardName,'%'));
+			AND (p_BoardName ='' OR `BoardName` like Concat('%',p_BoardName,'%'));
 	END IF;
 	
 	IF p_isExport = 1
