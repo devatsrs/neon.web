@@ -13,12 +13,8 @@ BEGIN
 
     			SELECT   
 		 		a.AccountName,
-				iv.InvoiceNumber,
-				iv.GrandTotal,
-		 		ds.DisputeTotal,
-		 		ds.DisputeDifference,
-		 		ds.DisputeDifferencePer,
-		 		
+				ds.InvoiceNo,
+				ds.DisputeAmount,
 				 CASE WHEN ds.`Status`= 0 THEN
 				 		'Pending' 
 				WHEN ds.`Status`= 1 THEN
@@ -26,33 +22,25 @@ BEGIN
 				WHEN ds.`Status`= 2 THEN
 					'Cancel' 
 				END as `Status`,
-				ds.created_at as `Created Date`,
+				ds.created_at as `CreatedDate`,
 				ds.CreatedBy,
 				CASE WHEN LENGTH(ds.Notes) > 100 THEN CONCAT(SUBSTRING(ds.Notes, 1, 100) , '...')
 						 ELSE  ds.Notes 
 						 END as ShortNotes ,
 		 		ds.DisputeID,
-		 		ds.DisputeMinutes,
-		 		ds.MinutesDifference,
-		 		ds.MinutesDifferencePer,
-				 a.AccountID,
-		 		iv.InvoiceID,
+		 	   a.AccountID,
 		 		ds.Notes
 		 		
-
             from tblDispute ds
-            inner join tblInvoice iv on ds.InvoiceID = iv.InvoiceID
-            inner join LocalRatemanagement.tblAccount a on a.AccountID = iv.AccountID
-            
-            
+            inner join LocalRatemanagement.tblAccount a on a.AccountID = ds.AccountID
+
 				where ds.CompanyID = p_CompanyID
             
-            AND(p_InvoiceNumber is NULL OR iv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%'))
-            AND(p_AccountID is NULL OR iv.AccountID = p_AccountID)
+            AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
             AND(p_Status is NULL OR ds.`Status` = p_Status)
-            AND(p_StartDate is NULL OR ds.created_at >= p_StartDate)
-            AND(p_EndDate is NULL OR ds.created_at <= p_EndDate) 
-            
+           AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) 
             
          ORDER BY
 				CASE
@@ -62,28 +50,22 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
                 END ASC,
 				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberDESC') THEN InvoiceNumber
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoDESC') THEN InvoiceNo
                 END DESC,
 				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberASC') THEN InvoiceNumber
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoASC') THEN InvoiceNo
                 END ASC,
 				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeTotalDESC') THEN DisputeTotal
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeAmountDESC') THEN DisputeAmount
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeTotalASC') THEN DisputeTotal
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeAmountASC') THEN DisputeAmount
                 END ASC,
 				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeDifferenceDESC') THEN DisputeDifference
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN ds.created_at
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeDifferenceASC') THEN DisputeDifference
-                END ASC,
-				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeDifferencePerDESC') THEN DisputeDifferencePer
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeDifferencePerASC') THEN DisputeDifferencePer
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN ds.created_at
                 END ASC,
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusDESC') THEN ds.Status
@@ -105,32 +87,24 @@ BEGIN
 
 				 SELECT   
 		 		COUNT(ds.DisputeID) AS totalcount,
-		 		sum(iv.GrandTotal) as TotalGrandTotal,
-		 		sum(ds.DisputeTotal) as TotalDisputeTotal,		 		
-		 		sum(ds.DisputeDifference) as TotalDisputeDifference
-		 		
+		 		sum(ds.DisputeAmount) as TotalDisputeAmount
             from tblDispute ds
-            inner join tblInvoice iv on ds.InvoiceID = iv.InvoiceID
-            inner join LocalRatemanagement.tblAccount a on a.AccountID = iv.AccountID
+            inner join LocalRatemanagement.tblAccount a on a.AccountID = ds.AccountID
 				where ds.CompanyID = p_CompanyID
 				
-                        AND(p_InvoiceNumber is NULL OR iv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%'))
-            AND(p_AccountID is NULL OR iv.AccountID = p_AccountID)
+            AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
             AND(p_Status is NULL OR ds.`Status` = p_Status)
-            AND(p_StartDate is NULL OR ds.created_at >= p_StartDate)
-            AND(p_EndDate is NULL OR ds.created_at <= p_EndDate);
+            AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) ;
             
             
 	ELSE
 
 				SELECT   
 		 		a.AccountName,
-				iv.InvoiceNumber,
-				iv.GrandTotal,
-		 		ds.DisputeTotal,
-		 		ds.DisputeDifference,
-		 		ds.DisputeDifferencePer,
-		 		
+				ds.InvoiceNo,
+				ds.DisputeAmount,
 				 CASE WHEN ds.`Status`= 0 THEN
 				 		'Pending' 
 				WHEN ds.`Status`= 1 THEN
@@ -138,26 +112,27 @@ BEGIN
 				WHEN ds.`Status`= 2 THEN
 					'Cancel' 
 				END as `Status`,
-				ds.created_at as `Created Date`,
+				ds.created_at as `CreatedDate`,
 				ds.CreatedBy,
-				ds.Notes ,
-		 		ds.DisputeMinutes,
-		 		ds.MinutesDifference,
-		 		ds.MinutesDifferencePer
+				CASE WHEN LENGTH(ds.Notes) > 100 THEN CONCAT(SUBSTRING(ds.Notes, 1, 100) , '...')
+						 ELSE  ds.Notes 
+						 END as ShortNotes ,
+		 		ds.DisputeID,
+		 	   a.AccountID,
+		 		ds.Notes
 				
 
             from tblDispute ds
-            inner join tblInvoice iv on ds.InvoiceID = iv.InvoiceID
-            inner join LocalRatemanagement.tblAccount a on a.AccountID = iv.AccountID
+            inner join LocalRatemanagement.tblAccount a on a.AccountID = ds.AccountID
             
             
 				where ds.CompanyID = p_CompanyID
             
-                       AND(p_InvoiceNumber is NULL OR iv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%'))
-            AND(p_AccountID is NULL OR iv.AccountID = p_AccountID)
+                       AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
             AND(p_Status is NULL OR ds.`Status` = p_Status)
-            AND(p_StartDate is NULL OR ds.created_at >= p_StartDate)
-            AND(p_EndDate is NULL OR ds.created_at <= p_EndDate);
+           AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) ;
 
 	END IF;
 
