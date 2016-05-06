@@ -1457,6 +1457,7 @@ class InvoicesController extends \BaseController {
     public function getInvoiceDetail(){
         $data = Input::all();
         $result = array();
+        $CompanyID = User::get_companyID();
 
         /*if(!isset($data["InvoiceID"]) && isset($data["InvoiceNumber"]) ){
             $CompanyID = User::get_companyID();
@@ -1467,7 +1468,7 @@ class InvoicesController extends \BaseController {
             $result["GrandTotal"] = $Invoice->GrandTotal;
 
         }*/
-        $InvoiceNumber = Invoice::find($data['InvoiceID'])->first()->pluck("InvoiceNumber");
+        $InvoiceNumber = Invoice::where(["InvoiceID" => $data['InvoiceID']])->pluck("InvoiceNumber");
 
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $data['InvoiceID']])->select(["InvoiceDetailID","StartDate", "EndDate","Description", "TotalMinutes"])->first();
 
@@ -1485,9 +1486,9 @@ class InvoicesController extends \BaseController {
         $result['TotalMinutes'] = $InvoiceDetail->TotalMinutes;
 
         //$Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
-        $Dispute = Dispute::where(["InvoiceNo"=>$InvoiceNumber,"Status"=>Dispute::PENDING])->select(["DisputeID","DisputeAmount"])->first();
+        $Dispute = Dispute::where(["CompanyID"=>$CompanyID,  "InvoiceNo"=>$InvoiceNumber])->select(["DisputeID","DisputeAmount"])->first();
 
-        if(isset($Dispute->InvoiceID)){
+        if(isset($Dispute->DisputeID)){
 
             $result["DisputeID"] = $Dispute->DisputeID;
             $result["DisputeAmount"] = $Dispute->DisputeAmount;
@@ -1513,7 +1514,7 @@ class InvoicesController extends \BaseController {
             'StartDate' => 'required',
             'EndDate' => 'required',
             'GrandTotal'=>'required|numeric',
-            'TotalMinutes'=>'required|numeric',
+          //  'TotalMinutes'=>'required|numeric',
         );
 
         $verifier = App::make('validation.presence');

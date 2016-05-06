@@ -582,6 +582,14 @@ var postdata;
                 $(".btn.ignore").removeClass("hidden");
             }
 
+            if(typeof response.DisputeAmount != 'undefined'){
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val(response.DisputeAmount);
+
+            }else{
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val(response.DisputeDifference);
+            }
 
 
             $('#add-invoice_in_template-form').find("table .DisputeTotal").text(response.DisputeTotal);
@@ -593,7 +601,6 @@ var postdata;
             $('#add-invoice_in_template-form').find("table .MinutesDifference").text(response.MinutesDifference);
             $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text(response.MinutesDifferencePer);
 
-            $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val(response.DisputeDifference);
 
             /*$('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val(response.DisputeTotal);
             $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val(response.DisputeDifference);
