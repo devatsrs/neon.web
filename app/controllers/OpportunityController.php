@@ -155,7 +155,7 @@ class OpportunityController extends \BaseController {
                 $response_extensions = implode(',',$response_extensions);
             }
         }*/
-        $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
 
         if(!empty($attachment)){
             $data['file'] = NeonAPI::base64byte($attachment);
