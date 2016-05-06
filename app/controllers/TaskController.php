@@ -99,7 +99,7 @@ class TaskController extends \BaseController {
                 $response_extensions = implode(',',$response_extensions);
             }
         }*/
-        $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
         $token    = get_random_number();
         $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
         $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
