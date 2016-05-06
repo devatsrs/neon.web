@@ -158,7 +158,7 @@
                                 for (i = 0; i < data.length; i++) {
                                     var InvoiceAmount=0;
                                     var payment=0;
-                                    var DisputeDifference = 0;
+                                    var DisputeAmount = 0;
                                     var PendingDispute = '';
                                     var ballence=0;
                                     var InvoiceAmounts=0;
@@ -177,12 +177,12 @@
                                             payment = parseFloat(Math.round(data[i]['payment'] * 100) / 100).toFixed(roundplaces);
                                         }
                                     }
-                                    if( data[i]['DisputeDifference'] != null ){
+                                    if( data[i]['DisputeAmount'] != null ){
 
-                                        DisputeDifference = parseFloat(data[i]['DisputeDifference']).toFixed(roundplaces);
-                                        PendingDispute =  DisputeDifference;
+                                        DisputeAmount = parseFloat(data[i]['DisputeAmount']).toFixed(roundplaces);
+                                        PendingDispute =  DisputeAmount;
 
-                                        TotalDispute = parseFloat(TotalDispute + DisputeDifference).toFixed(roundplaces);
+                                        TotalDispute = parseFloat(TotalDispute + DisputeAmount).toFixed(roundplaces);
                                     }
                                     if(data[i]['ballence']!= null){
                                         ballence = parseFloat(Math.round(data[i]['ballence'] * 100) / 100).toFixed(roundplaces);

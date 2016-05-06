@@ -9,7 +9,7 @@
         <!-- add class "pull-right" if you want to place this from right -->
 
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <img src="{{ Customer::get_customer_picture_url(Customer::get_accountID()) }}" alt="" class="img-circle" width="44" />
+            @if(Customer::get_customer_picture_url(Customer::get_accountID()) != '')<img src="{{ Customer::get_customer_picture_url(Customer::get_accountID()) }}" alt="" class="img-circle" width="44" />@endif
             {{Auth::user()->AccountName}}
         </a>
 

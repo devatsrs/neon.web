@@ -16,12 +16,10 @@ class DisputeController extends \BaseController {
 		$CompanyID 						 = 		User::get_companyID();
 		$data['iDisplayStart'] 			+=		1;
 		$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:'NULL';
-		$data['InvoiceNumber']				 =		$data['InvoiceNumber']!= ''?"'".$data['InvoiceNumber']."'":'NULL';
+		$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'NULL';
 		$data['Status'] 				 = 		$data['Status'] != ''?$data['Status']:'NULL';
 		$data['p_disputestartdate'] 	 = 		$data['DisputeDate_StartDate']!=''?$data['DisputeDate_StartDate']:'NULL';
-		//$data['p_disputestartTime'] 	 = 		$data['DisputeDate_StartTime']!=''?$data['DisputeDate_StartTime']:'00:00:00';
 		$data['p_disputeenddate'] 	 	 = 		$data['DisputeDate_EndDate']!=''?$data['DisputeDate_EndDate']:'NULL';
-		//$data['p_disputeendtime'] 	 	 = 		$data['DisputeDate_EndTime']!=''?$data['DisputeDate_EndTime']:'00:00:00';
 		$data['p_disputestart']			 =		'NULL';
 		$data['p_disputeend']			 =		'NULL';
 
@@ -39,10 +37,10 @@ class DisputeController extends \BaseController {
 			$data['p_disputeend'] 			= 	"'".date("Y-m-d H:i:s")."'";
 		}
 
-		$columns = array('AccountName','InvoiceNumber','DisputeTotal','DisputeDifference','DisputeDifferencePer','Status','created_at', 'CreatedBy','Notes','DisputeID');
+		$columns = array('AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','Notes','DisputeID');
 		$sort_column = $columns[$data['iSortCol_0']];
 
-		$query = "call prc_getDisputes (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNumber'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+		$query = "call prc_getDisputes (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
 		if(isset($data['Export']) && $data['Export'] == 1) {
 			$excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
@@ -89,11 +87,8 @@ class DisputeController extends \BaseController {
 	public function create(){
 
 		$data = Input::all();
-		$companyID = User::get_companyID();
 
-		$InvoiceID = Invoice::where(["CompanyID"=>$companyID, "InvoiceNumber" => $data["InvoiceNumber"]])->first()->pluck("InvoiceID");
-
-		$output = Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"] ,"InvoiceID"=> $InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+		$output = Dispute::add_update_dispute($data);
 
 		return $output;
 
@@ -113,10 +108,7 @@ class DisputeController extends \BaseController {
 
 			$data = Input::all();
 
-			$dispute_data  = array( "DisputeID"=> $id ,  "InvoiceID"=>$data["InvoiceID"],"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"],
-									"Notes"=>$data["Notes"]
-			);
-			$output = Dispute::add_update_dispute($dispute_data);
+			$output = Dispute::add_update_dispute($data);
 
 			return $output;
 		}else {
@@ -125,39 +117,14 @@ class DisputeController extends \BaseController {
 		}
 	}
 
-	/**
-	 * Remove the specified resource from storage.
-	 * DELETE /products/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function delete($id) {
-		if( intval($id) > 0){
-
-				try {
-					$result = Dispute::find($id)->delete();
-					if ($result) {
-						return Response::json(array("status" => "success", "message" => "Dispute Successfully Deleted"));
-					} else {
-						return Response::json(array("status" => "failed", "message" => "Problem Deleting Dispute."));
-					}
-				} catch (Exception $ex) {
-					return Response::json(array("status" => "failed", "message" => "Dispute is in Use, You cant delete this Dispute."));
-				}
-
-		}else{
-			return Response::json(array("status" => "failed", "message" => "Dispute is in Use, You cant delete this Dispute."));
-		}
-	}
-
+	//not in use
 	public function reconcile()
 	{
 		$data = Input::all();
 		$companyID =  User::get_companyID();
 
 		$rules = array(
-			'InvoiceID'=>'required|numeric',
+			'InvoiceNo'=>'required|numeric',
 			'AccountID'=>'required|numeric',
 		);
 
@@ -171,7 +138,7 @@ class DisputeController extends \BaseController {
 			return json_validator_response($validator);
 		}
 
-		$Invoice = InvoiceDetail::where("InvoiceID",$data['InvoiceID'])->select(['StartDate','EndDate','Price','TotalMinutes'])->first();
+		$Invoice = InvoiceDetail::where("InvoiceNo",$data['InvoiceNo'])->select(['StartDate','EndDate','Price','TotalMinutes'])->first();
 
 		$StartDate = $Invoice->StartDate;
 		$EndDate = $Invoice->EndDate;
@@ -204,7 +171,7 @@ class DisputeController extends \BaseController {
 			return json_validator_response($validator);
 		}
 		$Dispute = Dispute::findOrFail($data["DisputeID"]);
-		$Dispute->Notes = date("Y-m-d H:i:s") .': '. User::get_user_full_name() . ' has Changed Status'. PHP_EOL. $data['Notes'] . PHP_EOL.  PHP_EOL .  $Dispute->Notes;
+		$Dispute->Notes = date("Y-m-d H:i:s") .': '. User::get_user_full_name() . ' has Changed Dispute Status to ' . Dispute::$Status[$data["Status"]] .' -:- ' . $data['Notes'] . PHP_EOL.  PHP_EOL .  $Dispute->Notes;
 		$Dispute->Status = $data["Status"];
 
 		if ($Dispute->update()) {
@@ -214,4 +181,12 @@ class DisputeController extends \BaseController {
 		}
 
 	}
+
+	public function  download_attachment($id){
+		$FileName = Dispute::where(["DisputeID"=>$id])->pluck('Attachment');
+		$FilePath =  AmazonS3::preSignedUrl($FileName);
+		download_file($FilePath);
+
+	}
+
 }

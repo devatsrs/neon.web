@@ -38,10 +38,10 @@
 
                 <label class="col-sm-1 control-label">Invoice No</label>
               <div class="col-sm-2">
-                <input type="text" name="InvoiceNumber" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNumber')}}" />
+                <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, 'Pending', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
             </div>
  
 
@@ -60,15 +60,12 @@
         <tr>
           <th width="10%">Account Name</th>
           <th width="8%">Invoice No</th>
-          <th width="8%">Invoice Total</th>
           <th width="8%">Dispute Total</th>
-          <th width="8%">Dispute Difference</th>
-          <th width="10%">Dispute Difference %</th>
           <th width="5%">Status</th>
           <th width="8%">Created Date</th>
           <th width="8%">Created By</th>
           <th width="15%">Notes</th>
-          <th width="15%">Action</th>
+          <th width="16%">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -77,10 +74,14 @@
     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
-     var list_fields  = ['AccountName','InvoiceNumber','GrandTotal','DisputeTotal','DisputeDifference','DisputeDifferencePer','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','DisputeMinutes','MinutesDifference','MinutesDifferencePer','AccountID','InvoiceID','Notes'];
+     var list_fields  = ['AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
 
      var $searchFilter = {};
-                var update_new_url;
+     $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
+     $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
+     $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+
+     var update_new_url;
                 var postdata;
                 var dispute_status = {{json_encode(Dispute::$Status);}};
 
@@ -93,7 +94,7 @@
                         "fnServerParams": function (aoData) {
                             aoData.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
-                                    {"name": "InvoiceNumber","value": $searchFilter.InvoiceNumber},
+                                    {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
 									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
@@ -104,7 +105,7 @@
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
-                                    {"name": "InvoiceNumber","value": $searchFilter.InvoiceNumber},
+                                    {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
 									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
@@ -116,35 +117,16 @@
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[9, 'desc']],
+                        "aaSorting": [[8, 'desc']],
                         "aoColumns": [
                             {
                                 "bSortable": true, //Account
                             },
                             {
-                                "bSortable": true, //InvoiceNumber
+                                "bSortable": true, //InvoiceNo
                             },
                             {
-                                "bSortable": true, //GrandTotal
-                                mRender: function (id, type, full) {
-                                    return parseFloat(id).toFixed(2);
-                                }
-                            },
-                            {
-                                "bSortable": true, //DisputeTotal
-                                mRender: function (id, type, full) {
-                                    return parseFloat(id).toFixed(2);
-                                }
-                            },
-                            {
-                                "bSortable": true, //DisputeDifference
-                                mRender: function (id, type, full) {
-                                    return parseFloat(id).toFixed(2);
-                                }
-                            },
-
-                            {
-                                "bSortable": true, //DisputeDifferencePer
+                                "bSortable": true, //DisputeAmount
                                 mRender: function (id, type, full) {
                                     return parseFloat(id).toFixed(2);
                                 }
@@ -171,6 +153,9 @@
                                     delete_  = delete_ .replace( '{id}', id );
                                     var dispute_status_url = "{{ URL::to('disputes/change_status')}}";
 
+                                    var downloads_ = "{{ URL::to('disputes/{id}/download_attachment')}}";
+                                    downloads_  = downloads_ .replace( '{id}', id );
+
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
@@ -179,11 +164,6 @@
                                     if('{{User::checkCategoryPermission('Disputes','Edit')}}' ){
                                         action += ' <a href="" class="edit-dispute btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
                                     }
-
-                                    if('{{User::checkCategoryPermission('Disputes','Delete')}}'){
-                                        action += '<a href="'+delete_+'"  class="btn delete-dispute btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
-                                     }
-
                                     if('{{User::checkCategoryPermission('Disputes','ChangeStatus')}}') {
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
@@ -195,6 +175,10 @@
                                         });
                                         action += '</ul>' +
                                                 '</div>';
+                                    }
+
+                                    if(full[8]!= ""){
+                                        action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+downloads_+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                     }
 
                                     return action;
@@ -243,7 +227,7 @@
                              var dispute_id = $(this).attr("data-disputeid");
                              var status_text = $(this).text();
 
-                             if (!confirm('Are you sure you want to '+ status_text +' the dispute?')) {
+                             if (!confirm('Are you sure you want to change dispute status to '+ status_text +'?')) {
                                  return;
                              }
                              $("#dispute-status-form").find("textarea[name='Notes']").val('');
@@ -303,7 +287,7 @@
                         $('#add-edit-modal-dispute h4').html('Edit Dispute');
                         $('#add-edit-modal-dispute').modal('show');
 
-                        set_dispute(response);
+                        //set_dispute(response);
 
                     });
 
@@ -370,9 +354,12 @@
                         }else{
                             submit_url = baseurl + '/disputes/create';
                         }
-                        formData = $("#add-edit-dispute-form").serialize();
-                        submit_ajax(submit_url,formData);
-                     });
+
+                        var formData = new FormData($('#add-edit-dispute-form')[0]);
+                        submit_ajax_withfile(submit_url,formData);
+                        $(".btn").button('reset');
+
+                    });
 
                     $('#add-edit-modal-dispute').change(function (ev) {
 
@@ -384,18 +371,20 @@
                                  var local = $("#InvoiceAuto").attr('data-local');
                                  local = local.replace(/\s*,\s*/g, ',').split(',');
                                  typeahead_opts['local'] = local;
-                                 $('#InvoiceAuto').typeahead(typeahead_opts).on('typeahead:selected', function($e, datum) {  // suggestion selected
+                                 $('#InvoiceAuto').typeahead(typeahead_opts);
 
-                                     /*console.log("Selected");
+                                 /*$('#InvoiceAuto').typeahead(typeahead_opts).on('typeahead:selected', function($e, datum) {  // suggestion selected
+
+                                     /!*console.log("Selected");
                                      console.log($e);
                                      console.log(datum);
-                                     console.log($(this).   val());*/
+                                     console.log($(this).   val());*!/
 
-                                     var InvoiceNumber = $(this).val();
+                                     var InvoiceNo = $(this).val();
 
                                      $.ajax({
                                          url: baseurl + '/invoice/getInvoiceDetail',
-                                         data: 'InvoiceNumber='+InvoiceNumber,
+                                         data: 'InvoiceNo='+InvoiceNo,
                                          dataType: 'json',
                                          success: function (response) {
 
@@ -408,14 +397,14 @@
 
                                              $('#add-edit-dispute-form').find("input[name=GrandTotal]").val(response.GrandTotal);
 
-                                             set_dispute(response);
+                                             //set_dispute(response);
 
                                          },
                                          type: 'POST'
                                      });
                                      return false;
 
-                                  });
+                                  });*/
 
                              }
                          }
@@ -430,12 +419,10 @@
 
                     //show_loading_bar(40);
                     $searchFilter.AccountID = $("#dispute-table-search select[name='AccountID']").val();
-                    $searchFilter.InvoiceNumber = $("#dispute-table-search [name='InvoiceNumber']").val();
+                    $searchFilter.InvoiceNo = $("#dispute-table-search [name='InvoiceNo']").val();
                     $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
-					$searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
-					$searchFilter.DisputeDate_StartTime = $("#dispute-table-search input[name='DisputeDate_StartTime']").val();
+                    $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
 					$searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
-					$searchFilter.DisputeDate_EndTime   = $("#dispute-table-search input[name='DisputeDate_EndTime']").val();
 
 
                     data_table.fnFilter('', 0);
@@ -447,8 +434,8 @@
                     replaceCheckboxes();
                 });
 
-
-             $('body').on('click', '.btn.reconcile', function (e) {
+                // not in use
+                $('body').on('click', '.btn.reconcile', function (e) {
 
                      e.preventDefault();
                      var curnt_obj = $(this);
@@ -465,7 +452,7 @@
                          if (response.status == 'success') {
 
                             // console.log(response);
-                             set_dispute(response);
+                             //set_dispute(response);
                          }
 
                      });
@@ -473,6 +460,7 @@
 
                  });
 
+                    // not in use
                  function set_dispute(response){
 
                      if(typeof response.DisputeID != 'undefined'){
@@ -518,7 +506,9 @@
 
                  }
 
+                // not in use
                  function reset_dispute() {
+
 
                      $('#add-edit-dispute-form').find("table .DisputeTotal").text("");
                      $('#add-edit-dispute-form').find("table .DisputeDifference").text("");
@@ -560,6 +550,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
     <form id="add-edit-dispute-form" method="post">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">Dispute</h4>
@@ -575,119 +566,37 @@
           </div>
           <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Invoice Number *</label>
-                    <input type="text" id="InvoiceAuto" data-local="{{$invoice_nos}}" name="InvoiceNumber" class="form-control" id="field-5" placeholder="">
+                    <label for="field-5" class="control-label">Invoice Number</label>
+                    <input type="text" id="InvoiceAuto" data-local="{{$invoice_nos}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
                 </div>
           </div>
-            <div class=" ">
-                <div class="form-group">
-                    <label class="col-sm-12 control-label" for="field-1">Start Date</label>
-                    <div class="form-group ">
-                        <div class="col-sm-6 clear clearfix">
-                            <input type="text" name="StartDate" class="form-control"  value="" readonly />
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="text" name="StartTime" class="form-control"  value="" readonly />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <br>
-            <div class=" ">
-                <div class="form-group">
-                    <label class="col-sm-12 control-label" for="field-1">End Date</label>
-                    <div class="">
-                        <div class="col-sm-6 clear clearfix">
-                            <input type="text" name="EndDate" class="form-control"  value="" readonly />
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="text" name="EndTime" class="form-control"  value="" readonly />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <br>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label class="control-label" for="field-1">Grand Total<span id="currency"></span></label>
-                    <input type="text" name="GrandTotal" class="form-control"  value="" readonly />
-                </div>
-            </div>
-
-
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Total Minutes</label>
-                    <input type="text" name="TotalMinutes" class="form-control"  value="" readonly />
-                </div>
-            </div>
           <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Dispute Amount*</label>
-                    <input type="text" name="DisputeDifference" class="form-control" id="field-5" placeholder="" >
+                    <input type="text" name="DisputeAmount" class="form-control" id="field-5" placeholder="" >
                 </div>
           </div>
-           <div class="col-md-12">
-          <div class="form-group ">
-                <label for="field-5" class="control-label">Reconcile</label>
-                <div class="clear clearfix">
-                    <table class="reconcile_table table table-bordered datatable  hidden">
-                        <thead>
-                        <th></th>
-                        <th>Total</th>
-                        <th>Difference</th>
-                        <th>Difference %</th>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <th>Amount</th>
-                            <td><span class="DisputeTotal"></span></td>
-                            <td><span class="DisputeDifference"></span></td>
-                            <td><span class="DisputeDifferencePer"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Minutes</th>
-                            <td><span class="DisputeMinutes"></span></td>
-                            <td><span class="MinutesDifference"></span></td>
-                            <td><span class="MinutesDifferencePer"></span></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button" data-loading-text="Loading...">
-                        <i class="entypo-pencil"></i>
-                        Reconcile
-                    </button>
-
-                    <input type="hidden" name="DisputeID">
-                    <input type="hidden" name="DisputeTotal">
-                    {{--<input type="hidden" name="DisputeDifference">--}}
-                    <input type="hidden" name="DisputeDifferencePer">
-
-                    <input type="hidden" name="DisputeMinutes">
-                    <input type="hidden" name="MinutesDifference">
-                    <input type="hidden" name="MinutesDifferencePer">
-                </div>
-          </div>
-          </div>
-
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Notes</label>
               <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
             </div>
           </div>
-
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="Attachment" class="control-label">Attachment (pdf,png,jpg,gif,xls,csv,xlsx)</label>
+                    <div class="clear clearfix"></div>
+                    <input id="Attachment" name="Attachment" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                </div>
+            </div>
         </div>
       </div>
       <div class="modal-footer">
           <input type="hidden" name="DisputeID" >
           <input type="hidden" name="Currency" >
-          <input type="hidden" name="InvoiceID" >
+          {{--<input type="hidden" name="InvoiceID" >--}}
           <button type="submit" id="dispute-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-      </div>
       </div>
     </form>
   </div>

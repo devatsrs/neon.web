@@ -32,7 +32,8 @@ class AmazonS3 {
         'WYSIHTML5_FILE_UPLOAD'=>'Wysihtml5fileupload',
         'PAYMENT_UPLOAD'=>'PaymentUpload',
         'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
-		'THEMES_IMAGES'=>'ThemeImages'
+		'THEMES_IMAGES'=>'ThemeImages',
+		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment'
     );
 
     // Instantiate an S3 client

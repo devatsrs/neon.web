@@ -941,6 +941,7 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
     return $return_txt;
 }
 
+	// sideabar submenu open when click on
 	function check_uri($parent_link='')
 	{
 		$Path 			  =    Route::currentRouteAction();
@@ -951,7 +952,8 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
 		$array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
 		$array_template   =    array("EmailTemplate");
 		$array_dashboard  =    array("Dashboard");
-		$array_billing    =    array('Estimates','Invoices','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+		$array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+		$customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 		
 		if(count($path_array)>0)
 		{
@@ -990,6 +992,11 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
 			{
 				return 'opened';
 			}	
+			
+			if(in_array($controller,$customer_billing) && $parent_link =='Customer_billing')
+			{
+				return 'opened';
+			}
 		}		
 	}
 	
