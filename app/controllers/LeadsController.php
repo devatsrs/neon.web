@@ -194,8 +194,7 @@ class LeadsController extends \BaseController {
 			$leadOrAccountCheck 		= 	'lead';
 			$opportunitytags 			= 	json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-			// echo Session::get("api_token"); exit;
-			//echo "<pre>";			print_r($users);			exit;
+
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data->result;
 			}else{				
