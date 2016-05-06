@@ -82,7 +82,7 @@ class CDRCustomerController extends BaseController {
         $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
         $result2  = $result['data']['Total_grand_field'][0]->total_duration;
         $result4  = array(
-            "total_duration"=>$result['data']['Total_grand_field'][0]->total_duration.' (mm:ss)',
+            "total_duration"=>$result['data']['Total_grand_field'][0]->total_duration,
             "total_cost"=>$currency.$result['data']['Total_grand_field'][0]->total_cost,
             // "os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
         );

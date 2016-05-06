@@ -17,14 +17,16 @@ class DashboardCustomerController extends BaseController {
         $data = Input::all();
         $CurrencyID = "";
         $CustomerID = Customer::get_accountID();
+        $CurrencySymbol = '';
         if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
             $CurrencyID = $data["CurrencyID"];
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
         $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
-        return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense'));
+        return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
 
     }
 

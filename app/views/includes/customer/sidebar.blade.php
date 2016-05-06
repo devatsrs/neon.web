@@ -82,7 +82,7 @@
         @if(getenv('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
-                <i class="entypo-clipboard"></i>
+                <i class="glyphicon glyphicon-usd"></i>
                 <span>Commercial</span>
             </a>
         </li>
