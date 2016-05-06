@@ -35,12 +35,21 @@ class Dispute extends \Eloquent {
 		$DisputeDifference = number_format($GrandTotal - $DisputeTotal,4);
 		$total_average = $GrandTotal + $DisputeTotal / 2;
 
-		$DisputeDifferencePer =  number_format(abs(($DisputeDifference / $total_average) * 100),4);
+		if($total_average > 0){
+			$DisputeDifferencePer =  number_format(abs(($DisputeDifference / $total_average) * 100),4);
+		}else{
+			$DisputeDifferencePer =  0;
+		}
 
 		$DisputeMinutes = $DisputeMinutes;
 		$MinutesDifference = $TotalMinutes - $DisputeMinutes;
 		$minutes_average = $TotalMinutes + $DisputeMinutes / 2;
-		$MinutesDifferencePer =  number_format(abs(($MinutesDifference / $minutes_average) * 100),4);
+
+		if($minutes_average > 0){
+			$MinutesDifferencePer =  number_format(abs(($MinutesDifference / $minutes_average) * 100),4);
+		}else{
+			$MinutesDifferencePer = 0;
+		}
 
 		return array(
 
