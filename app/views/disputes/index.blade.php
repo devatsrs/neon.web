@@ -41,7 +41,7 @@
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, 'Pending', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
             </div>
  
 
@@ -65,7 +65,7 @@
           <th width="8%">Created Date</th>
           <th width="8%">Created By</th>
           <th width="15%">Notes</th>
-          <th width="15%">Action</th>
+          <th width="16%">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -74,10 +74,14 @@
     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
-     var list_fields  = ['AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','AccountID','Notes'];
+     var list_fields  = ['AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
 
      var $searchFilter = {};
-                var update_new_url;
+     $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
+     $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
+     $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+
+     var update_new_url;
                 var postdata;
                 var dispute_status = {{json_encode(Dispute::$Status);}};
 
@@ -149,6 +153,9 @@
                                     delete_  = delete_ .replace( '{id}', id );
                                     var dispute_status_url = "{{ URL::to('disputes/change_status')}}";
 
+                                    var downloads_ = "{{ URL::to('disputes/{id}/download_attachment')}}";
+                                    downloads_  = downloads_ .replace( '{id}', id );
+
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
@@ -157,11 +164,6 @@
                                     if('{{User::checkCategoryPermission('Disputes','Edit')}}' ){
                                         action += ' <a href="" class="edit-dispute btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
                                     }
-
-                                    if('{{User::checkCategoryPermission('Disputes','Delete')}}'){
-                                        action += '<a href="'+delete_+'"  class="btn delete-dispute btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
-                                     }
-
                                     if('{{User::checkCategoryPermission('Disputes','ChangeStatus')}}') {
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
@@ -173,6 +175,10 @@
                                         });
                                         action += '</ul>' +
                                                 '</div>';
+                                    }
+
+                                    if(full[8]!= ""){
+                                        action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+downloads_+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                     }
 
                                     return action;
@@ -221,7 +227,7 @@
                              var dispute_id = $(this).attr("data-disputeid");
                              var status_text = $(this).text();
 
-                             if (!confirm('Are you sure you want to '+ status_text +' the dispute?')) {
+                             if (!confirm('Are you sure you want to change dispute status to '+ status_text +'?')) {
                                  return;
                              }
                              $("#dispute-status-form").find("textarea[name='Notes']").val('');
@@ -348,9 +354,12 @@
                         }else{
                             submit_url = baseurl + '/disputes/create';
                         }
-                        formData = $("#add-edit-dispute-form").serialize();
-                        submit_ajax(submit_url,formData);
-                     });
+
+                        var formData = new FormData($('#add-edit-dispute-form')[0]);
+                        submit_ajax_withfile(submit_url,formData);
+                        $(".btn").button('reset');
+
+                    });
 
                     $('#add-edit-modal-dispute').change(function (ev) {
 
@@ -541,6 +550,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
     <form id="add-edit-dispute-form" method="post">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">Dispute</h4>
@@ -572,7 +582,13 @@
               <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
             </div>
           </div>
-
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="Attachment" class="control-label">Attachment (pdf,png,jpg,gif,xls,csv,xlsx)</label>
+                    <div class="clear clearfix"></div>
+                    <input id="Attachment" name="Attachment" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                </div>
+            </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -581,7 +597,6 @@
           {{--<input type="hidden" name="InvoiceID" >--}}
           <button type="submit" id="dispute-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-      </div>
       </div>
     </form>
   </div>

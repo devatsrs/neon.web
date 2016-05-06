@@ -13,8 +13,7 @@ BEGIN
         PaymentDate LONGTEXT,
         PaymentMethod VARCHAR(20),
         Amount NUMERIC(18, 8),
-		  DisputeDifference NUMERIC(18, 8),
-        MinutesDifference NUMERIC(18, 8),        
+		  DisputeAmount NUMERIC(18, 8),
         Currency VARCHAR(15),
         PeriodCover VARCHAR(30),
 		  StartDate datetime,
@@ -40,8 +39,7 @@ BEGIN
             END AS dates,
             tblPayment.PaymentMethod,
             tblPayment.Amount,
-            tblDispute.DisputeDifference,
-            tblDispute.MinutesDifference,
+            tblDispute.DisputeAmount,
             tblPayment.CurrencyID,
             CASE
             	WHEN (tblInvoice.ItemInvoice = 1 AND p_isExport = 1) THEN
@@ -64,7 +62,7 @@ BEGIN
             ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )/* ProductType =2 = INVOICE USAGE AND InvoiceType = 1 Invoice sent and InvoiceType =2 invoice recevied */
         INNER JOIN LocalRatemanagement.tblAccount
             ON tblInvoice.AccountID = tblAccount.AccountID
-		  LEFT JOIN tblDispute on tblDispute.CompanyID = tblInvoice.CompanyID  and tblDispute.InvoiceID = tblInvoice.InvoiceID 
+		  LEFT JOIN tblDispute on tblDispute.CompanyID = tblInvoice.CompanyID  and tblDispute.InvoiceNo = tblInvoice.InvoiceNumber 
         LEFT JOIN tblInvoiceTemplate  on tblAccount.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
         LEFT JOIN tblPayment
             ON (tblInvoice.InvoiceNumber = tblPayment.InvoiceNo OR REPLACE(tblPayment.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tblInvoice.InvoiceNumber)) ) )
@@ -95,8 +93,7 @@ BEGIN
             END AS dates,
             tblPayment.PaymentMethod,
             tblPayment.Amount,
-            '' as DisputeDifference,
-            '' as MinutesDifference,
+            '' as DisputeAmount,
             tblPayment.CurrencyID,
             '' AS dates,
 			tblPayment.PaymentDate,
@@ -156,8 +153,7 @@ BEGIN
         IFNULL(InvoiceNo,'') as InvoiceNo,
         PeriodCover,
         InvoiceAmount,
-        DisputeDifference,
-        MinutesDifference,
+        DisputeAmount,
         ' ' AS spacer,
         PaymentDate,
         Amount AS payment,
