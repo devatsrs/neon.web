@@ -20,6 +20,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments', 'PaymentsCustomerController@index');
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
+    Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
 
 
     //Account Statement
@@ -43,6 +44,15 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');
 	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
+	Route::any('customer/cdr/ajax_datagrid_total', 'CDRCustomerController@ajax_datagrid_total');
+
+	//commercial
+
+	Route::any('customer/customers_rates', 'RateCustomerController@settings');
+	Route::any('customer/customers_rates/{id}/search_ajax_datagrid/{type}', 'RateCustomerController@search_ajax_datagrid');
+	Route::any('customer/customers_rates/rate', 'RateCustomerController@index');
+	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
+	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
 
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
@@ -210,7 +220,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Leads
 	Route::any('/leads/store', array('as' => 'leads_store', 'uses' => 'LeadsController@store'));
 	Route::any('/leads/update/{id}', array('as' => 'leads_update', 'uses' => 'LeadsController@update'));
-	Route::any('/leads/{id}/show', array('uses' => 'LeadsController@show'));
+	Route::any('/leads/{id}/show', array('as' => 'accounts_show', 'uses' => 'LeadsController@show'));
 	Route::any('/leads/{id}/store_note', array('as' => 'accounts_storenote', 'uses' => 'LeadsController@store_note'));
 	Route::any('/leads/{id}/delete_note', array('as' => 'accounts_delete_note', 'uses' => 'LeadsController@delete_note'));
 	Route::any('/leads/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'LeadsController@convert'));
@@ -743,6 +753,16 @@ Route::group(array('before' => 'auth'), function () {
     //Wysihtml5Controller
     Route::any('/Wysihtml5/getfiles','Wysihtml5Controller@getfiles');
     Route::any('/Wysihtml5/file_upload','Wysihtml5Controller@file_upload');
+
+	//Disputes
+	Route::any('/disputes','DisputeController@index');
+	Route::any('/disputes/reconcile', 'DisputeController@reconcile');
+	Route::any('/disputes/ajax_datagrid/{type}','DisputeController@ajax_datagrid');
+	Route::any('/disputes/{id}/delete','DisputeController@delete');
+	Route::any('/disputes/{id}/update','DisputeController@update');
+	Route::any('/disputes/create','DisputeController@create');
+	Route::any('/disputes/change_status','DisputeController@change_status');
+
 
 });
 

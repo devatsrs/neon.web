@@ -254,7 +254,6 @@ class AuthorizeNet {
         $transaction->customerPaymentProfileId = $options->PaymentProfileID;
 
         $response = $request->createCustomerProfileTransaction("AuthCapture", $transaction);
-        Log::info(print_r($response,true));
 		$transactionResponse = $response->getTransactionResponse();
 		$transactionResponse->real_response = $response;
 		

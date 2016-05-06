@@ -19,8 +19,9 @@ class ProfileController extends \BaseController {
         $id = User::get_userID();
         $companyID = User::get_companyID();
         $account = Account::find($id);
+        $account_owner = User::find($account->Owner);
         $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-        return View::make('customer.accounts.show', compact('account', 'contacts'));
+        return View::make('customer.accounts.show', compact('account', 'contacts','account_owner'));
     }
 
     /**

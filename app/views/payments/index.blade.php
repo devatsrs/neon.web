@@ -245,7 +245,8 @@
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
-                                    {"name":"Export","value":1});
+                                    {"name":"Export","value":1}
+                            );
 
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',

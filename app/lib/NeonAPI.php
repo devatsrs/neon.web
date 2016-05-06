@@ -81,8 +81,7 @@ class NeonAPI{
         }
 
         $curl->close();
-        self::parse_header($curl->response_headers);		
-			Log::info($curl->response);
+        self::parse_header($curl->response_headers);
         return json_decode($curl->response,$is_array);
     }
     protected static function parse_header($response_headers){

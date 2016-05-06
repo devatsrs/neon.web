@@ -56,7 +56,9 @@
                     <label for="field-1" class="col-sm-2 control-label">Picture</label>
                     <div class="col-sm-4">
                             <input id="picture" type="file" name="Picture" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                            @if(Customer::get_customer_picture_url(Customer::get_accountID()) !='')
                             <img src="{{ Customer::get_customer_picture_url(Customer::get_accountID()) }}" alt="" class="img-circle" width="44" />
+                            @endif
 
                     </div>
                 </div>

@@ -91,13 +91,13 @@ BEGIN
 		
 		
 		    SELECT
-		        COUNT(*) AS totalcount
+		        COUNT(*) AS totalcount,sum(Duration) as total_duration,format((sum(cost)),6) as total_cost
 		    FROM (
 		    select Distinct
 		            uh.AccountName as AccountName,           
 		            uh.connect_time,
 		            uh.disconnect_time,
-		            uh.billed_duration,
+		            uh.billed_duration as Duration,
 		            uh.cli,
 		            uh.cld,
 						format(uh.cost,6) as cost,
@@ -114,7 +114,7 @@ BEGIN
 		        AccountName,        
 		        connect_time,
 		        disconnect_time,        
-		        billed_duration,
+		        billed_duration as duration,
 		        cost,
 		        cli,
 		        cld,
