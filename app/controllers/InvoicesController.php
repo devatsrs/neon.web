@@ -808,7 +808,7 @@ class InvoicesController extends \BaseController {
             if( $data["DisputeAmount"] > 0 ){
 
                 //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
-                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeDifference"]));
+                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
 
             }
 
@@ -885,7 +885,7 @@ class InvoicesController extends \BaseController {
                 if( $data["DisputeID"] > 0 && $data["DisputeAmount"] > 0 ){
 
                     //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
-                    Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeDifference"]));
+                    Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
                 }
                 return Response::json(["status" => "success", "message" => "Invoice in updated successfully"]);
             }else{

@@ -1311,6 +1311,12 @@ var postdata;
                             <input type="text" name="TotalMinutes" class="form-control"  value="" />
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="DisputeAmount" class="form-control"  value="" />
+                        </div>
+                    </div>
                     <div class="form-group ">
                         <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
                         <div class="col-sm-4">
@@ -1345,8 +1351,7 @@ var postdata;
                                 Ignore
                             </button>
 
-                            <input type="hidden" name="DisputeAmount">
-                            <input type="hidden" name="DisputeID">
+                             <input type="hidden" name="DisputeID">
 
                             {{--<input type="hidden" name="DisputeTotal">--}}
                             {{--<input type="hidden" name="DisputeDifference">--}}
