@@ -250,7 +250,8 @@ class AccountsController extends \BaseController {
                     $response_extensions = implode(',',$response_extensions);
                 }
             }*/
-            $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
+            $temp = getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+            $response_extensions        =    explode(',',$temp);
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
