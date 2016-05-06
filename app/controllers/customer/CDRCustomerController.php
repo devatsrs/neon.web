@@ -70,13 +70,20 @@ class CDRCustomerController extends BaseController {
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
         $data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
         $data['AccountID']           = User::get_userID();
+        $account = Account::find($data['AccountID']);
+        if(!empty($account->CurrencyId)){
+            $currency = Currency::getCurrencySymbol($account->CurrencyId);
+        }else{
+            $currency = '';
+        }
+
 
         $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
         $result2  = $result['data']['Total_grand_field'][0]->total_duration;
         $result4  = array(
-            "total_duration"=>$result['data']['Total_grand_field'][0]->total_duration,
-            "total_cost"=>$result['data']['Total_grand_field'][0]->total_cost,
+            "total_duration"=>$result['data']['Total_grand_field'][0]->total_duration.' (mm:ss)',
+            "total_cost"=>$currency.$result['data']['Total_grand_field'][0]->total_cost,
             // "os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
         );
 
