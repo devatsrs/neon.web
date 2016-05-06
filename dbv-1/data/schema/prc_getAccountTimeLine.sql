@@ -2,7 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountTimeLine`(IN `p_Accou
 BEGIN
 DECLARE v_OffSet_ int;
 SET v_OffSet_ = p_Start;
-
+SET sql_mode = 'ALLOW_INVALID_DATES';
 	DROP TEMPORARY TABLE IF EXISTS tmp_actvity_timeline_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_actvity_timeline_(
 		`Timeline_type` int(11),
