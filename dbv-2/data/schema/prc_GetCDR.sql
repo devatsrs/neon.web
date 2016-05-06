@@ -91,7 +91,7 @@ BEGIN
 		
 		
 		    SELECT
-		        COUNT(*) AS totalcount,sum(Duration) as total_duration,format((sum(cost)),6) as total_cost
+		        COUNT(*) AS totalcount,fnFormateDuration(sum(Duration)) as total_duration,format((sum(cost)),6) as total_cost
 		    FROM (
 		    select Distinct
 		            uh.AccountName as AccountName,           

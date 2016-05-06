@@ -24,7 +24,8 @@ BEGIN
         IntervalN INT,
         ConnectionFee DECIMAL(18, 6),
         Rate DECIMAL(18, 6),
-        EffectiveDate DATE
+        EffectiveDate DATE,
+        INDEX tmp_RateTableRate_RateID (`RateID`)
     );
     
    INSERT INTO tmp_RateTableRate_
@@ -32,21 +33,11 @@ BEGIN
 	      r.RateID,
 			r.Code,
 			r.Description,			
-			CASE WHEN rtr.Interval1 IS NULL
-                THEN 
-                    r.Interval1
-                ELSE
-                    rtr.Interval1
-                END as Interval1,
-         CASE WHEN rtr.IntervalN IS NULL
-                THEN 
-                    r.IntervalN
-                ELSE
-                    rtr.IntervalN
-                END as Interval1,
+			ifnull(rtr.Interval1,1) as Interval1,
+         ifnull(rtr.IntervalN,1) as IntervalN,
 			rtr.ConnectionFee,
-			rtr.Rate,
-			rtr.EffectiveDate
+			IFNULL(rtr.Rate, 0) as Rate,
+			IFNULL(rtr.EffectiveDate, NOW()) as EffectiveDate
 		 from tblRate r LEFT JOIN tblRateTableRate rtr on r.RateID=rtr.RateID
 		 AND r.CodeDeckId = v_codedeckid_ AND  
 						 (
@@ -59,6 +50,13 @@ BEGIN
 		  AND	(p_contryID IS NULL OR r.CountryID = p_contryID)
         AND (p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%'))
         AND (p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%'));
+        
+        IF p_Effective = 'Now'
+		THEN
+		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);	        
+         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+		   AND  n1.RateID = n2.RateID;
+		END IF;
         
         IF p_isExport = 0
     THEN

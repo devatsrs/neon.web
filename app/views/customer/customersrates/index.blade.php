@@ -4,7 +4,7 @@
 
     <ol class="breadcrumb bc-3">
         <li>
-            <a href="#"><i class="entypo-home"></i>Rate</a>
+            <a href="#"><i class="entypo-home"></i>Outbound Rate</a>
         </li>
     </ol>
 

@@ -15,7 +15,7 @@
     </li>
     <li>
         <a href="{{ URL::to('/customer/customers_rates/rate') }}" >
-            outbound Rate
+            Outbound Rate
         </a>
     </li>
     @if(isset($displayinbound) && $displayinbound>0)
