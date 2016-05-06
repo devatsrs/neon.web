@@ -1467,6 +1467,7 @@ class InvoicesController extends \BaseController {
             $result["GrandTotal"] = $Invoice->GrandTotal;
 
         }*/
+        $InvoiceNumber = Invoice::find($data['InvoiceID'])->first()->pluck("InvoiceNumber");
 
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $data['InvoiceID']])->select(["InvoiceDetailID","StartDate", "EndDate","Description", "TotalMinutes"])->first();
 
@@ -1484,7 +1485,7 @@ class InvoicesController extends \BaseController {
         $result['TotalMinutes'] = $InvoiceDetail->TotalMinutes;
 
         //$Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
-        $Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeAmount"])->first();
+        $Dispute = Dispute::where(["InvoiceNo"=>$InvoiceNumber,"Status"=>Dispute::PENDING])->select(["DisputeID","DisputeAmount"])->first();
 
         if(isset($Dispute->InvoiceID)){
 
