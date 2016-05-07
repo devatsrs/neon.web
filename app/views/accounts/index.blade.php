@@ -128,6 +128,12 @@
                         <span>Bulk Rate sheet Email</span>
                     </a>
                 </li>
+                <li>
+                   <a href="{{ URL::to('/import/account') }}" >
+                        <i class="entypo-mail"></i>
+                        <span>Import Accounts</span>
+                   </a>
+                </li>
                 @endif
             </ul>
         </div><!-- /btn-group -->
