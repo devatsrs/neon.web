@@ -20,9 +20,7 @@ BEGIN
 			`ACD` INT(11) NULL DEFAULT NULL,
 			`ASR` INT(11) NULL DEFAULT NULL,
 			`AccountName` varchar(100),
-			INDEX `tblUsageSummary_dim_date` (`date_id`),
-			INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`)
-
+			INDEX `tblUsageSummary_dim_date` (`date_id`)
 	);
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
@@ -93,7 +91,7 @@ BEGIN
 		AND (p_AreaPrefix = '' OR ud.area_prefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		GROUP BY YEAR(ud.connect_time),MONTH(ud.connect_time),DAY(ud.connect_time),HOUR(ud.connect_time),ud.area_prefix,ud.trunk,ud.AccountID,ud.GatewayAccountID,ud.CompanyGatewayID,ud.CompanyID;
 		
-		UPDATE tmp_tblUsageSummary_ FORCE INDEX (tmp_UsageSummary_AreaPrefix)
+		UPDATE tmp_tblUsageSummary_ 
 		INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
 		SET tmp_tblUsageSummary_.CountryID =tblCountry.CountryID
 		WHERE date_id = v_TimeId_;
