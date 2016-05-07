@@ -43,7 +43,7 @@ BEGIN
 	FROM tblUsageSummary  us
 	INNER JOIN tblDimDate dd
 		ON dd.date_id = us.date_id 
-	INNER JOIN Ratemanagement3.tblAccount a
+	INNER JOIN LocalRatemanagement.tblAccount a
 		ON us.AccountID = a.AccountID
 	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 	AND us.CompanyID = p_CompanyID
@@ -81,7 +81,7 @@ BEGIN
 		FROM tmp_tblUsageDetails_ ud  
 		INNER JOIN tblDimTime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
 		INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
-		INNER JOIN Ratemanagement3.tblAccount a ON ud.AccountID = a.AccountID
+		INNER JOIN LocalRatemanagement.tblAccount a ON ud.AccountID = a.AccountID
 		WHERE 
 			  ud.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR ud.AccountID = p_AccountID)

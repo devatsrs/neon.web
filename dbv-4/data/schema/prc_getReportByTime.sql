@@ -31,7 +31,7 @@ BEGIN
 	
 		/* report by daily*/
 		SELECT 
-			 dd.date as category,
+			dd.date as category,
 			SUM(NoOfCalls) AS CallCount,
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
@@ -46,7 +46,7 @@ BEGIN
 	
 		/* report by weekly*/
 		SELECT 
-			 dd.week_year_name as category,
+			ANY_VALUE(dd.week_year_name) as category,
 			SUM(NoOfCalls) AS CallCount,
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
@@ -61,7 +61,7 @@ BEGIN
 	
 		/* report by monthly*/
 		SELECT 
-			 dd.month_year_name as category,
+			ANY_VALUE(dd.month_year_name) as category,
 			SUM(NoOfCalls) AS CallCount,
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
@@ -77,7 +77,7 @@ BEGIN
 	
 		/* report by monthly*/
 		SELECT 
-			 dd.quarter_year_name as category,
+			ANY_VALUE(dd.quarter_year_name) as category,
 			SUM(NoOfCalls) AS CallCount,
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
@@ -93,7 +93,7 @@ BEGIN
 	
 		/* report by monthly*/
 		SELECT 
-			 dd.year as category,
+			dd.year as category,
 			SUM(NoOfCalls) AS CallCount,
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
@@ -104,21 +104,6 @@ BEGIN
 	END IF;
 	
 	
-	/* monthly report */
-	IF p_ReportType =7
-	THEN
-	
-		/* report by monthly*/
-		SELECT 
-			 dd.month_of_year as category,
-			SUM(NoOfCalls) AS CallCount,
-			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
-			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
-		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimDate dd on dd.date_id = us.date_id
-		GROUP BY  dd.month_of_year;
-		
-	END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
