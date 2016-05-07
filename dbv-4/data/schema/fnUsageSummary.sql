@@ -74,7 +74,7 @@ BEGIN
 			NULL ASR,
 			a.AccountName
 		FROM tmp_tblUsageDetails_ ud  
-		INNER JOIN tblDimTtime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
+		INNER JOIN tblDimTime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
 		INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
 		INNER JOIN LocalRatemanagement.tblAccount a ON ud.AccountID = a.AccountID
 		LEFT JOIN LocalRatemanagement.tblCountry c ON area_prefix LIKE CONCAT(Prefix , "%")

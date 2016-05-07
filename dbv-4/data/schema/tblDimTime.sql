@@ -1,4 +1,4 @@
-CREATE TABLE `tblDimTtime` (
+CREATE TABLE `tblDimTime` (
   `time_id` int(11) NOT NULL AUTO_INCREMENT,
   `fulltime` time DEFAULT NULL,
   `hour` int(11) DEFAULT NULL,

@@ -13,13 +13,13 @@ BEGIN
 	SELECT ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_;
 	
 	/* cost per hour*/
-	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTtime dt on us.time_id =  dt.time_id GROUP BY us.time_id;
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTime dt on us.time_id =  dt.time_id GROUP BY us.time_id;
 	
 	/* total duration or minutes*/
 	SELECT ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes FROM tmp_tblUsageSummary_;
 	
 	/* minutes pre hour*/
-	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalBilledDuration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTtime dt on us.time_id =  dt.time_id GROUP BY us.time_id;
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalBilledDuration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTime dt on us.time_id =  dt.time_id GROUP BY us.time_id;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

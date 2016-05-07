@@ -20,5 +20,5 @@ CREATE TABLE `tblUsageSummary` (
   KEY `FK_tblUsageSummary_dim_date` (`date_id`),
   KEY `FK_tblUsageSummary_dim_time` (`time_id`),
   CONSTRAINT `FK_tblUsageSummary_dim_date` FOREIGN KEY (`date_id`) REFERENCES `tblDimDate` (`date_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_tblUsageSummary_dim_time` FOREIGN KEY (`time_id`) REFERENCES `tblDimTtime` (`time_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `FK_tblUsageSummary_dim_time` FOREIGN KEY (`time_id`) REFERENCES `tblDimTime` (`time_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

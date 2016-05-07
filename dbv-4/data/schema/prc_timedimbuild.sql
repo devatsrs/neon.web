@@ -2,12 +2,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_timedimbuild`()
 BEGIN
     DECLARE v_full_date DATETIME;
 
-    DELETE FROM tblDimTtime;
+    DELETE FROM tblDimTime;
 
     SET v_full_date = '2009-03-01 00:00:00';
     WHILE v_full_date < '2009-03-02 00:00:00' DO
 
-        INSERT INTO tblDimTtime (
+        INSERT INTO tblDimTime (
             fulltime ,
             hour ,
             minute ,

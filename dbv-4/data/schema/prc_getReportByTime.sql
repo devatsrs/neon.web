@@ -20,7 +20,7 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimTtime dt on dt.time_id = us.time_id
+		INNER JOIN tblDimTime dt on dt.time_id = us.time_id
 		GROUP BY  us.time_id,us.date_id;
 		
 	END IF;

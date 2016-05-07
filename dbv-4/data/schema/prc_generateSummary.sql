@@ -47,7 +47,7 @@ BEGIN
 		COUNT(ud.UsageDetailID) AS  NoOfCalls,
 		(SUM(ud.billed_duration)/COUNT(ud.UsageDetailID)) AS ACD
 	FROM tmp_tblUsageDetails_ ud  
-	INNER JOIN tblDimTtime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
+	INNER JOIN tblDimTime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
 	INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
 	GROUP BY YEAR(ud.connect_time),MONTH(ud.connect_time),DAY(ud.connect_time),HOUR(ud.connect_time),ud.area_prefix,ud.trunk,ud.AccountID,ud.GatewayAccountID,ud.CompanyGatewayID,ud.CompanyID;
 	
