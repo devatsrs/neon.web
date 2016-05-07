@@ -8,7 +8,7 @@ BEGIN
 	
 	SELECT date_id INTO v_StartTimeId_ FROM tblDimDate WHERE date = p_StartDate  LIMIT 1;
 	SELECT date_id INTO v_EndTimeId_ FROM tblDimDate WHERE date = p_EndDate  LIMIT 1;
-    
+   CALL fnGetCountry(); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_UsageSummary;
@@ -58,7 +58,7 @@ BEGIN
 	SELECT us.* FROM tmp_UsageSummary us ;
 	
 	UPDATE tblUsageSummary 
-	INNER JOIN  LocalRatemanagement.tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
+	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
 	SET tblUsageSummary.CountryID =tblCountry.CountryID
 	WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_;
 
