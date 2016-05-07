@@ -4,7 +4,7 @@
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
-            }, 60000);
+            }, 180000);
             loadDashboard();
             $(document).on(screenfull.raw.fullscreenchange, function() {
                 if(screenfull.isFullscreen){
