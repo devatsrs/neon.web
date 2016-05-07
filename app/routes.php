@@ -184,6 +184,12 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
 	Route::any('/accounts/{id}/update_inbound_rate_table',  'AccountsController@update_inbound_rate_table');
 
+	//import account
+	Route::any('/import/account',  'ImportsController@index');
+	Route::any('/import/account/check_upload',  'ImportsController@check_upload');
+	Route::any('/import/account/ajaxfilegrid',  'ImportsController@ajaxfilegrid');
+	Route::any('/import/account/storeTemplate',  'ImportsController@storeTemplate');
+
 	Route::resource('accounts', 'AccountsController');
 	Route::controller('accounts', 'AccountsController');
 
