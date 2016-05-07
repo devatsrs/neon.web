@@ -1,5 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(IN `p_CompanyID` int , IN `p_CompanyGatewayID` int , IN `p_AccountID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT , IN `p_isAdmin` INT)
 BEGIN
+	DECLARE v_TimeId_ INT;
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
@@ -18,7 +19,10 @@ BEGIN
 			`NoOfCalls` INT(11) NULL DEFAULT NULL,
 			`ACD` INT(11) NULL DEFAULT NULL,
 			`ASR` INT(11) NULL DEFAULT NULL,
-			`AccountName` varchar(100)
+			`AccountName` varchar(100),
+			INDEX `tblUsageSummary_dim_date` (`date_id`),
+			INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`)
+
 	);
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
@@ -41,7 +45,7 @@ BEGIN
 	FROM tblUsageSummary  us
 	INNER JOIN tblDimDate dd
 		ON dd.date_id = us.date_id 
-	INNER JOIN LocalRatemanagement.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON us.AccountID = a.AccountID
 	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 	AND us.CompanyID = p_CompanyID
@@ -55,17 +59,20 @@ BEGIN
 	IF p_EndDate = DATE(NOW())
 	THEN
 		CALL fnGetUsageForSummary(1,DATE(NOW()),DATE(NOW()));
+		CALL fnGetCountry();
+		SELECT date_id INTO v_TimeId_ FROM tblDimDate WHERE date = DATE(NOW())  LIMIT 1;
+		
 		INSERT INTO tmp_tblUsageSummary_
 			SELECT 
 			ANY_VALUE(d.date_id),
 			ANY_VALUE(t.time_id),
 			ud.CompanyID,
 			ud.AccountID,
-			ud.CompanyGatewayID,
 			ud.GatewayAccountID,
+			ud.CompanyGatewayID,
 			ud.trunk,
 			ud.area_prefix,
-			c.CountryID as CountryID,
+			NULL as CountryID,
 			SUM(ud.cost)  AS TotalCharges ,
 			SUM(ud.billed_duration) AS TotalBilledDuration ,
 			SUM(ud.duration) AS TotalDuration,
@@ -76,8 +83,7 @@ BEGIN
 		FROM tmp_tblUsageDetails_ ud  
 		INNER JOIN tblDimTime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
 		INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
-		INNER JOIN LocalRatemanagement.tblAccount a ON ud.AccountID = a.AccountID
-		LEFT JOIN LocalRatemanagement.tblCountry c ON area_prefix LIKE CONCAT(Prefix , "%")
+		INNER JOIN Ratemanagement3.tblAccount a ON ud.AccountID = a.AccountID
 		WHERE 
 			  ud.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR ud.AccountID = p_AccountID)
@@ -85,9 +91,21 @@ BEGIN
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR ud.trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR ud.area_prefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR c.CountryID = p_CountryID)
 		GROUP BY YEAR(ud.connect_time),MONTH(ud.connect_time),DAY(ud.connect_time),HOUR(ud.connect_time),ud.area_prefix,ud.trunk,ud.AccountID,ud.GatewayAccountID,ud.CompanyGatewayID,ud.CompanyID;
+		
+		UPDATE tmp_tblUsageSummary_ FORCE INDEX (tmp_UsageSummary_AreaPrefix)
+		INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
+		SET tmp_tblUsageSummary_.CountryID =tblCountry.CountryID
+		WHERE date_id = v_TimeId_;
+		
+		IF p_CountryID > 0
+		THEN 
+		
+			DELETE FROM tmp_tblUsageSummary_ WHERE date_id = v_TimeId_ AND CountryID !=  p_CountryID;
+		
+		END IF;
 
+	
 	END IF;
 		
 END

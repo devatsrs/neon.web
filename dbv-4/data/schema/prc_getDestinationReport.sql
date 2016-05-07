@@ -13,22 +13,22 @@ BEGIN
 	
 	
 	/* top 10 country by call count */	
-	SELECT Country as ChartVal ,COUNT(*) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD 
+	SELECT Country as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
 	FROM tmp_tblUsageSummary_ us
 	INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
-	GROUP BY Country HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
+	GROUP BY Country ORDER BY CallCount DESC LIMIT 10;
 	
 	/* top 10 country by call cost */	
-	SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD 
+	SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
 	FROM tmp_tblUsageSummary_ us
 	INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
-	GROUP BY Country HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+	GROUP BY Country  ORDER BY TotalCost DESC LIMIT 10;
 	
 	/* top 10 country by call minutes */	
-	SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD 
+	SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
 	FROM tmp_tblUsageSummary_ us
 	INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
-	GROUP BY Country HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	GROUP BY Country    ORDER BY TotalMinutes DESC LIMIT 10;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

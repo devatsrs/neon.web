@@ -27,7 +27,11 @@ BEGIN
 		`NoOfCalls` INT(11) NULL DEFAULT NULL,
 		`ACD` INT(11) NULL DEFAULT NULL,
 		`ASR` INT(11) NULL DEFAULT NULL,
-		`FinalStatus` INT(11) NULL DEFAULT '0'
+		`FinalStatus` INT(11) NULL DEFAULT '0',
+		`CountryID` INT(11) NULL DEFAULT NULL,
+		INDEX `tblUsageSummary_dim_date` (`date_id`),
+		INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`)
+		
 	);
 
 
@@ -51,18 +55,17 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
 	GROUP BY YEAR(ud.connect_time),MONTH(ud.connect_time),DAY(ud.connect_time),HOUR(ud.connect_time),ud.area_prefix,ud.trunk,ud.AccountID,ud.GatewayAccountID,ud.CompanyGatewayID,ud.CompanyID;
 	
+	UPDATE tmp_UsageSummary  FORCE INDEX (tmp_UsageSummary_AreaPrefix)
+	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
+	SET tmp_UsageSummary.CountryID =tblCountry.CountryID
+	WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND  CompanyID = p_CompanyID;
 	
-	DELETE FROM tblUsageSummary  WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_;
+	DELETE FROM tblUsageSummary  WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND  CompanyID = p_CompanyID;
 	
-	INSERT INTO tblUsageSummary(date_id,time_id,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD,ASR,FinalStatus)
+	INSERT INTO tblUsageSummary(date_id,time_id,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD,ASR,FinalStatus,CountryID)
 	SELECT us.* FROM tmp_UsageSummary us ;
 	
-	UPDATE tblUsageSummary 
-	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
-	SET tblUsageSummary.CountryID =tblCountry.CountryID
-	WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_;
-
-	
+ 
 	-- DELETE FROM tblUsageSummary WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND TotalCharges = 0 AND TotalBilledDuration =0 AND TotalDuration = 0 AND NoOfCalls = 0 ;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
