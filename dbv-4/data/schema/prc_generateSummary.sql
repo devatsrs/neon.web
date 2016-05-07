@@ -57,6 +57,12 @@ BEGIN
 	INSERT INTO tblUsageSummary(date_id,time_id,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD,ASR,FinalStatus)
 	SELECT us.* FROM tmp_UsageSummary us ;
 	
+	UPDATE tblUsageSummary 
+	INNER JOIN  LocalRatemanagement.tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
+	SET tblUsageSummary.CountryID =tblCountry.CountryID
+	WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_;
+
+	
 	-- DELETE FROM tblUsageSummary WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND TotalCharges = 0 AND TotalBilledDuration =0 AND TotalDuration = 0 AND NoOfCalls = 0 ;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

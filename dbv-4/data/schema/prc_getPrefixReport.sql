@@ -7,16 +7,16 @@ BEGIN
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 		 
-	CALL fnUsageDetail(p_CompanyID,0,p_AccountID,DATE(NOW()),CONCAT(DATE(NOW()),' 23:59:59'),p_UserID,p_isAdmin,1,'','','',0);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin);
 	
 	/* top 10 prefix by call count */	
-	SELECT area_prefix as ChartVal ,COUNT(*) AS CallCount, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_ WHERE area_prefix != 'other' GROUP BY area_prefix HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
+	SELECT AreaPrefix as ChartVal ,COUNT(*) AS CallCount, (COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD FROM tmp_tblUsageSummary_ WHERE AreaPrefix != 'other' GROUP BY AreaPrefix HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
 	
 	/* top 10 prefix by call cost */	
-	SELECT area_prefix as ChartVal,ROUND(COALESCE(SUM(cost),0), v_Round_) as TotalCost, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_ WHERE area_prefix != 'other' GROUP BY area_prefix HAVING SUM(cost) > 0 ORDER BY TotalCost DESC LIMIT 10;
+	SELECT AreaPrefix as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost, (COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD FROM tmp_tblUsageSummary_ WHERE AreaPrefix != 'other' GROUP BY AreaPrefix HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
 	
 	/* top 10 prefix by call minutes */	
-	SELECT area_prefix as ChartVal,ROUND(COALESCE(SUM(billed_duration),0)/ 60,0) as TotalMinutes, (COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_ WHERE area_prefix != 'other' GROUP BY area_prefix HAVING SUM(billed_duration)>0 ORDER BY TotalMinutes DESC LIMIT 10;
+	SELECT AreaPrefix as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes, (COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD FROM tmp_tblUsageSummary_ WHERE AreaPrefix != 'other' GROUP BY AreaPrefix HAVING SUM(TotalBilledDuration)>0 ORDER BY TotalMinutes DESC LIMIT 10;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

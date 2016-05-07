@@ -49,8 +49,8 @@ BEGIN
 	AND (p_CompanyGatewayID = 0 OR CompanyGatewayID = p_CompanyGatewayID)
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 	AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-	AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') );
-	-- AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
+	AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+	AND (p_CountryID = 0 OR us.CountryID = p_CountryID);
 	
 	IF p_EndDate = DATE(NOW())
 	THEN
@@ -65,7 +65,7 @@ BEGIN
 			ud.GatewayAccountID,
 			ud.trunk,
 			ud.area_prefix,
-			NULL as CountryID,
+			c.CountryID as CountryID,
 			SUM(ud.cost)  AS TotalCharges ,
 			SUM(ud.billed_duration) AS TotalBilledDuration ,
 			SUM(ud.duration) AS TotalDuration,
@@ -77,9 +77,17 @@ BEGIN
 		INNER JOIN tblDimTtime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
 		INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
 		INNER JOIN LocalRatemanagement.tblAccount a ON ud.AccountID = a.AccountID
+		LEFT JOIN LocalRatemanagement.tblCountry c ON area_prefix LIKE CONCAT(Prefix , "%")
+		WHERE 
+			  ud.CompanyID = p_CompanyID
+		AND (p_AccountID = 0 OR ud.AccountID = p_AccountID)
+		AND (p_CompanyGatewayID = 0 OR ud.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_Trunk = '' OR ud.trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR ud.area_prefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR c.CountryID = p_CountryID)
 		GROUP BY YEAR(ud.connect_time),MONTH(ud.connect_time),DAY(ud.connect_time),HOUR(ud.connect_time),ud.area_prefix,ud.trunk,ud.AccountID,ud.GatewayAccountID,ud.CompanyGatewayID,ud.CompanyID;
-	
-	
+
 	END IF;
 		
 END

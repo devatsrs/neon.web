@@ -7,19 +7,19 @@ BEGIN
 
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
-	CALL fnUsageDetail(p_CompanyID,0,p_AccountID,DATE(NOW()),CONCAT(DATE(NOW()),' 23:59:59'),p_UserID,p_isAdmin,1,'','','',0);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin);
 	
 	/* total cost */
-	SELECT ROUND(COALESCE(SUM(cost),0),v_Round_) as TotalCost FROM tmp_tblUsageDetails_;
+	SELECT ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_;
 	
 	/* cost per hour*/
-	SELECT HOUR(connect_time) as HOUR ,ROUND(COALESCE(SUM(cost),0),v_Round_) as TotalCost FROM tmp_tblUsageDetails_ GROUP BY HOUR(connect_time);
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTtime dt on us.time_id =  dt.time_id GROUP BY us.time_id;
 	
 	/* total duration or minutes*/
-	SELECT ROUND(COALESCE(SUM(billed_duration),0)/ 60,0) as TotalMinutes FROM tmp_tblUsageDetails_;
+	SELECT ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes FROM tmp_tblUsageSummary_;
 	
 	/* minutes pre hour*/
-	SELECT HOUR(connect_time) as HOUR ,ROUND(COALESCE(SUM(billed_duration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageDetails_ GROUP BY HOUR(connect_time);
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalBilledDuration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTtime dt on us.time_id =  dt.time_id GROUP BY us.time_id;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

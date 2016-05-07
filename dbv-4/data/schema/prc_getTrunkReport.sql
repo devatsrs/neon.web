@@ -7,17 +7,17 @@ BEGIN
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 		 
-	CALL fnUsageDetail(p_CompanyID,0,p_AccountID,DATE(NOW()),CONCAT(DATE(NOW()),' 23:59:59'),p_UserID,p_isAdmin,1,'','','',0);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin);
 	
 	
 	/* top 10 Trunk by call count */	
-	SELECT Trunk as ChartVal ,COUNT(*) AS CallCount,(COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_ GROUP BY Trunk HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
+	SELECT Trunk as ChartVal ,COUNT(*) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD FROM tmp_tblUsageSummary_ GROUP BY Trunk HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
 	
 	/* top 10 Trunk by call cost */	
-	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(cost),0), v_Round_) as TotalCost,(COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_ GROUP BY Trunk HAVING SUM(cost) > 0 ORDER BY TotalCost DESC LIMIT 10;
+	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD FROM tmp_tblUsageSummary_ GROUP BY Trunk HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
 	
 	/* top 10 Trunk by call minutes */	
-	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(billed_duration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(billed_duration),0)/COUNT(*)) as ACD FROM tmp_tblUsageDetails_ GROUP BY Trunk HAVING SUM(billed_duration) > 0 ORDER BY TotalMinutes DESC LIMIT 10;
+	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/COUNT(*)) as ACD FROM tmp_tblUsageSummary_ GROUP BY Trunk HAVING SUM(TotalBilledDuration) > 0 ORDER BY TotalMinutes DESC LIMIT 10;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
