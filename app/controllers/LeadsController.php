@@ -181,7 +181,15 @@ class LeadsController extends \BaseController {
 			$Board 						=	 CRMBoard::getTaskBoard();
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(0,1);
 			$random_token				=	 get_random_number();
-			$response_extensions 		= 	 json_encode(NeonAPI::request('get_allowed_extensions',[],false));
+            //Backup code for getting extensions from api
+            /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+            $response_extensions = json_response_api($response_extensions,true);
+            if(!empty($response_extensions)){
+                if(!isJson($response_extensions)){
+                    $response_extensions = implode(',',$response_extensions);
+                }
+            }*/
+            $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
@@ -194,8 +202,7 @@ class LeadsController extends \BaseController {
 			$leadOrAccountCheck 		= 	'lead';
 			$opportunitytags 			= 	json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-			// echo Session::get("api_token"); exit;
-			//echo "<pre>";			print_r($users);			exit;
+
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data->result;
 			}else{				

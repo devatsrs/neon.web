@@ -92,6 +92,33 @@ class Dispute extends \Eloquent {
 			return json_validator_response($validator);
 		}
 
+
+		if (Input::hasFile('Attachment')){
+			$upload_path = getenv("UPLOAD_PATH");
+			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS']) ;
+			$destinationPath = $upload_path . '/' . $amazonPath;
+			$proof = Input::file('Attachment');
+			// ->move($destinationPath);
+			$ext = $proof->getClientOriginalExtension();
+			if (in_array(strtolower($ext), array('pdf','png','jpg','gif','xls','csv','xlsx'))) {
+				$filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
+				//$fullPath = $destinationPath .$filename;
+				$proof->move($destinationPath,$filename);
+				if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
+					return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+				}
+				$data['Attachment'] = $amazonPath . $filename;
+				$disputeData["Attachment"]             = $data["Attachment"];
+
+			}else{
+				$valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
+				return $valid;
+			}
+		}else{
+			unset($data['Attachment']);
+		}
+
+
 		if(isset($data["DisputeID"]) && $data["DisputeID"] > 0 ){
 
 			$disputeData["DisputeID"]  = $data["DisputeID"];
