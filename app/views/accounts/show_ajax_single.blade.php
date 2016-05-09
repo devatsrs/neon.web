@@ -76,7 +76,7 @@
                 <p>Subject: {{$response->Subject}}</p>
                 <p>Assign To: {{$response->Name}}</p>
                 <p>priority: {{$response->Priority}}</p>
-                <p>Due Date: {{$response->DueDate}}</p>
+              @if($response->DueDate!='' && $response->DueDate!='0000-00-00 00:00:00')  <p>Due Date: {{$response->DueDate}}</p>@endif
                 <p>Status: {{$response->TaskStatus}}. </p>
                 <p>Description: {{$response->Description}} </p>
                  </div>
