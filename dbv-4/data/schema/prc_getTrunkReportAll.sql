@@ -10,7 +10,7 @@ BEGIN
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	
-	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin);
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,1);
 
 	
 	/* grid display*/

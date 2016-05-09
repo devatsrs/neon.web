@@ -1,20 +1,15 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummary`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
 BEGIN
 	
-	DECLARE v_StartTimeId_ INT ;
-	DECLARE v_EndTimeId_ INT ;
-	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	SELECT date_id INTO v_StartTimeId_ FROM tblDimDate WHERE date = p_StartDate  LIMIT 1;
-	SELECT date_id INTO v_EndTimeId_ FROM tblDimDate WHERE date = p_EndDate  LIMIT 1;
    CALL fnGetCountry(); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_UsageSummary;
 	CREATE TEMPORARY TABLE `tmp_UsageSummary` (
-		`date_id` BIGINT(20) NOT NULL,
-		`time_id` INT(11) NOT NULL,
+		`DateID` BIGINT(20) NOT NULL,
+		`TimeID` INT(11) NOT NULL,
 		`CompanyID` INT(11) NOT NULL,
 		`CompanyGatewayID` INT(11) NOT NULL,
 		`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL,
@@ -29,44 +24,87 @@ BEGIN
 		`ASR` INT(11) NULL DEFAULT NULL,
 		`FinalStatus` INT(11) NULL DEFAULT '0',
 		`CountryID` INT(11) NULL DEFAULT NULL,
-		INDEX `tblUsageSummary_dim_date` (`date_id`),
+		INDEX `tblUsageSummary_dim_date` (`DateID`),
 		INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`)
 		
 	);
 
 
-	INSERT INTO tmp_UsageSummary(date_id,time_id,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD)
+	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD)
 	SELECT 
-		ANY_VALUE(d.date_id),
-		ANY_VALUE(t.time_id),
+		d.DateID,
+		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
 		ud.GatewayAccountID,
 		ud.AccountID,
 		ud.trunk,
 		ud.area_prefix,
-		SUM(ud.cost)  AS TotalCharges ,
-		SUM(ud.billed_duration) AS TotalBilledDuration ,
-		SUM(ud.duration) AS TotalDuration,
+		COALESCE(SUM(ud.cost),0)  AS TotalCharges ,
+		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
+		COALESCE(SUM(ud.duration),0) AS TotalDuration,
 		COUNT(ud.UsageDetailID) AS  NoOfCalls,
-		(SUM(ud.billed_duration)/COUNT(ud.UsageDetailID)) AS ACD
+		(COALESCE(SUM(ud.billed_duration),0)/COUNT(ud.UsageDetailID)) AS ACD
 	FROM tmp_tblUsageDetails_ ud  
 	INNER JOIN tblDimTime t ON t.fulltime = CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00')
 	INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
-	GROUP BY YEAR(ud.connect_time),MONTH(ud.connect_time),DAY(ud.connect_time),HOUR(ud.connect_time),ud.area_prefix,ud.trunk,ud.AccountID,ud.GatewayAccountID,ud.CompanyGatewayID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 	
 	UPDATE tmp_UsageSummary  FORCE INDEX (tmp_UsageSummary_AreaPrefix)
 	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
-	SET tmp_UsageSummary.CountryID =tblCountry.CountryID
-	WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND  CompanyID = p_CompanyID;
+	SET tmp_UsageSummary.CountryID =tblCountry.CountryID;
 	
-	DELETE FROM tblUsageSummary  WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND  CompanyID = p_CompanyID;
+	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,us.GatewayAccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix,us.CountryID,now() 
+	FROM tmp_UsageSummary us
+	LEFT JOIN tblSummaryHeader sh	 
+	ON 
+		 us.DateID = sh.DateID
+	AND us.CompanyID = sh.CompanyID
+	AND us.AccountID = sh.AccountID
+	AND us.CompanyGatewayID = sh.CompanyGatewayID
+	AND us.Trunk = sh.Trunk
+	AND us.AreaPrefix = sh.AreaPrefix
+	WHERE sh.SummaryHeaderID IS NULL
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
-	INSERT INTO tblUsageSummary(date_id,time_id,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD,ASR,FinalStatus,CountryID)
-	SELECT us.* FROM tmp_UsageSummary us ;
 	
- 
-	-- DELETE FROM tblUsageSummary WHERE date_id BETWEEN v_StartTimeId_ AND v_EndTimeId_ AND TotalCharges = 0 AND TotalBilledDuration =0 AND TotalDuration = 0 AND NoOfCalls = 0 ;
+	DELETE us FROM tblUsageSummary us 
+	INNER JOIN tblSummaryHeader sh ON us.SummaryHeaderID = sh.SummaryHeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate;
+	
+	DELETE usd FROM tblUsageSummaryDetail usd
+	INNER JOIN tblSummaryHeader sh ON usd.SummaryHeaderID = sh.SummaryHeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate;
+	
+	
+	INSERT INTO tblUsageSummary (SummaryHeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD)
+	SELECT sh.SummaryHeaderID,SUM(us.TotalCharges),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.TotalBilledDuration)/SUM(us.NoOfCalls)
+	FROM tmp_UsageSummary us
+	INNER JOIN tblSummaryHeader sh	 
+	ON 
+		 us.DateID = sh.DateID
+	AND us.CompanyID = sh.CompanyID
+	AND us.AccountID = sh.AccountID
+	AND us.CompanyGatewayID = sh.CompanyGatewayID
+	AND us.Trunk = sh.Trunk
+	AND us.AreaPrefix = sh.AreaPrefix
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
+	
+	INSERT INTO tblUsageSummaryDetail (SummaryHeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,ACD)
+	SELECT sh.SummaryHeaderID,TimeID,us.TotalCharges,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.ACD
+	FROM tmp_UsageSummary us
+	INNER JOIN tblSummaryHeader sh	 
+	ON 
+		 us.DateID = sh.DateID
+	AND us.CompanyID = sh.CompanyID
+	AND us.AccountID = sh.AccountID
+	AND us.CompanyGatewayID = sh.CompanyGatewayID
+	AND us.Trunk = sh.Trunk
+	AND us.AreaPrefix = sh.AreaPrefix;
+
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

@@ -1,13 +1,20 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getReportByTime`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_AccountID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT, IN `p_isAdmin` INT, IN `p_ReportType` INT)
 BEGIN
 	
-	DECLARE v_Round_ int;
+	DECLARE v_Round_ INT;
+	DECLARE V_Detail INT;
+	
+	SET V_Detail = 1;
+	IF p_ReportType =1
+	THEN
+	SET V_Detail = 2;
+	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
-	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin);
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,V_Detail);
 	
 	/* hourly report */
 	IF p_ReportType =1
@@ -20,8 +27,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimTime dt on dt.time_id = us.time_id
-		GROUP BY  us.time_id,us.date_id;
+		INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
+		GROUP BY  us.TimeID,us.DateID;
 		
 	END IF;
 	
@@ -36,8 +43,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimDate dd on dd.date_id = us.date_id
-		GROUP BY  us.date_id;
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		GROUP BY  us.DateID;
 		
 	END IF;
 	/* weekly report */
@@ -51,7 +58,7 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimDate dd on dd.date_id = us.date_id
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		GROUP BY  dd.week_of_year;
 		
 	END IF;
@@ -66,7 +73,7 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimDate dd on dd.date_id = us.date_id
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		GROUP BY  dd.month_of_year;
 		
 	END IF;
@@ -82,7 +89,7 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimDate dd on dd.date_id = us.date_id
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		GROUP BY  dd.quarter_of_year;
 		
 	END IF;
@@ -98,7 +105,7 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
-		INNER JOIN tblDimDate dd on dd.date_id = us.date_id
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		GROUP BY  dd.year;
 		
 	END IF;

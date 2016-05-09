@@ -9,7 +9,7 @@ BEGIN
 	
 	CALL fnGetCountry();
 		 
-	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin,1);
 	
 	
 	/* top 10 country by call count */	

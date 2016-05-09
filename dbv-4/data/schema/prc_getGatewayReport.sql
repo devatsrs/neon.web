@@ -7,10 +7,10 @@ BEGIN
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 		 
-	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin,1);
 	
 	/* top 10 gateway by call count */	
-	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,SUM(NoOfCalls) AS CallCount, (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD FROM tmp_tblUsageSummary_  GROUP BY CompanyGatewayID ORDER BY CallCount DESC LIMIT 10;
+	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,COALESCE(SUM(NoOfCalls),0) AS CallCount, (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD FROM tmp_tblUsageSummary_  GROUP BY CompanyGatewayID ORDER BY CallCount DESC LIMIT 10;
 	
 	/* top 10 gateway by call cost */	
 	SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost, (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD FROM tmp_tblUsageSummary_  GROUP BY CompanyGatewayID ORDER BY TotalCost DESC LIMIT 10;
