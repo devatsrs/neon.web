@@ -5,12 +5,12 @@ var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
 var file_count 		  =  		0;
 var current_tab       =  		'';
-var allow_extensions  = 		{{$response_extensions}};
-var account_id		  =			{{$AccountID}};
+var allow_extensions  = 		'{{implode(',',$response_extensions)}}';
+var account_id		  =			'{{$AccountID}}';
 var email_file_list	  =  		new Array();
 var token			  =			'{{$token}}';
 var max_file_size_txt =	        '{{$max_file_size}}';
-var max_file_size	  =	        {{str_replace("M","",$max_file_size)}};
+var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
     jQuery(document).ready(function ($) {	
 	

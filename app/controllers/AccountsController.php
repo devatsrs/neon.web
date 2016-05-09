@@ -242,7 +242,16 @@ class AccountsController extends \BaseController {
 			$Board 						=	 CRMBoard::getTaskBoard();
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(0,1);
 			$random_token				=	 get_random_number();
-			$response_extensions 		= 	 json_encode(NeonAPI::request('get_allowed_extensions',[],false));
+            //Backup code for getting extensions from api
+            /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+            $response_extensions = json_response_api($response_extensions,true);
+            if(!empty($response_extensions)){
+                if(!isJson($response_extensions)){
+                    $response_extensions = implode(',',$response_extensions);
+                }
+            }*/
+            $temp = getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+            $response_extensions        =    explode(',',$temp);
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
@@ -832,7 +841,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		$emailattachment 			= 	Input::file('emailattachment');
 		$return_txt 				=	'';
 
-		$response_extensions 		= 	 NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
 
         if(!empty($emailattachment)){
             $data['file'] = NeonAPI::base64byte($emailattachment);

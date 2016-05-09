@@ -191,7 +191,7 @@ class CronJobController extends \BaseController {
 
 
             $commandconfig = json_decode($commandconfig,true);
-            //print_r($commandconfigval);exit;
+
 
             return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts'));
         }

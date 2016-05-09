@@ -147,7 +147,15 @@ class OpportunityController extends \BaseController {
         $data       =  Input::all();
         $data['file']    = array();
         $attachment    =  Input::file('commentattachment');
-        $response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        //Backup code for getting extensions from api
+        /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions = json_response_api($response_extensions,true);
+        if(!empty($response_extensions)){
+            if(!isJson($response_extensions)){
+                $response_extensions = implode(',',$response_extensions);
+            }
+        }*/
+        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
 
         if(!empty($attachment)){
             $data['file'] = NeonAPI::base64byte($attachment);

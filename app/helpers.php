@@ -150,26 +150,25 @@ function sendMail($view,$data){
     if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
         $data['EmailTo']  = explode(',',$data['EmailTo']);
     }
-	
-	if(is_array($data['cc']))	
-	{
-		foreach($data['cc'] as $cc_address)
-		{
-			$user_data = User::where(["EmailAddress" => $cc_address])->get();
-			$mail->AddCC($cc_address, $user_data[0]['FirstName'].' '.$user_data[0]['LastName']);
-		}
-	}
-	
-	if(is_array($data['bcc']))	
-	{
-		foreach($data['bcc'] as $bcc_address)
-		{
-			$user_data = User::where(["EmailAddress" => $bcc_address])->get();
-			
-			$mail->AddBCC($bcc_address, $user_data[0]['FirstName'].' '.$user_data[0]['LastName']);
-		}
-	}
 
+    if(isset($data['cc'])) {
+        if (is_array($data['cc'])) {
+            foreach ($data['cc'] as $cc_address) {
+                $user_data = User::where(["EmailAddress" => $cc_address])->get();
+                $mail->AddCC($cc_address, $user_data[0]['FirstName'] . ' ' . $user_data[0]['LastName']);
+            }
+        }
+    }
+
+    if(isset($data['cc'])) {
+        if (is_array($data['bcc'])) {
+            foreach ($data['bcc'] as $bcc_address) {
+                $user_data = User::where(["EmailAddress" => $bcc_address])->get();
+
+                $mail->AddBCC($bcc_address, $user_data[0]['FirstName'] . ' ' . $user_data[0]['LastName']);
+            }
+        }
+    }
     if(is_array($data['EmailTo'])){
         foreach((array)$data['EmailTo'] as $email_address){
             if(!empty($email_address)) {
