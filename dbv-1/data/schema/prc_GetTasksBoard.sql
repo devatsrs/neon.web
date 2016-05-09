@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetTasksBoard`(IN `p_CompanyID` INT, IN `p_BoardID` INT, IN `p_TaskName` VARCHAR(50), IN `p_UserIDs` VARCHAR(50), IN `p_Periority` INT, IN `p_DueDateFrom` VARCHAR(50), IN `p_DueDateTo` VARCHAR(50), IN `p_Status` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetTasksBoard`(IN `p_CompanyID` INT, IN `p_BoardID` INT, IN `p_TaskName` VARCHAR(50), IN `p_UserIDs` VARCHAR(50), IN `p_AccountIDs` INT, IN `p_Periority` INT, IN `p_DueDateFrom` VARCHAR(50), IN `p_DueDateTo` VARCHAR(50), IN `p_Status` INT)
 BEGIN
 	SELECT 
 		bc.BoardColumnID,
@@ -6,9 +6,9 @@ BEGIN
 		bc.SetCompleted,
 		ts.TaskID,
 		ts.UsersIDs,
-		(select GROUP_CONCAT( concat(u.FirstName,' ',u.LastName) SEPARATOR ', ') as Users from tblUser u where u.UserID in (ts.UsersIDs)) as Users,
+		(select GROUP_CONCAT( concat(u.FirstName,' ',u.LastName) SEPARATOR ', ') as Users from tblUser u where u.UserID = ts.UsersIDs) as Users,
 		ts.AccountIDs,
-		(select GROUP_CONCAT( concat(a.FirstName,' ',a.LastName) SEPARATOR ', ') as company from tblAccount a where a.AccountID in (ts.AccountIDs)) as company,
+		(select a.AccountName as company from tblAccount a where a.AccountID = ts.AccountIDs) as company,
 		ts.Subject,
 		ts.Description,
 		Date(ts.DueDate) as DueDate,
@@ -27,6 +27,7 @@ BEGIN
 		AND ts.CompanyID= p_CompanyID
 		AND (p_TaskName='' OR ts.Subject LIKE Concat('%',p_TaskName,'%'))
 		AND (p_UserIDs=0 OR  FIND_IN_SET (ts.UsersIDs,p_UserIDs))
+		AND (p_AccountIDs=0 OR ts.AccountIDs=p_AccountIDs)
 		AND (p_Periority=0 OR ts.Priority = p_Periority) 
 		AND (p_Status=0 OR ts.BoardColumnID=p_Status)
 		AND (p_DueDateFrom=0 

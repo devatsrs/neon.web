@@ -38,7 +38,7 @@
                                     <label for="field-1" class="col-sm-2 control-label">Active</label>
                                     <div class="col-sm-2">
                                         <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                                        {{ Form::select('Active', $active, '', array("class"=>"form-control selectboxit")) }}
+                                        {{ Form::select('Active', $active, '1', array("class"=>"form-control selectboxit")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">
@@ -83,11 +83,6 @@
                         "fnServerParams": function (aoData) {
                             aoData.push({ "name": "BoardName", "value": $searchFilter.BoardName },
                                     { "name": "Active", "value": $searchFilter.Active });
-
-                            data_table_extra_params.length = 0;
-                            data_table_extra_params.push({ "name": "BoardName", "value": $searchFilter.BoardName },
-                                    { "name": "Active", "value": $searchFilter.Active },{ "name": "Export", "value": 1});
-
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
@@ -132,12 +127,6 @@
                         ],
                         "oTableTools": {
                             "aButtons": [
-                                {
-                                    "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/opportunityboards/ajax_datagrid", //baseurl + "/generate_xls.php",
-                                    sButtonClass: "save-collection"
-                                }
                             ]
                         },
                         "fnDrawCallback": function () {
