@@ -66,15 +66,15 @@
                   <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>You created a task</span>
-                 @elseif ($response->created_by==$current_user_title && $response->Name!=$current_user_title)<span>You assign task to {{$response->Name}} </span> 
-                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assign task to  You </span>
-                 @else  <span> {{$response->created_by}} assign task to  {{$response->Name}} </span> 
+                 @elseif ($response->created_by==$current_user_title && $response->Name!=$current_user_title)<span>You assigned task to {{$response->Name}} </span> 
+                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assigned task to  You </span>
+                 @else  <span> {{$response->created_by}} assigned task to  {{$response->Name}} </span> 
                  @endif
 </h2>
               
               <div id="hidden-timeline-{{$key}}"  class="details no-display">
                 <p>Subject: {{$response->Subject}}</p>
-                <p>Assign To: {{$response->Name}}</p>
+                <p>Assigned To: {{$response->Name}}</p>
                 <p>priority: {{$response->Priority}}</p>
               @if($response->DueDate!='' && $response->DueDate!='0000-00-00 00:00:00')  <p>Due Date: {{$response->DueDate}}</p>@endif
                 <p>Status: {{$response->TaskStatus}}. </p>

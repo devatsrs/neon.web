@@ -27,7 +27,7 @@
   @if($leadOrAccountCheck=='account')
   @include('accounts.errormessage')
   @endif
-  <div id="account-timeline">
+   <div id="account-timeline">
     <section>
       <div id="contact-column" class="about-account col-md-3 col-sm-12 col-xs-12 pull-left"> 
         <!--Account card start --> 
@@ -391,15 +391,15 @@
          @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
            
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span>
-                 @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assign @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> 
-                 @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  You </span>
-                 @else  <span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> 
+                 @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> 
+                 @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span>
+                 @else  <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> 
                  @endif
 </h2>                
                 
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
-                  <p>Assign To: {{$rows['TaskName']}}</p>
+                  <p>Assigned To: {{$rows['TaskName']}}</p>
                   <p>priority: {{$rows['TaskPriority']}}</p>
                  @if($rows['DueDate']!=''  && $rows['DueDate']!='0000-00-00 00:00:00')<p>Due Date: {{$rows['DueDate']}}</p>@endif
                   <p>Status: {{$rows['TaskStatus']}}. </p>
@@ -486,8 +486,6 @@
 		 $('.opportunityTags').select2({
             tags:{{$opportunitytags}}
         });
-
-
 </script>
 
 <style>

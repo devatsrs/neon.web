@@ -87,16 +87,16 @@
                  @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                  
                 @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>You created a follow up task</span>
-                 @elseif ($response->created_by==$current_user_title && $response->Name!=$current_user_title)<span>You assign follow up task to {{$response->Name}} </span> 
-                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assign follow up task to  you</span>
-                 @else  <span> {{$response->created_by}} assign follow up task to  {{$response->Name}} </span> 
+                 @elseif ($response->created_by==$current_user_title && $response->Name!=$current_user_title)<span>You assigned follow up task to {{$response->Name}} </span> 
+                 @elseif ($response->created_by!=$current_user_title && $response->Name==$current_user_title)<span> {{$response->created_by}} assigned follow up task to  you</span>
+                 @else  <span> {{$response->created_by}} assigned follow up task to  {{$response->Name}} </span> 
                  @endif
 </h2>
               
               
               <div id="hidden-timeline-{{$key+1}}"  class="details no-display">
                 <p>Subject: {{$response->Subject}}</p>
-                <p>Assign To: {{$response->Name}}</p>
+                <p>Assigned To: {{$response->Name}}</p>
                 <p>priority: {{$response->Priority}}</p>
                 @if($response->DueDate!=''  && $response->DueDate!='0000-00-00 00:00:00')  <p>Due Date: {{$response->DueDate}}</p>@endif
                 <p>Status: {{$response->TaskStatus}}. </p>
