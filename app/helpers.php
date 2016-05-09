@@ -12,8 +12,9 @@ function json_validator_response($validator){
 
 }
 
-function json_response_api($response,$datareturn=false){
+function json_response_api($response,$datareturn=false,$is_browser=true){
     $errors = '';
+
     if(is_array($response)){
         $response = (object)$response;
     }
@@ -23,25 +24,25 @@ function json_response_api($response,$datareturn=false){
             if (isset($response->data)) {
                 if($datareturn){
                     if(is_array($response->data)){
-						$result = $response->data['result'];
+                        $result = $response->data['result'];
                     }
-					else{
-				   $result = $response->data->result;
-					}
+                    else{
+                        $result = $response->data->result;
+                    }
 
-					if((is_object($result)))
-					{
-						$result_obj = (array)$result;	
-						
-					}
-					if((is_object($result) && empty($result_obj)) || (is_array($result) && empty($result)) )
-					{
-						return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end"));	//scroll variable for infinite sroll		
-					}
-				}
-				else{
-				 $result = $response->data->result;	
-				}
+                    if((is_object($result)))
+                    {
+                        $result_obj = (array)$result;
+
+                    }
+                    if((is_object($result) && empty($result_obj)) || (is_array($result) && empty($result)) )
+                    {
+                        return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end")); //scroll variable for infinite sroll
+                    }
+                }
+                else{
+                    $result = $response->data->result;
+                }
 
                 return json_encode($result);
             } else {
@@ -55,6 +56,12 @@ function json_response_api($response,$datareturn=false){
                 }
             }
         }
+        else {
+            $validator  = $response->message;
+            if (count($validator) > 0) {
+                $errors = $validator;
+            }
+        }
 
     }else{
         if(isset($response->error)){
@@ -63,7 +70,11 @@ function json_response_api($response,$datareturn=false){
             $errors = 'Api not responded';//$response->message;
         }
     }
-    return  Response::json(array("status" => "failed", "message" => $errors));
+    if($is_browser){
+        return  Response::json(array("status" => "failed", "message" => $errors));
+    }else{
+        return array("errors"=>$errors);
+    }
 }
 
 function validator_response($validator){
@@ -1044,3 +1055,15 @@ function get_uploaded_files($session,$data){
     }
     return $files;
 }
+
+
+function isJson($string) {
+    try{
+        json_decode($string);
+        return true;
+    } catch (Exception $ex) {
+        return false;
+    }
+}
+
+

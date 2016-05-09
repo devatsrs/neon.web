@@ -15,6 +15,8 @@ CREATE TABLE `tblTask` (
   `Tags` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `TaggedUser` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `AttachmentPaths` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `Task_type` int(11) NOT NULL,
+  `ParentID` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `updated_at` datetime NOT NULL,

@@ -28,7 +28,7 @@ class OpportunityController extends \BaseController {
                 $message=$response['message'];
             }
         }else{
-            $message=$response->message;
+            $message=$response['message'];
         }
         return View::make('opportunityboards.board', compact('columns','boradsWithOpportunities','message'))->render();
     }

@@ -80,6 +80,13 @@
                                 <div class="col-sm-2">
                                     <input class="form-control opportunitytags" name="Tags" type="text" >
                                 </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Status</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
+                                </div>
                             </div>
                             <p style="text-align: right;">
                                 <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -134,12 +141,20 @@
                 'AccountID',
                 'Tags',
                 'Rating',
-                'TaggedUser'
+                'TaggedUser',
+                'Status'
             ];
+
+            @if(empty($message)){
+                var allow_extensions  =   '{{$response_extensions}}';
+            }@else {
+                var allow_extensions  =  '';
+                toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
+            }
+            @endif;
             var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
             var BoardID = "{{$BoardID}}";
             var board = $('#board-start');
-            var allow_extensions    =   '{{$response_extensions}}';
             var email_file_list     =    new Array();
             var token               =   '{{$token}}';
             var max_file_size_txt   =   '{{$max_file_size}}';
@@ -169,7 +184,7 @@
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','BoardID','TaggedUser','Title'];
+                var select = ['UserID','BoardID','TaggedUser','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
@@ -757,7 +772,16 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 margin-top pull-right">
+                            <div class="col-md-6 margin-top-group pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Status</label>
+                                    <div class="col-sm-8 input-group">
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                     <div class="col-sm-8">
@@ -766,6 +790,14 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
+                                    <div class="col-sm-8 input-group">
+                                        <input class="form-control opportunitytags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
 
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
@@ -783,15 +815,6 @@
                                     </div>
                                 </div>
                             </div>-->
-
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
-                                    <div class="col-sm-8 input-group">
-                                        <input class="form-control opportunitytags" name="Tags" type="text" >
-                                    </div>
-                                </div>
-                            </div>
 
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
@@ -841,7 +864,7 @@
                                     <h4>Add Comment</h4>
                                 </div>
                                 <div class="col-md-12">
-                                    <textarea class="form-control resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>

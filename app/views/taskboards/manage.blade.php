@@ -33,9 +33,6 @@
         <li>
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
-        <li>
-            <a href="{{URL::to('taskboards')}}">Task</a>
-        </li>
         <li class="active">
             <strong>{{$Board[0]->BoardName}}</strong>
         </li>
@@ -66,7 +63,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Name</label>
+                                <label for="field-1" class="col-sm-1 control-label">Subject</label>
                                 <div class="col-sm-2">
                                     <input class="form-control" name="taskName"  type="text" >
                                 </div>
@@ -88,6 +85,10 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Company</label>
+                                <div class="col-sm-2">
+                                    {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
+                                </div>
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
                                     {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"selectboxit"))}}
@@ -170,10 +171,15 @@
                 'TaggedUser',
                 'BoardID'
             ];
-
+            @if(empty($message)){
+                var allow_extensions  =   '{{$response_extensions}}';
+            }@else {
+                var allow_extensions  =  '';
+                toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
+            }
+            @endif;
             var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
-            var allow_extensions    =   '{{$response_extensions}}';
             var email_file_list     =    new Array();
             var token               =   '{{$token}}';
             var max_file_size_txt   =   '{{$max_file_size}}';
@@ -203,7 +209,8 @@
                             {"name": "DueDateFilter","value": $searchFilter.DueDateFilter},
                             {"name": "DueDateFrom","value": $searchFilter.DueDateFrom},
                             {"name": "DueDateTo","value": $searchFilter.DueDateTo},
-                            {"name": "TaskStatus","value": $searchFilter.TaskStatus}
+                            {"name": "TaskStatus","value": $searchFilter.TaskStatus},
+                            {"name": "AccountIDs","value": $searchFilter.AccountIDs}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -328,6 +335,10 @@
                                 container.html(make);
                                 container.find('.make-switch').bootstrapSwitch();
                             }
+                        }else if(task[i]=='DueDate' || task[i]=='StartTime'){
+                            if(val=='0000-00-00' || val=='00:00:00'){
+                                elem.val('');
+                            }
                         }
                     }
                 }
@@ -354,7 +365,7 @@
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var taskID = rowHidden.find('[name="TaskID"]').val();
-                var accountID = rowHidden.find('[name="AccountID"]').val();
+                var accountID = rowHidden.find('[name="AccountIDs"]').val();
                 var subject = rowHidden.find('[name="Subject"]').val();
                 $('#add-task-comments-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="TaskID"]').val(taskID);
@@ -635,6 +646,7 @@
                 $searchFilter.DueDateFrom = $("#search-task-filter [name='DueDateFrom']").val();
                 $searchFilter.DueDateTo = $("#search-task-filter [name='DueDateTo']").val();
                 $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
+                $searchFilter.AccountIDs = $("#search-task-filter [name='AccountIDs']").val();
                 console.log($searchFilter);
                 getTask();
                 data_table.fnFilter('',0);
@@ -910,7 +922,7 @@
                                     <h4>Add Comment</h4>
                                 </div>
                                 <div class="col-md-12">
-                                    <textarea class="form-control resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
