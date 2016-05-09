@@ -71,7 +71,11 @@
                 <div class="col-sm-11 padding-0 action">                
                   <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="entypo-ticket"></i> </button>
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>  
-                  <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>                                  
+                   @if($leadOrAccountCheck=='account')
+                  <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>                	@elseif($leadOrAccountCheck=='lead')  
+                  <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>
+                  @endif
+                                    
                 <!--  <button type="button" data-id="{{$account->AccountID}}" title="View Account" class="btn btn-default btn-xs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}"> <i class="entypo-search"></i> </button> -->
                  @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;
@@ -440,7 +444,7 @@
           <div id="last_msg_loader"></div>
 			@endif
             @else
-            <span style="padding:1px;"><h3>No Record Found.</h3></span>
+            <span style="padding:1px;"><h3>No Activity Found.</h3></span>
             @endif
           
         </div> 
