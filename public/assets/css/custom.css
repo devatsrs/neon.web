@@ -149,7 +149,8 @@ a[disabled] {
 
 .toast-container-fix > div {
   margin: 0 0 6px;
-  padding: 15px 15px 15px 50px;
+  /*padding: 15px 15px 15px 50px;*/
+  padding: 10px 15px 10px 50px;
   width: 300px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;

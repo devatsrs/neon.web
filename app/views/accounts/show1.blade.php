@@ -229,12 +229,12 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Status:</label>
-                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"selectboxit"))}} </div>
+                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2"))}} </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Assign to:</label>
-                  {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"selectboxit"))}} </div>
+                  {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2"))}} </div>
               </div>
              </div> 
               <div class="row">
@@ -401,7 +401,7 @@
                   <p>Subject: {{$rows['TaskTitle']}}</p>
                   <p>Assign To: {{$rows['TaskName']}}</p>
                   <p>priority: {{$rows['TaskPriority']}}</p>
-                  <p>Due Date: {{$rows['DueDate']}}</p>
+                 @if($rows['DueDate']!=''  && $rows['DueDate']!='0000-00-00 00:00:00')<p>Due Date: {{$rows['DueDate']}}</p>@endif
                   <p>Status: {{$rows['TaskStatus']}}. </p>
                   <p>Description: {{$rows['TaskDescription']}} </p>
                 </div>
