@@ -182,14 +182,15 @@ class LeadsController extends \BaseController {
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(0,1);
 			$random_token				=	 get_random_number();
             //Backup code for getting extensions from api
-            /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
-            $response_extensions = json_response_api($response_extensions,true);
-            if(!empty($response_extensions)){
+            $response_extensions   		=	 NeonAPI::request('get_allowed_extensions',[],false);
+ 			$response_extensions 		= 	 json_response_api($response_extensions,true,false);
+	        
+			if(!empty($response_extensions)){
                 if(!isJson($response_extensions)){
-                    $response_extensions = implode(',',$response_extensions);
-                }
-            }*/
-            $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+					$message = $response_extensions['errors'];
+				}
+            }
+            //$response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
