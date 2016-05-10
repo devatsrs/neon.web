@@ -65,7 +65,7 @@
                 if(select.indexOf(opportunity[i])!=-1){
                     elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                     if(opportunity[i]=='UserID'){
-                        $('#add-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
                         if(BoardID) {
                             $('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
                             $('#add-opportunity-form [name="leadOrAccount"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Lead');
@@ -74,9 +74,15 @@
                             $('#add-modal-opportunity .toHidden').addClass('hidden');
                         }
                     }else if(opportunity[i]=='AccountID'){
+                        if(!BoardID){
+                            accountID =$(this).attr('data-id');
+                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+                        }
                         if(leadOrAccountID) {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(leadOrAccountID);
                         }
+                    }else if(opportunity[i]=='Status'){
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption({{Opportunity::Open}});
                     }
                 } else{
                     elem.val('');
@@ -92,10 +98,6 @@
             $('#add-opportunity-form [name="Rating"]').val(0);
             $('#add-opportunity-form [name="Rating"]').trigger('change');
             $('#add-modal-opportunity h4').text('Add Opportunity');
-            if(!BoardID){
-                accountID =$(this).attr('data-id');
-                $('#add-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
-            }
             $('#add-modal-opportunity').modal('show');
         });
 
@@ -173,6 +175,8 @@
             }else{
                 update_new_url = baseurl + '/opportunity/create';
             }
+            $('#'+formid).find('[name="AccountID"]').prop( 'disabled', null );
+            $('#'+formid).find('[name="UserID"]').prop( 'disabled', null );
             var formData = new FormData($('#'+formid)[0]);
             $.ajax({
                 url: update_new_url,  //Server script to process data
@@ -190,6 +194,10 @@
                     }
                     $("#opportunity-add").button('reset');
                     $("#opportunity-update").button('reset');
+                    if(!BoardID){
+                        $('#'+formid).find('[name="AccountID"]').prop('disabled','disabled');
+                        $('#'+formid).find('[name="UserID"]').prop('disabled','disabled');
+                    }
                     //getOpportunities();
                 },
                 // Form data

@@ -340,6 +340,12 @@
                                         <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
                                     </p>
                                 </div>
+                                <div class="form-group" >
+                                    <label for="field-1" class="col-sm-2 control-label">Default Tax Rate</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('DefaultTextRate[]', $taxrates, (isset($DefaultTextRate)? explode(',',$DefaultTextRate) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
                                     <div class="col-sm-10">

@@ -37,9 +37,12 @@ class CompaniesController extends \BaseController {
         $InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail')== 'Invalid Key'?'':CompanySetting::getKeyVal('InvoiceGenerationEmail');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
         $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget')=='Invalid Key'?'':CompanySetting::getKeyVal('PincodeWidget');
+        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget'));
+        $taxrates = TaxRate::getTaxRateDropdownIDList();//Default TaxRate functionality Added by Abubakar
+        if(isset($taxrates[""])){unset($taxrates[""]);}
+        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
 
     }
 
@@ -62,7 +65,7 @@ class CompaniesController extends \BaseController {
             'CompanyName' => 'required|min:3|unique:tblCompany,CompanyName,'.$companyID.',CompanyID',
             //'Port' => 'required|numeric',
             'BillingTimezone' => 'required',
-            'CurrencyId' => 'required',
+            'CurrencyId' => 'required'
         );
 
         $validator = Validator::make($data, $rules);
@@ -98,6 +101,11 @@ class CompaniesController extends \BaseController {
         unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
         unset($data['PincodeWidget']);
+        if(!isset($data['DefaultTextRate'])) {
+            $data['DefaultTextRate'] = '';
+        }
+        CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
+        unset($data['DefaultTextRate']);
 
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
