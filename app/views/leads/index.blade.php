@@ -191,10 +191,6 @@
                             id = full[4];
                             edit_ = "{{ URL::to('leads/{id}/edit')}}";
                             clone_ = "{{ URL::to('leads/{id}/clone')}}";
-<<<<<<< HEAD
-                            //show_ = "{{ URL::to('leads/{id}/show')}}";
-=======
->>>>>>> 628ab8bfc11edc0696765099f5ef1f416e75f4cd
 							show_ = "{{ URL::to('leads/{id}/show')}}";
 
                             edit_ = edit_.replace('{id}', id);

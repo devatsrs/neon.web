@@ -1,11 +1,20 @@
-<?php //echo $response_extensions; exit; ?>
+<?php //echo $message; exit; ?>
 <script type="text/javascript">
+ 
+
 var show_popup		  = 	 	0;
 var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
 var file_count 		  =  		0;
 var current_tab       =  		'';
-var allow_extensions  = 		'{{implode(',',$response_extensions)}}';
+@if(empty($message)){
+	var allow_extensions  = 		{{$response_extensions}};
+}
+@else {
+	var allow_extensions  = 	'';	
+	}
+@endif;
+
 var account_id		  =			'{{$AccountID}}';
 var email_file_list	  =  		new Array();
 var token			  =			'{{$token}}';
@@ -13,6 +22,11 @@ var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
     jQuery(document).ready(function ($) {	
+	
+	@if(!empty($message))
+ var status = '{{$message}}';
+toastr.error(status, "Error", toastr_opts);
+ @endif
 	
 	$('.redirect_link').click(function(e) {
 		var id_redirect = $(this).attr('href_id');

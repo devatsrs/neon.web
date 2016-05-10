@@ -117,32 +117,6 @@ class DisputeController extends \BaseController {
 		}
 	}
 
-	/**
-	 * Remove the specified resource from storage.
-	 * DELETE /products/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function delete($id) {
-		if( intval($id) > 0){
-
-				try {
-					$result = Dispute::find($id)->delete();
-					if ($result) {
-						return Response::json(array("status" => "success", "message" => "Dispute Successfully Deleted"));
-					} else {
-						return Response::json(array("status" => "failed", "message" => "Problem Deleting Dispute."));
-					}
-				} catch (Exception $ex) {
-					return Response::json(array("status" => "failed", "message" => "Dispute is in Use, You cant delete this Dispute."));
-				}
-
-		}else{
-			return Response::json(array("status" => "failed", "message" => "Dispute is in Use, You cant delete this Dispute."));
-		}
-	}
-
 	//not in use
 	public function reconcile()
 	{
@@ -197,7 +171,7 @@ class DisputeController extends \BaseController {
 			return json_validator_response($validator);
 		}
 		$Dispute = Dispute::findOrFail($data["DisputeID"]);
-		$Dispute->Notes = date("Y-m-d H:i:s") .': '. User::get_user_full_name() . ' has Changed Status'. PHP_EOL. $data['Notes'] . PHP_EOL.  PHP_EOL .  $Dispute->Notes;
+		$Dispute->Notes = date("Y-m-d H:i:s") .': '. User::get_user_full_name() . ' has Changed Dispute Status to ' . Dispute::$Status[$data["Status"]] .' -:- ' . $data['Notes'] . PHP_EOL.  PHP_EOL .  $Dispute->Notes;
 		$Dispute->Status = $data["Status"];
 
 		if ($Dispute->update()) {
@@ -207,4 +181,12 @@ class DisputeController extends \BaseController {
 		}
 
 	}
+
+	public function  download_attachment($id){
+		$FileName = Dispute::where(["DisputeID"=>$id])->pluck('Attachment');
+		$FilePath =  AmazonS3::preSignedUrl($FileName);
+		download_file($FilePath);
+
+	}
+
 }

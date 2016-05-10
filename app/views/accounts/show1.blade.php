@@ -27,7 +27,7 @@
   @if($leadOrAccountCheck=='account')
   @include('accounts.errormessage')
   @endif
-  <div id="account-timeline">
+   <div id="account-timeline">
     <section>
       <div id="contact-column" class="about-account col-md-3 col-sm-12 col-xs-12 pull-left"> 
         <!--Account card start --> 
@@ -71,7 +71,11 @@
                 <div class="col-sm-11 padding-0 action">                
                   <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="entypo-ticket"></i> </button>
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>  
-                  <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>                                  
+                   @if($leadOrAccountCheck=='account')
+                  <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>                	@elseif($leadOrAccountCheck=='lead')  
+                  <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a>
+                  @endif
+                                    
                 <!--  <button type="button" data-id="{{$account->AccountID}}" title="View Account" class="btn btn-default btn-xs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}"> <i class="entypo-search"></i> </button> -->
                  @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;
@@ -229,12 +233,12 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Status:</label>
-                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"selectboxit"))}} </div>
+                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2"))}} </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Assign to:</label>
-                  {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"selectboxit"))}} </div>
+                  {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2"))}} </div>
               </div>
              </div> 
               <div class="row">
@@ -391,17 +395,17 @@
          @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
            
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span>
-                 @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assign @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> 
-                 @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  You </span>
-                 @else  <span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> 
+                 @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> 
+                 @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span>
+                 @else  <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> 
                  @endif
 </h2>                
                 
                 <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
-                  <p>Assign To: {{$rows['TaskName']}}</p>
+                  <p>Assigned To: {{$rows['TaskName']}}</p>
                   <p>priority: {{$rows['TaskPriority']}}</p>
-                  <p>Due Date: {{$rows['DueDate']}}</p>
+                 @if($rows['DueDate']!=''  && $rows['DueDate']!='0000-00-00 00:00:00')<p>Due Date: {{$rows['DueDate']}}</p>@endif
                   <p>Status: {{$rows['TaskStatus']}}. </p>
                   <p>Description: {{$rows['TaskDescription']}} </p>
                 </div>
@@ -440,7 +444,7 @@
           <div id="last_msg_loader"></div>
 			@endif
             @else
-            <span style="padding:1px;"><h3>No Record Found.</h3></span>
+            <span style="padding:1px;"><h3>No Activity Found.</h3></span>
             @endif
           
         </div> 
@@ -486,8 +490,6 @@
 		 $('.opportunityTags').select2({
             tags:{{$opportunitytags}}
         });
-
-
 </script>
 
 <style>

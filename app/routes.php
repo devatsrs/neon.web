@@ -762,6 +762,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/{id}/update','DisputeController@update');
 	Route::any('/disputes/create','DisputeController@create');
 	Route::any('/disputes/change_status','DisputeController@change_status');
+	Route::any('/disputes/{id}/download_attachment','DisputeController@download_attachment');
 
 
 });
