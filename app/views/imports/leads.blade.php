@@ -7,20 +7,19 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li>
-        <a href="{{URL::to('accounts')}}">Accounts</a>
+        <a href="{{URL::to('leads')}}">Leads</a>
     </li>
     <li class="active">
-        <strong>Import Accounts</strong>
+        <strong>Import Leads</strong>
     </li>
 </ol>
-<h3>Import Accounts</h3>
+<h3>Import Leads</h3>
 <p style="text-align: right;">
-    <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/import/account')}}">
+    <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/import/leads')}}">
         <i class="entypo-cancel"></i>
         Close
     </a>
 </p>
-
 @include('includes.errors')
 @include('includes.success')
 <div class="panel">
@@ -89,22 +88,15 @@
                     <div class="col-sm-8">
 
                         <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
-                        <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
+                        <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
 
-                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/leads/leads_download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
 
                     </div>
 
                 </div>
 
             </div>
-
-            <div class="row" id="gatewayimport">
-
-                GATEWAY
-
-            </div>
-
 
         </div>
 
@@ -256,7 +248,7 @@
                                             <label for="field-1" class="col-sm-2 control-label">Name Prefix</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
-                                                <input type="hidden" class="form-control" name="AccountType" value="1" />
+                                                <input type="hidden" class="form-control" name="AccountType" value="0" />
                                                 <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
                                         </div>
@@ -359,7 +351,7 @@
                         var formData = new FormData($('#rootwizard-2')[0]);
                         show_loading_bar(0);
                         $.ajax({
-                            url:  '{{URL::to('/import/account/check_upload')}}',  //Server script to process data
+                            url:  '{{URL::to('/import/leads/leads_check_upload')}}',  //Server script to process data
                             type: 'POST',
                             dataType: 'json',
                             xhr: function() {  // Custom XMLHttpRequest
@@ -480,7 +472,7 @@
                 }
             }
             $.ajax({
-                url:'{{URL::to('/import/account/ajaxfilegrid')}}',
+                url:'{{URL::to('/import/leads/leads_ajaxfilegrid')}}',
                 type: 'POST',
                 dataType: 'json',
                 beforeSend: function(){
@@ -512,7 +504,7 @@
                 }
             }
             $.ajax({
-                url:'{{URL::to('/import/account/storeTemplate')}}', //Server script to process data
+                url:'{{URL::to('/import/leads/leads_storeTemplate')}}', //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 beforeSend: function(){
@@ -597,14 +589,10 @@
     <div class="modal fade" id="modal-fileformat">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Account File Format</h4>
+                    <h4 class="modal-title">Leads File Format</h4>
                 </div>
-
-
-
                 <div class="modal-body scrollx">
                     <p>All columns are mandatory and the first line should have the column headings.</p>
                     <table class="table responsive">
@@ -623,7 +611,6 @@
                             <th>City(Opt.)</th>
                             <th>Tags(Opt.)</th>
                             <th>Name Prefix(Opt.)</th>
-
                         </tr>
                         </thead>
                         <tbody>
@@ -674,9 +661,7 @@
                         </tr>
                         </tbody>
                     </table>
-
                 </div>
-
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
