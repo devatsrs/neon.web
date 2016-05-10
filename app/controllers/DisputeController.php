@@ -15,6 +15,7 @@ class DisputeController extends \BaseController {
 		$data 							 = 		Input::all();
 		$CompanyID 						 = 		User::get_companyID();
 		$data['iDisplayStart'] 			+=		1;
+		$data['InvoiceType'] 			 = 		$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
 		$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:'NULL';
 		$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'NULL';
 		$data['Status'] 				 = 		$data['Status'] != ''?$data['Status']:'NULL';
@@ -37,10 +38,10 @@ class DisputeController extends \BaseController {
 			$data['p_disputeend'] 			= 	"'".date("Y-m-d H:i:s")."'";
 		}
 
-		$columns = array('AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','Notes','DisputeID');
+		$columns = array('InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','Notes','DisputeID');
 		$sort_column = $columns[$data['iSortCol_0']];
 
-		$query = "call prc_getDisputes (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+		$query = "call prc_getDisputes (".$CompanyID.",".intval($data['InvoiceType']).",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
 		if(isset($data['Export']) && $data['Export'] == 1) {
 			$excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
@@ -73,8 +74,8 @@ class DisputeController extends \BaseController {
 		}
 		$invoice_nos = implode(',',$InvoiceNoarray);
 		$accounts = Account::getAccountIDList();
-
-		return View::make('disputes.index', compact('id','currency','status','accounts','invoice_nos','currency_ids'));
+		$InvoiceTypes = array(Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
+		return View::make('disputes.index', compact('id','currency','status','accounts','invoice_nos','currency_ids','InvoiceTypes'));
 
 	}
 
