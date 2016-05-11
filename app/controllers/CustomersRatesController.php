@@ -175,13 +175,6 @@ class CustomersRatesController extends \BaseController {
                         //return json_validator_response($validator);
                     }
 
-                    if( isset($data['CompanyGatewayID']) && is_array($data['CompanyGatewayID'])){
-                        $data['CompanyGatewayIDs'] = implode(',', $data['CompanyGatewayID']);
-                        unset($data['CompanyGatewayID']);
-                    }else{
-                        $data['CompanyGatewayIDs'] = '';
-                    }
-
                     if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
                         $CustomerTrunkID = $data['CustomerTrunkID'];
                         unset($data['CustomerTrunkID']);
