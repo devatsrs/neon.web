@@ -725,6 +725,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
+            if (User::is('AccountManager')) { // Account Manager
+                $data['account_owners'] = $userID = User::get_userID();
+            }
             $type = $data['type'];
             if ($type == 'CD') {
                 $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
