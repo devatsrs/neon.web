@@ -15,13 +15,34 @@ class AccountStatementController extends \BaseController {
         }
         $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
 
+
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',0)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
-        $inInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
-        $result->nextRowset();
-        $outInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
 
-        $countinInvoices = count($inInvoices);
+        // ----------------
+        //1. Invoice Sent
+        //2. Paymnet Received
+        //3. Invoice Received
+        //4. Payment Sent
+        // ----------------
+
+        $InvoiceOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $result->nextRowset();
+        $PaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceIn = $result->fetchAll(PDO::FETCH_ASSOC);
+        $result->nextRowset();
+        $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+        $soa_result = array_map(function($InvoiceOut,$PaymentIn,$InvoiceIn,$PaymentOut){
+                                            return array_merge((array)$InvoiceOut,(array)$PaymentIn,(array)$InvoiceIn,(array)$PaymentOut);
+                                        }, $InvoiceOut,$PaymentIn,$InvoiceIn,$PaymentOut);
+
+
+        /*$countinInvoices = count($inInvoices);
         $countoutInvoices = count($outInvoices);
         $looptarget = '';
         $first = 0;
@@ -70,12 +91,14 @@ class AccountStatementController extends \BaseController {
                 if($index<$countinInvoices){
                     $temp = $inInvoices[$index];
                 }else{
+
                     $temp = $vertual;
                 }
                 $targetArray[] = array(
                     'InvoiceNo'=>$temp['InvoiceNo'],
                     'PeriodCover'=>$temp['PeriodCover'],
                     'InvoiceAmount'=>$temp['InvoiceAmount'],
+                    'InvoiceType'=>$temp['InvoiceType'],
                     'DisputeAmount'=>$data['DisputeAmount'],
                     'spacer'=>$temp['spacer'],
                     'PaymentID'=>$temp['PaymentID'],
@@ -94,8 +117,9 @@ class AccountStatementController extends \BaseController {
                 );
             }
 
-        }
-        echo json_encode($targetArray);
+        }*/
+
+        echo json_encode(["result"=>$soa_result,"CurencySymbol"=>$CurencySymbol,"roundplaces"=>$roundplaces]);
     }
 	/**
 	 * Display a listing of the resource.

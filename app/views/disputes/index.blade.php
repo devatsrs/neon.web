@@ -36,6 +36,10 @@
             <div class="form-group">
 
 
+                <label class="col-sm-1 control-label">Invoice Type</label>
+              <div class="col-sm-2">
+                  {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
+              </div>
                 <label class="col-sm-1 control-label">Invoice No</label>
               <div class="col-sm-2">
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
@@ -58,6 +62,7 @@
     <table class="table table-bordered datatable" id="table-4">
       <thead>
         <tr>
+          <th width="5%">Received/Sent</th>
           <th width="10%">Account Name</th>
           <th width="8%">Invoice No</th>
           <th width="8%">Dispute Total</th>
@@ -74,7 +79,7 @@
     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
-     var list_fields  = ['AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
+     var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
 
      var $searchFilter = {};
      $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
@@ -95,6 +100,7 @@
                             aoData.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
                                     {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
+                                    {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
 									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
@@ -106,6 +112,7 @@
                             data_table_extra_params.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
                                     {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
+                                    {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
 									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
@@ -117,9 +124,20 @@
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[8, 'desc']],
+                        "aaSorting": [[9, 'desc']],
                         "aoColumns": [
                             {
+                                "bSortable": true, //InvoiceType
+                                mRender: function ( id, type, full ) {
+                                    if (id == '{{Invoice::INVOICE_IN}}'){
+                                        invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
+                                    }else{
+                                        invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-left-bold"></i>SNT</a>';
+
+                                    }
+                                    return invoiceType;
+                                }
+                            },{
                                 "bSortable": true, //Account
                             },
                             {
@@ -177,7 +195,7 @@
                                                 '</div>';
                                     }
 
-                                    if(full[8]!= ""){
+                                    if(full[9]!= ""){
                                         action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+downloads_+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                     }
 
@@ -271,15 +289,27 @@
                         var response = new Array();
 
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        var select = ['AccountID'];
+                        var select = ['AccountID','InvoiceType'];
                         for(var i = 0 ; i< list_fields.length; i++){
                             field_value = cur_obj.find("input[name='"+list_fields[i]+"']").val();
+
                             if(select.indexOf(list_fields[i])!=-1){
 
-                                $("#add-edit-dispute-form [name='"+list_fields[i]+"']").select2().select2('val',field_value);
+                                if($("#add-edit-dispute-form [name='"+list_fields[i]+"']").hasClass("select2")){
+
+                                    $("#add-edit-dispute-form [name='"+list_fields[i]+"']").select2().select2('val',field_value);
+
+                                }else if($("#add-edit-dispute-form [name='"+list_fields[i]+"']").hasClass("selectboxit")){
+
+                                    $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(field_value);
+                                }
+
 
                             }else{
-                                $("#add-edit-dispute-form [name='"+list_fields[i]+"']").val(field_value);
+                                if(list_fields[i] != 'Attachment'){
+
+                                    $("#add-edit-dispute-form [name='"+list_fields[i]+"']").val(field_value);
+                                }
                             }
                             response[list_fields[i]] = field_value;
                         }
@@ -420,6 +450,7 @@
                     //show_loading_bar(40);
                     $searchFilter.AccountID = $("#dispute-table-search select[name='AccountID']").val();
                     $searchFilter.InvoiceNo = $("#dispute-table-search [name='InvoiceNo']").val();
+                    $searchFilter.InvoiceType = $("#dispute-table-search [name='InvoiceType']").val();
                     $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
                     $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
 					$searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
@@ -558,6 +589,13 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Invoice Type *<span id="currency"></span></label>
+                {{Form::select('InvoiceType',$InvoiceTypes,'',array("class"=>"selectboxit"))}}
+              <input type="hidden" name="AccountName" />
+            </div>
+          </div>
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
               {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}

@@ -78,7 +78,7 @@
                 <tr>
                     <th colspan="4" style="text-align: center;">{{$CompanyName}} INVOICE</th>
                     <th colspan="5"></th>
-                    <th colspan="4" style="text-align: center;">INVOICE</th>
+                    <th colspan="5" style="text-align: center;">INVOICE</th>
                     <th colspan="3"></th>
                 </tr>
                 <tr>
@@ -94,6 +94,7 @@
                     <th width="6%">INVOICE NO</th>
                     <th width="14%">PERIOD COVERED</th>
                     <th width="6%">AMOUNT</th>
+                    <th width="6%">PENDING DISPUTE</th>
                     <th width="2%"></th>
                     <th width="9%">Payment Date</th>
                     <th width="6%">{{$CompanyName}} PAYMENT</th>
@@ -145,7 +146,13 @@
                             },
                             dataType: 'json',
                             success: function(data) {
-								if(data.length<1){
+
+                                var roundplaces = data.roundplaces;
+                                var CurencySymbol = data.CurencySymbol;
+                                var result = data.result;
+
+
+								if(result.length<1){
 									$('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
 									 $('#table-4_processing').hide();
 									return false;
@@ -154,124 +161,168 @@
                                 $('#table-4 > thead > tr:nth-child(2) > th:nth-child(6)').html(AccountName + " PAYMENT");
                                 $('#table-4 > tbody > tr').remove();
                                 $('#table-4 > tbody').append('<tr></tr>');
-                                var TotalDispute = 0;
-                                for (i = 0; i < data.length; i++) {
-                                    var InvoiceAmount=0;
-                                    var payment=0;
-                                    var DisputeAmount = 0;
-                                    var PendingDispute = '';
-                                    var ballence=0;
-                                    var InvoiceAmounts=0;
-                                    var payments=0;
-                                    var ballences=0;
-                                    var PaymentDate='';
-                                    var PaymentDates='';
-                                    var roundplaces = data[i]['roundplaces'];
-                                    var CurencySymbol = data[i]['CurencySymbol'];
-                                    console.log(data);
-                                    if(data[i]['InvoiceAmount']!= null){
-                                        InvoiceAmount = parseFloat(Math.round(data[i]['InvoiceAmount'] * 100) / 100).toFixed(roundplaces);
-                                    }
-                                    if(data[i]['payment']!= null){
-                                        if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                            payment = parseFloat(Math.round(data[i]['payment'] * 100) / 100).toFixed(roundplaces);
-                                        }
-                                    }
-                                    if( data[i]['DisputeAmount'] != null ){
 
-                                        DisputeAmount = parseFloat(data[i]['DisputeAmount']).toFixed(roundplaces);
-                                        PendingDispute =  DisputeAmount;
+                                /*var InvoiceAmount=0;
+                                var payment=0;
+                                var IN_DisputeAmount = OUT_DisputeAmount = 0;
+                                var IN_PendingDispute = OUT_PendingDispute = '';
+                                var ballence=0;
+                                var InvoiceAmounts=0;
+                                var payments=0;
+                                var ballences=0;
+                                var PaymentDate='';
+                                var PaymentDates='';
 
-                                        TotalDispute = parseFloat(TotalDispute + DisputeAmount).toFixed(roundplaces);
+                                var IN_TotalDispute = OUT_TotalDispute = 0;
+                                console.log(result);*/
+
+                                var InvoiceIn_AmountTotal = InvoiceOut_AmountTotal = PaymentIn_AmountTotal = PaymentOut_AmountTotal = InvoiceIn_DisputeAmountTotal = InvoiceOut_DisputeAmountTotal = 0;
+
+
+                                for (i = 0; i < result.length; i++) {
+
+                                    console.log(result[i]);
+
+                                    //Invoice Out
+                                    if( typeof result[i]['InvoiceOut_InvoiceNo'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_InvoiceNo'] = '';
                                     }
-                                    if(data[i]['ballence']!= null){
-                                        ballence = parseFloat(Math.round(data[i]['ballence'] * 100) / 100).toFixed(roundplaces);
+                                    if( typeof result[i]['InvoiceOut_PeriodCover'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_PeriodCover'] = '';
                                     }
-                                    if(data[i]['InvoiceAmounts']!= null){
-                                        InvoiceAmounts = parseFloat(Math.round(data[i]['InvoiceAmounts'] * 100) / 100).toFixed(roundplaces);
+                                    if( typeof result[i]['InvoiceOut_Amount'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_Amount'] = 0;
                                     }
-                                    if(data[i]['payments']!= null){
-                                        if((check2 != data[i]['InvoiceNos']) ||(data[i]['InvoiceNos']=='')) {
-                                            payments = parseFloat(Math.round(data[i]['payments'] * 100) / 100).toFixed(roundplaces);
-                                        }
+                                    if( typeof result[i]['InvoiceOut_DisputeAmount'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_DisputeAmount'] = 0;
                                     }
-                                    if(data[i]['ballences']!= null){
-                                        ballences = parseFloat(Math.round(data[i]['ballences'] * 100) / 100).toFixed(roundplaces);
+                                    //Payment In
+                                    if( typeof result[i]['PaymentIn_PeriodCover'] == 'undefined' ) {
+                                        result[i]['PaymentIn_PeriodCover'] = '';
                                     }
-                                    if(data[i]['PaymentDate']!= null){
-                                        if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                            PaymentDate = data[i]['PaymentDate'];
-                                        }
+                                    if( typeof result[i]['PaymentIn_PaymentID'] == 'undefined' ) {
+                                        result[i]['PaymentIn_PaymentID'] = '';
                                     }
-                                    if(data[i]['PaymentDates']!= null){
-                                        if((check2 != data[i]['InvoiceNos']) ||(data[i]['InvoiceNos']=='')) {
-                                            PaymentDates = data[i]['PaymentDates'];
-                                        }
+                                    if( typeof result[i]['PaymentIn_Amount'] == 'undefined' ) {
+                                        result[i]['PaymentIn_Amount'] = 0;
                                     }
-                                    var hyperlink1 = '';
-                                    var hyperlink2 = '';
-                                    if(data[i]['PaymentID']!= null || data[i]['PaymentID']!=''){
-                                        hyperlink1 = '<a class="paymentsModel" id="'+data[i]['PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+payment+'</a>';
-                                    }else{
-                                        hyperlink1 = payment;
+                                    //Invoice In
+                                    if( typeof result[i]['InvoiceIn_InvoiceNo'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_InvoiceNo'] = '';
                                     }
-                                    if(data[i]['PaymentIDs']!= null || data[i]['PaymentIDs']!=''){
-                                        hyperlink2 = '<a class="paymentsModel" id="'+data[i]['PaymentIDs']+'" href="javascript:;" onClick="paymentsModel(this);">'+payments+'</a>';
-                                    }else{
-                                        hyperlink2 = payments;
+                                    if( typeof result[i]['InvoiceIn_PeriodCover'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_PeriodCover'] = '';
                                     }
+                                    if( typeof result[i]['InvoiceIn_Amount'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_Amount'] = 0;
+                                    }
+                                    if( typeof result[i]['InvoiceIn_DisputeAmount'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_DisputeAmount'] = 0;
+                                    }
+                                    //Payment Out
+                                    if( typeof result[i]['PaymentOut_PeriodCover'] == 'undefined' ) {
+                                        result[i]['PaymentOut_PeriodCover'] = '';
+                                    }
+                                    if( typeof result[i]['PaymentOut_PaymentID'] == 'undefined' ) {
+                                        result[i]['PaymentOut_PaymentID'] = '';
+                                    }
+                                    if( typeof result[i]['PaymentOut_Amount'] == 'undefined' ) {
+                                        result[i]['PaymentOut_Amount'] = 0;
+                                    }
+
+                                    InvoiceOut_Amount = parseFloat(result[i]['InvoiceOut_Amount']).toFixed(roundplaces);
+                                    InvoiceIn_Amount = parseFloat(result[i]['InvoiceIn_Amount']).toFixed(roundplaces);
+
+                                    InvoiceIn_DisputeAmount = parseFloat(result[i]['InvoiceIn_DisputeAmount']).toFixed(roundplaces);
+                                    InvoiceOut_DisputeAmount = parseFloat(result[i]['InvoiceOut_DisputeAmount']).toFixed(roundplaces);
+
+                                    PaymentIn_Amount = parseFloat(result[i]['PaymentIn_Amount']).toFixed(roundplaces);
+                                    PaymentOut_Amount = parseFloat(result[i]['PaymentOut_Amount']).toFixed(roundplaces);
+
+
+                                    if( result[i]['PaymentIn_PaymentID'] !='' ) {
+                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+payment+'</a>';
+                                    } else {
+                                        result[i]['PaymentIn_PaymentID'] = 0;
+                                    }
+
+
                                     newRow = "<tr>" +
-                                    "<td>"+data[i]['InvoiceNo']+"</td>" +
-                                    "<td>"+data[i]['PeriodCover']+"</td>" +
-                                    "<td>"+InvoiceAmount+"</td>" +
-                                    "<td>"+PendingDispute+"</td>" +
-                                    "<td>"+data[i]['spacer']+"</td>" +
-                                    "<td>"+PaymentDate+"</td>" +
-                                    "<td>"+hyperlink1+"</td>" +
-                                    "<td>"+ballence+"</td>" +
-                                    "<td>"+data[i]['spacer']+"</td>" +
-                                    "<td>"+data[i]['InvoiceNos']+"</td>" +
-                                    "<td>"+data[i]['PeriodCovers']+"</td>" +
-                                    "<td>"+InvoiceAmounts+"</td>" +
-                                    "<td>"+data[i]['spacer']+"</td>" +
-                                    "<td>"+PaymentDates+"</td>" +
-                                    "<td>"+hyperlink2+"</td>" +
-                                    "<td>"+ballences+"</td>" +
+
+                                                // Invoice Out
+                                    "<td>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
+                                    "<td>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
+                                    "<td>"+result[i]['InvoiceOut_Amount']+"</td>" +
+                                    "<td>"+result[i]['InvoiceOut_DisputeAmount']+"</td>" +
+
+                                    "<td> </td>" +
+
+                                                // Payment In
+                                    "<td>"+result[i]['PaymentIn_PeriodCover']+"</td>" +
+                                    "<td>"+result[i]['PaymentIn_PaymentID']+"</td>" +
+                                    "<td>"+result[i]['PaymentIn_Amount']+"</td>" +
+
+                                    "<td> </td>" +
+
+                                                    // Invoice In
+                                    "<td>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
+                                    "<td>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
+                                    "<td>"+result[i]['InvoiceIn_Amount']+"</td>" +
+                                    "<td>"+result[i]['InvoiceIn_DisputeAmount']+"</td>" +
+
+                                    "<td> </td>" +
+
+                                                    //Payment Out
+                                    "<td>"+result[i]['PaymentOut_PeriodCover']+"</td>" +
+                                    "<td>"+result[i]['PaymentOut_PaymentID']+"</td>" +
+                                    "<td>"+result[i]['PaymentOut_Amount']+"</td>" +
+
                                     "</tr>";
-                                    InvoiceInAmount = parseFloat(InvoiceInAmount) + parseFloat(InvoiceAmounts);
-                                    InvoiceOutAmount = parseFloat(InvoiceOutAmount) + parseFloat(InvoiceAmount);
-                                    if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                        PaymentsInAmount = parseFloat(PaymentsInAmount) + parseFloat(payment);
-                                    }
-                                    if(check2 != data[i]['InvoiceNos'] ||(data[i]['InvoiceNos']=='')) {
-                                        PaymentsOutAmount = parseFloat(PaymentsOutAmount) + parseFloat(payments);
-                                    }
+
+
+                                    InvoiceIn_AmountTotal = parseFloat(InvoiceIn_AmountTotal + InvoiceIn_Amount).toFixed(roundplaces);
+                                    InvoiceOut_AmountTotal = parseFloat(InvoiceOut_AmountTotal + InvoiceOut_Amount).toFixed(roundplaces);
+
+                                    InvoiceIn_DisputeAmountTotal = parseFloat(InvoiceIn_DisputeAmountTotal + InvoiceIn_DisputeAmount).toFixed(roundplaces);;
+                                    InvoiceOut_DisputeAmountTotal = parseFloat(InvoiceOut_DisputeAmountTotal + InvoiceOut_DisputeAmount).toFixed(roundplaces);;
+
+
+                                    PaymentIn_AmountTotal = parseFloat(PaymentIn_AmountTotal + PaymentIn_Amount).toFixed(roundplaces);;
+                                    PaymentOut_AmountTotal = parseFloat(PaymentOut_AmountTotal + PaymentOut_Amount).toFixed(roundplaces);;
+
+
+
                                     $('#table-4 > tbody > tr:last').after(newRow);
-                                    check1 = data[i]['InvoiceNo'];
-                                    check2 = data[i]['InvoiceNos'];
+
                                 }
-                                var Ballance1 = parseFloat(InvoiceOutAmount-PaymentsInAmount).toFixed(roundplaces);
-                                var Ballance2 = parseFloat(InvoiceInAmount-PaymentsOutAmount).toFixed(roundplaces);
-                                var TotalBallance = (parseFloat((InvoiceOutAmount-PaymentsInAmount)-(InvoiceInAmount-PaymentsOutAmount))).toFixed(2);
+
+                                var Account_balance = parseFloat(InvoiceOut_AmountTotal - PaymentIn_AmountTotal).toFixed(roundplaces);
+                                var Company_balance = parseFloat(InvoiceIn_AmountTotal - PaymentOut_AmountTotal).toFixed(roundplaces);
+
+                                var TotalBallance = parseFloat((InvoiceOut_AmountTotal - PaymentIn_AmountTotal) - ( InvoiceIn_AmountTotal - PaymentOut_AmountTotal )).toFixed(2);
+
+
                                 newRow = '<tr>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+CurencySymbol+Ballance1+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceOut_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentIn_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+CurencySymbol+Account_balance+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+ CurencySymbol+Ballance2+'</td>' +
+                                '<td></td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceIn_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td></td>' +
+                                '<td></td>' +
+                                '<td></td>' +
+                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentOut_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+Company_balance+'</td>' +
                                 '</tr>'+
-                                '<tr><td colspan="15"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td>'+CurencySymbol+TotalBallance+'</td><td>'+CurencySymbol+TotalDispute+'</td><td colspan="14"></td></tr>';
+                                '<tr><td colspan="17"></td></tr>'+
+                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td>'+CurencySymbol+TotalBallance+'</td><td>'+CurencySymbol+InvoiceOut_DisputeAmountTotal+'</td><td colspan="8"></td><td>'+CurencySymbol+InvoiceIn_DisputeAmountTotal+'</td><td colspan="6"></td></tr>';
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();
