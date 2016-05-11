@@ -213,3 +213,28 @@ function toggleFullScreen() {
         }
     });
 }
+$(function () {
+    //$('#supported').text('Supported/allowed: ' + !!screenfull.enabled);
+
+    if (!screenfull.enabled) {
+        return false;
+    }
+
+    $('#toNocWall').click(function () {
+        screenfull.toggle($('.main-content')[0]);
+    });
+
+    function fullscreenchange() {
+        if (!screenfull.isFullscreen) {
+            document.body.style.overflow = 'auto';
+            $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
+        }else{
+            $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
+        }
+    }
+
+    document.addEventListener(screenfull.raw.fullscreenchange, fullscreenchange);
+
+    // set the initial values
+    fullscreenchange();
+});

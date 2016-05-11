@@ -6,13 +6,7 @@
                 loadDashboard()
             }, 180000);
             loadDashboard();
-            $(document).on(screenfull.raw.fullscreenchange, function() {
-                if(screenfull.isFullscreen){
-                    $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
-                }else{
-                    $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
-                }
-            });
+
         });
 
 
@@ -383,6 +377,6 @@
             </div>
         </div>
     </div>
-    <button id="toNocWall" onclick="toggleFullScreen();" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
+    <button id="toNocWall" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>
 @stop

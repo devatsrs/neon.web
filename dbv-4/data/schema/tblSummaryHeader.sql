@@ -11,5 +11,6 @@ CREATE TABLE `tblSummaryHeader` (
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`SummaryHeaderID`),
   KEY `FK_tblSummaryHeader_dim_date` (`DateID`),
+  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),
   CONSTRAINT `FK_tblSummaryHeader_dim_date` FOREIGN KEY (`DateID`) REFERENCES `tblDimDate` (`DateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
