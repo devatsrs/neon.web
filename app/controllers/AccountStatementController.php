@@ -35,6 +35,45 @@ class AccountStatementController extends \BaseController {
         $result->nextRowset();
         $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        //Totals
+        $result->nextRowset();
+        $InvoiceOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceOutDisputeAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $PaymentInAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceInAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceInDisputeAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0 )?$InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"]:0;
+
+        $InvoiceOutDisputeAmountTotal =  ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0 )?$InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"]:0;
+
+        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]["PaymentInAmountTotal"] > 0 )?$PaymentInAmountTotal[0]["PaymentInAmountTotal"]:0;
+
+        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] > 0 )?$InvoiceInAmountTotal[0]["InvoiceInAmountTotal"]:0;
+
+        $InvoiceInDisputeAmountTotal = ($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] > 0 )?$InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"]:0;
+
+        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] > 0 )?$PaymentOutAmountTotal[0]["PaymentOutAmountTotal"]:0;
+
+      /*  var Account_balance = parseFloat(InvoiceOut_AmountTotal - PaymentIn_AmountTotal).toFixed(roundplaces);
+        var Company_balance = parseFloat(InvoiceIn_AmountTotal - PaymentOut_AmountTotal).toFixed(roundplaces);*/
+
+        $CompanyBalance = number_format(($InvoiceInAmountTotal - $PaymentOutAmountTotal),$roundplaces );
+        $AccountBalance =  number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal),$roundplaces );
+
+        //Balance after offset
+        $OffsetBalance = number_format( ($InvoiceOutAmountTotal - $PaymentInAmountTotal)  - ( $InvoiceInAmountTotal - $PaymentOutAmountTotal ) , $roundplaces  ) ;
 
 
         $soa_result = array_map(function($InvoiceOut,$PaymentIn,$InvoiceIn,$PaymentOut){
@@ -119,7 +158,22 @@ class AccountStatementController extends \BaseController {
 
         }*/
 
-        echo json_encode(["result"=>$soa_result,"CurencySymbol"=>$CurencySymbol,"roundplaces"=>$roundplaces]);
+        $output = [
+            'result' => $soa_result,
+            'InvoiceOutAmountTotal' => number_format($InvoiceOutAmountTotal,$roundplaces),
+            'PaymentInAmountTotal' => number_format($PaymentInAmountTotal,$roundplaces),
+            'InvoiceInAmountTotal' => number_format($InvoiceInAmountTotal,$roundplaces),
+            'PaymentOutAmountTotal' => number_format($PaymentOutAmountTotal,$roundplaces),
+            'InvoiceOutDisputeAmountTotal' => number_format($InvoiceOutDisputeAmountTotal,$roundplaces),
+            'InvoiceInDisputeAmountTotal' => number_format($InvoiceInDisputeAmountTotal,$roundplaces),
+            'CompanyBalance' => $CompanyBalance,
+            'AccountBalance' => $AccountBalance,
+            'OffsetBalance' => $OffsetBalance,
+            'CurencySymbol' => $CurencySymbol,
+            'roundplaces' => $roundplaces,
+        ];
+
+        echo json_encode($output);
     }
 	/**
 	 * Display a listing of the resource.
