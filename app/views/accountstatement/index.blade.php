@@ -30,7 +30,7 @@
 
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                                    <label for="field-1" class="col-sm-1 control-label">Account</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                                     </div>
@@ -244,10 +244,8 @@
                                     }
 
                                     InvoiceOut_Amount = parseFloat(result[i]['InvoiceOut_Amount']).toFixed(roundplaces);
-                                    //InvoiceOut_Amount = InvoiceOut_Amount > 0 ? InvoiceOut_Amount : '';
 
                                     InvoiceIn_Amount = parseFloat(result[i]['InvoiceIn_Amount']).toFixed(roundplaces);
-                                    //InvoiceIn_Amount = InvoiceIn_Amount > 0 ? InvoiceIn_Amount : '';
 
                                     InvoiceIn_DisputeAmount = parseFloat(result[i]['InvoiceIn_DisputeAmount']).toFixed(roundplaces);
                                     InvoiceIn_DisputeAmount = InvoiceIn_DisputeAmount > 0 ? InvoiceIn_DisputeAmount : '';

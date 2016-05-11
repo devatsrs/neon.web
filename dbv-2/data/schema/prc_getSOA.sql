@@ -68,11 +68,9 @@ BEGIN
         WHERE tblInvoice.CompanyID = p_CompanyID
         AND tblInvoice.AccountID = p_accountID
         AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
-		AND 
-		(
-			(p_StartDate = '0000-00-00' OR  p_EndDate = '0000-00-00') OR ((p_StartDate != '0000-00-00' AND p_EndDate != '0000-00-00') AND DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') between  p_StartDate and  p_EndDate  )
-		)
-		Order by tblInvoice.IssueDate
+  		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') >= p_StartDate ) )
+ 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') <= p_EndDate ) )
+		  Order by tblInvoice.IssueDate
 		;
 		
 	 
@@ -91,11 +89,8 @@ BEGIN
 		  AND tblPayment.AccountID = p_accountID
 		  AND tblPayment.Status = 'Approved'
         AND tblPayment.Recall = 0
-      --  AND tblPayment.PaymentType = 'Payment In'  -- Only Payment In agaisnt Invoice Sent
-		AND 
-		(
-			(p_StartDate = '0000-00-00' OR  p_EndDate = '0000-00-00') OR ((p_StartDate != '0000-00-00' AND p_EndDate != '0000-00-00') AND DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d')  between  p_StartDate and  p_EndDate  )
-		)
+		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') >= p_StartDate ) )
+ 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') <= p_EndDate ) )
 		Order by tblPayment.PaymentDate;
     
     	  
@@ -112,10 +107,8 @@ BEGIN
   		      CompanyID = p_CompanyID
 		  AND AccountID = p_accountID
 		  AND Status = 0 
-    	  AND 
-			(
-				(p_StartDate = '0000-00-00' OR  p_EndDate = '0000-00-00') OR ((p_StartDate != '0000-00-00' AND p_EndDate != '0000-00-00') AND  DATE_FORMAT(created_at,'%Y-%m-%d')  between  p_StartDate and  p_EndDate  )
-			);
+		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') >= p_StartDate ) )
+ 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') <= p_EndDate ) );
       	###################################################
     	
 		 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_dup AS (SELECT * FROM tmp_Invoices);
