@@ -244,18 +244,20 @@ BEGIN
             END IF;
 
             UPDATE tblVendorRate
-            LEFT JOIN tblRate
-					ON tblVendorRate.RateId = tblRate.RateId
-	            AND tblVendorRate.AccountId = p_accountId
-					AND tblVendorRate.TrunkId = p_trunkId
-            LEFT JOIN tmp_TempVendorRate_ as tblTempVendorRate
-                ON tblRate.Code = tblTempVendorRate.Code
-                AND tblRate.CompanyID = p_companyId
-                AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
-                AND tblVendorRate.RateId = tblRate.RateId
-				SET tblVendorRate.ConnectionFee = tblTempVendorRate.ConnectionFee,
-                tblVendorRate.Interval1 = tblTempVendorRate.Interval1,
-                tblVendorRate.IntervalN = tblTempVendorRate.IntervalN;
+					INNER JOIN tblRate
+						ON tblVendorRate.RateId = tblRate.RateId
+						AND tblVendorRate.AccountId = p_accountId
+						AND tblVendorRate.TrunkId = p_trunkId
+					INNER JOIN tmp_TempVendorRate_ as tblTempVendorRate
+						ON tblRate.Code = tblTempVendorRate.Code
+						AND tblRate.CompanyID = p_companyId
+						AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+						AND tblVendorRate.RateId = tblRate.RateId
+					SET tblVendorRate.ConnectionFee = tblTempVendorRate.ConnectionFee,
+						tblVendorRate.Interval1 = tblTempVendorRate.Interval1,
+							tblVendorRate.IntervalN = tblTempVendorRate.IntervalN
+					WHERE tblVendorRate.AccountId = p_accountId
+			            AND tblVendorRate.TrunkId = p_trunkId ;
 
             DELETE tblTempVendorRate
                 FROM tmp_TempVendorRate_ as tblTempVendorRate
