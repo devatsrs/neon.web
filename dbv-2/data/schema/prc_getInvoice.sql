@@ -7,7 +7,7 @@ BEGIN
 	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';       
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
-	 SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
     IF p_isExport = 0 and p_sageExport = 0
     THEN
@@ -21,6 +21,7 @@ BEGIN
 		  END
 		  as InvoiceNumber,
         inv.IssueDate,
+        (select CONCAT('From ',IFNULL(date(dt.StartDate),'') ,'<br>To ',IFNULL(date(dt.EndDate),'')) from tblInvoiceDetail dt where dt.InvoiceID=inv.InvoiceID) as InvoicePeriod,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) as GrandTotal2,
 		  CONCAT(IFNULL(cr.Symbol,''),format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_),'/',IFNULL(cr.Symbol,''),format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_)) as `PendingAmount`,
         inv.InvoiceStatus,
@@ -33,9 +34,9 @@ BEGIN
 		  IFNULL(ac.BillingEmail,'') as BillingEmail,
 		  ROUND(inv.GrandTotal,v_Round_) as GrandTotal
         FROM tblInvoice inv
-        inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID
+        inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
         left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-        left join LocalRatemanagement.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+        left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
         where ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND inv.InvoiceNumber = p_InvoiceNumber))
@@ -82,9 +83,9 @@ BEGIN
             COUNT(*) AS totalcount,ROUND(sum(inv.GrandTotal),v_Round_) as total_grand,ROUND(sum(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_)),v_Round_) as `first_amount`,sum(ROUND(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0 ),v_Round_)) as second_amount
         FROM
         tblInvoice inv
-        inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID
+        inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
         left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-		left join LocalRatemanagement.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
+		left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
         where ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND inv.InvoiceNumber = p_InvoiceNumber))
@@ -107,7 +108,7 @@ BEGIN
         inv.InvoiceType,
         inv.ItemInvoice
         FROM tblInvoice inv
-        inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID
+        inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
         left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
         where ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -133,7 +134,7 @@ BEGIN
         inv.ItemInvoice,
         inv.InvoiceID
         FROM tblInvoice inv
-        inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID
+        inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
         left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
         where ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -152,9 +153,9 @@ BEGIN
         IF p_sageExport = 2
         THEN 
         UPDATE tblInvoice  inv
-        INNER JOIN LocalRatemanagement.tblAccount ac
+        INNER JOIN NeonRMDev.tblAccount ac
           ON ac.AccountID = inv.AccountID
-        INNER JOIN LocalRatemanagement.tblCurrency c
+        INNER JOIN NeonRMDev.tblCurrency c
           ON c.CurrencyId = ac.CurrencyId
         SET InvoiceStatus = 'paid' 
         WHERE ac.CompanyID = p_CompanyID
@@ -190,9 +191,9 @@ BEGIN
           SubTotal AS `TaxAnalysisGoodsValueBeforeDiscount/1`,
           TotalTax as   `TaxAnalysisTaxOnGoodsValue/1`
         FROM tblInvoice inv
-        INNER JOIN LocalRatemanagement.tblAccount ac
+        INNER JOIN NeonRMDev.tblAccount ac
           ON ac.AccountID = inv.AccountID
-        INNER JOIN LocalRatemanagement.tblCurrency c
+        INNER JOIN NeonRMDev.tblCurrency c
           ON c.CurrencyId = ac.CurrencyId
         LEFT JOIN tblInvoiceTemplate it 
           ON ac.InvoiceTemplateID = it.InvoiceTemplateID        
