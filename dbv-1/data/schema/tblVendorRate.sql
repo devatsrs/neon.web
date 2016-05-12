@@ -14,6 +14,7 @@ CREATE TABLE `tblVendorRate` (
   `ConnectionFee` decimal(18,6) DEFAULT NULL,
   `MinimumCost` decimal(18,6) DEFAULT NULL,
   PRIMARY KEY (`VendorRateID`),
+  UNIQUE KEY `IXUnique_AccountId_TrunkId_RateId_EffectiveDate` (`AccountId`,`TrunkID`,`RateId`,`EffectiveDate`),
   KEY `IX_tblVendorRate_RateId_TrunkID_EffectiveDate` (`AccountId`,`Rate`,`TrunkID`,`RateId`,`EffectiveDate`),
   KEY `IX_tblVendorRate_AccountId_TrunkID_9BBE2` (`AccountId`,`TrunkID`,`VendorRateID`,`RateId`,`Rate`,`EffectiveDate`,`updated_at`,`created_at`,`created_by`,`updated_by`,`Interval1`,`IntervalN`),
   KEY `IX_VendorRate_RateID` (`RateId`),
