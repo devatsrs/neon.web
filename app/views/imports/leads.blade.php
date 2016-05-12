@@ -14,7 +14,7 @@
     </li>
 </ol>
 <h3>Import Leads</h3>
-<p style="text-align: right;">
+<p style="text-align: right;margin-bottom: 20px;">
     <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/import/leads')}}">
         <i class="entypo-cancel"></i>
         Close
@@ -245,7 +245,7 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[tags]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Name Prefix</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Title</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
                                                 <input type="hidden" class="form-control" name="AccountType" value="0" />
@@ -594,12 +594,13 @@
                     <h4 class="modal-title">Leads File Format</h4>
                 </div>
                 <div class="modal-body scrollx">
-                    <p>All columns are mandatory and the first line should have the column headings.</p>
+                    <p>The first line should have the column headings.</p>
                     <table class="table responsive">
                         <thead>
                         <tr>
                             <th>Account Name</th>
                             <th>Country</th>
+                            <th>Title(Opt.)</th>
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
@@ -610,13 +611,13 @@
                             <th>Address3(Opt.)</th>
                             <th>City(Opt.)</th>
                             <th>Tags(Opt.)</th>
-                            <th>Name Prefix(Opt.)</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
                             <td>Test Account</td>
                             <td>India</td>
+                            <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
                             <td>test@gmail.com</td>
@@ -627,11 +628,11 @@
                             <td>address line3</td>
                             <td>Rajkot</td>
                             <td>test1,test2</td>
-                            <td>Mr</td>
                         </tr>
                         <tr>
                             <td>Test Account</td>
                             <td>India</td>
+                            <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
                             <td>test@gmail.com</td>
@@ -642,11 +643,11 @@
                             <td>address line3</td>
                             <td>Rajkot</td>
                             <td>test1,test2</td>
-                            <td>Mr</td>
                         </tr>
                         <tr>
                             <td>Test Account</td>
                             <td>India</td>
+                            <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
                             <td>test@gmail.com</td>
@@ -657,7 +658,6 @@
                             <td>address line3</td>
                             <td>Rajkot</td>
                             <td>test1,test2</td>
-                            <td>Mr</td>
                         </tr>
                         </tbody>
                     </table>
