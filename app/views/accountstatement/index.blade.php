@@ -30,7 +30,7 @@
 
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                                    <label for="field-1" class="col-sm-1 control-label">Account</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                                     </div>
@@ -147,8 +147,21 @@
                             dataType: 'json',
                             success: function(data) {
 
-                                var roundplaces = data.roundplaces;
-                                var CurencySymbol = data.CurencySymbol;
+
+
+                                var InvoiceOutAmountTotal  = data.InvoiceOutAmountTotal;
+                                var PaymentInAmountTotal  = data.PaymentInAmountTotal;
+                                var InvoiceInAmountTotal  = data.InvoiceInAmountTotal;
+                                var PaymentOutAmountTotal  = data.PaymentOutAmountTotal;
+                                var InvoiceOutDisputeAmountTotal  = data.InvoiceOutDisputeAmountTotal;
+                                var InvoiceInDisputeAmountTotal  = data.InvoiceInDisputeAmountTotal;
+                                var CompanyBalance = data.CompanyBalance;
+                                var AccountBalance = data.AccountBalance;
+                                var OffsetBalance = data.OffsetBalance;
+
+                                var CurencySymbol  = data.CurencySymbol;
+                                var roundplaces  = data.roundplaces;
+
                                 var result = data.result;
 
 
@@ -231,19 +244,32 @@
                                     }
 
                                     InvoiceOut_Amount = parseFloat(result[i]['InvoiceOut_Amount']).toFixed(roundplaces);
+
                                     InvoiceIn_Amount = parseFloat(result[i]['InvoiceIn_Amount']).toFixed(roundplaces);
 
                                     InvoiceIn_DisputeAmount = parseFloat(result[i]['InvoiceIn_DisputeAmount']).toFixed(roundplaces);
+                                    InvoiceIn_DisputeAmount = InvoiceIn_DisputeAmount > 0 ? InvoiceIn_DisputeAmount : '';
+
                                     InvoiceOut_DisputeAmount = parseFloat(result[i]['InvoiceOut_DisputeAmount']).toFixed(roundplaces);
+                                    InvoiceOut_DisputeAmount = InvoiceOut_DisputeAmount > 0 ? InvoiceOut_DisputeAmount : '';
 
                                     PaymentIn_Amount = parseFloat(result[i]['PaymentIn_Amount']).toFixed(roundplaces);
+                                    PaymentIn_Amount = PaymentIn_Amount > 0 ? PaymentIn_Amount : '';
+
                                     PaymentOut_Amount = parseFloat(result[i]['PaymentOut_Amount']).toFixed(roundplaces);
+                                    PaymentOut_Amount = PaymentOut_Amount > 0 ? PaymentOut_Amount : '';
+
 
 
                                     if( result[i]['PaymentIn_PaymentID'] !='' ) {
-                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+payment+'</a>';
+                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+PaymentIn_Amount+'</a>';
                                     } else {
-                                        result[i]['PaymentIn_PaymentID'] = 0;
+                                        result[i]['PaymentIn_PaymentID'] = '';
+                                    }
+                                    if( result[i]['PaymentOut_PaymentID'] !='' ) {
+                                        result[i]['PaymentOut_PaymentID'] = '<a class="paymentsModel" id="' + result[i]['PaymentOut_PaymentID'] + '" href="javascript:;" onClick="paymentsModel(this);">'+PaymentOut_Amount+'</a>';
+                                    } else {
+                                        result[i]['PaymentOut_PaymentID'] = '';
                                     }
 
 
@@ -252,77 +278,59 @@
                                                 // Invoice Out
                                     "<td>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
                                     "<td>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
-                                    "<td>"+result[i]['InvoiceOut_Amount']+"</td>" +
-                                    "<td>"+result[i]['InvoiceOut_DisputeAmount']+"</td>" +
+                                    "<td>"+ InvoiceOut_Amount +"</td>" +
+                                    "<td>"+ InvoiceOut_DisputeAmount +"</td>" +
 
                                     "<td> </td>" +
 
                                                 // Payment In
                                     "<td>"+result[i]['PaymentIn_PeriodCover']+"</td>" +
                                     "<td>"+result[i]['PaymentIn_PaymentID']+"</td>" +
-                                    "<td>"+result[i]['PaymentIn_Amount']+"</td>" +
+                                    "<td>"+ PaymentIn_Amount +"</td>" +
 
                                     "<td> </td>" +
 
                                                     // Invoice In
                                     "<td>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
                                     "<td>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
-                                    "<td>"+result[i]['InvoiceIn_Amount']+"</td>" +
-                                    "<td>"+result[i]['InvoiceIn_DisputeAmount']+"</td>" +
+                                    "<td>"+ InvoiceIn_Amount +"</td>" +
+                                    "<td>"+ InvoiceIn_DisputeAmount +"</td>" +
 
                                     "<td> </td>" +
 
                                                     //Payment Out
-                                    "<td>"+result[i]['PaymentOut_PeriodCover']+"</td>" +
-                                    "<td>"+result[i]['PaymentOut_PaymentID']+"</td>" +
-                                    "<td>"+result[i]['PaymentOut_Amount']+"</td>" +
+                                    "<td>"+ result[i]['PaymentOut_PeriodCover'] +"</td>" +
+                                    "<td>"+ result[i]['PaymentOut_PaymentID'] +"</td>" +
+                                    "<td>"+ PaymentOut_Amount +"</td>" +
 
                                     "</tr>";
-
-
-                                    InvoiceIn_AmountTotal = parseFloat(InvoiceIn_AmountTotal + InvoiceIn_Amount).toFixed(roundplaces);
-                                    InvoiceOut_AmountTotal = parseFloat(InvoiceOut_AmountTotal + InvoiceOut_Amount).toFixed(roundplaces);
-
-                                    InvoiceIn_DisputeAmountTotal = parseFloat(InvoiceIn_DisputeAmountTotal + InvoiceIn_DisputeAmount).toFixed(roundplaces);;
-                                    InvoiceOut_DisputeAmountTotal = parseFloat(InvoiceOut_DisputeAmountTotal + InvoiceOut_DisputeAmount).toFixed(roundplaces);;
-
-
-                                    PaymentIn_AmountTotal = parseFloat(PaymentIn_AmountTotal + PaymentIn_Amount).toFixed(roundplaces);;
-                                    PaymentOut_AmountTotal = parseFloat(PaymentOut_AmountTotal + PaymentOut_Amount).toFixed(roundplaces);;
-
 
 
                                     $('#table-4 > tbody > tr:last').after(newRow);
 
                                 }
 
-                                var Account_balance = parseFloat(InvoiceOut_AmountTotal - PaymentIn_AmountTotal).toFixed(roundplaces);
-                                var Company_balance = parseFloat(InvoiceIn_AmountTotal - PaymentOut_AmountTotal).toFixed(roundplaces);
-
-                                var TotalBallance = parseFloat((InvoiceOut_AmountTotal - PaymentIn_AmountTotal) - ( InvoiceIn_AmountTotal - PaymentOut_AmountTotal )).toFixed(2);
-
-
                                 newRow = '<tr>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceOut_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol+ InvoiceOutAmountTotal +'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentIn_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+CurencySymbol+Account_balance+'</td>' +
+                                '<td>'+ CurencySymbol+ PaymentInAmountTotal+'</td>' +
+                                '<td>'+CurencySymbol + AccountBalance+'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceIn_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
+                                '<td>'+ CurencySymbol + InvoiceInAmountTotal +'</td>' +
                                 '<td></td>' +
                                 '<td></td>' +
                                 '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentOut_AmountTotal * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+ CurencySymbol+Company_balance+'</td>' +
+                                '<td>'+ CurencySymbol + PaymentOutAmountTotal +'</td>' +
+                                '<td>'+ CurencySymbol + CompanyBalance +'</td>' +
                                 '</tr>'+
                                 '<tr><td colspan="17"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td>'+CurencySymbol+TotalBallance+'</td><td>'+CurencySymbol+InvoiceOut_DisputeAmountTotal+'</td><td colspan="8"></td><td>'+CurencySymbol+InvoiceIn_DisputeAmountTotal+'</td><td colspan="6"></td></tr>';
+                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td>' + CurencySymbol + OffsetBalance +'</td><td>' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</td><td colspan="8"></td><td>' + CurencySymbol + InvoiceInDisputeAmountTotal +'</td><td colspan="6"></td></tr>';
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();

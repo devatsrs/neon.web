@@ -21,7 +21,7 @@
           </div>
           <div class="panel-body">
               <div class="form-group">
-                  <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                  <label for="field-1" class="col-sm-1 control-label">Account</label>
                   <div class="col-sm-2 "> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
                   <label class="col-sm-1 control-label small_label" for="DisputeDate_StartDate">Start Date</label>
                   <div class="col-sm-2 ">
@@ -62,7 +62,7 @@
     <table class="table table-bordered datatable" id="table-4">
       <thead>
         <tr>
-          <th width="5%">Received/Sent</th>
+          <th width="5%"></th>
           <th width="10%">Account Name</th>
           <th width="8%">Invoice No</th>
           <th width="8%">Dispute Total</th>
