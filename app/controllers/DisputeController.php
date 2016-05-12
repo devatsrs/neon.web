@@ -64,18 +64,11 @@ class DisputeController extends \BaseController {
 	public function index()
 	{
 		$id=0;
-		$companyID = User::get_companyID();
 		$currency = Currency::getCurrencyDropdownList();
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList());
-		$InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_IN))->get(['InvoiceNumber']);
-		$InvoiceNoarray = array();
-		foreach($InvoiceNo as $Invoicerow){
-			$InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-		}
-		$invoice_nos = implode(',',$InvoiceNoarray);
 		$accounts = Account::getAccountIDList();
 		$InvoiceTypes = array(Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
-		return View::make('disputes.index', compact('id','currency','status','accounts','invoice_nos','currency_ids','InvoiceTypes'));
+		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes'));
 
 	}
 

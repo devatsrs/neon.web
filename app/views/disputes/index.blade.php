@@ -363,11 +363,29 @@
 
                     $("#add-edit-dispute-form [name='AccountID']").change(function(){
                         $("#add-edit-dispute-form [name='AccountName']").val( $("#add-edit-dispute-form [name='AccountID'] option:selected").text());
-                        var url = baseurl + '/payments/getcurrency/'+$("#add-edit-dispute-form [name='AccountID'] option:selected").val();
+
+                        var AccountID = $("#add-edit-dispute-form [name='AccountID'] option:selected").val()
+                        var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+
                         if($("#add-edit-dispute-form [name='AccountID'] option:selected").val()>0) {
-                            $.get(url, function (Currency) {
-                                $("#currency").text('(' + Currency + ')');
+                            $.get(url, function (response) {
+
+                                console.log(response);
+                                if( typeof response.status != 'undefined' && response.status == 'success'){
+
+                                    $("#currency").text('(' + response.Currency_Symbol + ')');
+
+                                    var InvoiceNumbers = response.InvoiceNumbers;
+                                    $('input.typeahead').typeahead({
+                                        //source: InvoiceNumbers,
+                                        local: InvoiceNumbers
+
+                                    });
+
+                                }
+
                             });
+
                         }
                     });
 
@@ -396,57 +414,6 @@
                         submit_ajax_withfile(submit_url,formData);
 
                     });
-
-                    $('#add-edit-modal-dispute').change(function (ev) {
-
-                         if($(this).hasClass("in")) {
-                             var typeahead_opts = {
-                                 name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
-                             };
-                             if ($("#InvoiceAuto").attr('data-local')) {
-                                 var local = $("#InvoiceAuto").attr('data-local');
-                                 local = local.replace(/\s*,\s*/g, ',').split(',');
-                                 typeahead_opts['local'] = local;
-                                 $('#InvoiceAuto').typeahead(typeahead_opts);
-
-                                 /*$('#InvoiceAuto').typeahead(typeahead_opts).on('typeahead:selected', function($e, datum) {  // suggestion selected
-
-                                     /!*console.log("Selected");
-                                     console.log($e);
-                                     console.log(datum);
-                                     console.log($(this).   val());*!/
-
-                                     var InvoiceNo = $(this).val();
-
-                                     $.ajax({
-                                         url: baseurl + '/invoice/getInvoiceDetail',
-                                         data: 'InvoiceNo='+InvoiceNo,
-                                         dataType: 'json',
-                                         success: function (response) {
-
-                                             $("#add-edit-dispute-form [name='StartDate']").val(response.StartDate);
-                                             $("#add-edit-dispute-form [name='StartTime']").val(response.StartTime);
-                                             $("#add-edit-dispute-form [name='EndDate']").val(response.EndDate);
-                                             $("#add-edit-dispute-form [name='EndTime']").val(response.EndTime);
-                                             $("#add-edit-dispute-form [name='TotalMinutes']").val(response.TotalMinutes);
-                                             $("#add-edit-dispute-form [name='InvoiceID']").val(response.InvoiceID);
-
-                                             $('#add-edit-dispute-form').find("input[name=GrandTotal]").val(response.GrandTotal);
-
-                                             //set_dispute(response);
-
-                                         },
-                                         type: 'POST'
-                                     });
-                                     return false;
-
-                                  });*/
-
-                             }
-                         }
-                        return false;
-                    })
-
 
                 });
 
@@ -611,7 +578,7 @@
           <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Invoice Number</label>
-                    <input type="text" id="InvoiceAuto" data-local="{{$invoice_nos}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+                    <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control typeahead" id="field-5" placeholder="">
                 </div>
           </div>
           <div class="col-md-12">

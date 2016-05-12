@@ -64,18 +64,11 @@ class PaymentsController extends \BaseController {
     public function index()
     {
         $id=0;
-        $companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList(); 
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
-        $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
-        $InvoiceNoarray = array();
-        foreach($InvoiceNo as $Invoicerow){
-            $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-        }
-        $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates','currency_ids'));
+        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids'));
 	}
 
 	/**
@@ -522,8 +515,17 @@ class PaymentsController extends \BaseController {
         exit;
     }
 
-    public function getCurrency($id){
-        return Account::getCurrency($id);
+    public function get_currency_invoice_numbers($id){
+        $Currency_Symbol = Account::getCurrency($id);
+        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('InvoiceNumber')->get()->toArray();
+
+        $InvoiceNumbers = array();
+        foreach($InvoiceNumbers_ as $row){
+            $InvoiceNumbers[] = $row['InvoiceNumber'];
+        }
+        return Response::json(array("status" => "success", "message" => "" , "Currency_Symbol"=>$Currency_Symbol, "InvoiceNumbers" => $InvoiceNumbers));
+
+
     }
 
 }

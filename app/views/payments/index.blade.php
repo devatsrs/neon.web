@@ -599,12 +599,31 @@
                     });
 
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
+
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
-                        var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
+
+                        var AccountID = $("#add-edit-payment-form [name='AccountID'] option:selected").val()
+                        var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+
                         if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
-                            $.get(url, function (Currency) {
-                                $("#currency").text('(' + Currency + ')');
+                            $.get(url, function (response) {
+
+                                console.log(response);
+                                if( typeof response.status != 'undefined' && response.status == 'success'){
+
+                                    $("#currency").text('(' + response.Currency_Symbol + ')');
+
+                                    var InvoiceNumbers = response.InvoiceNumbers;
+                                    $('input.typeahead').typeahead({
+                                        //source: InvoiceNumbers,
+                                        local: InvoiceNumbers
+
+                                    });
+
+                                }
+
                             });
+
                         }
                     });
 
@@ -631,21 +650,6 @@
                         ajax_Add_update(update_new_url);
                     });
                     $("#payment-table-search").submit();
-                    $('#PaymentTypeAuto').change(function (ev) {
-                        if($(this).val() == 'Payment In'){
-                            //$('#InvoiceAuto').addClass('typeahead');
-                            var typeahead_opts = {
-                                name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
-                            };
-                            if ($("#InvoiceAuto").attr('data-local'))
-                            {
-                                var local = $("#InvoiceAuto").attr('data-local');
-                                local = local.replace(/\s*,\s*/g, ',').split(',');
-                                typeahead_opts['local'] = local;
-                                $('#InvoiceAuto').typeahead(typeahead_opts);
-                            }
-                        }
-                    })
 
                     $("#form-upload").submit(function (e) {
                         e.preventDefault();
@@ -900,7 +904,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice</label>
-              <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+              <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control typeahead" id="field-5" placeholder="">
             </div>
           </div>
           <div class="col-md-12">
