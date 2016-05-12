@@ -91,7 +91,7 @@ function validator_response($validator){
 }
 function download_file($file = ''){
     if ($file != "") {
-          if (is_file($file)) {
+          if (is_file($file) && file_exists($file)) {
             $mime_types = array(
                 '.xls' => 'application/excel',
                 '.xlsx' => 'application/excel',
@@ -123,6 +123,10 @@ function download_file($file = ''){
                 echo "No Data Found";
                 exit();
             }
+        }else if (!filter_var($file, FILTER_VALIDATE_URL) === false) {
+              header('Location: '.$file);
+              exit;
+
         }
     }
 }

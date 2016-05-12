@@ -518,7 +518,7 @@ class PaymentsController extends \BaseController {
     public function  download_doc($id){
         $FileName = Payment::where(["PaymentID"=>$id])->pluck('PaymentProof');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        header('Location: '.$FilePath);
+        download_file($FilePath);
         exit;
     }
 

@@ -288,6 +288,12 @@
                         ev.stopPropagation();
                         var response = new Array();
 
+                        $("#add-edit-dispute-form [name='AccountID']").select2().select2('val','');
+                        $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $('#add-edit-dispute-form').find("input, textarea, select").val("");
+                        $('.file-input-name').text('');
+
+
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         var select = ['AccountID','InvoiceType'];
                         for(var i = 0 ; i< list_fields.length; i++){
@@ -369,9 +375,10 @@
                         ev.preventDefault();
                         $('#add-edit-dispute-form').trigger("reset");
                         $("#add-edit-dispute-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-dispute-form [name='DisputeID']").val('')
-                        $('#add-edit-modal-dispute h4').html('Add New Dispute');
+                        $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $('#add-edit-dispute-form').find("input, textarea, select").val("");
                         $('.file-input-name').text('');
+                        $('#add-edit-modal-dispute h4').html('Add New Dispute');
                         $('#add-edit-modal-dispute').modal('show');
                     });
 
@@ -387,7 +394,6 @@
 
                         var formData = new FormData($('#add-edit-dispute-form')[0]);
                         submit_ajax_withfile(submit_url,formData);
-                        $(".btn").button('reset');
 
                     });
 
