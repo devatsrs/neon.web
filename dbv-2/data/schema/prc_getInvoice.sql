@@ -21,7 +21,7 @@ BEGIN
 		  END
 		  as InvoiceNumber,
         inv.IssueDate,
-        CONCAT('From ',IFNULL(date(dt.StartDate),'') ,'<br> To ',IFNULL(date(dt.EndDate),'')) as InvoicePeriod,
+        IF(dt.StartDate IS NULL ,'',CONCAT('From ',IFNULL(date(dt.StartDate),'') ,'<br> To ',IFNULL(date(dt.EndDate),''))) as InvoicePeriod,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) as GrandTotal2,
 		  CONCAT(IFNULL(cr.Symbol,''),format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_),'/',IFNULL(cr.Symbol,''),format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_)) as `PendingAmount`,
         inv.InvoiceStatus,
