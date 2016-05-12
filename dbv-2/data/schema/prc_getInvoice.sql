@@ -21,7 +21,7 @@ BEGIN
 		  END
 		  as InvoiceNumber,
         inv.IssueDate,
-        (select CONCAT('From ',IFNULL(date(dt.StartDate),'') ,'<br>To ',IFNULL(date(dt.EndDate),'')) from tblInvoiceDetail dt where dt.InvoiceID=inv.InvoiceID) as InvoicePeriod,
+        CONCAT('From ',IFNULL(date(dt.StartDate),'') ,'<br> To ',IFNULL(date(dt.EndDate),'')) as InvoicePeriod,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) as GrandTotal2,
 		  CONCAT(IFNULL(cr.Symbol,''),format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_),'/',IFNULL(cr.Symbol,''),format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_)) as `PendingAmount`,
         inv.InvoiceStatus,
@@ -36,7 +36,9 @@ BEGIN
         FROM tblInvoice inv
         inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
         left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-        left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+        left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
+		  left join tblInvoiceDetail dt on dt.InvoiceID = inv.InvoiceID
+		  		AND dt.ProductType=2
         where ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND inv.InvoiceNumber = p_InvoiceNumber))
