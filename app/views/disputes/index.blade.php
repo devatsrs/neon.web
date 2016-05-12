@@ -85,10 +85,14 @@
      $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
      $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
      $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+     $searchFilter.InvoiceType   = $("#dispute-table-search select[name='InvoiceType']").val();
+     $searchFilter.AccountID   = $("#dispute-table-search select[name='AccountID']").val();
+     $searchFilter.InvoiceNo   = $("#dispute-table-search input[name='InvoiceNo']").val();
+     $searchFilter.Status   = $("#dispute-table-search select[name='Status']").val();
 
      var update_new_url;
-                var postdata;
-                var dispute_status = {{json_encode(Dispute::$Status);}};
+     var postdata;
+     var dispute_status = {{json_encode(Dispute::$Status);}};
 
      jQuery(document).ready(function ($) {
                     data_table = $("#table-4").dataTable({
@@ -103,9 +107,7 @@
                                     {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
-									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
-									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate},
-									{"name": "DisputeDate_EndTime","value": $searchFilter.DisputeDate_EndTime}
+									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate}
 
                             );
                             data_table_extra_params.length = 0;
@@ -115,9 +117,7 @@
                                     {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
-									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
 									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate},
-									{"name": "DisputeDate_EndTime","value": $searchFilter.DisputeDate_EndTime},
                                     {"name":"Export","value":1});
 
                         },
