@@ -96,8 +96,17 @@ BEGIN
 	  SELECT
         COUNT(*) AS totalcount,ROUND(sum(billed_duration),v_Round_) as total_billed_duration,concat(IFNULL(v_CurrencyCode_,''),ROUND(sum(buying_cost),v_Round_)) as total_cost,v_CurrencyCode_ as CurrencyCode
     FROM (
-    select Distinct uh.AccountID,connect_time,disconnect_time,uh.billed_duration,uh.buying_cost
-    FROM tmp_tblVendorUsageDetails_ uh
+   select Distinct
+            uh.AccountName as AccountName,           
+            uh.connect_time,
+            uh.disconnect_time,
+            uh.billed_duration,
+            uh.cli,
+            uh.cld,
+				CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.selling_cost,6)) AS selling_cost,
+				CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.buying_cost,6)) AS buying_cost,
+				AccountID
+    FROM tmp_tblVendorUsageDetails_ uh        
     ) AS TBL2;
     
     END IF;
