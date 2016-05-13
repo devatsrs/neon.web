@@ -14,9 +14,9 @@ BEGIN
     
     set @stm1 = CONCAT('
 
-    INSERT INTO LocalRMCDR.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound)
+    INSERT INTO LocalRMCDR.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound,ID)
 
-    SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",AccountName ,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,"',p_ProcessID,'",duration,is_inbound
+    SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",AccountName ,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,"',p_ProcessID,'",duration,is_inbound,ID
     FROM tmp_tblUsageDetails_');
     
     PREPARE stmt1 FROM @stm1;
