@@ -169,8 +169,8 @@
                                 <td>
 
                                     @if(count($rategenerator_rule['RateRuleMargin']))
-                                    @foreach($rategenerator_rule['RateRuleMargin'] as $materulemargin )
-                                    {{$materulemargin->MinRate}} <  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
+                                    @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
+                                        {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
                                     @endforeach
                                     @endif
 
