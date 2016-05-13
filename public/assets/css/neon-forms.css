@@ -2151,6 +2151,7 @@ th {
 .table-bordered > tbody > tr > td,
 .table-bordered > tfoot > tr > td {
   border: 1px solid #ebebeb;
+  background-color: #fff !important;
 }
 .table-bordered > thead > tr > th,
 .table-bordered > thead > tr > td {
@@ -2344,7 +2345,7 @@ table th[class*="col-"] {
 }
 table > tbody > tr.highlight > td,
 table > tbody > tr.highlight > th {
-  background-color: #f1f2f4 !important;
+  background-color: #fff !important;
   color: #303641;
 }
 .table > thead > tr > .middle-align,

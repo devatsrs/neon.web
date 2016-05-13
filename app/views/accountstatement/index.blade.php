@@ -1,7 +1,16 @@
 @extends('layout.main')
 
 @section('content')
-
+<style>
+    table th {
+        background-color: #fff !important;
+        font-weight: bold;
+        color: #333 !important;
+    }
+    table td {
+        background-color: #fff !important;
+     }
+</style>
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -32,7 +41,7 @@
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-1 control-label">Account</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                                        {{ Form::select('AccountID', $accounts, '', array("class"=>"select2")) }}
                                     </div>
                                     <label class="col-sm-1 control-label">Start Date</label>
                                     <div class="col-sm-2">
@@ -59,52 +68,46 @@
             <div class="clear"></div>
 
             <div class="row">
-                <div class="col-md-12">
-                    <div style="width:80px;" class="input-group-btn pull-right">
-                        <div class="export-data">
-                            <div class="DTTT btn-group">
-                                <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_0">
-                                    <undefined>EXCEL</undefined>
-                                </a>
-                            </div>
-                        </div>
-                    </div><!-- /btn-group -->
+                <div class="col-md-12 text-right">
+                    <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_0">
+                        <undefined>EXCEL</undefined>
+                    </a>
                 </div>
                 <div class="clear"></div>
                 <div id="table-4_processing" class="dataTables_processing" style="display: none;">Processing...</div>
             </div>
+            <div style="width: 100%; overflow-x:auto ">
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
                     <th colspan="4" style="text-align: center;">{{$CompanyName}} INVOICE</th>
-                    <th colspan="5"></th>
+                    <th colspan="4" style="text-align: center;">PAYMENT</th>
                     <th colspan="5" style="text-align: center;">INVOICE</th>
-                    <th colspan="3"></th>
+                    <th colspan="2" style="text-align: center;">{{$CompanyName}} PAYMENT</th>
                 </tr>
-                <tr>
-                    <th width="6%">INVOICE NO</th>
-                    <th width="14%">PERIOD COVERED</th>
-                    <th width="6%">AMOUNT</th>
-                    <th width="6%">PENDING DISPUTE</th>
-                    <th width="2%"></th>
-                    <th width="9%">Payment Date</th>
-                    <th width="6%">PAYMENT</th>
-                    <th width="6%">BALANCE</th>
-                    <th width="2%"></th>
-                    <th width="6%">INVOICE NO</th>
-                    <th width="14%">PERIOD COVERED</th>
-                    <th width="6%">AMOUNT</th>
-                    <th width="6%">PENDING DISPUTE</th>
-                    <th width="2%"></th>
-                    <th width="9%">Payment Date</th>
-                    <th width="6%">{{$CompanyName}} PAYMENT</th>
-                    <th width="6%">BALANCE</th>
+                <tr >
+                    <th style="text-align: center;" width="5%">NO</th>
+                    <th style="text-align: center;" width="8%" >PERIOD</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
+                    <th style="text-align: center;" width="6%">PENDING DISPUTE</th>
+                    <th style="text-align: center;" width="1%"></th>
+                    <th style="text-align: center;" width="8%">DATE</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
+                    <th style="text-align: center;" width="1%"></th>
+                    <th style="text-align: center;" width="6%">NO</th>
+                    <th style="text-align: center;" width="8%">PERIOD</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
+                    <th style="text-align: center;" width="6%">PENDING DISPUTE</th>
+                    <th style="text-align: center;" width="1%"></th>
+                    <th style="text-align: center;" width="9%">DATE</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr></tr>
                 </tbody>
             </table>
+            </div>
             <iframe id="RemotingIFrame" name="RemotingIFrame" style="border: 0px none; width: 0px; height: 0px;">
                 <html>
                 <head></head>
@@ -147,8 +150,6 @@
                             dataType: 'json',
                             success: function(data) {
 
-
-
                                 var InvoiceOutAmountTotal  = data.InvoiceOutAmountTotal;
                                 var PaymentInAmountTotal  = data.PaymentInAmountTotal;
                                 var InvoiceInAmountTotal  = data.InvoiceInAmountTotal;
@@ -170,31 +171,15 @@
 									 $('#table-4_processing').hide();
 									return false;
 								}
+                                $('#table-4 > thead > tr:nth-child(1) > th:nth-child(2)').html(AccountName + " PAYMENT");
                                 $('#table-4 > thead > tr:nth-child(1) > th:nth-child(3)').html(AccountName + " INVOICE");
-                                $('#table-4 > thead > tr:nth-child(2) > th:nth-child(6)').html(AccountName + " PAYMENT");
+
                                 $('#table-4 > tbody > tr').remove();
                                 $('#table-4 > tbody').append('<tr></tr>');
 
-                                /*var InvoiceAmount=0;
-                                var payment=0;
-                                var IN_DisputeAmount = OUT_DisputeAmount = 0;
-                                var IN_PendingDispute = OUT_PendingDispute = '';
-                                var ballence=0;
-                                var InvoiceAmounts=0;
-                                var payments=0;
-                                var ballences=0;
-                                var PaymentDate='';
-                                var PaymentDates='';
-
-                                var IN_TotalDispute = OUT_TotalDispute = 0;
-                                console.log(result);*/
-
-                                var InvoiceIn_AmountTotal = InvoiceOut_AmountTotal = PaymentIn_AmountTotal = PaymentOut_AmountTotal = InvoiceIn_DisputeAmountTotal = InvoiceOut_DisputeAmountTotal = 0;
-
-
                                 for (i = 0; i < result.length; i++) {
 
-                                    console.log(result[i]);
+                                    //console.log(result[i]);
 
                                     //Invoice Out
                                     if( typeof result[i]['InvoiceOut_InvoiceNo'] == 'undefined' ) {
@@ -274,63 +259,60 @@
 
 
                                     newRow = "<tr>" +
-
                                                 // Invoice Out
-                                    "<td>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
-                                    "<td>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
-                                    "<td>"+ InvoiceOut_Amount +"</td>" +
-                                    "<td>"+ InvoiceOut_DisputeAmount +"</td>" +
-
-                                    "<td> </td>" +
+                                            "<td align='center'>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
+                                            "<td align='center'>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
+                                            "<td align='right'>"+ InvoiceOut_Amount +"</td>" +
+                                            "<td align='right' style='color:#cc2424;font-weight: bold'>"+ InvoiceOut_DisputeAmount +"</td>" +
+                                            "<td> </td>" +
 
                                                 // Payment In
-                                    "<td>"+result[i]['PaymentIn_PeriodCover']+"</td>" +
-                                    "<td>"+result[i]['PaymentIn_PaymentID']+"</td>" +
-                                    "<td>"+ PaymentIn_Amount +"</td>" +
+                                            "<td align='center'>"+result[i]['PaymentIn_PeriodCover']+"</td>" +
+                                            "<td align='right'>"+result[i]['PaymentIn_PaymentID']+"</td>" +
+                                            "<td> </td>" +
 
-                                    "<td> </td>" +
+                                                // Invoice In
+                                            "<td align='center'>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
+                                            "<td align='center'>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
+                                            "<td align='right'>"+ InvoiceIn_Amount +"</td>" +
+                                            "<td align='right' style='color:#cc2424;font-weight: bold' >"+ InvoiceIn_DisputeAmount +"</td>" +
 
-                                                    // Invoice In
-                                    "<td>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
-                                    "<td>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
-                                    "<td>"+ InvoiceIn_Amount +"</td>" +
-                                    "<td>"+ InvoiceIn_DisputeAmount +"</td>" +
+                                            "<td> </td>" +
 
-                                    "<td> </td>" +
-
-                                                    //Payment Out
-                                    "<td>"+ result[i]['PaymentOut_PeriodCover'] +"</td>" +
-                                    "<td>"+ result[i]['PaymentOut_PaymentID'] +"</td>" +
-                                    "<td>"+ PaymentOut_Amount +"</td>" +
-
-                                    "</tr>";
+                                                //Payment Out
+                                            "<td align='center'>"+ result[i]['PaymentOut_PeriodCover'] +"</td>" +
+                                            "<td align='right'>"+ result[i]['PaymentOut_PaymentID'] +"</td>" +
+                                            "</tr>";
 
 
                                     $('#table-4 > tbody > tr:last').after(newRow);
 
                                 }
 
-                                newRow = '<tr>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+ InvoiceOutAmountTotal +'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+ PaymentInAmountTotal+'</td>' +
-                                '<td>'+CurencySymbol + AccountBalance+'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol + InvoiceInAmountTotal +'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol + PaymentOutAmountTotal +'</td>' +
-                                '<td>'+ CurencySymbol + CompanyBalance +'</td>' +
-                                '</tr>'+
-                                '<tr><td colspan="17"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td>' + CurencySymbol + OffsetBalance +'</td><td>' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</td><td colspan="8"></td><td>' + CurencySymbol + InvoiceInDisputeAmountTotal +'</td><td colspan="6"></td></tr>';
+                                newRow =
+                                        '<tr>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol+ PaymentInAmountTotal+'</th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol + InvoiceInAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424;text-align: right;">' + CurencySymbol + InvoiceInDisputeAmountTotal +'</th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol + PaymentOutAmountTotal +'</th>' +
+                                        '</tr>'+
+
+                                        '<tr><th colspan="15"></th></tr>'+
+
+                                        '<tr><th colspan="2" style="text-align: right;">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th  style="color:#cc2424;text-align: right;font-weight: bold"></th><th colspan="7" ></th><th style="text-align: right;color:#cc2424;font-weight: bold"></th><th colspan="5"></th>' +
+                                        '</tr>' ;
+
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();

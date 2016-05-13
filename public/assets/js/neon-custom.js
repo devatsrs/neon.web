@@ -1155,7 +1155,7 @@ toastr_opts = {
                     }
                 });
 
-                console.log(opts);
+                //console.log(opts);
                 $this.validate(opts);
             });
         }
