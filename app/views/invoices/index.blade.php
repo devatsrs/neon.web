@@ -56,7 +56,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-2">
                             {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
                         </div>
@@ -65,11 +65,11 @@
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-1 control-label">Invoice Status</label>
+                        <label for="field-1" class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
                             {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
-            <label for="field-1" class="col-sm-1 control-label">Hide Zero Invoice Value</label>
+            <label for="field-1" class="col-sm-1 control-label">Zero Invoice Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
@@ -487,15 +487,8 @@ var postdata;
 						{ 
 						$('.result_row').remove();
 						$('.result_row').hide();
-							var selected_currency  =	 $("#invoice_filter [name='CurrencyID']").val();
-							var concat_currency    = 	 '';
-							if(selected_currency!='')
-							{							
-		//						concat_currency = $("#invoice_filter [name='CurrencyID'] option:selected").text()+' ';		
-								var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
-								var concat_currency = currency_txt.substr(0,1);
-							}
-				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
+							
+				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
 						}
 					},
 			});	

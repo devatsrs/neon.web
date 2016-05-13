@@ -4,7 +4,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
         @if(Session::get('user_site_configrations.FavIcon')!='')<link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">@endif         
-        <!--<title>{{Session::get('user_site_configrations.Title')}}</title>-->
         <title>{{getenv('COMPANY_NAME')}}</title>
         <style>
         .row{

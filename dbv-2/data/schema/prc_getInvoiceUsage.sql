@@ -16,7 +16,7 @@ BEGIN
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
+	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0,0); 
 
 	Select CDRType  INTO v_CDRType_ from  LocalRatemanagement.tblAccount where AccountID = p_AccountID;
 
@@ -32,21 +32,37 @@ BEGIN
             max(Trunk) as Trunk,
             (SELECT 
                 Country
-            FROM Ratemanagement3.tblRate r
-            INNER JOIN Ratemanagement3.tblCountry c
+            FROM LocalRatemanagement.tblRate r
+            INNER JOIN LocalRatemanagement.tblCustomerRate cr
+                ON cr.RateID = r.RateID
+            INNER JOIN LocalRatemanagement.tblCustomerTrunk ct
+                ON cr.CustomerID = ct.AccountID
+                AND ct.TrunkID = cr.TrunkID
+            INNER JOIN LocalRatemanagement.tblTrunk t
+                ON ct.TrunkID = t.TrunkID
+            INNER JOIN LocalRatemanagement.tblCountry c
                 ON c.CountryID = r.CountryID
-            WHERE  r.Code = ud.area_prefix limit 1)
+            WHERE t.Trunk = MAX(ud.trunk)
+            AND ct.AccountID = ud.AccountID
+            AND r.Code = ud.area_prefix limit 1)
             AS Country,
             (SELECT Description
-            FROM Ratemanagement3.tblRate r
-            WHERE  r.Code = ud.area_prefix limit 1 )
+            FROM LocalRatemanagement.tblRate r
+            INNER JOIN LocalRatemanagement.tblCustomerRate cr
+                ON cr.RateID = r.RateID
+            INNER JOIN LocalRatemanagement.tblCustomerTrunk ct
+                ON cr.CustomerID = ct.AccountID
+                AND ct.TrunkID = cr.TrunkID
+            INNER JOIN LocalRatemanagement.tblTrunk t
+                ON ct.TrunkID = t.TrunkID
+            WHERE t.Trunk = MAX(ud.trunk)
+            AND ct.AccountID = ud.AccountID
+            AND r.Code = ud.area_prefix limit 1 )
             AS Description,
             COUNT(UsageDetailID) AS NoOfCalls,
-            Concat( ROUND(SUM(duration ) / 60,0), ':' , SUM(duration ) % 60) AS Duration,
-		    	Concat( ROUND(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
-            SUM(cost) AS TotalCharges,
-            SUM(duration ) as DurationInSec,
-            SUM(billed_duration ) as BillDurationInSec
+            Concat( Format(SUM(duration ) / 60,0), ':' , SUM(duration ) % 60) AS Duration,
+		    Concat( Format(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
+            SUM(cost) AS TotalCharges
 
         FROM tmp_tblUsageDetails_ ud
         GROUP BY ud.area_prefix,

@@ -1,13 +1,15 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(IN `p_company_id` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT , IN `p_CDRType` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(IN `p_company_id` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT , IN `p_CDRType` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_CurrencyID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
 BEGIN 
 
 	   DECLARE v_OffSet_ int;
 	   DECLARE v_BillingTime_ INT;
+      DECLARE v_Round_ INT;
+      DECLARE v_CurrencyCode_ VARCHAR(50);
 	   SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-    
-	 
+        SELECT cs.Value INTO v_Round_ FROM LocalRatemanagement.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_company_id;
+	 	SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 		SELECT BillingTime INTO v_BillingTime_
 		FROM LocalRatemanagement.tblCompanyGateway cg
 		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
@@ -17,7 +19,7 @@ BEGIN
 		SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
     
     
-    	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost);
+    	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost,p_CurrencyID);
 
 
 	IF p_isExport = 0
@@ -34,7 +36,8 @@ BEGIN
 		        p_CompanyGatewayID as CompanyGatewayID,
 		        p_start_date as StartDate,
 		        p_end_date as EndDate,
-				  is_inbound as CDRType  from(
+				  is_inbound as CDRType
+					from(
 		        SELECT
 		        		Distinct
 		            uh.AccountName as AccountName,           
@@ -43,13 +46,10 @@ BEGIN
 		            uh.billed_duration,
 		            uh.cli,
 		            uh.cld,
-						format(uh.cost,6) as cost,
+						CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.cost,6)) AS cost,
 						AccountID,
 						is_inbound
-		        FROM tmp_tblUsageDetails_ uh
-		         
-		        
-		
+		        FROM tmp_tblUsageDetails_ uh	
 		    ) AS TBL  
 		    ORDER BY
 		    			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
@@ -91,13 +91,13 @@ BEGIN
 		
 		
 		    SELECT
-		        COUNT(*) AS totalcount,sum(Duration) as total_duration,format((sum(cost)),6) as total_cost
+		       COUNT(*) AS totalcount,ROUND(sum(billed_duration),v_Round_) as total_billed_duration,concat(IFNULL(v_CurrencyCode_,''),ROUND(sum(cost),v_Round_)) as total_cost,v_CurrencyCode_ as CurrencyCode
 		    FROM (
 		    select Distinct
 		            uh.AccountName as AccountName,           
 		            uh.connect_time,
 		            uh.disconnect_time,
-		            uh.billed_duration as Duration,
+		            uh.billed_duration,
 		            uh.cli,
 		            uh.cld,
 						format(uh.cost,6) as cost,
@@ -114,7 +114,7 @@ BEGIN
 		        AccountName,        
 		        connect_time,
 		        disconnect_time,        
-		        billed_duration as duration,
+		        billed_duration,
 		        cost,
 		        cli,
 		        cld,
@@ -128,7 +128,7 @@ BEGIN
 		            uh.billed_duration,
 		            uh.cli,
 		            uh.cld,
-						format(uh.cost,6) as cost,
+						concat(IFNULL(v_CurrencyCode_,''),format(uh.cost,6)) as cost,
 						AccountID,
 						is_inbound
 		        FROM tmp_tblUsageDetails_ uh

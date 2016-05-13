@@ -232,6 +232,20 @@ toastr_opts = {
                     alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
                 });
             });
+            public_vars.$body.find('.dropdown .scroller').each(function(i, el) {
+                var $this = $(el),
+                    height = attrDefault($this, 'height', $this.height());
+                $this.slimScroll({
+                    height: height,
+                    position: attrDefault($this, 'scroll-position', 'right'),
+                    color: attrDefault($this, 'rail-color', '#000'),
+                    size: attrDefault($this, 'rail-width', 6),
+                    borderRadius: attrDefault($this, 'rail-radius', 3),
+                    opacity: attrDefault($this, 'rail-opacity', .3),
+                    alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                });
+            });
+
         }
 
 
@@ -646,10 +660,26 @@ toastr_opts = {
 
             if ($.isFunction($.fn.niceScroll))
             {
-                $(".select2-results").niceScroll({
+                /*$(".select2-results").niceScroll({
                     cursorcolor: '#d4d4d4',
                     cursorborder: '1px solid #ccc',
                     railpadding: {right: 3}
+                });*/
+
+                public_vars.$body.find('.select2-results').each(function(i, el) {
+                    var $this = $(el);
+                        //height = attrDefault($this, 'height', $this.height());
+                    $this.slimScroll({
+                        position: attrDefault($this, 'scroll-position', 'right'),
+                        color: attrDefault($this, 'rail-color', '#000'),
+                        size: attrDefault($this, 'rail-width', 6),
+                        borderRadius: attrDefault($this, 'rail-radius', 3),
+                        opacity: attrDefault($this, 'rail-opacity', .3),
+                        alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                    });
+                    $this.css('height', 'auto');
+                    $this.parents('.slimScrollDiv').css('height', 'auto');
+                    $this.parents('max-height', '200');
                 });
             }
         }
@@ -2468,7 +2498,7 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Internal Server Error', "Error", toastr_opts);
+            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
             break;
         case 503:
             toastr.error('Service Unavailable', "Error", toastr_opts);

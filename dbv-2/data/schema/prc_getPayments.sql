@@ -3,6 +3,7 @@ BEGIN
 		
     	DECLARE v_OffSet_ int;
     	DECLARE v_Round_ int;
+    	SET sql_mode = '';
     	
 		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
      
@@ -46,8 +47,8 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
-            AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
-			   AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
             ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
@@ -105,7 +106,7 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
-            AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			   AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
 			   AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
 
 	END IF;
@@ -136,10 +137,9 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
-            AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
 			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
 	END IF;
-	
 	
 	-- export data for customer panel
 	IF p_isExport = 2

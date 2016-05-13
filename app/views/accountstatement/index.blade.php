@@ -30,7 +30,7 @@
 
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                                    <label for="field-1" class="col-sm-1 control-label">Account</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                                     </div>

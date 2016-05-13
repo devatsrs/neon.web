@@ -400,60 +400,63 @@ function get_image_data($path){
 
 
 function getFileContent($file_name,$data){
-    $columns = [];
-    $grid = [];
-    $flag = 0;
+    $columns 		= 	[];
+    $grid 			= 	[];
+    $flag 			= 	0;	
+	$extension_arr  = 	explode(".",$file_name);
+	$File_ext 		= 	$extension_arr[count($extension_arr)-1];
+	
+	$NeonExcel 		= 	new NeonExcelIO($file_name, $data);
+	$results 		= 	$NeonExcel->read(20);
+	
 
-    $NeonExcel = new NeonExcelIO($file_name, $data);
-    $results = $NeonExcel->read(10);
+	/*
+	if (!empty($data['Delimiter'])) {
+		Config::set('excel::csv.delimiter', $data['Delimiter']);
+	}
+	if (!empty($data['Enclosure'])) {
+		Config::set('excel::csv.enclosure', $data['Enclosure']);
+	}
+	if (!empty($data['Escape'])) {
+		Config::set('excel::csv.line_ending', $data['Escape']);
+	}
+	if(!empty($data['Firstrow'])){
+		$data['option']['Firstrow'] = $data['Firstrow'];
+	}
 
-    /*
-    if (!empty($data['Delimiter'])) {
-        Config::set('excel::csv.delimiter', $data['Delimiter']);
-    }
-    if (!empty($data['Enclosure'])) {
-        Config::set('excel::csv.enclosure', $data['Enclosure']);
-    }
-    if (!empty($data['Escape'])) {
-        Config::set('excel::csv.line_ending', $data['Escape']);
-    }
-    if(!empty($data['Firstrow'])){
-        $data['option']['Firstrow'] = $data['Firstrow'];
-    }
-
-    if (!empty($data['option']['Firstrow'])) {
-        if ($data['option']['Firstrow'] == 'data') {
-            $flag = 1;
-        }
-    }
-    $isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-    $results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
-        if ($flag == 1) {
-            $reader->noHeading();
-        }
-    })->take(10)->toArray();*/
-    $counter = 1;
-    //$results[0] = array_filter($results[0]);
-    foreach ($results[0] as $index => $value) {
-        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
-            $columns[$counter] = 'Col' . $counter;
-        } else {
-            $columns[$index] = $index;
-        }
-        $counter++;
-    }
-    foreach ($results as $outindex => $datarow) {
-        //$datarow = array_filter($datarow);
-        //$results[$outindex] =  array_filter($datarow);
-        foreach ($datarow as $index => $singlerow) {
-            $results[$outindex][$index] = $singlerow;
-            if (strpos(strtolower($index), 'date') !== false) {
-                $singlerow = str_replace('/', '-', $singlerow);
-                $results[$outindex][$index] = $singlerow;
-            }
-        }
-    }
-    try {
+	if (!empty($data['option']['Firstrow'])) {
+		if ($data['option']['Firstrow'] == 'data') {
+			$flag = 1;
+		}
+	}
+	$isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
+	$results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
+		if ($flag == 1) {
+			$reader->noHeading();
+		}
+	})->take(10)->toArray();*/
+	$counter = 1;
+	//$results[0] = array_filter($results[0]);
+	foreach ($results[0] as $index => $value) {
+		if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+			$columns[$counter] = 'Col' . $counter;
+		} else {
+			$columns[$index] = $index;
+		}
+		$counter++;
+	}
+	foreach ($results as $outindex => $datarow) {
+		//$datarow = array_filter($datarow);
+		//$results[$outindex] =  array_filter($datarow);
+		foreach ($datarow as $index => $singlerow) {
+			$results[$outindex][$index] = $singlerow;
+			if (strpos(strtolower($index), 'date') !== false) {
+				$singlerow = str_replace('/', '-', $singlerow);
+				$results[$outindex][$index] = $singlerow;
+			}
+		}
+	}
+	try {
     } catch (\Exception $ex) {
         Log::error($ex);
     }

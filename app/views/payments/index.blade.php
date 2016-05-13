@@ -25,7 +25,7 @@
           </div>
           <div class="panel-body">
             <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label small_label">Account Name</label>
+              <label for="field-1" class="col-sm-1 control-label small_label">Account</label>
               <div class="col-sm-2 col-sm-e2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
               <label class="col-sm-1 control-label small_label">Invoice No</label>
               <div class="col-sm-2 col-sm-e2">
@@ -359,6 +359,7 @@
                             ]
                         },
                         "fnDrawCallback": function () {
+							get_total_grand();
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
@@ -760,6 +761,44 @@
                         $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
                         $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
                     }
+					
+			function get_total_grand()
+			{
+				$('.total_ajax').remove();
+			 $.ajax({
+					url: baseurl + "/payments/ajax_datagrid_total",
+					type: 'GET',
+					dataType: 'json',
+					data:{
+				"AccountID":$("#payment-table-search select[name='AccountID']").val(),
+				"InvoiceNo":$("#payment-table-search [name='InvoiceNo']").val(),
+				"Status":$("#payment-table-search select[name='Status']").val(),
+				"type":$("#payment-table-search select[name='type']").val(),				
+				"paymentmethod":$("#payment-table-search select[name='paymentmethod']").val(),
+				"PaymentDate_StartDate":$("#payment-table-search input[name='PaymentDate_StartDate']").val(),
+				"PaymentDate_StartTime":$("#payment-table-search input[name='PaymentDate_StartTime']").val(),
+				"PaymentDate_EndDate":$("#payment-table-search input[name='PaymentDate_EndDate']").val(),
+				"PaymentDate_EndTime":$("#payment-table-search input[name='PaymentDate_EndTime']").val(),
+				"bDestroy": true,
+				"bProcessing":true,
+				"bServerSide":true,
+				"sAjaxSource": baseurl + "/payments/ajax_datagrid_total",
+				"iDisplayLength": '{{Config::get('app.pageSize')}}',
+				"sPaginationType": "bootstrap",
+				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+				"aaSorting": [[3, 'desc']],},
+					success: function(response1) {
+						console.log("sum of result"+response1);
+						
+						if(response1.total_grand!=null)
+						{ 
+							$('#table-4 tbody').append('<tr class="total_ajax"><td colspan="2"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');	
+						}
+						
+	
+						},
+				});	
+		}
 
 
                 });
