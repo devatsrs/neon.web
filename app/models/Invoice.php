@@ -173,10 +173,7 @@ class Invoice extends \Eloquent {
 
 
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'))->render();
-			Log::info("--------------body-");
-			Log::info($body);
-			Log::info("--------------body end-");
-            $body = htmlspecialchars_decode($body);
+		    $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice'))->render();
             $footer = htmlspecialchars_decode($footer);
 
@@ -209,10 +206,7 @@ class Invoice extends \Eloquent {
             @unlink($local_htmlfile);
             @unlink($footer_html);
             if (file_exists($local_file)) {
-			Log::info("--------------local_file-");
-			Log::info(file_get_contents($local_file));
-			Log::info("--------------local_file-");
-                $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
+			    $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {
                     return $fullPath;
                 }
