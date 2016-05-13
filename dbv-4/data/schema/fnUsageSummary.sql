@@ -19,8 +19,7 @@ BEGIN
 				`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
 				`TotalDuration` INT(11) NULL DEFAULT NULL,
 				`NoOfCalls` INT(11) NULL DEFAULT NULL,
-				`ACD` INT(11) NULL DEFAULT NULL,
-				`ASR` INT(11) NULL DEFAULT NULL,
+				`NoOfFailCalls` INT(11) NULL DEFAULT NULL,
 				`AccountName` varchar(100),
 				INDEX `tblUsageSummary_dim_date` (`DateID`)
 		);
@@ -38,8 +37,7 @@ BEGIN
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
-			us.ACD,
-			us.ASR,
+			us.NoOfFailCalls,
 			a.AccountName
 		FROM tblSummaryHeader sh
 		INNER JOIN tblUsageSummary us
@@ -77,8 +75,7 @@ BEGIN
 				`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
 				`TotalDuration` INT(11) NULL DEFAULT NULL,
 				`NoOfCalls` INT(11) NULL DEFAULT NULL,
-				`ACD` INT(11) NULL DEFAULT NULL,
-				`ASR` INT(11) NULL DEFAULT NULL,
+				`NoOfFailCalls` INT(11) NULL DEFAULT NULL,
 				`AccountName` varchar(100),
 				INDEX `tblUsageSummary_dim_date` (`DateID`)
 		);
@@ -98,8 +95,7 @@ BEGIN
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
-			usd.ACD,
-			usd.ASR,
+			usd.NoOfFailCalls,
 			a.AccountName
 		FROM tblSummaryHeader sh
 		INNER JOIN tblUsageSummaryDetail usd
