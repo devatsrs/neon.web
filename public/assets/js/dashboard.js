@@ -98,7 +98,7 @@ function getHourlyChart(){
             if(data.TotalCost > 0) {
                 $(".hourly-sales-cost").sparkline(data.TotalCostChart.split(','), {
                     type: 'bar',
-                    barColor: '#333399',
+                    barColor: '#ffa812',
                     height: '55px',
                     width: '100%',
                     barWidth: 14,
@@ -141,7 +141,7 @@ function getHourlyChart(){
             if(parseInt(data.TotalMinutes) > 0) {
                 $(".hourly-sales-minutes").sparkline(data.TotalMinutesChart.split(','), {
                     type: 'bar',
-                    barColor: '#3399FF',
+                    barColor: '#ec3b83',
                     height: '55px',
                     width: '100%',
                     barWidth: 14,
@@ -180,36 +180,6 @@ function getHourlyChart(){
             }else{
                 $(".hourly-sales-minutes").html('<h3>NO DATA!!</h3>');
             }
-        }
-    });
-}
-function toggleFullScreen() {
-    /*var fullscreen_ele = $("#content")[0];
-    if (!fullscreen_ele.fullscreenElement &&    // alternative standard method
-        !fullscreen_ele.mozFullScreenElement && !fullscreen_ele.webkitFullscreenElement) {  // current working methods
-        if (fullscreen_ele.requestFullscreen) {
-            fullscreen_ele.requestFullscreen();
-        } else if (fullscreen_ele.mozRequestFullScreen) {
-            fullscreen_ele.mozRequestFullScreen();
-        } else if (fullscreen_ele.webkitRequestFullscreen) {
-            fullscreen_ele.webkitRequestFullscreen();
-        }
-        $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
-    } else {
-        if (fullscreen_ele.cancelFullScreen) {
-            fullscreen_ele.cancelFullScreen();
-        } else if (fullscreen_ele.mozCancelFullScreen) {
-            fullscreen_ele.mozCancelFullScreen();
-        } else if (fullscreen_ele.webkitCancelFullScreen) {
-            fullscreen_ele.webkitCancelFullScreen();
-        }
-        $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
-    }*/
-    const target = $('.main-content')[0]; // Get DOM element from jQuery collection
-
-    $('#toNocWall').click(function(){
-        if (screenfull.enabled) {
-            screenfull.toggle(target);
         }
     });
 }

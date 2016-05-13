@@ -771,7 +771,7 @@ function addhttp($url) {
 }
 function chart_reponse($alldata){
 
-    $chartColor = array('#333399','#3399FF','#3366CC','#2D89FF','#287AFF','#236BFF','#1E5BFF','#194CFF','#143DFF','#0F2DFF','#0A1EFF','#050FFF','#0000FF');
+    $chartColor = array('#0073b7','#ba79cb','#00a65a','#701c1c','#00b29e','#6c541e','#ffa812','#00c0ef','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {

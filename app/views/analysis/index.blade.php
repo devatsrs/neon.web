@@ -58,7 +58,7 @@
             });
             set_search_parameter($(".tab-pane.active").find('form'));
             Highcharts.theme = {
-                colors: ['#287AFF', '#FEB80A', '#00ADDC', '#333399', '#287AFF', '#236BFF','#1E5BFF', '#194CFF', '#143DFF']
+                colors: ['#ec3b83', '#ffa812', '#0073b7', '#333399', '#287AFF', '#236BFF','#1E5BFF', '#194CFF', '#143DFF']
             };
             // Apply the theme
             Highcharts.setOptions(Highcharts.theme);

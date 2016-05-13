@@ -17,16 +17,18 @@
     </form>
     <div class="row">
         <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-white stat-tile panel loading">
-                <h3>Sales 0</h3>
+            <div class="tile-stats tile-cyan stat-tile panel loading">
+                <h3>Sales</h3>
+                <div class="icon"><i class="fa fa-line-chart"></i></div>
                 <p>Today Sales by hour</p>
                 <span class="hourly-sales-cost"></span>
             </div>
         </div>
 
         <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-white stat-tile panel loading">
+            <div class="tile-stats tile-aqua stat-tile panel loading">
                 <h3>Minutes 0</h3>
+                <div class="icon"><i class="fa fa-line-chart"></i></div>
                 <p>Today Minutes by hour</p>
                 <span class="hourly-sales-minutes"></span>
             </div>
