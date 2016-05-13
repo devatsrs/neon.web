@@ -73,7 +73,7 @@
                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                 <div class="col-sm-2"> {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }} </div>
                 <label class="col-sm-1 control-label" for="field-1">Account</label>
-                <div class="col-sm-2"> {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }} </div>
+                <div class="col-sm-2"> {{ Form::select('AccountID',$accounts,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }} </div>
             
                 <label class="col-sm-1 control-label" for="field-1">CLI</label>
                 <div class="col-sm-2">
@@ -183,7 +183,7 @@ var postdata;
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/type",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '200',
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                     data_table_extra_params.length = 0;
@@ -214,22 +214,7 @@ var postdata;
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },                    
-                    { "bSortable": true,
-
-                mRender:function( id, type, full){
-														currency_symbol =full[11];
-														if(currency_symbol!=null)
-														{
-                                                      		var output = full[11]+' '+id;
-														}
-														else
-														{
-															var output = id;
-														}
-													  return output;
-                                                     }
-
-                 },
+                    { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true } /*,
                          { mRender: function(id, type, full) {

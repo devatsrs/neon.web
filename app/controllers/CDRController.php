@@ -466,7 +466,8 @@ class CDRController extends BaseController {
 		 $companyID 				= 	User::get_companyID();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $gateway = CompanyGateway::getCompanyGatewayIdList();
-        return View::make('cdrupload.vendorcdr',compact('gateway','DefaultCurrencyID'));
+		$accounts = Account::getAccountIDList();
+        return View::make('cdrupload.vendorcdr',compact('gateway','DefaultCurrencyID','accounts'));
     }
 	
 		public function ajax_datagrid_vendorcdr_total($type)

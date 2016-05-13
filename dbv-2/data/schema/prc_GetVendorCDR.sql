@@ -34,8 +34,8 @@ BEGIN
         AccountID,
         p_CompanyGatewayID as CompanyGatewayID,
         p_start_date as StartDate,
-        p_end_date as EndDate,
-		v_CurrencyCode_ as CurrencyCode		from(
+        p_end_date as EndDate
+				from(
         SELECT
         		Distinct
             uh.AccountName as AccountName,           
@@ -44,8 +44,8 @@ BEGIN
             uh.billed_duration,
             uh.cli,
             uh.cld,
-				format(uh.selling_cost,6) as selling_cost,
-				format(uh.buying_cost ,6) as buying_cost,
+			   CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.selling_cost,6)) AS selling_cost,
+				CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.buying_cost,6)) AS buying_cost,
 				AccountID
             
         
@@ -94,7 +94,7 @@ BEGIN
 	 LIMIT p_RowspPage OFFSET v_OffSet_;
 	 
 	  SELECT
-        COUNT(*) AS totalcount,ROUND(sum(billed_duration),v_Round_) as total_billed_duration,concat(IFNULL(v_CurrencyCode_,''),ROUND(sum(buying_cost),v_Round_)) as total_cost
+        COUNT(*) AS totalcount,ROUND(sum(billed_duration),v_Round_) as total_billed_duration,concat(IFNULL(v_CurrencyCode_,''),ROUND(sum(buying_cost),v_Round_)) as total_cost,v_CurrencyCode_ as CurrencyCode
     FROM (
     select Distinct uh.AccountID,connect_time,disconnect_time,uh.billed_duration,uh.buying_cost
     FROM tmp_tblVendorUsageDetails_ uh
