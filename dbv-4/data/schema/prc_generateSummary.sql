@@ -51,6 +51,8 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = DATE_FORMAT(ud.connect_time,'%Y-%m-%d')
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 	
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_; 
+	
 	UPDATE tmp_UsageSummary  FORCE INDEX (tmp_UsageSummary_AreaPrefix)
 	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
 	SET tmp_UsageSummary.CountryID =tblCountry.CountryID;
