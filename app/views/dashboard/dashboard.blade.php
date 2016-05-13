@@ -379,6 +379,35 @@
             </div>
         </div>
     </div>
-    <button id="toNocWall" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>
+    @if($isDesktop == 1)
+        <button id="toNocWall" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>
+        <script>
+            $(function () {
+                //$('#supported').text('Supported/allowed: ' + !!screenfull.enabled);
+
+                if (!screenfull.enabled) {
+                    return false;
+                }
+
+                $('#toNocWall').click(function () {
+                    screenfull.toggle($('.main-content')[0]);
+                });
+
+                function fullscreenchange() {
+                    if (!screenfull.isFullscreen) {
+                        document.body.style.overflow = 'auto';
+                        $('#toNocWall').find('i').addClass('fa-arrows-alt').removeClass('fa-compress');
+                    }else{
+                        $('#toNocWall').find('i').addClass('fa-compress').removeClass('fa-arrows-alt');
+                    }
+                }
+
+                document.addEventListener(screenfull.raw.fullscreenchange, fullscreenchange);
+
+                // set the initial values
+                fullscreenchange();
+            });
+        </script>
+    @endif
 @stop

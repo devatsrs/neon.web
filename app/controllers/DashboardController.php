@@ -1,5 +1,5 @@
 <?php
-
+use Jenssegers\Agent\Agent;
 class DashboardController extends BaseController {
 
     
@@ -152,8 +152,10 @@ class DashboardController extends BaseController {
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
         }
+        $agent = new Agent();
+        $isDesktop = $agent->isDesktop();
         $newAccountCount = Account::where($where)->where('created_at','>=',$original_startdate)->count();
-        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount'));
+        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
 
     }
 
