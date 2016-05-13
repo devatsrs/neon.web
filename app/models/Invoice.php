@@ -173,7 +173,9 @@ class Invoice extends \Eloquent {
 
 
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'))->render();
-
+			Log::info("--------------body-");
+			Log::info($body);
+			Log::info("--------------body end-");
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice'))->render();
             $footer = htmlspecialchars_decode($footer);
@@ -203,10 +205,13 @@ class Invoice extends \Eloquent {
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
-            Log::info($output);
+            
             @unlink($local_htmlfile);
             @unlink($footer_html);
             if (file_exists($local_file)) {
+			Log::info("--------------local_file-");
+			Log::info(file_get_contents($local_file));
+			Log::info("--------------local_file-");
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {
                     return $fullPath;
