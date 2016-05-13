@@ -162,7 +162,9 @@ class Invoice extends \Eloquent {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
+			Log::info("--------------------");
 			Log::info($as3url);
+			Log::info("--------------------");
             @chmod(getenv('UPLOAD_PATH'),0777);
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
