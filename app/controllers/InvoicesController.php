@@ -52,8 +52,8 @@ class InvoicesController extends \BaseController {
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
-			"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand,
-			"os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
+			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->second_amount,
 		);
 		
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
@@ -562,7 +562,7 @@ class InvoicesController extends \BaseController {
     public function invoice_preview($id)
 	{
         $Invoice = Invoice::find($id);
-		
+		Log::info($Invoice);
         if(!empty($Invoice))
 		{
             $InvoiceDetail  	= 	InvoiceDetail::where(["InvoiceID" => $id])->get();
@@ -575,7 +575,7 @@ class InvoicesController extends \BaseController {
 			$query 				= 	"CALL `prc_getInvoicePayments`('".$id."','".$companyID."');";			
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
-						
+					Log::info($InvoiceDetail);	
             return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log'));
         }
     }
