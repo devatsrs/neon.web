@@ -68,6 +68,7 @@ class RateGeneratorsController extends \BaseController {
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
+            'Policy' => 'required',
         );
 
         $validator = Validator::make($data, $rules);
@@ -145,6 +146,7 @@ class RateGeneratorsController extends \BaseController {
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
+            'Policy' => 'required',
         );
 
 
