@@ -473,7 +473,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/{id}/recall', 'PaymentsController@recall');
 	Route::any('/payments/download_doc/{id}', 'PaymentsController@download_doc');
 	Route::any('/payments/ajax_datagrid/{type}', 'PaymentsController@ajax_datagrid');
-	Route::any('/payments/getcurrency/{id}', 'PaymentsController@getCurrency');
+	Route::any('/payments/get_currency_invoice_numbers/{id}', 'PaymentsController@get_currency_invoice_numbers');
 	Route::any('/payments/{id}/payment_approve_reject/{approve_reject}', array('as' => 'payment_rules', 'uses' => 'PaymentsController@payment_approve_reject'))->where('approve_reject', '(approve|reject)');
 
 	#Route::any('/payments/{id}/upload', 'PaymentsController@upload'); not in use
