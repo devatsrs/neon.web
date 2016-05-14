@@ -30,7 +30,7 @@
         <div class="progress-indicator"></div>
     </div>
 
-    <ul>
+    <ul id="wizardul">
         <li class="active" id="st1">
             <a href="#tab2-1" data-toggle="tab"><span>1</span><h5 class="test">Select Import Type</h5></a>
         </li>
@@ -41,6 +41,7 @@
             <a href="#tab2-3" data-toggle="tab"><span>3</span><h5 class="test">Mapping and Submit</h5></a>
         </li>
     </ul>
+
 
     <div class="tab-content">
         <div class="tab-pane active" id="tab2-1">
@@ -102,24 +103,33 @@
             </div>
 
             <div class="row" id="gatewayimport">
-
-                <div class="form-group">
-                    <label for="field-2" class="col-sm-4 control-label">
-                        <h4><strong>Gateway</strong> : <span class="gatewayname"></span></h4>
-                    </label>
-                    <div class="col-sm-4">
-                        <input type="hidden" name="gateway" value="">
-                        <input type="hidden" name="CompanyGatewayID" value="">
-                        <input type="hidden" name="importaccountsuccess" value="">
-                        <button type="button" id="importaccount"  class="btn btn-primary "><span>Import</span></button>
+                <input type="hidden" name="gateway" value="">
+                <input type="hidden" name="CompanyGatewayID" value="">
+                <input type="hidden" name="importaccountsuccess" value="">
+                <span id="gateway_filter"></span>
+                <span id="get_account"></span>
+                <span class="gatewayloading">Import Account Processing</span>
+                <p style="float: right">
+                    <button type="button" id="uploadaccount"  class="btn btn-primary "><span>Import</span></button>
+                </p>
+                <div class="clear"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered datatable" id="table-5">
+                            <thead>
+                            <tr>
+                                <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                                <th width="15%" >Account Name</th>
+                                <th width="15%" >First Name</th>
+                                <th width="15%" >Last Name</th>
+                                <th width="15%" >Email</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="">
-                    <div class="col-sm-12">
-                        <strong><span class="importsuccessmsg"></span></strong>
-                    </div>
-                </div>
-
             </div>
 
 
@@ -324,7 +334,7 @@
           </div> <!-- csv-excel over-->
 
           <div id="pbxactive">
-              <p style="text-align: right">
+              <!--<p style="text-align: right">
                   <button type="button" id="uploadaccount"  class="btn btn-primary "><span>Import</span></button>
               </p>
               <span id="gateway_filter"></span>
@@ -344,7 +354,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div>-->
           </div> <!-- gateway active over-->
 
 
@@ -372,10 +382,12 @@
             $('.newredio').removeClass('active');
             $(this).addClass('active');
         });
+
         $('#csvimport').hide();
         $('#csvactive').hide();
         $('#gatewayimport').hide();
         $('#pbxactive').hide();
+        $('#uploadaccount').hide();
         var activetab = '';
         var element= $("#rootwizard-2");
         var progress = element.find(".steps-progress div");
@@ -389,18 +401,35 @@
             {
                 setCurrentProgressTab(element, navigation, tab, progress, index);
             },
+            onTabClick: function(){
+                return false;
+            },
             onNext: function(tab, navigation, index) {
                 activetab = tab.attr('id');
                 if(activetab=='st1'){
                     var importfrom = $("#rootwizard-2 input[name='size']:checked").val();
                     if(importfrom=='csv' || importfrom=='excel'){
-                        $("#st2 h5.test").html('Upload File');
-                        $("#st3 h5.test").html('Mapping and Submit');
+                        if($('#st3 h5').hasClass("test")){
+                            $("#st2 h5.test").html('Upload File');
+                            $("#st3 h5.test").html('Mapping and Submit');
+                        }else{
+                            $('#st3').remove();
+                            var html ='';
+                            html+='<li id="st3">';
+                            html+='<a href="#tab2-3" data-toggle="tab"><span>3</span><h5 class="test">Mapping and Submit</h5></a>';
+                            html+='</li>';
+                            $('#wizardul li:eq(1)').after(html);
+                            //$('#wizardul').append(html);
+                            $("#st2 h5.test").html('Upload File');
+                            $("#st2").removeAttr('class');
+                            $("#st3").removeAttr('class');
+                        }
                         $("#csvimport").find("input[name='importfrom']").val(importfrom);
                         $("#rootwizard-2").find("input[name='importway']").val(importfrom);
                         $('#gatewayimport').hide();
                         $('#csvimport').show();
                     }else if(importfrom=='PBX' || importfrom=='Porta'){
+                        $('#st3').remove();
                         $("#st2 h5.test").html('Get Account From Gateway');
                         $("#st3 h5.test").html('Import Account');
                         var cgid = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
@@ -411,6 +440,8 @@
                         $("#rootwizard-2").find("input[name='CompanyGatewayID']").val(cgid);
                         $("#gatewayimport").find(".gatewayname").html(cgname);
                         $('#gatewayimport').show();
+                        $('#gateway_filter').trigger('click');
+
                     }
 
                 }
@@ -473,19 +504,6 @@
                             });
                         }
                     } // import from excel-csv over
-
-                    if(importway == 'PBX' || importway == 'Porta'){
-                        $("#st2 h5.test").html('Get Account From Gateway');
-                        $("#st3 h5.test").html('Import Account');
-                        var gatewayactive = $("#gatewayimport input[name='importaccountsuccess']").val();
-                        if(gatewayactive == '1'){
-                            $('#csvactive').hide();
-                            $('#pbxactive').show();
-                            $('#gateway_filter').trigger('click');
-                        }else{
-                            return false;
-                        }
-                    }
 
                 }
             }
@@ -621,51 +639,6 @@
             });
         });
 
-        /*
-        $("#rootwizard-2").submit(function(e) {
-            e.preventDefault();
-            //var formData = new FormData($('#rootwizard-2')[0]);
-            var formData = $("#rootwizard-2 input[name='size']:checked").val();
-
-        });
-        */
-
-        // import account from gateway
-        $('#importaccount').on('click', function(ev){
-            ev.preventDefault();
-            if (!confirm('Are you sure you want to Import Accounts?')) {
-                return;
-            }
-            var gateway = '';
-            gateway = $("#gatewayimport input[name='gateway']").val();
-            if(gateway == '' || typeof(gateway) == 'undefined' ){
-                toastr.error('No gatway selected.', "Error", toastr_opts);
-                return false;
-            }
-
-            if(gateway == 'PBX' || gateway == 'Porta'){
-                $(this).button('loading');
-                var CompanyGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
-                $.ajax({
-                    url:baseurl +'/import/account/getAccountInfoFromGateway/'+CompanyGatewayID+'/'+gateway,
-                    type:'POST',
-                    datatype:'json',
-                    data:'gateway='+gateway,
-                    success: function(response){
-                        $('#importaccount').button('reset');
-                        if (response.status == 'success') {
-                            $('#importaccount').hide();
-                            $("#gatewayimport input[name='importaccountsuccess']").val('1');
-                            $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
-                            toastr.success(response.message, "Success", toastr_opts);
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                    }
-                });
-            }
-
-        });
 
         $("#selectall").click(function(ev) {
             var is_checked = $(this).is(':checked');
@@ -698,6 +671,41 @@
         //display missing gateway account
 
         $("#gateway_filter").click(function(e) {
+            var CompanyGatewayID = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
+            var gateway = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
+            //var gateway = $("#rootwizard-2 input[name='size']:checked").val();
+            //var CompanyGatewayID = $("#gatewayimport input[name='CompanyGatewayID']").val();
+            $.ajax({
+                url: baseurl + '/import/account/getAccountInfoFromGateway/' + CompanyGatewayID + '/' + gateway,
+                type: 'POST',
+                datatype: 'json',
+                data: 'gateway=' + gateway,
+                beforeSend: function(){
+                    $(".gatewayloading").show();
+                },
+                success: function (response) {
+                    //$('#importaccount').button('reset');
+                    $('.gatewayloading').hide();
+                    if (response.status == 'success') {
+                        //$('#importaccount').hide();
+                        $("#gatewayimport input[name='importaccountsuccess']").val('1');
+                        //$("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('#get_account').trigger('click');
+                        $('#uploadaccount').show();
+                        $('.pager li').addClass('disabled');
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                        $('#get_account').trigger('click');
+                        $('#uploadaccount').show();
+                        $('.pager li').addClass('disabled');
+                    }
+                }
+            });
+
+        });
+
+        $("#get_account").click(function(e) {
             e.preventDefault();
             var CGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
             data_table = $("#table-5").dataTable({
@@ -877,9 +885,10 @@
     .form-horizontal .control-label{
         text-align: left !important;
     }
-    #tab2-2{
+
+    /*#tab2-2{
         margin: 0 0 0 50px;
-    }
+    }*/
     .pager li.disabled{
         display: none;
     }
@@ -894,6 +903,28 @@
     .pager li > a{
 
         color : #ffffff !important;
+    }
+    .gatewayloading{
+        display:none;
+        color: #ffffff;
+        background: #303641;
+        display: table;
+        position: fixed;
+        visibility: visible;
+        padding: 10px;
+        text-align: center;
+        left: 50%; top: auto;
+        margin: 71px auto;
+        z-index: 999;
+        border: 1px solid #303641;
+    }
+    #st1 a,#st2 a,#st3 a{
+        cursor: default;
+        text-decoration: none;
+    }
+
+    #csvimport{
+        padding: 0 75px;
     }
 </style>
 @stop
