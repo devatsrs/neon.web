@@ -15,7 +15,7 @@
 </ol>
 <h3>Import Leads</h3>
 <p style="text-align: right;margin-bottom: 20px;">
-    <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/import/leads')}}">
+    <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/leads')}}">
         <i class="entypo-cancel"></i>
         Close
     </a>
@@ -37,7 +37,7 @@
             <a href="#tab2-2" data-toggle="tab"><span>2</span>Upload File</a>
         </li>
         <li id="st3">
-            <a href="#tab2-3" data-toggle="tab"><span>3</span>Mapping and Submit Data</a>
+            <a href="#tab2-3" data-toggle="tab"><span>3</span>Mapping and Submit</a>
         </li>
     </ul>
 
@@ -49,10 +49,10 @@
                 <div class="col-md-1"></div>
                 <div class="col-md-11">
                     <div class="">
-                        <input type="radio" name="size" value="excel" id="size_S" />
-                        <label for="size_S" class="newredio">EXCEL</label>
-                        <input type="radio" name="size" value="csv" id="size_M" checked/>
-                        <label for="size_M" class="newredio active">CSV</label>
+                        <input type="radio" name="size" value="excel" id="size_S" checked />
+                        <label for="size_S" class="newredio active">EXCEL</label>
+                        <input type="radio" name="size" value="csv" id="size_M"/>
+                        <label for="size_M" class="newredio">CSV</label>
                         <!--<input type="radio" name="size" value="pbx" id="size_L"/>
                         <label for="size_L" class="newredio">PBX</label>-->
 
@@ -125,7 +125,7 @@
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
-                                            Account CSV Importer
+                                            Lead Importer
                                         </div>
 
                                         <div class="panel-options">
@@ -167,7 +167,7 @@
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
-                                            Field Remapping
+                                            Field Mapping
                                         </div>
 
                                         <div class="panel-options">
@@ -181,10 +181,11 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Title</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
+                                                <input type="hidden" class="form-control" name="AccountType" value="0" />
+                                                <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
 
                                         </div>
@@ -200,14 +201,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
                                             <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -221,35 +221,33 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
                                             <label for="field-1" class="col-sm-2 control-label">Address1</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address2</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address3</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">City</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Tags</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[tags]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
-                                                <input type="hidden" class="form-control" name="AccountType" value="0" />
-                                                <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
                                         </div>
                                     </div>
@@ -257,7 +255,7 @@
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
-                                            CSV File to be loaded
+                                            File to be loaded
                                         </div>
 
                                         <div class="panel-options">
@@ -562,8 +560,8 @@
         color: #ababab;
         text-align: center;
         padding: 20px;
-        height:10%;
-        width: 30%;
+        height:20%;
+        width: 25%;
         cursor: pointer;
     }
 
@@ -580,6 +578,15 @@
     }
     .pager li.disabled{
         display: none;
+    }
+    .pager li > a, .pager li > span{
+        background-color: #000000 !important;
+        border-radius:3px;
+        border:none;
+    }
+    .pager li > a{
+
+        color : #ffffff !important;
     }
 </style>
 @stop

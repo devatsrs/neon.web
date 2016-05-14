@@ -15,9 +15,10 @@ class ImportsController extends \BaseController {
      * @return Response
      */
     public function index() {
+            $gatewaylist = CompanyGateway::importgatewaylist();
             $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
             $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Account);
-            return View::make('imports.index', compact('UploadTemplate'));
+            return View::make('imports.index', compact('UploadTemplate','gatewaylist'));
     }
 
     public function download_sample_excel_file(){
@@ -165,7 +166,7 @@ class ImportsController extends \BaseController {
 
 
     //import data from gateway and insert into temp table
-    public function getAccountInfoFromGateway($id){
+    public function getAccountInfoFromGateway($id,$gateway){
         $CompanyGateway =  CompanyGateway::find($id);
         $response = array();
         if(!empty($CompanyGateway)){
@@ -174,12 +175,19 @@ class ImportsController extends \BaseController {
         }
         if(isset($response['result']) && $response['result'] =='OK'){
             $ProcessID = (string) GUID::generate();
-            $CompanyGatewayID=10;
-            $pbx = new PBX($CompanyGatewayID);
-            $param['CompanyGatewayID'] = 10; // change
+            $CompanyGatewayID=$id;
+            $param['CompanyGatewayID'] = $id; // change
             $param['CompanyID'] = 1;
             $param['ProcessID'] = $ProcessID;
-            $response = $pbx->getAccountsDetail($param);
+            if($gateway == 'PBX'){
+                $pbx = new PBX($CompanyGatewayID);
+                $response = $pbx->getAccountsDetail($param);
+            }elseif($gateway == 'Porta'){
+                $porta = new Porta($CompanyGatewayID);
+                $response = $porta->getAccountsDetail($param);
+            }
+            //$pbx = new PBX($CompanyGatewayID);
+
             if(isset($response['result']) && $response['result'] =='OK'){
                 return Response::json(array("status" => "success", "message" => "Account successfully imported"));
             }else if(isset($response['faultCode']) && isset($response['faultString'])){
@@ -373,7 +381,35 @@ class ImportsController extends \BaseController {
             download_file($filePath);
     }
 
-
+    public function add_missing_gatewayaccounts(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        if(empty($data['companygatewayid'])){
+            return json_encode(array("status" => "failed", "message" => "Please select gateway."));
+        }
+        $AccountIDs =array_filter(explode(',',$data['TempAccountIDs']),'intval');
+        if (is_array($AccountIDs) && count($AccountIDs) || !empty($data['criteria'])) {
+            $jobType = JobType::where(["Code" => 'MGA'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Import missing gateway account Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Creating in import Account."));
+            }
+        }else{
+            return json_encode(array("status" => "failed", "message" => "Please select account."));
+        }
+    }
 
 
 }

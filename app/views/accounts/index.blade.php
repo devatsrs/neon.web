@@ -130,7 +130,7 @@
                 </li>
                 <li>
                    <a href="{{ URL::to('/import/account') }}" >
-                        <i class="entypo-mail"></i>
+                        <i class="entypo-user-add"></i>
                         <span>Import Accounts</span>
                    </a>
                 </li>

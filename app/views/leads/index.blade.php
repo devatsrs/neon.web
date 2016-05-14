@@ -103,7 +103,7 @@
                 @endif
                 <li>
                     <a href="{{URL::to('/import/leads')}}">
-                        <i class="entypo-tag"></i>
+                        <i class="entypo-user-add"></i>
                         <span>Import Leads</span>
                     </a>
                 </li>

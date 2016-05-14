@@ -15,7 +15,7 @@
 </ol>
 <h3>Import Accounts</h3>
 <p style="text-align: right;margin-bottom: 20px;">
-    <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/import/account')}}">
+    <a class="btn btn-danger btn-sm btn-icon icon-left canbutton" href="{{URL::to('/accounts')}}">
         <i class="entypo-cancel"></i>
         Close
     </a>
@@ -32,13 +32,13 @@
 
     <ul>
         <li class="active" id="st1">
-            <a href="#tab2-1" data-toggle="tab"><span>1</span>Select Import Type</a>
+            <a href="#tab2-1" data-toggle="tab"><span>1</span><h5 class="test">Select Import Type</h5></a>
         </li>
         <li id="st2">
-            <a href="#tab2-2" data-toggle="tab"><span>2</span>Upload File</a>
+            <a href="#tab2-2" data-toggle="tab"><span>2</span><h5 class="test">Upload File</h5></a>
         </li>
         <li id="st3">
-            <a href="#tab2-3" data-toggle="tab"><span>3</span>Mapping and Submit Data</a>
+            <a href="#tab2-3" data-toggle="tab"><span>3</span><h5 class="test">Mapping and Submit</h5></a>
         </li>
     </ul>
 
@@ -50,12 +50,14 @@
                 <div class="col-md-1"></div>
                 <div class="col-md-11">
                     <div class="">
-                        <input type="radio" name="size" value="excel" id="size_S" />
-                        <label for="size_S" class="newredio">EXCEL</label>
-                        <input type="radio" name="size" value="csv" id="size_M" checked/>
-                        <label for="size_M" class="newredio active">CSV</label>
-                        <!--<input type="radio" name="size" value="pbx" id="size_L"/>
-                        <label for="size_L" class="newredio">PBX</label>-->
+                        <input type="radio" name="size" data-id="" value="excel" id="size_S" checked />
+                        <label for="size_S" class="newredio active">EXCEL</label>
+                        <input type="radio" name="size" data-id="" value="csv" id="size_M"/>
+                        <label for="size_M" class="newredio">CSV</label>
+                        @foreach($gatewaylist as $gateway)
+                        <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
+                        <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
+                        @endforeach
 
                     </div>
                 </div>
@@ -63,7 +65,7 @@
         </div>
 
         <div class="tab-pane" id="tab2-2">
-
+            <input type="hidden" name="importway" value="">
             <div class="row" id="csvimport">
 
                 <div class="form-group">
@@ -101,7 +103,22 @@
 
             <div class="row" id="gatewayimport">
 
-                GATEWAY
+                <div class="form-group">
+                    <label for="field-2" class="col-sm-4 control-label">
+                        <h4><strong>Gateway</strong> : <span class="gatewayname"></span></h4>
+                    </label>
+                    <div class="col-sm-4">
+                        <input type="hidden" name="gateway" value="">
+                        <input type="hidden" name="CompanyGatewayID" value="">
+                        <input type="hidden" name="importaccountsuccess" value="">
+                        <button type="button" id="importaccount"  class="btn btn-primary "><span>Import</span></button>
+                    </div>
+                </div>
+                <div class="">
+                    <div class="col-sm-12">
+                        <strong><span class="importsuccessmsg"></span></strong>
+                    </div>
+                </div>
 
             </div>
 
@@ -109,6 +126,7 @@
         </div>
 
         <div class="tab-pane" id="tab2-3">
+          <div id="csvactive">
             <div class="row hidden" id="add-template">
                 <div class="col-md-12">
                     <div id="add-template-form">
@@ -133,7 +151,7 @@
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
-                                            Account CSV Importer
+                                            Account Importer
                                         </div>
 
                                         <div class="panel-options">
@@ -175,7 +193,7 @@
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
-                                            Field Remapping
+                                            Field Mapping
                                         </div>
 
                                         <div class="panel-options">
@@ -190,11 +208,12 @@
                                                 {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
 
-                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Title</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
+                                                <input type="hidden" class="form-control" name="AccountType" value="1" />
+                                                <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
-
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">First Name*</label>
@@ -208,14 +227,23 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
                                             <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Account Number</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -223,10 +251,11 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Phone]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address1</label>
@@ -253,19 +282,14 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[tags]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
-                                                <input type="hidden" class="form-control" name="AccountType" value="1" />
-                                                <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
                                 <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
-                                            CSV File to be loaded
+                                            File to be loaded
                                         </div>
 
                                         <div class="panel-options">
@@ -297,6 +321,32 @@
                     </div>
                 </div>
             </div>
+          </div> <!-- csv-excel over-->
+
+          <div id="pbxactive">
+              <p style="text-align: right">
+                  <button type="button" id="uploadaccount"  class="btn btn-primary "><span>Import</span></button>
+              </p>
+              <span id="gateway_filter"></span>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered datatable" id="table-5">
+                        <thead>
+                        <tr>
+                            <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                            <th width="15%" >Account Name</th>
+                            <th width="15%" >First Name</th>
+                            <th width="15%" >Last Name</th>
+                            <th width="15%" >Email</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div> <!-- gateway active over-->
+
 
         </div>
 
@@ -315,6 +365,7 @@
 </div>
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
+        var checked='';
         $('input[type="radio"], label').addClass('js');
 
         $('.newredio').on('click', function() {
@@ -322,7 +373,9 @@
             $(this).addClass('active');
         });
         $('#csvimport').hide();
+        $('#csvactive').hide();
         $('#gatewayimport').hide();
+        $('#pbxactive').hide();
         var activetab = '';
         var element= $("#rootwizard-2");
         var progress = element.find(".steps-progress div");
@@ -341,66 +394,98 @@
                 if(activetab=='st1'){
                     var importfrom = $("#rootwizard-2 input[name='size']:checked").val();
                     if(importfrom=='csv' || importfrom=='excel'){
+                        $("#st2 h5.test").html('Upload File');
+                        $("#st3 h5.test").html('Mapping and Submit');
                         $("#csvimport").find("input[name='importfrom']").val(importfrom);
+                        $("#rootwizard-2").find("input[name='importway']").val(importfrom);
+                        $('#gatewayimport').hide();
                         $('#csvimport').show();
-                    }else if(importfrom=='pbx'){
+                    }else if(importfrom=='PBX' || importfrom=='Porta'){
+                        $("#st2 h5.test").html('Get Account From Gateway');
+                        $("#st3 h5.test").html('Import Account');
+                        var cgid = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
+                        var cgname = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
+                        $('#csvimport').hide();
+                        $("#gatewayimport").find("input[name='gateway']").val(importfrom);
+                        $("#rootwizard-2").find("input[name='importway']").val(importfrom);
+                        $("#rootwizard-2").find("input[name='CompanyGatewayID']").val(cgid);
+                        $("#gatewayimport").find(".gatewayname").html(cgname);
                         $('#gatewayimport').show();
                     }
 
                 }
 
                 if(activetab=='st2'){
-                    var uploadtemplate = $("#rootwizard-2 select[name='uploadtemplate']").val();
-                    var filename = $("#rootwizard-2 input[name='excel']").val();
-                    if(filename == ''){
-                        toastr.error('Please upload file.', "Error", toastr_opts);
-                        return false;
-                    }else{
-                        var formData = new FormData($('#rootwizard-2')[0]);
-                        show_loading_bar(0);
-                        $.ajax({
-                            url:  '{{URL::to('/import/account/check_upload')}}',  //Server script to process data
-                            type: 'POST',
-                            dataType: 'json',
-                            xhr: function() {  // Custom XMLHttpRequest
-                                var myXhr = $.ajaxSettings.xhr();
-                                if(myXhr.upload){ // Check if upload property exists
-                                    myXhr.upload.addEventListener('progress', function(evt) {
-                                        var percent = (evt.loaded / evt.total) * 100;
-                                        show_loading_bar(percent);
-                                    }, false);
-                                }
-                                return myXhr;
-                            },
-                            beforeSend: function(){
+                    var importway = $("#rootwizard-2 input[name='importway']").val();
+                    if(importway == 'csv' || importway == 'excel') {
+                        $("#st2 h5.test").html('Upload File');
+                        $("#st3 h5.test").html('Mapping and Submit');
+                        var uploadtemplate = $("#rootwizard-2 select[name='uploadtemplate']").val();
+                        var filename = $("#rootwizard-2 input[name='excel']").val();
+                        if (filename == '') {
+                            toastr.error('Please upload file.', "Error", toastr_opts);
+                            return false;
+                        } else {
+                            var formData = new FormData($('#rootwizard-2')[0]);
+                            show_loading_bar(0);
+                            $.ajax({
+                                url: '{{URL::to('/import/account/check_upload')}}',  //Server script to process data
+                                type: 'POST',
+                                dataType: 'json',
+                                xhr: function () {  // Custom XMLHttpRequest
+                                    var myXhr = $.ajaxSettings.xhr();
+                                    if (myXhr.upload) { // Check if upload property exists
+                                        myXhr.upload.addEventListener('progress', function (evt) {
+                                            var percent = (evt.loaded / evt.total) * 100;
+                                            show_loading_bar(percent);
+                                        }, false);
+                                    }
+                                    return myXhr;
+                                },
+                                beforeSend: function () {
 
-                            },
-                            afterSend: function(){
-                                console.log("Afer Send");
-                            },
-                            success: function (response) {
+                                },
+                                afterSend: function () {
+                                    console.log("Afer Send");
+                                },
+                                success: function (response) {
 
-                                if(response.status == 'success') {
-                                    var data = response.data;
-                                    createGrid(data);
-                                    $('#add-template').removeClass('hidden');
+                                    if (response.status == 'success') {
+                                        $('#pbxactive').hide();
+                                        $('#csvactive').show();
+                                        var data = response.data;
+                                        createGrid(data);
+                                        $('#add-template').removeClass('hidden');
 
-                                }else{
-                                    toastr.error(response.message, "Error", toastr_opts);
-                                    return false;
-                                }
-                                //alert(response.message);
-                                //$('.btn.upload').button('reset');
-                            },
-                            // Form data
-                            data: formData,
-                            //Options to tell jQuery not to process data or worry about content-type.
-                            cache: false,
-                            contentType: false,
-                            processData: false
-                        });
+                                    } else {
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                        return false;
+                                    }
+                                    //alert(response.message);
+                                    //$('.btn.upload').button('reset');
+                                },
+                                // Form data
+                                data: formData,
+                                //Options to tell jQuery not to process data or worry about content-type.
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }
+                    } // import from excel-csv over
+
+                    if(importway == 'PBX' || importway == 'Porta'){
+                        $("#st2 h5.test").html('Get Account From Gateway');
+                        $("#st3 h5.test").html('Import Account');
+                        var gatewayactive = $("#gatewayimport input[name='importaccountsuccess']").val();
+                        if(gatewayactive == '1'){
+                            $('#csvactive').hide();
+                            $('#pbxactive').show();
+                            $('#gateway_filter').trigger('click');
+                        }else{
+                            return false;
+                        }
                     }
-
 
                 }
             }
@@ -544,7 +629,216 @@
 
         });
         */
-    });
+
+        // import account from gateway
+        $('#importaccount').on('click', function(ev){
+            ev.preventDefault();
+            if (!confirm('Are you sure you want to Import Accounts?')) {
+                return;
+            }
+            var gateway = '';
+            gateway = $("#gatewayimport input[name='gateway']").val();
+            if(gateway == '' || typeof(gateway) == 'undefined' ){
+                toastr.error('No gatway selected.', "Error", toastr_opts);
+                return false;
+            }
+
+            if(gateway == 'PBX' || gateway == 'Porta'){
+                $(this).button('loading');
+                var CompanyGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
+                $.ajax({
+                    url:baseurl +'/import/account/getAccountInfoFromGateway/'+CompanyGatewayID+'/'+gateway,
+                    type:'POST',
+                    datatype:'json',
+                    data:'gateway='+gateway,
+                    success: function(response){
+                        $('#importaccount').button('reset');
+                        if (response.status == 'success') {
+                            $('#importaccount').hide();
+                            $("#gatewayimport input[name='importaccountsuccess']").val('1');
+                            $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+                });
+            }
+
+        });
+
+        $("#selectall").click(function(ev) {
+            var is_checked = $(this).is(':checked');
+            $('#table-5 tbody tr').each(function(i, el) {
+                if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                }
+            });
+        });
+        $('#table-5 tbody').on('click', 'tr', function() {
+            if (checked =='') {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
+            }
+        });
+
+
+        //display missing gateway account
+
+        $("#gateway_filter").click(function(e) {
+            e.preventDefault();
+            var CGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
+            data_table = $("#table-5").dataTable({
+                "bProcessing":true,
+                "bDestroy": true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/import/account/ajax_get_missing_gatewayaccounts",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "fnServerParams": function(aoData) {
+                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID});
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push({"name":"CompanyGatewayID","value":10},{"name":"Export","value":1});
+                },
+                "sPaginationType": "bootstrap",
+                "aaSorting"   : [[1, 'asc']],
+                "oTableTools":
+                {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "Export Data",
+                            "sUrl": baseurl + "/import/account/ajax_get_missing_gatewayaccounts",
+                            sButtonClass: "save-collection"
+                        }
+                    ]
+                },
+                "aoColumns":
+                        [
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                }
+                            }, //0Checkbox
+                            { "bSortable": true },//account name
+                            { "bSortable": true },//first name
+                            { "bSortable": true },// last name
+                            { "bSortable": true }  /* email,
+                         { mRender: function(id, type, full) {
+                         action = '<div class = "hiddenRowData" >';
+                         for(var i = 0 ; i< list_fields.length; i++){
+                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i]?full[i]:'')+ '" / >';
+                         }
+                         action += '</div>';
+                         action += ' <button class="btn clear delete_cdr btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i ntypo-cancel"></i>Clear CDR</button>';
+                         return action;
+                         }*/
+                        ],
+                "fnDrawCallback": function() {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                    $('#table-5 tbody tr').each(function(i, el) {
+                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (checked != '') {
+                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                $(this).addClass('selected');
+                                $('#selectallbutton').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                $(this).removeClass('selected');
+                            }
+                        }
+                    });
+                    $('#selectallbutton').click(function(ev) {
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall").prop("checked", true).prop('disabled', true);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-5 tbody tr').each(function(i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                });
+                            }
+                        }else{
+                            checked = '';
+                            $("#selectall").prop("checked", false).prop('disabled', false);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-5 tbody tr').each(function(i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+        });
+        //ajax search over
+
+
+        // import account in system from gateway
+        $("#uploadaccount").click(function(ev) {
+            var criteria = '';
+            var AccountIDs = [];
+            var gatewayid = $("#rootwizard-2 input[name='CompanyGatewayID']").val();
+            if($('#selectallbutton').is(':checked')){
+                //criteria = JSON.stringify($searchFilter);
+                criteria = 1;
+            }else{
+                var i = 0;
+                $('#table-5 tr .rowcheckbox:checked').each(function(i, el) {
+                    //console.log($(this).val());
+                    AccountID = $(this).val();
+                    if(typeof AccountID != 'undefined' && AccountID != null && AccountID != 'null'){
+                        AccountIDs[i++] = AccountID;
+                    }
+                });
+            }
+            if(AccountIDs.length || criteria==1 ){
+                if(criteria==''){
+                    AccountIDs=AccountIDs.join(",");
+                }
+                if (!confirm('Are you sure you want to import selected gateway account?')) {
+                    return;
+                }
+                $.ajax({
+                    url: baseurl + '/import/account/add_missing_gatewayaccounts',
+                    data: 'TempAccountIDs='+AccountIDs+'&criteria='+criteria+'&companygatewayid='+gatewayid,
+                    error: function () {
+                        toastr.error("error", "Error", toastr_opts);
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            reloadJobsDrodown(0);
+                            location.reload();
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    type: 'POST'
+                });
+
+            }
+        });
+
+
+        });
     </script>
 <script type="text/javascript" src="<?php echo URL::to('/').'/assets/js/jquery.bootstrap.wizard.min.js'; ?>" ></script>
 
@@ -570,8 +864,8 @@
         color: #ababab;
         text-align: center;
         padding: 20px;
-        height:10%;
-        width: 30%;
+        height:20%;
+        width: 25%;
         cursor: pointer;
     }
 
@@ -588,6 +882,18 @@
     }
     .pager li.disabled{
         display: none;
+    }
+    .export-data{
+        display: none;
+    }
+    .pager li > a, .pager li > span{
+        background-color: #000000 !important;
+        border-radius:3px;
+        border:none;
+    }
+    .pager li > a{
+
+        color : #ffffff !important;
     }
 </style>
 @stop
