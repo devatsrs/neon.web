@@ -18,7 +18,7 @@ BEGIN
 	THEN
 	
 	/* CompanyGatewayID by call count */	
-	SELECT SQL_CALC_FOUND_ROWS fnGetCompanyGatewayName(CompanyGatewayID) ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+	SELECT SQL_CALC_FOUND_ROWS fnGetCompanyGatewayName(CompanyGatewayID) ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 	FROM tmp_tblUsageSummary_ us
 	GROUP BY CompanyGatewayID   
 	ORDER BY
@@ -51,6 +51,12 @@ BEGIN
    END DESC,
 	CASE
    	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+   END ASC,
+   CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+   END DESC,
+	CASE
+   	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
    END ASC
 	LIMIT p_RowspPage OFFSET v_OffSet_;
 	
@@ -62,7 +68,7 @@ BEGIN
 	/* export data*/
 	IF p_isExport = 1
 	THEN
-		SELECT   fnGetCompanyGatewayName(CompanyGatewayID)  as Name ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT   fnGetCompanyGatewayName(CompanyGatewayID)  as Name ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		GROUP BY CompanyGatewayID;
 	END IF;
@@ -73,19 +79,19 @@ BEGIN
 	THEN
 	
 		/* top 10 CompanyGatewayID by call count */	
-		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		WHERE us.CompanyGatewayID != 'Other'
 		GROUP BY CompanyGatewayID HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
 		
 		/* top 10 CompanyGatewayID by call cost */	
-		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		WHERE us.CompanyGatewayID != 'Other'
 		GROUP BY CompanyGatewayID HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
 		
 		/* top 10 CompanyGatewayID by call minutes */	
-		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		WHERE us.CompanyGatewayID != 'Other'
 		GROUP BY CompanyGatewayID HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;

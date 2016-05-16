@@ -21,11 +21,11 @@ BEGIN
 	THEN
 	
 	/* country by call count */	
-	SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+	SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , IF(SUM(NoOfCalls)>0,SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,0) as ASR
 	FROM tmp_tblUsageSummary_ us
 	LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
 	WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
-	GROUP BY Country   
+	GROUP BY c.Country   
 	ORDER BY
 	CASE
 		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
@@ -56,6 +56,12 @@ BEGIN
    END DESC,
 	CASE
    	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+   END ASC,
+   CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+   END DESC,
+	CASE
+   	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
    END ASC
 	LIMIT p_RowspPage OFFSET v_OffSet_;
 	
@@ -67,7 +73,7 @@ BEGIN
 	/* export data*/
 	IF p_isExport = 1
 	THEN
-		SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
 		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
@@ -80,21 +86,21 @@ BEGIN
 	THEN
 	
 		/* top 10 country by call count */	
-		SELECT Country as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT Country as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
 		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
 		GROUP BY Country HAVING COUNT(*) > 0 ORDER BY CallCount DESC LIMIT 10;
 		
 		/* top 10 country by call cost */	
-		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
 		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
 		GROUP BY Country HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
 		
 		/* top 10 country by call minutes */	
-		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD 
+		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
 		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)

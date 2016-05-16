@@ -3,7 +3,7 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-   CALL fnGetCountry(); 
+	CALL fnGetCountry(); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 	/* used for success call summary*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_UsageSummary;
@@ -25,7 +25,7 @@ BEGIN
 		`CountryID` INT(11) NULL DEFAULT NULL,
 		INDEX `tblUsageSummary_dim_date` (`DateID`),
 		INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
-      INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
+		INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
 		
 	);
 	/* used for fail call summary*/
@@ -48,7 +48,7 @@ BEGIN
 		`CountryID` INT(11) NULL DEFAULT NULL,
 		INDEX `tblUsageSummary_dim_date` (`DateID`),
 		INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
-      INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
+		INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
 		
 	);	 
 
@@ -93,8 +93,8 @@ BEGIN
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 	
 	/* update failcalls which call are in both table */
-	UPDATE tmp_UsageSummary us 
-	INNER JOIN  tmp_UsageFailSummary ufs ON 
+	UPDATE tmp_UsageSummary us FORCE INDEX (Unique_key)
+	INNER JOIN  tmp_UsageFailSummary ufs FORCE INDEX (Unique_key) ON 
 		 us.DateID = ufs.DateID 
 	AND us.CompanyID = ufs.CompanyID
 	AND us.TimeID = ufs.TimeID
@@ -111,7 +111,7 @@ BEGIN
 	/* Insert failscalls which call are only in  fail table */
 	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfFailCalls)
 	SELECT ufs.DateID,ufs.TimeID,ufs.CompanyID,ufs.CompanyGatewayID,ufs.GatewayAccountID,ufs.AccountID,ufs.Trunk,ufs.AreaPrefix,ufs.TotalCharges,ufs.TotalBilledDuration,ufs.TotalDuration,ufs.NoOfFailCalls
-	FROM tmp_UsageFailSummary ufs 
+	FROM tmp_UsageFailSummary ufs FORCE INDEX (Unique_key)
 	LEFT JOIN  tmp_UsageSummary2 us ON 
 		 us.DateID = ufs.DateID 
 	AND us.CompanyID = ufs.CompanyID

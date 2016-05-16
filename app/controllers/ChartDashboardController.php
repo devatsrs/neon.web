@@ -55,6 +55,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_count'][$indexcount] = $CallCount->ChartVal;
             $alldata['call_count_val'][$indexcount] = $CallCount->CallCount;
             $alldata['call_count_acd'][$indexcount] = $CallCount->ACD;
+            $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
             $indexcount++;
         }
         $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
@@ -66,6 +67,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_cost'][$indexcount] = $CallCost->ChartVal;
             $alldata['call_cost_val'][$indexcount] = $CallCost->TotalCost;
             $alldata['call_cost_acd'][$indexcount] = $CallCost->ACD;
+            $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
             $indexcount++;
         }
         $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
@@ -78,6 +80,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_minutes'][$indexcount] = $CallMinutes->ChartVal;
             $alldata['call_minutes_val'][$indexcount] = $CallMinutes->TotalMinutes;
             $alldata['call_minutes_acd'][$indexcount] = $CallMinutes->ACD;
+            $alldata['call_minutes_asr'][$indexcount] = $CallMinutes->ASR;
             $indexcount++;
         }
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();

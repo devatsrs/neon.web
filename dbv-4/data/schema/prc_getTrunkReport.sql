@@ -11,13 +11,13 @@ BEGIN
 	
 	
 	/* top 10 Trunk by call count */	
-	SELECT Trunk as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD FROM tmp_tblUsageSummary_ GROUP BY Trunk ORDER BY CallCount DESC LIMIT 10;
+	SELECT Trunk as ChartVal ,SUM(NoOfCalls) AS CallCount,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR FROM tmp_tblUsageSummary_ GROUP BY Trunk ORDER BY CallCount DESC LIMIT 10;
 	
 	/* top 10 Trunk by call cost */	
-	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD FROM tmp_tblUsageSummary_ GROUP BY Trunk ORDER BY TotalCost DESC LIMIT 10;
+	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR FROM tmp_tblUsageSummary_ GROUP BY Trunk ORDER BY TotalCost DESC LIMIT 10;
 	
 	/* top 10 Trunk by call minutes */	
-	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD FROM tmp_tblUsageSummary_ GROUP BY Trunk  ORDER BY TotalMinutes DESC LIMIT 10;
+	SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100 as ASR FROM tmp_tblUsageSummary_ GROUP BY Trunk  ORDER BY TotalMinutes DESC LIMIT 10;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

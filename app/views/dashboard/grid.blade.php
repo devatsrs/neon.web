@@ -6,6 +6,7 @@
             <th>{{ucwords($data['chart_type'])}}</th>
             <th>Calls</th>
             <th>ACD</th>
+            <th>ASR</th>
         </tr>
     </thead>
     <tbody>
@@ -15,6 +16,7 @@
                 <td>{{$call_cost}}</td>
                 <td>{{$alldata['call_count_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_acd'][$indexcount]}}</td>
+                <td>{{$alldata['call_count_asr'][$indexcount]}}</td>
             </tr>
         @endforeach
     </tbody>
@@ -29,6 +31,7 @@
             <th>{{ucwords($data['chart_type'])}}</th>
             <th>Cost</th>
             <th>ACD</th>
+            <th>ASR</th>
         </tr>
         </thead>
         <tbody>
@@ -38,6 +41,7 @@
                 <td>{{$call_cost}}</td>
                 <td>{{$alldata['call_cost_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_acd'][$indexcount]}}</td>
+                <td>{{$alldata['call_cost_asr'][$indexcount]}}</td>
             </tr>
         @endforeach
         </tbody>
@@ -52,6 +56,7 @@
             <th>{{ucwords($data['chart_type'])}}</th>
             <th>Minutes</th>
             <th>ACD</th>
+            <th>ASR</th>
         </tr>
         </thead>
         <tbody>
@@ -61,6 +66,7 @@
                 <td>{{$call_cost}}</td>
                 <td>{{$alldata['call_minutes_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_acd'][$indexcount]}}</td>
+                <td>{{$alldata['call_minutes_asr'][$indexcount]}}</td>
             </tr>
         @endforeach
         </tbody>

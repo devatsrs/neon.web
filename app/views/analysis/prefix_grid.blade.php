@@ -7,6 +7,7 @@
         <th width="20%">Billed Duration<br>seconds</th>
         <th width="20%">Charged Amount</th>
         <th width="20%">ACD</th>
+        <th width="20%">ASR</th>
     </tr>
     </thead>
     <tbody>
