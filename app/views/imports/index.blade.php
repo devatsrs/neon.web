@@ -280,10 +280,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-
                                             <label for="field-1" class="col-sm-2 control-label">City</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
