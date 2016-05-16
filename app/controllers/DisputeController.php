@@ -183,4 +183,49 @@ class DisputeController extends \BaseController {
 
 	}
 
+	public function view($id){
+
+
+		$CompanyID = User::get_companyID();
+		$query = "call prc_getDisputeDetail ( ". $CompanyID . "," .$id ." )";
+		$Dispute_array  = DB::connection('sqlsrv2')->select($query);
+
+		$Dispute = [
+		'DisputeID'   => '',
+		'InvoiceType'   => '',
+		'AccountName'   => '',
+		'InvoiceNo'   => '',
+		'DisputeAmount'   => '',
+		'Notes'   => '',
+		'Status'   => '',
+		'created_at'   => '',
+		'CreatedBy'   => '',
+		'Attachment'   => '',
+		'updated_at   => '
+		];
+
+        if(count($Dispute_array)>0) {
+
+            $Dispute_array = (array) array_shift($Dispute_array);
+
+            $Dispute = [
+				'DisputeID'     => $Dispute_array['DisputeID'],
+				'InvoiceType'   => $Dispute_array['InvoiceType'],
+				'AccountName'   => $Dispute_array['AccountName'],
+				'InvoiceNo'   	=> $Dispute_array['InvoiceNo'],
+				'DisputeAmount' => $Dispute_array['DisputeAmount'],
+				'Notes'   		=> $Dispute_array['Notes'],
+				'Status'   		=> $Dispute_array['Status'],
+				'created_at'    => $Dispute_array['created_at'],
+				'CreatedBy'     => $Dispute_array['CreatedBy'],
+				'Attachment'    => $Dispute_array['Attachment'],
+				'updated_at'    => $Dispute_array['updated_at'],
+			];
+
+		}
+
+ 		return View::make('disputes.view', compact('Dispute'));
+
+
+ 	}
 }

@@ -1,9 +1,6 @@
 @extends('layout.main')
 
 @section('content')
-<style>
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
-</style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <a href="javascript:void(0)">Disputes</a> </li>
@@ -565,14 +562,12 @@
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice Type *<span id="currency"></span></label>
                 {{Form::select('InvoiceType',$InvoiceTypes,'',array("class"=>"selectboxit"))}}
-              <input type="hidden" name="AccountName" />
             </div>
           </div>
             <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
               {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-              <input type="hidden" name="AccountName" />
             </div>
           </div>
           <div class="col-md-12">
