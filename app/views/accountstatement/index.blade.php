@@ -43,12 +43,12 @@
                                     <div class="col-sm-2">
                                         {{ Form::select('AccountID', $accounts, '', array("class"=>"select2")) }}
                                     </div>
-                                    <label class="col-sm-1 control-label">Start Date</label>
+                                    <label class="col-sm-1 control-label">Date From</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="StartDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d",strtotime("-7 days"))}}" >
                                     </div>
 
-                                    <label class="col-sm-1 control-label">End Date</label>
+                                    <label class="col-sm-1 control-label">Date To</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="EndDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d")}}">
                                     </div>
@@ -259,12 +259,12 @@
 
 
                                     if( result[i]['InvoiceIn_DisputeID'] !='' ) {
-                                        result[i]['InvoiceIn_DisputeID'] = '<a class="DisputeModel" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+InvoiceIn_DisputeAmount+'</a>';
+                                        result[i]['InvoiceIn_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+InvoiceIn_DisputeAmount+'</a>';
                                     } else {
                                         result[i]['InvoiceIn_DisputeID'] = '';
                                     }
                                     if( result[i]['InvoiceOut_DisputeID'] !='' ) {
-                                        result[i]['InvoiceOut_DisputeID'] = '<a class="DisputeModel" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+InvoiceOut_DisputeAmount+'</a>';
+                                        result[i]['InvoiceOut_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+InvoiceOut_DisputeAmount+'</a>';
                                     } else {
                                         result[i]['InvoiceOut_DisputeID'] = '';
                                     }
@@ -275,7 +275,7 @@
                                             "<td align='center'>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
                                             "<td align='center'>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
                                             "<td align='right'>"+ InvoiceOut_Amount +"</td>" +
-                                            "<td align='right' style='color:#cc2424;font-weight: bold'>"+ result[i]['InvoiceOut_DisputeID'] +"</td>" +
+                                            "<td align='right'>"+ result[i]['InvoiceOut_DisputeID'] +"</td>" +
                                             "<td> </td>" +
 
                                                 // Payment In
@@ -287,7 +287,7 @@
                                             "<td align='center'>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
                                             "<td align='center'>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
                                             "<td align='right'>"+ InvoiceIn_Amount +"</td>" +
-                                            "<td align='right' style='color:#cc2424;font-weight: bold' >"+ result[i]['InvoiceIn_DisputeID'] +"</td>" +
+                                            "<td align='right' >"+ result[i]['InvoiceIn_DisputeID'] +"</td>" +
 
                                             "<td> </td>" +
 
@@ -306,7 +306,7 @@
                                         '<th>TOTAL</th>' +
                                         '<th></th>' +
                                         '<th style="text-align: right;">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
-                                        '<th style="color:#cc2424;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
                                         '<th></th>' +
                                         '<th></th>' +
                                         '<th style="text-align: right;">'+ CurencySymbol+ PaymentInAmountTotal+'</th>' +
@@ -314,7 +314,7 @@
                                         '<th></th>' +
                                         '<th></th>' +
                                         '<th style="text-align: right;">'+ CurencySymbol + InvoiceInAmountTotal +'</th>' +
-                                        '<th style="color:#cc2424;text-align: right;">' + CurencySymbol + InvoiceInDisputeAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceInDisputeAmountTotal +'</th>' +
                                         '<th></th>' +
                                         '<th></th>' +
                                         '<th style="text-align: right;">'+ CurencySymbol + PaymentOutAmountTotal +'</th>' +

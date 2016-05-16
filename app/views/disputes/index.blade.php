@@ -362,9 +362,9 @@
                         $("#add-edit-dispute-form [name='AccountName']").val( $("#add-edit-dispute-form [name='AccountID'] option:selected").text());
 
                         var AccountID = $("#add-edit-dispute-form [name='AccountID'] option:selected").val()
-                        var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
 
-                        if($("#add-edit-dispute-form [name='AccountID'] option:selected").val()>0) {
+                        if(AccountID >0) {
+                            var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
                             $.get(url, function (response) {
 
                                 console.log(response);

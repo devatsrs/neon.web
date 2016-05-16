@@ -45,14 +45,14 @@
  
             <!--payment date start -->
             <div class="form-group">
-              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
+              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Date From</label>
               <div class="col-sm-2 col-sm-e2">
                 <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
               <div class="col-sm-2 col-sm-e2">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
               </div>
-              <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
+              <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">Date To</label>
               <div class="col-sm-2 col-sm-e2">
                 <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
@@ -603,9 +603,9 @@
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
 
                         var AccountID = $("#add-edit-payment-form [name='AccountID'] option:selected").val()
-                        var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
 
-                        if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
+                        if(AccountID > 0 ) {
+                            var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
                             $.get(url, function (response) {
 
                                 console.log(response);

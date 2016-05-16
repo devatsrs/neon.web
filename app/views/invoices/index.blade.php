@@ -482,7 +482,7 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],},
                 success: function(response1) {
-					console.log("sum of result"+response1);
+					//console.log("sum of result"+response1);
 						if(response1.total_grand!=null)
 						{ 
 						$('.result_row').remove();
@@ -518,12 +518,22 @@ var postdata;
         });
          $("#add-invoice_in_template-form [name='AccountID']").change(function(){
             $("#add-invoice_in_template-form [name='AccountName']").val( $("#add-invoice_in_template-form [name='AccountID'] option:selected").text());
-            var url = baseurl + '/payments/getcurrency/'+$("#add-invoice_in_template-form [name='AccountID'] option:selected").val();
-             if($("#add-invoice_in_template-form [name='AccountID'] option:selected").val() > 0) {
-                 $.get(url, function (Currency) {
-                     $("#currency").text('(' + Currency + ')');
+
+             var AccountID = $("#add-invoice_in_template-form [name='AccountID'] option:selected").val();
+             if(AccountID > 0 ) {
+                 var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                 $.get(url, function (response) {
+
+                     if( typeof response.status != 'undefined' && response.status == 'success'){
+                         $("#currency").text('(' + response.Currency_Symbol + ')');
+                     }
+
                  });
+
              }
+
+
+
         });
 
         $(".btn.ignore").click(function(e){
@@ -1004,12 +1014,25 @@ var postdata;
         });
         $("#add-edit-payment-form [name='AccountID']").change(function(){
             $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
-            var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
+
+            /*var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
             if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
                 $.get(url, function (Currency) {
                     $("#AccountID_currency").text('(' + Currency + ')');
                 });
+            }*/
+
+            var AccountID = $("#add-edit-payment-form [name='AccountID'] option:selected").val()
+            if(AccountID >0) {
+                var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                $.get(url, function (response) {
+                     if( typeof response.status != 'undefined' && response.status == 'success'){
+                        $("#AccountID_currency").text('(' + response.Currency_Symbol + ')');
+                    }
+                });
+
             }
+
         });
         $("#bulk_email").click(function(){
             $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
@@ -1699,7 +1722,7 @@ var postdata;
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Invoice</label>
-                                    <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" id="InvoiceAuto"  name="InvoiceNo" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
