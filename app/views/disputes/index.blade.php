@@ -373,7 +373,7 @@
                                     $("#currency").text('(' + response.Currency_Symbol + ')');
 
                                     var InvoiceNumbers = response.InvoiceNumbers;
-                                    $('input.typeahead').typeahead({
+                                    $('input[name=InvoiceNo]').typeahead({
                                         //source: InvoiceNumbers,
                                         local: InvoiceNumbers
 
@@ -573,7 +573,7 @@
           <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Invoice Number</label>
-                    <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control typeahead" id="field-5" placeholder="">
+                    <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
                 </div>
           </div>
           <div class="col-md-12">
