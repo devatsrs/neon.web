@@ -169,6 +169,7 @@ class ImportsController extends \BaseController {
     public function getAccountInfoFromGateway($id,$gateway){
         $CompanyGateway =  CompanyGateway::find($id);
         $response = array();
+        $response1 = array();
         if(!empty($CompanyGateway)){
             $getGatewayName = Gateway::getGatewayName($CompanyGateway->GatewayID);
             $response =  GatewayAPI::GatewayMethod($getGatewayName,$CompanyGateway->CompanyGatewayID,'testConnection');
@@ -181,17 +182,17 @@ class ImportsController extends \BaseController {
             $param['ProcessID'] = $ProcessID;
             if($gateway == 'PBX'){
                 $pbx = new PBX($CompanyGatewayID);
-                $response = $pbx->getAccountsDetail($param);
+                $response1 = $pbx->getAccountsDetail($param);
             }elseif($gateway == 'Porta'){
                 $porta = new Porta($CompanyGatewayID);
-                $response = $porta->getAccountsDetail($param);
+                $response1 = $porta->getAccountsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 
-            if(isset($response['result']) && $response['result'] =='OK'){
-                return Response::json(array("status" => "success", "message" => "Account successfully imported"));
-            }else if(isset($response['faultCode']) && isset($response['faultString'])){
-                return Response::json(array("status" => "failed", "message" => "Failed to Import Gateway Account.".$response['faultString']));
+            if(isset($response1['result']) && $response1['result'] =='OK'){
+                return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway"));
+            }else if(isset($response1['faultCode']) && isset($response1['faultString'])){
+                return Response::json(array("status" => "failed", "message" => "Failed to Import Gateway Account.".$response1['faultString']));
             }else{
                 return Response::json(array("status" => "failed", "message" => "Import Gateway Account."));
             }

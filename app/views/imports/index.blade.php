@@ -110,7 +110,7 @@
                 <span id="get_account"></span>
                 <span class="gatewayloading">Import Account Processing</span>
                 <p style="float: right">
-                    <button type="button" id="uploadaccount"  class="btn btn-primary "><span>Import</span></button>
+                    <button type="button" id="uploadaccount"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
                 </p>
                 <div class="clear"></div>
                 <div class="row">
@@ -213,47 +213,38 @@
 
                                     <div class="panel-body" id="mapping">
                                         <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Account Number</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
                                             <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
 
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Title</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
                                                 <input type="hidden" class="form-control" name="AccountType" value="1" />
                                                 <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">First Name*</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[FirstName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
 
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Last Name</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[LastName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
+
                                             <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Account Number</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -261,27 +252,35 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Phone]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address1</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address2</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address3</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+
+                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+
                                             <label for="field-1" class="col-sm-2 control-label">City</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
@@ -451,6 +450,7 @@
                     if(importway == 'csv' || importway == 'excel') {
                         $("#st2 h5.test").html('Upload File');
                         $("#st3 h5.test").html('Mapping and Submit');
+                        $(".pager .next").addClass('disabled');
                         var uploadtemplate = $("#rootwizard-2 select[name='uploadtemplate']").val();
                         var filename = $("#rootwizard-2 input[name='excel']").val();
                         if (filename == '') {
@@ -506,6 +506,9 @@
                     } // import from excel-csv over
 
                 }
+            },
+            onPrevious: function(tab, navigation, index) {
+
             }
         });
 
@@ -672,8 +675,8 @@
 
         $("#gateway_filter").click(function(e) {
             var CompanyGatewayID = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
-            var gateway = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
-            //var gateway = $("#rootwizard-2 input[name='size']:checked").val();
+            //var gateway = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
+            var gateway = $("#rootwizard-2 input[name='size']:checked").val();
             //var CompanyGatewayID = $("#gatewayimport input[name='CompanyGatewayID']").val();
             $.ajax({
                 url: baseurl + '/import/account/getAccountInfoFromGateway/' + CompanyGatewayID + '/' + gateway,
@@ -689,16 +692,16 @@
                     if (response.status == 'success') {
                         //$('#importaccount').hide();
                         $("#gatewayimport input[name='importaccountsuccess']").val('1');
-                        //$("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
-                        toastr.success(response.message, "Success", toastr_opts);
+                        $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
+                        //toastr.success(response.message, "Success", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
-                        $('.pager li').addClass('disabled');
+                        $('.pager li .next').addClass('disabled');
                     } else {
-                        toastr.error(response.message, "Error", toastr_opts);
+                        //toastr.error(response.message, "Error", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
-                        $('.pager li').addClass('disabled');
+                        $('.pager li .next').addClass('disabled');
                     }
                 }
             });
@@ -871,8 +874,8 @@
         border: 1px solid #ababab;        ;
         color: #ababab;
         text-align: center;
-        padding: 20px;
-        height:20%;
+        padding: 25px;
+        height:25%;
         width: 25%;
         cursor: pointer;
     }
@@ -926,6 +929,9 @@
     #csvimport{
         padding: 0 75px;
     }
+    h5{
+        font-size: 14px !important;
+    }
 </style>
 @stop
 
@@ -947,6 +953,7 @@
                     <table class="table responsive">
                         <thead>
                         <tr>
+                            <th>Account Number(Opt.)</th>
                             <th>Account Name</th>
                             <th>Country</th>
                             <th>Title(Opt.)</th>
@@ -965,6 +972,7 @@
                         </thead>
                         <tbody>
                         <tr>
+                            <td>201</td>
                             <td>Test Account</td>
                             <td>India</td>
                             <td>Mr</td>
@@ -980,6 +988,7 @@
                             <td>test1,test2</td>
                         </tr>
                         <tr>
+                            <td>202</td>
                             <td>Test Account</td>
                             <td>India</td>
                             <td>Mr</td>
@@ -995,6 +1004,7 @@
                             <td>test1,test2</td>
                         </tr>
                         <tr>
+                            <td>203</td>
                             <td>Test Account</td>
                             <td>India</td>
                             <td>Mr</td>
