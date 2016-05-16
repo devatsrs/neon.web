@@ -10,8 +10,8 @@ BEGIN
 
 				SELECT   
 				ds.DisputeID,
-				CASE WHEN ds.InvoiceType = 2 THEN 'Invoice IN' 
-				     WHEN ds.InvoiceType = 1 THEN 'Invoice Out' 
+				CASE WHEN ds.InvoiceType = 2 THEN 'Invoice Received' 
+				     WHEN ds.InvoiceType = 1 THEN 'Invoice Sent' 
 				     ELSE ''
 				END as InvoiceType,
 		 		a.AccountName,
