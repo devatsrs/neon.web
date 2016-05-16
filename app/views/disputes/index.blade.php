@@ -20,11 +20,11 @@
               <div class="form-group">
                   <label for="field-1" class="col-sm-1 control-label">Account</label>
                   <div class="col-sm-2 "> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-                  <label class="col-sm-1 control-label small_label" for="DisputeDate_StartDate">Start Date</label>
+                  <label class="col-sm-1 control-label small_label" for="DisputeDate_StartDate">Date From</label>
                   <div class="col-sm-2 ">
                       <input autocomplete="off" type="text" name="DisputeDate_StartDate" id="DisputeDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime("-1 week"))}}" data-enddate="{{date('Y-m-d')}}" />
                   </div>
-                  <label  class="col-sm-1 control-label" for="DisputeDate_EndDate">End Date</label>
+                  <label  class="col-sm-1 control-label" for="DisputeDate_EndDate">Date To</label>
                   <div class="col-sm-2 ">
                       <input autocomplete="off" type="text" name="DisputeDate_EndDate" id="DisputeDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
                   </div>

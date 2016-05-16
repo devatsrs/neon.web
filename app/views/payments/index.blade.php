@@ -916,11 +916,10 @@
           </div>
           <div class="col-md-12">
             <div class="form-group">
-              <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-              <div class="col-sm-6">
+              <label for="PaymentProof" class="control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+                <div class="clear clearfix"></div>
                 <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-              </div>
             </div>
           </div>
         </div>
