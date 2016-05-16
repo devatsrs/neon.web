@@ -6,7 +6,7 @@ BEGIN
 	THEN
 	
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
-	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
 				`DateID` BIGINT(20) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
@@ -61,7 +61,7 @@ BEGIN
 	THEN
 	
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
-	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
 				`DateID` BIGINT(20) NOT NULL,
 				`TimeID` INT(11) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
