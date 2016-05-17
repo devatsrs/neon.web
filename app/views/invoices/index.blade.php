@@ -14,12 +14,6 @@
 
 @include('includes.errors')
 @include('includes.success')
-<style>
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
-.small-row{margin-left:0px; margin-right:0px;}
-</style>
-
-
 <p style="text-align: right;">
     @if(User::checkCategoryPermission('Invoice','Add'))
     <a href="javascript:;" id="invoice-in" class="btn btn-primary ">
@@ -42,7 +36,10 @@
         Bulk Invoice Generate.
     </a>-->
 </p>
-<div class="row">
+<div class="tab-content">
+    <div class="tab-pane active">
+
+    <div class="row">
     <div class="col-md-12">
         <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
@@ -104,65 +101,69 @@
                         </button>
                     </p>
             </div>
+            </div>
         </form>
     </div>
 </div>
-<div class="row small-row">
+    <div class="row">
  <div  class="col-md-12">
         <div class="input-group-btn pull-right" style="width:180px;">
-            <span style="text-align: right;padding-right: 10px;"><button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button></span>
-            <!--<span style="text-align: right;padding-right: 10px;"><button type="button" id="selectallbutton"  class="btn btn-primary "><i class="entypo-check"></i><span>Select all found Accounts</span></button></span>-->
-            @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                @if(User::checkCategoryPermission('Invoice','Send'))
-                <li>
-                    <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;" style="width:100%">
-                        Send Invoice
-                    </a>
-                </li>
-                @endif
-                @if(User::checkCategoryPermission('Invoice','Edit'))
-                <li>
-                    <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;" >
-                        Change Status
-                    </a>
-                </li>
-                @endif
-                @if(User::checkCategoryPermission('Invoice','Generate'))
-                <li>
-                    <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;" >
-                        Regenerate
-                    </a>
-                </li>
-                @endif
-                @if(is_authorize())
-                    @if(User::checkCategoryPermission('Invoice','Edit'))
+                 <span style="text-align: right;padding-right: 10px;">
+                    <button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button>
+                </span>
+                @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                    @if(User::checkCategoryPermission('Invoice','Send'))
                     <li>
-                        <a class="pay_now create" id="pay_now" href="javascript:;" >
-                            Pay Now
+                        <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;" style="width:100%">
+                            Send Invoice
                         </a>
                     </li>
                     @endif
+                    @if(User::checkCategoryPermission('Invoice','Edit'))
+                    <li>
+                        <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;" >
+                            Change Status
+                        </a>
+                    </li>
+                    @endif
+                    @if(User::checkCategoryPermission('Invoice','Generate'))
+                    <li>
+                        <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;" >
+                            Regenerate
+                        </a>
+                    </li>
+                    @endif
+                    @if(is_authorize())
+                        @if(User::checkCategoryPermission('Invoice','Edit'))
+                        <li>
+                            <a class="pay_now create" id="pay_now" href="javascript:;" >
+                                Pay Now
+                            </a>
+                        </li>
+                        @endif
+                    @endif
+                    @if(User::checkCategoryPermission('Invoice','Email'))
+                    <li>
+                        <a class="pay_now create" id="bulk_email" href="javascript:;" >
+                            Bulk Email
+                        </a>
+                    </li>
+                    @endif
+                </ul>
                 @endif
-                @if(User::checkCategoryPermission('Invoice','Email'))
-                <li>
-                    <a class="pay_now create" id="bulk_email" href="javascript:;" >
-                        Bulk Email
-                    </a>
-                </li>
-                @endif
-            </ul>
-            @endif
-            <form id="clear-bulk-rate-form" >
+             <form id="clear-bulk-rate-form" >
                 <input type="hidden" name="CustomerRateIDs" value="">
             </form>
         </div><!-- /btn-group -->
+     <div class="clear"><br></div>
+
  </div>
-    <div class="clear"></div>
-    </div>
-<br>
-<table class="table table-bordered datatable" id="table-4">
+</div>
+
+
+ <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
         <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
@@ -182,6 +183,9 @@
     </tbody>
 </table>
 
+
+ </div>
+</div>
 <script type="text/javascript">
 var $searchFilter = {};
 var checked='';

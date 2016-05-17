@@ -1,5 +1,4 @@
 @extends('layout.main')
-
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -50,30 +49,34 @@
               <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
             </p>
           </div>
+          </div>
         </form>
       </div>
     </div>
     <div class="clear"></div>
-     <p class="col-md-12" style=" text-align: right;"> <a href="#" id="add-new-dispute" class="btn btn-primary "> <i class="entypo-plus"></i>Add New Dispute</a> </p>
-    <br>
-    <table class="table table-bordered datatable" id="table-4">
-      <thead>
-        <tr>
-          <th width="5%"></th>
-          <th width="10%">Account Name</th>
-          <th width="8%">Invoice No</th>
-          <th width="8%">Dispute Total</th>
-          <th width="5%">Status</th>
-          <th width="8%">Created Date</th>
-          <th width="8%">Created By</th>
-          <th width="15%">Notes</th>
-          <th width="16%">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-    <script type="text/javascript">
+
+     <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+
+     <table class="table table-bordered datatable" id="table-4">
+          <thead>
+            <tr>
+              <th width="5%"></th>
+              <th width="10%">Account Name</th>
+              <th width="8%">Invoice No</th>
+              <th width="8%">Dispute Total</th>
+              <th width="5%">Status</th>
+              <th width="8%">Created Date</th>
+              <th width="8%">Created By</th>
+              <th width="15%">Notes</th>
+              <th width="16%">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+  </div>
+</div>
+     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
      var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
@@ -542,9 +545,8 @@
                 }
             </style>
     @include('includes.errors')
-    @include('includes.success') </div>
-</div>
-@stop
+    @include('includes.success')
+ @stop
 @section('footer_ext')
     @parent
 <div class="modal fade" id="add-edit-modal-dispute">

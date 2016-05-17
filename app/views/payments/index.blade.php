@@ -5,7 +5,6 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -206,6 +205,7 @@
       <tbody>
       </tbody>
     </table>
+    </div>
     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
@@ -855,8 +855,8 @@
                 }
             </style>
     @include('includes.errors')
-    @include('includes.success') </div>
-</div>
+    @include('includes.success')
+
 @stop
 @section('footer_ext')
     @parent
