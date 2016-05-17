@@ -101,7 +101,7 @@ function getHourlyChart(){
                     barColor: '#ffa812',
                     height: '55px',
                     width: '100%',
-                    barWidth: 14,
+                    barWidth: getBarWidth(),
                     barSpacing: 1,
                     tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Sales)',
                     tooltipValueLookups: {
@@ -144,7 +144,7 @@ function getHourlyChart(){
                     barColor: '#ec3b83',
                     height: '55px',
                     width: '100%',
-                    barWidth: 14,
+                    barWidth: getBarWidth(),
                     barSpacing: 1,
                     tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Minutes)',
                     tooltipValueLookups: {
@@ -182,4 +182,15 @@ function getHourlyChart(){
             }
         }
     });
+}
+function getBarWidth(){
+    var barWidth;
+    if($(window).width() > 1280){
+        barWidth = 14;
+    }else if ($(window).width() < 1200 && $(window).width() > 800){
+        barWidth = 8;
+    }else{
+        barWidth = 5;
+    }
+    return barWidth;
 }

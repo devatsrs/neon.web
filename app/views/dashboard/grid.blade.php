@@ -5,8 +5,8 @@
             <th>#</th>
             <th>{{ucwords($data['chart_type'])}}</th>
             <th>Calls</th>
-            <th>ACD</th>
-            <th>ASR</th>
+            <th>ACD (mm:ss)</th>
+            <th>ASR (%)</th>
         </tr>
     </thead>
     <tbody>
@@ -30,8 +30,8 @@
             <th>#</th>
             <th>{{ucwords($data['chart_type'])}}</th>
             <th>Cost</th>
-            <th>ACD</th>
-            <th>ASR</th>
+            <th>ACD (mm:ss)</th>
+            <th>ASR (%)</th>
         </tr>
         </thead>
         <tbody>
@@ -55,8 +55,8 @@
             <th>#</th>
             <th>{{ucwords($data['chart_type'])}}</th>
             <th>Minutes</th>
-            <th>ACD</th>
-            <th>ASR</th>
+            <th>ACD (mm:ss)</th>
+            <th>ASR (%)</th>
         </tr>
         </thead>
         <tbody>

@@ -4,10 +4,10 @@
     <tr>
         <th width="20%">Prefix</th>
         <th width="20%">No. of Calls</th>
-        <th width="20%">Billed Duration<br>seconds</th>
+        <th width="20%">Billed Duration (sec)</th>
         <th width="20%">Charged Amount</th>
-        <th width="20%">ACD</th>
-        <th width="20%">ASR</th>
+        <th width="20%">ACD (mm:ss)</th>
+        <th width="20%">ASR (%)</th>
     </tr>
     </thead>
     <tbody>
