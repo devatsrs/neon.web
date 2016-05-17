@@ -11,15 +11,15 @@
             </div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label class="col-sm-1 control-label" for="field-1">Start date</label>
+                    <label class="col-sm-1 control-label" for="field-1">Start Date</label>
                     <div class="col-sm-2">
                         <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                     </div>
-                    <label class="col-sm-1 control-label" for="field-1">End date</label>
+                    <label class="col-sm-1 control-label" for="field-1">End Date</label>
                     <div class="col-sm-2">
                         <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
                     </div>
-                    <label class="col-sm-1 control-label" for="field-1">Gateway Account</label>
+                    <label class="col-sm-1 control-label" for="field-1">Account</label>
                     <div class="col-sm-2">
                         {{ Form::select('AccountID',$account,'', array("class"=>"select2")) }}
                     </div>
@@ -55,7 +55,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">Trunk</div>
+            <div class="panel-title">By Trunk - Call Count.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -67,7 +67,7 @@
 
         <!-- panel body -->
         <div class="panel-body">
-            <p>By Trunk - Call Count. </p>
+
             <br />
 
             <div class="text-center">
@@ -82,7 +82,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">Trunk</div>
+            <div class="panel-title">By Trunk - Call Cost.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -94,7 +94,7 @@
 
         <!-- panel body -->
         <div class="panel-body">
-            <p>By Trunk - Call Cost. </p>
+
             <br />
 
             <div class="text-center">
@@ -109,7 +109,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">Trunk</div>
+            <div class="panel-title">By Trunk - Call Minutes.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -121,7 +121,7 @@
 
         <!-- panel body -->
         <div class="panel-body">
-            <p>By Trunk - Call Minutes. </p>
+
             <br />
 
             <div class="text-center">
