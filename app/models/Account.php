@@ -33,13 +33,25 @@ class Account extends \Eloquent {
     public static $importrules = array(
         'selection.AccountName' => 'required',
         'selection.Country'=>'required',
-        'selection.FirstName'=>'required',
+        'selection.FirstName'=>'required'
     );
+
+    public static $importleadrules = array(
+            'selection.AccountName' => 'required',
+            'selection.FirstName'=>'required',
+            'selection.LastName'=>'required',
+        );
 
     public static $importmessages = array(
         'selection.AccountName.required' =>'The Account Name field is required',
         'selection.Country.required' =>'The Country field is required',
         'selection.FirstName.required' =>'The First Name field is required'
+    );
+
+    public static $importleadmessages = array(
+        'selection.AccountName.required' =>'The Account Name field is required',
+        'selection.FirstName.required' =>'The First Name field is required',
+        'selection.LastName.required' =>'The Last Name field is required'
     );
 
     public static function getCompanyNameByID($id=0){

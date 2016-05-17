@@ -310,12 +310,13 @@ class ImportsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
-        Account::$importrules['selection.AccountName'] = 'required';
+        Account::$importleadrules['selection.AccountName'] = 'required';
         //Account::$importrules['selection.Email'] = 'required';
-        Account::$importrules['selection.Country'] = 'required';
-        Account::$importrules['selection.FirstName'] = 'required';
+        //Account::$importrules['selection.Country'] = 'required';
+        Account::$importleadrules['selection.FirstName'] = 'required';
+        Account::$importleadrules['selection.LastName'] = 'required';
 
-        $validator = Validator::make($data, Account::$importrules,Account::$importmessages);
+        $validator = Validator::make($data, Account::$importleadrules,Account::$importleadmessages);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
