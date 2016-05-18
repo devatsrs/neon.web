@@ -195,6 +195,23 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
 	Route::any('/accounts/{id}/update_inbound_rate_table',  'AccountsController@update_inbound_rate_table');
 
+	//import account
+	Route::any('/import/account',  'ImportsController@index');
+	Route::any('/import/account/check_upload',  'ImportsController@check_upload');
+	Route::any('/import/account/ajaxfilegrid',  'ImportsController@ajaxfilegrid');
+	Route::any('/import/account/storeTemplate',  'ImportsController@storeTemplate');
+	Route::any('/import/account/getAccountInfoFromGateway/{id}/{gateway}',  'ImportsController@getAccountInfoFromGateway');
+	Route::any('/import/account/ajax_get_missing_gatewayaccounts',  'ImportsController@ajax_get_missing_gatewayaccounts');
+	Route::any('/import/account/download_sample_excel_file',  'ImportsController@download_sample_excel_file');
+	Route::any('/import/account/add_missing_gatewayaccounts',  'ImportsController@add_missing_gatewayaccounts');
+
+	//import leads
+	Route::any('/import/leads',  'ImportsController@import_leads');
+	Route::any('/import/leads/leads_check_upload',  'ImportsController@leads_check_upload');
+	Route::any('/import/leads/leads_ajaxfilegrid',  'ImportsController@leads_ajaxfilegrid');
+	Route::any('/import/leads/leads_storeTemplate',  'ImportsController@leads_storeTemplate');
+	Route::any('/import/leads/leads_download_sample_excel_file',  'ImportsController@leads_download_sample_excel_file');
+
 	Route::resource('accounts', 'AccountsController');
 	Route::controller('accounts', 'AccountsController');
 
