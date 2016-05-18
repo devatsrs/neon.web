@@ -3,7 +3,7 @@ BEGIN
 
 DECLARE v_FormattedDuration_ VARCHAR(50);
 
-SELECT CONCAT(ROUND(p_Duration/60,0), ':' ,p_Duration % 60) INTO v_FormattedDuration_;
+SELECT CONCAT(FLOOR(p_Duration/60), ':' ,p_Duration % 60) INTO v_FormattedDuration_;
 
 RETURN v_FormattedDuration_;
 END
