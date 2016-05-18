@@ -77,7 +77,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Gateway - Call Cost. </</div>
+            <div class="panel-title">By Gateway - Call Cost. </div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>

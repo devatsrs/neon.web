@@ -14,9 +14,11 @@ BEGIN
 		duration int,
 		billed_duration int,
 		cost decimal(18,6),
-		connect_time datetime,
-		disconnect_time datetime,
-		INDEX temp_connect_time (`connect_time`)
+		connect_time time,
+		connect_date date,
+		call_status tinyint, 
+		INDEX temp_connect_time (`connect_time`,`connect_date`)
+
 	);
 	
 	INSERT INTO tmp_tblUsageDetailsReport_  
@@ -31,8 +33,9 @@ BEGIN
 		duration,
 		billed_duration,
 		cost,
-		connect_time,
-		disconnect_time
+		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00'),
+		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
+		1 as call_status
 	FROM LocalRMCdr.tblUsageDetails  ud
 	INNER JOIN LocalRMCdr.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -41,24 +44,7 @@ BEGIN
 	AND uh.AccountID is not null
 	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
 
-	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailFail_;
-	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetailFail_(
-		UsageDetailFailedCallID INT,
-		AccountID int,
-		CompanyID INT,
-		CompanyGatewayID INT,
-		GatewayAccountID VARCHAR(100),
-		trunk varchar(50),
-		area_prefix varchar(50),
-		duration int,
-		billed_duration int,
-		cost decimal(18,6),
-		connect_time datetime,
-		disconnect_time datetime,
-		INDEX temp_connect_time_2 (`connect_time`)
-	);
-	 
-	INSERT INTO tmp_tblUsageDetailFail_  
+	INSERT INTO tmp_tblUsageDetailsReport_  
 	SELECT
 		ud.UsageDetailFailedCallID,
 		uh.AccountID,
@@ -70,8 +56,9 @@ BEGIN
 		duration,
 		billed_duration,
 		cost,
-		connect_time,
-		disconnect_time
+		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00'),
+		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
+		2 as call_status
 	FROM LocalRMCdr.tblUsageDetailFailedCall  ud
 	INNER JOIN LocalRMCdr.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
