@@ -427,6 +427,7 @@
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
         var checked='';
+        public_vars.$body = $("body");
         $('input[type="radio"], label').addClass('js');
 
         $('.newredio').on('click', function() {
