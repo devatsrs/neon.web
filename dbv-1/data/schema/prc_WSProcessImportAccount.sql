@@ -2,7 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessImportAccount`(IN `p_p
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;         
-    
+	SET sql_mode = '';	    
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     SET SESSION sql_mode='';
     
@@ -25,6 +25,7 @@ BEGIN
 					CompanyId ,
 					Title,
 					Owner ,
+					`Number`,
 					AccountName,
 					NamePrefix,
 					FirstName,
@@ -41,6 +42,16 @@ BEGIN
 					Country,
 					Status,
 					tags,
+					Website,
+					Mobile,
+					Fax,
+					Skype,
+					Twitter,
+					Employee,
+					Description,
+					BillingEmail,
+					CurrencyId,
+					VatNumber,
 					created_at,
 					created_by
                    )            
@@ -50,6 +61,7 @@ BEGIN
 					ta.CompanyId,
 					ta.Title,
 					ta.Owner,
+					FnGetAccountNumber(p_companyId,IFNULL(ta.Number,0)) as Number,
 					ta.AccountName,
 					ta.NamePrefix,
 					ta.FirstName,
@@ -66,6 +78,16 @@ BEGIN
 					ta.Country,
 					ta.Status,
 					ta.tags,
+					ta.Website,
+					ta.Mobile,
+					ta.Fax,
+					ta.Skype,
+					ta.Twitter,
+					ta.Employee,
+					ta.Description,
+					ta.BillingEmail,
+					ta.Currency as CurrencyId,
+					ta.VatNumber,
 					ta.created_at,
 					ta.created_by
 					from tblTempAccount ta
@@ -80,7 +102,7 @@ BEGIN
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
-	DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
+	 DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
 	
 	END IF;
 	
@@ -108,6 +130,8 @@ BEGIN
 					Country,
 					Status,
 					tags,
+					Mobile,
+					Fax,
 					created_at,
 					created_by
                    )
@@ -132,6 +156,8 @@ BEGIN
 					ta.Country,
 					ta.Status,
 					ta.tags,
+					ta.Mobile,
+					ta.Fax,
 					ta.created_at,
 					ta.created_by
 				from tblTempAccount ta
@@ -174,6 +200,8 @@ BEGIN
 					Country,
 					Status,
 					tags,
+					Mobile,
+					Fax,
 					BillingTimezone,
 					created_at,
 					created_by
@@ -199,6 +227,8 @@ BEGIN
 					ta.Country,
 					ta.Status,
 					ta.tags,
+					ta.Mobile,
+					ta.Fax,
 					ta.BillingTimezone,
 					ta.created_at,
 					ta.created_by
