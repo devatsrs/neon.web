@@ -1007,10 +1007,10 @@
                         <tr>
                             <th>Account Number(Opt.)</th>
                             <th>Account Name</th>
-                            <th>Country(Opt.)</th>
+                            <th>Country</th>
                             <th>Title(Opt.)</th>
                             <th>First Name</th>
-                            <th>Last Name</th>
+                            <th>Last Name(Opt.)</th>
                             <th>Email(Opt.)</th>
                             <th>Phone(Opt.)</th>
                             <th>Job Title(Opt.)</th>

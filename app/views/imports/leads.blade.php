@@ -646,12 +646,12 @@
                         <thead>
                         <tr>
                             <th>Account Name</th>
-                            <th>Country</th>
+                            <th>Country(Opt.)</th>
                             <th>Title(Opt.)</th>
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
-                            <th>Phone</th>
+                            <th>Phone(Opt.)</th>
                             <th>Job Title(Opt.)</th>
                             <th>Post Code(Opt.)</th>
                             <th>Address1(Opt.)</th>
