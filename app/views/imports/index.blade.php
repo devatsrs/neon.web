@@ -751,7 +751,7 @@
                         $('#uploadaccount').show();
                         $('.pager li .next').addClass('disabled');
                     } else {
-                        //toastr.error(response.message, "Error", toastr_opts);
+                        toastr.error(response.message, "Error", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
                         $('.pager li .next').addClass('disabled');
