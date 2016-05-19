@@ -100,7 +100,6 @@ class InvoiceTemplatesController extends \BaseController {
                 $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
-                Log::info($destinationPath);
 
                 //Create profile company_logo dir if not exists
                 if (!file_exists($destinationPath)) {
@@ -181,7 +180,6 @@ class InvoiceTemplatesController extends \BaseController {
         unset($data['CompanyLogo']);
         unset($data['Status_name']);
 
-        //print_r($data);
         if ($invoiceCompany = InvoiceTemplate::create($data)) {
             if(isset($data['CompanyLogoAS3Key']) && !empty($data['CompanyLogoAS3Key'])){
                 $data['CompanyLogoUrl'] = URL::to("/invoice_templates/".$invoiceCompany->InvoiceTemplateID) ."/get_logo";

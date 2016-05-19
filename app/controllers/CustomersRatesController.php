@@ -45,7 +45,6 @@ class CustomersRatesController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
-        //echo $query;exit;
         return DataTableSql::of($query)->make();
     }
     public  function search_customer_grid($id){
@@ -100,10 +99,7 @@ class CustomersRatesController extends \BaseController {
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
-            //echo '<pre>';print_r($rate_tables);exit;
 
-            // Debugbar::addMessage($customer_trunks);
-            //print_r($customer_trunks);
 
             return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
     }

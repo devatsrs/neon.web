@@ -15,5 +15,6 @@ CREATE TABLE `tblRateGenerator` (
   `updated_at` datetime DEFAULT NULL,
   `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CurrencyID` int(11) DEFAULT NULL,
+  `Policy` int(11) DEFAULT NULL,
   PRIMARY KEY (`RateGeneratorId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

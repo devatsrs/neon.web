@@ -22,13 +22,17 @@ toastr_opts = {
     "hideMethod": "fadeOut"
 };
 
-;
 (function($, window, undefined) {
 
     "use strict";
 
     $(document).ready(function()
     {
+		
+		$(document).on('click','[redirecto]',function(){
+    var url = $(this).attr('redirecto');
+    window.location.href=url;
+});
 
         // Sidebar Menu var
         public_vars.$body = $("body");
@@ -228,6 +232,20 @@ toastr_opts = {
                     alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
                 });
             });
+            public_vars.$body.find('.dropdown .scroller').each(function(i, el) {
+                var $this = $(el),
+                    height = attrDefault($this, 'height', $this.height());
+                $this.slimScroll({
+                    height: height,
+                    position: attrDefault($this, 'scroll-position', 'right'),
+                    color: attrDefault($this, 'rail-color', '#000'),
+                    size: attrDefault($this, 'rail-width', 6),
+                    borderRadius: attrDefault($this, 'rail-radius', 3),
+                    opacity: attrDefault($this, 'rail-opacity', .3),
+                    alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                });
+            });
+
         }
 
 
@@ -642,10 +660,26 @@ toastr_opts = {
 
             if ($.isFunction($.fn.niceScroll))
             {
-                $(".select2-results").niceScroll({
+                /*$(".select2-results").niceScroll({
                     cursorcolor: '#d4d4d4',
                     cursorborder: '1px solid #ccc',
                     railpadding: {right: 3}
+                });*/
+
+                public_vars.$body.find('.select2-results').each(function(i, el) {
+                    var $this = $(el);
+                        //height = attrDefault($this, 'height', $this.height());
+                    $this.slimScroll({
+                        position: attrDefault($this, 'scroll-position', 'right'),
+                        color: attrDefault($this, 'rail-color', '#000'),
+                        size: attrDefault($this, 'rail-width', 6),
+                        borderRadius: attrDefault($this, 'rail-radius', 3),
+                        opacity: attrDefault($this, 'rail-opacity', .3),
+                        alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                    });
+                    $this.css('height', 'auto');
+                    $this.parents('.slimScrollDiv').css('height', 'auto');
+                    $this.parents('max-height', '200');
                 });
             }
         }
@@ -1121,7 +1155,7 @@ toastr_opts = {
                     }
                 });
 
-                console.log(opts);
+                //console.log(opts);
                 $this.validate(opts);
             });
         }
@@ -2689,4 +2723,19 @@ $(document).ajaxComplete(function(event, xhr, settings) {
         }
     });
 });
+$(document).on('click','[redirecto]',function(){
+    var url = $(this).attr('redirecto');
+    window.location.href=url;
+});
+
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+
 

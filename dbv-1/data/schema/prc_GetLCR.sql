@@ -229,7 +229,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates1_(
 			  WHERE      
 						( EffectiveDate <= NOW() )
 						AND tblAccount.IsVendor = 1
-						AND tblAccount.Status = 1
+						AND tblAccount.Status = 1 and tblAccount.IsVendor = 1
 						AND tblAccount.CurrencyId is not NULL
 						AND tblVendorRate.TrunkID = p_trunkID
 						AND blockCode.RateId IS NULL

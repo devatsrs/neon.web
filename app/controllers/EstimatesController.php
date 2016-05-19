@@ -278,7 +278,6 @@ class EstimatesController extends \BaseController {
                         $Estimate->update(["PDF" => $pdf_path]);
                     }
 
-                    Log::info('PDF fullPath ' . $pdf_path);
 
                     DB::connection('sqlsrv2')->commit();
 
@@ -404,7 +403,7 @@ class EstimatesController extends \BaseController {
                                 $i++;
                             }
                         }
-                        //print_r($EstimateDetailData);
+
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -420,7 +419,6 @@ class EstimatesController extends \BaseController {
                                 $Estimate->update(["PDF" => $pdf_path]);
                             }
 
-                            Log::info('PDF fullPath ' . $pdf_path);
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
                         }
@@ -473,7 +471,6 @@ class EstimatesController extends \BaseController {
                                 $TaxRates->toArray();
                             }
                             $AccountTaxRate = explode(",", $Account->TaxRateId);
-                            //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {

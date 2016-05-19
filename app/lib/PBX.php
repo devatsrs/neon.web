@@ -80,7 +80,7 @@ class PBX{
                                 $response['faultString'] =  $err->getMessage();
                                 $response['faultCode'] =  $err->getCode();
                                 Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $err->getCode(). ", Reason: " . $err->getMessage());
-                                throw new Exception($err->getMessage());
+                                //throw new Exception($err->getMessage());
                             }
                             //Log::info('insertion end');
                         }else{
@@ -92,7 +92,7 @@ class PBX{
                 $response['faultString'] =  $e->getMessage();
                 $response['faultCode'] =  $e->getCode();
                 Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
-                throw new Exception($e->getMessage());
+                //throw new Exception($e->getMessage());
             }
         }
         return $response;

@@ -160,7 +160,7 @@ class HomeController extends BaseController {
                 }
             }
             //if Normal User
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ))) {
+            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login()) {
                 User::setUserPermission();
 				create_site_configration_cache();
                 $redirect_to = URL::to($this->dashboard_url);
@@ -170,14 +170,16 @@ class HomeController extends BaseController {
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {
+                Session::flush();
+                Auth::logout();
                 echo json_encode(array("login_status" => "invalid"));
                 return;
             }
         }
     }
-
+	
     public function dologout() {
-
+		NeonAPI::logout();
         Session::flush();
         Auth::logout();
         return Redirect::to('/login')->with('message', 'Your are now logged out!');
@@ -240,6 +242,8 @@ class HomeController extends BaseController {
 
         if ( $user_created && $company_created ) {
             $result  = false;
+            $taskBoard = ['CompanyID'=>$CompanyID,'BoardName'=>'Task Board','Status'=>1,'BoardType'=>CRMBoard::TaskBoard];
+            CRMBoard::create($taskBoard);
             $admin_email = Config::get("app.super_admin_emails");
             Mail::send('emails.admin.registration', array("data"=>$data), function($message) use ($admin_email) {
                 $message->to($admin_email['registration']['email'], $admin_email['registration']['from_name'])->subject('RM: Thanks for Registration!');

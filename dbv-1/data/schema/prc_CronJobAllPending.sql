@@ -920,7 +920,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
+
 	/**VendorUploadCDR**/
     SELECT
 		TBL1.JobID,
@@ -963,7 +963,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
+
 	/*Sippy CDr Download */
 	SELECT
 		'sippydownloadcdr' as Command,
@@ -975,6 +975,8 @@ BEGIN
 	AND tblCronJob.Status = 1
 	AND tblCronJob.DownloadActive = 0
 	AND tblCronJobCommand.Command = 'sippyaccountusage';
+
+
 	
 	/** Import account or lead **/
 	SELECT
@@ -1018,6 +1020,6 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END

@@ -216,18 +216,19 @@ BEGIN
                 WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
             END IF;
 
-            UPDATE tblRateTableRate 
-            LEFT JOIN tblRate 
-					ON tblRateTableRate.RateId = tblRate.RateId
-	            AND tblRateTableRate.RateTableId = p_ratetableid 
-            LEFT JOIN tmp_TempRateTableRate_ as tblTempRateTableRate
-                ON tblRate.Code = tblTempRateTableRate.Code
-                AND tblRate.CompanyID = p_companyId
-                AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
-                AND tblRateTableRate.RateId = tblRate.RateId
-				SET tblRateTableRate.ConnectionFee = tblTempRateTableRate.ConnectionFee,
-                tblRateTableRate.Interval1 = tblTempRateTableRate.Interval1,
-                tblRateTableRate.IntervalN = tblTempRateTableRate.IntervalN;
+            UPDATE tblRateTableRate
+					INNER JOIN tblRate
+						ON tblRateTableRate.RateId = tblRate.RateId
+						AND tblRateTableRate.RateTableId = p_ratetableid
+					INNER JOIN tmp_TempRateTableRate_ as tblTempRateTableRate
+						ON tblRate.Code = tblTempRateTableRate.Code
+						AND tblRate.CompanyID = p_companyId
+						AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+						AND tblRateTableRate.RateId = tblRate.RateId
+					SET tblRateTableRate.ConnectionFee = tblTempRateTableRate.ConnectionFee,
+						tblRateTableRate.Interval1 = tblTempRateTableRate.Interval1,
+						tblRateTableRate.IntervalN = tblTempRateTableRate.IntervalN
+		         WHERE tblRateTableRate.RateTableId = p_ratetableid;
 
             DELETE tblTempRateTableRate
                 FROM tmp_TempRateTableRate_ as tblTempRateTableRate

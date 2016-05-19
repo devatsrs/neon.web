@@ -259,7 +259,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                         <div class="col-sm-4">
-                            {{Form::select('TaxRateId[]', $taxrates, "" ,array("class"=>"form-control select2",'multiple'))}}
+                            {{Form::select('TaxRateId[]', $taxrates, $DefaultTextRate ,array("class"=>"form-control select2",'multiple'))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                         <div class="col-sm-4">

@@ -98,7 +98,6 @@ class AuthorizeNet {
             $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
             $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"];
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
-            Log::info(print_r($response,true));
             if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Payment profile created on authorize.net";
@@ -125,7 +124,6 @@ class AuthorizeNet {
             $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
             $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"];
             $response = $this->request->updateCustomerPaymentProfile($customerProfileId,$paymentProfileId,$paymentProfile);
-            Log::info(print_r($response,true));
             if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Payment profile created on authorize.net";
@@ -147,7 +145,6 @@ class AuthorizeNet {
     function deletePaymentProfile($customerProfileId,$paymentProfileId){
         try{
             $response = $this->request->deleteCustomerPaymentProfile($customerProfileId,$paymentProfileId);
-            Log::info(print_r($response,true));
             if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Payment profile deleted on authorize.net";
@@ -257,7 +254,6 @@ class AuthorizeNet {
         $transaction->customerPaymentProfileId = $options->PaymentProfileID;
 
         $response = $request->createCustomerProfileTransaction("AuthCapture", $transaction);
-        Log::info(print_r($response,true));
 		$transactionResponse = $response->getTransactionResponse();
 		$transactionResponse->real_response = $response;
 		

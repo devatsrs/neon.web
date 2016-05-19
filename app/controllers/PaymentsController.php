@@ -55,27 +55,20 @@ class PaymentsController extends \BaseController {
         $query .=',0)';
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
-	/**
-	 * Display a listing of the resource.
-	 * GET /payments
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
+    /**
+     * Display a listing of the resource.
+     * GET /payments
+     *
+     * @return Response
+     */
+    public function index()
+    {
         $id=0;
-        $companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList(); 
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
-        $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
-        $InvoiceNoarray = array();
-        foreach($InvoiceNo as $Invoicerow){
-            $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-        }
-        $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates','currency_ids'));
+        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids'));
 	}
 
 	/**
@@ -175,13 +168,13 @@ class PaymentsController extends \BaseController {
     }
 
 
-	/**
-	 * Update the specified resource in storage.
-	 * PUT /payments/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+    /**
+     * Update the specified resource in storage.
+     * PUT /payments/{id}
+     *
+     * @param  int  $id
+     * @return Response
+     */
     public function update($id)
     {
         if( $id > 0 ) {
@@ -369,7 +362,6 @@ class PaymentsController extends \BaseController {
         }
 
         $response = Payment::validate_payments($data);
-
         if ( $response['status'] != 'Success' ) {
             return Response::json(array("status" => "failed", "message" => $response['message']  ,"ProcessID" => $response["ProcessID"],'confirmshow'=>$response["confirmshow"] ));
         }else{
@@ -381,7 +373,6 @@ class PaymentsController extends \BaseController {
     public function confirm_bulk_upload() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $file_name = $data['TemplateFile'];
         $ProcessID = $data['ProcessID'];
 
         $file_name = basename($data['TemplateFile']);
@@ -520,12 +511,21 @@ class PaymentsController extends \BaseController {
     public function  download_doc($id){
         $FileName = Payment::where(["PaymentID"=>$id])->pluck('PaymentProof');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        header('Location: '.$FilePath);
+        download_file($FilePath);
         exit;
     }
 
-    public function getCurrency($id){
-        return Account::getCurrency($id);
+    public function get_currency_invoice_numbers($id){
+        $Currency_Symbol = Account::getCurrency($id);
+        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('InvoiceNumber')->get()->toArray();
+
+        $InvoiceNumbers = array();
+        foreach($InvoiceNumbers_ as $row){
+            $InvoiceNumbers[] = $row['InvoiceNumber'];
+        }
+        return Response::json(array("status" => "success", "message" => "" , "Currency_Symbol"=>$Currency_Symbol, "InvoiceNumbers" => $InvoiceNumbers));
+
+
     }
 
 }

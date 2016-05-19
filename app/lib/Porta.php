@@ -194,7 +194,7 @@ class Porta{
                                 $response['faultString'] =  $err->getMessage();
                                 $response['faultCode'] =  $err->getCode();
                                 Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $err->getCode(). ", Reason: " . $err->getMessage());
-                                throw new Exception($err->getMessage());
+                                //throw new Exception($err->getMessage());
                             }
                             //Log::info('insertion end');
                         }else{
@@ -209,7 +209,7 @@ class Porta{
                 $response['faultString'] =  self::$cli->error_message;
                 $response['faultCode'] =  self::$cli->error_code;
                 Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . self::$cli->error_code. ", Reason: " . self::$cli->error_message);
-                throw new Exception(self::$cli->error_message);
+                //throw new Exception(self::$cli->error_message);
             }
         }
         return $response;

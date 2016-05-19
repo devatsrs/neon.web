@@ -113,6 +113,10 @@ class Account extends \Eloquent {
         if(User::is('AccountManager')){
             $data['Owner'] = User::get_userID();
         }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
         $data['Status'] = 1;
         if(!isset($data['AccountType'])) {
             $data['AccountType'] = 1;
@@ -122,6 +126,28 @@ class Account extends \Eloquent {
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
             $row = array(""=> "Select an Account")+$row;
+        }
+        return $row;
+    }
+
+    public static function getAccountList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+        }
+        $data['CompanyID']=User::get_companyID();
+        $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        $row = array(""=> "Select an Account");
+        if(!empty($result)){
+            $row = array(""=> "Select an Account")+$result;
         }
         return $row;
     }

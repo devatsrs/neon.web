@@ -69,10 +69,12 @@
                                    <input id="Use_Preference" name="Use_Preference" type="checkbox" value="1">
                                </p>
                            </div>
-
+                        </div>
+                        <label for="field-1" class="col-sm-1 control-label">LCR Policy</label>
+                        <div class="col-sm-2">
+                            {{ Form::select('Policy', LCR::$policy, LCR::LCR_PREFIX , array("class"=>"select2")) }}
                         </div>
                     </div>
-
                     <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="glyphicon glyphicon-circle-arrow-up"></i>
@@ -110,11 +112,12 @@
 
         $("#lcr-search-form").submit(function(e) {
 
-            var Code, Description, Currency,CodeDeck,Use_Preference;
+            var Code, Description, Currency,CodeDeck,Use_Preference, Policy;
             Code = $("#lcr-search-form input[name='Code']").val();
             Currency = $("#lcr-search-form select[name='Currency']").val();
             Trunk = $("#lcr-search-form select[name='Trunk']").val();
             CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+            Policy = $("#lcr-search-form select[name='Policy']").val();
             Use_Preference = $("#lcr-search-form [name='Use_Preference']").prop("checked");
             if(typeof Trunk  == 'undefined' || Trunk == '' ){
                 setTimeout(function(){
@@ -150,9 +153,9 @@
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name": "Code", "value": Code},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference});
+                    aoData.push({"name": "Code", "value": Code},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Policy","value":Policy});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name": "Code", "value": Code},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name": "Code", "value": Code},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Policy","value":Policy},{"name":"Export","value":1});
                 },
                 "iDisplayLength": 10,
                 "sPaginationType": "bootstrap",
