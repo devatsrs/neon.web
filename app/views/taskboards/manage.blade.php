@@ -168,7 +168,7 @@
                 'TaskStatus',
                 'Priority',
                 'PriorityText',
-                'TaggedUser',
+                'TaggedUsers',
                 'BoardID'
             ];
             @if(empty($message)){
@@ -299,14 +299,14 @@
                 }else {
                     var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 }
-                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUser'];
+                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUsers'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< task.length; i++){
                     var val = rowHidden.find('input[name="'+task[i]+'"]').val();
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
                     //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
-                        if(task[i]=='TaggedUser') {
+                        if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
@@ -819,7 +819,7 @@
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10" style="padding: 0px 10px;">
                                     <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
                             </div>
 

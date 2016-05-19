@@ -805,7 +805,7 @@ class InvoicesController extends \BaseController {
             InvoiceDetail::insert($InvoiceDetailData);
 
             //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
-            if( $data["DisputeAmount"] > 0 ){
+            if( !empty($data["DisputeAmount"])  ){
 
                 //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
                 Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
@@ -882,7 +882,7 @@ class InvoicesController extends \BaseController {
             if(InvoiceDetail::find($data['InvoiceDetailID'])->update($InvoiceDetailData)) {
 
                 //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
-                if( $data["DisputeID"] > 0 && $data["DisputeAmount"] > 0 ){
+                if( $data["DisputeID"] > 0 && !empty($data["DisputeAmount"]) ){
 
                     //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
                     Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "InvoiceType"=>Invoice::INVOICE_IN,"AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));

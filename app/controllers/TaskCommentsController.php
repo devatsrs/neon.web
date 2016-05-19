@@ -10,15 +10,10 @@ class TaskCommentsController extends \BaseController {
      */
     public function ajax_taskcomments($id){
         $response = NeonAPI::request('taskcomments/'.$id.'/get_comments',[],false);
-        $comments ='';
-        if(isset($response->status_code)) {
-            if ($response->status_code == 200) {
-                $result = $response->data->result;
-            }else{
-                return json_response_api($response);
-            }
+        if($response->status=='failed'){
+            return json_response_api($response,false);
         }else{
-            return json_response_api($response);
+            $result = json_response_api($response,true,false,false);
         }
         $Comments=[];
         $commentcount = 0;
@@ -58,10 +53,11 @@ class TaskCommentsController extends \BaseController {
             $data['file'] = $file;
         }
         $response = NeonAPI::request('taskcomment/add_comment',$data,true,false,true);
-        if ($response->status_code == 200) {
+        if($response->status!='failed'){
             unset($files_array[$data['token_attachment']]);
             Session::set("email_attachments", $files_array);
         }
+
         return  json_response_api($response);
     }
 

@@ -216,6 +216,10 @@ class NeonExcelIO
 
         $this->reader->close();
 
+        if(!empty($result) && count($result)>0){
+            $result = $this->utf8json($result);
+        }
+        
         return $result;
 
     }
@@ -312,6 +316,35 @@ class NeonExcelIO
     public function download_csv($rows){
         $this->write_csv($rows);
         download_file($this->file);
+    }
+
+    // get utf8 result
+    public function utf8json($inArray) {
+
+        static $depth = 0;
+
+        /* our return object */
+        $newArray = array();
+
+        /* safety recursion limit */
+        $depth ++;
+        if($depth >= '30') {
+            return false;
+        }
+
+        /* step through inArray */
+        foreach($inArray as $key=>$val) {
+            if(is_array($val)) {
+                /* recurse on array elements */
+                $newArray[$key] = $this->utf8json($val);
+            } else {
+                /* encode string values */
+                $newArray[$key] = utf8_encode($val);
+            }
+        }
+
+        /* return utf8 encoded array */
+        return $newArray;
     }
 
 }

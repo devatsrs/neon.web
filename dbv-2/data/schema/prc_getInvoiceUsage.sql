@@ -42,8 +42,8 @@ BEGIN
             WHERE  r.Code = ud.area_prefix limit 1 )
             AS Description,
             COUNT(UsageDetailID) AS NoOfCalls,
-            Concat( ROUND(SUM(duration ) / 60,0), ':' , SUM(duration ) % 60) AS Duration,
-		    	Concat( ROUND(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
+            CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
+            CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
             SUM(cost) AS TotalCharges,
             SUM(duration ) as DurationInSec,
             SUM(billed_duration ) as BillDurationInSec

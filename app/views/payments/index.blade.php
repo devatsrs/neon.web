@@ -5,7 +5,6 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -45,14 +44,14 @@
  
             <!--payment date start -->
             <div class="form-group">
-              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
+              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Date From</label>
               <div class="col-sm-2 col-sm-e2">
                 <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
               <div class="col-sm-2 col-sm-e2">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
               </div>
-              <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
+              <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">Date To</label>
               <div class="col-sm-2 col-sm-e2">
                 <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
@@ -206,6 +205,7 @@
       <tbody>
       </tbody>
     </table>
+    </div>
     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
@@ -599,12 +599,31 @@
                     });
 
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
+
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
-                        var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
-                        if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
-                            $.get(url, function (Currency) {
-                                $("#currency").text('(' + Currency + ')');
+
+                        var AccountID = $("#add-edit-payment-form [name='AccountID'] option:selected").val()
+
+                        if(AccountID > 0 ) {
+                            var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                            $.get(url, function (response) {
+
+                                console.log(response);
+                                if( typeof response.status != 'undefined' && response.status == 'success'){
+
+                                    $("#currency").text('(' + response.Currency_Symbol + ')');
+
+                                    var InvoiceNumbers = response.InvoiceNumbers;
+                                    $('input[name=InvoiceNo]').typeahead({
+                                        //source: InvoiceNumbers,
+                                        local: InvoiceNumbers
+
+                                    });
+
+                                }
+
                             });
+
                         }
                     });
 
@@ -631,21 +650,6 @@
                         ajax_Add_update(update_new_url);
                     });
                     $("#payment-table-search").submit();
-                    $('#PaymentTypeAuto').change(function (ev) {
-                        if($(this).val() == 'Payment In'){
-                            //$('#InvoiceAuto').addClass('typeahead');
-                            var typeahead_opts = {
-                                name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
-                            };
-                            if ($("#InvoiceAuto").attr('data-local'))
-                            {
-                                var local = $("#InvoiceAuto").attr('data-local');
-                                local = local.replace(/\s*,\s*/g, ',').split(',');
-                                typeahead_opts['local'] = local;
-                                $('#InvoiceAuto').typeahead(typeahead_opts);
-                            }
-                        }
-                    })
 
                     $("#form-upload").submit(function (e) {
                         e.preventDefault();
@@ -851,8 +855,8 @@
                 }
             </style>
     @include('includes.errors')
-    @include('includes.success') </div>
-</div>
+    @include('includes.success')
+
 @stop
 @section('footer_ext')
     @parent
@@ -900,7 +904,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice</label>
-              <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+              <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
             </div>
           </div>
           <div class="col-md-12">
@@ -912,11 +916,10 @@
           </div>
           <div class="col-md-12">
             <div class="form-group">
-              <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-              <div class="col-sm-6">
+              <label for="PaymentProof" class="control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+                <div class="clear clearfix"></div>
                 <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-              </div>
             </div>
           </div>
         </div>

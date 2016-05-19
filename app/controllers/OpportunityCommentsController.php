@@ -10,16 +10,13 @@ class OpportunityCommentsController extends \BaseController {
      */
     public function ajax_opportunitycomments($id){
         $response = NeonAPI::request('opportunitycomments/'.$id.'/get_comments',[],false);
-        $comments ='';
-        if(isset($response->status_code)) {
-            if ($response->status_code == 200) {
-                $result = $response->data->result;
-            }else{
-                return json_response_api($response);
-            }
+
+        if($response->status=='failed'){
+            return json_response_api($response,false);
         }else{
-            return json_response_api($response);
+            $result = json_response_api($response,true,false,false);
         }
+
         $Comments=[];
         $commentcount = 0;
         if(!empty($result)) {
@@ -58,11 +55,13 @@ class OpportunityCommentsController extends \BaseController {
             $data['file'] = $file;
         }
         $response = NeonAPI::request('opportunitycomment/add_comment',$data,true,false,true);
-        if ($response->status_code == 200) {
+
+        if($response->status!='failed'){
             unset($files_array[$data['token_attachment']]);
             Session::set("email_attachments", $files_array);
         }
-        return  json_response_api($response);
+
+        return json_response_api($response);
     }
 
 }

@@ -101,6 +101,12 @@
                         </a>
                     </li>
                 @endif
+                <li>
+                    <a href="{{URL::to('/import/leads')}}">
+                        <i class="entypo-user-add"></i>
+                        <span>Import Leads</span>
+                    </a>
+                </li>
             </ul>
         </div><!-- /btn-group -->
     </div>

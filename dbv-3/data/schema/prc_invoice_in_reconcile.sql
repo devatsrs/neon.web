@@ -6,7 +6,7 @@ BEGIN
 		
 		select ifnull(sum(vc.buying_cost),0) as DisputeTotal , ifnull(sum(billed_duration),0) as DisputeMinutes 
 		from tblVendorCDR vc
-		inner join tblVendorCDRHeader vh on vc.VendorCDRHeaderID = vc.VendorCDRHeaderID
+		inner join tblVendorCDRHeader vh on vh.VendorCDRHeaderID = vc.VendorCDRHeaderID
 		where vh.CompanyID = p_CompanyID and vh.AccountID = p_AccountID 
 		and connect_time >= StartTime and connect_time <= EndTime;
 		

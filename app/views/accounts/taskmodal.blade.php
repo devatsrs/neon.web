@@ -63,7 +63,7 @@
             'TaskStatus',
             'Priority',
             'PriorityText',
-            'TaggedUser',
+            'TaggedUsers',
             'BoardID'
         ];
         var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];

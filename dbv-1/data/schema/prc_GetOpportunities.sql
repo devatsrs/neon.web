@@ -22,7 +22,7 @@ SELECT
 		o.AccountID,
 		o.Tags,
 		o.Rating,
-		o.TaggedUser,
+		o.TaggedUsers,
 		o.`Status`
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID

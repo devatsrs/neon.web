@@ -64,18 +64,11 @@ class DisputeController extends \BaseController {
 	public function index()
 	{
 		$id=0;
-		$companyID = User::get_companyID();
 		$currency = Currency::getCurrencyDropdownList();
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList());
-		$InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_IN))->get(['InvoiceNumber']);
-		$InvoiceNoarray = array();
-		foreach($InvoiceNo as $Invoicerow){
-			$InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-		}
-		$invoice_nos = implode(',',$InvoiceNoarray);
 		$accounts = Account::getAccountIDList();
-		$InvoiceTypes = array(Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
-		return View::make('disputes.index', compact('id','currency','status','accounts','invoice_nos','currency_ids','InvoiceTypes'));
+		$InvoiceTypes =  array(''=>'Select an Invoice Type' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
+		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes'));
 
 	}
 
@@ -190,4 +183,49 @@ class DisputeController extends \BaseController {
 
 	}
 
+	public function view($id){
+
+
+		$CompanyID = User::get_companyID();
+		$query = "call prc_getDisputeDetail ( ". $CompanyID . "," .$id ." )";
+		$Dispute_array  = DB::connection('sqlsrv2')->select($query);
+
+		$Dispute = [
+		'DisputeID'   => '',
+		'InvoiceType'   => '',
+		'AccountName'   => '',
+		'InvoiceNo'   => '',
+		'DisputeAmount'   => '',
+		'Notes'   => '',
+		'Status'   => '',
+		'created_at'   => '',
+		'CreatedBy'   => '',
+		'Attachment'   => '',
+		'updated_at   => '
+		];
+
+        if(count($Dispute_array)>0) {
+
+            $Dispute_array = (array) array_shift($Dispute_array);
+
+            $Dispute = [
+				'DisputeID'     => $Dispute_array['DisputeID'],
+				'InvoiceType'   => $Dispute_array['InvoiceType'],
+				'AccountName'   => $Dispute_array['AccountName'],
+				'InvoiceNo'   	=> $Dispute_array['InvoiceNo'],
+				'DisputeAmount' => $Dispute_array['DisputeAmount'],
+				'Notes'   		=> $Dispute_array['Notes'],
+				'Status'   		=> $Dispute_array['Status'],
+				'created_at'    => $Dispute_array['created_at'],
+				'CreatedBy'     => $Dispute_array['CreatedBy'],
+				'Attachment'    => $Dispute_array['Attachment'],
+				'updated_at'    => $Dispute_array['updated_at'],
+			];
+
+		}
+
+ 		return View::make('disputes.view', compact('Dispute'));
+
+
+ 	}
 }

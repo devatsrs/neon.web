@@ -1,9 +1,5 @@
 @extends('layout.main')
-
 @section('content')
-<style>
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
-</style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <a href="javascript:void(0)">Disputes</a> </li>
@@ -23,11 +19,11 @@
               <div class="form-group">
                   <label for="field-1" class="col-sm-1 control-label">Account</label>
                   <div class="col-sm-2 "> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-                  <label class="col-sm-1 control-label small_label" for="DisputeDate_StartDate">Start Date</label>
+                  <label class="col-sm-1 control-label small_label" for="DisputeDate_StartDate">Date From</label>
                   <div class="col-sm-2 ">
                       <input autocomplete="off" type="text" name="DisputeDate_StartDate" id="DisputeDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime("-1 week"))}}" data-enddate="{{date('Y-m-d')}}" />
                   </div>
-                  <label  class="col-sm-1 control-label" for="DisputeDate_EndDate">End Date</label>
+                  <label  class="col-sm-1 control-label" for="DisputeDate_EndDate">Date To</label>
                   <div class="col-sm-2 ">
                       <input autocomplete="off" type="text" name="DisputeDate_EndDate" id="DisputeDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
                   </div>
@@ -53,30 +49,34 @@
               <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
             </p>
           </div>
+          </div>
         </form>
       </div>
     </div>
     <div class="clear"></div>
-     <p class="col-md-12" style=" text-align: right;"> <a href="#" id="add-new-dispute" class="btn btn-primary "> <i class="entypo-plus"></i>Add New Dispute</a> </p>
-    <br>
-    <table class="table table-bordered datatable" id="table-4">
-      <thead>
-        <tr>
-          <th width="5%"></th>
-          <th width="10%">Account Name</th>
-          <th width="8%">Invoice No</th>
-          <th width="8%">Dispute Total</th>
-          <th width="5%">Status</th>
-          <th width="8%">Created Date</th>
-          <th width="8%">Created By</th>
-          <th width="15%">Notes</th>
-          <th width="16%">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-    <script type="text/javascript">
+
+     <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+
+     <table class="table table-bordered datatable" id="table-4">
+          <thead>
+            <tr>
+              <th width="1%"></th>
+              <th width="10%">Account Name</th>
+              <th width="8%">Invoice No</th>
+              <th width="8%">Dispute Total</th>
+              <th width="5%">Status</th>
+              <th width="8%">Created Date</th>
+              <th width="8%">Created By</th>
+              <th width="15%">Notes</th>
+              <th width="16%">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+  </div>
+</div>
+     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
      var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
@@ -85,10 +85,14 @@
      $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
      $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
      $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+     $searchFilter.InvoiceType   = $("#dispute-table-search select[name='InvoiceType']").val();
+     $searchFilter.AccountID   = $("#dispute-table-search select[name='AccountID']").val();
+     $searchFilter.InvoiceNo   = $("#dispute-table-search input[name='InvoiceNo']").val();
+     $searchFilter.Status   = $("#dispute-table-search select[name='Status']").val();
 
      var update_new_url;
-                var postdata;
-                var dispute_status = {{json_encode(Dispute::$Status);}};
+     var postdata;
+     var dispute_status = {{json_encode(Dispute::$Status);}};
 
      jQuery(document).ready(function ($) {
                     data_table = $("#table-4").dataTable({
@@ -103,9 +107,7 @@
                                     {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
-									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
-									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate},
-									{"name": "DisputeDate_EndTime","value": $searchFilter.DisputeDate_EndTime}
+									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate}
 
                             );
                             data_table_extra_params.length = 0;
@@ -115,16 +117,14 @@
                                     {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
-									{"name": "DisputeDate_StartTime","value": $searchFilter.DisputeDate_StartTime},
 									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate},
-									{"name": "DisputeDate_EndTime","value": $searchFilter.DisputeDate_EndTime},
                                     {"name":"Export","value":1});
 
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[9, 'desc']],
+                        "aaSorting": [[5, 'desc']],
                         "aoColumns": [
                             {
                                 "bSortable": true, //InvoiceType
@@ -288,6 +288,12 @@
                         ev.stopPropagation();
                         var response = new Array();
 
+                        $("#add-edit-dispute-form [name='AccountID']").select2().select2('val','');
+                        $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $('#add-edit-dispute-form').find("input, textarea, select").val("");
+                        $('.file-input-name').text('');
+
+
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         var select = ['AccountID','InvoiceType'];
                         for(var i = 0 ; i< list_fields.length; i++){
@@ -357,11 +363,29 @@
 
                     $("#add-edit-dispute-form [name='AccountID']").change(function(){
                         $("#add-edit-dispute-form [name='AccountName']").val( $("#add-edit-dispute-form [name='AccountID'] option:selected").text());
-                        var url = baseurl + '/payments/getcurrency/'+$("#add-edit-dispute-form [name='AccountID'] option:selected").val();
-                        if($("#add-edit-dispute-form [name='AccountID'] option:selected").val()>0) {
-                            $.get(url, function (Currency) {
-                                $("#currency").text('(' + Currency + ')');
+
+                        var AccountID = $("#add-edit-dispute-form [name='AccountID'] option:selected").val()
+
+                        if(AccountID >0) {
+                            var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                            $.get(url, function (response) {
+
+                                console.log(response);
+                                if( typeof response.status != 'undefined' && response.status == 'success'){
+
+                                    $("#currency").text('(' + response.Currency_Symbol + ')');
+
+                                    var InvoiceNumbers = response.InvoiceNumbers;
+                                    $('input[name=InvoiceNo]').typeahead({
+                                        //source: InvoiceNumbers,
+                                        local: InvoiceNumbers
+
+                                    });
+
+                                }
+
                             });
+
                         }
                     });
 
@@ -369,9 +393,10 @@
                         ev.preventDefault();
                         $('#add-edit-dispute-form').trigger("reset");
                         $("#add-edit-dispute-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-dispute-form [name='DisputeID']").val('')
-                        $('#add-edit-modal-dispute h4').html('Add New Dispute');
+                        $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $('#add-edit-dispute-form').find("input, textarea, select").val("");
                         $('.file-input-name').text('');
+                        $('#add-edit-modal-dispute h4').html('Add New Dispute');
                         $('#add-edit-modal-dispute').modal('show');
                     });
 
@@ -387,60 +412,8 @@
 
                         var formData = new FormData($('#add-edit-dispute-form')[0]);
                         submit_ajax_withfile(submit_url,formData);
-                        $(".btn").button('reset');
 
                     });
-
-                    $('#add-edit-modal-dispute').change(function (ev) {
-
-                         if($(this).hasClass("in")) {
-                             var typeahead_opts = {
-                                 name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
-                             };
-                             if ($("#InvoiceAuto").attr('data-local')) {
-                                 var local = $("#InvoiceAuto").attr('data-local');
-                                 local = local.replace(/\s*,\s*/g, ',').split(',');
-                                 typeahead_opts['local'] = local;
-                                 $('#InvoiceAuto').typeahead(typeahead_opts);
-
-                                 /*$('#InvoiceAuto').typeahead(typeahead_opts).on('typeahead:selected', function($e, datum) {  // suggestion selected
-
-                                     /!*console.log("Selected");
-                                     console.log($e);
-                                     console.log(datum);
-                                     console.log($(this).   val());*!/
-
-                                     var InvoiceNo = $(this).val();
-
-                                     $.ajax({
-                                         url: baseurl + '/invoice/getInvoiceDetail',
-                                         data: 'InvoiceNo='+InvoiceNo,
-                                         dataType: 'json',
-                                         success: function (response) {
-
-                                             $("#add-edit-dispute-form [name='StartDate']").val(response.StartDate);
-                                             $("#add-edit-dispute-form [name='StartTime']").val(response.StartTime);
-                                             $("#add-edit-dispute-form [name='EndDate']").val(response.EndDate);
-                                             $("#add-edit-dispute-form [name='EndTime']").val(response.EndTime);
-                                             $("#add-edit-dispute-form [name='TotalMinutes']").val(response.TotalMinutes);
-                                             $("#add-edit-dispute-form [name='InvoiceID']").val(response.InvoiceID);
-
-                                             $('#add-edit-dispute-form').find("input[name=GrandTotal]").val(response.GrandTotal);
-
-                                             //set_dispute(response);
-
-                                         },
-                                         type: 'POST'
-                                     });
-                                     return false;
-
-                                  });*/
-
-                             }
-                         }
-                        return false;
-                    })
-
 
                 });
 
@@ -572,9 +545,8 @@
                 }
             </style>
     @include('includes.errors')
-    @include('includes.success') </div>
-</div>
-@stop
+    @include('includes.success')
+ @stop
 @section('footer_ext')
     @parent
 <div class="modal fade" id="add-edit-modal-dispute">
@@ -592,20 +564,18 @@
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice Type *<span id="currency"></span></label>
                 {{Form::select('InvoiceType',$InvoiceTypes,'',array("class"=>"selectboxit"))}}
-              <input type="hidden" name="AccountName" />
             </div>
           </div>
             <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
               {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-              <input type="hidden" name="AccountName" />
             </div>
           </div>
           <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Invoice Number</label>
-                    <input type="text" id="InvoiceAuto" data-local="{{$invoice_nos}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+                    <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
                 </div>
           </div>
           <div class="col-md-12">

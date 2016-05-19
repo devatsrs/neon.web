@@ -12,69 +12,42 @@ function json_validator_response($validator){
 
 }
 
-function json_response_api($response,$datareturn=false,$is_browser=true){
-    $errors = '';
-	
+function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
+    $message = '';
+    $isArray = false;
     if(is_array($response)){
-        $response = (object)$response;
+        $isArray = true;
     }
 
-    if(isset($response->status_code)) {
-        if ($response->status_code == 200) {
-            if (isset($response->data)) {
-                if($datareturn){
-                    if(is_array($response->data)){
-						$result = $response->data['result'];
-                    }
-					else{
-				   $result = $response->data->result;
-					}
-
-					if((is_object($result)))
-					{
-						$result_obj = (array)$result;	
-						
-					}
-					if((is_object($result) && empty($result_obj)) || (is_array($result) && empty($result)) )
-					{
-						return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end"));	//scroll variable for infinite sroll		
-					}
-				}
-				else{
-				 $result = $response->data->result;	
-				}
-
-                return json_encode($result);
-            } else {
-                return Response::json(array("status" => "success", "message" => $response->message));
-            }
-        } elseif ($response->status_code == 432) {
-            $validator = json_decode($response->message, true);
-            if (count($validator) > 0) {
-                foreach ($validator as $index => $error) {
-                    $errors .= $error[0] . "<br>";
+    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+        $validator = $isArray?$response['message']:(array)$response->message;
+        if (count($validator) > 0) {
+            foreach ($validator as $index => $error) {
+                if(is_array($error)){
+                    $message .= array_pop($error) . "<br>";
                 }
             }
         }
-		else {
-			$validator  = $response->message;
-            if (count($validator) > 0) {
-				$errors = $validator;
+        $status = 'failed';
+    }else {
+        $message = $isArray?$response['message']:$response->message;
+        $status = 'success';
+        if (($isArray && isset($response['data'])) || isset($response->data)) {
+            if($datareturn) {
+                $result = $isArray ? $response['data'] : $response->data;
+                if ($isDataEncode) {
+                    $result = json_encode($result);
+                }
+                return $result;
             }
         }
-
-    }else{
-        if(isset($response->error)){
-            $errors = $response->error;
-        }else{
-            $errors = 'Api not responded';//$response->message;
-        }
     }
-	if($is_browser){
-	    return  Response::json(array("status" => "failed", "message" => $errors));
-	}else{
-		return array("errors"=>$errors);
-	}
+
+    if($isBrowser){
+        return  Response::json(array("status" => $status, "message" => $message));
+    }else{
+        return $message;
+    }
 }
 
 function validator_response($validator){
@@ -91,7 +64,7 @@ function validator_response($validator){
 }
 function download_file($file = ''){
     if ($file != "") {
-          if (is_file($file)) {
+        if (is_file($file) && file_exists($file)) {
             $mime_types = array(
                 '.xls' => 'application/excel',
                 '.xlsx' => 'application/excel',
@@ -123,6 +96,10 @@ function download_file($file = ''){
                 echo "No Data Found";
                 exit();
             }
+        }else if (!filter_var($file, FILTER_VALIDATE_URL) === false) {
+            header('Location: '.$file);
+            exit;
+
         }
     }
 }
@@ -327,18 +304,18 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     <select name="InvoiceDetail[ProductID][]" class="selectboxit product_dropdown visible" style="display: none;">
      *  <option value="">Select a Product</option>
      * <optgroup label="Usage">
-            * <option selected="selected" value="0">Usage</option><
-      /optgroup>
+     * <option selected="selected" value="0">Usage</option><
+    /optgroup>
      * <optgroup label="Subscription">
-         * <option value="1">Internet Subscription</option>
-         * <option value="2">Phone Billing Plan</option>
+     * <option value="1">Internet Subscription</option>
+     * <option value="2">Phone Billing Plan</option>
      * </optgroup>
      * <optgroup label="Item">
-         * <option value="5">BILL TEMPLATE</option>
-         * <option value="13">TEST ITEM1</option>
-         * <option value="14">IP Phone 2</option>
-         * <option value="15">Phone 3</option>
-         * <option value="16">New Item</option>
+     * <option value="5">BILL TEMPLATE</option>
+     * <option value="13">TEST ITEM1</option>
+     * <option value="14">IP Phone 2</option>
+     * <option value="15">Phone 3</option>
+     * <option value="16">New Item</option>
      * </optgroup>
      * </select>
      */
@@ -355,7 +332,7 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
                     $output .= " selected ";
                 }
                 $output .= ">";
-                 $output .= $title . "</option>";
+                $output .= $title . "</option>";
             }
             $output .= '</optgroup>';
         }
@@ -673,16 +650,16 @@ function email_log($data){
     if(is_array($data['EmailTo'])){
         $data['EmailTo'] = implode(',',$data['EmailTo']);
     }
-	
-	if(!isset($data['cc']) || !is_array($data['cc']))
-	{
-		$data['cc'] = array();
-	}
-	
-	if(!isset($data['bcc']) || !is_array($data['bcc']))
-	{
-		$data['bcc'] = array();
-	}
+
+    if(!isset($data['cc']) || !is_array($data['cc']))
+    {
+        $data['cc'] = array();
+    }
+
+    if(!isset($data['bcc']) || !is_array($data['bcc']))
+    {
+        $data['bcc'] = array();
+    }
 
     $logData = ['EmailFrom'=>User::get_user_email(),
         'EmailTo'=>$data['EmailTo'],
@@ -692,8 +669,8 @@ function email_log($data){
         'CompanyID'=>User::get_companyID(),
         'UserID'=>User::get_userID(),
         'CreatedBy'=>User::get_user_full_name(),
-		'Cc'=>implode(",",$data['cc']),
-		'Bcc'=>implode(",",$data['bcc'])];
+        'Cc'=>implode(",",$data['cc']),
+        'Bcc'=>implode(",",$data['bcc'])];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;
     }
@@ -747,9 +724,9 @@ function call_api($post = array())
 
 function excloded_resource($resource){
     $excloded = ['HomeController.home'=>'HomeController.home',
-                'HomeController.dologin'=>'HomeController.dologin',
-                'HomeController.dologout'=>'HomeController.dologout',
-                'HomeController.process_redirect'=>'HomeController.process_redirect'];
+        'HomeController.dologin'=>'HomeController.dologin',
+        'HomeController.dologout'=>'HomeController.dologout',
+        'HomeController.process_redirect'=>'HomeController.process_redirect'];
     if(array_key_exists($resource,$excloded)){
         return true;
     }
@@ -863,28 +840,28 @@ function validfilepath($path){
 
 
 function create_site_configration_cache(){
-	$domain_url 					=   $_SERVER['HTTP_HOST'];
-	$result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
+    $domain_url 					=   $_SERVER['HTTP_HOST'];
+    $result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
-	if($result){  //url found
-		$cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
-		$cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
-		$cache['Title']				=	$result[0]->Title;
-		$cache['FooterText']		=	$result[0]->FooterText;
-		$cache['FooterUrl']			=	$result[0]->FooterUrl;
-		$cache['LoginMessage']		=	$result[0]->LoginMessage;
-		$cache['CustomCss']			=	$result[0]->CustomCss;
-	}else{
-		$cache['FavIcon'] 			=	URL::to('/').'/assets/images/favicon.ico';
-		$cache['Logo'] 	  			=	URL::to('/').'/assets/images/logo@2x.png';
-		$cache['Title']				=	'Neon';
-		$cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
-		$cache['FooterUrl']			=	'http://www.code-desk.com';
-		$cache['LoginMessage']		=	'Dear user, log in to access RM!';
-		$cache['CustomCss']			=	'';
-	}
+    if($result){  //url found
+        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
+        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
+        $cache['Title']				=	$result[0]->Title;
+        $cache['FooterText']		=	$result[0]->FooterText;
+        $cache['FooterUrl']			=	$result[0]->FooterUrl;
+        $cache['LoginMessage']		=	$result[0]->LoginMessage;
+        $cache['CustomCss']			=	$result[0]->CustomCss;
+    }else{
+        $cache['FavIcon'] 			=	URL::to('/').'/assets/images/favicon.ico';
+        $cache['Logo'] 	  			=	URL::to('/').'/assets/images/logo@2x.png';
+        $cache['Title']				=	'Neon';
+        $cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
+        $cache['FooterUrl']			=	'http://www.code-desk.com';
+        $cache['LoginMessage']		=	'Dear user, log in to access RM!';
+        $cache['CustomCss']			=	'';
+    }
 
-	Session::put('user_site_configrations', $cache);
+    Session::put('user_site_configrations', $cache);
 }
 
 //not in use
@@ -897,23 +874,23 @@ function addhttp($url) {
 
 
 function get_random_number(){
-	return md5(uniqid(rand(), true));
+    return md5(uniqid(rand(), true));
 }
 
 function delete_file($session,$data)
 {
     $files_array	=	Session::get($session);
 
-	if(isset($files_array[$data['token_attachment']])){
-		
-		foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-		{
-			if($array_file_data['fileName'] == $data['file'])
-			{
-				unset($files_array[$data['token_attachment']][$key]);
-			}
-		}
-	}
+    if(isset($files_array[$data['token_attachment']])){
+
+        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
+        {
+            if($array_file_data['fileName'] == $data['file'])
+            {
+                unset($files_array[$data['token_attachment']][$key]);
+            }
+        }
+    }
 
     //unset($files_array[$data['token_attachment']]);
     Session::set($session, $files_array);
@@ -922,9 +899,9 @@ function delete_file($session,$data)
 
 function check_upload_file($files,$session,$allowed_extensions,$data)
 {
-   // $data['file']				=	array();
+    // $data['file']				=	array();
     $files_array		        =	Session::get($session);
-	$return_txt					=	'';
+    $return_txt					=	'';
 
     if(isset($files_array[$data['token_attachment']]))
     {
@@ -951,65 +928,65 @@ function check_upload_file($files,$session,$allowed_extensions,$data)
     return $return_txt;
 }
 
-	// sideabar submenu open when click on
-	function check_uri($parent_link='')
-	{
-		$Path 			  =    Route::currentRouteAction();
-		$path_array 	  =    explode("Controller",$Path);
-		$array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-		$array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate");
-		$array_summary    =    array("Summary");
-		$array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-		$array_template   =    array("EmailTemplate");
-		$array_dashboard  =    array("Dashboard");
-		$array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
-		$customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
-		
-		if(count($path_array)>0)
-		{
-			$controller = $path_array[0];
-			if(in_array($controller,$array_billing) && $parent_link =='Billing')
-			{
-				return 'opened';
-			}
-			
-			if(in_array($controller,$array_settings) && $parent_link =='Settings')
-			{
-				return 'opened';
-			}
-			
-			if(in_array($controller,$array_admin) && $parent_link =='Admin')
-			{
-				return 'opened';
-			}
-			
-			if(in_array($controller,$array_summary) && $parent_link =='Summary')
-			{
-				return 'opened';
-			}
-			
-			if(in_array($controller,$array_rates) && $parent_link =='Rates')
-			{
-				return 'opened';
-			}
-			
-			if(in_array($controller,$array_template) && $parent_link =='Template')
-			{
-				return 'opened';
-			}
-			
-			if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
-			{
-				return 'opened';
-			}	
-			
-			if(in_array($controller,$customer_billing) && $parent_link =='Customer_billing')
-			{
-				return 'opened';
-			}
-		}		
-	}
-	
+// sideabar submenu open when click on
+function check_uri($parent_link='')
+{
+    $Path 			  =    Route::currentRouteAction();
+    $path_array 	  =    explode("Controller",$Path);
+    $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate");
+    $array_summary    =    array("Summary");
+    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+    $array_template   =    array("EmailTemplate");
+    $array_dashboard  =    array("Dashboard");
+    $array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+    $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
+
+    if(count($path_array)>0)
+    {
+        $controller = $path_array[0];
+        if(in_array($controller,$array_billing) && $parent_link =='Billing')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$array_settings) && $parent_link =='Settings')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$array_admin) && $parent_link =='Admin')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$array_summary) && $parent_link =='Summary')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$array_rates) && $parent_link =='Rates')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$array_template) && $parent_link =='Template')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
+        {
+            return 'opened';
+        }
+
+        if(in_array($controller,$customer_billing) && $parent_link =='Customer_billing')
+        {
+            return 'opened';
+        }
+    }
+}
+
 
 function getimageicons($url){
     $file = new SplFileInfo($url);
@@ -1035,7 +1012,7 @@ function getimageicons($url){
         'xls'=>URL::to('/').'/assets/images/icons/xls.png',
         'xlsx'=>URL::to('/').'/assets/images/icons/xlsx.png',
         'zip'=>URL::to('/').'/assets/images/icons/zip.png'
-        ];
+    ];
     if(array_key_exists(strtolower($ext),$icons)){
         return $icons[strtolower($ext)];
     }else{
@@ -1056,15 +1033,9 @@ function get_uploaded_files($session,$data){
     return $files;
 }
 
-
-function isJson($string) {
-	try{
-		json_decode($string);
-		return true;
-	
-	}
-	catch (Exception $ex)
-       {
-          return false;
-       }
+function get_max_file_size()
+{
+    $max_file_env   = getenv('MAX_UPLOAD_FILE_SIZE');
+    $max_file_size   = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+    return $max_file_size;
 }

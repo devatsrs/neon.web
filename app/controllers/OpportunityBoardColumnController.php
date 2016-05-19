@@ -16,10 +16,6 @@ class OpportunityBoardColumnController extends \BaseController {
         return json_response_api($response);
     }
 
-    public function index(){
-        return View::make('Opportunityboards.Opportunityboardcolumn', compact(''));
-    }
-
 	/**
 	 * Show the form for creating a new resource.
 	 * GET /opportunityboardcolumn/create
