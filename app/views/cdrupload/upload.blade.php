@@ -279,6 +279,18 @@
                         <div class="form-group">
                             <br />
                             <br />
+                            <label for=" field-1" class="col-sm-2 control-label">CLI Translation Rule</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="selection[CLITranslationRule]" value="" />
+                            </div>
+                            <label for=" field-1" class="col-sm-2 control-label">CLD Translation Rule</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="selection[CLDTranslationRule]" value="" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
                             <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
                             <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
                             <div class="col-sm-4">
