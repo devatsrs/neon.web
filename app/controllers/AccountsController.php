@@ -238,7 +238,7 @@ class AccountsController extends \BaseController {
 				$response_timeline =  $response_timeline['data'];
 			}
 			else{
-				$message = json_response_api($response,false,true);
+				$message = json_response_api($response_timeline,false,true);
 			}
 			
 			
