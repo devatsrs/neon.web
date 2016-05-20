@@ -91,7 +91,7 @@
             
                           <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
-                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} 
                     </div>                  
                 </div>
                   <p style="text-align: right;">
@@ -167,13 +167,13 @@
     <thead>
     <tr>
         <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
-                <div class="pull-right"> Sent/Receive</div></th>
+                <div class="pull-right">&nbsp;</div></th>
         <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
         <th width="10%">Grand Total</th>
         <th width="10%">Paid/OS</th>
-        <th width="10%">Invoice Status</th>
+        <th width="10%">Status</th>
         <th width="20%">Action</th>
     </tr>
     </thead>

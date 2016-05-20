@@ -2053,7 +2053,7 @@ text-align:left
     overflow: hidden;
     resize: horizontal;
     word-wrap: break-word;
-    min-height: 200px;
+    /*min-height: 200px;*/
 }
 
 .cbp_tmtimeline {

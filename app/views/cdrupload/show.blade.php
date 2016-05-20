@@ -76,7 +76,7 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-sm-2" style="width:13%;">
+                                <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
                                     <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
@@ -89,6 +89,9 @@
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
+                                                         <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
+            <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} </div>
+                                
                                 <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Zero Cost</label>               
                                   <div class="col-sm-1">
                             <p class="make-switch switch-small">
@@ -96,8 +99,7 @@
                             </p>
                         </div> 
                         
-                                    <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
-            <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} </div>
+           
              
                             </div>
                             <div class="form-group">
@@ -111,7 +113,7 @@
                                 </div>
                                 <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
                                 <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                          
                             
