@@ -277,7 +277,7 @@ var postdata;
                 {  "bSortable": true },  // 6 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
-                        return invoicestatus[full[6]];
+                        return invoicestatus[full[7]];
                     }
 
                 },  // 7 InvoiceStatus
