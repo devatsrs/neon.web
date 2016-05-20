@@ -2513,7 +2513,11 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             toastr.error('Not Found', "Error", toastr_opts);
             break;
         case 401:
-            toastr.error('Unauthorized', "Error", toastr_opts);
+            //toastr.error('Unauthorized', "Error", toastr_opts);
+            toastr.error('Session expired now redirecting to login page', "Error", toastr_opts);
+            setTimeout(function() {
+                window.location.href = baseurl + '/logout';
+            }, 100);
             break;
         case 403:
             toastr.error('Forbidden', "Error", toastr_opts);

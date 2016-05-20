@@ -554,6 +554,7 @@
             }
 
             function getComments(){
+                $('#comment_processing').removeClass('hidden');
                 var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
                 var url = baseurl +'/opportunitycomments/'+opportunityID+'/ajax_opportunitycomments';
                 $.ajax({
@@ -561,17 +562,21 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#allComments').html(response);
-                        var nicescroll_defaults = {
-                            cursorcolor: '#d4d4d4',
-                            cursorborder: '1px solid #ccc',
-                            railpadding: {right: 3},
-                            cursorborderradius: 1,
-                            autohidemode: true,
-                            sensitiverail: false
-                        };
-                        $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
-
+                        $('#comment_processing').addClass('hidden');
+                        if(response.status){
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }else {
+                            $('#allComments').html(response);
+                            var nicescroll_defaults = {
+                                cursorcolor: '#d4d4d4',
+                                cursorborder: '1px solid #ccc',
+                                railpadding: {right: 3},
+                                cursorborderradius: 1,
+                                autohidemode: true,
+                                sensitiverail: false
+                            };
+                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                        }
                     },
                     // Form data
                     data: [],
@@ -894,6 +899,7 @@
                             </div>
                         </form>
                         <br>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">
 
                         </div>

@@ -58,7 +58,7 @@ class NeonAPI{
         $api_token = Session::get("api_token",'');
         return $api_token;
     }
-    public static function request($call_method,$post_data=array(),$post=true,$is_array=false,$is_upload=false){		
+    public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
         self::$api_url = getenv('Neon_API_URL');
         $token = self::getToken();
         $curl = new Curl\Curl();
@@ -94,19 +94,21 @@ class NeonAPI{
         $response = json_decode($curl->response,$is_array);
         if($curl->http_status_code!=200){
             Log::info($curl->response);
-            $response = self::errorResponse($is_array);
+            $response = self::errorResponse($is_array,$curl->http_status_code);
         }
         return $response;
     }
 
-    protected static function errorResponse($is_array){
+    protected static function errorResponse($is_array,$Code){
         if($is_array){
             $response['status'] = 'failed';
             $response['message'] = ["error" => ['Some thing wrong try Again.']];
+            $response['Code'] =$Code;
         }else{
             $response = new stdClass;
             $response->status = 'failed';
             $response->message = ["error" => ['Some thing wrong try Again.']];
+            $response->Code =$Code;
         }
         return $response;
     }

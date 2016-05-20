@@ -179,7 +179,7 @@ class TaskController extends \BaseController {
             $data['file'] = NeonAPI::base64byte($attachment);
         }
         try {
-            $return_str = check_upload_file($data['file'], 'email_attachments', $response_extensions, $data);
+            $return_str = check_upload_file($data['file'], 'email_attachments', $data);
             return $return_str;
         }catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));

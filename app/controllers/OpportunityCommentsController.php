@@ -9,15 +9,14 @@ class OpportunityCommentsController extends \BaseController {
      * @return mixed
      */
     public function ajax_opportunitycomments($id){
-        $response = NeonAPI::request('opportunitycomments/'.$id.'/get_comments',[],false);
+        $response = NeonAPI::request('opportunitycomments/'.$id.'/get_comments',[],false,true);
 
-        if($response->status=='failed'){
+        if($response['status']=='failed'){
             return json_response_api($response,false);
         }else{
-            $result = json_response_api($response,true,false,false);
+            $Comments = json_response_api($response,true,false,false);
         }
-
-        $Comments=[];
+        /*$Comments=[];
         $commentcount = 0;
         if(!empty($result)) {
             foreach ($result as $comment) {
@@ -37,7 +36,7 @@ class OpportunityCommentsController extends \BaseController {
                 ];
                 $commentcount++;
             }
-        }
+        }*/
         return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
     }
 

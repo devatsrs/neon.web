@@ -44,7 +44,11 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
     }
 
     if($isBrowser){
-        return  Response::json(array("status" => $status, "message" => $message));
+        if($isArray && isset($response['Code']) && $response['Code'] ==401 || !$isArray && isset($response->Code) && $response->Code == 401){
+            return  Response::json(array("status" => $status, "message" => $message),401);
+        }else {
+            return Response::json(array("status" => $status, "message" => $message));
+        }
     }else{
         return $message;
     }
@@ -897,32 +901,22 @@ function delete_file($session,$data)
 }
 
 
-function check_upload_file($files,$session,$allowed_extensions,$data)
-{
-    // $data['file']				=	array();
+function check_upload_file($files,$session,$data){
     $files_array		        =	Session::get($session);
     $return_txt					=	'';
 
-    if(isset($files_array[$data['token_attachment']]))
-    {
+    if(isset($files_array[$data['token_attachment']])) {
         $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
-    }
-    else
-    {
+    } else {
         $files_array[$data['token_attachment']]	=	$files;
     }
 
 
     Session::set($session, $files_array);
 
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-    {
+    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
+        $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
 
-        //$array_file_data['fileExtension']
-        if(in_array($array_file_data['fileExtension'],$allowed_extensions))
-        {
-            $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
-        }
     }
 
     return $return_txt;

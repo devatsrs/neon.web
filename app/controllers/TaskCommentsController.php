@@ -15,7 +15,7 @@ class TaskCommentsController extends \BaseController {
         }else{
             $result = json_response_api($response,true,false,false);
         }
-        $Comments=[];
+        /*$Comments=[];
         $commentcount = 0;
         if(!empty($result)) {
             foreach ($result as $comment) {
@@ -35,7 +35,7 @@ class TaskCommentsController extends \BaseController {
                 ];
                 $commentcount++;
             }
-        }
+        }*/
         return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
     }
 

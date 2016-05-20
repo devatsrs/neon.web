@@ -13,7 +13,7 @@ class OpportunityBoardColumnController extends \BaseController {
 
     public function ajax_datacolumn($id){
         $response = NeonAPI::request('opportunityboardcolumn/'.$id.'/get_columns',[],false);
-        return json_response_api($response);
+        return json_response_api($response,true,true,true);
     }
 
 	/**

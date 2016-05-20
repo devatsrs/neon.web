@@ -848,14 +848,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		$emailattachment 			= 	Input::file('emailattachment');
 		$return_txt 				=	'';
 
-        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
-
         if(!empty($emailattachment)){
             $data['file'] = NeonAPI::base64byte($emailattachment);
         }
 
        try {
-           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $response_extensions, $data);
+           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $data);
            return $return_str;
        }catch (Exception $ex)
        {

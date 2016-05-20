@@ -82,7 +82,7 @@ class OpportunityController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $response = NeonAPI::request('opportunity/'.$id.'/update_opportunity',$data);
-            return Response::json($response);
+            return json_response_api($response,false,true);
         }else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Opportunity."));
         }
@@ -134,7 +134,7 @@ class OpportunityController extends \BaseController {
             $data['file'] = NeonAPI::base64byte($attachment);
         }
         try {
-            $return_str = check_upload_file($data['file'], 'email_attachments', $response_extensions, $data);
+            $return_str = check_upload_file($data['file'], 'email_attachments', $data);
             return $return_str;
         }catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
