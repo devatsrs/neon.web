@@ -782,7 +782,7 @@
 					dataType: 'json',
 					data:{
 				"AccountID":$("#payment-table-search select[name='AccountID']").val(),
-				"InvoiceNo":$("#payment-table-search [name='InvoiceNo']").val(),
+				"InvoiceNo":$("#payment-table-search input[name='InvoiceNo']").val(),
 				"Status":$("#payment-table-search select[name='Status']").val(),
 				"type":$("#payment-table-search select[name='type']").val(),				
 				"paymentmethod":$("#payment-table-search select[name='paymentmethod']").val(),
@@ -790,7 +790,7 @@
 				"PaymentDate_StartTime":$("#payment-table-search input[name='PaymentDate_StartTime']").val(),
 				"PaymentDate_EndDate":$("#payment-table-search input[name='PaymentDate_EndDate']").val(),
 				"PaymentDate_EndTime":$("#payment-table-search input[name='PaymentDate_EndTime']").val(),
-				"CurrencyID":$("#payment-table-search input[name='CurrencyID']").val(),				
+				"CurrencyID":$("#payment-table-search select[name='CurrencyID']").val(),				
 				"bDestroy": true,
 				"bProcessing":true,
 				"bServerSide":true,
