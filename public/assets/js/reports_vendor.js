@@ -14,7 +14,7 @@ function getAnalysisData(chart_type,submitdata){
     loading("."+chart_type+"-call-minutes-pie-chart",1);
     $.ajax({
         type: 'GET',
-        url: baseurl+'/analysis/getAnalysisData',
+        url: baseurl+'/vendor_analysis/getAnalysisData',
         dataType: 'json',
         data:submitdata,
         aysync: true,
@@ -79,7 +79,7 @@ function loadBarChart(chart_type,submit_data){
     loading(".bar_chart_"+chart_type,1);
     $.ajax({
         type: 'GET',
-        url: baseurl+'/analysis/getAnalysisBarData',
+        url: baseurl+'/vendor_analysis/getAnalysisBarData',
         dataType: 'json',
         data:submit_data,
         aysync: true,
@@ -172,7 +172,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         "bProcessing": true,
         "bServerSide": true,
         "bAutoWidth": false,
-        "sAjaxSource": baseurl + "/analysis/ajax_datagrid/type",
+        "sAjaxSource": baseurl + "/vendor_analysis/ajax_datagrid/type",
         "fnServerParams": function (aoData) {
             aoData.push(
 
@@ -224,13 +224,13 @@ function loadTable(table_id,pageSize,$searchFilter){
             {
                 "sExtends": "download",
                 "sButtonText": "EXCEL",
-                "sUrl": baseurl + "/analysis/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                "sUrl": baseurl + "/vendor_analysis/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                 sButtonClass: "save-collection"
             },
             {
                 "sExtends": "download",
                 "sButtonText": "CSV",
-                "sUrl": baseurl + "/analysis/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                "sUrl": baseurl + "/vendor_analysis/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                 sButtonClass: "save-collection"
             }
         ]

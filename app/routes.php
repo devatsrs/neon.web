@@ -653,6 +653,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/analysis/getAnalysisData', "AnalysisController@getAnalysisData");
 	Route::any('/analysis/getAnalysisBarData', "AnalysisController@getAnalysisBarData");
 
+	//Vendor Analysis
+	Route::any('/vendor_analysis', "VendorAnalysisController@index");
+	Route::any('/vendor_analysis/ajax_datagrid/{type}', "VendorAnalysisController@ajax_datagrid");
+	Route::any('/vendor_analysis/getAnalysisData', "VendorAnalysisController@getAnalysisData");
+	Route::any('/vendor_analysis/getAnalysisBarData', "VendorAnalysisController@getAnalysisBarData");
 
 
 });
