@@ -1,14 +1,15 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_paymentStartDate` DATETIME, IN `p_paymentEndDate` DATETIME, IN `p_isExport` INT )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_InvoiceNo` varchar(30), IN `p_Status` varchar(20), IN `p_PaymentType` varchar(20), IN `p_PaymentMethod` varchar(20), IN `p_RecallOnOff` INT, IN `p_CurrencyID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isCustomer` INT , IN `p_paymentStartDate` DATETIME, IN `p_paymentEndDate` DATETIME, IN `p_isExport` INT )
 BEGIN
 		
     	DECLARE v_OffSet_ int;
     	DECLARE v_Round_ int;
+    	DECLARE v_CurrencyCode_ VARCHAR(50);
     	SET sql_mode = '';
     	
 		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
      
 		SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
-
+		SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -36,10 +37,9 @@ BEGIN
             tblPayment.Recall,
             tblPayment.RecallReasoan,
             tblPayment.RecallBy,
-            CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(tblPayment.Amount,v_Round_)) as AmountWithSymbol
+            CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) as AmountWithSymbol
             from tblPayment
             left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
-            LEFT JOIN LocalRatemanagement.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -47,8 +47,9 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
-			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
-			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+				AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+				AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+				AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID)
             ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
@@ -95,10 +96,9 @@ BEGIN
             LIMIT p_RowspPage OFFSET v_OffSet_;
 
             SELECT
-            COUNT(tblPayment.PaymentID) AS totalcount,CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(sum(tblPayment.Amount),v_Round_)) as total_grand
+            COUNT(tblPayment.PaymentID) AS totalcount,CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(sum(Amount),v_Round_)) as total_grand
             from tblPayment
-            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
-            LEFT JOIN LocalRatemanagement.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
+           left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -106,8 +106,9 @@ BEGIN
             AND((p_Status IS NULL OR tblPayment.Status = p_Status))
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
-			   AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
-			   AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
 
 	END IF;
 	IF p_isExport = 1
@@ -115,7 +116,7 @@ BEGIN
 
 		SELECT 
             AccountName,
-            CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
+            CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
             CASE WHEN p_isCustomer = 1 THEN
               CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
               END
@@ -129,7 +130,6 @@ BEGIN
             Notes 
 			from tblPayment
             left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
-            LEFT JOIN LocalRatemanagement.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -138,7 +138,8 @@ BEGIN
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
 			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
-			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
 	END IF;
 	
 	-- export data for customer panel
@@ -147,7 +148,7 @@ BEGIN
 
 		SELECT 
             AccountName,
-            CONCAT(IFNULL(tblCurrency.Symbol,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
+            CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
             CASE WHEN p_isCustomer = 1 THEN
               CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
               END
@@ -160,7 +161,7 @@ BEGIN
             Notes 
 			from tblPayment
             left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
-            LEFT JOIN LocalRatemanagement.tblCurrency  ON tblPayment.CurrencyID =   tblCurrency.CurrencyId
+            
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -169,7 +170,8 @@ BEGIN
             AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
             AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
             AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
-			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate));
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
 	END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

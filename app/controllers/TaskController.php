@@ -23,8 +23,8 @@ class TaskController extends \BaseController {
         $boardsWithTask = [];
         if(isset($response['status_code'])) {
             if ($response['status_code'] == 200) {
-                $columns = $response['data']['result']['columns'];
-                $boardsWithTask = $response['data']['result']['boardsWithITask'];
+                $columns = $response['data']['columns'];
+                $boardsWithTask = $response['data']['boardsWithITask'];
             }else{
                 $message=$response['message'];
             }
@@ -50,7 +50,7 @@ class TaskController extends \BaseController {
         $attachementPaths ='';
         if(isset($response->status_code)) {
             if ($response->status_code == 200) {
-                $attachementPaths = $response->data->result;
+                $attachementPaths = $response->data;
             }else{
                 return json_response_api($response);
             }
@@ -114,40 +114,39 @@ class TaskController extends \BaseController {
     public function create(){
         $data = Input::all();
         $response = NeonAPI::request('task/add_task',$data);		
-
-		if(!isset($response->status_code )){
-			return  json_response_api($response);
-		}
 		
-		if ($response->status_code == 200) {	
+		
+		if($response->status!='failed'){
 			if(isset($data['Task_view'])){
 				return  json_response_api($response);				
-			}			
-			//$response = $response->data->result[0];
-			$response = json_decode(json_response_api($response,true));
+			}		
+			$response = $response->data;
 			$response = $response[0];
-			$response->type = 1;			
+			$response->type = Task::Tasks;	
+			
+		}else{
+			return json_response_api($response,false,true);
 		}
-		else{
-		 return  json_response_api($response);
-		}
+		
+		
+		
 		
 		$key = isset($data['scrol'])?$data['scrol']:0;	
 		
 		if(isset($data['Task_type']) && $data['Task_type']>0)	
 		{
-			if($data['Task_type']==3) //note
+			if($data['Task_type']==Task::Note) //note
 			{
 				$response_note 			= 	 NeonAPI::request('account/get_note',array('NoteID'=>$data['ParentID']),false,true);	
-				$response_data 			= 	$response_note['data']['Note'][0];
-				$response_data['type']  = 	3;
+				$response_data 			= 	$response_note['data'];
+				$response_data['type']  = 	Task::Note;
 			}
 			
-			if($data['Task_type']==2) //email
+			if($data['Task_type']==Task::Mail) //email
 			{
 				$response_email 		= 	NeonAPI::request('account/get_email',array('EmailID'=>$data['ParentID']),false,true);	
-				$response_data 			= 	$response_email['data']['Email'][0];
-				$response_data['type']  = 	2;
+				$response_data 			= 	$response_email['data'];
+				$response_data['type']  = 	Task::Mail;
 			}
 			
 			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
@@ -199,7 +198,7 @@ class TaskController extends \BaseController {
         $return=[];
         if(isset($response->status_code)) {
             if ($response->status_code == 200) {
-                $lead = $response->data->result;
+                $lead = $response->data;
                 $return['Company'] = $lead->AccountName;
                 $return['Phone'] = $lead->Phone;
                 $return['Email'] = $lead->Email;

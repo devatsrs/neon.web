@@ -82,8 +82,10 @@ class NeonAPI{
 
         $curl->close();
         self::parse_header($curl->response_headers);
-        return json_decode($curl->response,$is_array);
+        $response = self::makeResponse($curl,$is_array);
+        return $response;
     }
+	
     protected static function parse_header($response_headers){
         foreach ((array)$response_headers as $response_header) {
             if (strpos($response_header, 'Bearer') !== false) {
@@ -92,7 +94,33 @@ class NeonAPI{
             }
         }
     }
-
+		
+	/*protected  static function makeResponse($curl,$is_array){
+        if($curl->http_status_code!=200){
+            $response = new stdClass;
+            $response->status = 'failed';
+            $response->message = ["error" => ['Some thing wrong try Again or login again.']];
+            return $response;
+        }
+        return json_decode($curl->response,$is_array);
+    }*/
+	
+	protected  static function makeResponse($curl,$is_array){
+        if($curl->http_status_code!=200){
+            //Log
+            if($is_array){
+                $response['status'] = 'failed';
+                $response['message'] = ["error" => ['Some thing wrong try Again or login again.']];
+            }else{
+                $response = new stdClass;
+                $response->status = 'failed';
+                $response->message = ["error" => ['Some thing wrong try Again or login again.']];
+            }
+            return $response;
+        }
+        return json_decode($curl->response,$is_array);
+    }
+	
     public static function curl_File($files){
         $postfields=[];
         foreach ($files as $file) {

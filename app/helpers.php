@@ -12,69 +12,91 @@ function json_validator_response($validator){
 
 }
 
-function json_response_api($response,$datareturn=false,$is_browser=true){
-    $errors = '';
-	
+/*function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
+    $message = '';
     if(is_array($response)){
         $response = (object)$response;
     }
 
-    if(isset($response->status_code)) {
-        if ($response->status_code == 200) {
-            if (isset($response->data)) {
-                if($datareturn){
-                    if(is_array($response->data)){
-						$result = $response->data['result'];
-                    }
-					else{
-				   $result = $response->data->result;
-					}
-
-					if((is_object($result)))
-					{
-						$result_obj = (array)$result;	
-						
-					}
-					if((is_object($result) && empty($result_obj)) || (is_array($result) && empty($result)) )
-					{
-						return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end"));	//scroll variable for infinite sroll		
-					}
-				}
-				else{
-				 $result = $response->data->result;	
-				}
-
-                return json_encode($result);
-            } else {
-                return Response::json(array("status" => "success", "message" => $response->message));
+    if (isset($response->data)) {
+        if($datareturn){//For Activity Time line with message option
+            if(is_array($response->data)){
+                $result = $response->data['result'];
+            }else{
+                $result = $response->data->result;
             }
-        } elseif ($response->status_code == 432) {
-            $validator = json_decode($response->message, true);
+            $result_obj = (array)$result;
+
+            if(empty($result_obj)) {
+                return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end")); //scroll variable for infinite sroll
+            }
+        }else{
+         $result = $response->data->result;
+        }
+        if($isDataEncode){
+            $result = json_encode($result);
+        }
+        return $result;
+    } else {
+        if($response->status=='failed'){
+            $validator = (array)$response->message;
             if (count($validator) > 0) {
                 foreach ($validator as $index => $error) {
-                    $errors .= $error[0] . "<br>";
+                    if(is_array($error)){
+                        $message .= array_pop($error) . "<br>";
+                    }
+                }
+            }
+            $status = 'failed';
+        }else {
+            $message = $response->message;
+            $status = 'success';
+        }
+    }
+
+ if($isBrowser){
+     return  Response::json(array("status" => $status, "message" => $message));
+ }else{
+  return $message;
+ }
+}*/
+
+function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
+    $message = '';
+    $isArray = false;
+    if(is_array($response)){
+        $isArray = true;
+    }
+
+    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+        $validator = $isArray?$response['message']:(array)$response->message;
+        if (count($validator) > 0) {
+            foreach ($validator as $index => $error) {
+                if(is_array($error)){
+                    $message .= array_pop($error) . "<br>";
                 }
             }
         }
-		else {
-			$validator  = $response->message;
-            if (count($validator) > 0) {
-				$errors = $validator;
+        $status = 'failed';
+    }else {
+        $message = $isArray?$response['message']:$response->message;
+        $status = 'success';
+        if (($isArray && isset($response['data'])) || isset($response->data)) {
+            if($datareturn) {
+                $result = $isArray ? $response['data'] : $response->data;
+                if ($isDataEncode) {
+                    $result = json_encode($result);
+                }
+                return $result;
             }
         }
-
-    }else{
-        if(isset($response->error)){
-            $errors = $response->error;
-        }else{
-            $errors = 'Api not responded';//$response->message;
-        }
     }
-	if($is_browser){
-	    return  Response::json(array("status" => "failed", "message" => $errors));
-	}else{
-		return array("errors"=>$errors);
-	}
+
+ if($isBrowser){
+     return  Response::json(array("status" => $status, "message" => $message));
+ }else{
+  return $message;
+ }
 }
 
 function validator_response($validator){
@@ -1071,3 +1093,11 @@ function isJson($string) {
           return false;
        }
 }
+
+function get_max_file_size()
+{
+	$max_file_env			=	getenv('MAX_UPLOAD_FILE_SIZE');
+	$max_file_size			=	!empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+	return $max_file_size;
+}
+

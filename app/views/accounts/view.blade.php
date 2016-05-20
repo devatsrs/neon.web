@@ -1,4 +1,4 @@
-<?php $BoardID = $Board[0]->BoardID;  ?>
+<?php //$BoardID = $Board->BoardID;  ?>
 @extends('layout.main')
 @section('content')
 <div  style="min-height: 1050px;">
@@ -37,21 +37,21 @@
             <li>
               <div class="box clearfix ">
                 <div class="col-sm-12 header padding-left-1"> <span class="head">
-                @if(strlen($Account_card[0]->AccountName)>22) {{substr($Account_card[0]->AccountName,0,22)."..."}} @else {{$Account_card[0]->AccountName}} @endif</span><br>
-                  <span class="meta complete_name">@if(strlen($Account_card[0]->Ownername)>40) {{substr($Account_card[0]->Ownername,0,40)."..."}} @else {{$Account_card[0]->Ownername}} @endif </span></div>
+                @if(strlen($Account_card->AccountName)>22) {{substr($Account_card->AccountName,0,22)."..."}} @else {{$Account_card->AccountName}} @endif</span><br>
+                  <span class="meta complete_name">@if(strlen($Account_card->Ownername)>40) {{substr($Account_card->Ownername,0,40)."..."}} @else {{$Account_card->Ownername}} @endif </span></div>
                 <div class="col-sm-6 padding-0">
                   <div class="block">
                     <div class="meta">Email</div>
-                    <div><a class="sendemail" href="javascript:void(0)">{{$Account_card[0]->Email}}</a></div>
+                    <div><a class="sendemail" href="javascript:void(0)">{{$Account_card->Email}}</a></div>
                   </div>
                   <div class="cellNo">
                     <div class="meta">Phone</div>
-                    <div><a href="tel:{{$Account_card[0]->Phone}}">{{$Account_card[0]->Phone}}</a></div>
+                    <div><a href="tel:{{$Account_card->Phone}}">{{$Account_card->Phone}}</a></div>
                   </div>
                   @if($leadOrAccountCheck=='account')
                   <div class="block blockSmall">
                     <div class="meta">Outstanding</div>
-                    <div>{{$Account_card[0]->OutStandingAmount}}</div>
+                    <div>{{$Account_card->OutStandingAmount}}</div>
                   </div>
                   @endif
                 </div>
@@ -59,12 +59,12 @@
                   <div class="block">
                     <div class="meta">Address</div>
                     <div class="address account-address">
-                      <?php  if(!empty($Account_card[0]->Address1)){ echo $Account_card[0]->Address1."<br>";} ?>                      
-                      <?php  if(!empty($Account_card[0]->Address2)){ echo $Account_card[0]->Address2."<br>";} ?>
-                      <?php  if(!empty($Account_card[0]->Address3)){ echo $Account_card[0]->Address3."<br>";} ?>
-                      <?php  if(!empty($Account_card[0]->City)){ echo $Account_card[0]->City."<br>";} ?>
-                      <?php  if(!empty($Account_card[0]->PostCode)){ echo $Account_card[0]->PostCode."<br>";} ?>
-                      <?php  if(!empty($Account_card[0]->Country)){ echo $Account_card[0]->Country."<br>";} ?>
+                      <?php  if(!empty($Account_card->Address1)){ echo $Account_card->Address1."<br>";} ?>                      
+                      <?php  if(!empty($Account_card->Address2)){ echo $Account_card->Address2."<br>";} ?>
+                      <?php  if(!empty($Account_card->Address3)){ echo $Account_card->Address3."<br>";} ?>
+                      <?php  if(!empty($Account_card->City)){ echo $Account_card->City."<br>";} ?>
+                      <?php  if(!empty($Account_card->PostCode)){ echo $Account_card->PostCode."<br>";} ?>
+                      <?php  if(!empty($Account_card->Country)){ echo $Account_card->Country."<br>";} ?>
                     </div>
                   </div>
                 </div>
@@ -124,7 +124,7 @@
                         <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
                       </div>
                       <div class="cellNo cellNoSmall">
-                        <div class="meta">Phone: <a href="tel:{{$Account_card[0]->Phone}}">{{$contacts_row['Phone']}}</a></div>
+                        <div class="meta">Phone: <a href="tel:{{$Account_card->Phone}}">{{$contacts_row['Phone']}}</a></div>
                       </div>
                       <div class="cellNo cellNoSmall">
                         <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
@@ -168,8 +168,9 @@
               </div>
               <div class="form-group end-buttons-timeline"> 
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
-                
+                 @if(count($Board)>0)
                  <button style="margin-right:10px;" value="save_follow" id="save-note-follow" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save and Create follow up task</button>
+                 @endif
               </div>
             </form>
           </div>
@@ -220,7 +221,8 @@
                 </div>
                 <div class="form-group end-buttons-timeline">                 
                                  <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>                
-                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and Create follow up task</button>
+                  @if(count($Board)>0)
+                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and Create follow up task</button> @endif
                 </div>
               </form>
             </div>
@@ -230,11 +232,16 @@
           <div class="col-md-12">
             <form id="save-task-form" role="form" method="post">
             <div class="row">
+            
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Status:</label>
-                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2"))}} </div>
+                  @if(count($Board)>0)
+                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($Board[0]->BoardID),'',array("class"=>"select2"))}}
+                    @endif
+                   </div>
               </div>
+            
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Assign to:</label>
@@ -282,8 +289,10 @@
               <div class="row">
               <div class="col-md-12">
                 <div class="form-group end-buttons-timeline">
+                   @if(count($Board)>0)
                   <button id="save-task" class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
-                  <input type="hidden" value="{{$BoardID}}" name="BoardID">
+                  
+                   <input type="hidden" value="{{$Board[0]->BoardID}}" name="BoardID"> @endif
                   <input type="hidden" value="{{$account->AccountID}}" name="AccountIDs[]">
                 </div>
               </div>
@@ -307,21 +316,15 @@
           </div>
         </div>
       </div>
-      
-  <!--  </section>
-    <section>-->
-    
-     
       <!-- -->
-            
       <!-- -->
         <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
         <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
-          @if(count($response)>0 && $message=='')
+          @if(count($response_timeline)>0 && $message=='')
            <ul class="cbp_tmtimeline" id="timeline-ul">
           <li></li>
-            <?php  foreach($response as $key => $rows){
-			  $rows = json_decode(json_encode($rows), True); //convert std array to simple array
+            <?php  foreach($response_timeline as $key => $rows){
+			 // $rows = json_decode(json_encode($rows), True); //convert std array to simple array
 			   ?>
             @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==2)
             <li id="timeline-{{$key}}" class="count-li">
@@ -432,7 +435,7 @@
             </li>
             @endif
             <?php  }
-			if(count($response)<10)
+			if(count($response_timeline)<10)
 			{
 			?>
             <li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>
@@ -440,7 +443,7 @@
 			}
 			 ?>
             </ul>
-            @if(count($response)>($data['iDisplayLength'])-1)
+            @if(count($response_timeline)>($data['iDisplayLength'])-1)
           <div id="last_msg_loader"></div>
 			@endif
             @else
@@ -495,10 +498,8 @@
 <style>
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
-
 </style>
-
 @stop

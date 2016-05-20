@@ -95,22 +95,11 @@ class EstimatesController extends \BaseController {
     {
         $companyID 				= 	User::get_companyID();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        $accounts 				= 	Account::getAccountIDList();
-		
+        $accounts 				= 	Account::getAccountIDList();		
         $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
-        $emailTemplates 	 	= 	EmailTemplate::getTemplateArray(array('Type'=>Estimate::ESTIMATE_TEMPLATE));
-        $templateoption 	 	= 	[''=>'Select',1=>'New Create',2=>'Update'];
-        $EstimateNo 				= 	Estimate::where(array('CompanyID'=>$companyID))->get(['EstimateNumber']);
-        $EstimateNoarray 		= 	array();
         
-		foreach($EstimateNo as $Estimaterow)
-		{
-            $EstimateNoarray[] = $Estimaterow->EstimateNumber;
-        }
 		
-        $estimate = implode(',',$EstimateNoarray);
-		
-        return View::make('estimates.index',compact('products','accounts','estimate_status_json','estimate','emailTemplates','templateoption','DefaultCurrencyID'));
+        return View::make('estimates.index',compact('accounts','estimate_status_json','DefaultCurrencyID'));
     }
 
     /**

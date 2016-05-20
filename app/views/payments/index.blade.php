@@ -6,6 +6,7 @@
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
 #table-4_wrapper{padding-left:15px; padding-right:15px;}
+.small-date-input{width:11%;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -46,24 +47,27 @@
             <!--payment date start -->
             <div class="form-group">
               <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
-              <div class="col-sm-2 col-sm-e2">
+              <div class="col-sm-2 small-date-input" >
                 <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
-              <div class="col-sm-2 col-sm-e2">
+              <div class="col-sm-2  small-date-input">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
               </div>
               <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
-              <div class="col-sm-2 col-sm-e2">
+              <div class="col-sm-2  small-date-input">
                 <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
               </div>
-              <div class="col-sm-2 col-sm-e2">
+              <div class="col-sm-2  small-date-input">
                 <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
               </div>
            
             <!--payment date end -->
                        
-              <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
+              <label for="field-1" class="col-sm-1 control-label" style="width: 6%;">Payment Method</label>
               <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              
+              <label for="field-1" class="col-sm-2 control-label" style="width: 7%;">Currency</label>
+            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} </div>
        
             </div> 
             <p style="text-align: right;">
@@ -230,7 +234,8 @@
 									{"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
-									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime}
+									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
+									{"name": "CurrencyID","value": $searchFilter.CurrencyID}
 
                             );
                             data_table_extra_params.length = 0;
@@ -245,6 +250,7 @@
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
+									{"name": "CurrencyID","value": $searchFilter.CurrencyID},
                                     {"name":"Export","value":1}
                             );
 
@@ -779,6 +785,7 @@
 				"PaymentDate_StartTime":$("#payment-table-search input[name='PaymentDate_StartTime']").val(),
 				"PaymentDate_EndDate":$("#payment-table-search input[name='PaymentDate_EndDate']").val(),
 				"PaymentDate_EndTime":$("#payment-table-search input[name='PaymentDate_EndTime']").val(),
+				"CurrencyID":$("#payment-table-search input[name='CurrencyID']").val(),				
 				"bDestroy": true,
 				"bProcessing":true,
 				"bServerSide":true,
@@ -815,7 +822,8 @@
 					$searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
 					$searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
 					$searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
-					$searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
+					$searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();					
+					$searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
                     if($("#payment-table-search select[name='recall_on_off']")) {
                         $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
                     }else{

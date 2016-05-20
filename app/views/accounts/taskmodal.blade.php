@@ -157,12 +157,14 @@
         </div>
         <div class="modal-body">
           <div class="row">
+          @if(count($Board)>0)
             <div class="col-md-6 pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($Board[0]->BoardID),'',array("class"=>"select2"))}} </div>
               </div>
             </div>
+            @endif
             <div class="col-md-6 pull-right">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Assign To *</label>
@@ -189,10 +191,7 @@
               </div>
             </div>
             <div class="col-md-6 margin-top">
-             <!-- <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Priority</label>
-                <div class="col-sm-8"> {{Form::select('Priority',$priority,'',array("class"=>"select2"))}} </div>
-              </div>-->
+          
                <div class="form-group">
                                 <label class="col-sm-4 control-label">Priority</label>
                                 <div class="col-sm-4">
@@ -215,7 +214,7 @@
         <div class="modal-footer">
           <input type="hidden" id="Task_type"  value="0" name="Task_type">
           <input type="hidden" id="Task_ParentID" value="0" name="ParentID">
-          <input type="hidden" id="BoardID" name="BoardID" value="13">
+           @if(count($Board)>0)<input type="hidden" id="BoardID" name="BoardID" value="{{$Board[0]->BoardID}}"> @endif
           <input type="hidden" id="AccountIDs" name="AccountIDs" value="{{$account->AccountID}}">
           <button type="submit" id="task-add"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>

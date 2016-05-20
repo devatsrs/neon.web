@@ -71,7 +71,7 @@
               </div>
               <div class="form-group">
                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                <div class="col-sm-2"> {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }} </div>
+                <div class="col-sm-2"> {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID1")) }} </div>
                 <label class="col-sm-1 control-label" for="field-1">Account</label>
                 <div class="col-sm-2"> {{ Form::select('AccountID',$accounts,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }} </div>
             
