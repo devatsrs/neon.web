@@ -6,5 +6,6 @@ CREATE TABLE `tblAccountAuthenticate` (
   `CustomerAuthValue` varchar(8000) COLLATE utf8_unicode_ci DEFAULT NULL,
   `VendorAuthRule` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `VendorAuthValue` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`AccountAuthenticateID`)
+  PRIMARY KEY (`AccountAuthenticateID`),
+  KEY `IX_AccountID` (`AccountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

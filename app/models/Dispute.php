@@ -68,20 +68,11 @@ class Dispute extends \Eloquent {
 
 		$data['CompanyID'] =  User::get_companyID();
 
-		/*$data['DisputeDifferencePer'] = str_replace( "%" , "" , $data['DisputeDifferencePer']);
-		$data['MinutesDifferencePer'] = str_replace( "%" , "" , $data['MinutesDifferencePer']);*/
-
 		$rules = array(
 			'CompanyID' => 'required|numeric',
 			'AccountID' => 'required|numeric',
 			'DisputeAmount' => 'required|numeric',
-
-			/*'DisputeTotal' => 'required|numeric',
-			'DisputeDifference' => 'required|numeric',
-			'DisputeDifferencePer' => 'required|numeric',
-			'DisputeMinutes' => 'required|numeric',
-			'MinutesDifference' => 'required|numeric',
-			'MinutesDifferencePer' => 'required|numeric',*/
+			'InvoiceType' => 'required|numeric',
 		);
 
 
@@ -92,17 +83,16 @@ class Dispute extends \Eloquent {
 			return json_validator_response($validator);
 		}
 
-
 		if (Input::hasFile('Attachment')){
 			$upload_path = getenv("UPLOAD_PATH");
-			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS']) ;
+			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS'],$data["AccountID"]) ;
 			$destinationPath = $upload_path . '/' . $amazonPath;
 			$proof = Input::file('Attachment');
-			// ->move($destinationPath);
+
 			$ext = $proof->getClientOriginalExtension();
 			if (in_array(strtolower($ext), array('pdf','png','jpg','gif','xls','csv','xlsx'))) {
 				$filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
-				//$fullPath = $destinationPath .$filename;
+
 				$proof->move($destinationPath,$filename);
 				if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
 					return Response::json(array("status" => "failed", "message" => "Failed to upload."));
@@ -125,17 +115,10 @@ class Dispute extends \Eloquent {
 		}
 
 		$disputeData["CompanyID"]               = $data["CompanyID"];
+		$disputeData["InvoiceType"]             = $data["InvoiceType"];
 		$disputeData["InvoiceNo"]               = $data["InvoiceNo"];
 		$disputeData["AccountID"]               = $data["AccountID"];
 		$disputeData["DisputeAmount"]           = $data["DisputeAmount"];
-
-		/*$disputeData["DisputeTotal"]            = $data["DisputeTotal"];
-		$disputeData["DisputeDifference"]       = $data["DisputeDifference"];
-		$disputeData["DisputeDifferencePer"]    = $data["DisputeDifferencePer"];
-
-		$disputeData["DisputeMinutes"]          = $data["DisputeMinutes"];
-		$disputeData["MinutesDifference"]       = $data["MinutesDifference"];
-		$disputeData["MinutesDifferencePer"]    = $data["MinutesDifferencePer"];*/
 
 		$disputeData["Status"]      = isset($data["Status"])?$data["Status"]:0;
 		$disputeData["Notes"]      = isset($data["Notes"])?$data["Notes"]:"";
@@ -144,6 +127,13 @@ class Dispute extends \Eloquent {
 
 		if(!empty($disputeData["DisputeID"]) && $disputeData["DisputeID"] > 0 ) {
 
+			$dispute = Dispute::find($data["DisputeID"]);
+
+			if(!empty($dispute->Attachment)){
+				//delete old Attachment file.
+				$FilePath =  AmazonS3::preSignedUrl($dispute->Attachment);
+				@unlink($FilePath);
+			}
 			if(Dispute::find($data["DisputeID"])->update($disputeData) ) {
 
 				return Response::json(array("status" => "success", "message" => "Dispute updated successfully."));

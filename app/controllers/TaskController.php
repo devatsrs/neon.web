@@ -78,6 +78,7 @@ class TaskController extends \BaseController {
     }
 
     public function manage(){
+        $message = '';
         $Board = CRMBoard::getTaskBoard();
         $account_owners = User::getUserIDList();
         $taskStatus = CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
@@ -91,19 +92,18 @@ class TaskController extends \BaseController {
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $tasktags = json_encode(Tags::getTagsArray(Tags::Task_tag));
-        //Backup code for getting extensions from api
-        /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
-        $response_extensions = json_response_api($response_extensions,true);
+        $response_extensions     =  NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions   =   json_response_api($response_extensions,true,false);
+
         if(!empty($response_extensions)){
             if(!isJson($response_extensions)){
-                $response_extensions = implode(',',$response_extensions);
+                $message = $response_extensions['errors'];
             }
-        }*/
-        $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+        }
         $token    = get_random_number();
         $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
         $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
-        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus','response_extensions','token','max_file_size'));
+        return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus','response_extensions','token','max_file_size','message'));
     }
 	/**
 	 * Show the form for creating a new resource.

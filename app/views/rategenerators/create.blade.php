@@ -88,6 +88,11 @@
                         <div class="col-sm-4">
                                 {{ Form::select('CurrencyID', $currencylist,  '', array_merge( array("class"=>"select2"))) }}
                         </div>
+                        <label for="field-1" class="col-sm-2 control-label">Policy</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('Policy', LCR::$policy, LCR::LCR_PREFIX , array("class"=>"select2")) }}
+                        </div>
+
                     </div>
                 </div>
             </div>

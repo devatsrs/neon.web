@@ -40,6 +40,7 @@ class OpportunityBoardController extends \BaseController {
     }
 
     public function manage($id){
+        $message = '';
         $Board = CRMBoard::find($id);
         $account_owners = User::getUserIDList();
         $where['Status']=1;
@@ -53,19 +54,19 @@ class OpportunityBoardController extends \BaseController {
         $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $BoardID = $id;
-        //Backup code for getting extensions from api
-        /*$response_extensions   =   NeonAPI::request('get_allowed_extensions',[],false);
-        $response_extensions = json_response_api($response_extensions,true);
+        $response_extensions     =  NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions   =   json_response_api($response_extensions,true,false);
+
         if(!empty($response_extensions)){
-            if(!isJson($response_extensions)){
-                $response_extensions = implode(',',$response_extensions);
-            }
-        }*/
-        $response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+           if(!isJson($response_extensions)){
+               $message = $response_extensions['errors'];
+           }
+        }
+
         $token    = get_random_number();
         $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
         $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
-        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size'));
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message'));
     }
 
 	/**
@@ -78,11 +79,7 @@ class OpportunityBoardController extends \BaseController {
 
         $data = Input::all();
         $response = NeonAPI::request('opportunityboard/add_board',$data);
-        if($response->status_code==200){
-            return Response::json(array("status" => "success", "message" => "Opportunity Board Successfully Created"));
-        }else{
-            return Response::json(array("status" => "failed", "message" => $response->message));
-        }
+        return json_response_api($response);
     }
 
 
@@ -93,18 +90,9 @@ class OpportunityBoardController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-    public function update($id)
-    {
-        if( $id > 0 ) {
+    public function update($id){
             $data = Input::all();
             $response = NeonAPI::request('opportunityboard/'.$id.'/update_board',$data);
-            if($response->status_code==200){
-                return Response::json(array("status" => "success", "message" => "Opportunity Board Successfully Updated"));
-            }else{
-                return Response::json(array("status" => "failed", "message" => $response->message));
-            }
-        }else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating OpportunityBoard."));
-        }
+            return json_response_api($response);
     }
 }

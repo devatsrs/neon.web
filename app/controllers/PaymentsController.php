@@ -2,7 +2,7 @@
 
 class PaymentsController extends \BaseController {
 	
-		public function ajax_datagrid_total()
+			public function ajax_datagrid_total()
 		{
 			$data 							 = 		Input::all();
 			$CompanyID 						 = 		User::get_companyID();
@@ -88,8 +88,7 @@ class PaymentsController extends \BaseController {
         $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].""; 
-		
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -115,19 +114,13 @@ class PaymentsController extends \BaseController {
     public function index()
     {
         $id=0;
-        $companyID = User::get_companyID();
+		$companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList(); 
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
-        $InvoiceNoarray = array();
-        foreach($InvoiceNo as $Invoicerow){
-            $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-        }
-        $invoice = implode(',',$InvoiceNoarray);
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','method','type','status','action','accounts','invoice','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
+		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
 	}
 
 	/**
@@ -387,8 +380,7 @@ class PaymentsController extends \BaseController {
                     $data['Escape'] = $options['option']['Escape'];
                     $data['Firstrow'] = $options['option']['Firstrow'];
                 }
-			
-			
+
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;
@@ -431,7 +423,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function confirm_bulk_upload() {
-        $data 	   = Input::all();
+        $data = Input::all();
         $CompanyID = User::get_companyID();
         $ProcessID = $data['ProcessID'];
 
@@ -440,10 +432,8 @@ class PaymentsController extends \BaseController {
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
         if(JobType::checkJobType('PU') == 0){
             return Response::json(array("status" => "failure", "message" => "Job Type not Defined."));
-        } 
+        }
         $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-		Log::info("temp  path-".$temp_path);
-		Log::info("dest  path-".$destinationPath);
         copy($temp_path . $file_name, $destinationPath . $file_name);
 
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
@@ -573,12 +563,21 @@ class PaymentsController extends \BaseController {
     public function  download_doc($id){
         $FileName = Payment::where(["PaymentID"=>$id])->pluck('PaymentProof');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        header('Location: '.$FilePath);
+        download_file($FilePath);
         exit;
     }
 
-    public function getCurrency($id){
-        return Account::getCurrency($id);
+    public function get_currency_invoice_numbers($id){
+        $Currency_Symbol = Account::getCurrency($id);
+        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('InvoiceNumber')->get()->toArray();
+
+        $InvoiceNumbers = array();
+        foreach($InvoiceNumbers_ as $row){
+            $InvoiceNumbers[] = $row['InvoiceNumber'];
+        }
+        return Response::json(array("status" => "success", "message" => "" , "Currency_Symbol"=>$Currency_Symbol, "InvoiceNumbers" => $InvoiceNumbers));
+
+
     }
 
 }

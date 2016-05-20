@@ -39,7 +39,8 @@
             'AccountID',
             'Tags',
             'Rating',
-            'TaggedUser'
+            'TaggedUser',
+            'Status'
         ];
         var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
         var ajax_complete = false;
@@ -57,24 +58,31 @@
         //getOpportunities();
         $(document).on('click','.opportunity',function(){
             $('#add-opportunity-form').trigger("reset");
-            var select = ['UserID','AccountID','BoardID'];
+            var select = ['UserID','AccountID','BoardID','Status'];
             var accountID = '';
             for(var i = 0 ; i< opportunity.length; i++){
                 var elem = $('#add-opportunity-form [name="'+opportunity[i]+'"]');
                 if(select.indexOf(opportunity[i])!=-1){
                     elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                     if(opportunity[i]=='UserID'){
-                        $('#add-opportunity-form [name="UserID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
                         if(BoardID) {
                             $('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
+                            $('#add-opportunity-form [name="leadOrAccount"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Lead');
                         }else{
                             $('#add-modal-opportunity .leads').removeClass('hidden');
                             $('#add-modal-opportunity .toHidden').addClass('hidden');
                         }
                     }else if(opportunity[i]=='AccountID'){
+                        if(!BoardID){
+                            accountID =$(this).attr('data-id');
+                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+                        }
                         if(leadOrAccountID) {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(leadOrAccountID);
                         }
+                    }else if(opportunity[i]=='Status'){
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption({{Opportunity::Open}});
                     }
                 } else{
                     elem.val('');
@@ -90,10 +98,6 @@
             $('#add-opportunity-form [name="Rating"]').val(0);
             $('#add-opportunity-form [name="Rating"]').trigger('change');
             $('#add-modal-opportunity h4').text('Add Opportunity');
-            if(!BoardID){
-                accountID =$(this).attr('data-id');
-                $('#add-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
-            }
             $('#add-modal-opportunity').modal('show');
         });
 
@@ -171,6 +175,8 @@
             }else{
                 update_new_url = baseurl + '/opportunity/create';
             }
+            $('#'+formid).find('[name="AccountID"]').prop( 'disabled', null );
+            $('#'+formid).find('[name="UserID"]').prop( 'disabled', null );
             var formData = new FormData($('#'+formid)[0]);
             $.ajax({
                 url: update_new_url,  //Server script to process data
@@ -188,6 +194,10 @@
                     }
                     $("#opportunity-add").button('reset');
                     $("#opportunity-update").button('reset');
+                    if(!BoardID){
+                        $('#'+formid).find('[name="AccountID"]').prop('disabled','disabled');
+                        $('#'+formid).find('[name="UserID"]').prop('disabled','disabled');
+                    }
                     //getOpportunities();
                 },
                 // Form data
@@ -412,11 +422,29 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 margin-top pull-right">
+                        <div class="col-md-6 margin-top-group pull-right">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">Status</label>
+                                <div class="col-sm-8 input-group">
+                                    {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 margin-top pull-left">
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                 <div class="col-sm-8">
                                     {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 margin-top-group pull-right">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">Tags</label>
+                                <div class="col-sm-8 input-group">
+                                    <input class="form-control opportunitytags" name="Tags" type="text" >
                                 </div>
                             </div>
                         </div>
@@ -438,15 +466,6 @@
                                 </div>
                             </div>
                         </div>-->
-
-                        <div class="col-md-6 margin-top-group pull-right">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label col-sm-4">Tags</label>
-                                <div class="col-sm-8 input-group">
-                                    <input class="form-control opportunitytags" name="Tags" type="text" >
-                                </div>
-                            </div>
-                        </div>
 
                        <!-- <div class="col-md-6 margin-top-group pull-left">
                             <div class="form-group">

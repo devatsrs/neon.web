@@ -89,7 +89,7 @@ BEGIN
                 END as `Section Rate`,
                 0 AS `Billing Rate for Calling Card Prompt`,
                 0  as `Billing Cycle for Calling Card Prompt`
-        FROM   tmp_customerrate_
+        FROM   tmp_customerrateall_
         ORDER BY `Rate Prefix`; 
    
    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
