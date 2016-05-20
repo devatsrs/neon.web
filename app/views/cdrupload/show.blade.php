@@ -364,7 +364,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                		 starttime = '0:00:00';
            		 }
 				 
-				  var EndDate = $("#cdr_filter [name='EndTime']").val();
+				  var EndTime = $("#cdr_filter [name='EndTime']").val();
 				
 				 $.ajax({
 					url: baseurl + "/cdr_upload/ajax_datagrid_total/type",
@@ -372,13 +372,13 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 					dataType: 'json',
 					data:{
 				"StartDate":$("#cdr_filter [name='StartDate']").val()+ ' '+starttime,
-				"EndDate":$("#cdr_filter [name='EndDate']").val()+ ' '+EndDate,
+				"EndDate":$("#cdr_filter [name='EndDate']").val()+ ' '+EndTime,
 				"CompanyGatewayID":$("#cdr_filter [name='CompanyGatewayID']").val(),
 				"AccountID":$("#cdr_filter [name='AccountID']").val(),
 				"CDRType":$("#cdr_filter [name='CDRType']").val(),
 				"CLI":$("#cdr_filter [name='CLI']").val(),				
 				"CLD":$("#cdr_filter [name='CLD']").val(),
-				"zerovaluecost":$("#cdr_filter [name='zerovaluecost']").val(),
+				"zerovaluecost":$("#cdr_filter [name='zerovaluecost']").prop("checked"),
 				"CurrencyID":$("#cdr_filter [name='CurrencyID']").val(),				
 				"bDestroy": true,
 				"bProcessing":true,
