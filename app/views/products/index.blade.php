@@ -42,7 +42,7 @@
                                     <div class="col-sm-2">
                                         {{ Form::text('Name', '', array("class"=>"form-control")) }}
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Item Code</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Code</label>
                                      <div class="col-sm-2">
                                            {{ Form::text('Code', '', array("class"=>"form-control")) }}
                                     </div>
@@ -67,7 +67,7 @@
                 <thead>
                 <tr>
                     <th width="30%">Name</th>
-                    <th width="10%">Item Code</th>
+                    <th width="10%">Code</th>
                     <th width="10%">Unit Cost</th>
                     <th width="20%">Last Updated</th>
                     <th width="10%">Active</th>
