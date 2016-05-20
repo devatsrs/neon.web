@@ -7,7 +7,7 @@ BEGIN
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 		 
-	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin,1);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin,1);
 	
 	/* top 10 prefix by call count */	
 	SELECT AreaPrefix as ChartVal ,SUM(NoOfCalls) AS CallCount, fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR FROM tmp_tblUsageSummary_ WHERE AreaPrefix != 'other' GROUP BY AreaPrefix ORDER BY CallCount DESC LIMIT 10;

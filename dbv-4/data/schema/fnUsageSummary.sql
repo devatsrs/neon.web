@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(IN `p_CompanyID` int , IN `p_CompanyGatewayID` int , IN `p_AccountID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_Detail` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(IN `p_CompanyID` int , IN `p_CompanyGatewayID` int , IN `p_AccountID` int , IN `p_CurrencyID` INT, IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_Detail` INT)
 BEGIN
 	DECLARE v_TimeId_ INT;
 	
@@ -53,7 +53,8 @@ BEGIN
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID);			
+		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 		
 	END IF;
 	
@@ -113,7 +114,8 @@ BEGIN
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID);			
+		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 		
 	END IF;
 END

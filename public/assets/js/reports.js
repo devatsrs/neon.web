@@ -73,6 +73,7 @@ function set_search_parameter(submit_form){
     $searchFilter.CountryID = $(submit_form).find("select[name='CountryID']").val();
     $searchFilter.Prefix = $(submit_form).find("input[name='Prefix']").val();
     $searchFilter.TrunkID = $(submit_form).find("select[name='TrunkID']").val();
+    $searchFilter.CurrencyID = $(submit_form).find("select[name='CurrencyID']").val();
 }
 function loadBarChart(chart_type,submit_data){
     loading(".bar_chart_"+chart_type,1);
@@ -184,7 +185,8 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "GatewayID","value": $searchFilter.GatewayID},
                 {"name": "CountryID","value": $searchFilter.CountryID},
                 {"name": "Prefix","value": $searchFilter.Prefix},
-                {"name": "TrunkID","value": $searchFilter.TrunkID}
+                {"name": "TrunkID","value": $searchFilter.TrunkID},
+                {"name": "CurrencyID","value": $searchFilter.CurrencyID}
 
 
             );

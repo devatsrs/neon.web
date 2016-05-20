@@ -28,6 +28,12 @@
                         {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-1 control-label" for="field-1">Currency</label>
+                    <div class="col-sm-2">
+                        {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
+                    </div>
+                </div>
                 <input type="hidden" name="UserID" value="{{$UserID}}">
                 <input type="hidden" name="Admin" value="{{$isAdmin}}">
                 <input type="hidden" name="chart_type" value="gateway">

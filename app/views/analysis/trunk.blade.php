@@ -33,6 +33,10 @@
                     <div class="col-sm-2">
                         {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                     </div>
+                    <label class="col-sm-1 control-label" for="field-1">Currency</label>
+                    <div class="col-sm-2">
+                        {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
+                    </div>
                 </div>
                 <input type="hidden" name="UserID" value="{{$UserID}}">
                 <input type="hidden" name="Admin" value="{{$isAdmin}}">
