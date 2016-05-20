@@ -166,13 +166,13 @@
  <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
-                <div class="pull-right">&nbsp;</div></th>
+        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div></th>
         <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
-        <th width="10%">Grand Total</th>
-        <th width="10%">Paid/OS</th>
+        <th width="13%">Invoice Period</th>
+        <th width="6%">Grand Total</th>
+        <th width="6%">Paid/OS</th>
         <th width="10%">Status</th>
         <th width="20%">Action</th>
     </tr>
@@ -272,14 +272,15 @@ var postdata;
 
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
-                {  "bSortable": true },  // 4 GrandTotal
-                {  "bSortable": true },  // 4 PAID/OS
+                {  "bSortable": true },  //4 Invoice period
+                {  "bSortable": true },  // 5 GrandTotal
+                {  "bSortable": true },  // 6 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
-                        return invoicestatus[full[6]];
+                        return invoicestatus[full[7]];
                     }
 
-                },  // 5 InvoiceStatus
+                },  // 7 InvoiceStatus
                 {
                    "bSortable": false,
                     mRender: function ( id, type, full ) {
