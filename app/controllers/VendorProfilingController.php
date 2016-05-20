@@ -6,10 +6,10 @@ class VendorProfilingController extends \BaseController {
     public function index() {
 
         $data['CompanyID']=User::get_companyID();
-        //$data['Status'] = 1;
+        $data['Status'] = 1;
         $data['IsVendor'] = 1;
         $active_vendor = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
-        //$data['Status'] = '0';
+        $data['Status']   = '1';
 		$data['IsVendor'] = '0';
         $inactive_vendor = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         //$allvendorcodes =  VendorTrunk::getAllVendorCodes();
