@@ -7,7 +7,7 @@
                     <div class="panel-heading">
                         <div class="panel-title">
                             <h3>Total Outstanding</h3>
-                            <span>Total Outstanding</span>
+
                         </div>
 
                         <div class="panel-options">
@@ -26,7 +26,7 @@
                 <div class="panel-heading">
                     <div class="panel-title">
                         <h3>Invoices & Expenses</h3>
-                        <span>Invoices & Expenses</span>
+
                     </div>
 
                     <div class="panel-options">
