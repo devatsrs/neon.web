@@ -68,12 +68,12 @@ function set_search_parameter(submit_form){
     $searchFilter.UserID = $(submit_form).find("[name='UserID']").val();
     $searchFilter.Admin   = $(submit_form).find("input[name='Admin']").val();
     $searchFilter.chart_type   = $(submit_form).find("input[name='chart_type']").val();
-    $searchFilter.AccountID = $(submit_form).find("select[name='AccountID']").val();
+    $searchFilter.AccountID = $(submit_form).find("[name='AccountID']").val();
     $searchFilter.GatewayID = $(submit_form).find("select[name='GatewayID']").val();
     $searchFilter.CountryID = $(submit_form).find("[name='CountryID']").val();
     $searchFilter.Prefix = $(submit_form).find("input[name='Prefix']").val();
     $searchFilter.TrunkID = $(submit_form).find("[name='TrunkID']").val();
-    $searchFilter.CurrencyID = $(submit_form).find("select[name='CurrencyID']").val();
+    $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
 }
 function loadBarChart(chart_type,submit_data){
     loading(".bar_chart_"+chart_type,1);

@@ -3,6 +3,9 @@
 Route::group(array('before' => 'auth'), function () {
 
     Route::any('customer/dashboard', array("as" => "dashboardCustomer", "uses" => "DashboardCustomerController@home"));
+	Route::any('customer/monitor', array("as" => "monitorCustomer", "uses" => "DashboardCustomerController@monitor_dashboard"));
+	Route::any('customer/analysis', "AnalysisController@customer_index");
+	Route::any('customer/vendor_analysis', "AnalysisController@vendor_index");
     Route::any('customer/invoice_expense_chart', 'DashboardCustomerController@invoice_expense_chart');
     Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
     Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');

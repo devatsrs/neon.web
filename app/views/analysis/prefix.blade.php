@@ -19,25 +19,31 @@
                     <div class="col-sm-2">
                         <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
                     </div>
-                    <label class="col-sm-1 control-label" for="field-1">Account</label>
-                    <div class="col-sm-2">
-                        {{ Form::select('AccountID',$account,'', array("class"=>"select2")) }}
-                    </div>
                     <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                     <div class="col-sm-2">
                         {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
                     </div>
-                </div>
-                <div class="form-group">
                     <label class="col-sm-1 control-label" for="field-1">Prefix</label>
                     <div class="col-sm-2">
                         <input type="text" name="Prefix"  class="form-control"/>
                     </div>
-                    <label class="col-sm-1 control-label" for="field-1">Currency</label>
-                    <div class="col-sm-2">
-                        {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
-                    </div>
                 </div>
+                @if(Session::get('customer') == 1)
+                    <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
+                    <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
+                @else
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label" for="field-1">Account</label>
+                        <div class="col-sm-2">
+                            {{ Form::select('AccountID',$account,'', array("class"=>"select2")) }}
+                        </div>
+                        <label class="col-sm-1 control-label" for="field-1">Currency</label>
+                        <div class="col-sm-2">
+                            {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
+                        </div>
+                    </div>
+                @endif
+
                 <input type="hidden" name="UserID" value="{{$UserID}}">
                 <input type="hidden" name="Admin" value="{{$isAdmin}}">
                 <input type="hidden" name="chart_type" value="prefix">

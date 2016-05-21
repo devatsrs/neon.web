@@ -1,4 +1,4 @@
-@extends('layout.main')
+@extends('layout.customer.main')
 @section('content')
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
@@ -10,10 +10,11 @@
         });
 
 
-   </script>
+    </script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">
+        <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
     </form>
     <div class="row">
         <div class="col-md-3 col-sm-6">
@@ -31,6 +32,19 @@
                 {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                 <p>Today Minutes by hour</p>
                 <span class="hourly-sales-minutes"></span>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="tile-stats tile-pink stat-tile panel loading">
+                <h3>Account Manager</h3>
+                <div class="icon"><i class="fa fa-user"></i></div>
+                <p style="font-size:12px; ">
+                    Name:{{$AccountManager}}
+                    <br/>
+                    Email:{{$AccountManagerEmail}}
+
+                </p>
+
             </div>
         </div>
     </div>
@@ -51,7 +65,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Destination - Call Count.</div>
+                            <div class="panel-title">Top 10 Destination</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -63,6 +77,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
+                            <p>By Destination - Call Count. </p>
                             <br />
 
                             <div class="text-center">
@@ -77,7 +92,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Destination - Call Cost.</div>
+                            <div class="panel-title">Top 10 Destination</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -89,6 +104,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
+                            <p>By Destination - Call Cost. </p>
                             <br />
 
                             <div class="text-center">
@@ -103,7 +119,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Destination - Call Minutes.</div>
+                            <div class="panel-title">Top 10 Destination</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -115,7 +131,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-
+                            <p>By Destination - Call Minutes. </p>
                             <br />
 
                             <div class="text-center">
@@ -132,7 +148,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Prefix - Call Count.</div>
+                            <div class="panel-title">Top 10 Prefix</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -144,7 +160,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-
+                            <p>By Destination - Call Count. </p>
                             <br />
 
                             <div class="text-center">
@@ -159,7 +175,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Prefix - Call Cost.</div>
+                            <div class="panel-title">Top 10 Prefix</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -171,7 +187,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-
+                            <p>By Destination - Call Cost. </p>
                             <br />
 
                             <div class="text-center">
@@ -186,7 +202,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Prefix - Call Minutes.</div>
+                            <div class="panel-title">Top 10 Prefix</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -198,7 +214,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-
+                            <p>By Destination - Call Minutes. </p>
                             <br />
 
                             <div class="text-center">
