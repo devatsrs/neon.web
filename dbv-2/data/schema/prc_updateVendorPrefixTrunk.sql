@@ -15,7 +15,7 @@ BEGIN
         ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
     AND ud.processId = "' , p_processId , '"
-    AND (ud.billed_duration >0 OR ud.buying_cost > 0);
+    ;
     ');
 
     PREPARE stmt1 FROM @stm1;
@@ -36,7 +36,6 @@ BEGIN
 	     ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
     AND ud.processId = "' , p_processId , '"
-    AND (ud.billed_duration >0 OR ud.buying_cost > 0)
     AND t.Trunk IS NOT NULL;
     ');
 
@@ -77,7 +76,7 @@ BEGIN
     	  	  ud.CompanyID = "' , p_CompanyID , '"
         AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
         AND ud.processId = "' , p_processId , '"
-        AND (ud.billed_duration >0 OR ud.buying_cost > 0)
+        AND	ud.area_prefix = "Other"
         AND (
                 (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
                 or 

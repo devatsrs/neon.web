@@ -3,16 +3,7 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-	SET @stm6 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-	   SET ud.trunk = "Other",ud.area_prefix = "Other"
-    WHERE
-        ud.processId = "' , p_processId , '" 
-		AND ud.is_inbound = 0;
-    ');
-
-    PREPARE stmt6 FROM @stm6;
-    EXECUTE stmt6;
-    DEALLOCATE PREPARE stmt6;
+	 
 
     -- update trunk with first trunk if not set UseInBilling
     SET @stm1 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
@@ -26,7 +17,6 @@ BEGIN
         ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
     AND ud.processId = "' , p_processId , '"
-    AND (ud.billed_duration >0 OR ud.cost > 0)
 	AND ud.is_inbound = 0;
     ');
 
@@ -48,7 +38,6 @@ BEGIN
 	     ud.CompanyID = "' , p_CompanyID , '"
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
     AND ud.processId = "' , p_processId , '"
-    AND (ud.billed_duration >0 OR ud.cost > 0)
     AND ud.is_inbound = 0
     AND t.Trunk IS NOT NULL;
     ');
@@ -90,7 +79,7 @@ BEGIN
     	     ud.CompanyID = "' , p_CompanyID , '"
         AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
         AND ud.processId = "' , p_processId , '"
-        AND (ud.billed_duration >0 OR ud.cost > 0)
+		  AND	ud.area_prefix = "Other"
         AND ud.is_inbound = 0
         AND (
                 (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
@@ -121,7 +110,7 @@ BEGIN
     	     ud.CompanyID = "' , p_CompanyID , '"
         AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
         AND ud.processId = "' , p_processId , '"
-        AND (ud.billed_duration >0 OR ud.cost > 0)
+        AND	ud.area_prefix = "Other"
         AND ud.is_inbound = 0
         AND (
                 (ct.UseInBilling = 1 AND ( (ct.AccountID is not null and  ct.Prefix is null and  cld LIKE CONCAT(r.Code , "%")) or (ct.Prefix is not null and  cld LIKE CONCAT(ct.Prefix,r.Code , "%"))))
