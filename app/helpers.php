@@ -12,71 +12,6 @@ function json_validator_response($validator){
 
 }
 
-<<<<<<< HEAD
-/*function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
-    $message = '';
-=======
-function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
-    $message = '';
-    $isArray = false;
->>>>>>> 89adb8da1ffabe58cdead1a53e9c7872d4d31337
-    if(is_array($response)){
-        $isArray = true;
-    }
-
-<<<<<<< HEAD
-    if (isset($response->data)) {
-        if($datareturn){//For Activity Time line with message option
-            if(is_array($response->data)){
-                $result = $response->data['result'];
-            }else{
-                $result = $response->data->result;
-            }
-            $result_obj = (array)$result;
-
-            if(empty($result_obj)) {
-                return Response::json(array("status" => "success", "message" => "No Result Found","scroll"=>"end")); //scroll variable for infinite sroll
-            }
-        }else{
-         $result = $response->data->result;
-        }
-        if($isDataEncode){
-            $result = json_encode($result);
-        }
-        return $result;
-    } else {
-        if($response->status=='failed'){
-            $validator = (array)$response->message;
-            if (count($validator) > 0) {
-                foreach ($validator as $index => $error) {
-                    if(is_array($error)){
-                        $message .= array_pop($error) . "<br>";
-                    }
-=======
-    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
-        $validator = $isArray?$response['message']:(array)$response->message;
-        if (count($validator) > 0) {
-            foreach ($validator as $index => $error) {
-                if(is_array($error)){
-                    $message .= array_pop($error) . "<br>";
->>>>>>> 89adb8da1ffabe58cdead1a53e9c7872d4d31337
-                }
-            }
-            $status = 'failed';
-        }else {
-            $message = $response->message;
-            $status = 'success';
-        }
-<<<<<<< HEAD
-    }
-
- if($isBrowser){
-     return  Response::json(array("status" => $status, "message" => $message));
- }else{
-  return $message;
- }
-}*/
-
 function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
     $message = '';
     $isArray = false;
@@ -93,19 +28,6 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
                 }
             }
         }
-        $status = 'failed';
-    }else {
-        $message = $isArray?$response['message']:$response->message;
-        $status = 'success';
-        if (($isArray && isset($response['data'])) || isset($response->data)) {
-            if($datareturn) {
-                $result = $isArray ? $response['data'] : $response->data;
-                if ($isDataEncode) {
-                    $result = json_encode($result);
-                }
-                return $result;
-            }
-=======
         $status = 'failed';
     }else {
         $message = $isArray?$response['message']:$response->message;
@@ -126,20 +48,10 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
             return  Response::json(array("status" => $status, "message" => $message),401);
         }else {
             return Response::json(array("status" => $status, "message" => $message));
->>>>>>> 89adb8da1ffabe58cdead1a53e9c7872d4d31337
         }
     }else{
         return $message;
     }
-<<<<<<< HEAD
-
- if($isBrowser){
-     return  Response::json(array("status" => $status, "message" => $message));
- }else{
-  return $message;
- }
-=======
->>>>>>> 89adb8da1ffabe58cdead1a53e9c7872d4d31337
 }
 
 function validator_response($validator){
@@ -299,6 +211,7 @@ function setMailConfig($CompanyID){
     $mail->Host = $host;  // Specify main and backup SMTP servers
     $mail->SMTPAuth = true;                               // Enable SMTP authentication
     $mail->Username = $username;                 // SMTP username
+
 
     $mail->Password = $password;                           // SMTP password
     $mail->SMTPSecure = $encryption;                            // Enable TLS encryption, `ssl` also accepted
@@ -469,63 +382,60 @@ function get_image_data($path){
 
 
 function getFileContent($file_name,$data){
-    $columns 		= 	[];
-    $grid 			= 	[];
-    $flag 			= 	0;	
-	$extension_arr  = 	explode(".",$file_name);
-	$File_ext 		= 	$extension_arr[count($extension_arr)-1];
-	
-	$NeonExcel 		= 	new NeonExcelIO($file_name, $data);
-	$results 		= 	$NeonExcel->read(20);
-	
+    $columns = [];
+    $grid = [];
+    $flag = 0;
 
-	/*
-	if (!empty($data['Delimiter'])) {
-		Config::set('excel::csv.delimiter', $data['Delimiter']);
-	}
-	if (!empty($data['Enclosure'])) {
-		Config::set('excel::csv.enclosure', $data['Enclosure']);
-	}
-	if (!empty($data['Escape'])) {
-		Config::set('excel::csv.line_ending', $data['Escape']);
-	}
-	if(!empty($data['Firstrow'])){
-		$data['option']['Firstrow'] = $data['Firstrow'];
-	}
+    $NeonExcel = new NeonExcelIO($file_name, $data);
+    $results = $NeonExcel->read(10);
 
-	if (!empty($data['option']['Firstrow'])) {
-		if ($data['option']['Firstrow'] == 'data') {
-			$flag = 1;
-		}
-	}
-	$isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-	$results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
-		if ($flag == 1) {
-			$reader->noHeading();
-		}
-	})->take(10)->toArray();*/
-	$counter = 1;
-	//$results[0] = array_filter($results[0]);
-	foreach ($results[0] as $index => $value) {
-		if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
-			$columns[$counter] = 'Col' . $counter;
-		} else {
-			$columns[$index] = $index;
-		}
-		$counter++;
-	}
-	foreach ($results as $outindex => $datarow) {
-		//$datarow = array_filter($datarow);
-		//$results[$outindex] =  array_filter($datarow);
-		foreach ($datarow as $index => $singlerow) {
-			$results[$outindex][$index] = $singlerow;
-			if (strpos(strtolower($index), 'date') !== false) {
-				$singlerow = str_replace('/', '-', $singlerow);
-				$results[$outindex][$index] = $singlerow;
-			}
-		}
-	}
-	try {
+    /*
+    if (!empty($data['Delimiter'])) {
+        Config::set('excel::csv.delimiter', $data['Delimiter']);
+    }
+    if (!empty($data['Enclosure'])) {
+        Config::set('excel::csv.enclosure', $data['Enclosure']);
+    }
+    if (!empty($data['Escape'])) {
+        Config::set('excel::csv.line_ending', $data['Escape']);
+    }
+    if(!empty($data['Firstrow'])){
+        $data['option']['Firstrow'] = $data['Firstrow'];
+    }
+
+    if (!empty($data['option']['Firstrow'])) {
+        if ($data['option']['Firstrow'] == 'data') {
+            $flag = 1;
+        }
+    }
+    $isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
+    $results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
+        if ($flag == 1) {
+            $reader->noHeading();
+        }
+    })->take(10)->toArray();*/
+    $counter = 1;
+    //$results[0] = array_filter($results[0]);
+    foreach ($results[0] as $index => $value) {
+        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+            $columns[$counter] = 'Col' . $counter;
+        } else {
+            $columns[$index] = $index;
+        }
+        $counter++;
+    }
+    foreach ($results as $outindex => $datarow) {
+        //$datarow = array_filter($datarow);
+        //$results[$outindex] =  array_filter($datarow);
+        foreach ($datarow as $index => $singlerow) {
+            $results[$outindex][$index] = $singlerow;
+            if (strpos(strtolower($index), 'date') !== false) {
+                $singlerow = str_replace('/', '-', $singlerow);
+                $results[$outindex][$index] = $singlerow;
+            }
+        }
+    }
+    try {
     } catch (\Exception $ex) {
         Log::error($ex);
     }
@@ -1124,11 +1034,3 @@ function get_max_file_size()
     $max_file_size   = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
     return $max_file_size;
 }
-
-function get_max_file_size()
-{
-	$max_file_env			=	getenv('MAX_UPLOAD_FILE_SIZE');
-	$max_file_size			=	!empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
-	return $max_file_size;
-}
-
