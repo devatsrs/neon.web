@@ -29,7 +29,7 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="30%">CodedeckName</th>
+        <th width="30%">Name</th>
         <th width="25%">Modified Date</th>
         <th width="25%">ModifiedBy</th>
         <th width="20%">Actions</th>

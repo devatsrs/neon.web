@@ -25,9 +25,9 @@
         </div>
     </div>
 </div>
+<br class="">
 @endif
-<br class="">
-<br class="">
+
 
 <div class="float-right">
     @if(User::checkCategoryPermission('Company','Edit'))

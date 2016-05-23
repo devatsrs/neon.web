@@ -69,6 +69,7 @@
               <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
             </p>
           </div>
+          </div>
         </form>
       </div>
     </div>

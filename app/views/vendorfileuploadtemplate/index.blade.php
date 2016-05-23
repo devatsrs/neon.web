@@ -7,7 +7,7 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">Vendor file upload template</a>
+            <a href="javascript:void(0)">Vendor Template</a>
         </li>
     </ol>
 
