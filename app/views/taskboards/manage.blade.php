@@ -362,11 +362,15 @@
 
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-task-comments-form').trigger("reset");
+                $('.sendmail').removeClass('hidden');
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var taskID = rowHidden.find('[name="TaskID"]').val();
                 var accountID = rowHidden.find('[name="AccountIDs"]').val();
                 var subject = rowHidden.find('[name="Subject"]').val();
+                if(!accountID){
+                    $('.sendmail').addClass('hidden');
+                }
                 $('#add-task-comments-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="AccountID"]').val(accountID);
@@ -374,6 +378,7 @@
                 $('#add-view-modal-task-comments h4.modal-title').text(subject);
                 getComments();
                 getTaskAttachment();
+                autosizeUpdate();
                 $('#add-view-modal-task-comments').modal('show');
             });
 
@@ -397,6 +402,7 @@
                         $("#commentadd").button('reset');
                         $('#add-task-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
+                        autosizeUpdate();
                         getComments();
                     },
                     // Form data
@@ -633,6 +639,10 @@
                         $tooltip.addClass(popover_class);
                     });
                 });
+            }
+
+            function autosizeUpdate(){
+                $('.autogrow').trigger('autosize.resize');
             }
 
             function getRecord(){
@@ -922,13 +932,17 @@
                                 </div>
                                 <div class="col-md-12">
                                     <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                </div>
+                                <div class="col-md-11">
+                                </div>
+                                <div class="col-md-1">
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
                                         </a>
                                     </p>
                                 </div>
-                                <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
+                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">

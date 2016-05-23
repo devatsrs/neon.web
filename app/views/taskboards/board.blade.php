@@ -55,9 +55,10 @@
                                 </div>
                                 <div class="info">
                                     <p class="title">{{$task['Subject']}}</p>
-                                    <p class="name"><span class="{{$badgeClass}} pull-right">{{$date}}</span></p>
                                 </div>
                                 <div class="bottom pull-right">
+                                    <span class="{{$badgeClass}} pull-right">{{$date}}</span>
+                                    <br>
                                     @if(count($taggedUsers)>0)
                                         @foreach($taggedUsers as $user)
                                             <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>
