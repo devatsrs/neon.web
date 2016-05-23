@@ -135,6 +135,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/account/upload_file', 'AccountsController@upload_file');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
+	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
 	
 	
 

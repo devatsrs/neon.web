@@ -912,4 +912,56 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 	}	
 	
+	function UpdateBulkAccountStatus()
+	{
+		$data 		 = 	Input::all();
+		$CompanyID 	 =  User::get_companyID();
+		
+		$type_status =  $data['type_active_deactive'];
+		
+		if(isset($data['type_active_deactive']) && $data['type_active_deactive']!='')
+		{
+			if($data['type_active_deactive']=='active'){
+				$data['status_set']  = 1;
+			}else if($data['type_active_deactive']=='deactive'){
+					$data['status_set']  = 0;
+			}else{
+				return Response::json(array("status" => "failed", "message" => "No account status selected"));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => "No account status selected"));
+		}
+		
+		if($data['criteria_ac']=='criteria'){ //all account checkbox checked
+			$userID = 0;
+			
+			if (User::is('AccountManager')) { // Account Manager
+				$userID = $userID = User::get_userID();
+			}elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
+				$userID = (int)$data['account_owners'];
+			}
+			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
+			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+		
+		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['status_set']."')";
+		 
+		 	$result  			= 	DB::select($query);	
+			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				
+		}
+		
+		if($data['criteria_ac']=='selected'){ //selceted ids from current page
+			if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
+				foreach($data['SelectedIDs'] as $SelectedIDs){
+					Account::find($SelectedIDs)->update(["Status"=>intval($data['status_set'])]);
+				}	
+				return Response::json(array("status" => "success", "message" => "Account Status Updated"));		
+			}else{
+				return Response::json(array("status" => "failed", "message" => "No account selected"));
+			}
+			
+		}
+		
+		
+	}
+	
 }
