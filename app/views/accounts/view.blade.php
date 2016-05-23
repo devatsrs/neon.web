@@ -1,4 +1,4 @@
-<?php //$BoardID = $Board->BoardID;  ?>
+<?php //$BoardID = $Boards->BoardID;  ?>
 @extends('layout.main')
 @section('content')
 <div  style="min-height: 1050px;">
@@ -168,7 +168,7 @@
               </div>
               <div class="form-group end-buttons-timeline"> 
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
-                 @if(count($Board)>0)
+                 @if(count($boards)>0)
                  <button style="margin-right:10px;" value="save_follow" id="save-note-follow" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save and Create follow up task</button>
                  @endif
               </div>
@@ -221,7 +221,7 @@
                 </div>
                 <div class="form-group end-buttons-timeline">                 
                                  <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>                
-                  @if(count($Board)>0)
+                  @if(count($boards)>0)
                  <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and Create follow up task</button> @endif
                 </div>
               </form>
@@ -236,8 +236,8 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="to">Task Status:</label>
-                  @if(count($Board)>0)
-                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($Board[0]->BoardID),'',array("class"=>"select2"))}}
+                  @if(count($boards)>0)
+                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2"))}}
                     @endif
                    </div>
               </div>
@@ -289,10 +289,10 @@
               <div class="row">
               <div class="col-md-12">
                 <div class="form-group end-buttons-timeline">
-                   @if(count($Board)>0)
+                   @if(count($boards)>0)
                   <button id="save-task" class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
                   
-                   <input type="hidden" value="{{$Board[0]->BoardID}}" name="BoardID"> @endif
+                   <input type="hidden" value="{{$boards->BoardID}}" name="BoardID"> @endif
                   <input type="hidden" value="{{$account->AccountID}}" name="AccountIDs[]">
                 </div>
               </div>

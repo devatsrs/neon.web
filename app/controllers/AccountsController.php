@@ -249,12 +249,9 @@ class AccountsController extends \BaseController {
 			
 			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
             $account_owners 			= 	 User::getUserIDList();
-			$Board 						=	 CRMBoard::getTaskBoard();
+			//$Board 						=	 CRMBoard::getTaskBoard();
 			
-			if(count($Board)<1)
-			{
-				$message 				= 	 "No Task Board Found. PLease create task board first";
-			}
+			
 			
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
 			$random_token				=	 get_random_number();
@@ -276,13 +273,18 @@ class AccountsController extends \BaseController {
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
 			//Account oppertunity data
-			$boards 					= 	 CRMBoard::getBoards(CRMBoard::OpportunityBoard); //opperturnity variables start
+			$boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
+			if(count($boards)<1){
+				
+				$message 				= 	 "No Task Board Found. PLease create task board first";
+			}else{
+				$boards					=	  $boards[0];
+			}
 			$accounts 					= 	 Account::getAccountIDList();
 		 	$leadOrAccountID 			= 	 '';
 	        $leadOrAccount 				= 	 $accounts;
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-			
 
 			 if (isset($response->status_code) && $response->status_code == 200) {			
 				$response = $response->data;
