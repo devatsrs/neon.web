@@ -215,7 +215,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Trunks</div>
+                            <div class="panel-title">Top 10 Trunks - Call Count.</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -227,7 +227,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            <p>By Trunk - Call Count. </p>
+
                             <br />
 
                             <div class="text-center">
@@ -242,7 +242,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Trunks</div>
+                            <div class="panel-title">Top 10 Trunks - Call Cost.</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -254,7 +254,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            <p>By Trunk - Call Cost. </p>
+
                             <br />
 
                             <div class="text-center">
@@ -269,7 +269,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Trunks</div>
+                            <div class="panel-title">Top 10 Trunks - Call Minutes.</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -281,7 +281,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            <p>By Trunk - Call Minutes. </p>
+
                             <br />
 
                             <div class="text-center">
@@ -298,7 +298,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Gateways</div>
+                            <div class="panel-title">Top 10 Gateways - Call Count.</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -310,7 +310,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            <p>By Gateways - Call Count. </p>
+
                             <br />
 
                             <div class="text-center">
@@ -325,7 +325,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Gateways</div>
+                            <div class="panel-title">Top 10 Gateways - Call Cost.</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -337,7 +337,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            <p>By Gateways - Call Cost. </p>
+
                             <br />
 
                             <div class="text-center">
@@ -352,7 +352,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Gateways</div>
+                            <div class="panel-title">Top 10 Gateways - Call Minutes.</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -364,7 +364,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            <p>By Gateways - Call Minutes. </p>
+                            
                             <br />
 
                             <div class="text-center">
