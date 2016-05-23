@@ -234,10 +234,13 @@ class AccountsController extends \BaseController {
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
 			
 			if($response_timeline['status']!='failed'){
-				
-				$response_timeline =  $response_timeline['data'];
-			}
-			else{
+				if(isset($response_timeline['data']))
+				{
+					$response_timeline =  $response_timeline['data'];
+				}else{
+					$response_timeline = array();
+				}
+			}else{
 				$message = json_response_api($response_timeline,false,true);
 			}
 			
