@@ -896,13 +896,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 	{
 		$data 		= 	Input::all();
 		
-		if($data['parent_type']==3)
+		if($data['parent_type']==Task::Note)
 		{
 			$data_send  	=  	array("NoteID" => $data['parent_id']);
 			$result 		=  	NeonAPI::request('account/delete_note',$data_send);
 		}
 		
-		if($data['parent_type']==2)
+		if($data['parent_type']==Task::Mail)
 		{
 			$data_send  	=  array("AccountEmailLogID" => $data['parent_id']);
 			$result 		=  NeonAPI::request('account/delete_email',$data_send);

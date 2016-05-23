@@ -326,7 +326,7 @@
             <?php  foreach($response_timeline as $key => $rows){
 			 // $rows = json_decode(json_encode($rows), True); //convert std array to simple array
 			   ?>
-            @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==2)
+            @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Mail)
             <li id="timeline-{{$key}}" class="count-li">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -379,7 +379,7 @@
                 </div>
               </div>
             </li>
-            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==1)
+            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Tasks)
             <li id="timeline-{{$key}}" class="count-li @if($rows['followup_task']) followup_task @endif">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -414,7 +414,7 @@
                 </div>
               </div>
             </li>
-            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==3)
+            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Note)
             <li id="timeline-{{$key}}" class="count-li">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>

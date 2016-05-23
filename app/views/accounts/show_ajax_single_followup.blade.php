@@ -1,5 +1,5 @@
  @if(count($response))
-          @if($response_data['type']==2)
+          @if($response_data['type']==Task::Mail)
           <li id="timeline-{{$key}}"  class="count-li">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response_data['created_at'])); ?>">
               <?php if(date("Y-m-d h:i",strtotime($response_data['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -51,7 +51,7 @@
 
             
 </li>
-@elseif($response_data['type']==3)
+@elseif($response_data['type']==Task::Note)
 <li id="timeline-{{$key}}" row-id="{{$response_data['NoteID']}}" class="count-li">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response_data['created_at'])); ?>">
     <?php if(date("Y-m-d h:i",strtotime($response_data['created_at'])) == date('Y-m-d h:i')) { ?>
