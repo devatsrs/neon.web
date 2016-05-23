@@ -168,7 +168,7 @@
                 'TaskStatus',
                 'Priority',
                 'PriorityText',
-                'TaggedUser',
+                'TaggedUsers',
                 'BoardID'
             ];
             @if(empty($message)){
@@ -299,14 +299,14 @@
                 }else {
                     var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 }
-                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUser'];
+                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUsers'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< task.length; i++){
                     var val = rowHidden.find('input[name="'+task[i]+'"]').val();
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
                     //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
-                        if(task[i]=='TaggedUser') {
+                        if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
@@ -412,9 +412,6 @@
                 var taskID = $('#add-task-attachment-form [name="TaskID"]').val();
                 var formData = new FormData($('#add-task-attachment-form')[0]);
                 var url = baseurl + '/task/'+taskID+'/saveattachment';
-                var top = $(this).offset().top;
-                top = top-300;
-                $('#attachment_processing').css('top',top);
                 $('#attachment_processing').removeClass('hidden');
                 $.ajax({
                     url: url,  //Server script to process data
@@ -675,6 +672,7 @@
             }
 
             function getComments(){
+                $('#comment_processing').removeClass('hidden');
                 var taskID = $('#add-task-comments-form [name="TaskID"]').val();
                 var url = baseurl +'/taskcomments/'+taskID+'/ajax_taskcomments';
                 $.ajax({
@@ -682,6 +680,7 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
+                        $('#comment_processing').addClass('hidden');
                         if(response.status){
                             toastr.error(response.message, "Error", toastr_opts);
                         }else {
@@ -819,7 +818,7 @@
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10" style="padding: 0px 10px;">
                                     <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
                             </div>
 
@@ -951,13 +950,14 @@
                                 </div>
                             </div>
                         </form>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <br>
+                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">
 
                         </div>
                         <div id="attachments" class="form-group">
                         </div>
-                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-12" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />

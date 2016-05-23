@@ -141,7 +141,7 @@
                 'AccountID',
                 'Tags',
                 'Rating',
-                'TaggedUser',
+                'TaggedUsers',
                 'Status'
             ];
 
@@ -184,16 +184,16 @@
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','BoardID','TaggedUser','Title','Status'];
+                var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
                     //console.log(opportunity[i]+' '+val);
                     if(select.indexOf(opportunity[i])!=-1){
-                        if(opportunity[i]=='TaggedUser'){
-                            var taggedUser = rowHidden.find('[name="TaggedUser"]').val();
-                            $('#edit-opportunity-form [name="TaggedUser[]"]').select2('val', taggedUser.split(','));
+                        if(opportunity[i]=='TaggedUsers'){
+                            var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
+                            $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
@@ -554,6 +554,7 @@
             }
 
             function getComments(){
+                $('#comment_processing').removeClass('hidden');
                 var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
                 var url = baseurl +'/opportunitycomments/'+opportunityID+'/ajax_opportunitycomments';
                 $.ajax({
@@ -561,17 +562,21 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#allComments').html(response);
-                        var nicescroll_defaults = {
-                            cursorcolor: '#d4d4d4',
-                            cursorborder: '1px solid #ccc',
-                            railpadding: {right: 3},
-                            cursorborderradius: 1,
-                            autohidemode: true,
-                            sensitiverail: false
-                        };
-                        $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
-
+                        $('#comment_processing').addClass('hidden');
+                        if(response.status){
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }else {
+                            $('#allComments').html(response);
+                            var nicescroll_defaults = {
+                                cursorcolor: '#d4d4d4',
+                                cursorborder: '1px solid #ccc',
+                                railpadding: {right: 3},
+                                cursorborderradius: 1,
+                                autohidemode: true,
+                                sensitiverail: false
+                            };
+                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                        }
                     },
                     // Form data
                     data: [],
@@ -692,7 +697,7 @@
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10">
                                     <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
                             </div>
 
@@ -894,6 +899,7 @@
                             </div>
                         </form>
                         <br>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">
 
                         </div>

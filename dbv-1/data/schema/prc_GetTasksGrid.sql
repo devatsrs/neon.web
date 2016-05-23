@@ -25,7 +25,7 @@ BEGIN
 			 	WHEN ts.Priority=2 THEN 'Medium'
 				WHEN ts.Priority=3 THEN 'Low'
 		END as PriorityText,				
-		ts.TaggedUser,
+		ts.TaggedUsers,
 		ts.BoardID
 		FROM tblCRMBoards b
 		INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID

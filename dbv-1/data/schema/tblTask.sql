@@ -13,7 +13,7 @@ CREATE TABLE `tblTask` (
   `Priority` tinyint(4) NOT NULL DEFAULT '0',
   `Order` int(11) NOT NULL,
   `Tags` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `TaggedUser` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `TaggedUsers` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `AttachmentPaths` mediumtext COLLATE utf8_unicode_ci NOT NULL,
   `Task_type` int(11) NOT NULL DEFAULT '0',
   `ParentID` int(11) NOT NULL DEFAULT '0',

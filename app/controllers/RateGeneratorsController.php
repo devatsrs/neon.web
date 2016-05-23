@@ -385,18 +385,34 @@ class RateGeneratorsController extends \BaseController {
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $rules = array(
-                'MinRate' => 'numeric',
-                'MaxRate' => 'numeric',
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required',
                 'RateRuleId' => 'required',
                 'RateRuleMarginId' => 'required',
                 'ModifiedBy' => 'required'
             );
 
+            $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data ['MinRate'], $data ['MaxRate']))
+                                            ->where(['RateRuleId'=>$RateRuleId])
+                                            ->where('RateRuleMarginId','!=',$RateRuleMarginId)
+                                            ->count();
+            $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data ['MinRate'], $data ['MaxRate']))
+                                            ->where(['RateRuleId'=>$RateRuleId])
+                                            ->where('RateRuleMarginId','!=',$RateRuleMarginId)
+                                            ->count();
+
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
+            }
+
+            if($minRateCount>0 || $maxRateCount>0){
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => "RateGenerator Rule Margin is overlapping."
+                ));
             }
 
             if ($rategenerator_rule_margin->update($data)) {
@@ -423,18 +439,24 @@ class RateGeneratorsController extends \BaseController {
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $rules = array(
-                'MinRate' => 'numeric',
-                'MaxRate' => 'numeric',
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required',
                 'RateRuleId' => 'required',
                 'CreatedBy' => 'required'
             );
 
+            $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data ['MinRate'], $data ['MaxRate']))->where(['RateRuleId'=>$RateRuleId])->count();
+            $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data ['MinRate'], $data ['MaxRate']))->where(['RateRuleId'=>$RateRuleId])->count();
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 //return json_validator_response ( $validator );
                 return Redirect::back()->withErrors($validator)->withInput($data); // with ( 'success_message', "RateGenerator Rule Margin Successfully Inserted" );
+            }
+
+            if($minRateCount>0 || $maxRateCount>0){
+                return Redirect::back()->with('error_message', "RateGenerator Rule Margin is overlapping");
             }
 
             if (RateRuleMargin::insert($data)) {

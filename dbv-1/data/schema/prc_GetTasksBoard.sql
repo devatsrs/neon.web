@@ -16,7 +16,7 @@ BEGIN
 		ts.BoardColumnID as TaskStatus,
 		ts.Priority,
 		ts.Tags,
-		ts.TaggedUser,
+		ts.TaggedUsers,
 		ts.BoardID,
 		concat( u.FirstName,' ',u.LastName) as userName
 	FROM tblCRMBoards b

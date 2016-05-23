@@ -5,7 +5,6 @@ CREATE TABLE `tblVendorTrunk` (
   `AccountID` int(11) NOT NULL,
   `TrunkID` int(11) NOT NULL,
   `Prefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `CompanyGatewayIDs` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Status` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,

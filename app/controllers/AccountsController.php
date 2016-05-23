@@ -749,6 +749,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
+            if (User::is('AccountManager')) { // Account Manager
+                $data['account_owners'] = $userID = User::get_userID();
+            }
             $type = $data['type'];
             if ($type == 'CD') {
                 $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
@@ -869,14 +872,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		$emailattachment 			= 	Input::file('emailattachment');
 		$return_txt 				=	'';
 
-        $response_extensions     =  explode(',',getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS"));
-
         if(!empty($emailattachment)){
             $data['file'] = NeonAPI::base64byte($emailattachment);
         }
 
        try {
-           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $response_extensions, $data);
+           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $data);
            return $return_str;
        }catch (Exception $ex)
        {

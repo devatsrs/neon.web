@@ -1,16 +1,16 @@
 <ul class="board-inner no-select" id="deals-dashboard">
-    @if(count($boardsWithTask)>0)
-        @foreach($boardsWithTask as $index=>$board )
+    @if(count($columnsWithITask)>0)
+        @foreach($columnsWithITask as $index=>$column )
             <?php//$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
             <header>
-                <h5>{{$columns[$index]['Name']}} {{(!empty($board[0])?'('.count($board).')':'')}}</h5>
+                <h5>{{$columns[$index]['Name']}} {{(!empty($column[0])?'('.count($column).')':'')}}</h5>
             </header>
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
-                    @foreach($board as $curent=>$task)
+                    @foreach($column as $task)
                         @if(!empty($task))
                             <?php
-                        $taggedUser = $task['TaggedUser'];
+                        $taggedUsers = $task['TaggedUsers'];
                         $task = $task['task'];
                         $priority = !empty($task['Priority'])?'<i style="color:#cc2424;font-size:15px;" class="edit-deal entypo-record"></i>':'';
                         $hidden = '';
@@ -58,8 +58,8 @@
                                     <p class="name"><span class="{{$badgeClass}} pull-right">{{$date}}</span></p>
                                 </div>
                                 <div class="bottom pull-right">
-                                    @if(count($taggedUser)>0)
-                                        @foreach($taggedUser as $user)
+                                    @if(count($taggedUsers)>0)
+                                        @foreach($taggedUsers as $user)
                                             <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>
                                             <span class="badge badge-warning badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
                                         @endforeach

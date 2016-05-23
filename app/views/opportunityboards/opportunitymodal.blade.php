@@ -39,7 +39,7 @@
             'AccountID',
             'Tags',
             'Rating',
-            'TaggedUser',
+            'TaggedUsers',
             'Status'
         ];
         var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
@@ -134,32 +134,6 @@
             getLeadOrAccount(url);
         });
 
-        $('#taggedUser [name="taggedUser[]"]').change(function(){
-            var formData = new FormData($('#taggedUser')[0]);
-            var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
-            var url = baseurl + '/opportunity/'+opportunityID+'/updatetaggeduser';
-            $.ajax({
-                url: url,  //Server script to process data
-                type: 'POST',
-                dataType: 'json',
-                success: function (response) {
-                    if(response.status =='success'){
-                        toastr.success(response.message, "Success", toastr_opts);
-                    }else{
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                    $("#opportunity-update").button('reset');
-                    //getOpportunities();
-                },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });
-
         $(document).on('change','#add-opportunity-form [name="leadOrAccount"]',function(){
             changelableanddropdown();
         });
@@ -175,8 +149,8 @@
             }else{
                 update_new_url = baseurl + '/opportunity/create';
             }
-            $('#'+formid).find('[name="AccountID"]').prop( 'disabled', null );
-            $('#'+formid).find('[name="UserID"]').prop( 'disabled', null );
+            $('#'+formid).find('[name="AccountID"]').prop( 'disabled', false );
+            $('#'+formid).find('[name="UserID"]').prop( 'disabled', false );
             var formData = new FormData($('#'+formid)[0]);
             $.ajax({
                 url: update_new_url,  //Server script to process data
@@ -192,11 +166,12 @@
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                     }
+                    
                     $("#opportunity-add").button('reset');
                     $("#opportunity-update").button('reset');
                     if(!BoardID){
-                        $('#'+formid).find('[name="AccountID"]').prop('disabled','disabled');
-                        $('#'+formid).find('[name="UserID"]').prop('disabled','disabled');
+                        $('#'+formid).find('[name="AccountID"]').prop('disabled',true);
+                        $('#'+formid).find('[name="UserID"]').prop('disabled',true);
                     }
                     //getOpportunities();
                 },
