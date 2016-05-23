@@ -141,4 +141,20 @@ class CurrenciesController extends \BaseController {
         }
 	}
 
+    public function exports($type){
+        $CompanyID = User::get_companyID();
+        $currencies = Currency::where(["CompanyID" => $CompanyID])->get(['Code','Symbol', 'Description']);
+        $currencies = json_decode(json_encode($currencies),true);
+        if($type=='csv'){
+            $file_path = getenv('UPLOAD_PATH') .'/Currency.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($currencies);
+        }elseif($type=='xlsx'){
+            $file_path = getenv('UPLOAD_PATH') .'/Currency.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($currencies);
+        }
+
+    }
+
 }

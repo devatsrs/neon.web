@@ -506,6 +506,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/currency/create', 'CurrenciesController@create');
 	Route::any('/currency/update/{id}', 'CurrenciesController@update');
 	Route::any('/currency/{id}/delete', 'CurrenciesController@delete');
+	Route::any('/currency/exports/{type}', 'CurrenciesController@exports');
 
     //currency_conversion
     Route::any('/currency_conversion/ajax_datagrid', 'CurrencyConversionController@ajax_datagrid');
