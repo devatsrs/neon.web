@@ -132,7 +132,7 @@
 						//$("#add-task-form .btn-danger").click();
 						$('#add-modal-task').modal('hide');						
 					}                    
-                    
+                   $('#add-task-form #Description_task').css("height","48px"); 
                 },
                 // Form data
                 data: formData,
@@ -205,7 +205,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-2">Description</label>
                 <div class="col-sm-10">
-                  <textarea name="Description" class="form-control descriptions autogrow resizevertical"> </textarea>
+                  <textarea style="height:48px;" name="Description" id="Description_task" placeholder="I will grow as you type new lines." class="form-control descriptions autogrow resizevertical"></textarea>
                 </div>
               </div>
             </div>
