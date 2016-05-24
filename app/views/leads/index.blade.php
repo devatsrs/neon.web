@@ -60,7 +60,7 @@
                             </p>
                         </div>
                         @if(User::is_admin())
-                            <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                            <label for="field-1" class="col-sm-1 control-label">Owner</label>
                             <div class="col-sm-2">
                                 {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                             </div>

@@ -102,7 +102,7 @@
                         <label for="field-1" class="col-sm-3 control-label">Color</label>
 
                         <div class="col-sm-6 input-group">
-                            <input name="Color" type="text" class="form-control colorpicker" value="{{$user->Color}}" />
+                            <input name="Color" type="text" class="form-control colorpicker" value="@if(isset($user->Color)){{$user->Color}}@endif" />
                             <div class="input-group-addon">
                                 <i class="color-preview"></i>
                             </div>
