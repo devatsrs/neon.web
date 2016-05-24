@@ -216,7 +216,7 @@
         <li> <a href="{{URL::to('/cronjobs')}}"> <i class="glyphicon glyphicon-star-empty"></i> <span>Cron Jobs</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <li> <a href="{{URL::to('/uploadtemplate')}}"> <i class="glyphicon glyphicon-star-empty"></i> <span>Upload File Template</span> </a> </li>
+        <li> <a href="{{URL::to('/uploadtemplate')}}"> <i class="glyphicon glyphicon-star-empty"></i> <span>Vendor Template</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Jobs','view')) 
         <!-- <li>

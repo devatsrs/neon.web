@@ -38,11 +38,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_name"  type="text" >
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">Account Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Number</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
@@ -79,7 +79,7 @@
                             {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"selectboxit"))}}
                         </div>
                         @if(User::is_admin())
-                         <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                         <label for="field-1" class="col-sm-1 control-label">Owner</label>
                         <div class="col-sm-2">
                             {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                         </div>
@@ -164,8 +164,8 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Account Name</th>
-        <th width="10%" >Name</th>
+        <th width="15%" >Name</th>
+        <th width="10%" >Owner</th>
         <th width="10%">Phone</th>
         <th width="10%">OS</th>
         <th width="10%">Email</th>
