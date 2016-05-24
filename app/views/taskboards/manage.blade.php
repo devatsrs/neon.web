@@ -215,7 +215,8 @@
                             {"name": "DueDateFrom","value": $searchFilter.DueDateFrom},
                             {"name": "DueDateTo","value": $searchFilter.DueDateTo},
                             {"name": "TaskStatus","value": $searchFilter.TaskStatus},
-                            {"name": "AccountIDs","value": $searchFilter.AccountIDs}
+                            {"name": "AccountIDs","value": $searchFilter.AccountIDs},
+                            {"name": "taskClosed","value": $searchFilter.taskClosed}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
