@@ -28,9 +28,9 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="30%">Currency Code</th>
-        <th width="30%">Currency Symbol</th>
-        <th width="25%">Currency Description</th>
+        <th width="30%">Code</th>
+        <th width="30%">Symbol</th>
+        <th width="25%">Description</th>
         <th width="25%">Action</th>
     </tr>
     </thead>
