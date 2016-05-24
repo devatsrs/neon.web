@@ -330,15 +330,15 @@
                             elem.val(val).trigger("change");
                         }else if(task[i]=='Priority'){
                             if(val==1) {
-                                biuldSwicth('.make','#edit-modal-task','checked');
+                                biuldSwicth('.make','Priority','#edit-modal-task','checked');
                             }else{
-                                biuldSwicth('.make','#edit-modal-task','');
+                                biuldSwicth('.make','Priority','#edit-modal-task','');
                             }
                         }else if(task[i]=='taskClosed'){
                             if(val==1) {
-                                biuldSwicth('.taskClosed','#edit-modal-task','checked');
+                                biuldSwicth('.taskClosed','taskClosed','#edit-modal-task','checked');
                             }else{
-                                biuldSwicth('.taskClosed','#edit-modal-task','');
+                                biuldSwicth('.taskClosed','taskClosed','#edit-modal-task','');
                             }
                         }else if(task[i]=='DueDate' || task[i]=='StartTime'){
                             if(val=='0000-00-00' || val=='00:00:00'){
@@ -650,9 +650,9 @@
                 $('.autogrow').trigger('autosize.resize');
             }
 
-            function biuldSwicth(container,formID,checked){
+            function biuldSwicth(container,name,formID,checked){
                 var make = '<span class="make-switch switch-small">';
-                make += '<input name="taskClosed" value="{{Task::Close}}" '+checked+' type="checkbox">';
+                make += '<input name="'+name+'" value="{{Task::Close}}" '+checked+' type="checkbox">';
                 make +='</span>';
 
                 var container = $(formID).find(container);
