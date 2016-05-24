@@ -91,7 +91,7 @@
                                 <label class="col-sm-1 control-label">Closed</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
-                                        <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                                        <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
                                     </p>
                                 </div>
                             </div>
