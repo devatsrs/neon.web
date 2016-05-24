@@ -87,6 +87,13 @@
                                 <div class="col-sm-4">
                                     {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
+
+                                <label class="col-sm-1 control-label">Closed</label>
+                                <div class="col-sm-1">
+                                    <p class="make-switch switch-small">
+                                        <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                                    </p>
+                                </div>
                             </div>
                             <p style="text-align: right;">
                                 <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -195,6 +202,11 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
+                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -531,6 +543,17 @@
                 $('.autogrow').trigger('autosize.resize');
             }
 
+            function biuldSwicth(container,formID,checked){
+                var make = '<span class="make-switch switch-small">';
+                make += '<input name="opportunityClosed" value="{{Opportunity::Close}}" '+checked+' type="checkbox">';
+                make +='</span>';
+
+                var container = $(formID).find(container);
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
+            }
+
             function getOpportunities(){
                 var formData = new FormData($('#search-opportunity-filter')[0]);
                 var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
@@ -800,6 +823,17 @@
                                     <label for="field-5" class="control-label col-sm-4">Tags</label>
                                     <div class="col-sm-8 input-group">
                                         <input class="form-control opportunitytags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Closed</label>
+                                    <div class="col-sm-8 make">
+                                        <p class="make-switch switch-small">
+                                            <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                        </p>
                                     </div>
                                 </div>
                             </div>

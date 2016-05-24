@@ -105,7 +105,7 @@
     <li><a href="#"><i class="entypo-layout"></i><span>&nbsp;CRM</span></a>
         <ul>
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
-                <li><a href="{{URL::to('/opportunityboards')}}"><i class="fa fa-tasks"></i><span>Opportunity Board</span></a></li>
+                <li><a href="{{URL::to('/opportunityboards')}}"><i class="fa fa-tasks"></i><span>Opportunities</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
                 <li><a href="{{URL::to('/task')}}"><i class="fa fa-tasks"></i><span>Tasks</span></a></li>
