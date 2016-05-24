@@ -135,13 +135,13 @@
                 <li class="li_active">
                    <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                         <i class="entypo-user-add"></i>
-                        <span>Activate Accounts</span>
+                        <span>Activate</span>
                    </a>
                 </li>
                 <li class="li_deactive">
                    <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
                         <i class="entypo-user-add"></i>
-                        <span>De Activate Accounts</span>
+                        <span>Deactivate</span>
                    </a>
                 </li>
                 @endif
