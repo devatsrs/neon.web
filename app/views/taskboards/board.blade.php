@@ -12,33 +12,29 @@
                             <?php
                         $taggedUsers = $task['TaggedUsers'];
                         $task = $task['task'];
-                        $priority = !empty($task['Priority'])?'<i style="color:#cc2424;font-size:15px;" class="edit-deal entypo-record"></i>':'';
+                        //$priority = !empty($task['Priority'])?'<i style="color:#cc2424;font-size:15px;" class="edit-deal entypo-record"></i>':'';
+                        $priorityborder = !empty($task['Priority'])?'priority':'normal';
                         $hidden = '';
                         $datediff = '';
                         $date = '';
                         $badgeClass = '';
                         $seconds = '';
                         if($task['DueDate']!='0000-00-00'){
-                            $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffInDays();
-                            $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
-                            if(strpos($date,'ago')){
+                            $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInDays();
+                            $datediffhuman=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
+                            $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
+                            if(strpos($datediffhuman,'ago')){
                                 $datediff=-1;
-                            }
-                            if($datediff>2){
-                                $date =  \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             }
                             $date = '<i class="entypo-clock"></i>'.$date;
                             switch (TRUE) {
-                                case ($datediff<0  && $task['SetCompleted']!=1):
+                                case ($datediff<0):
                                     $badgeClass = "badge badge-danger badge-roundless";
                                     break;
                                 case ($datediff==0):
-                                    $badgeClass = "badge badge-success badge-roundless";
-                                    break;
-                                case ($datediff>0):
                                     $badgeClass = "badge badge-warning badge-roundless";
                                     break;
-                                case ($datediff<0  && $task['SetCompleted']==1):
+                                case ($datediff>0):
                                     $badgeClass = "badge badge-roundless";
                                     break;
                             }
@@ -47,15 +43,14 @@
                             $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
                         }
                         ?>
-                            <li class="tile-stats sortable-item count-cards" data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
-                                <span class="pull-left">{{$priority}}</span>
+                            <li class="tile-stats sortable-item count-cards {{$priorityborder}}" data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
                                 <button type="button" title="Edit Task" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
+                                <span class="{{$badgeClass}} pull-right">{{$date}}</span>
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
                                 <div class="info">
                                     <p class="title">{{$task['Subject']}}</p>
-                                    <p class="name"><span class="{{$badgeClass}} pull-right">{{$date}}</span></p>
                                 </div>
                                 <div class="bottom pull-right">
                                     @if(count($taggedUsers)>0)

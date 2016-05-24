@@ -87,6 +87,13 @@
                                 <div class="col-sm-4">
                                     {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
+
+                                <label class="col-sm-1 control-label">Closed</label>
+                                <div class="col-sm-1">
+                                    <p class="make-switch switch-small">
+                                        <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                                    </p>
+                                </div>
                             </div>
                             <p style="text-align: right;">
                                 <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -195,6 +202,11 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
+                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -212,23 +224,17 @@
                 $('#edit-modal-opportunity').modal('show');
             });
 
-            $(document).on('mousedown','#board-start ul.sortable-list li',function(e){
-                //setting Class for current draggable item
-                $(this).addClass('dragging');
-            });
-
-            $(document).on('mouseup','#board-start ul.sortable-list li',function(e){
-                //remove Class for current draggable item
-                $(this).removeClass('dragging');
-            });
-
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
+                $('.sendmail').removeClass('hidden');
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var opportunityID = rowHidden.find('[name="OpportunityID"]').val();
                 var accountID = rowHidden.find('[name="AccountID"]').val();
                 var opportunityName = rowHidden.find('[name="OpportunityName"]').val();
+                if(!accountID){
+                    $('.sendmail').addClass('hidden');
+                }
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="AccountID"]').val(accountID);
@@ -236,6 +242,7 @@
                 $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
                 getComments();
                 getOpportunityAttachment();
+                autosizeUpdate();
                 $('#add-view-modal-opportunity-comments').modal('show');
             });
 
@@ -259,6 +266,7 @@
                         $("#commentadd").button('reset');
                         $('#add-opportunity-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
+                        autosizeUpdate();
                         getComments();
                     },
                     // Form data
@@ -529,6 +537,21 @@
                         $tooltip.addClass(popover_class);
                     });
                 });
+            }
+
+            function autosizeUpdate(){
+                $('.autogrow').trigger('autosize.resize');
+            }
+
+            function biuldSwicth(container,formID,checked){
+                var make = '<span class="make-switch switch-small">';
+                make += '<input name="opportunityClosed" value="{{Opportunity::Close}}" '+checked+' type="checkbox">';
+                make +='</span>';
+
+                var container = $(formID).find(container);
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
             }
 
             function getOpportunities(){
@@ -804,6 +827,17 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Closed</label>
+                                    <div class="col-sm-8 make">
+                                        <p class="make-switch switch-small">
+                                            <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Background</label>
@@ -870,13 +904,17 @@
                                 </div>
                                 <div class="col-md-12">
                                     <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                </div>
+                                <div class="col-md-11">
+                                </div>
+                                <div class="col-md-1">
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
                                         </a>
                                     </p>
                                 </div>
-                                <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
+                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">

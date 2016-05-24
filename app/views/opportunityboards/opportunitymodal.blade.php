@@ -271,6 +271,7 @@
             if($('#add-opportunity-form [name="leadOrAccount"]').val()=='Lead'){
                 $('#leadlable').text('Existing lead');
                 $('.leads label').text('Lead');
+                $('#add-opportunity-form [name="Title"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
             }else{
                 $('#leadlable').text('Existing Account');
                 $('.leads label').text('Account');
