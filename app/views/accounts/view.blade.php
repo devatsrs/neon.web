@@ -160,7 +160,7 @@
             <form role="form" id="notes-from" action="{{URL::to('accounts/'.$account->AccountID.'/store_note/')}}" method="post">
               <div class="form-group ">
              
-                  <textarea name="Note" id="note-content" class="form-control autogrow editor-note"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+                  <textarea name="Note" id="note-content" class="form-control autogrow editor-note"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
              
 
 
@@ -180,17 +180,17 @@
             <div class="mail-compose">
               <form method="post" id="email-from" role="form" enctype="multipart/form-data">
                 <div class="form-group">
-                  <label for="to">To:</label>
+                  <label for="to">To *</label>
                   <!--{{ Form::select('email-to', USer::getUserIDList(), '', array("class"=>"select2","id"=>"email-to","tabindex"=>"1")) }}-->
                   <input type="text" class="form-control" value="{{$account->Email}}" id="email-to" name="email-to" tabindex="1"  />
                   <div class="field-options"> <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </div>
                 </div>
                 <div class="form-group hidden">
-                  <label for="cc">CC:</label>
+                  <label for="cc">CC</label>
                   <input type="text" name="cc"  class="form-control tags"  id="cc" />
                   </div>
                 <div class="form-group hidden">
-                  <label for="bcc">BCC:</label>
+                  <label for="bcc">BCC</label>
                   <input type="text" name="bcc"  class="form-control tags"  id="bcc" />
                   </div>
                    
@@ -200,12 +200,12 @@
                 </div>
                         
                 <div class="form-group">
-                  <label for="subject">Subject:</label>
+                  <label for="subject">Subject *</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
                   <input  hidden="" name="token_attachment" value="{{$random_token}}" />
                 </div>
                 <div class="form-group">  
-                <label for="subject">Email:</label>                            
+                <label for="subject">Email *</label>                            
                  <textarea id="Message" class="form-control message"    name="Message"></textarea>
                 </div>
                 <div class="form-group no_margin_bt">
@@ -235,7 +235,7 @@
             
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="to">Task Status:</label>
+                  <label for="to">Task Status *</label>
                   @if(count($boards)>0)
                   {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2"))}}
                     @endif
@@ -244,14 +244,14 @@
             
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="to">Task Assign to:</label>
+                  <label for="to">Task Assign to *</label>
                   {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2"))}} </div>
               </div>
              </div> 
               <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="control-label col-sm-12" for="to">Priority:</label>
+                  <label class="control-label col-sm-12" for="to">Priority</label>
                    <p class="make-switch switch-small">
                                         <input name="Priority" type="checkbox" value="1" >
                                     </p>
@@ -259,7 +259,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="control-label col-sm-12 " for="to">Due Date:</label>
+                  <label class="control-label col-sm-12 " for="to">Due Date</label>
                   <div class="col-sm-8">
                   <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                   </div>
@@ -273,7 +273,7 @@
             <div class="row">              
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="to">Task Subject:</label>
+                  <label for="to">Task Subject *</label>
                   <input type="text" id="Subject" name="Subject" class="form-control"  tabindex="1" />
                 </div>
               </div>
@@ -281,7 +281,7 @@
              <div class="row"> 
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="to">Description:</label>
+                  <label for="to">Description</label>
                   <textarea class="form-control autogrow" id="Description" name="Description" placeholder="I will grow as you type new lines." style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 48px;"></textarea>
                 </div>
               </div>
