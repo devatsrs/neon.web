@@ -186,7 +186,7 @@ a[disabled] {
 }
 .toast-container-fix.toast-top-full-width > div,
 .toast-container-fix.toast-bottom-full-width > div {
-  width: 96%;
+ /* width: 96%;*/ width: 100%;
   margin: auto;
 }
 .toast-container-fix .toast-success.black,
