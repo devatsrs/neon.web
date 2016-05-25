@@ -130,6 +130,18 @@ return array(
             'prefix'    => '',
             'strict'    => false,
         ],
+		/** Neon Report Database **/
+		'neon_report' => [
+			'driver'    => 'mysql',
+			'host'      => getenv('DB_HOSTREPORT'),
+			'database'  => getenv('DB_DATABASEREPORT'),
+			'username'  => getenv('DB_USERNAMEREPORT'),
+			'password'  => getenv('DB_PASSWORDREPORT'),
+			'charset'   => 'utf8',
+			'collation' => 'utf8_unicode_ci',
+			'prefix'    => '',
+			'strict'    => false,
+		],
 
 	),
 

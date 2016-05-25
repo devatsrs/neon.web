@@ -2229,7 +2229,11 @@ text-align:left
 }
 /*account tineline css end*/
 
+.jqstooltip { box-sizing: content-box;}
 
+.tile-stats.tile-neon-blue {
+    background: #3399FF;
+}
 .comment-box-options-activity {
     text-align: right;
     position: relative;

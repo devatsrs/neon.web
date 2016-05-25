@@ -33,8 +33,8 @@
 
     <ul id="main-menu" class="">
         <li>
-            <a href="{{Url::to('customer/dashboard')}}">
-                <i class="entypo-gauge"></i>
+            <a href="{{Url::to('customer/monitor')}}">
+                <i class="entypo-monitor"></i>
                 <span>Dashboard</span>
             </a>
         </li>
@@ -55,6 +55,12 @@
                     <a href="{{URL::to('customer/payments')}}">
                         <i class="entypo-doc-text"></i>
                         <span>Payments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{URL::to('customer/dashboard')}}">
+                        <i class="fa fa-bar-chart"></i>
+                        <span>Billing Analysis</span>
                     </a>
                 </li>
                 <li>
@@ -87,6 +93,12 @@
             </a>
         </li>
         @endif
+        <li>
+            <a href="{{(Customer::get_currentUser()->IsVendor == 1 && Customer::get_currentUser()->IsCustomer == 0 ) ? Url::to('customer/vendor_analysis') : Url::to('customer/analysis')}}">
+                <i class="fa fa-bar-chart"></i>
+                <span>Analysis</span>
+            </a>
+        </li>
         <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="glyphicon glyphicon-user"></i>

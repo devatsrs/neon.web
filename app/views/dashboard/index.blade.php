@@ -209,35 +209,7 @@
     </div>
     <?php }
     ?>
-    <div class="col-sm-6">
-        <div class="panel panel-primary panel-table">
-        <div class="panel-heading">
-            <div class="panel-title">
-                <h3>Missing Gateway Accounts ()</h3>
-                <span>List of accounts not setup on RM</span>
-            </div>
 
-            <div class="panel-options">
-                <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
-                <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
-            </div>
-        </div>
-        <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
-            <table id="missingAccounts" class="table table-responsive">
-                <thead>
-                <tr>
-                    <th>Account Name</th>
-                    <th>Gateway</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
 </div>
 <script>
@@ -430,39 +402,8 @@
                     contentType: false,
                     processData: false
                 });
-            },
-            missingAccounts:function(){
-                var table = $('#missingAccounts');
-                loadingUnload(table,1);
-                var url = baseurl+'/dashboard/ajax_get_missing_accounts';
-                $.ajax({
-                    url: url,  //Server script to process data
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        var accounts = response.missingAccounts;
-                        html = '';
-                        table.parents('.panel-primary').find('.panel-title h3').html('Missing Gateway Accounts ('+accounts.length+')');
-                        table.find('tbody').html('');
-                        if(accounts.length > 0){
-                            for (i = 0; i < accounts.length; i++) {
-                                html +='<tr>';
-                                html +='      <td>'+accounts[i]["AccountName"]+'</td>';
-                                html +='      <td>'+accounts[i]["Title"]+'</td>';
-                                html +='</tr>';
-                            }
-                        }else{
-                            html = '<td colspan="3">No Records found.</td>';
-                        }
-                        table.find('tbody').html(html);
-                        loadingUnload(table,0);
-                    },
-                    //Options to tell jQuery not to process data or worry about content-type.
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                });
             }
+
         };
 
         load.duesheet();
@@ -470,7 +411,7 @@
         load.jobs();
         load.jobFiles();
         load.accounts();
-        load.missingAccounts();
+        //load.missingAccounts();
 
         $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="reload"]', function(e){
             e.preventDefault();
