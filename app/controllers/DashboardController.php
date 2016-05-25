@@ -136,7 +136,8 @@ class DashboardController extends BaseController {
        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate'));
+        $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));
 
     }
     public function monitor_dashboard(){
@@ -258,7 +259,7 @@ class DashboardController extends BaseController {
 
     public function ajax_get_missing_accounts(){
         $companyID = User::get_companyID();
-        $query = "call prc_getMissingAccounts (".$companyID.")";
+        $query = "call prc_getMissingAccounts (".$companyID.",".intval(Input::get('CompanyGatewayID')).")";
         $missingAccounts = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('getMissingAccounts'));
         $jsondata['missingAccounts']=$missingAccounts['data']['getMissingAccounts'];
         return json_encode($jsondata);
