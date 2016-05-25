@@ -6,7 +6,7 @@
         <div class="panel-body no-padding">
 
             <!-- List of Comments -->
-            <ul class="comments-list">
+            <ul class="comments-list niceScroll">
                 @if(!empty($Comments))
                     @foreach($Comments as $comment)
                         <li class="countComments" id="comment-1">

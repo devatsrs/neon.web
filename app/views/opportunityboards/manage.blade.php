@@ -62,7 +62,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Opportunity Name</label>
+                                <label for="field-1" class="col-sm-1 control-label">Name</label>
                                 <div class="col-sm-2">
                                     <input class="form-control" name="opportunityName"  type="text" >
                                 </div>
@@ -88,7 +88,7 @@
                                     {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
 
-                                <label class="col-sm-1 control-label">Closed</label>
+                                <label class="col-sm-1 control-label">Close</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
@@ -598,7 +598,7 @@
                                 autohidemode: true,
                                 sensitiverail: false
                             };
-                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                            $('#allComments .niceScroll').niceScroll(nicescroll_defaults);
                         }
                     },
                     // Form data
@@ -829,7 +829,7 @@
 
                             <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Closed</label>
+                                    <label class="col-sm-4 control-label">Close</label>
                                     <div class="col-sm-8 make">
                                         <p class="make-switch switch-small">
                                             <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">

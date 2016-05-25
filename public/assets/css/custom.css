@@ -1134,12 +1134,29 @@ text-align:center;
 
 .priority{
     border-left-color: #CC2424;
-    border-left-width: 5px;
+    border-left-style:solid;
+    border-left-width: 3px;
 }
 
 .normal{
     border-left-color: #00A651;
-    border-left-width: 5px;
+    border-left-style:solid;
+    border-left-width: 3px;
+}
+
+.inline{
+    display: inline-block;
+    line-height:40px;
+}
+
+.count-cards .badge-danger{
+    background-color: #cf513d;
+}
+
+.count .dueDate{
+    background-color: #e6c60d;
+    padding:3px;
+    font-size: 10px;
 }
 
 .count-cards:hover{

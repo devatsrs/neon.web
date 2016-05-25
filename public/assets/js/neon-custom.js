@@ -669,7 +669,7 @@ toastr_opts = {
                 public_vars.$body.find('.select2-results').each(function(i, el) {
                     var $this = $(el);
                         //height = attrDefault($this, 'height', $this.height());
-                    $this.slimScroll({
+                    /*$this.slimScroll({
                         position: attrDefault($this, 'scroll-position', 'right'),
                         color: attrDefault($this, 'rail-color', '#000'),
                         size: attrDefault($this, 'rail-width', 6),
@@ -678,8 +678,12 @@ toastr_opts = {
                         alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
                     });
                     $this.css('height', 'auto');
-                    $this.parents('.slimScrollDiv').css('height', 'auto');
-                    $this.parents('max-height', '200');
+                    $this.parents('.slimScrollDiv').css('height', 'auto');*/
+                    $this.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                    $this.on('mouseenter',function(){
+                        $this.perfectScrollbar('update');
+                    });
+                    //$this.parents('max-height', '200');
                 });
             }
         }

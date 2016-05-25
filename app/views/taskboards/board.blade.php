@@ -21,7 +21,7 @@
                         $seconds = '';
                         if($task['DueDate']!='0000-00-00'){
                             $yeardiff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInYears();
-                            $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInDays();
+                            $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffInDays();
                             $datediffhuman=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
                             $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             if(strpos($datediffhuman,'ago')){
@@ -36,10 +36,10 @@
                                 case ($datediff<0):
                                     $badgeClass = "badge badge-danger badge-roundless";
                                     break;
-                                case ($datediff==0):
+                                case ($datediff==1):
                                     $badgeClass = "badge badge-warning badge-roundless";
                                     break;
-                                case ($datediff>0):
+                                case ($datediff>1):
                                     $badgeClass = "badge badge-roundless";
                                     break;
                             }
@@ -50,12 +50,12 @@
                         ?>
                             <li class="tile-stats sortable-item count-cards {{$priorityborder}}" data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
                                 <button type="button" title="Edit Task" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
-                                <span class="{{$badgeClass}} pull-right">{{$date}}</span>
+                                <span class="{{$badgeClass}} pull-right dueDate">{{$date}}</span>
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
                                 <div class="info">
-                                    <p class="title">{{$task['Subject']}}</p>
+                                    <p class="title">{{$task['Subject'].' '.$datediff}}</p>
                                 </div>
                                 <div class="bottom pull-right">
                                     @if(count($taggedUsers)>0)

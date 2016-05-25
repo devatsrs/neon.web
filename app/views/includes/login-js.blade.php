@@ -26,7 +26,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/fullcalendar/fullcalendar.min.js",
         "assets/js/neon-chat.js",
 
-        "assets/js/jquery.inputmask.bundle.min.js",
+        "assets/js/jquery.inputmask.bundle.min.js"
 
 
     ];
@@ -69,7 +69,8 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/icheck/icheck.min.js",
         "assets/js/typeahead.min.js",
         "assets/js/bootstrap-colorpicker.min.js",
-        "assets/js/Knob/dist/jquery.knob.min.js"
+        "assets/js/Knob/dist/jquery.knob.min.js",
+        "assets/js/perfectScroll/js/perfect-scrollbar.jquery.min.js"
     ];
 }
 ?>

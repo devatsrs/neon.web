@@ -227,7 +227,7 @@
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
-                            return full[8];
+                            return '<div class="'+(full[13] == "1"?'priority':'normal')+' inline">&nbsp;</div>'+'<div class="inline">'+full[8]+'</div>';
                         }
                     },
                     {
@@ -272,14 +272,7 @@
                     ]
                 },
                 "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-                    if ( aData[13] == "1" ) {
-                        $('td:eq(0)', nRow).css('border-left-color', '#cc2424');
-                        $('td:eq(0)', nRow).css('border-left-width', '3px');
-                    }
-                    else if ( aData[13] == "0" ) {
-                        $('td:eq(0)', nRow).css('border-left-color', 'green');
-                        $('td:eq(0)', nRow).css('border-left-width', '3px');
-                    }
+                    $('td:eq(0)', nRow).css('padding', '0');
                 }
                 ,
                 "fnDrawCallback": function () {
