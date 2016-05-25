@@ -43,6 +43,26 @@
                                         {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
                                 </div>
+
+                                <!--payment date start -->
+                                <div class="form-group">
+                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
+                                    <div class="col-sm-2 col-sm-e2">
+                                        <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                    </div>
+                                    <div class="col-sm-2 col-sm-e2">
+                                        <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                                    </div>
+                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
+                                    <div class="col-sm-2 col-sm-e2">
+                                        <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                    </div>
+                                    <div class="col-sm-2 col-sm-e2">
+                                        <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
+                                    </div>
+                                </div>
+                                <!--payment date end -->
+
                                 <p style="text-align: right;">
                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                         <i class="entypo-search"></i>
@@ -56,22 +76,21 @@
             </div>
             <div class="clear"></div>
             <br>
-            <p style="text-align: right;">
+            <!--<p style="text-align: right;">
                 <a href="#" id="add-new-payment" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
                     Add New Payment Request
                 </a>
-            </p>
+            </p>-->
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="14%">Invoice No</th>
-                    <th width="14%">Amount</th>
-                    <th width="14%">Type</th>
-                    <th width="15%">Payment Date</th>
-                    <th width="14%">Status</th>
-                    <th width="15%">CreatedBy</th>
-                    <th width="14%">Action</th>
+                    <th width="15%">Invoice No</th>
+                    <th width="20%">Amount</th>
+                    <th width="15%">Type</th>
+                    <th width="20%">Payment Date</th>
+                    <th width="15%">Status</th>
+                    <th width="15%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -91,33 +110,35 @@
                         $searchFilter.InvoiceNo = $("#payment-table-search [name='InvoiceNo']").val();
                         $searchFilter.type = $("#payment-table-search select[name='type']").val();
                         $searchFilter.paymentmethod = $("#payment-table-search select[name='paymentmethod']").val();
+                        $searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
+                        $searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
+                        $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
+                        $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
                         data_table = $("#table-4").dataTable({
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
                             "sAjaxSource": baseurl + "/customer/payments/ajax_datagrid/type",
                             "fnServerParams": function (aoData) {
-                                aoData.push({"name": "AccountID", "value": $searchFilter.AccountID}, {
-                                    "name": "InvoiceNo",
-                                    "value": $searchFilter.InvoiceNo
-                                },{
-                                    "name": "type",
-                                    "value": $searchFilter.type
-                                }, {
-                                    "name": "paymentmethod",
-                                    "value": $searchFilter.paymentmethod
-                                });
+                                aoData.push({"name": "AccountID", "value": $searchFilter.AccountID},
+                                        {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
+                                        {"name": "type","value": $searchFilter.type},
+                                        {"name": "paymentmethod","value": $searchFilter.paymentmethod},
+                                        {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
+                                        {"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
+                                        {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
+                                        {"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime}
+
+                                );
                                 data_table_extra_params.length = 0;
-                                data_table_extra_params.push({"name": "AccountID", "value": $searchFilter.AccountID}, {
-                                    "name": "InvoiceNo",
-                                    "value": $searchFilter.InvoiceNo
-                                },{
-                                    "name": "type",
-                                    "value": $searchFilter.type
-                                }, {
-                                    "name": "paymentmethod",
-                                    "value": $searchFilter.paymentmethod
-                                },
+                                data_table_extra_params.push({"name": "AccountID", "value": $searchFilter.AccountID},
+                                        {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
+                                        {"name": "type","value": $searchFilter.type},
+                                        {"name": "paymentmethod","value": $searchFilter.paymentmethod},
+                                        {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
+                                        {"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
+                                        {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
+                                        {"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
                                         {"name":"Export","value":1}
                                 );
 
@@ -125,7 +146,7 @@
                             "iDisplayLength": '{{Config::get('app.pageSize')}}',
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                            "aaSorting": [[5, 'desc']],
+                            "aaSorting": [[3, 'desc']],
                             "aoColumns": [
                                 {
                                     "bSortable": true, //Account
@@ -138,7 +159,7 @@
                                     mRender: function (id, type, full) {
                                         var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
                                         a = a.toString();
-                                        return a + ' ' + full[5]
+                                        return full[16]
                                     }
                                 },
                                 {
@@ -160,12 +181,6 @@
                                         return full[7]
                                     }
                                 },
-                                {
-                                    "bSortable": true, //Created by
-                                    mRender: function (id, type, full) {
-                                        return full[8]
-                                    }
-                                },
                                 {                       //3  Action
 
                                     "bSortable": false,
@@ -179,7 +194,7 @@
                                         action += '<input type = "hidden"  name = "PaymentID" value = "' + full[0] + '" / >';
                                         action += '<input type = "hidden"  name = "AccountName" value = "' + full[1] + '" / >';
                                         action += '<input type = "hidden"  name = "AccountID" value = "' + full[2] + '" / >';
-                                        action += '<input type = "hidden"  name = "Amount" value = "' + parseFloat(Math.round(full[3] * 100) / 100).toFixed(2) + '" / >';
+                                        action += '<input type = "hidden"  name = "Amount" value = "' + full[16] + '" / >';
                                         action += '<input type = "hidden"  name = "PaymentType" value = "' + full[4] + '" / >';
                                         action += '<input type = "hidden"  name = "Currency" value = "' + full[5] + '" / >';
                                         action += '<input type = "hidden"  name = "PaymentDate" value = "' + full[6] + '" / >';
@@ -195,10 +210,10 @@
                                             action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
                                             action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
                                         }
-                                        <?php } ?>
                                         if(full[9]!= null){
                                             action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
                                         }
+                                        <?php } ?>
                                         return action;
                                     }
                                 }
@@ -220,6 +235,7 @@
                                 ]
                             },
                             "fnDrawCallback": function () {
+                                get_total_grand(); //get result total
                                 $(".dataTables_wrapper select").select2({
                                     minimumResultsForSearch: -1
                                 });
@@ -347,6 +363,40 @@
                     $this.bootstrapFileInput(label);
                 }
 
+                function get_total_grand(){
+                    $.ajax({
+                        url: baseurl + "/customer/payments/ajax_datagrid_total",
+                        type: 'GET',
+                        dataType: 'json',
+                        data:{
+                            "AccountID":$("#payment-table-search select[name='AccountID']").val(),
+                            "InvoiceNo" : $("#payment-table-search [name='InvoiceNo']").val(),
+                            "type" : $("#payment-table-search select[name='type']").val(),
+                            "paymentmethod" : $("#payment-table-search select[name='paymentmethod']").val(),
+                            "PaymentDate_StartDate" : $("#payment-table-search input[name='PaymentDate_StartDate']").val(),
+                            "PaymentDate_StartTime" : $("#payment-table-search input[name='PaymentDate_StartTime']").val(),
+                            "PaymentDate_EndDate" : $("#payment-table-search input[name='PaymentDate_EndDate']").val(),
+                            "PaymentDate_EndTime" : $("#payment-table-search input[name='PaymentDate_EndTime']").val(),
+                            "bDestroy": true,
+                            "bProcessing":true,
+                            "bServerSide":true,
+                            "sAjaxSource": baseurl + "/customer/payments/ajax_datagrid/type",
+                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                            "sPaginationType": "bootstrap",
+                            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                            "aaSorting": [[3, 'desc']],},
+                        success: function(response1) {
+                            console.log("sum of result"+response1);
+                            if(response1.total_grand!=null)
+                            {
+                                $('.result_row').remove();
+                                $('.result_row').hide();
+                                $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td align="right" colspan="3"></td><td></td><td colspan="2"></td></tr>');
+                            }
+                        }
+                    });
+                }
+
                 // Replace Checboxes
                 $(".pagination a").click(function (ev) {
                     replaceCheckboxes();
@@ -389,12 +439,12 @@
                                 <div class="col-sm-12" name="AccountName"></div>
                             </div>
                         </div>
-                        <div class="col-md-12">
+                        <!--<div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Currency</label>
                                 <div class="col-sm-12" name="Currency"></div>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Invoice</label>
@@ -474,10 +524,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <form id="add-edit-payment-form" method="post">
-                    <div class="modal-header">
+                    <!--<div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Add New payment Request</h4>
-                    </div>
+                    </div>-->
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
@@ -504,7 +554,7 @@
                                     <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="PaymentID" >
                                     <input type="hidden" name="Currency" value="{{$currency}}" >
-                                    <input type="hidden" name="AccountID" value="{{$AccountID}}"
+                                    <input type="hidden" name="AccountID" value="{{$AccountID}}"></input>
                                 </div>
                             </div>
                             <div class="col-md-12">

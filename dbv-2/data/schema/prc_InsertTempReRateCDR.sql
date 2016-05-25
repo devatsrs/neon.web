@@ -17,7 +17,7 @@ BEGIN
 
     INSERT INTO LocalRMCdr.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound,ID)
 
-    SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",AccountName ,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,"',p_ProcessID,'",duration,is_inbound,ID
+    SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",GatewayAccountID ,AccountID,connect_time,disconnect_time,billed_duration,"Other" as trunk,"Other" as area_prefix,cli,cld,cost,"',p_ProcessID,'",duration,is_inbound,ID
     FROM tmp_tblUsageDetails_');
     
     PREPARE stmt1 FROM @stm1;

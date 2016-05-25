@@ -126,7 +126,7 @@
                                 action = '<a href="' + view_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
-                                    action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a>';
+                                    action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</a>';
                                 <?php } ?>
                                 //action += status_link;
                                 return action;
@@ -156,22 +156,27 @@
                 });
 
                 $(".btn.delete").click(function(e) {
-
+                    e.preventDefault();
                     response = confirm('Are you sure?');
                     //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
                     if (response) {
+                        $(this).text('Loading..');
+                        $('#table-4_processing').css('visibility','visible');
                         $.ajax({
                             url: $(this).attr("href"),
                             type: 'POST',
                             dataType: 'json',
+                            beforeSend: function(){
+                            //    $(this).text('Loading..');
+                            },
                             success: function(response) {
-                                $(".btn.delete").button('reset');
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
+                                $('#table-4_processing').css('visibility','hidden');
                             },
                             // Form data
                             //data: {},
@@ -179,8 +184,6 @@
                             contentType: false,
                             processData: false
                         });
-
-
                     }
                     return false;
 

@@ -12,5 +12,6 @@ CREATE TABLE `tblTempRateTableRate` (
   `Interval1` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
   `IntervalN` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`TempRateTableRateID`),
-  KEY `IX_tblTempRateTableRate_Code_Change_ProcessId_5D43F` (`Code`,`Change`,`ProcessId`)
+  KEY `IX_tblTempRateTableRate_Code_Change_ProcessId_5D43F` (`Code`,`Change`,`ProcessId`),
+  KEY `IX_tblTempRateTableRateCodedeckCodeProcessID` (`Code`,`CodeDeckId`,`ProcessId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

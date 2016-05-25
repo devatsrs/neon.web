@@ -48,10 +48,28 @@
 
                 <div class="panel-body">
                     <div class="form-group">
+                        <label for="field-1" class="col-sm-2 text-right">Account Owner</label>
+                        <div class="col-sm-4">
+                            @if(count($account_owner))
+                                {{$account_owner->FirstName}} {{$account_owner->LastName}}
+                            @endif
+                        </div>
 
                         <label class="col-sm-2 text-right">Ownership</label>
                         <div class="col-sm-4">
                             {{$account->Ownership}}
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 text-right">First Name</label>
+                        <div class="col-sm-4">
+                            {{$account->FirstName}}
+                        </div>
+
+                        <label class="col-sm-2 text-right">Last Name</label>
+                        <div class="col-sm-4">
+                            {{$account->LastName}}
                         </div>
 
                     </div>
@@ -135,14 +153,22 @@
                             {{$account->TimeZone}}
                         </div>
                     </div>
-                    <div class="panel-title clear">
+                    @if(isset($account->Description) && $account->Description!='')
+                    <div class="form-group">
+                        <label class="col-sm-2 text-right">Description</label>
+                        <div class="col-sm-4">
+                            {{$account->Description}}
+                        </div>
+                    </div>
+                    <!--<div class="panel-title clear">
                         Description
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
                             {{$account->Description}}
                         </div>
-                    </div>
+                    </div>-->
+                    @endif
                 </div>
             </div>
             <div class="panel panel-primary" data-collapsed="0">
@@ -273,7 +299,7 @@
                                 <th>Contact Name</th>
                                 <th>Phone</th>
                                 <th>Email</th>
-                                <th>Actions</th>
+                                <!--<th>Actions</th>-->
                             </tr>
                             </thead>
                             <tbody>
@@ -283,7 +309,7 @@
                                 <td>{{$contact->NamePrefix}} {{$contact->FirstName}} {{$contact->LastName}}</td>
                                 <td>{{$contact->Phone}}</td>
                                 <td>{{$contact->Email}}</td>
-                                <td class="center">
+                                <!--<td class="center">
                                     <a href="{{ URL::to('contacts/'.$contact->ContactID.'/edit')}}"
                                        class="btn btn-default btn-sm btn-icon icon-left">
                                         <i class="entypo-pencil"></i>
@@ -308,7 +334,7 @@
                                         Customer
                                     </a>
                                     @endif
-                                </td>
+                                </td>-->
                             </tr>
                             @endforeach
                             @endif

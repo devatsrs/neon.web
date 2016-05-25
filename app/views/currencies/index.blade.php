@@ -28,9 +28,9 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="30%">Currency Code</th>
-        <th width="30%">Currency Symbol</th>
-        <th width="25%">Currency Description</th>
+        <th width="30%">Code</th>
+        <th width="30%">Symbol</th>
+        <th width="25%">Description</th>
         <th width="25%">Action</th>
     </tr>
     </thead>
@@ -84,9 +84,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/currency/base_exports", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/currency/exports/xlsx",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/currency/exports/csv",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },

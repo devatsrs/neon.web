@@ -32,8 +32,11 @@ $(function() {
                         data: sales_data_2,
                         xkey: 'x',
                         ykeys: ['y','z','a'],
-                        labels:['Payment Received','Total Invoice','Total Outstanding'],
-                        barColors: ['#3399FF', '#333399', '#3366CC']
+                        labels:['Payment Deposited','Total Invoice','Total Outstanding'],
+                        barColors: ['#3399FF', '#333399', '#3366CC'],
+                            hoverCallback:function (index, options, content, row) {
+                                return '<div class="morris-hover-row-label">'+row.x+'</div><div style="color: #3399FF" class="morris-hover-point">Payment Deposited: {{$CurrencySymbol}}'+row.y+'</div><div style="color: #333399" class="morris-hover-point">Total Invoice: {{$CurrencySymbol}}'+row.z+'</div><div style="color: #3366CC" class="morris-hover-point">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</div>'
+                            }
 
                     });
             line_chart_demo_2.parent().attr('style', '');

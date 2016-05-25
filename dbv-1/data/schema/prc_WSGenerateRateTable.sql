@@ -242,7 +242,7 @@ GenerateRateTable:BEGIN
 	        INNER JOIN tblRateRuleSource
 	            ON tblRateRule.RateRuleId = tblRateRuleSource.RateRuleId
 	        INNER JOIN tblAccount
-	            ON tblAccount.AccountID = tblRateRuleSource.AccountId
+	            ON tblAccount.AccountID = tblRateRuleSource.AccountId and tblAccount.IsVendor = 1
 			JOIN tblVendorTrunk
 	                ON tblAccount.AccountId = tblVendorTrunk.AccountID
 	                AND  tblVendorTrunk.TrunkID = v_trunk_
@@ -322,7 +322,7 @@ GenerateRateTable:BEGIN
 							-- ( p_codedeckID = 0 OR ( p_codedeckID > 0 AND vt.CodeDeckId = p_codedeckID ) )
 							  vt.Status =  1 and vt.TrunkID =  v_trunk_  
                               inner join tmp_Codedecks_ tcd on vt.CodeDeckId = tcd.CodeDeckId
-						INNER JOIN tblAccount   ON  tblAccount.CompanyID = v_CompanyId_ AND tblVendorRate.AccountId = tblAccount.AccountID 
+						INNER JOIN tblAccount   ON  tblAccount.CompanyID = v_CompanyId_ AND tblVendorRate.AccountId = tblAccount.AccountID and tblAccount.IsVendor = 1
 						INNER JOIN tblRate ON tblRate.CompanyID = v_CompanyId_  AND tblRate.CodeDeckId = vt.CodeDeckId  AND    tblVendorRate.RateId = tblRate.RateID
 						INNER JOIN tmp_code_ tcode ON tcode.Code  = tblRate.Code 
 						LEFT JOIN tblVendorPreference vp
