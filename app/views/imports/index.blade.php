@@ -43,9 +43,11 @@
 
 
     <div class="tab-content">
+        <span class="itype"><h3>Select Import Type</h3></span>
         <div class="tab-pane active" id="tab2-1">
 
             <div class="row">
+
                 </br></br>
                 <div class="col-md-1"></div>
                 <div class="col-md-11">
@@ -107,7 +109,7 @@
                 <input type="hidden" name="importaccountsuccess" value="">
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
-                <span class="gatewayloading">Import Account Processing</span>
+                <span class="gatewayloading">Retrieving Accounts ... </span>
                 <p style="float: right">
                     <button type="button" id="uploadaccount"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
                 </p>
@@ -458,6 +460,7 @@
             onNext: function(tab, navigation, index) {
                 activetab = tab.attr('id');
                 if(activetab=='st1'){
+                    $('.itype').hide();
                     $('#wizardul').removeAttr('style');
                     $('.steps-progress').removeAttr('style');
                     var importfrom = $("#rootwizard-2 input[name='size']:checked").val();
@@ -483,8 +486,8 @@
                         $('#csvimport').show();
                     }else if(importfrom=='PBX' || importfrom=='Porta'){
                         $('#st3').remove();
-                        $("#st2 h5.test").html('Get Account From Gateway');
-                        $("#st3 h5.test").html('Import Account');
+                        $("#st2 h5.test").html('Select Accounts');
+                        $("#st3 h5.test").html('Import Accounts');
                         var cgid = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
                         var cgname = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
                         $('#csvimport').hide();
@@ -565,7 +568,7 @@
             onPrevious: function(tab, navigation, index) {
                 activetab = tab.attr('id');
                 if(activetab=='st2'){
-                    //location.reload();
+                    location.reload();
                 }
             }
         });
