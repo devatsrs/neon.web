@@ -100,7 +100,7 @@ class ImportsController extends \BaseController {
 
         Account::$importrules['selection.AccountName'] = 'required';
         //Account::$importrules['selection.Email'] = 'required';
-        Account::$importrules['selection.Country'] = 'required';
+        //Account::$importrules['selection.Country'] = 'required';
         Account::$importrules['selection.FirstName'] = 'required';
 
         $validator = Validator::make($data, Account::$importrules,Account::$importmessages);
