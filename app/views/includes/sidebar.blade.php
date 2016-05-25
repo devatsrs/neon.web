@@ -105,7 +105,7 @@
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="entypo-doc-text-inv"></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
-          <li> <a href="{{Url::to('/billingdashboard')}}"> <i class="fa fa-bar-chart"></i> <span>Billing Analysis</span> </a> </li>
+          <li> <a href="{{Url::to('/billingdashboard')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/estimates')}}"> <i class="entypo-doc-text"></i> <span>Estimates</span> </a> </li>
