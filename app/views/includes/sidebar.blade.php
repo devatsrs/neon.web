@@ -46,10 +46,10 @@
     <li> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i> <span>Contacts</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Account','View'))
-    <li> <a href="{{URL::to('/accounts')}}"> <i class="entypo-user-add"></i> <span>Accounts</span> </a> </li>
+    <li> <a href="{{URL::to('/accounts')}}"> <i class="fa fa-users"></i> <span>Accounts</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('EmailTemplate','View'))
-    <li class="{{check_uri('Template')}}"> <a href="#"> <i class="glyphicon glyphicon-book"></i> <span>&nbsp;&nbsp;Template Management</span> </a>
+    <li class="{{check_uri('Template')}}"> <a href="#"> <i class="fa fa-envelope-o"></i> <span>&nbsp;&nbsp;Template Management</span> </a>
       <ul>
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
       </ul>
@@ -58,7 +58,7 @@
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
     User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All'))
-    <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="glyphicon glyphicon-list"></i> <span>&nbsp;&nbsp;Rate Management</span> </a>
+    <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;&nbsp;Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateTables','View'))
         <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
@@ -102,7 +102,7 @@
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View') )
-    <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="entypo-doc-text-inv"></i> <span>Billing</span> </a>
+    <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
           <li> <a href="{{Url::to('/billingdashboard')}}">  <span>Billing Analysis</span> </a> </li>
@@ -189,7 +189,7 @@
     @endif
     @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
     User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
-    <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-star"></i> <span>&nbsp;&nbsp;Admin</span> </a>
+    <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;Admin</span> </a>
       <ul>
         @if( User::checkCategoryPermission('Users','View'))
         <li> <a href="{{Url::to('users')}}">  <span>Users</span> </a> </li>
@@ -225,10 +225,10 @@
     @endif
     
     @if( User::checkCategoryPermission('Company','View'))
-    <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-tasks"></i> <span>&nbsp;&nbsp;Company</span> </a> </li>
+    <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;&nbsp;Company</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Pages','About'))
-    <li> <a href="{{Url::to('/about')}}"> <i class="entypo-newspaper"></i> <span>About</span> </a> </li>
+    <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>About</span> </a> </li>
     @endif
   </ul>
 </div>
