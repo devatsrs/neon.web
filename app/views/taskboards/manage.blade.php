@@ -89,7 +89,7 @@
                                 <div class="col-sm-2">
                                     {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
                                 </div>
-                                <label class="col-sm-1 control-label">Closed</label>
+                                <label class="col-sm-1 control-label">Close</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
@@ -273,12 +273,12 @@
                 },
                 "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                     if ( aData[13] == "1" ) {
-                        $('td:eq(0)', nRow).css('border-left-color', 'Red');
-                        $('td:eq(0)', nRow).css('border-left-width', '5px');
+                        $('td:eq(0)', nRow).css('border-left-color', '#cc2424');
+                        $('td:eq(0)', nRow).css('border-left-width', '3px');
                     }
                     else if ( aData[13] == "0" ) {
                         $('td:eq(0)', nRow).css('border-left-color', 'green');
-                        $('td:eq(0)', nRow).css('border-left-width', '5px');
+                        $('td:eq(0)', nRow).css('border-left-width', '3px');
                     }
                 }
                 ,
@@ -315,7 +315,6 @@
                 for(var i = 0 ; i< task.length; i++){
                     var val = rowHidden.find('input[name="'+task[i]+'"]').val();
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
-                    //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
                         if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
@@ -911,7 +910,7 @@
 
                             <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Closed</label>
+                                    <label class="col-sm-4 control-label">Close</label>
                                     <div class="col-sm-8 taskClosed">
                                         <p class="make-switch switch-small">
                                             <input name="taskClosed" type="checkbox" value="{{Task::Close}}">

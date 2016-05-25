@@ -20,11 +20,16 @@
                         $badgeClass = '';
                         $seconds = '';
                         if($task['DueDate']!='0000-00-00'){
+                            $yeardiff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInYears();
                             $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInDays();
                             $datediffhuman=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
                             $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             if(strpos($datediffhuman,'ago')){
                                 $datediff=-1;
+                            }
+                            if($yeardiff ==0){
+                                $arry = explode(',',$date);
+                                $date = $arry[0];
                             }
                             $date = '<i class="entypo-clock"></i>'.$date;
                             switch (TRUE) {

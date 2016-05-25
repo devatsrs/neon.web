@@ -9,11 +9,12 @@ class TaskCommentsController extends \BaseController {
      * @return mixed
      */
     public function ajax_taskcomments($id){
-        $response = NeonAPI::request('taskcomments/'.$id.'/get_comments',[],false);
-        if($response->status=='failed'){
+        $response = NeonAPI::request('taskcomments/'.$id.'/get_comments',[],false,true);
+        $Comments = [];
+        if($response['status']=='failed'){
             return json_response_api($response,false);
         }else{
-            $result = json_response_api($response,true,false,false);
+            $Comments = json_response_api($response,true,false,false);
         }
         /*$Comments=[];
         $commentcount = 0;
