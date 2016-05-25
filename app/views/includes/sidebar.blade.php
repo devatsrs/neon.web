@@ -36,22 +36,7 @@
                     </form>
                 </li>--> 
     @if( User::checkCategoryPermission('RmDashboard','All')  || User::checkCategoryPermission('SalesDashboard','All')||User::checkCategoryPermission('BillingDashboard','All'))
-    <li class="{{check_uri('Dashboard')}}"> <a href="#"> <i class="entypo-gauge"></i> <span>Dashboard</span> </a>
-      <ul>
-        @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-        @if(User::checkCategoryPermission('RmDashboard','All'))
-        <li> <a href="{{action('dashboard')}}">  <span>RM Dashboard</span> </a> </li>
-        @endif
-        @endif
-        @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-        @if(User::checkCategoryPermission('SalesDashboard','All'))
-        <li> <a href="{{action('salesdashboard')}}">  <span>Sales Dashboard</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('BillingDashboard','All'))
-        <li> <a href="{{Url::to('/billingdashboard')}}">  <span>Billing Dashboard</span> </a> </li>
-        @endif
-        @endif
-      </ul>
+    <li class=""> <a href="{{Url::to('/monitor')}}"> <i class="entypo-monitor"></i> <span>Monitor Dashboard</span> </a>
     </li>
     @endif
     @if(User::checkCategoryPermission('Leads','View'))
@@ -66,7 +51,7 @@
     @if( User::checkCategoryPermission('EmailTemplate','View'))
     <li class="{{check_uri('Template')}}"> <a href="#"> <i class="glyphicon glyphicon-book"></i> <span>&nbsp;&nbsp;Template Management</span> </a>
       <ul>
-        <li> <a href="{{URL::to('/email_template')}}"> <span>Email Templates</span> </a> </li>
+        <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
       </ul>
     </li>
     @endif
@@ -91,21 +76,20 @@
     </li>
     @endif
     @endif
-    
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('SummaryReports','All'))
-    <li class="{{check_uri('Summary')}}" > <a href="#"> <i class="entypo-book-open"></i> <span>Summary Reports</span> </a>
-      <ul>
-        <li> <a href="{{URL::to('/summaryreport')}}"> <i class="glyphicon glyphicon-file"></i> <span>Summary reports  by prefix </span> </a> </li>
-        <li> <a href="{{URL::to('/summaryreport/summrybycountry')}}"> <i class="glyphicon glyphicon-file"></i> <span>Summary reports  by country </span> </a> </li>
-        <li> <a href="{{URL::to('/summaryreport/summrybycustomer')}}"> <i class="glyphicon glyphicon-file"></i> <span>Summary reports  by customer </span> </a> </li>
-      </ul>
-    </li>
+        {{--<li > <a href="#"> <i class="entypo-layout"></i> <span>Summary Reports</span> </a>
+          <ul>
+            <li> <a href="{{URL::to('/summaryreport')}}"> <i class="entypo-pencil"></i> <span>Summary reports  by prefix </span> </a> </li>
+            <li> <a href="{{URL::to('/summaryreport/summrybycountry')}}"> <i class="entypo-pencil"></i> <span>Summary reports  by country </span> </a> </li>
+            <li> <a href="{{URL::to('/summaryreport/summrybycustomer')}}"> <i class="entypo-pencil"></i> <span>Summary reports  by customer </span> </a> </li>
+          </ul>
+        </li>--}}
     @endif
     <li><a href="#"><i class="entypo-layout"></i><span>&nbsp;CRM</span></a>
         <ul>
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
-                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunities</span></a></li>
+                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
                 <li><a href="{{URL::to('/task')}}"><span>Tasks</span></a></li>
@@ -120,6 +104,9 @@
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View') )
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="entypo-doc-text-inv"></i> <span>Billing</span> </a>
       <ul>
+        @if(User::checkCategoryPermission('BillingDashboard','All'))
+          <li> <a href="{{Url::to('/billingdashboard')}}"> <i class="fa fa-bar-chart"></i> <span>Billing Analysis</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li>
         @endif
@@ -129,6 +116,7 @@
         @if(User::checkCategoryPermission('Disputes','View'))
         <li> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
         @endif
+
         @if(User::checkCategoryPermission('BillingSubscription','View'))
         <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
         @endif
@@ -168,6 +156,9 @@
       </ul>
     </li>
     @endif
+    @endif
+    @if( User::checkCategoryPermission('Analysis','All'))
+      <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
     @endif
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
@@ -237,7 +228,7 @@
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-tasks"></i> <span>&nbsp;&nbsp;Company</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Pages','About'))
-    <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-copyright-mark"></i> <span>About</span> </a> </li>
+    <li> <a href="{{Url::to('/about')}}"> <i class="entypo-newspaper"></i> <span>About</span> </a> </li>
     @endif
   </ul>
 </div>

@@ -64,7 +64,7 @@
 
                         <label for="field-1" class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), Input::get('InvoiceStatus'), array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
             <label for="field-1" class="col-sm-1 control-label">Zero Value</label>
                         <div class="col-sm-2">
@@ -81,11 +81,11 @@
                         </div>
                          <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                              {{ Form::text('IssueDateStart', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                              {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
                    
             

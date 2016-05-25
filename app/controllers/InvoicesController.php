@@ -1359,7 +1359,7 @@ class InvoicesController extends \BaseController {
                 return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));
             }
         }
-        return Response::json(array("status" => "success", "message" => "Problem Creating Invoice Generation Job"));
+        return Response::json(array("status" => "error", "message" => "Please Setup Invoice Generator in CronJob"));
 
     }
     public function ajax_getEmailTemplate($id){
