@@ -57,6 +57,9 @@ class CompanyGateway extends \Eloquent {
         }
         return $row;
     }
+    public static function getCompanyGatewayName($CompanyGatewayID){
+        return CompanyGateway::where(array('CompanyGatewayID'=>$CompanyGatewayID))->pluck('Title');
+    }
 
     public static function importgatewaylist(){
         $row = array();

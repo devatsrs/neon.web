@@ -3,6 +3,9 @@
 Route::group(array('before' => 'auth'), function () {
 
     Route::any('customer/dashboard', array("as" => "dashboardCustomer", "uses" => "DashboardCustomerController@home"));
+	Route::any('customer/monitor', array("as" => "monitorCustomer", "uses" => "DashboardCustomerController@monitor_dashboard"));
+	Route::any('customer/analysis', "AnalysisController@customer_index");
+	Route::any('customer/vendor_analysis', "AnalysisController@vendor_index");
     Route::any('customer/invoice_expense_chart', 'DashboardCustomerController@invoice_expense_chart');
     Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
     Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
@@ -88,12 +91,19 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
+	Route::any('/monitor', "DashboardController@monitor_dashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
     Route::any('/dashboard/ajax_get_jobs', "DashboardController@ajax_get_jobs");
     Route::any('/dashboard/ajax_get_processed_files', "DashboardController@ajax_get_processed_files");
     Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
     Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
+
+	//new Dashboards ajax
+	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
+	Route::any('/getReportData', "ChartDashboardController@getReportData");
+
+
 	//Trunk
 	Route::any('trunk/edit/{id}', array('as' => 'edit_trunk', 'uses' => 'TrunkController@edit'));
 	Route::any('trunks/update/{id}', array('as' => 'update_trunk', 'uses' => 'TrunkController@update'));
@@ -772,6 +782,18 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/Wysihtml5/getfiles','Wysihtml5Controller@getfiles');
     Route::any('/Wysihtml5/file_upload','Wysihtml5Controller@file_upload');
 
+	//Analysis
+	Route::any('/analysis', "AnalysisController@index");
+	Route::any('/analysis/ajax_datagrid/{type}', "AnalysisController@ajax_datagrid");
+	Route::any('/analysis/getAnalysisData', "AnalysisController@getAnalysisData");
+	Route::any('/analysis/getAnalysisBarData', "AnalysisController@getAnalysisBarData");
+
+	//Vendor Analysis
+	Route::any('/vendor_analysis', "VendorAnalysisController@index");
+	Route::any('/vendor_analysis/ajax_datagrid/{type}', "VendorAnalysisController@ajax_datagrid");
+	Route::any('/vendor_analysis/getAnalysisData', "VendorAnalysisController@getAnalysisData");
+	Route::any('/vendor_analysis/getAnalysisBarData', "VendorAnalysisController@getAnalysisBarData");
+	
 	//Disputes
 	Route::any('/disputes','DisputeController@index');
 	Route::any('/disputes/reconcile', 'DisputeController@reconcile');

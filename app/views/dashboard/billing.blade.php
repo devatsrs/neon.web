@@ -51,7 +51,7 @@
                     <div class="panel-heading">
                         <div class="panel-title">
                             <h3>Total Outstanding</h3>
-                            <span>Total Outstanding</span>
+
                         </div>
 
                         <div class="panel-options">
@@ -70,7 +70,7 @@
                 <div class="panel-heading">
                     <div class="panel-title">
                         <h3>Invoices & Expenses</h3>
-                        <span>Invoices & Expenses</span>
+
                     </div>
 
                     <div class="panel-options">
@@ -145,6 +145,38 @@
 
 </div>
 @endif
+<div class="row">
+    <div class="col-sm-6">
+        <div class="panel panel-primary panel-table">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <h3>Missing Gateway Accounts ()</h3>
+                    
+                </div>
+
+                <div class="panel-options">
+                    {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway','class'=>'select_gray')) }}
+                    <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
+                    <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
+                    <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+                </div>
+            </div>
+            <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+                <table id="missingAccounts" class="table table-responsive">
+                    <thead>
+                    <tr>
+                        <th>Account Name</th>
+                        <th>Gateway</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
 function reload_invoice_expense(){
@@ -166,6 +198,7 @@ function reload_invoice_expense(){
             $("#invoice_expense_total").html(response);
     }, "html" );
     pin_report();
+    missingAccounts();
 
 }
 
@@ -206,7 +239,13 @@ function pin_report() {
     }, "html");
     @endif
 }
-
+$('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="reload"]', function(e){
+    e.preventDefault();
+    var id = $(this).parents('.panel-primary').find('table').attr('id');
+    if(id=='missingAccounts'){
+        missingAccounts();
+    }
+});
 $(function() {
      reload_invoice_expense();
     $("#filter-pin").hide();
@@ -231,8 +270,43 @@ $(function() {
     });
     $("#PinExt").change(function(){
         pin_report();
+    })
+    $("#company_gateway").change(function(){
+        missingAccounts();
     });
 });
+function missingAccounts(){
+    var table = $('#missingAccounts');
+    loadingUnload(table,1);
+    var url = baseurl+'/dashboard/ajax_get_missing_accounts?CompanyGatewayID='+$("#company_gateway").val();
+    $.ajax({
+        url: url,  //Server script to process data
+        type: 'POST',
+        dataType: 'json',
+        success: function (response) {
+            var accounts = response.missingAccounts;
+            html = '';
+            table.parents('.panel-primary').find('.panel-title h3').html('Missing Gateway Accounts ('+accounts.length+')');
+            table.find('tbody').html('');
+            if(accounts.length > 0){
+                for (i = 0; i < accounts.length; i++) {
+                    html +='<tr>';
+                    html +='      <td>'+accounts[i]["AccountName"]+'</td>';
+                    html +='      <td>'+accounts[i]["Title"]+'</td>';
+                    html +='</tr>';
+                }
+            }else{
+                html = '<td colspan="3">No Records found.</td>';
+            }
+            table.find('tbody').html(html);
+            loadingUnload(table,0);
+        },
+        //Options to tell jQuery not to process data or worry about content-type.
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+}
     function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
         $("#pin_grid_main").removeClass('hidden');
         if(PinExt == 'pincode'){
