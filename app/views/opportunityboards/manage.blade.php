@@ -357,20 +357,6 @@
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
 
-            $(window).resize(function(){
-                setTimeout(function() {
-                    board.getNiceScroll().resize();
-                    /*board.find('.board-column-list').getNiceScroll().resize();*/
-                }, 500);
-            });
-
-            /*$('#board-start').scroll(function(){
-                if(fixedHeader){
-                    var header = $('#board-start .header');
-                    var left = $('#board-start').scrollLeft();
-                    header.css('right',left-1009);
-                }
-            });*/
 
             $(document).on('change','#filecontrole1',function(e){
                 e.stopImmediatePropagation();
@@ -472,24 +458,6 @@
             });
 
             function initEnhancement(){
-                /*var height = board.find('ul.board-inner li:first-child').height();
-                var width = board.find('.board-inner').width();
-                board.height(height+230);
-                board.find('.header').width(width *2);
-                $(document).on('scroll',function(){
-                    if(board.offset().top < $(document).scrollTop() && !fixedHeader){
-                        fixedHeader = true;
-                        board.find('.header').addClass('fixed');
-                    }else if(board.offset().top > $(document).scrollTop() && fixedHeader){
-                        fixedHeader = false;
-                        board.find('.header').removeClass('fixed');
-                    }
-                });*/
-
-
-                /*board.niceScroll().remove();
-                board.find('.board-column-list').niceScroll().remove();*/
-
                 var nicescroll_defaults = {
                     cursorcolor: '#d4d4d4',
                     cursorborder: '1px solid #ccc',

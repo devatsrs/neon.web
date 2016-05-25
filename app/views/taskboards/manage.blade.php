@@ -713,7 +713,7 @@
                                 autohidemode: true,
                                 sensitiverail: false
                             };
-                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                            $('#allComments .niceScroll').niceScroll(nicescroll_defaults);
                         }
                     },
                     // Form data

@@ -1,12 +1,12 @@
 <div class="col-md-6">
     <h4>Total Comments: {{!empty($Comments)?count($Comments):0}}</h4>
 </div>
-<div class="col-md-12 fancyscroll" style="max-height:600px; overflow-y:auto">
+<div class="col-md-12 niceScroll" style="max-height:600px; overflow-y:auto">
     <div class="panel panel-primary">
         <div class="panel-body no-padding">
 
             <!-- List of Comments -->
-            <ul class="comments-list niceScroll">
+            <ul class="comments-list">
                 @if(!empty($Comments))
                     @foreach($Comments as $comment)
                         <li class="countComments" id="comment-1">
