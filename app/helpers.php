@@ -962,21 +962,21 @@ function get_report_type($date11,$date22){
 }
 function get_report_title($report_type){
     $report_title = 'Call Analysis By Time';
-    if($report_type == 1){
+    if ($report_type == 1) {
         $report_title = 'Hourly Call Analysis';
-    }else if($report_type == 2) {
+    } else if ($report_type == 2) {
         $report_title = 'Daily Call Analysis';
-    }else if($report_type == 3) {
+    } else if ($report_type == 3) {
         $report_title = 'Weekly Call Analysis';
-    }else if($report_type == 4) {
+    } else if ($report_type == 4) {
         $report_title = 'Monthly Call Analysis';
-    }else if($report_type == 5) {
+    } else if ($report_type == 5) {
         $report_title = 'Quarterly Call Analysis';
-    }else if($report_type == 6) {
+    } else if ($report_type == 6) {
         $report_title = 'Yearly Call Analysis';
     }
     return $report_title;
-
+}
 
 function get_random_number(){
 	return md5(uniqid(rand(), true));
