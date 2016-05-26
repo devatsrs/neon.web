@@ -2502,7 +2502,7 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Internal Server Error', "Error", toastr_opts);
+            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
             break;
         case 503:
             toastr.error('Service Unavailable', "Error", toastr_opts);
