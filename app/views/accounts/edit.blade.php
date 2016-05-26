@@ -52,7 +52,6 @@
 <div class="row">
 <div class="col-md-12">
     <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" autocomplete="off" class="form-horizontal form-groups-bordered">
-<input type="password" class="form-control"   id="hidden_password" placeholder="" value="" />
 
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
@@ -180,16 +179,22 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
+                    
+                      <label class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
+                            <input value=""  autocomplete="off"  id="customer_password"  class="form-control"  name="password"  placeholder=""  type="password" />
                     </div>
+
+                  
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="tags"  name="tags" value="{{$account->tags}}" />
+                    </div>
+                      <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -223,9 +228,9 @@
                     });
                 </script>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Customer Panel Password</label>
+                  <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
-                            <input value=""  autocomplete="off"  id="customer_password"  class="form-control"  name="password" id="field-1" placeholder=""  type="password" />
+                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
@@ -260,12 +265,7 @@
                     </div>
                     <input type="hidden" class="form-control"  name="CustomerCLI" id="field-1" placeholder="" value="{{$account->CustomerCLI}}" />
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
-                    </div>
-                </div>
+                
                 <div class="panel-title desc clear">
                     Description
                 </div>
@@ -273,7 +273,8 @@
                     <div class="col-sm-12">
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
-                </div>
+                     </div>
+                      
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)
