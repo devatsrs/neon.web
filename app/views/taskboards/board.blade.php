@@ -34,7 +34,7 @@
                             $date = '<i class="entypo-clock"></i>'.$date;
                             $badgeClass = 'badge badge-roundless ';
                             switch (TRUE) {
-                                case ($datediff<0):
+                                case ($datediff<1):
                                     $badgeClass .= "badge-danger";
                                     break;
                                 case ($datediff==1):
