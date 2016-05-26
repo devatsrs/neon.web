@@ -167,6 +167,8 @@ class ImportsController extends \BaseController {
 
     //import data from gateway and insert into temp table
     public function getAccountInfoFromGateway($id,$gateway){
+        try {
+        ini_set('max_execution_time', 0);
         $CompanyGateway =  CompanyGateway::find($id);
         $response = array();
         $response1 = array();
@@ -200,6 +202,10 @@ class ImportsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway.".$response['faultString']));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
+        }
+
+        }catch(Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
 

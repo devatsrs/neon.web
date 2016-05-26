@@ -510,7 +510,14 @@ class Job extends \Eloquent {
                 $data["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
                 $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
                 $data["JobLoggedUserID"] = User::get_userID();
-                $data["Title"] = (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+                $AccountType = $options["AccountType"];
+                if($AccountType==0){
+                    $data["Title"] = 'Import Leads ';
+                }elseif($AccountType==1){
+                    $data["Title"] = 'Import Accounts ';
+                }else{
+                    $data["Title"] = (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+                }
                 $data["Description"] = ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $data["CreatedBy"] = User::get_user_full_name();
                 $data["updated_at"] = date('Y-m-d H:i:s');
