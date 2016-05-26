@@ -231,7 +231,7 @@
                                                 <input type="hidden" class="form-control" name="AccountType" value="1" />
                                                 <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">First Name*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">First Name</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[FirstName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
@@ -242,62 +242,59 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[LastName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Email</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Phone</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Phone]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Address1</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Address2</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Address3</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Country</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">City</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">BillingEmail</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Address1</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Address2</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Address3</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">City</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Country</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Currency]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Employee</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -308,26 +305,6 @@
                                             <label for="field-1" class="col-sm-2 control-label">Fax</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Fax]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Mobile</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Mobile]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Skype</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Skype]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Twitter</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Twitter]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Employee</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -1017,26 +994,24 @@
                             <th>Account Number(Opt.)</th>
                             <th>Account Name</th>
                             <th>Title(Opt.)</th>
-                            <th>First Name</th>
+                            <th>First Name(Opt.)</th>
                             <th>Last Name(Opt.)</th>
-                            <th>Email(Opt.)</th>
                             <th>Phone(Opt.)</th>
-                            <th>Job Title(Opt.)</th>
-                            <th>Post Code(Opt.)</th>
+                            <th>Email(Opt.)</th>
+                            <th>Billing Email(Opt.)</th>
                             <th>Address1(Opt.)</th>
                             <th>Address2(Opt.)</th>
                             <th>Address3(Opt.)</th>
-                            <th>Country</th>
                             <th>City(Opt.)</th>
-                            <th>Tags(Opt.)</th>
+                            <th>Post Code(Opt.)</th>
+                            <th>Country(Opt.)</th>
+                            <th>Currency(Opt.)</th>
+                            <th>Employee(Opt.)</th>
                             <th>Website(Opt.)</th>
                             <th>Fax(Opt.)</th>
-                            <th>Mobile(Opt.)</th>
-                            <th>Skype(Opt.)</th>
-                            <th>Twitter(Opt.)</th>
-                            <th>Employee(Opt.)</th>
                             <th>Description(Opt.)</th>
                             <th>VatNumber(Opt.)</th>
+                            <th>Tags(Opt.)</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -1046,24 +1021,22 @@
                             <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
-                            <td>test@gmail.com</td>
                             <td>999999</td>
-                            <td>Director</td>
-                            <td>123456</td>
+                            <td>test@gmail.com</td>
+                            <td>testbilling@gmail.com</td>
                             <td>address line1</td>
                             <td>address line2</td>
                             <td>address line3</td>
-                            <td>India</td>
-                            <td>Rajkot</td>
-                            <td>test1,test2</td>
+                            <td>London</td>
+                            <td>WC2N</td>
+                            <td>UNITED KINGDOM</td>
+                            <td>USD</td>
+                            <td>4</td>
                             <td>WWW.abc.com</td>
                             <td>12546</td>
-                            <td>990990999</td>
-                            <td>abc.skype</td>
-                            <td>abc.twitter</td>
-                            <td>4</td>
                             <td>test Description</td>
                             <td>789546</td>
+                            <td>test1,test2</td>
                         </tr>
                         <tr>
                             <td>202</td>
@@ -1071,50 +1044,45 @@
                             <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
-                            <td>test@gmail.com</td>
                             <td>999999</td>
-                            <td>Director</td>
-                            <td>123456</td>
+                            <td>test@gmail.com</td>
+                            <td>testbilling@gmail.com</td>
                             <td>address line1</td>
                             <td>address line2</td>
                             <td>address line3</td>
-                            <td>India</td>
-                            <td>Rajkot</td>
-                            <td>test1,test2</td>
+                            <td>London</td>
+                            <td>WC2N</td>
+                            <td>UNITED KINGDOM</td>
+                            <td>USD</td>
+                            <td>4</td>
                             <td>WWW.abc.com</td>
                             <td>12546</td>
-                            <td>990990999</td>
-                            <td>abc.skype</td>
-                            <td>abc.twitter</td>
-                            <td>4</td>
                             <td>test Description</td>
                             <td>789546</td>
+                            <td>test1,test2</td>
                         </tr>
                         <tr>
                             <td>203</td>
                             <td>Test Account</td>
-                            <td>India</td>
                             <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
-                            <td>test@gmail.com</td>
                             <td>999999</td>
-                            <td>Director</td>
-                            <td>123456</td>
+                            <td>test@gmail.com</td>
+                            <td>testbilling@gmail.com</td>
                             <td>address line1</td>
                             <td>address line2</td>
                             <td>address line3</td>
-                            <td>India</td>
-                            <td>Rajkot</td>
-                            <td>test1,test2</td>
+                            <td>London</td>
+                            <td>WC2N</td>
+                            <td>UNITED KINGDOM</td>
+                            <td>USD</td>
+                            <td>4</td>
                             <td>WWW.abc.com</td>
                             <td>12546</td>
-                            <td>990990999</td>
-                            <td>abc.skype</td>
-                            <td>abc.twitter</td>
-                            <td>4</td>
                             <td>test Description</td>
                             <td>789546</td>
+                            <td>test1,test2</td>
                         </tr>
                         </tbody>
                     </table>
