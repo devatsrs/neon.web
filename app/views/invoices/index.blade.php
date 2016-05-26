@@ -55,7 +55,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-1 control-label">Invoice Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Account</label>
                         <div class="col-sm-2">
@@ -64,12 +64,12 @@
 
                         <label for="field-1" class="col-sm-1 control-label">Invoice Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), Input::get('InvoiceStatus'), array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), explode(',',Input::get('InvoiceStatus')), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
             <label for="field-1" class="col-sm-1 control-label">Hide Zero Invoice Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" {{Input::get('zerovalueinvoice') == 1?'checked':''}}>
                             </p>
                         </div>
 
@@ -91,7 +91,7 @@
             
                           <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
-                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} 
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
                     </div>                  
                 </div>
                   <p style="text-align: right;">
