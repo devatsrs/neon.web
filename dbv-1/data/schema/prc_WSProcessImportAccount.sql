@@ -2,13 +2,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessImportAccount`(IN `p_p
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;         
+	DECLARE totalduplicatecode INT(11);	 
+	DECLARE errormessage longtext;
+	DECLARE errorheader longtext;
 	SET sql_mode = '';	    
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     SET SESSION sql_mode='';
     
 	 DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
     CREATE TEMPORARY TABLE tmp_JobLog_  ( 
-        Message VARCHAR(200)     
+        Message longtext     
     );
     
    IF p_option = 0 /* Csv Import */
@@ -18,7 +21,30 @@ BEGIN
 		AND  n1.CompanyId = n2.CompanyId		   
 		AND  n1.AccountName = n2.AccountName		
 		AND  n1.ProcessID = n2.ProcessID
- 		AND  n1.ProcessID = p_processId and n2.ProcessID = p_processId;      
+ 		AND  n1.ProcessID = p_processId and n2.ProcessID = p_processId;   
+		 
+		 select count(*) INTO totalduplicatecode FROM(
+				SELECT count(`Number`) as n,`Number` FROM tblTempAccount where ProcessID = p_processId  GROUP BY `Number` HAVING n>1) AS tbl;   
+				
+				
+		 IF  totalduplicatecode > 0
+				THEN
+						SELECT GROUP_CONCAT(Number) into errormessage FROM(
+							select distinct Number, 1 as a FROM(
+								SELECT count(`Number`) as n,`Number` FROM tblTempAccount where ProcessID = p_processId  GROUP BY `Number` HAVING n>1) AS tbl) as tbl2 GROUP by a;				
+								
+						SELECT 'DUPLICATE AccountNumber : \n\r' INTO errorheader;		
+						
+						INSERT INTO tmp_JobLog_ (Message)
+							 SELECT CONCAT(errorheader ,errormessage);
+							 
+							 delete FROM tblTempAccount WHERE Number IN (
+								  SELECT Number from(
+								  	SELECT count(`Number`) as n,`Number` FROM tblTempAccount where ProcessID = p_processId  GROUP BY `Number` HAVING n>1
+									  ) as tbl
+								);
+							
+			END IF;		
 
 			INSERT  INTO tblAccount
 				  (	AccountType ,
@@ -61,7 +87,7 @@ BEGIN
 					ta.CompanyId,
 					ta.Title,
 					ta.Owner,
-					FnGetAccountNumber(p_companyId,IFNULL(ta.Number,0)) as Number,
+					ta.Number as Number,
 					ta.AccountName,
 					ta.NamePrefix,
 					ta.FirstName,
@@ -102,7 +128,7 @@ BEGIN
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
-	 DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
+	 -- DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
 	
 	END IF;
 	
