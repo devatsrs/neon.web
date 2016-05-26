@@ -129,13 +129,13 @@ BEGIN
 		
                 
             
-    	SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+    	/*SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
 	 	SELECT MAX(EffectiveDate) as EffectiveDate
 		FROM 
 		tblRateTableRate
 		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
 		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	 	)tbl;
+	 	)tbl;*/
 	 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
 			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);	        
 			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
@@ -158,12 +158,13 @@ BEGIN
                 tblRateTableRate.IntervalN,
                 tblRateTableRate.Rate,
                 tblRateTableRate.ConnectionFee,
-                 case when v_NewA2ZAssign_ = 1
+                /*case when ( tblRateTableRate.EffectiveDate <= v_RateTableAssignDate_  )
                 then
                     v_RateTableAssignDate_  
                 else 
                     tblRateTableRate.EffectiveDate
-                end  as EffectiveDate,
+                end  as EffectiveDate,*/
+                tblRateTableRate.EffectiveDate,
                 NULL AS LastModifiedDate,
                 NULL AS LastModifiedBy,
                 NULL AS CustomerRateId,

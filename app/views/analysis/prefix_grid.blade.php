@@ -1,5 +1,5 @@
 <div class="col-md-12">
-<table class="table table-striped datatable" id="prefix_table">
+<table class="table table-bordered datatable" id="prefix_table">
     <thead>
     <tr>
         <th width="20%">Prefix</th>

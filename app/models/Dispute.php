@@ -8,10 +8,10 @@ class Dispute extends \Eloquent {
 	protected $table = 'tblDispute';
 	protected  $primaryKey = "DisputeID";
 	const  PENDING = 0;
-	const SETTELED =1;
+	const SETTLED =1;
 	const CANCEL  = 2;
 
-	public static $Status = [''=>'Select a Status',self::PENDING=>'Pending',self::SETTELED=>'Setteled',self::CANCEL=>'Cancel'];
+	public static $Status = [''=>'Select a Status',self::PENDING=>'Pending',self::SETTLED=>'Settled',self::CANCEL=>'Cancel'];
 
 	public static function reconcile($companyID,$accountID,$StartDate,$EndDate,$GrandTotal,$TotalMinutes){
 
@@ -32,7 +32,7 @@ class Dispute extends \Eloquent {
 	public static function calculate_dispute($GrandTotal,$DisputeTotal,$TotalMinutes,$DisputeMinutes){
 
 		$DisputeTotal = number_format($DisputeTotal,4);
-		$DisputeDifference = number_format($GrandTotal - $DisputeTotal,4);
+		$DisputeDifference = number_format($GrandTotal - $DisputeTotal,4,'.','');
 		$total_average = $GrandTotal + $DisputeTotal / 2;
 
 		if($total_average > 0){

@@ -2049,3 +2049,7 @@ text-align:left
     color:#373e4a;
     word-wrap: break-word;
 }
+
+#main-menu li i{
+	font-size:16px !important;
+}
