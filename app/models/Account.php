@@ -31,9 +31,7 @@ class Account extends \Eloquent {
     public static $messages = array('CurrencyId.required' =>'The currency field is required');
 
     public static $importrules = array(
-        'selection.AccountName' => 'required',
-        'selection.Country'=>'required',
-        'selection.FirstName'=>'required'
+        'selection.AccountName' => 'required'
     );
 
     public static $importleadrules = array(
@@ -43,13 +41,11 @@ class Account extends \Eloquent {
         );
 
     public static $importmessages = array(
-        'selection.AccountName.required' =>'The Account Name field is required',
-        'selection.Country.required' =>'The Country field is required',
-        'selection.FirstName.required' =>'The First Name field is required'
+        'selection.AccountName.required' =>'The Account Name field is required'
     );
 
     public static $importleadmessages = array(
-        'selection.AccountName.required' =>'The Account Name field is required',
+        'selection.AccountName.required' =>'The Company Name field is required',
         'selection.FirstName.required' =>'The First Name field is required',
         'selection.LastName.required' =>'The Last Name field is required'
     );

@@ -1,4 +1,4 @@
-accountnumber,accountname,country,title,first_name,last_name,job_position,telephone,email,Tag,Pincode,Address1,Address2,Address3,City,BillingEmail,Currency,Website,Mobile,Fax,Skype,Twitter,Employee,Description,VatNumber
-200,Test Account 1,Israel,Mr,Test,Account 1,Director Carrier Relations,009725 2313 3517,testaccount1@gmail.com,test,123456,address1,address2,address3,abudhabi,abbilling@gmail.com,USD,www.abc.com,123456,sds,abcs,abc.twitter,1,hi test,1213
-201,Test Account 2,INDIA,Mr,Test,Account 2,Director Carrier Relations,009725 2313 3517,testaccount2@gmail.com,test,123456,address1,address2,address3,rajkot,abbilling@gmail.com,USD,def.com,5646,czxc,defs,abc.twitter,4,hi test,456
-202,Test Account 3,INDIA,Mr,Test,Account 3,Director Carrier Relations,009725 2313 3517,testaccount3@gmail.com,test,123456,address1,address1,address1,rajkot,abbilling@gmail.com,GBP,ghi.com,46848,fgfdg,ghis,abc.twitter,5,hi test,456
+AccountNumber,AccountName,Title,FirstName,LastName,Phone,Email,BillingEmail,Address1,Address2,Address3,City,PostCode,Country,Currency,Employee,Website,Fax,Description,VatNumber,Tag
+200,Test Account 1,Mr,Test,Account 1,009725 2313 3517,testaccount1@gmail.com,billingaccount1@gmail.com,address1,address2,address3,London,WC2N,UNITED KINGDOM,USD,1,www.abc.com,sds,hi test,1213,test
+201,Test Account 2,Mr,Test,Account 2,009725 2313 3517,testaccount2@gmail.com,billingaccount1@gmail.com,address1,address2,address3,London,WC2N,UNITED KINGDOM,USD,2,def.com,czxc,hi test,456,test
+202,Test Account 3,Mr,Test,Account 3,009725 2313 3517,testaccount3@gmail.com,billingaccount1@gmail.com,address1,address1,address1,London,WC2N,UNITED KINGDOM,GBP,5,ghi.com,fgfdg,hi test,456,test
