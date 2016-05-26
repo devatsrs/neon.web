@@ -37,7 +37,7 @@
                                 case ($datediff<1):
                                     $badgeClass .= "badge-danger";
                                     break;
-                                case ($datediff==1):
+                                case ($datediff>=1 && $datediff<=3):
                                     $badgeClass .= "badge-warning dueDate";
                                     break;
                                 case ($datediff>1):
