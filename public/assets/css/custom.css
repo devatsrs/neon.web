@@ -1153,8 +1153,11 @@ text-align:center;
     background-color: #cf513d;
 }
 
-.count-cards .dueDate{
+.count-cards .yellow{
     background-color: #e6c60d;
+}
+
+.count-cards .dueDate{
     padding:3px;
     font-size: 10px;
 }

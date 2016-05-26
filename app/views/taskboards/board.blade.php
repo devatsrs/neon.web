@@ -32,13 +32,13 @@
                                 $date = $arry[0];
                             }
                             $date = '<i class="entypo-clock"></i>'.$date;
-                            $badgeClass = 'badge badge-roundless ';
+                            $badgeClass = 'badge badge-roundless dueDate ';
                             switch (TRUE) {
                                 case ($datediff<1):
                                     $badgeClass .= "badge-danger";
                                     break;
                                 case ($datediff>=1 && $datediff<=3):
-                                    $badgeClass .= "badge-warning dueDate";
+                                    $badgeClass .= "badge-warning yellow";
                                     break;
                                 case ($datediff>1):
                                     $badgeClass .= "badge-roundless";
