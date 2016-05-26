@@ -1,5 +1,5 @@
 <div class="col-md-12">
-<table class="table table-striped datatable" id="trunk_table">
+<table class="table table-bordered datatable" id="trunk_table">
     <thead>
     <tr>
         <th width="20%">Trunk</th>

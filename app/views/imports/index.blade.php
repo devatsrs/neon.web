@@ -25,12 +25,11 @@
 @include('includes.success')
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
-
-    <div class="steps-progress">
+    <div class="steps-progress" style="display:none">
         <div class="progress-indicator"></div>
     </div>
 
-    <ul id="wizardul">
+    <ul id="wizardul" style="display:none">
         <li class="active" id="st1">
             <a href="#tab2-1" data-toggle="tab"><span>1</span><h5 class="test">Select Import Type</h5></a>
         </li>
@@ -44,9 +43,11 @@
 
 
     <div class="tab-content">
+        <span class="itype"><h3>Select Import Type</h3></span>
         <div class="tab-pane active" id="tab2-1">
 
             <div class="row">
+
                 </br></br>
                 <div class="col-md-1"></div>
                 <div class="col-md-11">
@@ -108,7 +109,7 @@
                 <input type="hidden" name="importaccountsuccess" value="">
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
-                <span class="gatewayloading">Import Account Processing</span>
+                <span class="gatewayloading">Retrieving Accounts ... </span>
                 <p style="float: right">
                     <button type="button" id="uploadaccount"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
                 </p>
@@ -269,7 +270,7 @@
 
                                         </div>
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Country</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
@@ -459,6 +460,9 @@
             onNext: function(tab, navigation, index) {
                 activetab = tab.attr('id');
                 if(activetab=='st1'){
+                    $('.itype').hide();
+                    $('#wizardul').removeAttr('style');
+                    $('.steps-progress').removeAttr('style');
                     var importfrom = $("#rootwizard-2 input[name='size']:checked").val();
                     if(importfrom=='csv' || importfrom=='excel'){
                         if($('#st3 h5').hasClass("test")){
@@ -482,8 +486,8 @@
                         $('#csvimport').show();
                     }else if(importfrom=='PBX' || importfrom=='Porta'){
                         $('#st3').remove();
-                        $("#st2 h5.test").html('Get Account From Gateway');
-                        $("#st3 h5.test").html('Import Account');
+                        $("#st2 h5.test").html('Select Accounts');
+                        $("#st3 h5.test").html('Import Accounts');
                         var cgid = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
                         var cgname = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
                         $('#csvimport').hide();
@@ -508,6 +512,7 @@
                         var filename = $("#rootwizard-2 input[name='excel']").val();
                         if (filename == '') {
                             toastr.error('Please upload file.', "Error", toastr_opts);
+                            $(".pager .next").removeClass('disabled');
                             return false;
                         } else {
                             var formData = new FormData($('#rootwizard-2')[0]);
@@ -561,7 +566,10 @@
                 }
             },
             onPrevious: function(tab, navigation, index) {
-
+                activetab = tab.attr('id');
+                if(activetab=='st2'){
+                    location.reload();
+                }
             }
         });
 

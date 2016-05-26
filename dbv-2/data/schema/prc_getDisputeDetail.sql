@@ -21,7 +21,7 @@ BEGIN
  			   CASE WHEN ds.`Status`= 0 THEN
 				 		'Pending' 
 				WHEN ds.`Status`= 1 THEN
-					'Setteled' 
+					'Settled' 
 				WHEN ds.`Status`= 2 THEN
 					'Cancel' 
 				END as `Status`,

@@ -1341,7 +1341,7 @@ var postdata;
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Total Minutes</label>
+                        <label class="col-sm-2 control-label" for="field-1">Total Seconds</label>
                         <div class="col-sm-4">
                             <input type="text" name="TotalMinutes" class="form-control"  value="" />
                         </div>
@@ -1370,7 +1370,7 @@ var postdata;
                                     <td><span class="DisputeDifferencePer"></span></td>
                                 </tr>
                                 <tr>
-                                    <th>Minutes</th>
+                                    <th>Seconds</th>
                                     <td><span class="DisputeMinutes"></span></td>
                                     <td><span class="MinutesDifference"></span></td>
                                     <td><span class="MinutesDifferencePer"></span></td>

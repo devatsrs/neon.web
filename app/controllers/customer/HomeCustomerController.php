@@ -8,7 +8,7 @@ class HomeCustomerController extends BaseController {
     public function home() {
 
         if(Auth::check()){
-            return Redirect::to('customer/dashboard');
+            return Redirect::to('customer/monitor');
         }else{
             $loginpath='customer/dologin';
             create_site_configration_cache();
@@ -21,7 +21,7 @@ class HomeCustomerController extends BaseController {
         if (Request::ajax()) {
             $data = Input::all();
             if (User::user_login($data)) {
-                $redirect_to = URL::to("/customer/dashboard");
+                $redirect_to = URL::to("/customer/monitor");
                 if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];
                 }
