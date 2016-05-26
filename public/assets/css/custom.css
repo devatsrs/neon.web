@@ -1144,7 +1144,7 @@ text-align:center;
     border-left-width: 3px;
 }
 
-.inline{
+.inlinetable{
     display: inline-block;
     line-height:40px;
 }
@@ -1153,7 +1153,7 @@ text-align:center;
     background-color: #cf513d;
 }
 
-.count .dueDate{
+.count-cards .dueDate{
     background-color: #e6c60d;
     padding:3px;
     font-size: 10px;

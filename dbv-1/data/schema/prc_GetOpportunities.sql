@@ -30,7 +30,7 @@ INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 LEFT JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
-			AND (p_Tags = '' OR o.Tags = p_Tags)
+			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)

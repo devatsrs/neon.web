@@ -227,7 +227,7 @@
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
-                            return '<div class="'+(full[13] == "1"?'priority':'normal')+' inline">&nbsp;</div>'+'<div class="inline">'+full[8]+'</div>';
+                            return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[8]+'</div>';
                         }
                     },
                     {
@@ -893,18 +893,13 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Priority</label>
-                                    <div class="col-sm-4 make">
+                                    <div class="col-sm-3 make">
                                         <span class="make-switch switch-small">
                                             <input name="Priority" value="1" type="checkbox">
                                         </span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top-group pull-left">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Close</label>
-                                    <div class="col-sm-8 taskClosed">
+                                    <label class="col-sm-2 control-label">Close</label>
+                                    <div class="col-sm-3 taskClosed">
                                         <p class="make-switch switch-small">
                                             <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
                                         </p>
@@ -994,7 +989,8 @@
                         <div id="attachments" class="form-group">
                         </div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-12" id="addattachmentop" style="text-align: right;">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="TaskID" >
                             </div>

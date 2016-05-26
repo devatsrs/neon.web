@@ -913,7 +913,8 @@
                         </div>
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-12" id="addattachmentop" style="text-align: right;">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="OpportunityID" >
                             </div>
