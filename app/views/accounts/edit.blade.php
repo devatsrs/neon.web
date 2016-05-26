@@ -225,7 +225,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-                            <input value="#nopassword"  autocomplete="off"  id="customer_password"  class="form-control"  name="password" id="field-1" placeholder=""  type="password" />
+                            <input value=""  autocomplete="off"  id="customer_password"  class="form-control"  name="password" id="field-1" placeholder=""  type="password" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
