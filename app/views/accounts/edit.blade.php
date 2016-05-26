@@ -51,7 +51,8 @@
 <br>
 <div class="row">
 <div class="col-md-12">
-    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" class="form-horizontal form-groups-bordered">
+    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" autocomplete="off" class="form-horizontal form-groups-bordered">
+<input type="password" class="form-control"   id="hidden_password" placeholder="" value="" />
 
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
@@ -188,23 +189,23 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
+                        <input type="text" class="form-control" id="tags"  name="tags" value="{{$account->tags}}" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2"))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit"))}}
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2",'disabled'))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit",'disabled'))}}
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Timezone</label>
+                    <label for="timezone" class="col-sm-2 control-label">Timezone</label>
                     <div class="col-sm-4">
-                        {{Form::select('Timezone', $timezones, $account->TimeZone ,array("class"=>"form-control select2"))}}
+                        {{Form::select('Timezone', $timezones, $account->TimeZone ,array("class"=>"select2 form-control","id"=>"timezone"))}}
                     </div>
                 </div>
 
@@ -224,7 +225,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                            <input value="#nopassword"  autocomplete="off"  id="customer_password"  class="form-control"  name="password" id="field-1" placeholder=""  type="password" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
@@ -590,9 +591,13 @@
 </div>
 </div>
 <script type="text/javascript">
-    var accountID = '{{$account->AccountID}}';
+	
+	var accountID = '{{$account->AccountID}}';
     var readonly = ['Company','Phone','Email','ContactName'];
-    jQuery(document).ready(function ($) {
+    $(document).ready(function ($) {
+		setTimeout(function(){
+			$('#hidden_password').hide();
+			}, 200);
 		//account status start
 		$(".change_verification_status").click(function(e) {
 		if (!confirm('Are you sure you want to change verification status?')) {

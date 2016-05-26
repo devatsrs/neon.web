@@ -2,11 +2,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` IN
 BEGIN
     DECLARE v_OffSet_ int;
     DECLARE v_Round_ int;
+    DECLARE v_CurrencyCode_ VARCHAR(50);
     
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';       
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-
+	 SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	 SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
  
@@ -179,15 +180,15 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
             END ASC
             
-			 LIMIT p_RowspPage OFFSET v_OffSet_
-        ;
+			 LIMIT p_RowspPage OFFSET v_OffSet_;
         
         
         SELECT
             COUNT(*) AS totalcount,
 			ROUND(sum(GrandTotal),v_Round_) as total_grand,
 			ROUND(sum(TotalPayment),v_Round_) as `first_amount`, -- should be TotalPayment
-			ROUND(sum(GrandTotal),v_Round_) - ROUND(sum(TotalPayment),v_Round_) as second_amount
+			ROUND(sum(GrandTotal),v_Round_) - ROUND(sum(TotalPayment),v_Round_) as second_amount,
+			v_CurrencyCode_ as currency_symbol
         FROM tmp_Invoices_ ;
 		
     END IF;

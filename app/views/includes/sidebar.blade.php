@@ -48,13 +48,6 @@
     @if( User::checkCategoryPermission('Account','View'))
     <li> <a href="{{URL::to('/accounts')}}"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> </li>
     @endif
-    @if( User::checkCategoryPermission('EmailTemplate','View'))
-    <li class="{{check_uri('Template')}}"> <a href="#"> <i class="fa fa-envelope-o"></i> <span>Template Management</span> </a>
-      <ul>
-        <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
-      </ul>
-    </li>
-    @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
     User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All'))
@@ -209,6 +202,10 @@
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
         <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>
         @endif
+         @if( User::checkCategoryPermission('EmailTemplate','View'))
+        <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
+    	@endif
+        
         @if(User::checkCategoryPermission('Jobs','view')) 
         <!-- <li>
                             <a href="{URL::to('/activejob')}">
