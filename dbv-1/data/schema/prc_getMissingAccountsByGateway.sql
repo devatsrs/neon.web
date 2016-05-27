@@ -19,6 +19,7 @@ BEGIN
 				from tblTempAccount ta
 				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyID = a.CompanyId
 				where ta.CompanyID =p_CompanyID 								
+				AND ta.AccountType=1
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
 				AND a.AccountID is null
 				group by ta.AccountName
@@ -55,6 +56,7 @@ BEGIN
 				from tblTempAccount ta
 				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyID = a.CompanyId
 				where ta.CompanyID =p_CompanyID 
+				AND ta.AccountType=1
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
 				AND a.AccountID is null
 				group by ta.AccountName)tbl;
@@ -69,6 +71,7 @@ BEGIN
 				from tblTempAccount ta
 				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyID = a.CompanyId
 				where ta.CompanyID =p_CompanyID 
+				AND ta.AccountType=1
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
 				AND a.AccountID is null
 				group by ta.AccountName;
