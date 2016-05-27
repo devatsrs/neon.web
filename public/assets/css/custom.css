@@ -186,7 +186,7 @@ a[disabled] {
 }
 .toast-container-fix.toast-top-full-width > div,
 .toast-container-fix.toast-bottom-full-width > div {
- /* width: 96%;*/ width: 100%;
+  width: 96%;
   margin: auto;
 }
 .toast-container-fix .toast-success.black,
@@ -1134,12 +1134,32 @@ text-align:center;
 
 .priority{
     border-left-color: #CC2424;
-    border-left-width: 5px;
+    border-left-style:solid;
+    border-left-width: 3px;
 }
 
 .normal{
     border-left-color: #00A651;
-    border-left-width: 5px;
+    border-left-style:solid;
+    border-left-width: 3px;
+}
+
+.inlinetable{
+    display: inline-block;
+    line-height:40px;
+}
+
+.count-cards .badge-danger{
+    background-color: #cf513d;
+}
+
+.count-cards .yellow{
+    background-color: #e6c60d;
+}
+
+.count-cards .dueDate{
+    padding:3px;
+    font-size: 10px;
 }
 
 .count-cards:hover{
@@ -1194,10 +1214,6 @@ text-align:center;
     -o-transition: none;
     -ms-transition: none;
     transition: none;
-}
-
-#deals-dashboard .board-column-list li button.edit-deal{
-    margin-left: 5px;
 }
 
 #allComments .panel-primary{
@@ -1840,7 +1856,7 @@ text-align:left
     overflow: hidden;
     resize: horizontal;
     word-wrap: break-word;
-    /*min-height: 200px;*/
+    min-height: 200px;
 }
 
 .cbp_tmtimeline {
@@ -2049,7 +2065,6 @@ text-align:left
     color:#373e4a;
     word-wrap: break-word;
 }
-
 #main-menu li i{
 	font-size:16px !important;
 }

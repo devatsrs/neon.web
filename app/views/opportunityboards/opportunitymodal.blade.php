@@ -82,7 +82,7 @@
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(leadOrAccountID);
                         }
                     }else if(opportunity[i]=='Status'){
-                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption({{Opportunity::Open}});
+                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
                     }
                 } else{
                     elem.val('');

@@ -21,7 +21,6 @@ class TaskController extends \BaseController {
 
         $columns =[];
         $message = '';
-
         $columnsWithITask = [];
         if($response['status']=='success') {
             $columns = $response['data']['columns'];
@@ -108,7 +107,7 @@ class TaskController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-public function create(){
+    public function create(){
         $data = Input::all();
         $response = NeonAPI::request('task/add_task',$data);
 
@@ -169,6 +168,7 @@ public function create(){
         $response = NeonAPI::request('task/'.$id.'/update_columnorder',$data);
         return json_response_api($response);
     }
+
     //////////////////////
     function upload_file(){
         $data       =  Input::all();

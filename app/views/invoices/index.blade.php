@@ -53,23 +53,23 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Account</label>
                         <div class="col-sm-2">
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-1 control-label">Status</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), Input::get('InvoiceStatus'), array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):array()), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
-            <label for="field-1" class="col-sm-1 control-label">Zero Value</label>
+            <label for="field-1" class="col-sm-1 control-label">Hide Zero Invoice Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" {{Input::get('zerovalueinvoice') == 1?'checked':''}}>
                             </p>
                         </div>
 
@@ -91,7 +91,7 @@
             
                           <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
-                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} 
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
                     </div>                  
                 </div>
                   <p style="text-align: right;">
@@ -166,13 +166,14 @@
  <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div></th>
+        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+                <div class="pull-right"> Sent/Receive</div></th>
         <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
-        <th width="10%">Issue Date</th>        
-        <th width="6%">Grand Total</th>
-        <th width="6%">Paid/OS</th>
-        <th width="10%">Status</th>
+        <th width="10%">Issue Date</th>
+        <th width="10%">Grand Total</th>
+        <th width="10%">Paid/OS</th>
+        <th width="10%">Invoice Status</th>
         <th width="20%">Action</th>
     </tr>
     </thead>
@@ -270,15 +271,15 @@ var postdata;
                                                      }
 
                 },  // 2 IssueDate
-                {  "bSortable": true },  // 3 IssueDate                
-                {  "bSortable": true },  // 5 GrandTotal
-                {  "bSortable": true },  // 6 PAID/OS
+                {  "bSortable": true },  // 3 IssueDate
+                {  "bSortable": true },  // 4 GrandTotal
+                {  "bSortable": true },  // 4 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
                         return invoicestatus[full[6]];
                     }
 
-                },  // 7 InvoiceStatus
+                },  // 5 InvoiceStatus
                 {
                    "bSortable": false,
                     mRender: function ( id, type, full ) {
@@ -468,14 +469,14 @@ var postdata;
                 type: 'GET',
                 dataType: 'json',
 				data:{
-			"InvoiceType":$("#invoice_filter select[name='InvoiceType']").val(),
+			"InvoiceType":$("#invoice_filter [name='InvoiceType']").val(),
 			"AccountID":$("#invoice_filter select[name='AccountID']").val(),
 			"InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
 			"InvoiceStatus":$("#invoice_filter select[name='InvoiceStatus']").val(),
 			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
 			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
 			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
-			"CurrencyID":$("#invoice_filter select[name='CurrencyID']").val(),
+			"CurrencyID":$("#invoice_filter [name='CurrencyID']").val(),
 			"bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -490,8 +491,15 @@ var postdata;
 						{ 
 						$('.result_row').remove();
 						$('.result_row').hide();
-				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
-
+							var selected_currency  =	 $("#invoice_filter [name='CurrencyID']").val();
+							var concat_currency    = 	 '';
+							if(selected_currency!='')
+							{							
+		//						concat_currency = $("#invoice_filter [name='CurrencyID'] option:selected").text()+' ';		
+								var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
+								var concat_currency = currency_txt.substr(0,1);
+							}
+				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');	
 						}
 					},
 			});	

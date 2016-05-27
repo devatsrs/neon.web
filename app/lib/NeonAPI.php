@@ -102,12 +102,12 @@ class NeonAPI{
     protected static function errorResponse($is_array,$Code){
         if($is_array){
             $response['status'] = 'failed';
-            $response['message'] = ["error" => ['Some thing wrong try Again.']];
+            $response['message'] = ["error" => ['Oops Something went wrong please contact your system administrator.']];
             $response['Code'] =$Code;
         }else{
             $response = new stdClass;
             $response->status = 'failed';
-            $response->message = ["error" => ['Some thing wrong try Again.']];
+            $response->message = ["error" => ['Oops Something went wrong please contact your system administrator.']];
             $response->Code =$Code;
         }
         return $response;

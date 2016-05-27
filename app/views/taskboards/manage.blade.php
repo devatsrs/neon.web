@@ -89,7 +89,7 @@
                                 <div class="col-sm-2">
                                     {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
                                 </div>
-                                <label class="col-sm-1 control-label">Closed</label>
+                                <label class="col-sm-1 control-label">Close</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
@@ -215,7 +215,8 @@
                             {"name": "DueDateFrom","value": $searchFilter.DueDateFrom},
                             {"name": "DueDateTo","value": $searchFilter.DueDateTo},
                             {"name": "TaskStatus","value": $searchFilter.TaskStatus},
-                            {"name": "AccountIDs","value": $searchFilter.AccountIDs}
+                            {"name": "AccountIDs","value": $searchFilter.AccountIDs},
+                            {"name": "taskClosed","value": $searchFilter.taskClosed}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -226,7 +227,7 @@
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
-                            return full[8];
+                            return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[8]+'</div>';
                         }
                     },
                     {
@@ -271,14 +272,7 @@
                     ]
                 },
                 "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-                    if ( aData[13] == "1" ) {
-                        $('td:eq(0)', nRow).css('border-left-color', 'Red');
-                        $('td:eq(0)', nRow).css('border-left-width', '5px');
-                    }
-                    else if ( aData[13] == "0" ) {
-                        $('td:eq(0)', nRow).css('border-left-color', 'green');
-                        $('td:eq(0)', nRow).css('border-left-width', '5px');
-                    }
+                    $('td:eq(0)', nRow).css('padding', '0');
                 }
                 ,
                 "fnDrawCallback": function () {
@@ -314,7 +308,6 @@
                 for(var i = 0 ; i< task.length; i++){
                     var val = rowHidden.find('input[name="'+task[i]+'"]').val();
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
-                    //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
                         if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
@@ -329,15 +322,15 @@
                             elem.val(val).trigger("change");
                         }else if(task[i]=='Priority'){
                             if(val==1) {
-                                biuldSwicth('.make','#edit-modal-task','checked');
+                                biuldSwicth('.make','Priority','#edit-modal-task','checked');
                             }else{
-                                biuldSwicth('.make','#edit-modal-task','');
+                                biuldSwicth('.make','Priority','#edit-modal-task','');
                             }
                         }else if(task[i]=='taskClosed'){
                             if(val==1) {
-                                biuldSwicth('.taskClosed','#edit-modal-task','checked');
+                                biuldSwicth('.taskClosed','taskClosed','#edit-modal-task','checked');
                             }else{
-                                biuldSwicth('.taskClosed','#edit-modal-task','');
+                                biuldSwicth('.taskClosed','taskClosed','#edit-modal-task','');
                             }
                         }else if(task[i]=='DueDate' || task[i]=='StartTime'){
                             if(val=='0000-00-00' || val=='00:00:00'){
@@ -649,9 +642,9 @@
                 $('.autogrow').trigger('autosize.resize');
             }
 
-            function biuldSwicth(container,formID,checked){
+            function biuldSwicth(container,name,formID,checked){
                 var make = '<span class="make-switch switch-small">';
-                make += '<input name="taskClosed" value="{{Task::Close}}" '+checked+' type="checkbox">';
+                make += '<input name="'+name+'" value="{{Task::Close}}" '+checked+' type="checkbox">';
                 make +='</span>';
 
                 var container = $(formID).find(container);
@@ -720,7 +713,7 @@
                                 autohidemode: true,
                                 sensitiverail: false
                             };
-                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                            $('#allComments .niceScroll').niceScroll(nicescroll_defaults);
                         }
                     },
                     // Form data
@@ -900,18 +893,13 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Priority</label>
-                                    <div class="col-sm-4 make">
+                                    <div class="col-sm-3 make">
                                         <span class="make-switch switch-small">
                                             <input name="Priority" value="1" type="checkbox">
                                         </span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top-group pull-left">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Closed</label>
-                                    <div class="col-sm-8 taskClosed">
+                                    <label class="col-sm-2 control-label">Close</label>
+                                    <div class="col-sm-3 taskClosed">
                                         <p class="make-switch switch-small">
                                             <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
                                         </p>
@@ -1001,7 +989,8 @@
                         <div id="attachments" class="form-group">
                         </div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-12" id="addattachmentop" style="text-align: right;">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="TaskID" >
                             </div>

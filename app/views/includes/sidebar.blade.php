@@ -82,7 +82,7 @@
     <li><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
-                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
+                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunities</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
                 <li><a href="{{URL::to('/task')}}"><span>Tasks</span></a></li>

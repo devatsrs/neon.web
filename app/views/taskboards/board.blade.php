@@ -20,22 +20,28 @@
                         $badgeClass = '';
                         $seconds = '';
                         if($task['DueDate']!='0000-00-00'){
-                            $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInDays();
+                            $yeardiff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInYears();
+                            $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffInDays();
                             $datediffhuman=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
                             $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             if(strpos($datediffhuman,'ago')){
                                 $datediff=-1;
                             }
+                            if($yeardiff ==0){
+                                $arry = explode(',',$date);
+                                $date = $arry[0];
+                            }
                             $date = '<i class="entypo-clock"></i>'.$date;
+                            $badgeClass = 'badge badge-roundless dueDate ';
                             switch (TRUE) {
-                                case ($datediff<0):
-                                    $badgeClass = "badge badge-danger badge-roundless";
+                                case ($datediff<1):
+                                    $badgeClass .= "badge-danger";
                                     break;
-                                case ($datediff==0):
-                                    $badgeClass = "badge badge-warning badge-roundless";
+                                case ($datediff>=1 && $datediff<=3):
+                                    $badgeClass .= "badge-warning yellow";
                                     break;
-                                case ($datediff>0):
-                                    $badgeClass = "badge badge-roundless";
+                                case ($datediff>1):
+                                    $badgeClass .= "badge-roundless";
                                     break;
                             }
                         }
@@ -45,7 +51,6 @@
                         ?>
                             <li class="tile-stats sortable-item count-cards {{$priorityborder}}" data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
                                 <button type="button" title="Edit Task" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
-                                <span class="{{$badgeClass}} pull-right">{{$date}}</span>
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
@@ -53,6 +58,7 @@
                                     <p class="title">{{$task['Subject']}}</p>
                                 </div>
                                 <div class="bottom pull-right">
+                                    <span class="{{$badgeClass}}">{{$date}}</span><br>
                                     @if(count($taggedUsers)>0)
                                         @foreach($taggedUsers as $user)
                                             <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>

@@ -37,7 +37,8 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/js/select2/select2.css",
         "assets/js/selectboxit/jquery.selectBoxIt.css",
         "assets/bootstrap3-editable/css/bootstrap-editable.css",
-        "assets/js/icheck/skins/minimal/_all.css"
+        "assets/js/icheck/skins/minimal/_all.css",
+		"assets/js/perfectScroll/css/perfect-scrollbar.css"
 
 
     ];

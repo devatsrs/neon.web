@@ -658,7 +658,7 @@ toastr_opts = {
             });
 
 
-            if ($.isFunction($.fn.niceScroll))
+            if ($.isFunction($.fn.perfectScrollbar))
             {
 				/*
                 $(".select2-results").niceScroll({
@@ -669,18 +669,10 @@ toastr_opts = {
 
                 public_vars.$body.find('.select2-results').each(function(i, el) {
                     var $this = $(el);
-                        //height = attrDefault($this, 'height', $this.height());
-                    $this.slimScroll({
-                        position: attrDefault($this, 'scroll-position', 'right'),
-                        color: attrDefault($this, 'rail-color', '#000'),
-                        size: attrDefault($this, 'rail-width', 6),
-                        borderRadius: attrDefault($this, 'rail-radius', 3),
-                        opacity: attrDefault($this, 'rail-opacity', .3),
-                        alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                   $this.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                    $this.on('mouseenter',function(){
+                        $this.perfectScrollbar('update');
                     });
-                    $this.css('height', 'auto');
-                    $this.parents('.slimScrollDiv').css('height', 'auto');
-                    $this.parents('max-height', '200');
                 });
             }
         }

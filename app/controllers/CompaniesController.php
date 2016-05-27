@@ -121,7 +121,7 @@ class CompaniesController extends \BaseController {
             if(count($CurrencyConversion)>0){
                 $cval = $CurrencyConversion->Value;
                 if($cval!='1.000000'){
-                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyID']))->update($CurrencyCon);
+                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
                 }
             }else{
                 CurrencyConversion::create($CurrencyCon);
