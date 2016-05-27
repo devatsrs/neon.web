@@ -83,7 +83,8 @@ BEGIN
 					CurrencyId,
 					VatNumber,
 					created_at,
-					created_by
+					created_by,
+					VerificationStatus
                    )            
 				   
 				   SELECT  DISTINCT
@@ -119,7 +120,8 @@ BEGIN
 					ta.Currency as CurrencyId,
 					ta.VatNumber,
 					ta.created_at,
-					ta.created_by
+					ta.created_by,
+					2 as VerificationStatus
 					from tblTempAccount ta
 						left join tblAccount a on ta.AccountName = a.AccountName
 						 	AND ta.CompanyId = a.CompanyId
@@ -135,7 +137,7 @@ BEGIN
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
-	 -- DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
+	  DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
 	
 	END IF;
 	
@@ -166,7 +168,8 @@ BEGIN
 					Mobile,
 					Fax,
 					created_at,
-					created_by
+					created_by,
+					VerificationStatus
                    )
 			SELECT  DISTINCT
 					ta.AccountType,
@@ -192,7 +195,8 @@ BEGIN
 					ta.Mobile,
 					ta.Fax,
 					ta.created_at,
-					ta.created_by
+					ta.created_by,
+					2 as VerificationStatus
 				from tblTempAccount ta
 				left join tblAccount a on ta.AccountName=a.AccountName
 					AND ta.CompanyId = a.CompanyId
@@ -240,7 +244,8 @@ BEGIN
 					Fax,
 					BillingTimezone,
 					created_at,
-					created_by
+					created_by,
+					VerificationStatus
                    )
 			SELECT  DISTINCT
 					ta.AccountType,
@@ -267,7 +272,8 @@ BEGIN
 					ta.Fax,
 					ta.BillingTimezone,
 					ta.created_at,
-					ta.created_by
+					ta.created_by,
+					2 as VerificationStatus
 				from tblTempAccount ta
 				left join tblAccount a on ta.AccountName=a.AccountName
 					AND ta.CompanyId = a.CompanyId
