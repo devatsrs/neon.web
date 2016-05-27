@@ -54,7 +54,7 @@ class PBX{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblTempAccount')->where('AccountName','=',$temp_row->te_name)->count();
+                            $count = DB::table('tblTempAccount')->where(["AccountName" => $temp_row->te_name, "AccountType" => 1])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->te_name;
                                 $tempItemData['Email'] = $temp_row->te_alertemail;

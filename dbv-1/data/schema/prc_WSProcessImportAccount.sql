@@ -1,10 +1,12 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessImportAccount`(IN `p_processId` VARCHAR(200) , IN `p_companyId` INT, IN `p_companygatewayid` INT, IN `p_tempaccountid` TEXT, IN `p_option` INT)
 BEGIN
 
-    DECLARE v_AffectedRecords_ INT DEFAULT 0;         
+   DECLARE v_AffectedRecords_ INT DEFAULT 0;         
 	DECLARE totalduplicatecode INT(11);	 
 	DECLARE errormessage longtext;
 	DECLARE errorheader longtext;
+	DECLARE v_accounttype INT DEFAULT 0;
+	
 	SET sql_mode = '';	    
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     SET SESSION sql_mode='';
@@ -16,6 +18,8 @@ BEGIN
     
    IF p_option = 0 /* Csv Import */
    THEN
+   
+   SELECT DISTINCT(AccountType) INTO v_accounttype from tblTempAccount WHERE ProcessID=p_processId;
    
 	DELETE n1 FROM tblTempAccount n1, tblTempAccount n2 WHERE n1.tblTempAccountID < n2.tblTempAccountID 	 	
 		AND  n1.CompanyId = n2.CompanyId		   
@@ -118,7 +122,10 @@ BEGIN
 					ta.created_by
 					from tblTempAccount ta
 						left join tblAccount a on ta.AccountName = a.AccountName
+						 	AND ta.CompanyId = a.CompanyId
+							AND ta.AccountType = a.AccountType 
 						where ta.ProcessID = p_processId
+						   AND ta.AccountType = v_accounttype
 							AND a.AccountID is null
 							AND ta.CompanyID = p_companyId;
 			
@@ -187,8 +194,11 @@ BEGIN
 					ta.created_at,
 					ta.created_by
 				from tblTempAccount ta
-				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyId = a.CompanyId
+				left join tblAccount a on ta.AccountName=a.AccountName
+					AND ta.CompanyId = a.CompanyId
+					AND ta.AccountType = a.AccountType
 				where ta.CompanyID = p_companyId 
+				AND ta.AccountType = 1
 				AND a.AccountID is null			
 				AND ta.CompanyGatewayID = p_companygatewayid
 				group by ta.AccountName;
@@ -259,8 +269,11 @@ BEGIN
 					ta.created_at,
 					ta.created_by
 				from tblTempAccount ta
-				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyId = a.CompanyId
+				left join tblAccount a on ta.AccountName=a.AccountName
+					AND ta.CompanyId = a.CompanyId
+					AND ta.AccountType = a.AccountType
 				where ta.CompanyID = p_companyId 
+				AND ta.AccountType = 1
 				AND a.AccountID is null			
 				AND FIND_IN_SET(ta.tblTempAccountID,p_tempaccountid)
 				group by ta.AccountName;

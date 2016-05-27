@@ -387,48 +387,52 @@
                         return false;
                     }else{
                         var formData = new FormData($('#rootwizard-2')[0]);
-                        show_loading_bar(0);
-                        $.ajax({
-                            url:  '{{URL::to('/import/leads/leads_check_upload')}}',  //Server script to process data
-                            type: 'POST',
-                            dataType: 'json',
-                            xhr: function() {  // Custom XMLHttpRequest
-                                var myXhr = $.ajaxSettings.xhr();
-                                if(myXhr.upload){ // Check if upload property exists
-                                    myXhr.upload.addEventListener('progress', function(evt) {
-                                        var percent = (evt.loaded / evt.total) * 100;
-                                        show_loading_bar(percent);
-                                    }, false);
-                                }
-                                return myXhr;
-                            },
-                            beforeSend: function(){
+                        var timeDelay = 500;
+                        setTimeout(loadXML, timeDelay);
+                        function loadXML() {
+                            $.ajax({
+                                url: '{{URL::to('/import/leads/leads_check_upload')}}',  //Server script to process data
+                                type: 'POST',
+                                dataType: 'json',
+                                xhr: function () {  // Custom XMLHttpRequest
+                                    var myXhr = $.ajaxSettings.xhr();
+                                    if (myXhr.upload) { // Check if upload property exists
+                                        myXhr.upload.addEventListener('progress', function (evt) {
+                                            var percent = (evt.loaded / evt.total) * 100;
+                                            show_loading_bar(percent);
+                                        }, false);
+                                    }
+                                    return myXhr;
+                                },
+                                beforeSend: function () {
 
-                            },
-                            afterSend: function(){
-                                console.log("Afer Send");
-                            },
-                            success: function (response) {
+                                },
+                                afterSend: function () {
+                                    console.log("Afer Send");
+                                },
+                                success: function (response) {
+                                    setTimeout(function() {
+                                        if (response.status == 'success') {
+                                            var data = response.data;
+                                            createGrid(data);
+                                            $('#add-template').removeClass('hidden');
 
-                                if(response.status == 'success') {
-                                    var data = response.data;
-                                    createGrid(data);
-                                    $('#add-template').removeClass('hidden');
-
-                                }else{
-                                    toastr.error(response.message, "Error", toastr_opts);
-                                    return false;
-                                }
-                                //alert(response.message);
-                                //$('.btn.upload').button('reset');
-                            },
-                            // Form data
-                            data: formData,
-                            //Options to tell jQuery not to process data or worry about content-type.
-                            cache: false,
-                            contentType: false,
-                            processData: false
-                        });
+                                        } else {
+                                            toastr.error(response.message, "Error", toastr_opts);
+                                            return false;
+                                        }
+                                    },500);
+                                    //alert(response.message);
+                                    //$('.btn.upload').button('reset');
+                                },
+                                // Form data
+                                data: formData,
+                                //Options to tell jQuery not to process data or worry about content-type.
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }
                     }
 
 
