@@ -17,7 +17,7 @@ SET sql_mode = 'ALLOW_INVALID_DATES';
 		EmailTo varchar(50),
 		EmailToName varchar(50),
 		EmailSubject varchar(50),
-		EmailMessage varchar(2000),
+		EmailMessage LONGTEXT,
 		EmailCc varchar(500),
 		EmailBcc varchar(500),
 		EmailAttachments LONGTEXT,

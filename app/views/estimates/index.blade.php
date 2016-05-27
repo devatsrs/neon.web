@@ -26,7 +26,7 @@
           <div class="form-group">
             <label for="field-1" class="col-sm-2 control-label">Account</label>
             <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-            <label for="field-1" class="col-sm-2 control-label">Estimate Status</label>
+            <label for="field-1" class="col-sm-2 control-label">Status</label>
             <div class="col-sm-2"> {{ Form::select('EstimateStatus', Estimate::get_estimate_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
             <label for="field-1" class="col-sm-2 control-label">Currency</label>
             <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} </div>

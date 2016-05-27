@@ -1001,15 +1001,14 @@ function check_upload_file($files,$session,$data){
 }
 
 // sideabar submenu open when click on
-function check_uri($parent_link='')
-{
+function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate","EmailTemplate");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-    $array_template   =    array("EmailTemplate");
+    $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
     $array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
@@ -1042,10 +1041,10 @@ function check_uri($parent_link='')
             return 'opened';
         }
 
-        if(in_array($controller,$array_template) && $parent_link =='Template')
+        /*if(in_array($controller,$array_template) && $parent_link =='Template')
         {
             return 'opened';
-        }
+        }*/
 
         if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
         {

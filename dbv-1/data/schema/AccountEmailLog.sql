@@ -10,7 +10,7 @@ CREATE TABLE `AccountEmailLog` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `Emailfrom` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `EmailTo` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `EmailTo` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Subject` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Message` longtext COLLATE utf8_unicode_ci,
   `Cc` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,

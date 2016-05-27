@@ -192,7 +192,7 @@
     <table class="table table-bordered datatable" id="table-4">
       <thead>
         <tr>
-          <th width="10%">AccountName</th>
+          <th width="10%">Account Name</th>
           <th width="10%">Invoice No</th>
           <th width="10%">Amount</th>
           <th width="8%">Type</th>
