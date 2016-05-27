@@ -64,20 +64,6 @@
                 $('#add-edit-columnname-form [name="BoardColumnName"]').val(BoardColumnName);
 
                 if($(this).attr('data-setcompleted')==1){
-                    var make = '<span class="make-switch switch-small">';
-                    make += '<input name="SetCompleted" value="1" checked type="checkbox">';
-                    make +='</span>';
-                }else{
-                    var make = '<span class="make-switch switch-small">';
-                    make += '<input name="SetCompleted" value="1" type="checkbox">';
-                    make +='</span>';
-                }
-                var container = $('#add-edit-columnname-modal').find('.make');
-                container.empty();
-                container.html(make);
-                container.find('.make-switch').bootstrapSwitch();
-
-                if($(this).attr('data-setcompleted')==1){
                     $('#add-edit-columnname-form').find('[name="SetCompleted"]').prop('checked', true);
                 }else{
                     $('#add-edit-columnname-form').find('[name="SetCompleted"]').prop('checked', false);
@@ -227,18 +213,6 @@
                                     </div>
                                 </div>
                             </div>
-                            @if($urlto=='task')
-                            <div class="col-md-12 margin-top pull-left">
-                                <div class="form-group">
-                                    <label class="control-label col-sm-3">Set Completed</label>
-                                    <div class="make col-sm-9">
-                                        <span class="make-switch switch-small">
-                                            <input type="checkbox" name="SetCompleted" value="1">
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">

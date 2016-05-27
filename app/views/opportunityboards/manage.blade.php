@@ -62,7 +62,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Opportunity Name</label>
+                                <label for="field-1" class="col-sm-1 control-label">Name</label>
                                 <div class="col-sm-2">
                                     <input class="form-control" name="opportunityName"  type="text" >
                                 </div>
@@ -86,6 +86,13 @@
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
                                 <div class="col-sm-4">
                                     {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
+                                </div>
+
+                                <label class="col-sm-1 control-label">Close</label>
+                                <div class="col-sm-1">
+                                    <p class="make-switch switch-small">
+                                        <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                    </p>
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -141,7 +148,7 @@
                 'AccountID',
                 'Tags',
                 'Rating',
-                'TaggedUser',
+                'TaggedUsers',
                 'Status'
             ];
 
@@ -184,17 +191,22 @@
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','BoardID','TaggedUser','Title','Status'];
+                var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
                     //console.log(opportunity[i]+' '+val);
                     if(select.indexOf(opportunity[i])!=-1){
-                        if(opportunity[i]=='TaggedUser'){
-                            var taggedUser = rowHidden.find('[name="TaggedUser"]').val();
-                            $('#edit-opportunity-form [name="TaggedUser[]"]').select2('val', taggedUser.split(','));
+                        if(opportunity[i]=='TaggedUsers'){
+                            var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
+                            $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
+                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -212,23 +224,17 @@
                 $('#edit-modal-opportunity').modal('show');
             });
 
-            $(document).on('mousedown','#board-start ul.sortable-list li',function(e){
-                //setting Class for current draggable item
-                $(this).addClass('dragging');
-            });
-
-            $(document).on('mouseup','#board-start ul.sortable-list li',function(e){
-                //remove Class for current draggable item
-                $(this).removeClass('dragging');
-            });
-
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
+                $('.sendmail').removeClass('hidden');
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var opportunityID = rowHidden.find('[name="OpportunityID"]').val();
                 var accountID = rowHidden.find('[name="AccountID"]').val();
                 var opportunityName = rowHidden.find('[name="OpportunityName"]').val();
+                if(!accountID){
+                    $('.sendmail').addClass('hidden');
+                }
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="AccountID"]').val(accountID);
@@ -236,6 +242,7 @@
                 $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
                 getComments();
                 getOpportunityAttachment();
+                autosizeUpdate();
                 $('#add-view-modal-opportunity-comments').modal('show');
             });
 
@@ -259,6 +266,7 @@
                         $("#commentadd").button('reset');
                         $('#add-opportunity-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
+                        autosizeUpdate();
                         getComments();
                     },
                     // Form data
@@ -349,20 +357,6 @@
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
 
-            $(window).resize(function(){
-                setTimeout(function() {
-                    board.getNiceScroll().resize();
-                    /*board.find('.board-column-list').getNiceScroll().resize();*/
-                }, 500);
-            });
-
-            /*$('#board-start').scroll(function(){
-                if(fixedHeader){
-                    var header = $('#board-start .header');
-                    var left = $('#board-start').scrollLeft();
-                    header.css('right',left-1009);
-                }
-            });*/
 
             $(document).on('change','#filecontrole1',function(e){
                 e.stopImmediatePropagation();
@@ -464,24 +458,6 @@
             });
 
             function initEnhancement(){
-                /*var height = board.find('ul.board-inner li:first-child').height();
-                var width = board.find('.board-inner').width();
-                board.height(height+230);
-                board.find('.header').width(width *2);
-                $(document).on('scroll',function(){
-                    if(board.offset().top < $(document).scrollTop() && !fixedHeader){
-                        fixedHeader = true;
-                        board.find('.header').addClass('fixed');
-                    }else if(board.offset().top > $(document).scrollTop() && fixedHeader){
-                        fixedHeader = false;
-                        board.find('.header').removeClass('fixed');
-                    }
-                });*/
-
-
-                /*board.niceScroll().remove();
-                board.find('.board-column-list').niceScroll().remove();*/
-
                 var nicescroll_defaults = {
                     cursorcolor: '#d4d4d4',
                     cursorborder: '1px solid #ccc',
@@ -531,6 +507,21 @@
                 });
             }
 
+            function autosizeUpdate(){
+                $('.autogrow').trigger('autosize.resize');
+            }
+
+            function biuldSwicth(container,formID,checked){
+                var make = '<span class="make-switch switch-small">';
+                make += '<input name="opportunityClosed" value="{{Opportunity::Close}}" '+checked+' type="checkbox">';
+                make +='</span>';
+
+                var container = $(formID).find(container);
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
+            }
+
             function getOpportunities(){
                 var formData = new FormData($('#search-opportunity-filter')[0]);
                 var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
@@ -554,6 +545,7 @@
             }
 
             function getComments(){
+                $('#comment_processing').removeClass('hidden');
                 var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
                 var url = baseurl +'/opportunitycomments/'+opportunityID+'/ajax_opportunitycomments';
                 $.ajax({
@@ -561,17 +553,21 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#allComments').html(response);
-                        var nicescroll_defaults = {
-                            cursorcolor: '#d4d4d4',
-                            cursorborder: '1px solid #ccc',
-                            railpadding: {right: 3},
-                            cursorborderradius: 1,
-                            autohidemode: true,
-                            sensitiverail: false
-                        };
-                        $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
-
+                        $('#comment_processing').addClass('hidden');
+                        if(response.status){
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }else {
+                            $('#allComments').html(response);
+                            var nicescroll_defaults = {
+                                cursorcolor: '#d4d4d4',
+                                cursorborder: '1px solid #ccc',
+                                railpadding: {right: 3},
+                                cursorborderradius: 1,
+                                autohidemode: true,
+                                sensitiverail: false
+                            };
+                            $('#allComments .niceScroll').niceScroll(nicescroll_defaults);
+                        }
                     },
                     // Form data
                     data: [],
@@ -692,7 +688,7 @@
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10">
                                     <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
                             </div>
 
@@ -799,6 +795,17 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Close</label>
+                                    <div class="col-sm-8 make">
+                                        <p class="make-switch switch-small">
+                                            <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Background</label>
@@ -865,13 +872,17 @@
                                 </div>
                                 <div class="col-md-12">
                                     <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                </div>
+                                <div class="col-md-11">
+                                </div>
+                                <div class="col-md-1">
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
                                         </a>
                                     </p>
                                 </div>
-                                <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
+                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">
@@ -894,6 +905,7 @@
                             </div>
                         </form>
                         <br>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">
 
                         </div>
@@ -901,7 +913,8 @@
                         </div>
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-12" id="addattachmentop" style="text-align: right;">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="OpportunityID" >
                             </div>

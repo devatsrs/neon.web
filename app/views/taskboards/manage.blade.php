@@ -89,17 +89,21 @@
                                 <div class="col-sm-2">
                                     {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
                                 </div>
+                                <label class="col-sm-1 control-label">Close</label>
+                                <div class="col-sm-1">
+                                    <p class="make-switch switch-small">
+                                        <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                                    </p>
+                                </div>
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
                                     {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"selectboxit"))}}
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label hidden tohidden">From</label>
-                                <div class="col-sm-2">
-                                    <input autocomplete="off" type="text" name="DueDateFrom" class="form-control datepicker hidden tohidden"  data-date-format="yyyy-mm-dd" value="" />
+                                <div class="col-sm-2 hidden tohidden">
+                                    <input autocomplete="off" id="DueDateFrom" placeholder="From" type="text" name="DueDateFrom" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label hidden tohidden">To</label>
-                                <div class="col-sm-2">
-                                    <input autocomplete="off" type="text" name="DueDateTo" class="form-control datepicker hidden tohidden"  data-date-format="yyyy-mm-dd" value="" />
+                                <div class="col-sm-2 hidden tohidden">
+                                    <input autocomplete="off" id="DueDateTo" placeholder="To" type="text" name="DueDateTo" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -127,10 +131,9 @@
             <table class="table table-bordered datatable" id="taskGrid">
                 <thead>
                 <tr>
-                    <th width="10%" >Subject</th>
-                    <th width="15%" >Due Date</th>
+                    <th width="15%" >Subject</th>
+                    <th width="20%" >Due Date</th>
                     <th width="15%" >Status</th>
-                    <th width="10%">Priority</th>
                     <th width="20%">Assigned To</th>
                     <th width="20%">Related To</th>
                     <th width="10%">Action</th>
@@ -168,8 +171,10 @@
                 'TaskStatus',
                 'Priority',
                 'PriorityText',
-                'TaggedUser',
-                'BoardID'
+                'TaggedUsers',
+                'BoardID',
+                'userName',
+                'taskClosed'
             ];
             @if(empty($message)){
                 var allow_extensions  =   '{{$response_extensions}}';
@@ -210,7 +215,8 @@
                             {"name": "DueDateFrom","value": $searchFilter.DueDateFrom},
                             {"name": "DueDateTo","value": $searchFilter.DueDateTo},
                             {"name": "TaskStatus","value": $searchFilter.TaskStatus},
-                            {"name": "AccountIDs","value": $searchFilter.AccountIDs}
+                            {"name": "AccountIDs","value": $searchFilter.AccountIDs},
+                            {"name": "taskClosed","value": $searchFilter.taskClosed}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -221,7 +227,7 @@
                     {
                         "bSortable": true, //Subject
                         mRender: function (id, type, full) {
-                            return full[8];
+                            return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[8]+'</div>';
                         }
                     },
                     {
@@ -234,12 +240,6 @@
                         "bSortable": true, //Status
                         mRender: function (id, type, full) {
                             return full[1];
-                        }
-                    },
-                    {
-                        "bSortable": true, //Priority
-                        mRender: function (id, type, full) {
-                            return full[13]==1?'<i style="color:#cc2424;font-size:15px;" class="entypo-record"></i> High':'';
                         }
                     },
                     {
@@ -271,6 +271,10 @@
                     "aButtons": [
                     ]
                 },
+                "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+                    $('td:eq(0)', nRow).css('padding', '0');
+                }
+                ,
                 "fnDrawCallback": function () {
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
@@ -299,14 +303,13 @@
                 }else {
                     var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 }
-                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUser'];
+                var select = ['UsersIDs','AccountIDs','TaskStatus','TaggedUsers'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< task.length; i++){
                     var val = rowHidden.find('input[name="'+task[i]+'"]').val();
                     var elem = $('#edit-task-form [name="'+task[i]+'"]');
-                    //console.log(task[i]+' '+val);
                     if(select.indexOf(task[i])!=-1){
-                        if(task[i]=='TaggedUser') {
+                        if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
@@ -319,21 +322,15 @@
                             elem.val(val).trigger("change");
                         }else if(task[i]=='Priority'){
                             if(val==1) {
-                                var make = '<span class="make-switch switch-small">';
-                                make += '<input name="Priority" value="1" checked type="checkbox">';
-                                make +='</span>';
-                                var container = $('#edit-modal-task').find('.make');
-                                container.empty();
-                                container.html(make);
-                                container.find('.make-switch').bootstrapSwitch();
+                                biuldSwicth('.make','Priority','#edit-modal-task','checked');
                             }else{
-                                var make = '<span class="make-switch switch-small">';
-                                make += '<input name="Priority" value="1" type="checkbox">';
-                                make +='</span>';
-                                var container = $('#edit-modal-task').find('.make');
-                                container.empty();
-                                container.html(make);
-                                container.find('.make-switch').bootstrapSwitch();
+                                biuldSwicth('.make','Priority','#edit-modal-task','');
+                            }
+                        }else if(task[i]=='taskClosed'){
+                            if(val==1) {
+                                biuldSwicth('.taskClosed','taskClosed','#edit-modal-task','checked');
+                            }else{
+                                biuldSwicth('.taskClosed','taskClosed','#edit-modal-task','');
                             }
                         }else if(task[i]=='DueDate' || task[i]=='StartTime'){
                             if(val=='0000-00-00' || val=='00:00:00'){
@@ -362,11 +359,15 @@
 
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-task-comments-form').trigger("reset");
+                $('.sendmail').removeClass('hidden');
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var taskID = rowHidden.find('[name="TaskID"]').val();
                 var accountID = rowHidden.find('[name="AccountIDs"]').val();
                 var subject = rowHidden.find('[name="Subject"]').val();
+                if(!accountID){
+                    $('.sendmail').addClass('hidden');
+                }
                 $('#add-task-comments-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="TaskID"]').val(taskID);
                 $('#add-task-attachment-form [name="AccountID"]').val(accountID);
@@ -374,6 +375,7 @@
                 $('#add-view-modal-task-comments h4.modal-title').text(subject);
                 getComments();
                 getTaskAttachment();
+                autosizeUpdate();
                 $('#add-view-modal-task-comments').modal('show');
             });
 
@@ -397,6 +399,7 @@
                         $("#commentadd").button('reset');
                         $('#add-task-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
+                        autosizeUpdate();
                         getComments();
                     },
                     // Form data
@@ -412,9 +415,6 @@
                 var taskID = $('#add-task-attachment-form [name="TaskID"]').val();
                 var formData = new FormData($('#add-task-attachment-form')[0]);
                 var url = baseurl + '/task/'+taskID+'/saveattachment';
-                var top = $(this).offset().top;
-                top = top-300;
-                $('#attachment_processing').css('top',top);
                 $('#attachment_processing').removeClass('hidden');
                 $.ajax({
                     url: url,  //Server script to process data
@@ -638,6 +638,22 @@
                 });
             }
 
+            function autosizeUpdate(){
+                $('.autogrow').trigger('autosize.resize');
+            }
+
+            function biuldSwicth(container,name,formID,checked){
+                var make = '<span class="make-switch switch-small">';
+                make += '<input name="'+name+'" value="{{Task::Close}}" '+checked+' type="checkbox">';
+                make +='</span>';
+
+                var container = $(formID).find(container);
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
+            }
+
+
             function getRecord(){
                 $searchFilter.taskName = $("#search-task-filter [name='taskName']").val();
                 $searchFilter.AccountOwner = $("#search-task-filter [name='AccountOwner']").val();
@@ -647,6 +663,7 @@
                 $searchFilter.DueDateTo = $("#search-task-filter [name='DueDateTo']").val();
                 $searchFilter.TaskStatus = $("#search-task-filter [name='TaskStatus']").val();
                 $searchFilter.AccountIDs = $("#search-task-filter [name='AccountIDs']").val();
+                $searchFilter.taskClosed = $("#search-task-filter [name='taskClosed']").prop("checked");
                 console.log($searchFilter);
                 getTask();
                 data_table.fnFilter('',0);
@@ -675,6 +692,7 @@
             }
 
             function getComments(){
+                $('#comment_processing').removeClass('hidden');
                 var taskID = $('#add-task-comments-form [name="TaskID"]').val();
                 var url = baseurl +'/taskcomments/'+taskID+'/ajax_taskcomments';
                 $.ajax({
@@ -682,6 +700,7 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
+                        $('#comment_processing').addClass('hidden');
                         if(response.status){
                             toastr.error(response.message, "Error", toastr_opts);
                         }else {
@@ -694,7 +713,7 @@
                                 autohidemode: true,
                                 sensitiverail: false
                             };
-                            $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
+                            $('#allComments .niceScroll').niceScroll(nicescroll_defaults);
                         }
                     },
                     // Form data
@@ -819,7 +838,7 @@
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10" style="padding: 0px 10px;">
                                     <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
                             </div>
 
@@ -857,7 +876,7 @@
                                         <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
                                     <div class="col-sm-3">
-                                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
                                     </div>
                                 </div>
                             </div>
@@ -874,10 +893,16 @@
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Priority</label>
-                                    <div class="col-sm-4 make">
+                                    <div class="col-sm-3 make">
                                         <span class="make-switch switch-small">
                                             <input name="Priority" value="1" type="checkbox">
                                         </span>
+                                    </div>
+                                    <label class="col-sm-2 control-label">Close</label>
+                                    <div class="col-sm-3 taskClosed">
+                                        <p class="make-switch switch-small">
+                                            <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -923,13 +948,17 @@
                                 </div>
                                 <div class="col-md-12">
                                     <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                </div>
+                                <div class="col-md-11">
+                                </div>
+                                <div class="col-md-1">
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
                                         </a>
                                     </p>
                                 </div>
-                                <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
+                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">
@@ -951,15 +980,17 @@
                                 </div>
                             </div>
                         </form>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <br>
+                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">
 
                         </div>
                         <div id="attachments" class="form-group">
                         </div>
-                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-12" id="addattachmentop" style="text-align: right;">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="TaskID" >
                             </div>

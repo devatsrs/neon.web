@@ -16,24 +16,21 @@ class OpportunityBoardController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-        //unset($data['iDisplayStart']);// +=1;
-        //unset($data['iDisplayLength']);
         $response = NeonAPI::request('opportunityboard/get_boards',$data,false);
-        return json_response_api($response);
+        return json_response_api($response,true,true,true);
     }
 
 
     public function index(){
-        $taskBoard = CRMBoard::getTaskBoard();
-        return View::make('opportunityboards.index', compact('taskBoard'));
+        return View::make('opportunityboards.index', compact(''));
     }
 
 
     public function configure($id){
-        $taskBoard = CRMBoard::getTaskBoard();
+        $TaskBoard = CRMBoard::getTaskBoard();
         $Board = CRMBoard::find($id);
         $urlto = 'opportunityboards';
-        if($taskBoard[0]->BoardID==$id){
+        if(isset($TaskBoard[0]->BoardID) && $TaskBoard[0]->BoardID==$id){
             $urlto = 'task';
         }
         return View::make('opportunityboards.configure', compact('id','Board','urlto'));
@@ -54,18 +51,17 @@ class OpportunityBoardController extends \BaseController {
         $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $BoardID = $id;
-        $response_extensions     =  NeonAPI::request('get_allowed_extensions',[],false);
-        $response_extensions   =   json_response_api($response_extensions,true,false);
+        $response     =  NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions = [];
 
-        if(!empty($response_extensions)){
-           if(!isJson($response_extensions)){
-               $message = $response_extensions['errors'];
-           }
+        if($response->status=='failed'){
+            $message = json_response_api($response,false,true);
+        }else{
+            $response_extensions = json_response_api($response,true,true);
         }
 
         $token    = get_random_number();
-        $max_file_env    = getenv('MAX_UPLOAD_FILE_SIZE');
-        $max_file_size    = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+        $max_file_size = get_max_file_size();
         return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message'));
     }
 

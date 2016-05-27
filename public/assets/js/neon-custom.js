@@ -658,7 +658,7 @@ toastr_opts = {
             });
 
 
-            if ($.isFunction($.fn.niceScroll))
+            if ($.isFunction($.fn.perfectScrollbar))
             {
                 /*$(".select2-results").niceScroll({
                     cursorcolor: '#d4d4d4',
@@ -668,18 +668,10 @@ toastr_opts = {
 
                 public_vars.$body.find('.select2-results').each(function(i, el) {
                     var $this = $(el);
-                        //height = attrDefault($this, 'height', $this.height());
-                    $this.slimScroll({
-                        position: attrDefault($this, 'scroll-position', 'right'),
-                        color: attrDefault($this, 'rail-color', '#000'),
-                        size: attrDefault($this, 'rail-width', 6),
-                        borderRadius: attrDefault($this, 'rail-radius', 3),
-                        opacity: attrDefault($this, 'rail-opacity', .3),
-                        alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                   $this.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                    $this.on('mouseenter',function(){
+                        $this.perfectScrollbar('update');
                     });
-                    $this.css('height', 'auto');
-                    $this.parents('.slimScrollDiv').css('height', 'auto');
-                    $this.parents('max-height', '200');
                 });
             }
         }
@@ -2498,7 +2490,7 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Internal Server Error', "Error", toastr_opts);
+            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
             break;
         case 503:
             toastr.error('Service Unavailable', "Error", toastr_opts);
@@ -2513,8 +2505,11 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             toastr.error('Not Found', "Error", toastr_opts);
             break;
         case 401:
-            toastr.error('Unauthorized', "Error", toastr_opts);
-            window.location.href = baseurl+'/login';
+            //toastr.error('Unauthorized', "Error", toastr_opts);
+            toastr.error('Session expired now redirecting to login page', "Error", toastr_opts);
+            setTimeout(function() {
+                window.location.href = baseurl + '/logout';
+            }, 100);
             break;
         case 403:
             toastr.error('Forbidden', "Error", toastr_opts);
