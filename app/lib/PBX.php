@@ -54,9 +54,10 @@ class PBX{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblTempAccount')->where(["AccountName" => $temp_row->te_name, "AccountType" => 1])->count();
+                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->te_name, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->te_name;
+                                $tempItemData['Number'] = $temp_row->te_code;
                                 $tempItemData['Email'] = $temp_row->te_alertemail;
                                 $tempItemData['BillingTimezone'] = $temp_row->te_timezone;
                                 $tempItemData['AccountType'] = 1;

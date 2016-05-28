@@ -16,6 +16,43 @@ BEGIN
         Message longtext     
     );
     
+    DROP TEMPORARY TABLE IF EXISTS tmp_accountimport;
+				CREATE TEMPORARY TABLE tmp_accountimport (				  
+				  `AccountType` tinyint(3) default 0,
+				  `CompanyId` INT,
+				  `Title` VARCHAR(100),
+				  `Owner` INT,
+				  `Number` VARCHAR(50),
+				  `AccountName` VARCHAR(100),
+				  `NamePrefix` VARCHAR(50),
+				  `FirstName` VARCHAR(50),
+				  `LastName` VARCHAR(50),				  
+				  `LeadSource` VARCHAR(50),
+				  `Email` VARCHAR(100),
+				  `Phone` VARCHAR(50),
+				  `Address1` VARCHAR(100),
+				  `Address2` VARCHAR(100),
+				  `Address3` VARCHAR(100),
+				  `City` VARCHAR(50),
+				  `PostCode` VARCHAR(50),
+				  `Country` VARCHAR(50),
+				  `Status` INT,
+				  `tags` VARCHAR(250),
+				  `Website` VARCHAR(100),
+				  `Mobile` VARCHAR(50),
+				  `Fax` VARCHAR(50),
+				  `Skype` VARCHAR(50),
+				  `Twitter` VARCHAR(50),
+				  `Employee` VARCHAR(50),
+				  `Description` longtext,
+				  `BillingEmail` VARCHAR(200),
+				  `CurrencyId` INT,
+				  `VatNumber` VARCHAR(50),
+				  `created_at` datetime,
+				  `created_by` VARCHAR(100),
+				  `VerificationStatus` tinyint(3) default 0
+				) ENGINE=InnoDB;  
+				
    IF p_option = 0 /* Csv Import */
    THEN
    
@@ -83,7 +120,8 @@ BEGIN
 					CurrencyId,
 					VatNumber,
 					created_at,
-					created_by
+					created_by,
+					VerificationStatus
                    )            
 				   
 				   SELECT  DISTINCT
@@ -119,7 +157,8 @@ BEGIN
 					ta.Currency as CurrencyId,
 					ta.VatNumber,
 					ta.created_at,
-					ta.created_by
+					ta.created_by,
+					2 as VerificationStatus
 					from tblTempAccount ta
 						left join tblAccount a on ta.AccountName = a.AccountName
 						 	AND ta.CompanyId = a.CompanyId
@@ -135,49 +174,24 @@ BEGIN
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
-	 -- DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
+	  DELETE  FROM tblTempAccount WHERE   tblTempAccount.ProcessID = p_processId;
 	
 	END IF;
 	
-	IF p_option = 1 /* Manual Import by Comapanygatewayid */	
+		
+	IF p_option = 1 /* Import from gateway */	
    THEN
-			
-			INSERT  INTO tblAccount
-				  (	AccountType ,
-					CompanyId ,
-					Title,
-					Owner ,
-					AccountName,
-					NamePrefix,
-					FirstName,
-					LastName,
-					LeadStatus,
-					LeadSource,
-					Email,
-					Phone,
-					Address1,
-					Address2,
-					Address3,
-					City,
-					PostCode,
-					Country,
-					Status,
-					tags,
-					Mobile,
-					Fax,
-					created_at,
-					created_by
-                   )
-			SELECT  DISTINCT
-					ta.AccountType,
-					ta.CompanyId,
+   
+   		INSERT INTO tmp_accountimport
+				select ta.AccountType ,
+					ta.CompanyId ,
 					ta.Title,
-					ta.Owner,
+					ta.Owner ,
+					ta.Number,
 					ta.AccountName,
 					ta.NamePrefix,
 					ta.FirstName,
-					ta.LastName,
-					ta.LeadStatus,
+					ta.LastName,					
 					ta.LeadSource,
 					ta.Email,
 					ta.Phone,
@@ -189,42 +203,78 @@ BEGIN
 					ta.Country,
 					ta.Status,
 					ta.tags,
+					ta.Website,
 					ta.Mobile,
 					ta.Fax,
+					ta.Skype,
+					ta.Twitter,
+					ta.Employee,
+					ta.Description,
+					ta.BillingEmail,
+					ta.Currency as CurrencyId,
+					ta.VatNumber,
 					ta.created_at,
-					ta.created_by
-				from tblTempAccount ta
+					ta.created_by,
+					2 as VerificationStatus				
+				 FROM tblTempAccount ta
 				left join tblAccount a on ta.AccountName=a.AccountName
 					AND ta.CompanyId = a.CompanyId
 					AND ta.AccountType = a.AccountType
 				where ta.CompanyID = p_companyId 
+				AND ta.ProcessID = p_processId
 				AND ta.AccountType = 1
 				AND a.AccountID is null			
-				AND ta.CompanyGatewayID = p_companygatewayid
+				AND (p_tempaccountid = '' OR ( p_tempaccountid != '' AND FIND_IN_SET(ta.tblTempAccountID,p_tempaccountid) ))
+				AND (p_companygatewayid = 0 OR ( ta.CompanyGatewayID = p_companygatewayid))
 				group by ta.AccountName;
-
-			SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();	
+				
+				
+			SELECT GROUP_CONCAT(Number) into errormessage FROM(
+			SELECT distinct ta.Number as Number,1 as an  from tblTempAccount ta 
+				left join tblaccount a on ta.number = a.number				
+					AND ta.CompanyId = a.CompanyId
+					AND ta.AccountType = a.AccountType
+				where ta.CompanyID = p_companyId 
+				AND ta.ProcessID = p_processId
+				AND ta.AccountType = 1
+				AND a.AccountID is not null			
+				AND (p_tempaccountid = '' OR ( p_tempaccountid != '' AND FIND_IN_SET(ta.tblTempAccountID,p_tempaccountid) ))
+				AND (p_companygatewayid = 0 OR ( ta.CompanyGatewayID = p_companygatewayid)))tbl GROUP by an;
 			
-			INSERT INTO tmp_JobLog_ (Message)
-			SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
-			
-			DELETE  FROM tblTempAccount WHERE CompanyGatewayID = p_companygatewayid;
-					 
-   END IF;
-	
-	IF p_option = 2 /* Manual Import by tempaccountid */	
-   THEN
-			
-			INSERT  INTO tblAccount
+		  IF errormessage is not null
+		  THEN
+		  
+		  		SELECT 'AccountNumber Already EXITS : \n\r' INTO errorheader;								
+						INSERT INTO tmp_JobLog_ (Message)		
+							 SELECT CONCAT(errorheader ,errormessage);
+							 
+				delete FROM tmp_accountimport WHERE Number IN (
+								  SELECT Number from(
+								  	SELECT distinct ta.Number as Number,1 as an  from tblTempAccount ta 
+										left join tblaccount a on ta.number = a.number				
+											AND ta.CompanyId = a.CompanyId
+											AND ta.AccountType = a.AccountType
+										where ta.CompanyID = p_companyId 
+										AND ta.ProcessID = p_processId
+										AND ta.AccountType = 1
+										AND a.AccountID is not null			
+										AND (p_tempaccountid = '' OR ( p_tempaccountid != '' AND FIND_IN_SET(ta.tblTempAccountID,p_tempaccountid) ))
+										AND (p_companygatewayid = 0 OR ( ta.CompanyGatewayID = p_companygatewayid))
+									  ) as tbl
+								);			 
+		  	
+		  END IF;	
+		
+		INSERT  INTO tblAccount
 				  (	AccountType ,
 					CompanyId ,
 					Title,
 					Owner ,
+					`Number`,
 					AccountName,
 					NamePrefix,
 					FirstName,
 					LastName,
-					LeadStatus,
 					LeadSource,
 					Email,
 					Phone,
@@ -236,54 +286,63 @@ BEGIN
 					Country,
 					Status,
 					tags,
+					Website,
 					Mobile,
 					Fax,
-					BillingTimezone,
+					Skype,
+					Twitter,
+					Employee,
+					Description,
+					BillingEmail,
+				    CurrencyId,
+					VatNumber,
 					created_at,
-					created_by
+					created_by,
+					VerificationStatus
                    )
-			SELECT  DISTINCT
-					ta.AccountType,
-					ta.CompanyId,
-					ta.Title,
-					ta.Owner,
-					ta.AccountName,
-					ta.NamePrefix,
-					ta.FirstName,
-					ta.LastName,
-					ta.LeadStatus,
-					ta.LeadSource,
-					ta.Email,
-					ta.Phone,
-					ta.Address1,
-					ta.Address2,
-					ta.Address3,
-					ta.City,
-					ta.PostCode,
-					ta.Country,
-					ta.Status,
-					ta.tags,
-					ta.Mobile,
-					ta.Fax,
-					ta.BillingTimezone,
-					ta.created_at,
-					ta.created_by
-				from tblTempAccount ta
-				left join tblAccount a on ta.AccountName=a.AccountName
-					AND ta.CompanyId = a.CompanyId
-					AND ta.AccountType = a.AccountType
-				where ta.CompanyID = p_companyId 
-				AND ta.AccountType = 1
-				AND a.AccountID is null			
-				AND FIND_IN_SET(ta.tblTempAccountID,p_tempaccountid)
-				group by ta.AccountName;
+			SELECT  
+					AccountType ,
+					CompanyId ,
+					Title,
+					Owner ,
+					`Number`,
+					AccountName,
+					NamePrefix,
+					FirstName,
+					LastName,
+					LeadSource,
+					Email,
+					Phone,
+					Address1,
+					Address2,
+					Address3,
+					City,
+					PostCode,
+					Country,
+					Status,
+					tags,
+					Website,
+					Mobile,
+					Fax,
+					Skype,
+					Twitter,
+					Employee,
+					Description,
+					BillingEmail,
+				    CurrencyId,
+					VatNumber,
+					created_at,
+					created_by,
+					VerificationStatus
+				from tmp_accountimport;
+								
 
 			SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();	
 
 			INSERT INTO tmp_JobLog_ (Message)
 			SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );	
 			
-			DELETE  FROM tblTempAccount WHERE FIND_IN_SET(tblTempAccountID,p_tempaccountid);
+		-- DELETE  FROM tblTempAccount WHERE FIND_IN_SET(tblTempAccountID,p_tempaccountid);
    
    END IF;   
    

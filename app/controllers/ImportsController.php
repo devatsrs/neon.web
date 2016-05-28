@@ -192,7 +192,7 @@ class ImportsController extends \BaseController {
             //$pbx = new PBX($CompanyGatewayID);
 
             if(isset($response1['result']) && $response1['result'] =='OK'){
-                return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway"));
+                return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID));
             }else if(isset($response1['faultCode']) && isset($response1['faultString'])){
                 return Response::json(array("status" => "failed", "message" => "Failed to Import Gateway Account.".$response1['faultString']));
             }else{
@@ -218,7 +218,8 @@ class ImportsController extends \BaseController {
         $columns = ['tblTempAccountID','AccountName','FirstName','LastName','Email'];
         $sort_column = $columns[$data['iSortCol_0']];
         $CompanyGatewayID = $data['CompanyGatewayID'];
-        $query = "call prc_getMissingAccountsByGateway (".$CompanyID.", ".$CompanyGatewayID.", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $cprocessid = $data['importprocessid'];
+        $query = "call prc_getMissingAccountsByGateway (".$CompanyID.", ".$CompanyGatewayID.",'".$cprocessid."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

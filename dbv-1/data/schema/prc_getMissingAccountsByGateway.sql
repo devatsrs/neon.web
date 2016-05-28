@@ -1,11 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getMissingAccountsByGateway`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_Export` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getMissingAccountsByGateway`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_ProcessID` VARCHAR(250), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_Export` INT)
 BEGIN
      DECLARE v_OffSet_ int;
      SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	      
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-
 
 	if p_Export = 0
 	THEN
@@ -17,10 +16,13 @@ BEGIN
 				ta.LastName as LastName,
 				ta.Email as Email
 				from tblTempAccount ta
-				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyID = a.CompanyId
+				left join tblAccount a on ta.AccountName=a.AccountName
+				 	AND ta.CompanyID = a.CompanyId
+				 	AND ta.AccountType = a.AccountType
 				where ta.CompanyID =p_CompanyID 								
 				AND ta.AccountType=1
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
+				AND ta.ProcessID = p_ProcessID
 				AND a.AccountID is null
 				group by ta.AccountName
 				ORDER BY				
@@ -54,10 +56,13 @@ BEGIN
 			SELECT 
 				COUNT(ta.tblTempAccountID) as totalcount				
 				from tblTempAccount ta
-				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyID = a.CompanyId
+				left join tblAccount a on ta.AccountName=a.AccountName
+					 AND ta.CompanyID = a.CompanyId
+					 AND ta.AccountType = a.AccountType
 				where ta.CompanyID =p_CompanyID 
 				AND ta.AccountType=1
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
+				AND ta.ProcessID = p_ProcessID
 				AND a.AccountID is null
 				group by ta.AccountName)tbl;
 
@@ -69,10 +74,13 @@ BEGIN
 				ta.LastName as LastName,
 				ta.Email as Email
 				from tblTempAccount ta
-				left join tblAccount a on ta.AccountName=a.AccountName AND ta.CompanyID = a.CompanyId
+				left join tblAccount a on ta.AccountName=a.AccountName
+					 AND ta.CompanyID = a.CompanyId
+					 AND ta.AccountType = a.AccountType
 				where ta.CompanyID =p_CompanyID 
 				AND ta.AccountType=1
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
+				AND ta.ProcessID = p_ProcessID
 				AND a.AccountID is null
 				group by ta.AccountName;
 

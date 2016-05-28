@@ -106,6 +106,7 @@
             <div class="row" id="gatewayimport">
                 <input type="hidden" name="gateway" value="">
                 <input type="hidden" name="CompanyGatewayID" value="">
+                <input type="hidden" name="importprocessid" value="">
                 <input type="hidden" name="importaccountsuccess" value="">
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
@@ -735,6 +736,7 @@
                         //$('#importaccount').hide();
                         $("#gatewayimport input[name='importaccountsuccess']").val('1');
                         $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
+                        $("#gatewayimport input[name='importprocessid']").val(response.processid);
                         //toastr.success(response.message, "Success", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
@@ -753,6 +755,7 @@
         $("#get_account").click(function(e) {
             e.preventDefault();
             var CGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
+            var cprocessid=$("#gatewayimport input[name='importprocessid']").val();
             data_table = $("#table-5").dataTable({
                 "bProcessing":true,
                 "bDestroy": true,
@@ -761,9 +764,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID});
+                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"CompanyGatewayID","value":10},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"Export","value":1});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -848,6 +851,7 @@
             var criteria = '';
             var AccountIDs = [];
             var gatewayid = $("#rootwizard-2 input[name='CompanyGatewayID']").val();
+            var importprocessid = $("#rootwizard-2 input[name='importprocessid']").val();
             if($('#selectallbutton').is(':checked')){
                 //criteria = JSON.stringify($searchFilter);
                 criteria = 1;
@@ -870,7 +874,7 @@
                 }
                 $.ajax({
                     url: baseurl + '/import/account/add_missing_gatewayaccounts',
-                    data: 'TempAccountIDs='+AccountIDs+'&criteria='+criteria+'&companygatewayid='+gatewayid,
+                    data: 'TempAccountIDs='+AccountIDs+'&criteria='+criteria+'&companygatewayid='+gatewayid+'&importprocessid='+importprocessid,
                     error: function () {
                         toastr.error("error", "Error", toastr_opts);
                     },
