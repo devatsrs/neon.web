@@ -62,8 +62,8 @@ class RateTable extends \Eloquent
 
     public static function checkRateTableInCronjob($RateTableId){
         $CompanyID = User::get_companyID();
-        $CronJobCommandID = CronJobCommand::where(['Command'=>'rategenerator','Status'=>1,'CompanyID'=>$CompanyID])->pluck('CronJobCommandID');
-        $cronjobs = CronJob::where(['CronJobCommandID'=>$CronJobCommandID,'Status'=>1,'CompanyID'=>$CompanyID])->get();
+        $CronJobCommandID = CronJobCommand::where(['Command'=>'rategenerator','CompanyID'=>$CompanyID])->pluck('CronJobCommandID');
+        $cronjobs = CronJob::where(['CronJobCommandID'=>$CronJobCommandID,'CompanyID'=>$CompanyID])->get();
         if(count($cronjobs)>0){
             foreach($cronjobs as $cronjob){
                 if(!empty($cronjob['Settings'])){
