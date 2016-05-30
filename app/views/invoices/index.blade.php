@@ -485,7 +485,7 @@ var postdata;
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, 'desc']],},
+            "aaSorting": [[3, 'desc']]},
                 success: function(response1) {
 					//console.log("sum of result"+response1);
 						if(response1.total_grand!=null)
@@ -502,7 +502,7 @@ var postdata;
 							}
 				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="4"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
 						}
-					},
+					}
 			});	
 		}
 		
@@ -844,7 +844,7 @@ var postdata;
                      }
                      else{
                           toastr.error("Please Enter Cancel Reason", "Error", toastr_opts);
-                         $(this).find(".cancelbutton]").button("reset");
+                         $(this).find(".cancelbutton").button("reset");
                            return false;
                      }
 
@@ -855,12 +855,12 @@ var postdata;
                 }
             }else{
             toastr.error("Please Select Invoices Status", "Error", toastr_opts);
-            $(this).find(".cancelbutton]").button("reset");
+            $(this).find(".cancelbutton").button("reset");
             return false;
             }
 
        });
-       $("#selected-invoice-status-form [name='InvoiceStatus']").change(function(e){
+       $('#selected-invoice-status-form [name="InvoiceStatus"]').change(function(e){
             e.preventDefault();
             $('#statuscancel').hide();
             var status = $(this).val();
