@@ -1,5 +1,5 @@
 <?php
-
+use Jenssegers\Agent\Agent;
 class DashboardCustomerController extends BaseController {
 
     
@@ -58,6 +58,21 @@ class DashboardCustomerController extends BaseController {
         }
 
         return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
+
+    }
+    public function monitor_dashboard(){
+
+        $companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        $isAdmin = 1;
+        $agent = new Agent();
+        $isDesktop = $agent->isDesktop();
+        $User = User::find(Customer::get_currentUser()->Owner);
+        $AccountManager = $User->FirstName.' '.$User->LastName;
+        $AccountManagerEmail = $User->EmailAddress;
+        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail'));
 
     }
 

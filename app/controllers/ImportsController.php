@@ -194,12 +194,12 @@ class ImportsController extends \BaseController {
             if(isset($response1['result']) && $response1['result'] =='OK'){
                 return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID));
             }else if(isset($response1['faultCode']) && isset($response1['faultString'])){
-                return Response::json(array("status" => "failed", "message" => "Failed to Import Gateway Account.".$response1['faultString']));
+                return Response::json(array("status" => "failed", "message" => "Access Denied."));
             }else{
                 return Response::json(array("status" => "failed", "message" => "Import Gateway Account."));
             }
         }else if(isset($response['faultCode']) && isset($response['faultString'])){
-            return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway.".$response['faultString']));
+            return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
         }
@@ -411,7 +411,7 @@ class ImportsController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
-                return json_encode(["status" => "success", "message" => "Import missing gateway account Job Added in queue to process.You will be notified once job is completed."]);
+                return json_encode(["status" => "success", "message" => "Import Account Job Added in queue to process.You will be notified once job is completed."]);
             }else{
                 return json_encode(array("status" => "failed", "message" => "Problem Creating in import Account."));
             }

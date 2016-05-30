@@ -1,16 +1,16 @@
 <ul class="board-inner no-select" id="deals-dashboard">
-    @if(count($boradsWithOpportunities)>0)
-        @foreach($boradsWithOpportunities as $index=>$board )
+    @if(count($columnsWithOpportunities)>0)
+        @foreach($columnsWithOpportunities as $index=>$column )
             <?php//$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
             <header>
-                <h5>{{$columns[$index]['Name']}} {{(!empty($board[0])?'('.count($board).')':'')}}</h5>
+                <h5>{{$columns[$index]['Name']}} {{(!empty($column[0])?'('.count($column).')':'')}}</h5>
             </header>
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
-                    @foreach($board as $curent=>$opportunity)
+                    @foreach($column as $opportunity)
                         @if(!empty($opportunity))
                             <?php
-                        $taggedUser = $opportunity['TaggedUser'];
+                        $taggedUsers = $opportunity['TaggedUsers'];
                         $opportunity = $opportunity['opportunity'];
                         $backgroundcolour = '';//$opportunity['BackGroundColour']==''?'':'style="background-color:'.$opportunity['BackGroundColour'].';"';
                         $textcolour = '';//$opportunity['TextColour']==''?'':'style="color:'.$opportunity['TextColour'].';"';
@@ -19,14 +19,7 @@
                             $hidden.='<input type="hidden" name="'.$i.'" value="'.$val.'" >';
                         }
 
-                        $ContactName = '';
                         $Owner = '';
-                        if(!empty($opportunity['ContactName'])){
-                            $ContactNameArray = explode(" ", $opportunity['ContactName']);
-                            foreach ($ContactNameArray as $w) {
-                                $ContactName .= $w[0];
-                            }
-                        }
                         if(!empty($opportunity['Owner'])){
                             $OwnerArray = explode(" ", $opportunity['Owner']);
                             foreach ($OwnerArray as $w) {
@@ -44,13 +37,12 @@
                                     <p {{$textcolour}} class="name">{{$opportunity['Company']}}</p>
                                 </div>
                                 <div class="pull-right bottom">
-                                    @if(count($taggedUser)>0)
-                                        @foreach($taggedUser as $user)
-                                            <?php $color=!empty($user['Color'])?'style="background-color:'.$user['Color'].'"':''; ?>
-                                            <span {{$color}} class="badge badge-warning badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
+                                    @if(count($taggedUsers)>0)
+                                        @foreach($taggedUsers as $user)
+                                            <!--style="background-color:{$user['Color']}}"-->
+                                            <span class="badge badge-warning badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$user['FirstName'].' '.$user['LastName']}}">{{strtoupper(substr($user['FirstName'],0,1)).strtoupper(substr($user['LastName'],0,1))}}</span>
                                         @endforeach
                                     @endif
-                                    <span class="badge badge-info badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['Owner']}}">{{strtoupper($Owner)}}</span>
                                     <span class="badge badge-success badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
                                 </div>
                             </li>

@@ -93,7 +93,7 @@ $(document).ready(function(){
                                 if(response.status =='success'){
                                     $('#add-new-modal-invoice-duration').modal('hide');
                                     $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
-                                    $row.find(".description").val(response.product_description);
+                                    $row.find(".descriptions").val(response.product_description);
                                     $row.find(".Price").val(response.product_amount);
                                     $row.find(".TaxAmount").val(response.product_total_tax_rate);
                                     $row.find(".LineTotal").val(response.sub_total);
@@ -121,7 +121,7 @@ $(document).ready(function(){
                         //console.log(response);
                         if(response.status =='success'){
                             $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
-                            $row.find(".description").val(response.product_description);
+                            $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
                             $row.find(".LineTotal").val(response.sub_total);
@@ -145,7 +145,7 @@ $(document).ready(function(){
                         //console.log(response);
                         if(response.status =='success'){
                             $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
-                            $row.find(".description").val(response.product_description);
+                            $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
                             $row.find(".LineTotal").val(response.sub_total);

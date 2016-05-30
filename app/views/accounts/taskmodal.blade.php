@@ -63,7 +63,7 @@
             'TaskStatus',
             'Priority',
             'PriorityText',
-            'TaggedUser',
+            'TaggedUsers',
             'BoardID'
         ];
         var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
@@ -96,13 +96,13 @@
 					} else {
 						per_scroll = count;
 						var task_type_del 		=    $('#add-modal-task #Task_type').val();
-						if(task_type_del==3)
+						if(task_type_del=={{Task::Note}})
 						{
 							$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
 							ShowToastr("success","Note Successfully Created");  
 							document.getElementById('notes-from').reset();
 						}
-						if(task_type_del==2)
+						if(task_type_del=={{Task::Mail}})
 						{
 							 document.getElementById('email-from').reset();	
 							 $('.email_template').change();		
@@ -132,7 +132,7 @@
 						//$("#add-task-form .btn-danger").click();
 						$('#add-modal-task').modal('hide');						
 					}                    
-                    
+                   $('#add-task-form #Description_task').css("height","48px"); 
                 },
                 // Form data
                 data: formData,
@@ -157,12 +157,14 @@
         </div>
         <div class="modal-body">
           <div class="row">
+          @if(count($boards)>0)
             <div class="col-md-6 pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2"))}} </div>
               </div>
             </div>
+            @endif
             <div class="col-md-6 pull-right">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Assign To *</label>
@@ -189,10 +191,7 @@
               </div>
             </div>
             <div class="col-md-6 margin-top">
-             <!-- <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Priority</label>
-                <div class="col-sm-8"> {{Form::select('Priority',$priority,'',array("class"=>"select2"))}} </div>
-              </div>-->
+          
                <div class="form-group">
                                 <label class="col-sm-4 control-label">Priority</label>
                                 <div class="col-sm-4">
@@ -206,7 +205,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-2">Description</label>
                 <div class="col-sm-10">
-                  <textarea name="Description" class="form-control descriptions autogrow resizevertical"> </textarea>
+                  <textarea style="height:48px;" name="Description" id="Description_task" placeholder="I will grow as you type new lines." class="form-control descriptions autogrow resizevertical"></textarea>
                 </div>
               </div>
             </div>
@@ -215,7 +214,7 @@
         <div class="modal-footer">
           <input type="hidden" id="Task_type"  value="0" name="Task_type">
           <input type="hidden" id="Task_ParentID" value="0" name="ParentID">
-          <input type="hidden" id="BoardID" name="BoardID" value="13">
+           @if(count($boards)>0)<input type="hidden" id="BoardID" name="BoardID" value="{{$boards->BoardID}}"> @endif
           <input type="hidden" id="AccountIDs" name="AccountIDs" value="{{$account->AccountID}}">
           <button type="submit" id="task-add"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>

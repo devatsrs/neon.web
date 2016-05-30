@@ -28,10 +28,11 @@ class NeonExcelIO
     var $Enclosure;
     var $Escape;
     var $csvoption;
-    public static $COLUMN_NAMES = 0 ;
-    public static $DATA = 1;
-    public static $EXCEL = 'xlsx'; // Excel file
-    public static $CSV = 'csv'; // csv file
+    public static $COLUMN_NAMES 	= 	0 ;
+    public static $DATA    			= 	1;
+    public static $EXCEL   			= 	'xlsx'; // Excel file
+    public static $EXCELs  			= 	'xls'; // Excel file
+    public static $CSV 	   			= 	'csv'; // csv file
 
 
     public function __construct($file , $csvoption = array())
@@ -103,8 +104,13 @@ class NeonExcelIO
     }
 
     public function set_file_excel(){
-
-        $this->file_type = self::$EXCEL;
+		$extension = pathinfo($this->file,PATHINFO_EXTENSION);
+		if($extension=='xls'){
+        	$this->file_type = self::$EXCELs;
+		}
+		if($extension=='xlsx'){
+        	$this->file_type = self::$EXCEL;
+		}
     }
 
     public function set_file_csv(){
@@ -132,6 +138,11 @@ class NeonExcelIO
         if($this->file_type == self::$EXCEL){
 
             return $this->read_excel($this->file,$limit);
+        }
+		
+		if($this->file_type == self::$EXCELs){
+
+            return $this->read_xls_excel($this->file,$limit);
         }
     }
 
@@ -264,6 +275,42 @@ class NeonExcelIO
         return $result;
 
     }
+	/*
+		Read xls file
+	*/
+	////////
+	 public function read_xls_excel($filepath,$limit=0){
+		  $result = array();
+		  $flag   = 0;			 
+		   if (!empty($data['Delimiter'])) {
+				Config::set('excel::csv.delimiter', $data['Delimiter']);
+			}
+			if (!empty($data['Enclosure'])) {
+				Config::set('excel::csv.enclosure', $data['Enclosure']);
+			}
+			if (!empty($data['Escape'])) {
+				Config::set('excel::csv.line_ending', $data['Escape']);
+			}
+			if(!empty($data['Firstrow'])){
+				$data['option']['Firstrow'] = $data['Firstrow'];
+			}
+		
+			if (!empty($data['option']['Firstrow'])) {
+				if ($data['option']['Firstrow'] == 'data') {
+					$flag = 1;
+				}
+			}
+			$isExcel = in_array(pathinfo($filepath, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
+			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel) {
+				if ($flag == 1) {
+					$reader->noHeading();
+				}
+			})->take($limit)->toArray();
+			
+			return $results;
+				 
+	 }
+	///////////
 
     /** Set Column Names from first row
      * @param $first_row

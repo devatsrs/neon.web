@@ -27,7 +27,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-2">
                             {{Form::select('InvoiceType',Invoice::$invoice_type_customer,'',array("class"=>"selectboxit"))}}
                         </div>
@@ -41,12 +41,12 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Number</label>
+                        <label for="field-1" class="col-sm-2 control-label">Number</label>
                         <div class="col-sm-2">
                             {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
+                        <label for="field-1" class="col-sm-2 control-label">Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
@@ -87,7 +87,7 @@
             @if(is_authorize())
                 <div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
             @endif
-            <div class="pull-right"> Sent/Receive</div></th>
+            <div class="pull-right"></div></th>
         <th width="20%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>

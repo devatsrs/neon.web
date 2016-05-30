@@ -16,7 +16,7 @@ class InvoicesController extends \BaseController {
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
-		
+        $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
 		
         if(isset($data['Export']) && $data['Export'] == 1)
@@ -52,8 +52,8 @@ class InvoicesController extends \BaseController {
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
-			"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand,
-			"os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
+			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->second_amount,
 		);
 		
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
@@ -1359,7 +1359,7 @@ class InvoicesController extends \BaseController {
                 return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));
             }
         }
-        return Response::json(array("status" => "success", "message" => "Problem Creating Invoice Generation Job"));
+        return Response::json(array("status" => "error", "message" => "Please Setup Invoice Generator in CronJob"));
 
     }
     public function ajax_getEmailTemplate($id){
@@ -1373,6 +1373,7 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
+        $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','','".$criteria['CurrencyID']."' ";
 
         if(!empty($criteria['zerovalueinvoice'])){
@@ -1426,6 +1427,7 @@ class InvoicesController extends \BaseController {
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
 			 $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];
     	    $criteria['IssueDateEnd']        =  empty($criteria['IssueDateEnd'])?'0000-00-00 00:00:00':$criteria['IssueDateEnd'];
+            $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
             $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',' ".$criteria['CurrencyID']." '";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2';
