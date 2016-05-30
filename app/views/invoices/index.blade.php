@@ -69,7 +69,7 @@
             <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" {{Input::get('zerovalueinvoice') == 1?'checked':''}}>
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
                             </p>
                         </div>
 
