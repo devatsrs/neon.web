@@ -363,18 +363,12 @@ BEGIN
                     ON tblRate.Code = tblTempVendorRate.Code
                     AND tblRate.CompanyID = p_companyId
                     AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
-                    LEFT JOIN tblVendorRate
-                        ON tblRate.RateID = tblVendorRate.RateId
-                        AND tblVendorRate.AccountId = p_accountId
-                        AND tblVendorRate.trunkid = p_trunkId
-                WHERE (tblVendorRate.VendorRateID IS NULL
-                OR (
-                tblVendorRate.VendorRateID IS NOT NULL
-                AND tblTempVendorRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d')
-                AND tblTempVendorRate.Rate <> tblVendorRate.Rate
-                AND tblTempVendorRate.EffectiveDate <> tblVendorRate.EffectiveDate
-                )
-                )
+                LEFT JOIN tblVendorRate
+					      ON tblRate.RateID = tblVendorRate.RateId
+					      AND tblVendorRate.AccountId = p_accountId
+					      AND tblVendorRate.trunkid = p_trunkId
+					      AND tblTempVendorRate.EffectiveDate = tblVendorRate.EffectiveDate
+					WHERE tblVendorRate.VendorRateID IS NULL
                 AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
                 AND tblTempVendorRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d');
 

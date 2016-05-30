@@ -101,7 +101,7 @@ class ImportsController extends \BaseController {
         Account::$importrules['selection.AccountName'] = 'required';
         //Account::$importrules['selection.Email'] = 'required';
         //Account::$importrules['selection.Country'] = 'required';
-        Account::$importrules['selection.FirstName'] = 'required';
+        //Account::$importrules['selection.FirstName'] = 'required';
 
         $validator = Validator::make($data, Account::$importrules,Account::$importmessages);
 
@@ -167,6 +167,8 @@ class ImportsController extends \BaseController {
 
     //import data from gateway and insert into temp table
     public function getAccountInfoFromGateway($id,$gateway){
+        try {
+        ini_set('max_execution_time', 0);
         $CompanyGateway =  CompanyGateway::find($id);
         $response = array();
         $response1 = array();
@@ -190,16 +192,20 @@ class ImportsController extends \BaseController {
             //$pbx = new PBX($CompanyGatewayID);
 
             if(isset($response1['result']) && $response1['result'] =='OK'){
-                return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway"));
+                return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID));
             }else if(isset($response1['faultCode']) && isset($response1['faultString'])){
-                return Response::json(array("status" => "failed", "message" => "Failed to Import Gateway Account.".$response1['faultString']));
+                return Response::json(array("status" => "failed", "message" => "Access Denied."));
             }else{
                 return Response::json(array("status" => "failed", "message" => "Import Gateway Account."));
             }
         }else if(isset($response['faultCode']) && isset($response['faultString'])){
-            return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway.".$response['faultString']));
+            return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
+        }
+
+        }catch(Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
 
@@ -212,7 +218,8 @@ class ImportsController extends \BaseController {
         $columns = ['tblTempAccountID','AccountName','FirstName','LastName','Email'];
         $sort_column = $columns[$data['iSortCol_0']];
         $CompanyGatewayID = $data['CompanyGatewayID'];
-        $query = "call prc_getMissingAccountsByGateway (".$CompanyID.", ".$CompanyGatewayID.", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $cprocessid = $data['importprocessid'];
+        $query = "call prc_getMissingAccountsByGateway (".$CompanyID.", ".$CompanyGatewayID.",'".$cprocessid."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -404,7 +411,7 @@ class ImportsController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
-                return json_encode(["status" => "success", "message" => "Import missing gateway account Job Added in queue to process.You will be notified once job is completed."]);
+                return json_encode(["status" => "success", "message" => "Import Account Job Added in queue to process.You will be notified once job is completed."]);
             }else{
                 return json_encode(array("status" => "failed", "message" => "Problem Creating in import Account."));
             }

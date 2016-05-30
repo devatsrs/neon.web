@@ -40,7 +40,7 @@
         </li>
         <li class="{{check_uri('Customer_billing')}}">
             <a href="#">
-                <i class="entypo-doc-text-inv"></i>
+                <i class="fa fa-credit-card"></i>
                 <span>Billing</span>
             </a>
 
@@ -83,7 +83,7 @@
         @if(getenv('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
-                <i class="glyphicon glyphicon-usd"></i>
+                <i class="fa fa-table"></i>
                 <span>Commercial</span>
             </a>
         </li>

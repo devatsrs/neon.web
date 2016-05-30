@@ -126,12 +126,7 @@
                     </div>
                 </div>
                 <div class="tab-pane " id="tab2" >
-                 <ul class="nav nav-tabs">
-            <li class="active"><a class="shift_tab" href="#tab3">Block by Country</a></li>
-            <li ><a href="#tab4" class="shift_tab">Block by Code</a></li>
-        </ul>
-        <div class="shift_div_area" id="tab3">
-                    <form id="block_by_country_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
+                    <form id="block_by_country_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -166,9 +161,7 @@
                         Unblock
                     </button>
                 </div>
-                </div>
-                <div style="display:none;" class="shift_div_area" id="tab4">
-                    <form id="block_by_code_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
+                    <form id="block_by_code_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -227,7 +220,6 @@
                         <tbody>
                         </tbody>
                     </table>
-                    </div>
                 </div>
             </div>
         </div>
@@ -303,9 +295,7 @@
 			var criteria='';
 			var criteriaCountry='';
 			if(code_check == 1) { //bit for indicating Code Blocking unblocking
-				
 				var ajax_data = $('#block_by_code_form').serialize() + '&' + $('#bulk-update-vendor-code-form').serialize();
-				
 				if($('#selectallbutton').is(':checked')) {
 					criteriaCountry=$searchFilter.Country;
 					ajax_data += '&criteria=1&criteriaCountry='+criteriaCountry;
@@ -328,11 +318,9 @@
 			if(action_click == 'block' || action_click == 'unblock'){
 				ajax_data+='&action='+action_click;
 			}
-
 			if(block_by == 'code' || block_by == 'country'){
 				ajax_data+='&block_by='+block_by;
 			}
-
 			submit_ajax(ajax_full_url,ajax_data);
 			return false;
 		});
@@ -365,7 +353,6 @@
 			$searchFilter.Trunk = $("#block_by_code_form select[name='Trunk']").val();
 			$searchFilter.Country = $("#block_by_code_form select[name='Country']").val();
 			$searchFilter.Code = $("#block_by_code_form [name='Code']").val();
-			
 			if(typeof $searchFilter.Trunk  == 'undefined' || $searchFilter.Trunk == '' ){
 				toastr.error("Please Select a Trunk", "Error", toastr_opts);
 				return false;
@@ -488,7 +475,7 @@
 		$("#blockSelectedCode,#unblockSelectedCode").click(function(){
 			var id = $(this).attr('id');
 			if (typeof $searchFilter.Trunk == 'undefined' || $searchFilter.Trunk == '') {
-				toastr.error("Please Search Code First", "Error", toastr_opts); 
+				toastr.error("Please Search Code First", "Error", toastr_opts);
 				return false;
 			}else if($searchFilter.Country == '0'){
 				toastr.error("Please Search Code First", "Error", toastr_opts);
@@ -598,6 +585,7 @@ function sort_table(table){
 						{"name": "action", "value": action_click},
 						{"name": "criteria", "value": criteria},
 						{"name": "block_by", "value": block_by}
+
 				);
 			},
 			"sAjaxSource": baseurl + "/vendor_rates/0/search_vendor_grid",
@@ -649,15 +637,6 @@ function sort_table(table){
 		});
 	}
 
-	$(document).ready(function(e) {
-        $('.shift_tab').click(function(e) {
-			$(".shift_tab").parent().removeClass("active");
-			$(this).parent().addClass("active");
-            var show_div  = $(this).attr('href');
-			$('.shift_div_area').hide();
-			$(""+show_div).show();
-        });
-    });
 </script>
 <style>
 	.controle{

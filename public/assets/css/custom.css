@@ -186,7 +186,7 @@ a[disabled] {
 }
 .toast-container-fix.toast-top-full-width > div,
 .toast-container-fix.toast-bottom-full-width > div {
-  width: 96%;
+  width: 100%;
   margin: auto;
 }
 .toast-container-fix .toast-success.black,
@@ -1216,10 +1216,6 @@ text-align:center;
     transition: none;
 }
 
-#deals-dashboard .board-column-list li button.edit-deal{
-    margin-left: 5px;
-}
-
 #allComments .panel-primary{
     border-color:#ffffff;
 }
@@ -1860,7 +1856,7 @@ text-align:left
     overflow: hidden;
     resize: horizontal;
     word-wrap: break-word;
-    min-height: 200px;
+    /*min-height: 200px;*/
 }
 
 .cbp_tmtimeline {
@@ -2069,3 +2065,7 @@ text-align:left
     color:#373e4a;
     word-wrap: break-word;
 }
+#main-menu li i{
+	font-size:16px !important;
+}
+

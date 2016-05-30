@@ -175,6 +175,7 @@
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
+                                    data_table.fnFilter('', 0);
                                 }
                                 $('#table-4_processing').css('visibility','hidden');
                             },
