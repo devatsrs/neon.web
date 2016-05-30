@@ -133,11 +133,17 @@ class RateTablesController extends \BaseController {
                             ->where("tblRateTable.RateTableId", $id)->count();
             //Is RateTable assigne to RateTableRate table then dont delete
             if ($is_id_assigned == 0) {
-                if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
-                    return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                if(!empty(RateTable::checkRateTableInCronjob($id))){
+                    if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
+                        return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                    }
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to CronJob."));
                 }
+
+
             } else {
                 return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
             }
