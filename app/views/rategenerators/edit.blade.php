@@ -12,7 +12,7 @@
     </li>
 
     <li class="active">
-        <strong>Update Rate Generator</strong>
+        <strong>{{!empty($rategenerator)?$rategenerator->RateGeneratorName:''}}</strong>
     </li>
 </ol>
 <h3> Update Rate Generator</h3>
