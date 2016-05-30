@@ -1002,8 +1002,7 @@ function check_upload_file($files,$session,$data){
 }
 
 // sideabar submenu open when click on
-function check_uri($parent_link='')
-{
+function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");

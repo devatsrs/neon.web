@@ -32,7 +32,7 @@ class VendorProfilingController extends \BaseController {
         Datatables::of($vendors)->make();
     }
 
-    public function active_deactivate_vendor(){
+    public function active_deactivate_vendor(){		
         $data = Input::all();
         $CompanyID = User::get_companyID();
         if($data['action'] == 'deactivate' && !empty($data['AccountID']) && is_array($data['AccountID'])){
@@ -47,7 +47,8 @@ class VendorProfilingController extends \BaseController {
             return Response::json(array("status" => "success", "message" => "Vendor Activated.","active_vendor"=>$active_vendor,"inactive_vendor"=>$inactive_vendor));
         }
         return Response::json(array("status" => "failed", "message" => "No Vendor Selected."));
-    }
+    
+	}
 
     public function ajax_datagrid(){
         $data = Input::all();

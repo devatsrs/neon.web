@@ -51,7 +51,7 @@
 <br>
 <div class="row">
 <div class="col-md-12">
-    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" autocomplete="off" class="form-horizontal form-groups-bordered">
+    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" class="form-horizontal form-groups-bordered">
 
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
@@ -180,19 +180,18 @@
                         </div>
                     </div>
                     
-                      <label class="col-sm-2 control-label">Customer Panel Password</label>
+                    <label class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-                            <input value=""  autocomplete="off"  id="customer_password"  class="form-control"  name="password"  placeholder=""  type="password" />
-                    </div>
-
-                  
+                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                    </div>  
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="tags"  name="tags" value="{{$account->tags}}" />
+                        <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
-                      <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
+                    
+                     <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
                     </div>
@@ -208,9 +207,9 @@
                             @endif
                     </div>
 
-                    <label for="timezone" class="col-sm-2 control-label">Timezone</label>
+                    <label for="field-1" class="col-sm-2 control-label">Timezone</label>
                     <div class="col-sm-4">
-                        {{Form::select('Timezone', $timezones, $account->TimeZone ,array("class"=>"select2 form-control","id"=>"timezone"))}}
+                        {{Form::select('Timezone', $timezones, $account->TimeZone ,array("class"=>"form-control select2"))}}
                     </div>
                 </div>
 
@@ -228,7 +227,7 @@
                     });
                 </script>
                 <div class="form-group">
-                  <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
+                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
@@ -273,8 +272,7 @@
                     <div class="col-sm-12">
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
-                     </div>
-                      
+                </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)
@@ -592,13 +590,9 @@
 </div>
 </div>
 <script type="text/javascript">
-	
-	var accountID = '{{$account->AccountID}}';
+    var accountID = '{{$account->AccountID}}';
     var readonly = ['Company','Phone','Email','ContactName'];
-    $(document).ready(function ($) {
-		setTimeout(function(){
-			$('#hidden_password').hide();
-			}, 200);
+    jQuery(document).ready(function ($) {
 		//account status start
 		$(".change_verification_status").click(function(e) {
 		if (!confirm('Are you sure you want to change verification status?')) {

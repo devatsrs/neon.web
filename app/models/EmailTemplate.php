@@ -11,6 +11,7 @@ class EmailTemplate extends \Eloquent {
     const PRIVACY_ON = 1;
     const PRIVACY_OFF = 0;
 
+
     public static $privacy = [0=>'All User',1=>'Only Me'];
     public static $Type = [0=>'Select Template Type',self::ACCOUNT_TEMPLATE=>'Account',self::INVOICE_TEMPLATE=>'Billing',self::RATESHEET_TEMPLATE=>'Rate sheet'];
 

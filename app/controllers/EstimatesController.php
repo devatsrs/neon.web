@@ -3,7 +3,7 @@
 class EstimatesController extends \BaseController {
 	
 	public function ajax_datagrid_total()
-	{
+	{		
         $data 						 = 	Input::all();
 		$data['iDisplayStart'] 		 =	0;
         $data['iDisplayStart'] 		+=	1;
@@ -39,7 +39,8 @@ class EstimatesController extends \BaseController {
 			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand
 		);
 		
-		return json_encode($result4,JSON_NUMERIC_CHECK);		
+		return json_encode($result4,JSON_NUMERIC_CHECK);	
+	
 	}
 
     public function ajax_datagrid($type)
@@ -96,9 +97,7 @@ class EstimatesController extends \BaseController {
         $companyID 				= 	User::get_companyID();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $accounts 				= 	Account::getAccountIDList();		
-        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
-        
-		
+        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());	
         return View::make('estimates.index',compact('accounts','estimate_status_json','DefaultCurrencyID'));
     }
 

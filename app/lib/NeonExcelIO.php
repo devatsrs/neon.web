@@ -31,7 +31,7 @@ class NeonExcelIO
     public static $COLUMN_NAMES 	= 	0 ;
     public static $DATA    			= 	1;
     public static $EXCEL   			= 	'xlsx'; // Excel file
-	public static $EXCELs  			= 	'xls'; // Excel file
+    public static $EXCELs  			= 	'xls'; // Excel file
     public static $CSV 	   			= 	'csv'; // csv file
 
 

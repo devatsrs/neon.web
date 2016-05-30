@@ -218,6 +218,7 @@ class AccountsController extends \BaseController {
 
 	
 		public function show($id) {
+		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
 			
@@ -302,7 +303,7 @@ class AccountsController extends \BaseController {
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			
             return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
-    }
+		}
 	
 	
 
@@ -315,7 +316,7 @@ class AccountsController extends \BaseController {
      */
 	 
 	 public function GetTimeLineSrollData($id,$start)
-	 { 
+	 {
 		  	$data 					   = 	Input::all();
 		 	$data['iDisplayStart'] 	   =	$start;
             $data['iDisplayLength']    =    10;
@@ -339,7 +340,7 @@ class AccountsController extends \BaseController {
 			$key 					= 	$data['scrol'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
-	 }
+	}
 	 
     public function edit($id) {
         $account = Account::find($id);
@@ -489,7 +490,7 @@ class AccountsController extends \BaseController {
     /**
      * Add notes to account
      * */
-    public function store_note($id) {
+    public function store_note($id) {		
         $data 					= 	Input::all();
         $companyID 				= 	User::get_companyID();
         $user_name 				= 	User::get_user_full_name();
@@ -509,8 +510,8 @@ class AccountsController extends \BaseController {
 		}
 				
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
-    }
+		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));      
+	}
 
     /**
      * Delete a Note
@@ -869,7 +870,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 	
 	function upload_file()
-	{
+	{		
 		$data 						= 	Input::all();
 		$data['file']				=	array();
 		$emailattachment 			= 	Input::file('emailattachment');
@@ -885,8 +886,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
        }catch (Exception $ex)
        {
            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
-       }
-
+       }	
 	}
 	
 	function delete_upload_file()
@@ -967,5 +967,4 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
-	
 }
