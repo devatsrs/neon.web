@@ -218,7 +218,10 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
-
+ <label for="NominalAnalysisNominalAccountNumber" class="col-sm-2 control-label">Nominal Code</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                    </div>
 
                 </div>
                 <script>
@@ -273,6 +276,14 @@
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
                 </div>
+                
+                            <div class="form-group">            
+                    <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
+                    <div class="col-sm-4">
+        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
+                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
+                    </div>  
+                    </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)
@@ -1128,4 +1139,9 @@
         </div>
     </div>
 </div>
+<script>
+setTimeout(function(){
+	$('#CustomerPassword_hide').hide();
+	},1000);
+</script>
 @stop

@@ -338,7 +338,7 @@
                 <?php } ?>
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-              <div class="cbp_tmlabel normal">  
+              <div class="cbp_tmlabel normal_tag">  
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
@@ -392,7 +392,7 @@
               </time>
               
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-              <div class="cbp_tmlabel @if(!$rows['followup_task']) normal @endif ">  
+              <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif ">  
                 
            <h2 class="toggle_open" id_toggle="{{$key}}"> 
          @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
@@ -426,7 +426,7 @@
                 <?php } ?>
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-              <div class="cbp_tmlabel normal">  
+              <div class="cbp_tmlabel normal_tag">  
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   <p>{{$rows['Note']}}</p>

@@ -190,6 +190,7 @@
             var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
 			if(selected_active_type){
 
+
 				$('.li_active').hide();
 				$('.li_deactive').show();
 			}else{
@@ -997,6 +998,8 @@
     #selectcheckbox{
         padding: 15px 10px;
     }
+
+	.li_active{display:none;}
 </style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
@@ -1163,6 +1166,7 @@
                                 <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
                                 <div class="col-sm-4">
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+
                                 </div>
                             </div>
                         </div>
