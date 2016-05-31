@@ -1863,6 +1863,11 @@ text-align:left
     /*min-height: 200px;*/
 }
 
+/*Used for large text area*/
+.description{
+    min-height: 200px;
+}
+
 .cbp_tmtimeline {
     margin: 30px 0 0 0;
     padding: 0;
@@ -1941,7 +1946,7 @@ text-align:left
 }
 
 /* The triangle */
-.cbp_tmtimeline > li .normal:after {
+.cbp_tmtimeline > li .normal_tag:after {
     right: 100%;
     border: solid transparent;
     content: " ";

@@ -142,7 +142,7 @@
                 <tbody>
                 </tbody>
             </table>
-            <div id="board-start" class="board scroller" style="height: 500px;overflow: auto !important;">
+            <div id="board-start" class="board scroller" style="height: 500px;">
             </div>
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
@@ -902,7 +902,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-2">Description</label>
                                     <div class="col-sm-10">
-                                        <textarea name="Description" class="form-control descriptions autogrow resizevertical"> </textarea>
+                                        <textarea name="Description" class="form-control description autogrow resizevertical"> </textarea>
                                     </div>
                                 </div>
                             </div>
