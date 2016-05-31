@@ -5,9 +5,9 @@ BEGIN
     DECLARE v_CurrencyCode_ VARCHAR(50);
     
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';       
+	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';   	     
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	 SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+    SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	 SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
  
@@ -80,6 +80,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
 			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+	       
+
+
 	
     IF p_isExport = 0 and p_sageExport = 0
     THEN
@@ -92,7 +95,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 	    InvoiceNumber,
         IssueDate,
         CONCAT(CurrencySymbol, GrandTotal) as GrandTotal2,
-	    CONCAT(CurrencySymbol,TotalPayment,'/',CurrencySymbol,PendingAmount) as `PendingAmount`,
+	    CONCAT(CurrencySymbol,TotalPayment,'/',PendingAmount) as `PendingAmount`,
         InvoiceStatus,
         InvoiceID,
         Description,
@@ -132,15 +135,14 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
             END DESC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
             END ASC
-            
-			 LIMIT p_RowspPage OFFSET v_OffSet_;
+				 LIMIT p_RowspPage OFFSET v_OffSet_;
         
         
         SELECT
             COUNT(*) AS totalcount,
 			ROUND(sum(GrandTotal),v_Round_) as total_grand,
-			ROUND(sum(TotalPayment),v_Round_) as `first_amount`, -- should be TotalPayment
-			ROUND(sum(GrandTotal),v_Round_) - ROUND(sum(TotalPayment),v_Round_) as second_amount,
+			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`, 
+			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
 			v_CurrencyCode_ as currency_symbol
         FROM tmp_Invoices_ ;
 		
@@ -153,7 +155,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         InvoiceNumber,
         IssueDate,
         GrandTotal,
-	    CONCAT(CurrencySymbol,TotalPayment,'/',CurrencySymbol,PendingAmount) as `Paid/OS`,
+	    CONCAT(CurrencySymbol,TotalPayment,'/',PendingAmount) as `Paid/OS`,
         InvoiceStatus,
         InvoiceType,
         ItemInvoice
@@ -169,7 +171,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         InvoiceNumber,
         IssueDate,
         GrandTotal,
-	    CONCAT(CurrencySymbol,TotalPayment,'/',CurrencySymbol,PendingAmount) as `Paid/OS`,
+	    CONCAT(CurrencySymbol,TotalPayment,'/',PendingAmount) as `Paid/OS`,
         InvoiceStatus,
         InvoiceType,
         ItemInvoice,

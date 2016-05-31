@@ -1937,7 +1937,7 @@ text-align:left
 }
 
 /* The triangle */
-.cbp_tmtimeline > li .normal:after {
+.cbp_tmtimeline > li .normal_tag:after {
     right: 100%;
     border: solid transparent;
     content: " ";

@@ -996,6 +996,7 @@
     #selectcheckbox{
         padding: 15px 10px;
     }
+
 	.li_active{display:none;}
 </style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
