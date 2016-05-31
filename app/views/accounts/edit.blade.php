@@ -179,11 +179,7 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
-                    
-                    <label class="col-sm-2 control-label">Customer Panel Password</label>
-                    <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
-                    </div>  
+ 
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
