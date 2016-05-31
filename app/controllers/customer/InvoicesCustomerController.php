@@ -192,7 +192,7 @@ class InvoicesCustomerController extends \BaseController {
         $data['AccountID'] = User::get_userID();
 
         $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-		Log::info();
+		
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
         {
             $query = $query.',0,1)';
