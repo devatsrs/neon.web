@@ -51,8 +51,7 @@
 <br>
 <div class="row">
 <div class="col-md-12">
-    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" class="form-horizontal form-groups-bordered">
-
+    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" autocomplete="off" class="form-horizontal form-groups-bordered">
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -214,9 +213,9 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
- <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
+ <label for="NominalAnalysisNominalAccountNumber" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                        <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
 
                 </div>
@@ -273,7 +272,7 @@
                         <div class="form-group">            
                     <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-      
+        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="******" value="" />
                             <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="******" value="" />
                     </div>  
                     </div>
@@ -1133,4 +1132,9 @@
         </div>
     </div>
 </div>
+<script>
+setTimeout(function(){
+	$('#CustomerPassword_hide').hide();
+	},1000);
+</script>
 @stop
