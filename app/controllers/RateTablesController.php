@@ -143,9 +143,12 @@ class RateTablesController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to CronJob."));
                 }
 
-
             } else {
-                return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                if(empty(RateTable::checkRateTableInCronjob($id))){
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate and CronJob."));
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                }
             }
         }
     }
