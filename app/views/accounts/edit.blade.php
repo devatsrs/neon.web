@@ -273,7 +273,7 @@
                         <div class="form-group">            
                     <label class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                            <input type="password" class="form-control" autocomplete="off"  name="password" id="field-1" placeholder="******" value="" />
                     </div>  
                     </div>
                 
