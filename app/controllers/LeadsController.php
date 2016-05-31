@@ -249,13 +249,8 @@ class LeadsController extends \BaseController {
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			
             return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
-<<<<<<< HEAD
-    }
-	
-=======
-    	}
+   }
 
->>>>>>> 2c9c98642045277e133142cc44bd47c52fd4af5a
     /**
      * Show the form for editing the specified resource.
      * GET /leads/{id}/edit

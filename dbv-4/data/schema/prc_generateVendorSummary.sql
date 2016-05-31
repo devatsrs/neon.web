@@ -108,6 +108,4 @@ BEGIN
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix;
 
-	
-	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

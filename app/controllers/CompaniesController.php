@@ -104,7 +104,9 @@ class CompaniesController extends \BaseController {
         if(!isset($data['DefaultTextRate'])) {
             $data['DefaultTextRate'] = '';
         }
-        CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
+        if(isset($data['DefaultTextRate'])){
+			CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
+		}
         unset($data['DefaultTextRate']);
 
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
