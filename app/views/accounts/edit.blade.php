@@ -214,7 +214,10 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
-
+ <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                    </div>
 
                 </div>
                 <script>
@@ -223,10 +226,7 @@
                     });
                 </script>
                 <div class="form-group">
-                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
-                    </div>
+                                  
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
                     <?php  $CLIList = array_filter(explode(',',$account->CustomerCLI));?>
@@ -271,9 +271,10 @@
                 </div>
                 
                         <div class="form-group">            
-                    <label class="col-sm-2 control-label">Customer Panel Password</label>
+                    <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control" autocomplete="off"  name="password" id="field-1" placeholder="******" value="" />
+      
+                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="******" value="" />
                     </div>  
                     </div>
                 
