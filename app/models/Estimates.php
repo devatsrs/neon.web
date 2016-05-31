@@ -59,7 +59,7 @@ class Estimate extends \Eloquent {
 			$print_type = 'Estimate';
             $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type'))->render();
             $body 	= 	htmlspecialchars_decode($body);
-            $footer = 	View::make('estimates.pdffooter', compact('Estimate'))->render();
+            $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId,$Estimate->AccountID) ;
