@@ -78,7 +78,9 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-
+			Log::info($query.',1,0,1,"")');	
+			Log::info($excel_data);	
+			
             if($type=='csv'){
                 $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
