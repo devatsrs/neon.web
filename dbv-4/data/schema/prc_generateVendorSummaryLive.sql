@@ -77,8 +77,8 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate;
 	
-	TRUNCATE TABLE tblUsageVendorSummaryLive;
-	TRUNCATE TABLE tblUsageVendorSummaryDetailLive;
+	DELETE FROM tblUsageVendorSummaryLive;
+	DELETE FROM tblUsageVendorSummaryDetailLive;
 	
 	INSERT INTO tblUsageVendorSummaryLive (SummaryVendorHeaderID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT ANY_VALUE(sh.SummaryVendorHeaderID),SUM(us.TotalCharges),SUM(us.TotalSales),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)

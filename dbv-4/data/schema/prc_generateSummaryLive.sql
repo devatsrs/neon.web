@@ -70,8 +70,8 @@ BEGIN
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
 	
-	TRUNCATE TABLE tblUsageSummaryLive;
-	TRUNCATE TABLE tblUsageSummaryDetailLive;
+	DELETE FROM tblUsageSummaryLive;
+	DELETE FROM tblUsageSummaryDetailLive;
 	
 	INSERT INTO tblUsageSummaryLive (SummaryHeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT ANY_VALUE(sh.SummaryHeaderID),SUM(us.TotalCharges),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)
