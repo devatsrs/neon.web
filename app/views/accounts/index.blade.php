@@ -134,13 +134,13 @@
                 </li>
                 <li class="li_active">
                    <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
-                        <i class="entypo-user-add"></i>
+                        <i class="fa fa-plus-circle"></i>
                         <span>Activate</span>
                    </a>
                 </li>
                 <li class="li_deactive">
                    <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
-                        <i class="entypo-user-add"></i>
+                        <i class="fa fa-minus-circle"></i>
                         <span>Deactivate</span>
                    </a>
                 </li>
@@ -186,7 +186,7 @@
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		
-		$('#account_active').change(function(e) {
+		function check_status(){
             var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
 			if(selected_active_type){
 
@@ -197,7 +197,7 @@
 				$('.li_active').show();
 				$('.li_deactive').hide();		
 			}
-        });
+		}
 		
 		$('.type_active_deactive').click(function(e) {
 			
