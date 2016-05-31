@@ -15,7 +15,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -273,15 +273,7 @@ var postdata;
                     {
                         $('.result_row').remove();
                         $('.result_row').hide();
-                        var selected_currency  =	 $("#invoice_filter [name='CurrencyID']").val();
-                        var concat_currency    = 	 '';
-                        if(selected_currency!='')
-                        {
-                            //						concat_currency = $("#invoice_filter [name='CurrencyID'] option:selected").text()+' ';
-                            var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();
-                            var concat_currency = currency_txt.substr(0,1);
-                        }
-                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td><strong>'+concat_currency+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
                     }
                 },
             });
