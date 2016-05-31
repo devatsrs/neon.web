@@ -386,6 +386,7 @@
             ]
         },
         "fnDrawCallback": function() {
+			check_status();
              $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
