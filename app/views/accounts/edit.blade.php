@@ -272,8 +272,8 @@
                         <div class="form-group">            
                     <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="******" value="" />
-                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="******" value="" />
+        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
+                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
                     </div>  
                     </div>
                 
