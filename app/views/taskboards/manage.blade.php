@@ -190,16 +190,14 @@
             var max_file_size_txt   =   '{{$max_file_size}}';
             var max_file_size       =   '{{str_replace("M","",$max_file_size)}}';
 
-            var nicescroll_default  = {cursorcolor:'#d4d4d4',
-                cursoropacitymax:0.7,
-                oneaxismousemode:false,
-                cursorcolor: '#d4d4d4',
-                cursorborder: '1px solid #ccc',
-                railpadding: {right: 3},
-                cursorborderradius: 1,
-                autohidemode: true,
-                sensitiverail: true};
-            $('#board-start').niceScroll(nicescroll_default);
+            board.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+            board.on('mouseenter',function(){
+                board.perfectScrollbar('update');
+            });
+
+            $( window ).resize(function() {
+                board.perfectScrollbar('update');
+            });
             getTask();
             data_table = $("#taskGrid").dataTable({
                 "bDestroy": true,
@@ -589,16 +587,14 @@
 
 
             function initEnhancement(){
-                var nicescroll_defaults = {
-                    cursorcolor: '#d4d4d4',
-                    cursorborder: '1px solid #ccc',
-                    railpadding: {right: 3},
-                    cursorborderradius: 1,
-                    autohidemode: true,
-                    sensitiverail: false
-                };
+                board.find('.board-column-list').perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                board.find('.board-column-list').on('mouseenter',function(){
+                    $(this).perfectScrollbar('update');
+                });
 
-                board.find('.board-column-list').niceScroll(nicescroll_defaults);
+                $( window ).resize(function() {
+                    board.find('.board-column-list').perfectScrollbar('update');
+                });
             }
             function initSortable(){
                 // Code using $ as usual goes here.
@@ -705,15 +701,10 @@
                             toastr.error(response.message, "Error", toastr_opts);
                         }else {
                             $('#allComments').html(response);
-                            var nicescroll_defaults = {
-                                cursorcolor: '#d4d4d4',
-                                cursorborder: '1px solid #ccc',
-                                railpadding: {right: 3},
-                                cursorborderradius: 1,
-                                autohidemode: true,
-                                sensitiverail: false
-                            };
-                            $('#allComments .niceScroll').niceScroll(nicescroll_defaults);
+                            $('#allComments .perfect-scrollbar').perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                            $('#allComments .perfect-scrollbar').on('mouseenter',function(){
+                                $(this).perfectScrollbar('update');
+                            });
                         }
                     },
                     // Form data
