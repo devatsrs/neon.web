@@ -5,10 +5,10 @@ BEGIN
     DECLARE v_CurrencyCode_ VARCHAR(50);
     
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';       
+	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';   	     
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-    SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
-	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+    SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	 SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
  
 		
@@ -18,7 +18,6 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 	AccountName varchar(100),
 	InvoiceNumber varchar(100),
 	IssueDate datetime,
-	InvoicePeriod varchar(100),
 	CurrencySymbol varchar(5),
 	GrandTotal decimal(18,6),
 	TotalPayment decimal(18,6),
@@ -50,11 +49,10 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			  END
 			  as InvoiceNumber,
 			inv.IssueDate,
-			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
-			ROUND(inv.GrandTotal,v_Round_) as GrandTotal,		
-			format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_) as TotalPayment,
-			format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_) as `PendingAmount`,
+			inv.GrandTotal as GrandTotal,		
+			(select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
+			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
 			inv.InvoiceStatus,
 			inv.InvoiceID,
 			inv.Description,
@@ -69,10 +67,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inv.TotalTax,
 			ac.NominalAnalysisNominalAccountNumber
 			FROM tblInvoice inv
-			inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
-			left join tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2			
+			inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID
 			left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-			left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+			left join LocalRatemanagement.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			where ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
 			AND (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND inv.InvoiceNumber = p_InvoiceNumber))
@@ -83,6 +80,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
 			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+	       
+
+
 	
     IF p_isExport = 0 and p_sageExport = 0
     THEN
@@ -94,9 +94,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         AccountName,
 	    InvoiceNumber,
         IssueDate,
-        InvoicePeriod,
-        CONCAT(CurrencySymbol, GrandTotal) as GrandTotal2,
-	    CONCAT(CurrencySymbol,TotalPayment,'/',CurrencySymbol,PendingAmount) as `PendingAmount`,
+        CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
+	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
         InvoiceStatus,
         InvoiceID,
         Description,
@@ -128,10 +127,6 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
             END ASC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
             END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodASC') THEN InvoicePeriod
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodDESC') THEN InvoicePeriod
-            END DESC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
             END DESC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
@@ -146,8 +141,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         SELECT
             COUNT(*) AS totalcount,
 			ROUND(sum(GrandTotal),v_Round_) as total_grand,
-			ROUND(sum(TotalPayment),v_Round_) as `first_amount`, -- should be TotalPayment
-			ROUND(sum(GrandTotal),v_Round_) - ROUND(sum(TotalPayment),v_Round_) as second_amount,
+			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`, 
+			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
 			v_CurrencyCode_ as currency_symbol
         FROM tmp_Invoices_ ;
 		
@@ -159,9 +154,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		AccountName ,
         InvoiceNumber,
         IssueDate,
-        REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
-        GrandTotal,
-	    CONCAT(CurrencySymbol,TotalPayment,'/',CurrencySymbol,PendingAmount) as `Paid/OS`,
+        CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
+	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
         InvoiceStatus,
         InvoiceType,
         ItemInvoice
@@ -176,9 +170,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		AccountName ,
         InvoiceNumber,
         IssueDate,
-        REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
-        GrandTotal,
-	    CONCAT(CurrencySymbol,TotalPayment,'/',CurrencySymbol,PendingAmount) as `Paid/OS`,
+        CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
+	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
         InvoiceStatus,
         InvoiceType,
         ItemInvoice,
@@ -193,9 +186,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         IF p_sageExport = 2
         THEN 
         UPDATE tblInvoice  inv
-        INNER JOIN NeonRMDev.tblAccount ac
+        INNER JOIN LocalRatemanagement.tblAccount ac
           ON ac.AccountID = inv.AccountID
-        INNER JOIN NeonRMDev.tblCurrency c
+        INNER JOIN LocalRatemanagement.tblCurrency c
           ON c.CurrencyId = ac.CurrencyId
         SET InvoiceStatus = 'paid' 
         WHERE ac.CompanyID = p_CompanyID
@@ -204,7 +197,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
                 AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 			       AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
                 AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
-                AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus)))
+                AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
                 AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0))
                 AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
 				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));

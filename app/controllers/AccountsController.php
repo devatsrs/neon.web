@@ -245,9 +245,11 @@ class AccountsController extends \BaseController {
 				$message = json_response_api($response_timeline,false,true);
 			}
 			
+			$vendor   = $account->IsVendor?1:0;
+			$Customer = $account->IsCustomer?1:0;
 			
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,".$account->IsVendor.",".$account->IsCustomer.",".$account->Status.",".$account->VerificationStatus.",'','','".$account->AccountName."','".$account->tags."',1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			

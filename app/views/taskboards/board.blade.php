@@ -20,14 +20,14 @@
                         $badgeClass = '';
                         $seconds = '';
                         if($task['DueDate']!='0000-00-00'){
-                            $yeardiff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->diffInYears();
+                            $dateyear=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->year;
                             $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffInDays();
                             $datediffhuman=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
                             $date = \Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->toFormattedDateString();
                             if(strpos($datediffhuman,'ago')){
                                 $datediff=-1;
                             }
-                            if($yeardiff ==0){
+                            if($dateyear == date('Y')){
                                 $arry = explode(',',$date);
                                 $date = $arry[0];
                             }

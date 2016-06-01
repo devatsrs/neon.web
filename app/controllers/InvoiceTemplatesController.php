@@ -257,13 +257,13 @@ class InvoiceTemplatesController extends \BaseController {
             }
 
 
-
+			$print_type = 'Invoice Template';
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
             $htmlfile_name = 'Invoice--' . date('d-m-Y') . '.html';
-            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo'))->render();
+            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
             $body = htmlspecialchars_decode($body);
 
-            $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate'))->render();
+            $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
             $destination_dir = getenv('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
             if (!file_exists($destination_dir)) {
