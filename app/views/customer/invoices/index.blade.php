@@ -29,15 +29,15 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
                         <div class="col-sm-2">
-                            {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                            {{ Form::text('IssueDateStart', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
                         <div class="col-sm-2">
-                            {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                            {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
                     </div>
                     <div class="form-group">
@@ -49,7 +49,7 @@
                         <label for="field-1" class="col-sm-2 control-label">Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
                             </p>
                         </div>
                     </div>
