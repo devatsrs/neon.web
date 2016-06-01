@@ -305,6 +305,7 @@ class AccountsController extends \BaseController {
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			
             return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
+    
 		}
 	
 	
@@ -373,7 +374,7 @@ class AccountsController extends \BaseController {
         $leadOrAccountID = $id;
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
-        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag)); 			
+        $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate'));
     }
 
@@ -755,9 +756,6 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
-            if (User::is('AccountManager')) { // Account Manager
-                $data['account_owners'] = $userID = User::get_userID();
-            }
             $type = $data['type'];
             if ($type == 'CD') {
                 $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
@@ -916,7 +914,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		}
 		return  json_response_api($result);
 
-	}	
+	}
 	
 	function UpdateBulkAccountStatus()
 	{
@@ -969,4 +967,6 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
+	
+	
 }

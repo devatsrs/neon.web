@@ -721,7 +721,8 @@ class EstimatesController extends \BaseController {
                     }
                 }
             }
-            $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+			$print_type = 'Estimate';
+            $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);

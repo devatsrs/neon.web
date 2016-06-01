@@ -134,13 +134,13 @@
                 </li>
                 <li class="li_active">
                    <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
-                        <i class="entypo-user-add"></i>
+                        <i class="fa fa-plus-circle"></i>
                         <span>Activate</span>
                    </a>
                 </li>
                 <li class="li_deactive">
                    <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
-                        <i class="entypo-user-add"></i>
+                        <i class="fa fa-minus-circle"></i>
                         <span>Deactivate</span>
                    </a>
                 </li>
@@ -186,16 +186,18 @@
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		
-		$('#account_active').change(function(e) {
+		function check_status(){
             var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
 			if(selected_active_type){
+
+
 				$('.li_active').hide();
 				$('.li_deactive').show();
 			}else{
 				$('.li_active').show();
 				$('.li_deactive').hide();		
 			}
-        });
+		}
 		
 		$('.type_active_deactive').click(function(e) {
 			
@@ -384,6 +386,7 @@
             ]
         },
         "fnDrawCallback": function() {
+			check_status();
              $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
@@ -1164,6 +1167,7 @@
                                 <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
                                 <div class="col-sm-4">
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+
                                 </div>
                             </div>
                         </div>

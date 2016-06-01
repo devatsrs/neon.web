@@ -660,19 +660,10 @@ toastr_opts = {
 
             if ($.isFunction($.fn.perfectScrollbar))
             {
-				/*
                 $(".select2-results").niceScroll({
                     cursorcolor: '#d4d4d4',
                     cursorborder: '1px solid #ccc',
                     railpadding: {right: 3}
-                });*/
-
-                public_vars.$body.find('.select2-results').each(function(i, el) {
-                    var $this = $(el);
-                   $this.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
-                    $this.on('mouseenter',function(){
-                        $this.perfectScrollbar('update');
-                    });
                 });
             }
         }

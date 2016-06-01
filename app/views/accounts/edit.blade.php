@@ -51,7 +51,8 @@
 <br>
 <div class="row">
 <div class="col-md-12">
-    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" autocomplete="off" class="form-horizontal form-groups-bordered">
+    <form role="form" id="account-from" method="post" action="{{URL::to('accounts/update/'.$account->AccountID)}}" class="form-horizontal form-groups-bordered">
+
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -178,7 +179,7 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
-
+ 
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
@@ -225,7 +226,10 @@
                     });
                 </script>
                 <div class="form-group">
-                                  
+                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                    </div>
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
                     <?php  $CLIList = array_filter(explode(',',$account->CustomerCLI));?>
@@ -269,14 +273,13 @@
                     </div>
                 </div>
                 
-                        <div class="form-group">            
+                            <div class="form-group">            
                     <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
         <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
                             <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
                     </div>  
                     </div>
-                
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)

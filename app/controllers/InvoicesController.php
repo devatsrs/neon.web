@@ -53,7 +53,7 @@ class InvoicesController extends \BaseController {
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
 			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand,
-			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->TotalPayment.' / '.$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->TotalPendingAmount,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->TotalPayment.' / '.$result['data']['Total_grand_field'][0]->TotalPendingAmount,
 		);
 		
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
@@ -78,9 +78,7 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-			Log::info($query.',1,0,1,"")');	
-			Log::info($excel_data);	
-			
+
             if($type=='csv'){
                 $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -564,7 +562,7 @@ class InvoicesController extends \BaseController {
     public function invoice_preview($id)
 	{
         $Invoice = Invoice::find($id);
-		Log::info($Invoice);
+		
         if(!empty($Invoice))
 		{
             $InvoiceDetail  	= 	InvoiceDetail::where(["InvoiceID" => $id])->get();
@@ -577,7 +575,7 @@ class InvoicesController extends \BaseController {
 			$query 				= 	"CALL `prc_getInvoicePayments`('".$id."','".$companyID."');";			
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
-					Log::info($InvoiceDetail);	
+						
             return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log'));
         }
     }
@@ -683,8 +681,8 @@ class InvoicesController extends \BaseController {
                     }
                 }
             }
-
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+			$print_type = 'Invoice';
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);

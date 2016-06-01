@@ -162,7 +162,7 @@ class Invoice extends \Eloquent {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-			@chmod(getenv('UPLOAD_PATH'),0777);
+            @chmod(getenv('UPLOAD_PATH'),0777);
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             @chmod($logo,0777);
@@ -171,10 +171,11 @@ class Invoice extends \Eloquent {
             $file_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.pdf';
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
+			$print_type = 'Invoice';
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type'))->render();
 
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol'))->render();
-		    $body = htmlspecialchars_decode($body);
-            $footer = View::make('invoices.pdffooter', compact('Invoice'))->render();
+            $body = htmlspecialchars_decode($body);
+            $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
@@ -202,11 +203,11 @@ class Invoice extends \Eloquent {
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
-            
+            Log::info($output);
             @unlink($local_htmlfile);
             @unlink($footer_html);
             if (file_exists($local_file)) {
-			    $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
+                $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {
                     return $fullPath;
                 }

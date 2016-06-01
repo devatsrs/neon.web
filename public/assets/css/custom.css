@@ -733,11 +733,12 @@ display:none;
 }
 .board {
     /*margin: 20px;*/
-
+    position: relative;
     bottom: 0;
     left: 0;
     right: 0;
     overflow-x: auto;
+    overflow:hidden
 }
 .board .header{
     /*top:0px;*/
@@ -812,10 +813,12 @@ display:none;
     min-width:195px;
 }
 ul.board-column-list {
+    position: relative;
     height: 92%;
     width: 100%;
     /*text-align: center;*/
     overflow-y: auto;
+    overflow:hidden;
     margin: 0px;
 }
 .list-unstyled, .list-inline, .dropdown-menu>li>ul, li.well {
@@ -1225,6 +1228,7 @@ text-align:center;
     float:left;
     clear:left;
     border-bottom: 0 solid #ebebeb;
+    max-width: 100%;
 }
 #allComments .comments-list > li:nth-child(2n){
     background: #ffffff none repeat scroll 0 0;
@@ -1857,6 +1861,11 @@ text-align:left
     resize: horizontal;
     word-wrap: break-word;
     /*min-height: 200px;*/
+}
+
+/*Used for large text area*/
+.description{
+    min-height: 200px;
 }
 
 .cbp_tmtimeline {
