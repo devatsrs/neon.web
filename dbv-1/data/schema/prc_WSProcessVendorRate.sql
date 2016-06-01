@@ -127,11 +127,12 @@ BEGIN
 				SELECT GROUP_CONCAT(code) into errormessage FROM(
 					select distinct code, 1 as a FROM(
 						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl) as tbl2 GROUP by a;				
-						
-				SELECT 'DUPLICATE CODE : \n\r' INTO errorheader;		
 				
 				INSERT INTO tmp_JobLog_ (Message)
-					 SELECT CONCAT(errorheader ,errormessage);						
+				  select distinct 
+				  CONCAT(code , ' DUPLICATE CODE')
+				  	FROM(
+						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl;				
 					
 			END IF;
 			
@@ -224,7 +225,16 @@ BEGIN
                   THEN
                   
                     INSERT INTO tmp_JobLog_ (Message)
-					 			SELECT CONCAT(' INVALID CODE - COUNTRY NOT FOUND : \n\r ',errormessage );	
+                    	 SELECT DISTINCT
+                        CONCAT(tblTempVendorRate.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+                        FROM tmp_TempVendorRate_  as tblTempVendorRate 
+                    INNER JOIN tblRate
+				             ON tblRate.Code = tblTempVendorRate.Code
+				             AND tblRate.CompanyID = p_companyId
+				             AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+						  WHERE tblRate.CountryID IS NULL
+                    AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+                        
 					 	END IF;		
 					 
             ELSE
@@ -248,7 +258,21 @@ BEGIN
                   IF errormessage IS NOT NULL
                   THEN
                     INSERT INTO tmp_JobLog_ (Message)
-					 			SELECT CONCAT(' CODE DOES NOT EXIST IN CODE DECK : \n\r ',errormessage );
+                    		SELECT DISTINCT
+                        CONCAT(tblTempRateTableRate.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+                        FROM
+                    (
+                        SELECT DISTINCT
+                            tblTempVendorRate.Code,
+                            tblTempVendorRate.Description
+                        FROM tmp_TempVendorRate_  as tblTempVendorRate 
+                        LEFT JOIN tblRate
+			                ON tblRate.Code = tblTempVendorRate.Code
+			                AND tblRate.CompanyID = p_companyId
+			                AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+								WHERE tblRate.RateID IS NULL
+                        AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) as tbl;
+                        
 					 	END IF;		
 
 
