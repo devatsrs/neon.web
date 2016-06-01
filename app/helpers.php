@@ -922,15 +922,15 @@ function get_report_type($date11,$date22){
         $report_type = 5;
     }else if($interval->y > 2) {
         $report_type = 6;
-    }else if($interval->m > 9 && $interval->m < 12) {
+    }else if($interval->m >= 9 && $interval->m < 12) {
         $report_type = 4;
-    }else if($interval->m > 6 && $interval->m < 9) {
+    }else if($interval->m >= 6 && $interval->m < 9) {
         $report_type = 4;
-    }else if($interval->m > 3 && $interval->m < 6) {
+    }else if($interval->m >= 3 && $interval->m < 6) {
         $report_type = 3;
-    }else if($interval->m > 1 && $interval->m < 3) {
+    }else if($interval->m >= 1 && $interval->m < 3) {
         $report_type = 3;
-    }else if($interval->d > 15 && $interval->d < 30) {
+    }else if($interval->d >= 15 && $interval->d < 31) {
         $report_type = 2;
     }else if($interval->d > 0 && $interval->d < 15) {
         $report_type = 2;

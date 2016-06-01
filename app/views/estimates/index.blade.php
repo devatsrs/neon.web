@@ -413,21 +413,10 @@ var postdata;
             "aaSorting": [[3, 'desc']],},
                 success: function(response1) {
 					console.log("sum of result"+response1);
-					
-					if(response1.total_grand!=null)
+					 if(response1.total_grand!=null)
 					{ 
-						var selected_currency = $("#estimate_filter [name='CurrencyID']").val();
-						var concat_currency   = '';
-						if(selected_currency!='')
-						{	
-							var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
-							var concat_currency = currency_txt.substr(0,1);
-							//concat_currency  =    $("#estimate_filter [name='CurrencyID'] option:selected").text()+' ';		
-						}
-						$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');	
+						$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');	
 					}
-					
-
 					},
 			});	
 		}

@@ -56,6 +56,39 @@ BEGIN
 		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 		
+		INSERT INTO tmp_tblUsageVendorSummary_
+		SELECT
+			sh.DateID,
+			sh.CompanyID,
+			sh.AccountID,
+			sh.GatewayAccountID,
+			sh.CompanyGatewayID,
+			sh.Trunk,
+			sh.AreaPrefix,
+			sh.CountryID,
+			us.TotalCharges,
+			us.TotalBilledDuration,
+			us.TotalDuration,
+			us.NoOfCalls,
+			us.NoOfFailCalls,
+			a.AccountName
+		FROM tblSummaryVendorHeader sh
+		INNER JOIN tblUsageVendorSummaryLive us
+			ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+		INNER JOIN tblDimDate dd
+			ON dd.DateID = sh.DateID
+		INNER JOIN LocalRatemanagement.tblAccount a
+			ON sh.AccountID = a.AccountID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		AND sh.CompanyID = p_CompanyID
+		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
+		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+		
 		
 	END IF;
 	
@@ -101,6 +134,42 @@ BEGIN
 			a.AccountName
 		FROM tblSummaryVendorHeader sh
 		INNER JOIN tblUsageVendorSummaryDetail usd
+			ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+		INNER JOIN tblDimDate dd
+			ON dd.DateID = sh.DateID
+		INNER JOIN tblDimTime dt
+			ON dt.TimeID = usd.TimeID
+		INNER JOIN LocalRatemanagement.tblAccount a
+			ON sh.AccountID = a.AccountID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		AND sh.CompanyID = p_CompanyID
+		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
+		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+		
+		INSERT INTO tmp_tblUsageVendorSummary_
+		SELECT
+			sh.DateID,
+			dt.TimeID,
+			sh.CompanyID,
+			sh.AccountID,
+			sh.GatewayAccountID,
+			sh.CompanyGatewayID,
+			sh.Trunk,
+			sh.AreaPrefix,
+			sh.CountryID,
+			usd.TotalCharges,
+			usd.TotalBilledDuration,
+			usd.TotalDuration,
+			usd.NoOfCalls,
+			usd.NoOfFailCalls,
+			a.AccountName
+		FROM tblSummaryVendorHeader sh
+		INNER JOIN tblUsageVendorSummaryDetailLive usd
 			ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID

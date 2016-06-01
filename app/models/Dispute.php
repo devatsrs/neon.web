@@ -29,27 +29,47 @@ class Dispute extends \Eloquent {
 
 		return $output;
 	}
+
+	
 	public static function calculate_dispute($GrandTotal,$DisputeTotal,$TotalMinutes,$DisputeMinutes){
 
-		$DisputeTotal = number_format($DisputeTotal,4);
+		if($DisputeTotal > 0 ){
+
+			if($DisputeTotal > $GrandTotal){
+
+				$formula_total = (100 - ($GrandTotal / $DisputeTotal ) * 100);
+			}else {
+
+				$formula_total = (100 - ($DisputeTotal / $GrandTotal ) * 100);
+			}
+
+		}else{
+
+			$formula_total = 100;
+		}
 		$DisputeDifference = number_format($GrandTotal - $DisputeTotal,4,'.','');
-		$total_average = $GrandTotal + $DisputeTotal / 2;
 
-		if($total_average > 0){
-			$DisputeDifferencePer =  number_format(abs(($DisputeDifference / $total_average) * 100),4);
+		$DisputeDifferencePer =  number_format($formula_total,4,'.','');
+
+		if($DisputeMinutes > 0) {
+
+			if ( $DisputeMinutes > $TotalMinutes ){
+
+				$formula_seconds = (100 - ($TotalMinutes / $DisputeMinutes ) * 100);
+			}else {
+
+				$formula_seconds = (100 - ($DisputeMinutes / $TotalMinutes ) * 100);
+			}
+
 		}else{
-			$DisputeDifferencePer =  0;
+
+			$formula_seconds = 100;
 		}
 
-		$DisputeMinutes = $DisputeMinutes;
-		$MinutesDifference = $TotalMinutes - $DisputeMinutes;
-		$minutes_average = $TotalMinutes + $DisputeMinutes / 2;
+		$MinutesDifference = number_format($TotalMinutes - $DisputeMinutes,4,'.','');
 
-		if($minutes_average > 0){
-			$MinutesDifferencePer =  number_format(abs(($MinutesDifference / $minutes_average) * 100),4);
-		}else{
-			$MinutesDifferencePer = 0;
-		}
+		$MinutesDifferencePer =  number_format($formula_seconds, 4 , '.','');
+
 
 		return array(
 

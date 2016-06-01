@@ -69,7 +69,7 @@
             <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" {{Input::get('zerovalueinvoice') == 1?'checked':''}}>
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
                             </p>
                         </div>
 
@@ -199,7 +199,7 @@ var postdata;
         var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
         $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
         $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
-        $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val();
+        $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
         $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
@@ -452,7 +452,7 @@ var postdata;
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
-            $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val();
+            $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
