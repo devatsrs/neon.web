@@ -15,7 +15,7 @@ class Dispute extends \Eloquent {
 
 	public static function reconcile($companyID,$accountID,$StartDate,$EndDate,$GrandTotal,$TotalMinutes){
 
-		$output = array("total"=>0,"total_difference"=>0,"total_difference_per"=>0, "minutes"=>0,"minutes_difference" =>0, "minutes_difference_per" => 0 );
+		$output = array("DisputeTotal"=>0,"DisputeDifference"=>0,"DisputeDifferencePer"=>0, "DisputeMinutes"=>0,"MinutesDifference" =>0, "MinutesDifferencePer" => 0 );
 
 		if ( !empty($accountID) && !empty($StartDate) && !empty($EndDate) ) {
 
@@ -25,12 +25,19 @@ class Dispute extends \Eloquent {
 
 			$output = Dispute::calculate_dispute($GrandTotal,$result_array[0]["DisputeTotal"],$TotalMinutes,$result_array[0]["DisputeMinutes"] );
 
+			$round_places = get_round_decimal_places($accountID);
+
+			$output["DisputeTotal"] 					= number_format($output["DisputeTotal"] , $round_places , '.' , '' );
+			$output["DisputeDifference"] 		= number_format($output["DisputeDifference"] , $round_places , '.' , '' );
+			$output["DisputeDifferencePer"] 	= number_format($output["DisputeDifferencePer"] , $round_places , '.' , '');
+			$output["MinutesDifferencePer"] 	= number_format($output["MinutesDifferencePer"] , $round_places , '.' , '' );
+
 		}
 
 		return $output;
 	}
 
-	
+
 	public static function calculate_dispute($GrandTotal,$DisputeTotal,$TotalMinutes,$DisputeMinutes){
 
 		if($DisputeTotal > 0 ){
@@ -47,9 +54,9 @@ class Dispute extends \Eloquent {
 
 			$formula_total = 100;
 		}
-		$DisputeDifference = number_format($GrandTotal - $DisputeTotal,4,'.','');
+		$DisputeDifference = $GrandTotal - $DisputeTotal;
 
-		$DisputeDifferencePer =  number_format($formula_total,4,'.','');
+		$DisputeDifferencePer =  $formula_total;
 
 		if($DisputeMinutes > 0) {
 
@@ -66,9 +73,9 @@ class Dispute extends \Eloquent {
 			$formula_seconds = 100;
 		}
 
-		$MinutesDifference = number_format($TotalMinutes - $DisputeMinutes,4,'.','');
+		$MinutesDifference = $TotalMinutes - $DisputeMinutes;
 
-		$MinutesDifferencePer =  number_format($formula_seconds, 4 , '.','');
+		$MinutesDifferencePer =  $formula_seconds;
 
 
 		return array(

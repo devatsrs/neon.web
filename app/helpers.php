@@ -1122,3 +1122,34 @@ function isJson($string) {
        }
 
 }
+
+/**
+ * Get Round up decimal places from company or account
+ * @param $array
+ */
+function get_round_decimal_places($AccountID = 0) {
+
+    $RoundChargesAmount = 2;
+
+    if($AccountID>0){
+
+        $RoundChargesAmount = Account::where(["AccountID"=>$AccountID])->pluck("RoundChargesAmount");
+
+        if ( empty($RoundChargesAmount) ) {
+
+            $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
+
+        }
+
+    } else {
+
+        $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
+
+    }
+
+    if ( empty($RoundChargesAmount) ) {
+        $RoundChargesAmount = 2;
+    }
+
+    return $RoundChargesAmount;
+}
