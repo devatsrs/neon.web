@@ -149,6 +149,9 @@ class Porta{
                             }
                             if(!empty($Country)){
                                 $checkCountry=strtoupper($Country);
+                                if($checkCountry=='UK'){
+                                    $checkCountry = 'UNITED KINGDOM';
+                                }
                                 $count = DB::table('tblCountry')->where(["Country" => $checkCountry])->count();
                                 if($count>0){
                                     $tempItemData['Country'] = $checkCountry;
