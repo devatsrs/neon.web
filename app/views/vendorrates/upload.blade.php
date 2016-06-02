@@ -287,7 +287,7 @@
                     <div class="form-group">
                         <br />
                         <br />
-                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0-UnBlock , 1-Block ,''-nothing" data-original-title="Forbidden">?</span></label>
+                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
                         <div class="col-sm-4">
                             {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
