@@ -214,7 +214,7 @@
     </table>
     </div>
     <script type="text/javascript">
-	
+        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
 	 var currency_signs = {{$currency_ids}};
                 var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
                 var $searchFilter = {};
@@ -278,7 +278,7 @@
                             {
                                 "bSortable": true, //Amount
                                 mRender: function (id, type, full) {
-                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
+                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(toFixed);
                                     a = a.toString();
                                     return full[16]
                                 }
