@@ -259,7 +259,6 @@
         });
         $("#form-addip-modal").submit(function(e){
             e.preventDefault();
-            $('.btn').button('processing');
             var ips=$(this).find("[name='AccountIP']").val().trim();
             $.ajax({
                 url: baseurl + '/accounts/'+accountID+'/addips',
@@ -323,13 +322,13 @@
             }
             acountiptable = $(this).hasClass('vendor-delete-ip')?'vendoriptable':'customeriptable';
             var processing = $(this).hasClass('vendor-delete-ip')?'vendoriptableprocessing':'customeriptableprocessing';
-            $('#'+processing).removeClass('hidden');
             var SelectedIDs = getselectedIDs(acountiptable);
             if (SelectedIDs.length == 0) {
                 toastr.error('Please select at least one IP Address.', "Error", toastr_opts);
                 return false;
             }else{
                 if(confirm('Do you want to delete selected ip addresses?')){
+                    $('#'+processing).removeClass('hidden');
                     var url = baseurl + "/accounts/"+accountID+"/deleteips";
                     var ips = SelectedIDs.join(",");
                     $.ajax({
