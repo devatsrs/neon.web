@@ -365,7 +365,6 @@
                     accoutiphtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><a data-id="' + index + '" class="btn  btn-danger btn-sm btn-icon icon-left '+class_deletip +'" href="javascript:void(0);" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
                 });
                 $('.' + acountiptable).children('tbody').html(accoutiphtml);
-                //attachchangeevent(acountiptable);
             }
         }
 

@@ -970,6 +970,49 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
-	
-	
+
+    public function addclis($id){
+        $data = Input::all();
+        $message = '';
+        $account = Account::find($id);
+
+        if(empty($data['clis'])){
+            return Response::json(array("status" => "error", "message" => " CLI required"));
+        }
+
+        $clis = preg_split("/\\r\\n|\\r|\\n/", $data['clis']);
+        $data['AccountID'] = $id;
+        $data['CustomerCLI'] = $clis;
+
+        $status = Account::validate_clis($data);
+        if(count($status['clisExist'])>0){
+            $iPsExist = implode('<br>',$status['clisExist']);
+            $message = ' and following IPs already exist. '.$iPsExist;
+        }
+        unset($data['clis']);
+        unset($data['AccountID']);
+        if(count($status['toBeInsert'])>0){
+            $data['CustomerCLI'] = ltrim(implode(',',$status['toBeInsert']),',');
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
+        }
+    }
+
+    public function delete_clis($id){
+        $data = Input::all();
+        $account = Account::find($id);
+        $postClis = explode(',',$data['clis']);
+        unset($data['clis']);
+        $ips = [];
+        if(!empty($account)){
+            $dbClis = explode(',', $account->CustomerCLI);
+            $clis = implode(',',array_diff($dbClis, $postClis));
+            $data['CustomerCLI'] = ltrim($clis,',');
+
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> explode(',',$clis),"message" => "Account Successfully Updated"));
+        }else{
+            return Response::json(array("status" => "error","message" => "No Ip exist."));
+        }
+    }
 }

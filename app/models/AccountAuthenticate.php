@@ -15,7 +15,7 @@ class AccountAuthenticate extends \Eloquent {
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
 
         $iPsExist = [];
-        $toBeInsert = isset($data['VendorAuthValue'])?$data['VendorAuthValue']:$data['CustomerAuthRule'];
+        $toBeInsert = isset($data['VendorAuthValue'])?$data['VendorAuthValue']:$data['CustomerAuthValue'];
         if(!empty($accountAuthenticate) && !empty($accountAuthenticate->CustomerAuthValue)) {
             if (isset($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'IP') {
                 $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);

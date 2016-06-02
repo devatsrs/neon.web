@@ -175,6 +175,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
     Route::any('accounts/{id}/addips', 'AuthenticationController@addIps');
     Route::any('accounts/{id}/deleteips', 'AuthenticationController@deleteips');
+    Route::any('accounts/{id}/addclis', 'AccountsController@addclis');
+    Route::any('accounts/{id}/deleteclis', 'AccountsController@delete_clis');
 
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
