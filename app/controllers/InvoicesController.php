@@ -16,7 +16,7 @@ class InvoicesController extends \BaseController {
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
-		
+        $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
 		
         if(isset($data['Export']) && $data['Export'] == 1)
@@ -52,8 +52,8 @@ class InvoicesController extends \BaseController {
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
-			"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand,
-			"os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
+			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->TotalPayment.' / '.$result['data']['Total_grand_field'][0]->TotalPendingAmount,
 		);
 		
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
@@ -63,7 +63,7 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
-        $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
+        $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
@@ -84,7 +84,7 @@ class InvoicesController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -276,7 +276,6 @@ class InvoicesController extends \BaseController {
                         $Invoice->update(["PDF" => $pdf_path]);
                     }
 
-                    Log::info('PDF fullPath ' . $pdf_path);
 
                     DB::connection('sqlsrv2')->commit();
 
@@ -388,7 +387,6 @@ class InvoicesController extends \BaseController {
                                 $i++;
                             }
                         }
-                        //print_r($InvoiceDetailData);
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
@@ -399,7 +397,6 @@ class InvoicesController extends \BaseController {
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
-                            Log::info('PDF fullPath ' . $pdf_path);
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
                         }
@@ -573,7 +570,8 @@ class InvoicesController extends \BaseController {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
             $CurrencySymbol 	=  	Currency::getCurrencySymbol($Account->CurrencyId);
-			$companyID 			= 	User::get_companyID();
+            //$companyID 			= 	User::get_companyID();
+			$companyID 			= 	$Account->CompanyId; // User::get_companyID();
 			$query 				= 	"CALL `prc_getInvoicePayments`('".$id."','".$companyID."');";			
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
@@ -683,8 +681,8 @@ class InvoicesController extends \BaseController {
                     }
                 }
             }
-
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+			$print_type = 'Invoice';
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
@@ -736,6 +734,7 @@ class InvoicesController extends \BaseController {
 
     public function add_invoice_in(){
         $data = Input::all();
+
         $CompanyID = User::get_companyID();
         $rules = array(
             'AccountID' => 'required',
@@ -795,6 +794,7 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData['InvoiceID'] = $Invoice->InvoiceID;
             $InvoiceDetailData['StartDate'] = $data['StartDate'];
             $InvoiceDetailData['EndDate'] = $data['EndDate'];
+            $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
             $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData['Qty'] = 1;
             $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
@@ -803,7 +803,17 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData['ProductID'] = 0;
             $InvoiceDetailData["CreatedBy"] = $CreatedBy;
             InvoiceDetail::insert($InvoiceDetailData);
+
+            //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
+            if( !empty($data["DisputeAmount"])  ){
+
+                //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
+
+            }
+
             return Response::json(["status" => "success", "message" => "Invoice in updated successfully"]);
+
         }else{
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
         }
@@ -863,12 +873,20 @@ class InvoicesController extends \BaseController {
         $InvoiceDetailData['StartDate'] = $data['StartDate'].' '.$data['StartTime'];
         $InvoiceDetailData['EndDate'] = $data['EndDate'].' '.$data['EndTime'];
         $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
+        $InvoiceDetailData['TotalMinutes'] = floatval(str_replace(",","",$data["TotalMinutes"]));
         $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s");
         $InvoiceDetailData['Description'] = $data['Description'];
         $InvoiceDetailData["ModifiedBy"] = $CreatedBy;
         if(Invoice::find($id)->update($InvoiceData)) {
             if(InvoiceDetail::find($data['InvoiceDetailID'])->update($InvoiceDetailData)) {
+
+                //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
+                if( $data["DisputeID"] > 0 && !empty($data["DisputeAmount"]) ){
+
+                    //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
+                    Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "InvoiceType"=>Invoice::INVOICE_IN,"AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
+                }
                 return Response::json(["status" => "success", "message" => "Invoice in updated successfully"]);
             }else{
                 return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
@@ -1341,7 +1359,7 @@ class InvoicesController extends \BaseController {
                 return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));
             }
         }
-        return Response::json(array("status" => "success", "message" => "Problem Creating Invoice Generation Job"));
+        return Response::json(array("status" => "error", "message" => "Please Setup Invoice Generator in CronJob"));
 
     }
     public function ajax_getEmailTemplate($id){
@@ -1355,7 +1373,9 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
-        $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','',''";
+        $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
+        $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','','".$criteria['CurrencyID']."' ";
+
         if(!empty($criteria['zerovalueinvoice'])){
             $query = $query.',2,0,1';
         }else{
@@ -1372,7 +1392,7 @@ class InvoicesController extends \BaseController {
     }
 
     public function sageExport(){
-        $data = Input::all();		
+        $data = Input::all();
         $companyID = User::get_companyID();
         if(!empty($data['InvoiceIDs'])){
             $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',1 ,".count($data['InvoiceIDs']).",'','',''";
@@ -1407,7 +1427,8 @@ class InvoicesController extends \BaseController {
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
 			 $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];
     	    $criteria['IssueDateEnd']        =  empty($criteria['IssueDateEnd'])?'0000-00-00 00:00:00':$criteria['IssueDateEnd'];
-            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',''";
+            $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
+            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',' ".$criteria['CurrencyID']." '";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2';
             }else{
@@ -1437,20 +1458,94 @@ class InvoicesController extends \BaseController {
 
     public function getInvoiceDetail(){
         $data = Input::all();
-        $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $data['InvoiceID']])->select(["InvoiceDetailID","StartDate", "EndDate","Description"])->first();
-
         $result = array();
+        $CompanyID = User::get_companyID();
+
+        /*if(!isset($data["InvoiceID"]) && isset($data["InvoiceNumber"]) ){
+            $CompanyID = User::get_companyID();
+            $Invoice = Invoice::where(["CompanyID"=>$CompanyID, "InvoiceNumber" => trim($data['InvoiceNumber'])])->select(["InvoiceID","GrandTotal"])->first();
+
+            $data["InvoiceID"] = $Invoice->InvoiceID;
+
+            $result["GrandTotal"] = $Invoice->GrandTotal;
+
+        }*/
+        $InvoiceNumber = Invoice::where(["InvoiceID" => $data['InvoiceID']])->pluck("InvoiceNumber");
+
+        $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $data['InvoiceID']])->select(["InvoiceDetailID","StartDate", "EndDate","Description", "TotalMinutes"])->first();
+
+        $result["InvoiceID"] = $data["InvoiceID"];
         $result['InvoiceDetailID'] = $InvoiceDetail->InvoiceDetailID;
+
         $StartTime =  explode(' ',$InvoiceDetail->StartDate);
         $EndTime =  explode(' ',$InvoiceDetail->EndDate);
+
         $result['StartDate'] = $StartTime[0];
         $result['EndDate'] = $EndTime[0];
         $result['Description'] = $InvoiceDetail->Description;
         $result['StartTime'] = $StartTime[1];
         $result['EndTime'] = $EndTime[1];
-        //return json_encode($result);
+        $result['TotalMinutes'] = $InvoiceDetail->TotalMinutes;
 
-        return Response::json(array('InvoiceDetailID' => $result['InvoiceDetailID'], 'StartDate' => $result['StartDate'],'EndDate'=>$result['EndDate'],'Description'=>$result['Description'],'StartTime'=>$result['StartTime'],'EndTime'=>$result['EndTime']));
+        //$Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
+        $Dispute = Dispute::where(["CompanyID"=>$CompanyID,  "InvoiceNo"=>$InvoiceNumber])->select(["DisputeID","DisputeAmount"])->first();
+
+        if(isset($Dispute->DisputeID)){
+
+            $result["DisputeID"] = $Dispute->DisputeID;
+            $result["DisputeAmount"] = $Dispute->DisputeAmount;
+
+            /*$result["DisputeTotal"] = $Dispute->DisputeTotal;
+            $result["DisputeDifference"] = $Dispute->DisputeDifference;
+            $result["DisputeDifferencePer"] = $Dispute->DisputeDifferencePer;
+            $result["DisputeMinutes"] = $Dispute->DisputeMinutes;
+            $result["MinutesDifference"] = $Dispute->MinutesDifference;
+            $result["MinutesDifferencePer"] = $Dispute->MinutesDifferencePer;*/
+        }
+        return Response::json($result);
 
     }
+
+    public function invoice_in_reconcile()
+    {
+        $data = Input::all();
+        $companyID =  User::get_companyID();
+       
+        $rules = array(
+            'AccountID' => 'required',
+            'StartDate' => 'required',
+            'EndDate' => 'required',
+            'GrandTotal'=>'required|numeric',
+          //  'TotalMinutes'=>'required|numeric',
+        );
+
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrvcdr');
+
+
+        $validator = Validator::make($data, $rules);
+
+        $validator->setPresenceVerifier($verifier);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if($data['StartDate'] > $data['EndDate']){
+            return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
+        }
+
+        $accountID = $data['AccountID'];
+        $StartDate = $data['StartDate'].' '.$data['StartTime'];
+        $EndDate = $data['EndDate'].' '.$data['EndTime'];
+
+        $output = Dispute::reconcile($companyID,$accountID,$StartDate,$EndDate,$data["GrandTotal"],$data["TotalMinutes"]);
+
+        if(isset($data["DisputeID"]) && $data["DisputeID"] > 0 ) {
+
+            $output["DisputeID"]  = $data["DisputeID"];
+        }
+
+        return Response::json( array_merge($output, array("status" => "success", "message" => ""  )));
+    }
+
+
 }

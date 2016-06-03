@@ -7,7 +7,8 @@ class CronJobController extends \BaseController {
         $companyID = User::get_companyID();
         $columns = array('JobTitle','Title','Status');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetCronJob (".$companyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $data['Active'] = $data['Active']==''?2:$data['Active'];
+        $query = "call prc_GetCronJob (".$companyID.",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -17,7 +18,7 @@ class CronJobController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -191,7 +192,7 @@ class CronJobController extends \BaseController {
 
 
             $commandconfig = json_decode($commandconfig,true);
-            //print_r($commandconfigval);exit;
+
 
             return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts'));
         }
@@ -220,7 +221,7 @@ class CronJobController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

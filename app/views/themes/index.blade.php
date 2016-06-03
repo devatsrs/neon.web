@@ -60,7 +60,7 @@
       <th width="5%"><div class="pull-left">
           <input type="checkbox" id="selectall" name="checkbox[]" class="" />
         </div></th>
-      <th width="20%">Server Name Regex</th>
+      <th width="20%">Domain</th>
       <th width="15%">Title</th>
       <th width="10%">Favicon</th>
       <th width="15%">Logo</th>

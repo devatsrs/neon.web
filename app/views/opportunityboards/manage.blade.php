@@ -26,6 +26,10 @@
         resize:vertical;
     }
 
+    .file-input-names span{
+        cursor: pointer;
+    }
+
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -58,7 +62,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Opportunity Name</label>
+                                <label for="field-1" class="col-sm-1 control-label">Name</label>
                                 <div class="col-sm-2">
                                     <input class="form-control" name="opportunityName"  type="text" >
                                 </div>
@@ -75,6 +79,20 @@
                                 <label for="field-1" class="col-sm-1 control-label">Tags</label>
                                 <div class="col-sm-2">
                                     <input class="form-control opportunitytags" name="Tags" type="text" >
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Status</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
+                                </div>
+
+                                <label class="col-sm-1 control-label">Close</label>
+                                <div class="col-sm-1">
+                                    <p class="make-switch switch-small">
+                                        <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                    </p>
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -96,9 +114,11 @@
             </a>
         </p>
 
-        <section class="deals-board row">
-            <div id="board-start" class="board scroller" style="height: 600px;overflow: auto !important;">
-            </div>
+        <section class="deals-board" >
+
+                <div id="board-start" class="board" style="height: 600px;" >
+                </div>
+
             <form id="cardorder" method="POST" />
                 <input type="hidden" name="cardorder" />
                 <input type="hidden" name="BoardColumnID" />
@@ -128,18 +148,34 @@
                 'AccountID',
                 'Tags',
                 'Rating',
-                'TaggedUser'
+                'TaggedUsers',
+                'Status'
             ];
+
+            @if(empty($message)){
+                var allow_extensions  =   '{{$response_extensions}}';
+            }@else {
+                var allow_extensions  =  '';
+                toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
+            }
+            @endif;
             var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
             var BoardID = "{{$BoardID}}";
             var board = $('#board-start');
-            var nicescroll_default = {cursorcolor:'#d4d4d4',cursoropacitymax:0.7,oneaxismousemode:false,cursorcolor: '#d4d4d4',
-                cursorborder: '1px solid #ccc',
-                railpadding: {right: 3},
-                cursorborderradius: 1,
-                autohidemode: true,
-                sensitiverail: true};
-            board.niceScroll(nicescroll_default);
+            var email_file_list     =    new Array();
+            var token               =   '{{$token}}';
+            var max_file_size_txt   =   '{{$max_file_size}}';
+            var max_file_size       =   '{{str_replace("M","",$max_file_size)}}';
+
+            board.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+            board.on('mouseenter',function(){
+                board.perfectScrollbar('update');
+            });
+
+            $( window ).resize(function() {
+                board.perfectScrollbar('update');
+            });
+
 
             getOpportunities();
 
@@ -149,20 +185,25 @@
             });
 
 
-            $(document).on('click','#board-start ul.sortable-list li i.edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
-                var select = ['UserID','BoardID','TaggedUser','Title'];
+                var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
                     //console.log(opportunity[i]+' '+val);
                     if(select.indexOf(opportunity[i])!=-1){
-                        if(opportunity[i]=='TaggedUser'){
-                            var taggedUser = rowHidden.find('[name="TaggedUser"]').val();
-                            $('#edit-opportunity-form [name="TaggedUser[]"]').select2('val', taggedUser.split(','));
+                        if(opportunity[i]=='TaggedUsers'){
+                            var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
+                            $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
+                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -180,23 +221,17 @@
                 $('#edit-modal-opportunity').modal('show');
             });
 
-            $(document).on('mousedown','#board-start ul.sortable-list li',function(e){
-                //setting Class for current draggable item
-                $(this).addClass('dragging');
-            });
-
-            $(document).on('mouseup','#board-start ul.sortable-list li',function(e){
-                //remove Class for current draggable item
-                $(this).removeClass('dragging');
-            });
-
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
+                $('.sendmail').removeClass('hidden');
                 var rowHidden = $(this).children('div.row-hidden');
                 $('#allComments,#attachments').empty();
                 var opportunityID = rowHidden.find('[name="OpportunityID"]').val();
                 var accountID = rowHidden.find('[name="AccountID"]').val();
                 var opportunityName = rowHidden.find('[name="OpportunityName"]').val();
+                if(!accountID){
+                    $('.sendmail').addClass('hidden');
+                }
                 $('#add-opportunity-comments-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="OpportunityID"]').val(opportunityID);
                 $('#add-opportunity-attachment-form [name="AccountID"]').val(accountID);
@@ -204,6 +239,7 @@
                 $('#add-view-modal-opportunity-comments h4.modal-title').text(opportunityName);
                 getComments();
                 getOpportunityAttachment();
+                autosizeUpdate();
                 $('#add-view-modal-opportunity-comments').modal('show');
             });
 
@@ -217,6 +253,8 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
+                            email_file_list = [];
+                            $(".file-input-names").empty();
                             toastr.success(response.message, "Success", toastr_opts);
                             $('#add-opportunity-comments-form').trigger("reset");
                         }else{
@@ -225,6 +263,7 @@
                         $("#commentadd").button('reset');
                         $('#add-opportunity-comments-form').trigger("reset");
                         $('#commentadd').siblings('.file-input-name').empty();
+                        autosizeUpdate();
                         getComments();
                     },
                     // Form data
@@ -270,7 +309,7 @@
             });
 
             $(document).on('click','#attachments i.delete-file',function(){
-                var con = confirm('Do you delete current attachment?');
+                var con = confirm('Are you sure you want to delete this attachments?');
                 if(!con){
                     return true;
                 }
@@ -287,6 +326,7 @@
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
+                        getComments();
                         getOpportunityAttachment();
                     },
                     // Form data
@@ -298,8 +338,8 @@
                 });
             });
 
-            $('#addTtachment').click(function(){
-                $('#filecontrole').click();
+            $(document).on('click','#addTtachment',function(){
+                $('#filecontrole1').click();
             });
 
             $(document).on('change','#filecontrole',function(e){
@@ -314,39 +354,115 @@
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
 
-            /*$('#board-start').scroll(function(){
-                if(fixedHeader){
-                    var header = $('#board-start .header');
-                    var left = $('#board-start').scrollLeft();
-                    header.css('right',left-1009);
+
+            $(document).on('change','#filecontrole1',function(e){
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                var files     = e.target.files;
+                var fileText    = new Array();
+                var file_check   = 1;
+                var local_array   =  new Array();
+                var filesArr = Array.prototype.slice.call(files);
+                filesArr.forEach(function(f) {
+                    var ext_current_file  = f.name.split('.').pop();
+                    if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 ) {
+                        var name_file = f.name;
+                        var index_file = email_file_list.indexOf(f.name);
+                        if(index_file >-1 ) {
+                            ShowToastr("error",f.name+" file already selected.");
+                        } else if(bytesToSize(f.size)) {
+                            ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");
+                            file_check = 0;
+                            return false;
+                        }else {
+                            //email_file_list.push(f.name);
+                            local_array.push(f.name);
+                        }
+                    } else {
+                        ShowToastr("error",ext_current_file+" file type not allowed.");
+                    }
+                });
+                if(local_array.length>0 && file_check==1) {
+                    email_file_list = email_file_list.concat(local_array);
+
+                    var formData = new FormData($('#add-opportunity-comments-form')[0]);
+                    var url = baseurl + '/opportunity/upload_file';
+                    $.ajax({
+                        url: url,  //Server script to process data
+                        type: 'POST',
+                        success: function (response) {
+                            if (isJson(response)) {
+                                var response_json  =  JSON.parse(response);
+                                ShowToastr("error",response_json.message);
+                            } else {
+                                $('#card-features-details').find('.file-input-names').html(response);
+                            }
+                        },
+                        // Form data
+                        data: formData,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
                 }
-            });*/
+            });
+
+            $(document).on("click",".del_attachment",function(ee){
+                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
+                var del_file_name   =  $(this).attr('del_file_name');
+                $(this).parent().remove();
+                var index_file = email_file_list.indexOf(del_file_name);
+                email_file_list.splice(index_file, 1);
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{file:del_file_name,token_attachment:token},
+                    async :false,
+                    success: function(response1) {}
+                });
+            });
+
+            $('#add-view-modal-opportunity-comments').on('shown.bs.modal', function(event){
+                email_file_list = [];
+                $(".file-input-names").empty();
+                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
+                $.ajax({
+                    url: file_delete_url,
+                    type: 'POST',
+                    dataType: 'html',
+                    data:{token_attachment:token,destroy:1},
+                    async :false,
+                    success: function(response1) {}
+                });
+
+            });
+
+            $(document).on('mouseover','#attachments a',
+                    function(){
+                        var a = $(this).attr('alt');
+                        $(this).html(a);
+                    }
+            );
+
+            $(document).on('mouseout','#attachments a',function(){
+                var a = $(this).attr('alt');
+                if(a.length>8){
+                    a  = a.substring(0,8)+"..";
+                }
+                $(this).html(a);
+            });
 
             function initEnhancement(){
-                /*var height = board.find('ul.board-inner li:first-child').height();
-                var width = board.find('.board-inner').width();
-                board.height(height+230);
-                board.find('.header').width(width *2);
-                $(document).on('scroll',function(){
-                    if(board.offset().top < $(document).scrollTop() && !fixedHeader){
-                        fixedHeader = true;
-                        board.find('.header').addClass('fixed');
-                    }else if(board.offset().top > $(document).scrollTop() && fixedHeader){
-                        fixedHeader = false;
-                        board.find('.header').removeClass('fixed');
-                    }
-                });*/
+                board.find('.board-column-list').perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                board.find('.board-column-list').on('mouseenter',function(){
+                    $(this).perfectScrollbar('update');
+                });
 
-                var nicescroll_defaults = {
-                    cursorcolor: '#d4d4d4',
-                    cursorborder: '1px solid #ccc',
-                    railpadding: {right: 3},
-                    cursorborderradius: 1,
-                    autohidemode: true,
-                    sensitiverail: false
-                };
-
-                board.find('.board-column-list').niceScroll(nicescroll_defaults);
+                $( window ).resize(function() {
+                    board.find('.board-column-list').perfectScrollbar('update');
+                });
             }
             function initSortable(){
                 // Code using $ as usual goes here.
@@ -357,8 +473,8 @@
                         //setting current draggable item
                         currentDrageable = $('#board-start ul.sortable-list li.dragging');
                     },
-                    stop: function() {
-                        postorder();
+                    stop: function(ev,ui) {
+                        postorder(ui.item);
                         //de-setting draggable item after submit order.
                         currentDrageable = '';
                     }
@@ -386,6 +502,21 @@
                 });
             }
 
+            function autosizeUpdate(){
+                $('.autogrow').trigger('autosize.resize');
+            }
+
+            function biuldSwicth(container,formID,checked){
+                var make = '<span class="make-switch switch-small">';
+                make += '<input name="opportunityClosed" value="{{Opportunity::Close}}" '+checked+' type="checkbox">';
+                make +='</span>';
+
+                var container = $(formID).find(container);
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
+            }
+
             function getOpportunities(){
                 var formData = new FormData($('#search-opportunity-filter')[0]);
                 var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
@@ -409,6 +540,7 @@
             }
 
             function getComments(){
+                $('#comment_processing').removeClass('hidden');
                 var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
                 var url = baseurl +'/opportunitycomments/'+opportunityID+'/ajax_opportunitycomments';
                 $.ajax({
@@ -416,17 +548,16 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) {
-                        $('#allComments').html(response);
-                        var nicescroll_defaults = {
-                            cursorcolor: '#d4d4d4',
-                            cursorborder: '1px solid #ccc',
-                            railpadding: {right: 3},
-                            cursorborderradius: 1,
-                            autohidemode: true,
-                            sensitiverail: false
-                        };
-                        $('#allComments .fancyscroll').niceScroll(nicescroll_defaults);
-
+                        $('#comment_processing').addClass('hidden');
+                        if(response.status){
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }else {
+                            $('#allComments').html(response);
+                            $('#allComments .perfect-scrollbar').perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                            $('#allComments .perfect-scrollbar').on('mouseenter',function(){
+                                $(this).perfectScrollbar('update');
+                            });
+                        }
                     },
                     // Form data
                     data: [],
@@ -477,8 +608,8 @@
                 });
             }
 
-            function postorder(){
-                saveOrder();
+            function postorder(elem){
+                saveOrder(elem);
                 url = baseurl + '/opportunity/'+BoardID+'/updateColumnOrder';
                 var formData = new FormData($('#cardorder')[0]);
                 $.ajax({
@@ -502,9 +633,9 @@
                 });
             }
 
-            function saveOrder() {
+            function saveOrder(elem) {
                 var selectedCards = new Array();
-                var currentColumn = currentDrageable.parents('li.board-column');
+                var currentColumn = elem.parents('li.board-column');
                 var BoardColumnID = currentColumn.attr('data-id');
                 currentColumn.find('ul.board-column-list li.count-cards').each(function() {
                     selectedCards.push($(this).attr("data-id"));
@@ -518,6 +649,12 @@
                 elem.val(color);
                 elem.colorpicker({color:color});
                 elem.siblings('.input-group-addon').find('.color-preview').css('background-color', color);
+            }
+
+            function bytesToSize(filesize) {
+                var sizeInMB = (filesize / (1024*1024)).toFixed(2);
+                if(sizeInMB>max_file_size)
+                {return 1;}else{return 0;}
             }
         });
     </script>
@@ -541,7 +678,7 @@
                                 <label for="field-5" class="control-label col-sm-2">Tag User</label>
                                 <div class="col-sm-10">
                                     <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUser[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
                             </div>
 
@@ -621,7 +758,16 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 margin-top pull-right">
+                            <div class="col-md-6 margin-top-group pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Status</label>
+                                    <div class="col-sm-8 input-group">
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                     <div class="col-sm-8">
@@ -630,6 +776,25 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
+                                    <div class="col-sm-8 input-group">
+                                        <input class="form-control opportunitytags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Close</label>
+                                    <div class="col-sm-8 make">
+                                        <p class="make-switch switch-small">
+                                            <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
@@ -647,15 +812,6 @@
                                     </div>
                                 </div>
                             </div>-->
-
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
-                                    <div class="col-sm-8 input-group">
-                                        <input class="form-control opportunitytags" name="Tags" type="text" >
-                                    </div>
-                                </div>
-                            </div>
 
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
@@ -705,16 +861,20 @@
                                     <h4>Add Comment</h4>
                                 </div>
                                 <div class="col-md-12">
-                                    <textarea class="form-control resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                </div>
+                                <div class="col-md-11">
+                                </div>
+                                <div class="col-md-1">
                                     <p class="comment-box-options">
                                         <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
                                             <i class="entypo-attach"></i>
                                         </a>
                                     </p>
                                 </div>
-                                <div class="col-sm-6 pull-left end-buttons" style="text-align: left;">
+                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
-                                    <span id="label-switch" class="make-switch switch-mini">
+                                    <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">
                                     </span>
                                 </div>
@@ -726,11 +886,16 @@
                                         Add Comment
                                     </button>
                                     <br>
-                                    <input id="filecontrole" type="file" name="commentattachment[]" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                    <div class="file_attachment">
+                                        <div class="file-input-names"></div>
+                                        <input id="filecontrole1" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input  type="hidden" name="token_attachment" value="{{$token}}" />
+                                    </div>
                                 </div>
                             </div>
                         </form>
                         <br>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">
 
                         </div>
@@ -738,7 +903,8 @@
                         </div>
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-12" id="addattachmentop" style="text-align: right;">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
                                 <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="OpportunityID" >
                             </div>

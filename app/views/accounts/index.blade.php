@@ -24,8 +24,6 @@
     </a>
 @endif    
 </p>
-
-
 <div class="row">
     <div class="col-md-12">
         <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -40,11 +38,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_name"  type="text" >
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">Account Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Number</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
@@ -81,7 +79,7 @@
                             {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"selectboxit"))}}
                         </div>
                         @if(User::is_admin())
-                         <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                         <label for="field-1" class="col-sm-1 control-label">Owner</label>
                         <div class="col-sm-2">
                             {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                         </div>
@@ -128,6 +126,24 @@
                         <span>Bulk Rate sheet Email</span>
                     </a>
                 </li>
+                <li>
+                   <a href="{{ URL::to('/import/account') }}" >
+                        <i class="entypo-user-add"></i>
+                        <span>Import</span>
+                   </a>
+                </li>
+                <li class="li_active">
+                   <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
+                        <i class="fa fa-plus-circle"></i>
+                        <span>Activate</span>
+                   </a>
+                </li>
+                <li class="li_deactive">
+                   <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
+                        <i class="fa fa-minus-circle"></i>
+                        <span>Deactivate</span>
+                   </a>
+                </li>
                 @endif
             </ul>
         </div><!-- /btn-group -->
@@ -148,8 +164,8 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Account Name</th>
-        <th width="10%" >Name</th>
+        <th width="15%" >Name</th>
+        <th width="10%" >Owner</th>
         <th width="10%">Phone</th>
         <th width="10%">OS</th>
         <th width="10%">Email</th>
@@ -169,7 +185,70 @@
     var view = 1;
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
-      
+		
+		function check_status(){
+            var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
+			if(selected_active_type){
+
+
+				$('.li_active').hide();
+				$('.li_deactive').show();
+			}else{
+				$('.li_active').show();
+				$('.li_deactive').hide();		
+			}
+		}
+		
+		$('.type_active_deactive').click(function(e) {
+			
+            var type_active_deactive  =  $(this).attr('type_ad');
+			var SelectedIDs 		  =  getselectedIDs();	
+			var criteria_ac			  =  '';
+			
+			if($('#selectallbutton').is(':checked')){
+				criteria_ac = 'criteria';
+			}else{
+				criteria_ac = 'selected';				
+			}
+			
+			if(SelectedIDs=='' || criteria_ac=='')
+			{
+				alert("Please select atleast one account.");
+				return false;
+			}
+			
+			account_ac_url =  '{{ URL::to('accounts/update_bulk_account_status')}}';
+			$.ajax({
+				url: account_ac_url,
+				type: 'POST',
+				dataType: 'json',
+				success: function(response) {
+					   if(response.status =='success'){
+							toastr.success(response.message, "Success", toastr_opts);
+							data_table.fnFilter('', 0);
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+                   	 	}				
+					},				
+				data: {
+			"account_name":$("#account_filter [name='account_name']").val(),
+			"account_number":$("#account_filter [name='account_number']").val(),
+			"contact_name":$("#account_filter [name='contact_name']").val(),
+			"tag":$("#account_filter [name='tag']").val(),
+			"verification_status":$("#account_filter [name='verification_status']").val(),
+			"account_owners":$("#account_filter [name='account_owners']").val(),			
+			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
+			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
+			"account_active":$("#account_filter [name='account_active']").prop("checked"),
+			"SelectedIDs":SelectedIDs,
+			"criteria_ac":criteria_ac,	
+			"type_active_deactive":type_active_deactive,
+			}			
+				
+			});
+			
+        });
+		
 
         //["tblAccount.Number",
         // "tblAccount.AccountName",
@@ -307,26 +386,22 @@
             ]
         },
         "fnDrawCallback": function() {
+			check_status();
              $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
 
             $(".dropdown").removeClass("hidden");
             var toggle = '<header>';
-            toggle += '   <span class="list-style-buttons">';
-
+            toggle += '<span class="list-style-buttons">';
             if(view==1){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
-                toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl+'"></a>';
-                toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="'+desctiveurl+'"></a>';
+                toggle += '<a href="javascript:void(0)" title="Grid View" class="btn btn-primary switcher grid active"><i class="entypo-book-open"></i></a>';
+                toggle += '<a href="javascript:void(0)" title="List View" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
-                toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+desctiveurl+'"></a>';
-                toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="'+activeurl+'"></a>';
+                toggle += '<a href="javascript:void(0)" title="Grid View" class="btn btn-primary switcher grid"><i class="entypo-book-open"></i></a>';
+                toggle += '<a href="javascript:void(0)" title="List View" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
             }
-            toggle += '   </span>';
+            toggle +='</span>';
             toggle += '</header>';
             $('.change-view').html(toggle);
             var html = '<ul class="clearfix grid col-md-12">';
@@ -380,10 +455,19 @@
 				{
                     html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                 }
+				var account_title = childrens.eq(2).text();
+				if(account_title.length>22){
+					account_title  = account_title.substring(0,22)+"...";	
+				}
+				
+				var account_name = childrens.eq(3).text();
+				if(account_name.length>40){
+					account_name  = account_name.substring(0,40)+"...";	
+				}
                 html += '  <div class="box clearfix ' + select + '">';
                // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + childrens.eq(2).text() + '</span><br>';
-                html += '  <span class="meta complete_name">' + childrens.eq(3).text() + '</span></div>';
+                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
+                html += '  <span class="meta complete_name">' + account_name + '</span></div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Email</div>';
@@ -760,20 +844,13 @@
             }
             var activeurl;
             var desctiveurl;
-            if(self.attr('id')=='gridview'){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
+            if(self.hasClass('grid')){
                 view = 1;
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
                 view = 2;
             }
-            self.find('img').attr('src',activeurl);
             self.addClass('active');
-            var sibling = self.siblings('a');
-            sibling.find('img').attr('src',desctiveurl);
-            sibling.removeClass('active');
+            var sibling = self.siblings('a').removeClass('active');
             $('.gridview').toggleClass('hidden');
             $('#table-4').toggleClass('hidden');
         });
@@ -922,6 +999,8 @@
     #selectcheckbox{
         padding: 15px 10px;
     }
+
+	.li_active{display:none;}
 </style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
@@ -1088,6 +1167,7 @@
                                 <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
                                 <div class="col-sm-4">
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+
                                 </div>
                             </div>
                         </div>

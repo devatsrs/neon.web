@@ -12,7 +12,7 @@
     </li>
 
     <li class="active">
-        <strong>Update Rate Generator</strong>
+        <strong>{{!empty($rategenerator)?$rategenerator->RateGeneratorName:''}}</strong>
     </li>
 </ol>
 <h3> Update Rate Generator</h3>
@@ -100,6 +100,10 @@
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
                         </div>
+                        <label for="field-1" class="col-sm-2 control-label">Policy</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('Policy', LCR::$policy, $rategenerators->Policy , array("class"=>"select2")) }}
+                        </div>
                     </div>
 
                 </div>
@@ -169,8 +173,8 @@
                                 <td>
 
                                     @if(count($rategenerator_rule['RateRuleMargin']))
-                                    @foreach($rategenerator_rule['RateRuleMargin'] as $materulemargin )
-                                    {{$materulemargin->MinRate}} <  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
+                                    @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
+                                        {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
                                     @endforeach
                                     @endif
 
@@ -202,7 +206,6 @@
         </div>
 
     </div>
-</div>
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {

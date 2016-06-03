@@ -23,6 +23,40 @@
 </div>
 <br>
 <br>
+<div class="row">
+    <div class="col-md-12">
+        <form id="ratetable_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Filter
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Active</label>
+                        <div class="col-sm-2">
+                            <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+                            {{ Form::select('Active', $active, 1, array("class"=>"form-control selectboxit")) }}
+                        </div>
+                    </div>
+                    <p style="text-align: right;">
+                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                            <i class="entypo-search"></i>
+                            Search
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<br>
 
 <div class=" clear row">
     <div class="col-md-12">
@@ -46,97 +80,145 @@
 </div>
 
 <script type="text/javascript">
+    var $searchFilter = {};
     jQuery(document).ready(function($) {
         var update_rate_table_url;
-        data_table = $("#table-4").dataTable({
-            "bProcessing": true,
-            "bServerSide": true,
-            "sAjaxSource": baseurl + "/rategenerators/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
-            "sPaginationType": "bootstrap",
-            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, "desc"]],
-            "aoColumns":
-                    [
-                        {},
-                        {},
-                        {},
-                        {
-                            mRender: function(status, type, full) {
-                                if (status == 1)
-                                    return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
-                                else
-                                    return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
-                            }
-                        },
-                        {
-                            mRender: function(id, type, full) {
-                                var action, edit_, delete_;
-                                edit_ = "{{ URL::to('rategenerators/{id}/edit')}}";
-                                delete_ = "{{ URL::to('rategenerators/{id}/delete')}}";
-                                generate_new_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/create')}}";
-                                update_existing_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/update')}}";
-                                var status_link = active_ = "";
-                                if (full[3] == "1") {
-                                    active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
-                                    status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
-                                } else {
-                                    active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
-                                    status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
-                                }
-
-
-                                edit_ = edit_.replace('{id}', id);
-                                delete_ = delete_.replace('{id}', id);
-                                generate_new_rate_table_ = generate_new_rate_table_.replace('{id}', id);
-                                update_existing_rate_table_ = update_existing_rate_table_.replace('{id}', id);
-                                status_link = status_link.replace('{id}', id);
-                                action = '';
-
-                                <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
-                                    action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a> '
-                                    action += status_link; //'<a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
-                                    if(full[3]==1){ /* When Status is 1 */
-                                        action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
-                                        action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="'+ full[5] +'" data-codedeck="'+ full[6] +'" data-currency="'+ full[7] +'">Update Existing Rate Table</a></li></ul></div>';
-                                    }
-                                <?php } ?>
-                                return action;
-                            }
-                        },
-                    ],
-                    "oTableTools":
+        $('#ratetable_filter').submit(function(e) {
+            e.preventDefault();
+            $searchFilter.Active = $('#ratetable_filter [name="Active"]').val();
+            $("#table-4").dataTable({
+                "bDestroy": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": baseurl + "/rategenerators/ajax_datagrid",
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "Active", "value": $searchFilter.Active });
+                },
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[3, "desc"]],
+                "aoColumns": [
+                    {},
+                    {},
+                    {},
                     {
-                        "aButtons": [
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/rategenerators/exports/xlsx",
-                                sButtonClass: "save-collection btn-sm"
-                            },
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "CSV",
-                                "sUrl": baseurl + "/rategenerators/exports/csv",
-                                sButtonClass: "save-collection btn-sm"
-                            }
-                        ]
+                        mRender: function (status, type, full) {
+                            if (status == 1)
+                                return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
+                            else
+                                return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
+                        }
                     },
-            "fnDrawCallback": function() {
+                    {
+                        mRender: function (id, type, full) {
+                            var action, edit_, delete_;
+                            edit_ = "{{ URL::to('rategenerators/{id}/edit')}}";
+                            delete_ = "{{ URL::to('rategenerators/{id}/delete')}}";
+                            generate_new_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/create')}}";
+                            update_existing_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/update')}}";
+                            var status_link = active_ = "";
+                            if (full[3] == "1") {
+                                active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
+                                status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
+                            } else {
+                                active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
+                                status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
+                            }
 
-                $(".btn.delete").click(function(e) {
 
-                    response = confirm('Are you sure?');
-                    redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rategenerators')}}" : $(this).attr("data-redirect");
-                    if (response) {
+                            edit_ = edit_.replace('{id}', id);
+                            delete_ = delete_.replace('{id}', id);
+                            generate_new_rate_table_ = generate_new_rate_table_.replace('{id}', id);
+                            update_existing_rate_table_ = update_existing_rate_table_.replace('{id}', id);
+                            status_link = status_link.replace('{id}', id);
+                            action = '';
+
+                            <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
+                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a> '
+                            action += status_link; //'<a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
+                            if (full[3] == 1) { /* When Status is 1 */
+                                action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
+                                action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[5] + '" data-codedeck="' + full[6] + '" data-currency="' + full[7] + '">Update Existing Rate Table</a></li></ul></div>';
+                            }
+                            <?php } ?>
+                            return action;
+                        }
+                    },
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/rategenerators/exports/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/rategenerators/exports/csv",
+                            sButtonClass: "save-collection btn-sm"
+                        }
+                    ]
+                },
+                "fnDrawCallback": function () {
+
+                    $(".btn.delete").click(function (e) {
+
+                        response = confirm('Are you sure?');
+                        redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rategenerators')}}" : $(this).attr("data-redirect");
+                        if (response) {
+                            $.ajax({
+                                url: $(this).attr("href"),
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function (response) {
+                                    $(".btn.delete").button('reset');
+                                    if (response.status == 'success') {
+                                        window.location = redirect
+                                    } else {
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                    }
+                                },
+
+                                // Form data
+                                //data: {},
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+
+
+                        }
+                        return false;
+
+                    });
+
+                    $(".generate_rate.create").click(function (e) {
+                        e.preventDefault();
+                        $('#update-rate-table-form').trigger("reset");
+                        $('#modal-update-rate').modal('show', {backdrop: 'static'});
+                        $('#RateTableIDid').hide();
+                        $('#RateTableNameid').show();
+                        $('#modal-update-rate h4').html('Generate Rate Table');
+                        update_rate_table_url = $(this).attr("href");
+
+                        return false;
+
+                    });
+                    $(".btn.change_status").click(function (e) {
+                        //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
+                        $(this).button('loading');
                         $.ajax({
                             url: $(this).attr("href"),
                             type: 'POST',
                             dataType: 'json',
-                            success: function(response) {
-                                $(".btn.delete").button('reset');
+                            success: function (response) {
+                                $(this).button('reset');
                                 if (response.status == 'success') {
-                                    window.location = redirect
+                                    toastr.success(response.message, "Success", toastr_opts);
+                                    data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
@@ -148,58 +230,17 @@
                             contentType: false,
                             processData: false
                         });
-
-
-                    }
-                    return false;
-
-                });
-
-                $(".generate_rate.create").click(function(e) {
-                    e.preventDefault();
-                    $('#update-rate-table-form').trigger("reset");
-                    $('#modal-update-rate').modal('show', {backdrop: 'static'});
-                    $('#RateTableIDid').hide();
-                    $('#RateTableNameid').show();
-                    $('#modal-update-rate h4').html('Generate Rate Table');
-                    update_rate_table_url = $(this).attr("href");
-
-                    return false;
-
-                });
-                $(".btn.change_status").click(function(e) {
-                    //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
-                    $(this).button('loading');
-                    $.ajax({
-                        url: $(this).attr("href"),
-                        type: 'POST',
-                        dataType: 'json',
-                        success: function(response) {
-                            $(this).button('reset');
-                            if (response.status == 'success') {
-                                toastr.success(response.message, "Success", toastr_opts);
-                                data_table.fnFilter('', 0);
-                            } else {
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        },
-
-                        // Form data
-                        //data: {},
-                        cache: false,
-                        contentType: false,
-                        processData: false
+                        return false;
                     });
-                    return false;
-                });
 
-            }
+                }
+            });
         });
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
         });
 
-
+        $('#ratetable_filter').submit();
         $('body').on('click', '.generate_rate.update', function (e) {
 
             e.preventDefault();

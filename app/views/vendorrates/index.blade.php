@@ -190,6 +190,7 @@ jQuery(document).ready(function($) {
         }
         data_table = $("#table-4").dataTable({
             "bDestroy": true, // Destroy when resubmit form
+            "bAutoWidth": false,
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid",

@@ -10,25 +10,13 @@ class HomeController extends BaseController {
             $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
         }
         if(Company::isRMLicence()){
-            $this->dashboard_url = '/dashboard';
+            $this->dashboard_url = '/monitor';
             if(!empty($DefaultDashboard)){
                 $this->dashboard_url = $DefaultDashboard;
             }
             if (!user::is_admin()) {
-                if(!empty($DefaultDashboard)){
-                    if(User::checkCategoryPermission(getDashBoardController($DefaultDashboard),'All')){
-                        $this->dashboard_url = $DefaultDashboard;
-                    }elseif(User::checkCategoryPermission('RmDashboard', 'All')) {
-                        $this->dashboard_url = '/dashboard';
-                    }elseif(User::checkCategoryPermission('SalesDashboard', 'All')) {
-                        $this->dashboard_url = '/salesdashboard';
-                    }elseif(User::checkCategoryPermission('BillingDashboard', 'All')) {
-                        $this->dashboard_url = '/billingdashboard';
-                    }elseif(User::checkCategoryPermission('Account','View')){
-                        $this->dashboard_url = '/accounts';
-                    }else{
-                        $this->dashboard_url = '/users/edit_profile/'. User::get_userID();
-                    }
+                if(!empty($DefaultDashboard) && User::checkCategoryPermission(getDashBoardController($DefaultDashboard),'All')){
+                    $this->dashboard_url = $DefaultDashboard;
                 }else {
 					/*
                      * Priority on redirect
@@ -37,7 +25,9 @@ class HomeController extends BaseController {
                      * 3. Profile
                      * */
 
-                    if (User::checkCategoryPermission('RmDashboard', 'All')) {
+                    if(User::checkCategoryPermission('MonitorDashboard', 'All')) {
+                        $this->dashboard_url = '/monitor';
+                    }elseif (User::checkCategoryPermission('RmDashboard', 'All')) {
                         $this->dashboard_url = '/dashboard';
                     } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
                         $this->dashboard_url = '/salesdashboard';
@@ -53,23 +43,15 @@ class HomeController extends BaseController {
 
         }elseif(Company::isBillingLicence()) {
             $this->dashboard_url = '/billingdashboard';
-            if (!empty($DefaultDashboard)) {
-                if (User::checkCategoryPermission(getDashBoardController($DefaultDashboard), 'All')) {
-                    $this->dashboard_url = $DefaultDashboard;
-                }elseif (User::checkCategoryPermission('BillingDashboard', 'All')) {
-                    $this->dashboard_url = '/billingdashboard';
-                } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
-                    $this->dashboard_url = '/salesdashboard';
-                } elseif (User::checkCategoryPermission('Account', 'View')) {
-                    $this->dashboard_url = '/accounts';
-                } else {
-                    $this->dashboard_url = '/users/edit_profile/' . User::get_userID();
-                }
+            if (!empty($DefaultDashboard) && User::checkCategoryPermission(getDashBoardController($DefaultDashboard), 'All')) {
+                $this->dashboard_url = $DefaultDashboard;
             } else {
                 if (User::checkCategoryPermission('BillingDashboard', 'All')) {
                     $this->dashboard_url = '/billingdashboard';
                 } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
                     $this->dashboard_url = '/salesdashboard';
+                } elseif(User::checkCategoryPermission('MonitorDashboard', 'All')) {
+                    $this->dashboard_url = '/monitor';
                 } elseif (User::checkCategoryPermission('Account', 'View')) {
                     $this->dashboard_url = '/accounts';
                 } else {
@@ -177,9 +159,9 @@ class HomeController extends BaseController {
             }
         }
     }
-
+	
     public function dologout() {
-
+		NeonAPI::logout();
         Session::flush();
         Auth::logout();
         return Redirect::to('/login')->with('message', 'Your are now logged out!');
@@ -242,6 +224,8 @@ class HomeController extends BaseController {
 
         if ( $user_created && $company_created ) {
             $result  = false;
+            $taskBoard = ['CompanyID'=>$CompanyID,'BoardName'=>'Task Board','Status'=>1,'BoardType'=>CRMBoard::TaskBoard];
+            CRMBoard::create($taskBoard);
             $admin_email = Config::get("app.super_admin_emails");
             Mail::send('emails.admin.registration', array("data"=>$data), function($message) use ($admin_email) {
                 $message->to($admin_email['registration']['email'], $admin_email['registration']['from_name'])->subject('RM: Thanks for Registration!');

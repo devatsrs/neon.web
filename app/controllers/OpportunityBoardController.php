@@ -16,10 +16,8 @@ class OpportunityBoardController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-        //unset($data['iDisplayStart']);// +=1;
-        //unset($data['iDisplayLength']);
         $response = NeonAPI::request('opportunityboard/get_boards',$data,false);
-        return json_response_api($response);
+        return json_response_api($response,true,true,true);
     }
 
 
@@ -29,11 +27,17 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function configure($id){
+        $TaskBoard = CRMBoard::getTaskBoard();
         $Board = CRMBoard::find($id);
-        return View::make('opportunityboards.configure', compact('id','Board'));
+        $urlto = 'opportunityboards';
+        if(isset($TaskBoard[0]->BoardID) && $TaskBoard[0]->BoardID==$id){
+            $urlto = 'task';
+        }
+        return View::make('opportunityboards.configure', compact('id','Board','urlto'));
     }
 
     public function manage($id){
+        $message = '';
         $Board = CRMBoard::find($id);
         $account_owners = User::getOwnerUsersbyRole();
         $where['Status']=1;
@@ -47,7 +51,18 @@ class OpportunityBoardController extends \BaseController {
         $boards = CRMBoard::getBoards();
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $BoardID = $id;
-        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags'));
+        $response     =  NeonAPI::request('get_allowed_extensions',[],false);
+        $response_extensions = [];
+
+        if($response->status=='failed'){
+            $message = json_response_api($response,false,true);
+        }else{
+            $response_extensions = json_response_api($response,true,true);
+        }
+
+        $token    = get_random_number();
+        $max_file_size = get_max_file_size();
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message'));
     }
 
 	/**
@@ -60,11 +75,7 @@ class OpportunityBoardController extends \BaseController {
 
         $data = Input::all();
         $response = NeonAPI::request('opportunityboard/add_board',$data);
-        if($response->status_code==200){
-            return Response::json(array("status" => "success", "message" => "Opportunity Board Successfully Created"));
-        }else{
-            return Response::json(array("status" => "failed", "message" => $response->message));
-        }
+        return json_response_api($response);
     }
 
 
@@ -75,18 +86,9 @@ class OpportunityBoardController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-    public function update($id)
-    {
-        if( $id > 0 ) {
+    public function update($id){
             $data = Input::all();
             $response = NeonAPI::request('opportunityboard/'.$id.'/update_board',$data);
-            if($response->status_code==200){
-                return Response::json(array("status" => "success", "message" => "Opportunity Board Successfully Updated"));
-            }else{
-                return Response::json(array("status" => "failed", "message" => $response->message));
-            }
-        }else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating OpportunityBoard."));
-        }
+            return json_response_api($response);
     }
 }

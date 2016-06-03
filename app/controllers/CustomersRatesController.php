@@ -34,7 +34,7 @@ class CustomersRatesController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -45,7 +45,6 @@ class CustomersRatesController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
-        //echo $query;exit;
         return DataTableSql::of($query)->make();
     }
     public  function search_customer_grid($id){
@@ -100,10 +99,7 @@ class CustomersRatesController extends \BaseController {
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
-            //echo '<pre>';print_r($rate_tables);exit;
 
-            // Debugbar::addMessage($customer_trunks);
-            //print_r($customer_trunks);
 
             return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
     }
@@ -179,13 +175,6 @@ class CustomersRatesController extends \BaseController {
                         //return json_validator_response($validator);
                     }
 
-                    if( isset($data['CompanyGatewayID']) && is_array($data['CompanyGatewayID'])){
-                        $data['CompanyGatewayIDs'] = implode(',', $data['CompanyGatewayID']);
-                        unset($data['CompanyGatewayID']);
-                    }else{
-                        $data['CompanyGatewayIDs'] = '';
-                    }
-
                     if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
                         $CustomerTrunkID = $data['CustomerTrunkID'];
                         unset($data['CustomerTrunkID']);
@@ -246,20 +235,23 @@ class CustomersRatesController extends \BaseController {
         if (Request::ajax()) {
             $data = Input::all();
             $test = 0;
-            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
+            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype'=> 'required');
 
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
 
-            if(empty($data['downloadtype'])){
-                $data['downloadtype'] = 'csv';
-            }
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+
+            if(!empty($data['filetype'])){
+                $data['downloadtype'] = $data['filetype'];
+                unset($data['filetype']);
+            }
+
             if($data['sendMail'] == 0){
                 $data['customer'][] = $id;
                 foreach($data['customer'] as $customerID){
@@ -454,7 +446,8 @@ class CustomersRatesController extends \BaseController {
             return View::make('customersrates.show_history', compact('id', 'history', 'job_file'));
 
     }
-    
+
+    // not in use
     public function exports($id) {
             $data = Input::all();
             $data['iDisplayStart'] +=1;
@@ -493,7 +486,7 @@ class CustomersRatesController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -594,5 +587,14 @@ class CustomersRatesController extends \BaseController {
             $results = DB::statement("prc_merge_vendor_into_customer '".$vendor."','".$customer."'");
             DB::table('vendor_merge')->where(["vendor"=>$vendor,"customer"=>$customer])->update(["status"=>1]);
         }
+    }
+
+    public function customerdownloadtype($id,$type){
+        if($type=='Vos 3.2'){
+            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+        }else{
+            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+        }
+        return $downloadtype;
     }
 }

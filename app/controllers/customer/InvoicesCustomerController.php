@@ -8,15 +8,19 @@ class InvoicesCustomerController extends \BaseController {
         $companyID = User::get_companyID();
         $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
+        $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
         $data['AccountID'] = User::get_userID();
-        $data['InvoiceStatus'] = '';
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',''";
+        $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
+            if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,1)');
+            }else{
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0)');
+            }
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -24,18 +28,17 @@ class InvoicesCustomerController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
 
-            /*Excel::create('Invoice', function ($excel) use ($excel_data) {
-                $excel->sheet('Invoice', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');*/
         }
-        $query .=',0,0,0,"")';
+        if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
+            $query = $query.',0,1)';
+        }else{
+            $query .=',0,0)';
+        }
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
     /**
@@ -126,7 +129,8 @@ class InvoicesCustomerController extends \BaseController {
                     }
                 }
             }
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+			$print_type = 'Invoice';
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
@@ -147,6 +151,83 @@ class InvoicesCustomerController extends \BaseController {
         $Invoiceids = $data['InvoiceIDs'];
         $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
         return AccountPaymentProfile::paynow($CompanyID,$id,$Invoiceids,$CreatedBy,$AccountPaymentProfileID);
+
+    }
+
+    public function  download_invoice_file($id){
+        $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
+        $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+        if(is_amazon() == true){
+            header('Location: '.$FilePath);
+        }else if(file_exists($FilePath)){
+            download_file($FilePath);
+        }
+        exit;
+        /*$DocumentFile = getenv('UPLOAD_PATH') . '/'.$DocumentFile;
+        if(file_exists($DocumentFile)){
+            download_file($DocumentFile);
+        }else{
+            echo $DocumentFile;
+            $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+            echo $FilePath;exit;
+            header('Location: '.$FilePath);
+        }
+        exit;*/
+    }
+
+    public function ajax_datagrid_total()
+    {
+        $data 						 = 	Input::all();
+        $data['iDisplayStart'] 		 =	0;
+        $data['iDisplayStart'] 		+=	1;
+        $data['iSortCol_0']			 =  0;
+        $data['sSortDir_0']			 =  'desc';
+        $companyID 					 =  User::get_companyID();
+        $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
+        $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
+        $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
+        $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
+        $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
+        $sort_column 				 =  $columns[$data['iSortCol_0']];
+        $data['AccountID'] = User::get_userID();
+
+        $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+		
+        if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
+        {
+            $query = $query.',0,1)';
+        }
+        else
+        {
+            $query .=',0,0)';
+        }
+
+        $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
+        $result2  = $result['data']['Total_grand_field'][0]->total_grand;
+        $result4  = array(
+			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand,
+			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->TotalPayment.' / '.$result['data']['Total_grand_field'][0]->TotalPendingAmount,
+		);
+
+        return json_encode($result4,JSON_NUMERIC_CHECK);
+    }
+
+    public function getInvoiceDetail(){
+        $data = Input::all();
+        $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $data['InvoiceID']])->select(["InvoiceDetailID","StartDate", "EndDate","Description"])->first();
+
+        $result = array();
+        $result['InvoiceDetailID'] = $InvoiceDetail->InvoiceDetailID;
+        $StartTime =  explode(' ',$InvoiceDetail->StartDate);
+        $EndTime =  explode(' ',$InvoiceDetail->EndDate);
+        $result['StartDate'] = $StartTime[0];
+        $result['EndDate'] = $EndTime[0];
+        $result['Description'] = $InvoiceDetail->Description;
+        $result['StartTime'] = $StartTime[1];
+        $result['EndTime'] = $EndTime[1];
+        //return json_encode($result);
+
+        return Response::json(array('InvoiceDetailID' => $result['InvoiceDetailID'], 'StartDate' => $result['StartDate'],'EndDate'=>$result['EndDate'],'Description'=>$result['Description'],'StartTime'=>$result['StartTime'],'EndTime'=>$result['EndTime']));
 
     }
 }

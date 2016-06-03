@@ -37,7 +37,7 @@ class AccountsController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -91,6 +91,7 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function index() {
+
         $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
         $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
         $account_owners = User::getOwnerUsersbyRole();
@@ -105,6 +106,7 @@ class AccountsController extends \BaseController {
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
+
     }
 
     /**
@@ -119,6 +121,7 @@ class AccountsController extends \BaseController {
 
             $currencies = Currency::getCurrencyDropdownIDList();
             $taxrates = TaxRate::getTaxRateDropdownIDList();
+            $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
             if(isset($taxrates[""])){unset($taxrates[""]);}
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
@@ -128,7 +131,7 @@ class AccountsController extends \BaseController {
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate','DefaultTextRate'));
     }
 
     /**
@@ -198,7 +201,7 @@ class AccountsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
-    public function show($id) {
+    public function show_old($id) {
 
             $account = Account::find($id);
             $companyID = User::get_companyID();
@@ -213,6 +216,100 @@ class AccountsController extends \BaseController {
             return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
     }
 
+	
+		public function show($id) {
+		
+            $account 					= 	 Account::find($id);
+            $companyID 					= 	 User::get_companyID();
+			
+			//get account contacts
+		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
+			
+			//get account time line data
+            $data['iDisplayStart'] 	    =	 0;
+            $data['iDisplayLength']     =    10;
+            $data['AccountID']          =    $id;
+            $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
+            $RowsPerPage                =    $data['iDisplayLength'];
+			$message 					= 	 '';
+            $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
+			
+			if($response_timeline['status']!='failed'){
+				if(isset($response_timeline['data']))
+				{
+					$response_timeline =  $response_timeline['data'];
+				}else{
+					$response_timeline = array();
+				}
+			}else{
+				$message = json_response_api($response_timeline,false,true);
+			}
+			
+			$vendor   = $account->IsVendor?1:0;
+			$Customer = $account->IsCustomer?1:0;
+			
+			//get account card data
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',1 ,1,'AccountName','asc',0)";
+            $Account_card  				= 	 DB::select($sql);
+			$Account_card  				=	 array_shift($Account_card);
+			
+			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $account_owners 			= 	 User::getUserIDList();
+			//$Board 						=	 CRMBoard::getTaskBoard();
+			
+			
+			
+			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			$random_token				=	 get_random_number();
+            
+			//Backup code for getting extensions from api
+           $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
+		   $response_extensions 	=  [];
+		
+			if($response->status=='failed'){
+				 $message = json_response_api($response,false,true);
+			 }else{
+				$response_extensions = json_response_api($response,true,true);
+			}
+	        
+		
+
+           //all users email address
+			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
+	 		$users						=	 json_encode(array_merge(array(""),$users));
+			
+			//Account oppertunity data
+			$boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
+			if(count($boards)<1){
+				
+				$message 				= 	 "No Task Board Found. PLease create task board first";
+			}else{
+				$boards					=	  $boards[0];
+			}
+			$accounts 					= 	 Account::getAccountIDList();
+		 	$leadOrAccountID 			= 	 '';
+	        $leadOrAccount 				= 	 $accounts;
+    	    $leadOrAccountCheck 		= 	 'account';
+			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+
+			 if (isset($response->status_code) && $response->status_code == 200) {			
+				$response = $response->data;
+			}else{				
+			 	$message	=	isset($response->message)?$response->message:$response->error;
+			 	Session::set('error_message',$message);
+			}
+			
+			
+			$max_file_size				=	get_max_file_size();			
+			$per_scroll 				=   $data['iDisplayLength'];
+			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
+    
+		}
+	
+	
+
     /**
      * Show the form for editing the specified resource.
      * GET /accounts/{id}/edit
@@ -220,6 +317,34 @@ class AccountsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
+	 
+	 public function GetTimeLineSrollData($id,$start)
+	 {
+		  	$data 					   = 	Input::all();
+		 	$data['iDisplayStart'] 	   =	$start;
+            $data['iDisplayLength']    =    10;
+            $data['AccountID']         =    $id;			
+			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
+			
+			if($response->status!='failed'){
+				if(!isset($response->data))
+				{
+					return  Response::json(array("status" => "failed", "message" => "No Result Found","scroll"=>"end"));
+				}
+				else
+				{
+					$response =  $response->data;
+				}
+			}
+			else{
+				return json_response_api($response,false,true);
+			}
+					
+			$key 					= 	$data['scrol'];
+			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
+	}
+	 
     public function edit($id) {
         $account = Account::find($id);
         $companyID = User::get_companyID();
@@ -231,6 +356,7 @@ class AccountsController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $taxrates = TaxRate::getTaxRateDropdownIDList();
         if(isset($taxrates[""])){unset($taxrates[""]);}
+        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
 
@@ -249,7 +375,7 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate'));
     }
 
     /**
@@ -336,7 +462,7 @@ class AccountsController extends \BaseController {
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }
             if(isset($data['password'])) {
-                $this->sendPasswordEmail($account, $password, $data);
+               // $this->sendPasswordEmail($account, $password, $data);
             }
             $PaymentGatewayID = PaymentGateway::where(['Title'=>PaymentGateway::$gateways['Authorize']])
                 ->where(['CompanyID'=>$companyID])
@@ -367,54 +493,28 @@ class AccountsController extends \BaseController {
     /**
      * Add notes to account
      * */
-    public function store_note($id) {
-        $data = Input::all();
-        //$account = Account::find($id);
-
-        $companyID = User::get_companyID();
-        $user_name = User::get_user_full_name();
-
-        $data['CompanyID'] = $companyID;
-        $data['AccountID'] = $id;
-        $data['created_by'] = $user_name;
-        $data["Note"] = nl2br($data["Note"]);
-
-        $rules = array(
-            'CompanyID' => 'required',
-            'AccountID' => 'required',
-            'Note' => 'required',
-        );
-
-        $validator = Validator::make($data, $rules);
-
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-        if (empty($data["NoteID"])) {
-            unset($data["NoteID"]);
-            $result = Note::create($data);
-            $NoteID = DB::getPdo()->lastInsertId();
-        } else {
-            unset($data['created_by']);
-            $data['updated_by'] = $user_name;
-            $result = Note::find($data["NoteID"]);
-            if(!empty($result)) {
-                $result->update($data);
-            }
-            $NoteID = $data["NoteID"];
-        }
-
-        if ($result) {
-            if (empty($data["NoteID"])) {
-                return Response::json(array("status" => "success", "message" => "Note Successfully Updated", "NoteID" => $NoteID, "Note" => $result));
-            }
-            return Response::json(array("status" => "success", "message" => "Note Successfully Updated", "update" => true, "NoteID" => $NoteID, "Note" => $result));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Note."));
-        }
-    }
+    public function store_note($id) {		
+        $data 					= 	Input::all();
+        $companyID 				= 	User::get_companyID();
+        $user_name 				= 	User::get_user_full_name();
+        $data['CompanyID'] 		= 	$companyID;
+        $data['AccountID'] 		= 	$id;
+        $data['created_by'] 	=	$user_name;
+        $data["Note"] 			= 	nl2br($data["Note"]);
+		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
+		unset($data["scrol"]);		
+ 		$response 				= 	NeonAPI::request('account/add_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			$response = $response->data;
+			$response->type = Task::Note;
+		}
+				
+		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));      
+	}
 
     /**
      * Delete a Note
@@ -531,7 +631,7 @@ class AccountsController extends \BaseController {
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_csv($due_sheets);
                 }elseif($type=='xlsx'){
-                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xlsx';
+                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xls';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_excel($due_sheets);
                 }
@@ -656,6 +756,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
+            if (User::is('AccountManager')) { // Account Manager
+                $data['account_owners'] = $userID = User::get_userID();
+            }
             $type = $data['type'];
             if ($type == 'CD') {
                 $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
@@ -767,5 +870,149 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "failed", "message" => "Problem Found Updating Rate Table."));
         }
 
+    }
+	
+	function upload_file()
+	{		
+		$data 						= 	Input::all();
+		$data['file']				=	array();
+		$emailattachment 			= 	Input::file('emailattachment');
+		$return_txt 				=	'';
+
+        if(!empty($emailattachment)){
+            $data['file'] = NeonAPI::base64byte($emailattachment);
+        }
+
+       try {
+           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $data);
+           return $return_str;
+       }catch (Exception $ex)
+       {
+           return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+       }	
+	}
+	
+	function delete_upload_file()
+	{
+        $data 		= 	Input::all();
+        delete_file('activty_email_attachments',$data);
+
+	}
+	
+	function Delete_task_parent()
+	{
+		$data 		= 	Input::all();
+		
+		if($data['parent_type']==Task::Note)
+		{
+			$data_send  	=  	array("NoteID" => $data['parent_id']);
+			$result 		=  	NeonAPI::request('account/delete_note',$data_send);
+		}
+		
+		if($data['parent_type']==Task::Mail)
+		{
+			$data_send  	=  array("AccountEmailLogID" => $data['parent_id']);
+			$result 		=  NeonAPI::request('account/delete_email',$data_send);
+			
+		}
+		return  json_response_api($result);
+
+	}
+	
+	function UpdateBulkAccountStatus()
+	{
+		$data 		 = 	Input::all();
+		$CompanyID 	 =  User::get_companyID();
+		
+		$type_status =  $data['type_active_deactive'];
+		
+		if(isset($data['type_active_deactive']) && $data['type_active_deactive']!='')
+		{
+			if($data['type_active_deactive']=='active'){
+				$data['status_set']  = 1;
+			}else if($data['type_active_deactive']=='deactive'){
+					$data['status_set']  = 0;
+			}else{
+				return Response::json(array("status" => "failed", "message" => "No account status selected"));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => "No account status selected"));
+		}
+		
+		if($data['criteria_ac']=='criteria'){ //all account checkbox checked
+			$userID = 0;
+			
+			if (User::is('AccountManager')) { // Account Manager
+				$userID = $userID = User::get_userID();
+			}elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
+				$userID = (int)$data['account_owners'];
+			}
+			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
+			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+		
+		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['status_set']."')";
+		 
+		 	$result  			= 	DB::select($query);	
+			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				
+		}
+		
+		if($data['criteria_ac']=='selected'){ //selceted ids from current page
+			if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
+				foreach($data['SelectedIDs'] as $SelectedIDs){
+					Account::find($SelectedIDs)->update(["Status"=>intval($data['status_set'])]);
+				}	
+				return Response::json(array("status" => "success", "message" => "Account Status Updated"));		
+			}else{
+				return Response::json(array("status" => "failed", "message" => "No account selected"));
+			}
+			
+		}
+		
+		
+	}
+
+    public function addclis($id){
+        $data = Input::all();
+        $message = '';
+        $account = Account::find($id);
+
+        if(empty($data['clis'])){
+            return Response::json(array("status" => "error", "message" => " CLI required"));
+        }
+
+        $clis = preg_split("/\\r\\n|\\r|\\n/", $data['clis']);
+        $data['AccountID'] = $id;
+        $data['CustomerCLI'] = $clis;
+
+        $status = Account::validate_clis($data);
+        if(count($status['clisExist'])>0){
+            $iPsExist = implode('<br>',$status['clisExist']);
+            $message = ' and following IPs already exist. '.$iPsExist;
+        }
+        unset($data['clis']);
+        unset($data['AccountID']);
+        if(count($status['toBeInsert'])>0){
+            $data['CustomerCLI'] = ltrim(implode(',',$status['toBeInsert']),',');
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
+        }
+    }
+
+    public function delete_clis($id){
+        $data = Input::all();
+        $account = Account::find($id);
+        $postClis = explode(',',$data['clis']);
+        unset($data['clis']);
+        $ips = [];
+        if(!empty($account)){
+            $dbClis = explode(',', $account->CustomerCLI);
+            $clis = implode(',',array_diff($dbClis, $postClis));
+            $data['CustomerCLI'] = ltrim($clis,',');
+
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> explode(',',$clis),"message" => "Account Successfully Updated"));
+        }else{
+            return Response::json(array("status" => "error","message" => "No Ip exist."));
+        }
     }
 }

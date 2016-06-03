@@ -42,6 +42,8 @@ class CompanyGateway extends \Eloquent {
         return $row;
 
     }
+
+    // not in use
     public static function getAccountIDList($CompanyGatewayID){
         $row = array();
         $trunk = CustomerTrunk::join('tblaccount','tblaccount.accountid','=','tblcustomertrunk.accountid')->where(array('tblaccount.CompanyID'=>User::get_companyID(),'tblaccount.Status'=>1,'tblcustomertrunk.Status'=>1))->where('CompanyGatewayIDs','!=','')->whereNull('CompanyGatewayIDs','and','NotNull')->select(array('tblaccount.AccountName','CompanyGatewayIDs','tblaccount.AccountID'))->orderBy('AccountName')->get();
@@ -52,6 +54,50 @@ class CompanyGateway extends \Eloquent {
         }
         if(!empty($row)){
             $row = array(""=> "Select a Account")+$row;
+        }
+        return $row;
+    }
+    public static function getCompanyGatewayName($CompanyGatewayID){
+        return CompanyGateway::where(array('CompanyGatewayID'=>$CompanyGatewayID))->pluck('Title');
+    }
+
+    public static function importgatewaylist(){
+        $row = array();
+        $gatewaylist = array();
+        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
+        if(count($companygateways)>0){
+            foreach($companygateways as $companygateway){
+                if(!empty($companygateway['Settings'])){
+                    $option = json_decode($companygateway['Settings']);
+                    if(!empty($option->AllowAccountImport)){
+                        $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
+                        $row['CompanyGatewayID'] = $companygateway['CompanyGatewayID'];
+                        $row['Title'] = $companygateway['Title'];
+                        $row['Gateway'] = $GatewayName;
+                        $gatewaylist[] = $row;
+                    }
+                }
+            }
+        }
+        return $gatewaylist;
+    }
+
+    public static function getMissingCompanyGatewayIdList(){
+        $row = array();
+        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
+        if(count($companygateways)>0){
+            foreach($companygateways as $companygateway){
+                if(!empty($companygateway['Settings'])){
+                    $option = json_decode($companygateway['Settings']);
+                    if(!empty($option->AllowAccountImport)){
+                        $row[$companygateway['CompanyGatewayID']] = $companygateway['Title'];
+                    }
+                }
+            }
+        }
+        print_r($row);exit;
+        if(!empty($row)){
+            $row = array(""=> "Select a Gateway")+$row;
         }
         return $row;
     }

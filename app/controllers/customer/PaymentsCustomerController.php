@@ -9,17 +9,44 @@ class PaymentsCustomerController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $data['AccountID'] = User::get_userID();
         $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
-        $data['Status'] = 'NULL';
+        //$data['Status'] = 'NULL';
+        $data['Status'] = 'Approved';
         $data['type'] = $data['type'] != ''?"'".$data['type']."'":'null';
         $data['paymentmethod'] = $data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
-        $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
-        $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
+        $data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
+        $data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'00:00:00';
+        $data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
+        $data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
+        $data['p_paymentstart']			 =		'null';
+        $data['p_paymentend']			 =		'null';
+
+        if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
+        {
+            $data['p_paymentstart']		=	"'".$data['p_paymentstartdate'].' '.$data['p_paymentstartTime']."'";
+        }
+
+        if($data['p_paymentenddate']!='' && $data['p_paymentenddate']!='null' && $data['p_paymentendtime']!='')
+        {
+            $data['p_paymentend']			=	"'".$data['p_paymentenddate'].' '.$data['p_paymentendtime']."'";
+        }
+
+        if($data['p_paymentstart']!='null' && $data['p_paymentend']=='null')
+        {
+            $data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
+        }
+
+        // $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
+        $data['recall_on_off'] = 0;
+
+        $account                     = Account::find($data['AccountID']);
+        $CurrencyId                  = $account->CurrencyId;
+        $accountCurrencyID 		     = empty($CurrencyId)?'0':$CurrencyId;
+
+        $columns = array('InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-		$data['p_paymentstart']			 =		'null';		
-		$data['p_paymentend']			 =		'null';
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -27,7 +54,7 @@ class PaymentsCustomerController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.xlsx';
+                $file_path = getenv('UPLOAD_PATH') .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -70,6 +97,7 @@ class PaymentsCustomerController extends \BaseController {
         $isvalid = Payment::validate();
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
+            unset($save['Currency']);
             $save['Status'] = 'Pending Approval';
             if (Payment::create($save)) {
                 $companyID = User::get_companyID();
@@ -79,6 +107,9 @@ class PaymentsCustomerController extends \BaseController {
                 $data['Subject']= 'Payment verification';
                 $save['AccountName'] = User::get_user_full_name();
                 $data['data'] = $save;
+                $data['data']['Currency'] = Currency::getCurrencyCode($save['CurrencyID']);
+                $data['data']['AccountName'] = Customer::get_accountName();
+                $data['data']['CreatedBy'] = Customer::get_accountName();
                 //$billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->where('Roles', 'like', '%Billing Admin%')->get(['EmailAddress']);
                 $resource = DB::table('tblResourceCategories')->select('ResourceCategoryID')->where([ "ResourceCategoryName"=>'BillingAdmin',"CompanyID" => $companyID])->first();
                 $userid=[];
@@ -91,18 +122,20 @@ class PaymentsCustomerController extends \BaseController {
                     }
                 }
                 $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
+
                 foreach($PaymentRequestEmail as $billingemail){
                     if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingemail;
                         $status = sendMail('emails.admin.payment', $data);
                     }
                 }
-                /*foreach($billingadminemails as $billingadminemail){
-                    if(filter_var($billingadminemail, FILTER_VALIDATE_EMAIL)) {
-                        $data['EmailTo'] = $billingadminemail;
+
+                foreach($billingadminemails as $billingadminemail){
+                    if(filter_var($billingadminemail->EmailAddress, FILTER_VALIDATE_EMAIL)) {
+                        $data['EmailTo'] = $billingadminemail->EmailAddress;
                         $status = sendMail('emails.admin.payment', $data);
                     }
-                }*/
+                }
                 $message = isset($status['message'])?' and '.$status['message']:'';
                 return Response::json(array("status" => "success", "message" => "Payment Successfully Created ". $message ));
             } else {
@@ -118,7 +151,7 @@ class PaymentsCustomerController extends \BaseController {
         $CompanyID = User::get_companyID();
 
         $data = Input::all();
-
+		$data['recall_on_off'] = 0;
         $data['iDisplayStart'] +=1;
         $data['AccountID'] = User::get_userID();
         $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
@@ -129,7 +162,7 @@ class PaymentsCustomerController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['p_paymentstart'].",".$data['p_paymentend'].",1)";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",0,".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['p_paymentstart'].",".$data['p_paymentend'].",1)";
 
         $excel_data  = DB::connection('sqlsrv2')->select($query);
         $excel_data = json_decode(json_encode($excel_data),true);
@@ -138,6 +171,63 @@ class PaymentsCustomerController extends \BaseController {
                 $sheet->fromArray($excel_data);
             });
         })->download('xls');
+    }
+
+    public function ajax_datagrid_total(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $data['iDisplayStart'] 		 =	0;
+        $data['iDisplayStart'] 		+=	1;
+        $data['iSortCol_0']			 =  0;
+        $data['sSortDir_0']			 =  'desc';
+        $data['AccountID'] = User::get_userID();
+        $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
+        //$data['Status'] = 'NULL';
+        $data['Status'] = 'Approved';
+        $data['type'] = $data['type'] != ''?"'".$data['type']."'":'null';
+        $data['paymentmethod'] = $data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
+        $data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
+        $data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'00:00:00';
+        $data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
+        $data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
+        $data['p_paymentstart']			 =		'null';
+        $data['p_paymentend']			 =		'null';
+
+        if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
+        {
+            $data['p_paymentstart']		=	"'".$data['p_paymentstartdate'].' '.$data['p_paymentstartTime']."'";
+        }
+
+        if($data['p_paymentenddate']!='' && $data['p_paymentenddate']!='null' && $data['p_paymentendtime']!='')
+        {
+            $data['p_paymentend']			=	"'".$data['p_paymentenddate'].' '.$data['p_paymentendtime']."'";
+        }
+
+        if($data['p_paymentstart']!='null' && $data['p_paymentend']=='null')
+        {
+            $data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
+        }
+
+        // $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
+        $data['recall_on_off'] = 0;
+
+        $account                     = Account::find($data['AccountID']);
+        $CurrencyId                  = $account->CurrencyId;
+        $accountCurrencyID 		     = empty($CurrencyId)?'0':$CurrencyId;
+
+        $columns = array('InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend'].",0)";
+
+        $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
+        $result2  = $result['data']['Total_grand_field'][0]->total_grand;
+        $result4  = array(
+            "total_grand"=>$result['data']['Total_grand_field'][0]->total_grand,
+           // "os_pp"=>$result['data']['Total_grand_field'][0]->first_amount.' / '.$result['data']['Total_grand_field'][0]->second_amount,
+        );
+
+        return json_encode($result4,JSON_NUMERIC_CHECK);
+
     }
 
 }

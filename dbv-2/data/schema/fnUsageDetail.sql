@@ -5,7 +5,8 @@ BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
 			AccountID int,
-			AccountName varchar(50),
+			AccountName varchar(100),
+			GatewayAccountID varchar(100),
 			trunk varchar(50),
 			area_prefix varchar(50),
 			pincode VARCHAR(50),
@@ -18,7 +19,8 @@ BEGIN
 			cost decimal(18,6),
 			connect_time datetime,
 			disconnect_time datetime,
-			is_inbound tinyint(1) default 0
+			is_inbound tinyint(1) default 0,
+			ID INT
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -26,6 +28,7 @@ BEGIN
 	FROM (SELECT
 		uh.AccountID,
 		a.AccountName,
+		uh.GatewayAccountID,
 		trunk,
 		area_prefix,
 		pincode,
@@ -38,7 +41,8 @@ BEGIN
 		cost,
 		connect_time,
 		disconnect_time,
-		ud.is_inbound
+		ud.is_inbound,
+		ud.ID
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID

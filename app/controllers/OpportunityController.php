@@ -17,35 +17,27 @@ class OpportunityController extends \BaseController {
             $data['account_owners'] = User::get_userID();
         }
         $response = NeonAPI::request('opportunity/'.$id.'/get_opportunities',$data,true,true);
-        $columns =[];
         $message = '';
-        $boradsWithOpportunities = [];
-        if(isset($response['status_code'])) {
-            if ($response['status_code'] == 200) {
-                $columns = $response['data']['result']['columns'];
-                $boradsWithOpportunities = $response['data']['result']['boradsWithOpportunities'];
-            }else{
-                $message=$response['message'];
-            }
+        $columns = [];
+        $columnsWithOpportunities = [];
+        if($response['status']!='failed') {
+            $columns = $response['data']['columns'];
+            $columnsWithOpportunities = $response['data']['columnsWithOpportunities'];
         }else{
-            $message=$response->message;
+            $message = json_response_api($response,false,false);
         }
-        return View::make('opportunityboards.board', compact('columns','boradsWithOpportunities','message'))->render();
+        return View::make('opportunityboards.board', compact('columns','columnsWithOpportunities','message'))->render();
     }
 
     public function ajax_getattachments($id){
+        $message = '';
         $response = NeonAPI::request('opportunity/'.$id.'/get_attachments',[],false);
-        $attachementPaths ='';
-        if(isset($response->status_code)) {
-            if ($response->status_code == 200) {
-                $attachementPaths = $response->data->result;
-            }else{
-                return json_response_api($response);
-            }
+        if($response->status!='failed') {
+            $attachementPaths = json_response_api($response,true,false,false);
         }else{
-            return json_response_api($response);
+            $message = json_response_api($response,false,false);
         }
-        return View::make('opportunitycomments.attachments', compact('attachementPaths'))->render();
+        return View::make('crmcomments.attachments', compact('attachementPaths','message'))->render();
     }
 
     public function saveattachment($id){
@@ -90,7 +82,7 @@ class OpportunityController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $response = NeonAPI::request('opportunity/'.$id.'/update_opportunity',$data);
-            return json_response_api($response);
+            return json_response_api($response,false,true);
         }else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Opportunity."));
         }
@@ -102,30 +94,20 @@ class OpportunityController extends \BaseController {
         return json_response_api($response);
     }
 
-    function updateTaggedUser($id){
-        $data = Input::all();
-        $response = NeonAPI::request('opportunity/'.$id.'/update_taggeduser',$data);
-        return json_response_api($response);
-    }
-
     public function getLead($id){
         $response = NeonAPI::request('account/'.$id.'/get_account',[],false);
         $return=[];
-        if(isset($response->status_code)) {
-            if ($response->status_code == 200) {
-                $lead = $response->data->result;
-                $return['Company'] = $lead->AccountName;
-                $return['Phone'] = $lead->Phone;
-                $return['Email'] = $lead->Email;
-                $return['Title'] = $lead->Title;
-                $return['FirstName'] = $lead->FirstName;
-                $return['LastName'] = $lead->LastName;
-                return $return;
-            }else{
-                return json_response_api($response);
-            }
+        if($response->status=='failed'){
+            return json_response_api($response,false);
         }else{
-            return json_response_api($response);
+            $lead = json_response_api($response,true,false,false);
+            $return['Company'] = $lead->AccountName;
+            $return['Phone'] = $lead->Phone;
+            $return['Email'] = $lead->Email;
+            $return['Title'] = $lead->Title;
+            $return['FirstName'] = $lead->FirstName;
+            $return['LastName'] = $lead->LastName;
+            return $return;
         }
     }
 
@@ -140,6 +122,29 @@ class OpportunityController extends \BaseController {
         }else {
             return json_encode(['result'=>Account::getAccountList($filter)]);
         }
+    }
+
+    //////////////////////
+    function upload_file(){
+        $data       =  Input::all();
+        $data['file']    = array();
+        $attachment    =  Input::file('commentattachment');
+
+        if(!empty($attachment)){
+            $data['file'] = NeonAPI::base64byte($attachment);
+        }
+        try {
+            $return_str = check_upload_file($data['file'], 'email_attachments', $data);
+            return $return_str;
+        }catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+
+    }
+
+    function delete_upload_file(){
+        $data    =  Input::all();
+        delete_file('email_attachments',$data);
     }
 
 }

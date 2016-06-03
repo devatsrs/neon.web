@@ -61,14 +61,13 @@
                             <thead>
                                 <tr>
                                     <th width="1%"><div class="checkbox "><input type="checkbox" id="selectall" name="checkbox[]" class="" ></div></th>
-                                    <th width="15%">Trunk</th>
-                                    <th width="10%">Prefix</th>
-                                    <th style="text-align:center" width="5%">Show Prefix in Ratesheet</th>
-                                    <th width="15%">Use Prefix In CDR</th>
-                                    <th style="text-align:center" width="5%">Enable Routing Plan</th>
-                                    <th width="15%">Gateway</th>
-                                    <th width="15%">CodeDeck</th>
-                                    <th width="15%">Base Rate Table</th>
+                                    <th width="13%">Trunk</th>
+                                    <th width="13%">Prefix</th>
+                                    <th style="text-align:center" width="7%">Show Prefix in Ratesheet</th>
+                                    <th width="7%">Use Prefix In CDR</th>
+                                    <th style="text-align:center" width="7%">Enable Routing Plan</th>
+                                    <th width="18%">CodeDeck</th>
+                                    <th width="30%">Base Rate Table</th>
                                     <th width="4%">Status</th>
                                 </tr>
                             </thead>
@@ -82,11 +81,8 @@
                                     <td>{{$trunk->Trunk}}</td>
                                     <td><input type="text" class="form-control" name="CustomerTrunk[{{{$trunk->TrunkID}}}][Prefix]" value="@if(isset($customer_trunks[$trunk->TrunkID]->Prefix)){{$customer_trunks[$trunk->TrunkID]->Prefix}}@endif"  /></td>
                                     <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][IncludePrefix]" @if(isset($customer_trunks[$trunk->TrunkID]->IncludePrefix) && $customer_trunks[$trunk->TrunkID]->IncludePrefix == 1 ) checked @endif  ></td>
-                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if((isset($customer_trunks[$trunk->TrunkID]->UseInBilling) && $customer_trunks[$trunk->TrunkID]->UseInBilling == 1)  || CompanySetting::getKeyVal('UseInBilling') == 1) checked @endif  ></td>
+                                    <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if((isset($customer_trunks[$trunk->TrunkID]->UseInBilling) && $customer_trunks[$trunk->TrunkID]->UseInBilling == 1)  || (CompanySetting::getKeyVal('UseInBilling') == 1 && !isset($customer_trunks[$trunk->TrunkID]->UseInBilling))) checked @endif  ></td>
                                     <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][RoutinePlanStatus]" @if(isset($customer_trunks[$trunk->TrunkID]->RoutinePlanStatus) && $customer_trunks[$trunk->TrunkID]->RoutinePlanStatus == 1 ) checked @endif  ></td>
-                                    <td>
-                                        {{ Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][CompanyGatewayID][]', $companygateway, (isset($customer_trunks[$trunk->TrunkID]->CompanyGatewayIDs)? explode(',',$customer_trunks[$trunk->TrunkID]->CompanyGatewayIDs) : '' ), array("class"=>"select2",'multiple',"data-placeholder"=>"Select a Gateway")) }}
-                                    </td>
                                     <td  class="center">
                                     <?php $CodeDeckId =  isset($customer_trunks[$trunk->TrunkID])? $customer_trunks[$trunk->TrunkID]->CodeDeckId:''?>
                                         {{ Form::select('CustomerTrunk['.$trunk->TrunkID.'][CodeDeckId]', $codedecklist, $CodeDeckId , array("class"=>"select2 codedeckid")) }}
@@ -236,13 +232,14 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	    });
 
 	    $(".codedeckid").bind('change',function (e) {
-	        var prev_val = $(this).parent().find('[name="codedeckid"]').val()
-	        var trunkid = $(this).parent().find('[name="trunkid"]').val()
+
+	        var prev_val = $(this).parent().find('[name="codedeckid"]').val();
+	        var trunkid = $(this).parent().find('[name="trunkid"]').val();
 	        var current_obj = $(this);
 	        var selectBox = current_obj.parent().next().find('.ratetableid').selectBoxIt().data("selectBox-selectBoxIt");
 	        selectBox.remove();
             var json = JSON.parse(ratabale);
-            selectBox.add({'text':'Select a Rate Table','value':''})
+            selectBox.add({'text':'Select a Rate Table','value':''});
             if( typeof  json[trunkid] != 'undefined'){
                 selectBox.add(json[trunkid][current_obj.val()]);
             }
@@ -253,13 +250,13 @@ var ratabale = '{{json_encode($rate_tables)}}';
                     dataType: 'json',
                     success: function(response) {
                         if(response > 0){
-                            changeConfirmation = confirm("Are you sure? Realated Rates will be deleted");
+                            changeConfirmation = confirm("Are you sure? Related Rates will be deleted");
                             if(changeConfirmation){
                                 prev_val = current_obj.val();
                                 current_obj.prop('selected', prev_val);
                                 current_obj.parent().find('select.select2').select2().select2('val',prev_val);
-                                selectBox.selectOption("");
-                                current_obj.parent().find('[name="codedeckid"]').val(prev_val)
+                                selectBox.selectOption('');
+                                current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
                                 submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid)
                             }else{

@@ -22,13 +22,17 @@ toastr_opts = {
     "hideMethod": "fadeOut"
 };
 
-;
 (function($, window, undefined) {
 
     "use strict";
 
     $(document).ready(function()
     {
+		
+		$(document).on('click','[redirecto]',function(){
+    var url = $(this).attr('redirecto');
+    window.location.href=url;
+});
 
         // Sidebar Menu var
         public_vars.$body = $("body");
@@ -228,6 +232,20 @@ toastr_opts = {
                     alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
                 });
             });
+            public_vars.$body.find('.dropdown .scroller').each(function(i, el) {
+                var $this = $(el),
+                    height = attrDefault($this, 'height', $this.height());
+                $this.slimScroll({
+                    height: height,
+                    position: attrDefault($this, 'scroll-position', 'right'),
+                    color: attrDefault($this, 'rail-color', '#000'),
+                    size: attrDefault($this, 'rail-width', 6),
+                    borderRadius: attrDefault($this, 'rail-radius', 3),
+                    opacity: attrDefault($this, 'rail-opacity', .3),
+                    alwaysVisible: parseInt(attrDefault($this, 'autohide', 1), 10) == 1 ? false : true
+                });
+            });
+
         }
 
 
@@ -640,7 +658,7 @@ toastr_opts = {
             });
 
 
-            if ($.isFunction($.fn.niceScroll))
+            if ($.isFunction($.fn.perfectScrollbar))
             {
                 $(".select2-results").niceScroll({
                     cursorcolor: '#d4d4d4',
@@ -1121,7 +1139,7 @@ toastr_opts = {
                     }
                 });
 
-                console.log(opts);
+                //console.log(opts);
                 $this.validate(opts);
             });
         }
@@ -2464,7 +2482,7 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Internal Server Error', "Error", toastr_opts);
+            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
             break;
         case 503:
             toastr.error('Service Unavailable', "Error", toastr_opts);
@@ -2479,7 +2497,11 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             toastr.error('Not Found', "Error", toastr_opts);
             break;
         case 401:
-            toastr.error('Unauthorized', "Error", toastr_opts);
+            //toastr.error('Unauthorized', "Error", toastr_opts);
+            toastr.error('Session expired now redirecting to login page', "Error", toastr_opts);
+            setTimeout(function() {
+                window.location.href = baseurl + '/logout';
+            }, 100);
             break;
         case 403:
             toastr.error('Forbidden', "Error", toastr_opts);
@@ -2692,7 +2714,16 @@ $(document).ajaxComplete(function(event, xhr, settings) {
 $(document).on('click','[redirecto]',function(){
     var url = $(this).attr('redirecto');
     window.location.href=url;
-})
+});
+
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
 
 

@@ -9,21 +9,17 @@ class OpportunityCommentsController extends \BaseController {
      * @return mixed
      */
     public function ajax_opportunitycomments($id){
-        $response = NeonAPI::request('opportunitycomments/'.$id.'/get_comments',[],false);
-        $comments ='';
-        if(isset($response->status_code)) {
-            if ($response->status_code == 200) {
-                $comments = $response->data->result;
-            }else{
-                return json_response_api($response);
-            }
+        $response = NeonAPI::request('opportunitycomments/'.$id.'/get_comments',[],false,true);
+
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
         }else{
-            return json_response_api($response);
+            $Comments = json_response_api($response,true,false,false);
         }
-        $opportunityComments=[];
+        /*$Comments=[];
         $commentcount = 0;
-        if(!empty($comments)) {
-            foreach ($comments as $comment) {
+        if(!empty($result)) {
+            foreach ($result as $comment) {
                 $attachments = '';
                 $attachmentPaths = json_decode($comment->AttachmentPaths);
                 if (!empty($attachmentPaths)) {
@@ -32,14 +28,16 @@ class OpportunityCommentsController extends \BaseController {
                         $attachments[] = ['filename'=>$item->filename,'filepath'=>$path];
                     }
                 }
-                $opportunityComments[] = ['CommentText' => $comment->CommentText,
-                                            'AttachmentPaths' => $attachments,
-                                            'created_at' => \Carbon\Carbon::createFromTimeStamp(strtotime($comment->created_at))->diffForHumans(),
+                $Comments[] = [
+                    'CommentText' => $comment->CommentText,
+                    'AttachmentPaths' => $attachments,
+                    'created_at' => \Carbon\Carbon::createFromTimeStamp(strtotime($comment->created_at))->diffForHumans(),
+                    'CreatedBy'=>$comment->CreatedBy
                 ];
                 $commentcount++;
             }
-        }
-        return View::make('opportunitycomments.comments', compact('opportunityComments','commentcount'))->render();
+        }*/
+        return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
     }
 
 	/**
@@ -50,11 +48,18 @@ class OpportunityCommentsController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
-        if (Input::hasFile('commentattachment')) {
-            $commentattachment = Input::file('commentattachment');
-            $data['file'] = NeonAPI::base64byte($commentattachment);
+        $files_array	=	Session::get("email_attachments");
+        $file = get_uploaded_files('email_attachments',$data);
+        if(!empty($file)){
+            $data['file'] = $file;
         }
         $response = NeonAPI::request('opportunitycomment/add_comment',$data,true,false,true);
+
+        if($response->status!='failed'){
+            unset($files_array[$data['token_attachment']]);
+            Session::set("email_attachments", $files_array);
+        }
+
         return json_response_api($response);
     }
 

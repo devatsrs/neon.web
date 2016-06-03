@@ -173,7 +173,7 @@ jQuery(document).ready(function($) {
             "iDisplayLength":'{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
              "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-             "aaSorting": [[0, "asc"], [1, "asc"]],
+             "aaSorting": [[1, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
@@ -181,9 +181,9 @@ jQuery(document).ready(function($) {
                             return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         },
-                        {}, //1 Code
-                        {}, //1 Code
-                        {}, //8 updated by
+                        {"bSortable": true}, //1 Code
+                        {"bSortable": true}, //2 Prefrence
+                        {"bSortable": true}, //8 Discription
                         {// 9 VendorPreferenceID
                             mRender: function(id, type, full) {
                                 var action;

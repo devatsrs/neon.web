@@ -9,21 +9,12 @@
             <strong>Opportunity Board</strong>
         </li>
     </ol>
-
     <div class="tab-content">
         <div class="tab-pane active">
-            <div class="row">
-                <div class="col-md-12 clearfix">
-                    <h2>Boards
-                    </h2>
-                </div>
-            </div>
-            <div class="clear"></div>
-            <br>
             <p style="text-align: right;">
-                <a href="#" id="add-new-opportunityboard" class="btn btn-primary ">
+                <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
-                    Add New Board
+                    Add Opportunity Board
                 </a>
             </p>
             <div class="row">
@@ -47,7 +38,7 @@
                                     <label for="field-1" class="col-sm-2 control-label">Active</label>
                                     <div class="col-sm-2">
                                         <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                                        {{ Form::select('Active', $active, '', array("class"=>"form-control selectboxit")) }}
+                                        {{ Form::select('Active', $active, '1', array("class"=>"form-control selectboxit")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">
@@ -78,6 +69,8 @@
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
+                var opportunityBoard = '{{CRMBoard::OpportunityBoard}}';
+                var taskBoard = '{{CRMBoard::TaskBoard}}';
                 jQuery(document).ready(function ($) {
                     public_vars.$body = $("body");
                     $searchFilter.BoardName = $("#opportunityboard_filter [name='BoardName']").val();
@@ -90,11 +83,6 @@
                         "fnServerParams": function (aoData) {
                             aoData.push({ "name": "BoardName", "value": $searchFilter.BoardName },
                                     { "name": "Active", "value": $searchFilter.Active });
-
-                            data_table_extra_params.length = 0;
-                            data_table_extra_params.push({ "name": "BoardName", "value": $searchFilter.BoardName },
-                                    { "name": "Active", "value": $searchFilter.Active },{ "name": "Export", "value": 1});
-
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
@@ -139,12 +127,6 @@
                         ],
                         "oTableTools": {
                             "aButtons": [
-                                {
-                                    "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/opportunityboards/ajax_datagrid", //baseurl + "/generate_xls.php",
-                                    sButtonClass: "save-collection"
-                                }
                             ]
                         },
                         "fnDrawCallback": function () {
@@ -174,7 +156,6 @@
                         $('#add-edit-opportunitybaord-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-
                             if(list_fields[i] == 'Status'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
                                     $('#add-edit-opportunitybaord-form [name="Status"]').prop('checked',true)
@@ -191,15 +172,18 @@
 
                     $('#add-new-opportunityboard').click(function (ev) {
                         ev.preventDefault();
+                        var id = $(this).attr('id');
                         $('#add-edit-opportunitybaord-form').trigger("reset");
                         $("#add-edit-opportunitybaord-form [name='BoardID']").val('');
-                        $('#add-edit-modal-opportunity-board h4').html('Add New Opportunity Board');
+                        var BoardType = id=='add-new-opportunityboard'?opportunityBoard:taskBoard;
+                        $("#add-edit-opportunitybaord-form [name='BoardType']").val(BoardType);
+                        $('#add-edit-modal-opportunity-board h4').html('Add New Board');
                         $('#add-edit-modal-opportunity-board').modal('show');
                     });
 
                     $('#add-edit-opportunitybaord-form').submit(function(e){
                         e.preventDefault();
-                        var BoardID = $("#add-edit-opportunitybaord-form [name='BoardID']").val()
+                        var BoardID = $("#add-edit-opportunitybaord-form [name='BoardID']").val();
                         if( typeof BoardID != 'undefined' && BoardID != ''){
                             update_new_url = baseurl + '/opportunityboards/'+BoardID+'/update';
                         }else{
@@ -293,6 +277,7 @@
                                     <label for="field-5" class="control-label">Board Name *</label>
                                     <input type="text" name="BoardName" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="BoardID" />
+                                    <input type="hidden" name="BoardType" value="{{CRMBoard::OpportunityBoard}}" />
                                 </div>
                             </div>
                             </div>

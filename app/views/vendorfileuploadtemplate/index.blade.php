@@ -7,7 +7,7 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">Vendor file upload template</a>
+            <a href="javascript:void(0)">Vendor Template</a>
         </li>
     </ol>
 
@@ -41,7 +41,13 @@
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
-                        "sAjaxSource": baseurl + "/uploadtemplate/ajax_datagrid",
+                        "sAjaxSource": baseurl + "/uploadtemplate/ajax_datagrid/type",
+                        "fnServerParams": function (aoData) {
+                            aoData.push();
+                            data_table_extra_params.length = 0;
+                            data_table_extra_params.push({"name":"Export","value":1});
+
+                        },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -71,9 +77,15 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/uploadtemplate/ajax_datagrid", //baseurl + "/generate_xls.php",
-                                    sButtonClass: "save-collection"
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/uploadtemplate/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/uploadtemplate/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                    sButtonClass: "save-collection btn-sm"
                                 }
                             ]
                         },
