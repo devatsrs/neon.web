@@ -114,12 +114,12 @@ class AuthenticationController extends \BaseController
                 $data['CustomerAuthRule'] = 'IP';
                 $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);
                 $ips = implode(',',array_diff($dbIPs, $postIps));
-                $data['CustomerAuthValue'] = $ips;
+                $data['CustomerAuthValue'] = ltrim($ips,',');
             }else{
                 $data['VendorAuthRule'] = 'IP';
                 $dbIPs = explode(',', $accountAuthenticate->VendorAuthValue);
                 $ips = implode(',',array_diff($dbIPs, $postIps));
-                $data['VendorAuthValue'] = $ips;
+                $data['VendorAuthValue'] = ltrim($ips,',');
             }
             AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
             return Response::json(array("status" => "success","ips"=> explode(',',$ips),"message" => "Account Successfully Updated"));

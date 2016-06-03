@@ -59,7 +59,7 @@
                         <div class="desc col-sm-4">
                             {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 customer_accountip control-label">Account IP</label>
+                        <label for="field-1" class="col-sm-1 customer_accountip control-label">Account IP</label>
                         <?php
                             $AccountIPList = array();
                             $CustomerAuthValue = '';
@@ -71,13 +71,30 @@
                             }
 
                         ?>
-                        <div class="desc col-sm-4 customer_accountip table_{{count($AccountIPList)}}" >
-                            <p style="text-align: right;">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-danger customer-delete-ip">
-                                    <i class="entypo-cancel"></i>
-                                    Bulk Delete
-                                </a>
-                            </p>
+                        <div class="desc col-sm-5 customer_accountip table_{{count($AccountIPList)}}" >
+                            <div class="row dropdown">
+                                <div  class="col-md-12">
+                                    <div class="input-group-btn pull-right" style="width:70px;">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                            <li class="li_active">
+                                                <a class="customer-add-ip" type_ad="active" href="javascript:void(0);" >
+                                                    <i class="entypo-plus"></i>
+                                                    <span>Add</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" class="customer-delete-ip" >
+                                                    <i class="entypo-cancel"></i>
+                                                    <span>Delete</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div>
+                                <div class="clear"></div>
+                            </div>
+                            <br>
                             <div id="customeriptableprocessing" class="dataTables_processing hidden">Processing...</div>
                             <table id="customeriptable" class="table table-bordered datatable dataTable customeriptable ">
                                 <thead>
@@ -94,16 +111,13 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <a class="btn  btn-danger btn-sm btn-icon icon-left customer-delete-ip"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-cancel"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
                                 @endif
                                 </tbody>
                             </table>
-
-
-                            <a class="btn btn-primary  btn-sm btn-icon icon-left customer-add-ip"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
                         </div>
                         <label for="field-1" class="col-sm-2 control-label customer_value_other">Value</label>
                         <div class="desc col-sm-4 customer_value_other">
@@ -138,7 +152,7 @@
                         <div class="desc col-sm-4">
                             {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 vendor_accountip control-label">Account IP</label>
+                        <label for="field-1" class="col-sm-1 vendor_accountip control-label">Account IP</label>
                         <?php
                         $AccountIPList = array();
                         $VendorAuthValue = '';
@@ -149,13 +163,30 @@
                             $VendorAuthValue = $AccountAuthenticate->VendorAuthValue;
                         }
                         ?>
-                        <div class="desc col-sm-4 vendor_accountip table_{{count($AccountIPList)}}" >
-                            <p style="text-align: right;">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-danger vendor-delete-ip">
-                                    <i class="entypo-cancel"></i>
-                                    Bulk Delete
-                                </a>
-                            </p>
+                        <div class="desc col-sm-5 vendor_accountip table_{{count($AccountIPList)}}" >
+                            <div class="row dropdown">
+                                <div  class="col-md-12">
+                                    <div class="input-group-btn pull-right" style="width:70px;">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                            <li class="li_active">
+                                                <a class="vendor-add-ip" type_ad="active" href="javascript:void(0);" >
+                                                    <i class="entypo-plus"></i>
+                                                    <span>Add</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" class="vendor-delete-ip" >
+                                                    <i class="entypo-cancel"></i>
+                                                    <span>Delete</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div>
+                                <div class="clear"></div>
+                            </div>
+                            <br>
                             <div id="vendoriptableprocessing" class="dataTables_processing hidden">Processing...</div>
                             <table id="vendoriptable" class="table  table-bordered datatable dataTable vendoriptable ">
                                 <thead>
@@ -172,16 +203,13 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <a class="btn  btn-danger btn-sm btn-icon icon-left vendor-delete-ip"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-cancel"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
                                 @endif
                                 </tbody>
                             </table>
-
-
-                            <a class="btn btn-primary  btn-sm btn-icon icon-left vendor-add-ip"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
                         </div>
                         <label for="field-1" class="col-sm-2 control-label vendor_value_other">Value</label>
                         <div class="desc col-sm-4 vendor_value_other">
@@ -202,6 +230,11 @@
         var accountID = {{$account->AccountID}};
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
+        $('.vendoriptable,.customeriptable').DataTable({"fnDrawCallback": function() {
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
+        }});
         $('#save_account').click(function(){
             $(this).button('loading');
             if($('[name="CustomerAuthRule"]')=='IP'){
@@ -321,6 +354,7 @@
                 tr.find('.rowcheckbox').prop("checked", true);
             }
             acountiptable = $(this).hasClass('vendor-delete-ip')?'vendoriptable':'customeriptable';
+            isCustomerOrVendor = $(this).hasClass('vendor-delete-ip')?0:1;
             var processing = $(this).hasClass('vendor-delete-ip')?'vendoriptableprocessing':'customeriptableprocessing';
             var SelectedIDs = getselectedIDs(acountiptable);
             if (SelectedIDs.length == 0) {
@@ -358,13 +392,17 @@
             }else if(acountiptable == 'vendoriptable'){
                 class_deletip = 'vendor-delete-ip';
             }
-            console.log(class_deletip);
+            $('.' + acountiptable).dataTable().fnDestroy();
             var accoutiphtml = '';
             if(response.ips) {
                 $.each(response.ips, function (index, item) {
-                    accoutiphtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><a data-id="' + index + '" class="btn  btn-danger btn-sm btn-icon icon-left '+class_deletip +'" href="javascript:void(0);" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
+                    accoutiphtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-default btn-xs icon-left delete-cli '+class_deletip +'"> <i class="entypo-cancel"></i> </button></td></tr>';
                 });
                 $('.' + acountiptable).children('tbody').html(accoutiphtml);
+                $('.' + acountiptable).DataTable({"iDisplayLength":5});
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
             }
         }
 

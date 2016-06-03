@@ -231,15 +231,32 @@
                         <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">CLI</label>
+                    <label for="field-1" class="col-sm-1 control-label">CLI</label>
                     <?php  $CLIList = array_filter(explode(',',$account->CustomerCLI));?>
-                    <div class="desc col-sm-4 table_{{count($CLIList)}}" >
-                        <p style="text-align: right;">
-                            <a href="javascript:void(0)" class="btn btn-sm btn-danger delete-cli">
-                                <i class="entypo-cancel"></i>
-                                Bulk Delete
-                            </a>
-                        </p>
+                    <div class="desc col-sm-5 table_{{count($CLIList)}}" >
+                        <div class="row dropdown">
+                            <div  class="col-md-12">
+                                <div class="input-group-btn pull-right" style="width:70px;">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <li class="li_active">
+                                            <a class="add-cli" type_ad="active" href="javascript:void(0);" >
+                                                <i class="entypo-plus"></i>
+                                                <span>Add</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);" class="delete-cli" >
+                                                <i class="entypo-cancel"></i>
+                                                <span>Delete</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+                        <br>
                         <table class="table table-bordered datatable dataTable acountclitable ">
                         <thead>
                         <tr>
@@ -256,16 +273,13 @@
                                     {{$row2}}
                                 </td>
                                 <td>
-                                    <a class="btn  btn-danger btn-sm btn-icon icon-left delete-cli"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a>
+                                    <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs delete-cli"> <i class="entypo-cancel"></i> </button>
                                 </td>
                             </tr>
                         @endforeach
                         @endif
                         </tbody>
                         </table>
-
-
-                    <a class="btn btn-primary  btn-sm btn-icon icon-left add-cli"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
                     </div>
                     <input type="hidden" class="form-control"  name="CustomerCLI" id="field-1" placeholder="" value="{{$account->CustomerCLI}}" />
                 </div>
@@ -608,6 +622,11 @@
     jQuery(document).ready(function ($) {
 		//account status start
         attachchangeevent('acountclitable');
+        $('.acountclitable').DataTable({"fnDrawCallback": function() {
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
+        }});
 		$(".change_verification_status").click(function(e) {
             if (!confirm('Are you sure you want to change verification status?')) {
                 return false;
@@ -875,15 +894,21 @@
             }
         });
 
-        function createTable(response){
+        var createTable = function createTable(response){
             var accoutclihtml = '';
+            $(".acountclitable").dataTable().fnDestroy();
             if(response.clis) {
                 $.each(response.clis, function (index, item) {
                     if(item) {
-                        accoutclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><a data-id="' + index + '" class="btn  btn-danger btn-sm btn-icon icon-left delete-cli" href="javascript:void(0);" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
+                        accoutclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-danger btn-xs  delete-cli"> <i class="entypo-cancel"></i> </button></td></tr>';
                     }
                 });
                 $('.acountclitable').children('tbody').html(accoutclihtml);
+                $('.acountclitable').DataTable({"fnDrawCallback": function() {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                }});
             }
         }
 
