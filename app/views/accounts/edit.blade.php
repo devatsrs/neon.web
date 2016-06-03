@@ -900,7 +900,7 @@
             if(response.clis) {
                 $.each(response.clis, function (index, item) {
                     if(item) {
-                        accoutclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-danger btn-xs  delete-cli"> <i class="entypo-cancel"></i> </button></td></tr>';
+                        accoutclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-danger btn-xs icon-left delete-cli"> <i class="entypo-cancel"></i> </button></td></tr>';
                     }
                 });
                 $('.acountclitable').children('tbody').html(accoutclihtml);
