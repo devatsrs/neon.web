@@ -530,6 +530,8 @@ class RateTablesController extends \BaseController {
         $save['checkbox_replace_all'] = $data['checkbox_replace_all'];
         $save['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
         $save['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+        $save['ratetablename'] = RateTable::where(["RateTableId" => $id])->pluck('RateTableName');
+
         //Inserting Job Log
         try {
             DB::beginTransaction();

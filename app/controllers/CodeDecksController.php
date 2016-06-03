@@ -171,7 +171,7 @@ class CodeDecksController extends \BaseController {
                 }
                 $fullPath = $amazonPath . $file_name;
                 $data['full_path'] = $fullPath;
-
+                $data['codedeckname'] = BaseCodeDeck::getCodeDeckName($data['codedeckid']);
                 try {
                     DB::beginTransaction();
                     unset($data['excel']); //remove unnecesarry object.
