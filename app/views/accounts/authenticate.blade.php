@@ -397,7 +397,7 @@
             if(response.ips) {
                 $.each(response.ips, function (index, item) {
 					if(item){
-                    accoutiphtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-default btn-xs icon-left delete-cli '+class_deletip +'"> <i class="entypo-cancel"></i> </button></td></tr>';
+                    accoutiphtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletip +'"> <i class="entypo-cancel"></i> </button></td></tr>';
 					}
                 });
                 $('.' + acountiptable).children('tbody').html(accoutiphtml);
