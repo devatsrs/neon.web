@@ -83,9 +83,9 @@ class AuthenticationController extends \BaseController
        }
        if(count($status['toBeInsert'])>0){
            if($isCustomerOrVendor=='Customer') {
-               $data['CustomerAuthValue'] = implode(',',$status['toBeInsert']);
+               $data['CustomerAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
            }else{
-               $data['VendorAuthValue'] = implode(',',$status['toBeInsert']);
+               $data['VendorAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
            }
 
            if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
