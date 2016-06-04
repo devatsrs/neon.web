@@ -8,11 +8,14 @@ BEGIN
   , tblJobStatus.Title as StatusTitle
   ,OutputFilePath
   ,AccountID 
+  ,tblJobType.Title as JobType
   FROM tblJob   
     JOIN tblJobStatus 
       ON tblJob.JobStatusID = tblJobStatus.JobStatusID    
     JOIN tblUser
       ON tblUser.UserID = tblJob.JobLoggedUserID
+    JOIN tblJobType
+	 	ON tblJob.JobTypeID = tblJobType.JobTypeID  
   WHERE tblJob.JobID = p_jobId;   
   
   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
