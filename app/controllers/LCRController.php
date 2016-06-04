@@ -8,7 +8,13 @@ class LCRController extends \BaseController {
         $data = Input::all();
         $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
-        $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."'";
+
+        if( $data['Policy'] == LCR::LCR ) {
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."'";
+        } else {
+              $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."'";
+
+        }
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -34,7 +40,8 @@ class LCRController extends \BaseController {
                 });
             })->download('xls');*/
         }
-        $query .=',0)';
+          $query .=',0)';
+
 
         return DataTableSql::of($query)->make();
 
@@ -57,7 +64,12 @@ class LCRController extends \BaseController {
             $data = Input::all();
 
             $data['iDisplayStart'] +=1;
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."',1)";
+            if( $data['Policy'] == LCR::LCR ) {
+                $query = "call prc_GetLCR (" . $companyID . "," . $data['Trunk'] . "," . $data['CodeDeck'] . ",'" . $data['Currency'] . "','" . $data['Code'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . "," . $data['iDisplayLength'] . ",'" . $data['sSortDir_0'] . "',1)";
+            }else{
+
+                $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."',1)";
+            }
 
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $lcrs  = DB::select($query);

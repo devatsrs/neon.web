@@ -288,6 +288,7 @@
                                 {{Form::select('selection[pincode]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
+
                         <div class="form-group">
                             <br />
                             <br />

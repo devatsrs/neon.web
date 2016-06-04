@@ -30,7 +30,25 @@ class Account extends \Eloquent {
 
     public static $messages = array('CurrencyId.required' =>'The currency field is required');
 
+    public static $importrules = array(
+        'selection.AccountName' => 'required'
+    );
 
+    public static $importleadrules = array(
+            'selection.AccountName' => 'required',
+            'selection.FirstName'=>'required',
+            'selection.LastName'=>'required',
+        );
+
+    public static $importmessages = array(
+        'selection.AccountName.required' =>'The Account Name field is required'
+    );
+
+    public static $importleadmessages = array(
+        'selection.AccountName.required' =>'The Company Name field is required',
+        'selection.FirstName.required' =>'The First Name field is required',
+        'selection.LastName.required' =>'The Last Name field is required'
+    );
 
     public static function getCompanyNameByID($id=0){
 
@@ -91,6 +109,10 @@ class Account extends \Eloquent {
         if(User::is('AccountManager')){
             $data['Owner'] = User::get_userID();
         }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
         $data['Status'] = 1;
         if(!isset($data['AccountType'])) {
             $data['AccountType'] = 1;
@@ -100,6 +122,28 @@ class Account extends \Eloquent {
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
             $row = array(""=> "Select an Account")+$row;
+        }
+        return $row;
+    }
+
+    public static function getAccountList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+        }
+        $data['CompanyID']=User::get_companyID();
+        $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        $row = array(""=> "Select an Account");
+        if(!empty($result)){
+            $row = array(""=> "Select an Account")+$result;
         }
         return $row;
     }

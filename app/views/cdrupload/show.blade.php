@@ -76,38 +76,44 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-sm-2" style="padding-right: 0px;">
+                                <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
                                     <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
-                                <div class="col-sm-2" style="padding: 0px; width: 15%;">
+                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
-                                <div class="col-sm-2" style="padding-right: 0px; width: 15%; padding-left: 0px;">
+                                <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
                                     <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>               
+                                                         <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
+            <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} </div>
+                                
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Zero Cost</label>               
                                   <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
                             </p>
-                        </div>              
+                        </div> 
+                        
+           
+             
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID1")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Account</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('AccountID',array(''=>'Select an Account'),'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('AccountID',$accounts,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1">CDR Type</label>
+                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
                                 <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                          
                             
@@ -158,6 +164,7 @@
 
 
 <script type="text/javascript">
+var currency_symbol = '';
 var $searchFilter = {};
 var update_new_url;
 var postdata;
@@ -203,6 +210,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
+			$('.result_tr_end').remove();
             var list_fields  =['AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
             var starttime = $("#cdr_filter [name='StartTime']").val();
             if(starttime =='0:00:01'){
@@ -216,6 +224,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
+			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
+			
 			
 			
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
@@ -237,9 +247,9 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost});
+                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost});
+                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[0, 'asc']],
@@ -266,7 +276,22 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
-                    { "bSortable": true },
+                    {   "bSortable": true,
+
+                mRender:function( id, type, full){
+														currency_symbol =full[12];
+														if(currency_symbol!=null)
+														{
+                                                      		var output = full[12]+' '+id;
+														}
+														else
+														{
+															var output = id;
+														}
+													  return output;
+                                                     }
+
+                 }, //
                     { "bSortable": true },
                     { "bSortable": true } /*,
                          { mRender: function(id, type, full) {
@@ -282,6 +307,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                              }*/
                 ],
                 "fnDrawCallback": function() {
+					get_total_grand();
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -331,6 +357,63 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                    submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter))
                 }
             });
+			
+			
+			function get_total_grand()
+			{
+				  var starttime = $("#cdr_filter [name='StartTime']").val();
+           	 	if(starttime =='0:00:01'){
+               		 starttime = '0:00:00';
+           		 }
+				 
+				  var EndTime = $("#cdr_filter [name='EndTime']").val();
+				
+				 $.ajax({
+					url: baseurl + "/cdr_upload/ajax_datagrid_total/type",
+					type: 'GET',
+					dataType: 'json',
+					data:{
+				"StartDate":$("#cdr_filter [name='StartDate']").val()+ ' '+starttime,
+				"EndDate":$("#cdr_filter [name='EndDate']").val()+ ' '+EndTime,
+				"CompanyGatewayID":$("#cdr_filter [name='CompanyGatewayID']").val(),
+				"AccountID":$("#cdr_filter [name='AccountID']").val(),
+				"CDRType":$("#cdr_filter [name='CDRType']").val(),
+				"CLI":$("#cdr_filter [name='CLI']").val(),				
+				"CLD":$("#cdr_filter [name='CLD']").val(),
+				"zerovaluecost":$("#cdr_filter [name='zerovaluecost']").prop("checked"),
+				"CurrencyID":$("#cdr_filter [name='CurrencyID']").val(),				
+				"bDestroy": true,
+				"bProcessing":true,
+				"bServerSide":true,
+				"sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_total/type",
+				"iDisplayLength": '{{Config::get('app.pageSize')}}',
+				"sPaginationType": "bootstrap",
+				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+				"aaSorting": [[3, 'desc']],},
+					success: function(response1) {
+						console.log("sum of result"+response1);
+						
+						if(response1.total_billed_duration!=null)
+						{ 
+							/*var selected_currency = $("#estimate_filter [name='CurrencyID']").val();
+							var concat_currency   = '';
+							if(selected_currency!='')
+							{	
+								var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
+								var concat_currency = currency_txt.substr(0,1);
+							}*/
+							if(currency_symbol==null)
+							{
+								currency_symbol = '';	
+							}
+							concat_currency = '';
+							$('#table-4 tbody').append('<tr class="odd result_tr_end"><td><strong>Total</strong></td><td align="right" colspan="2"></td><td><strong>'+response1.total_billed_duration+'</strong></td><td><strong>'+currency_symbol+' '+response1.total_cost+'</strong></td><td colspan="2"></td></tr>');	
+						}
+						
+	
+						},
+				});	
+			}
 
 
             });

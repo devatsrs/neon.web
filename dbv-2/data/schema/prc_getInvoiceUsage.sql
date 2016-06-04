@@ -32,18 +32,18 @@ BEGIN
             max(Trunk) as Trunk,
             (SELECT 
                 Country
-            FROM Ratemanagement3.tblRate r
-            INNER JOIN Ratemanagement3.tblCountry c
+            FROM LocalRatemanagement.tblRate r
+            INNER JOIN LocalRatemanagement.tblCountry c
                 ON c.CountryID = r.CountryID
             WHERE  r.Code = ud.area_prefix limit 1)
             AS Country,
             (SELECT Description
-            FROM Ratemanagement3.tblRate r
+            FROM LocalRatemanagement.tblRate r
             WHERE  r.Code = ud.area_prefix limit 1 )
             AS Description,
             COUNT(UsageDetailID) AS NoOfCalls,
-            Concat( ROUND(SUM(duration ) / 60,0), ':' , SUM(duration ) % 60) AS Duration,
-		    	Concat( ROUND(SUM(billed_duration ) / 60,0),':' , SUM(billed_duration ) % 60) AS BillDuration,
+            CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
+            CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
             SUM(cost) AS TotalCharges,
             SUM(duration ) as DurationInSec,
             SUM(billed_duration ) as BillDurationInSec
@@ -59,8 +59,8 @@ BEGIN
             select
             trunk,
             area_prefix,
-            cli,
-            cld,
+            concat("'",cli,"'") as cli,
+            concat("'",cld,"'") as cld,
             connect_time,
             disconnect_time,
             billed_duration,

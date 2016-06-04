@@ -41,6 +41,7 @@ BEGIN
 	        WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 			  AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
 	        AND uh.CompanyID = p_CompanyID
+	        AND uh.AccountID is not null
 	        AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	        AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
 	        AND (p_CDRType = '' OR ud.is_inbound = p_CDRType)

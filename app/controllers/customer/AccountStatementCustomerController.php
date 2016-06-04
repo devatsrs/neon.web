@@ -7,79 +7,91 @@ class AccountStatementCustomerController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['AccountID'] = User::get_userID();
+        $account = Account::find($data['AccountID']);
+        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');//Rounding Add by Abubakar
+        if(!empty($account->RoundChargesAmount)){
+            $roundplaces = $account->RoundChargesAmount;
+        }
+        $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+
         //$query = "prc_getSOA ".$CompanyID.",".$data['AccountID'].",0";
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',0)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
-        $inInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
-        $result->nextRowset();
-        $outInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
-        $countinInvoices = count($inInvoices);
-        $countoutInvoices = count($outInvoices);
-        $looptarget = '';
-        $first = 0;
-        if($countinInvoices>$countoutInvoices){
-            $looptarget = $inInvoices;
-            $first = 1;
-        }else{
-            $looptarget = $outInvoices;
-        }
-        $targetArray = array();
-        $vertual = array('InvoiceNo'=>'',
-            'PeriodCover'=>'',
-            'InvoiceAmount'=>'',
-            'spacer'=>' ',
-            'PaymentID'=>'',
-            'payment'=>'',
-            'PaymentDate'=>'',
-            'ballence'=>'');
-        foreach($looptarget as $index=>$data){
-            if($first==1){
-                if($index<$countoutInvoices){
-                    $temp = $outInvoices[$index];
-                }else{
-                    $temp = $vertual;
-                }
-                $targetArray[] = array('InvoiceNo'=>$data['InvoiceNo'],
-                    'PeriodCover'=>$data['PeriodCover'],
-                    'InvoiceAmount'=>$data['InvoiceAmount'],
-                    'spacer'=>$data['spacer'],
-                    'PaymentID'=>$data['PaymentID'],
-                    'payment'=>$data['payment'],
-                    'PaymentDate'=>$data['PaymentDate'],
-                    'ballence'=>$data['ballence'],
-                    'InvoiceNos'=>$temp['InvoiceNo'],
-                    'PeriodCovers'=>$temp['PeriodCover'],
-                    'InvoiceAmounts'=>$temp['InvoiceAmount'],
-                    'PaymentIDs'=>$temp['PaymentID'],
-                    'payments'=>$temp['payment'],
-                    'PaymentDates'=>$temp['PaymentDate'],
-                    'ballences'=>$temp['ballence']);
-            }else{
-                if($index<$countinInvoices){
-                    $temp = $inInvoices[$index];
-                }else{
-                    $temp = $vertual;
-                }
-                $targetArray[] = array('InvoiceNo'=>$temp['InvoiceNo'],
-                    'PeriodCover'=>$temp['PeriodCover'],
-                    'InvoiceAmount'=>$temp['InvoiceAmount'],
-                    'spacer'=>$temp['spacer'],
-                    'PaymentID'=>$temp['PaymentID'],
-                    'payment'=>$temp['payment'],
-                    'PaymentDate'=>$temp['PaymentDate'],
-                    'ballence'=>$temp['ballence'],
-                    'InvoiceNos'=>$data['InvoiceNo'],
-                    'PeriodCovers'=>$data['PeriodCover'],
-                    'InvoiceAmounts'=>$data['InvoiceAmount'],
-                    'PaymentIDs'=>$data['PaymentID'],
-                    'payments'=>$data['payment'],
-                    'PaymentDates'=>$data['PaymentDate'],
-                    'ballences'=>$data['ballence'],
-                );
-            }
 
-        }
-        echo json_encode($targetArray);
+        // ----------------
+        //1. Invoice Sent
+        //2. Paymnet Received
+        //3. Invoice Received
+        //4. Payment Sent
+        // ----------------
+
+        $InvoiceOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $result->nextRowset();
+        $PaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceIn = $result->fetchAll(PDO::FETCH_ASSOC);
+        $result->nextRowset();
+        $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        //Totals
+        $result->nextRowset();
+        $InvoiceOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceOutDisputeAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $PaymentInAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceInAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceInDisputeAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
+
+        $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
+
+        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]["PaymentInAmountTotal"] > 0) ? $PaymentInAmountTotal[0]["PaymentInAmountTotal"] : 0;
+
+        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] > 0) ? $InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] : 0;
+
+        $InvoiceInDisputeAmountTotal = ($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] > 0) ? $InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] : 0;
+
+        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] > 0) ? $PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] : 0;
+
+        $CompanyBalance = number_format(($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
+        $AccountBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal), $roundplaces);
+
+        //Balance after offset
+        $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
+
+
+        $soa_result = array_map(function ($InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut) {
+            return array_merge((array)$InvoiceOut, (array)$PaymentIn, (array)$InvoiceIn, (array)$PaymentOut);
+        }, $InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut);
+
+        $output = [
+            'result' => $soa_result,
+            'InvoiceOutAmountTotal' => number_format($InvoiceOutAmountTotal, $roundplaces),
+            'PaymentInAmountTotal' => number_format($PaymentInAmountTotal, $roundplaces),
+            'InvoiceInAmountTotal' => number_format($InvoiceInAmountTotal, $roundplaces),
+            'PaymentOutAmountTotal' => number_format($PaymentOutAmountTotal, $roundplaces),
+            'InvoiceOutDisputeAmountTotal' => number_format($InvoiceOutDisputeAmountTotal, $roundplaces),
+            'InvoiceInDisputeAmountTotal' => number_format($InvoiceInDisputeAmountTotal, $roundplaces),
+            'CompanyBalance' => $CompanyBalance,
+            'AccountBalance' => $AccountBalance,
+            'OffsetBalance' => $OffsetBalance,
+            'CurencySymbol' => $CurencySymbol,
+            'roundplaces' => $roundplaces,
+        ];
+
+        echo json_encode($output);
     }
 	/**
 	 * Display a listing of the resource.
@@ -91,7 +103,8 @@ class AccountStatementCustomerController extends \BaseController {
 	{
         $id=0;
         $companyID = User::get_companyID();
-        $AccountName = User::get_user_full_name();
+        $AccountName = Customer::get_accountName();
+        //$UserName = User::get_user_full_name();
         $CompanyName = Company::getName($companyID);
         return View::make('customer.accountstatement.index', compact('CompanyName','AccountName'));
 	}
@@ -103,24 +116,369 @@ class AccountStatementCustomerController extends \BaseController {
         echo json_encode($result);
     }
 
-    public function exports() {
+    public function exports($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['AccountID'] = User::get_userID();
+        $account = Account::find($data['AccountID']);
+        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');//Rounding Add by Abubakar
+        if(!empty($account->RoundChargesAmount)){
+            $roundplaces = $account->RoundChargesAmount;
+        }
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',1)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
-        $inInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
-        $result->nextRowset();
-        $outInvoices = $result->fetchAll(PDO::FETCH_ASSOC);
 
-        $account_statement['inInvoices'] = $inInvoices;
+        $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+
+        // ----------------
+        //1. Invoice Sent
+        //2. Paymnet Received
+        //3. Invoice Received
+        //4. Payment Sent
+        // ----------------
+
+        $InvoiceOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $result->nextRowset();
+        $PaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceIn = $result->fetchAll(PDO::FETCH_ASSOC);
+        $result->nextRowset();
+        $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        //Totals
+        $result->nextRowset();
+        $InvoiceOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceOutDisputeAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $PaymentInAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceInAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $InvoiceInDisputeAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $result->nextRowset();
+        $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
+
+        $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
+
+        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]["PaymentInAmountTotal"] > 0) ? $PaymentInAmountTotal[0]["PaymentInAmountTotal"] : 0;
+
+        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] > 0) ? $InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] : 0;
+
+        $InvoiceInDisputeAmountTotal = ($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] > 0) ? $InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] : 0;
+
+        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] > 0) ? $PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] : 0;
+
+        $CompanyBalance = number_format(($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
+        $AccountBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal), $roundplaces);
+
+        //Balance after offset
+        $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
+
+
+        $soa_result = array_map(function ($InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut) {
+            return array_merge((array)$InvoiceOut, (array)$PaymentIn, (array)$InvoiceIn, (array)$PaymentOut);
+        }, $InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut);
+
+        $output = [
+            'result' => $soa_result,
+            'InvoiceOutAmountTotal' => number_format($InvoiceOutAmountTotal, $roundplaces),
+            'PaymentInAmountTotal' => number_format($PaymentInAmountTotal, $roundplaces),
+            'InvoiceInAmountTotal' => number_format($InvoiceInAmountTotal, $roundplaces),
+            'PaymentOutAmountTotal' => number_format($PaymentOutAmountTotal, $roundplaces),
+            'InvoiceOutDisputeAmountTotal' => number_format($InvoiceOutDisputeAmountTotal, $roundplaces),
+            'InvoiceInDisputeAmountTotal' => number_format($InvoiceInDisputeAmountTotal, $roundplaces),
+            'CompanyBalance' => $CompanyBalance,
+            'AccountBalance' => $AccountBalance,
+            'OffsetBalance' => $OffsetBalance,
+            'CurencySymbol' => $CurencySymbol,
+            'roundplaces' => $roundplaces,
+            'AccountName' => Account::getCompanyNameByID($data['AccountID']),
+            'CompanyName' => Company::getName(),
+        ];
+
+        /*$account_statement['inInvoices'] = $inInvoices;
         $account_statement['outInvoices'] = $outInvoices;
-        $account_statement['firstCompany'] = Company::getName($CompanyID);
+        $account_statement['firstCompany'] = Company::getName();
         $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
-        self::generateExcel($account_statement);
+        //$account_statement['roundplaces'] = $roundplaces;*/
+        AccountStatementCustomerController::generateExcel($output, $type);
     }
 
-    static function generateExcel($account_statement){
+    static function generateExcel($account_statement, $type)
+    {
+        Excel::create('Account Statement', function ($excel) use ($account_statement) {
+            $excel->sheet('Account Statement', function ($sheet) use ($account_statement) {
+                //$sheet->mergeCells('A4:D4');
+                //$sheet->getCell('B4')->setValue('Wavetel Ltd INVOICE');
+
+
+                $InvoiceOutAmountTotal = $account_statement['InvoiceOutAmountTotal'];
+                $PaymentInAmountTotal = $account_statement['PaymentInAmountTotal'];
+                $InvoiceInAmountTotal = $account_statement['InvoiceInAmountTotal'];
+                $PaymentOutAmountTotal = $account_statement['PaymentOutAmountTotal'];
+                $InvoiceOutDisputeAmountTotal = $account_statement['InvoiceOutDisputeAmountTotal'];
+                $InvoiceInDisputeAmountTotal = $account_statement['InvoiceInDisputeAmountTotal'];
+                $CompanyBalance = $account_statement['CompanyBalance'];
+                $AccountBalance = $account_statement['AccountBalance'];
+                $OffsetBalance = $account_statement['OffsetBalance'];
+
+                $CurencySymbol = $account_statement['CurencySymbol'];
+                $roundplaces = $account_statement['roundplaces'];
+
+
+                $Alpha = range('A', 'R');
+
+                //setting default space.
+                $sheet->cell('E1', function ($cell) {
+                    $cell->setValue(' ');
+                });
+                $sheet->cell('I1', function ($cell) {
+                    $cell->setValue(' ');
+                });
+                $sheet->cell('N1', function ($cell) {
+                    $cell->setValue(' ');
+                });
+
+
+                /**
+                 * MAIN HEADING
+                 */
+                $sheet->mergeCells('A2:R2');
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, "A2",'INVOICE OFFSETTING',14 );
+
+                /**
+                 * SUB HEADINGS
+                 */
+                $sheet->mergeCells('A4:D4');
+                $sheet->mergeCells('I4:L4');
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, "A4",$account_statement['CompanyName'] . ' INVOICE',12);
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, "I4",$account_statement['AccountName'] . ' INVOICE',12);
+
+
+                /**
+                 * SOA COLUMNS
+                 */
+
+                $StartRowIndex = $RowIndex = 5;
+                $columnIndex = 0;
+
+                //Invoice Out
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'INVOICE NO');
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'PERIOD COVERED');
+                $InvoiceOutAmountIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'AMOUNT');
+                $InvoiceOutDisputeAmountIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'PENDING DISPUTE');
+
+                $columnIndex++;
+
+                //Payment IN
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'DATE');
+                $PaymentInAmountIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, $account_statement['AccountName'] . ' PAYMENT');
+                $PaymentInBalanceIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'BALANCE');
+
+                $columnIndex++;
+
+                //Invoice In
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'INVOICE NO');
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'PERIOD COVERED');
+                $InvoiceInAmountIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'AMOUNT');
+                $InvoiceInDisputeAmountIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'PENDING DISPUTE');
+
+                $columnIndex++;
+
+                //Payment Out
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'DATE');
+                $PaymentOutAmountIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, $account_statement['CompanyName'] . ' PAYMENT');
+                $PaymentOutBalanceIndex = $columnIndex;
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[$columnIndex++] . $RowIndex, 'BALANCE');
+
+                $RowIndex++;
+
+
+                if (count($account_statement['result']) > 0) {
+
+
+                    // Loop through result
+                    foreach ($account_statement['result'] as $rowData) {
+
+
+                        if (!isset($rowData['InvoiceOut_InvoiceNo'])) {
+                            $rowData['InvoiceOut_InvoiceNo'] = '';
+                        }
+                        if (!isset($rowData['InvoiceOut_PeriodCover'])) {
+                            $rowData['InvoiceOut_PeriodCover'] = '';
+                        }
+                        if (!isset($rowData['InvoiceOut_Amount'])) {
+                            $rowData['InvoiceOut_Amount'] = 0;
+                        }
+                        if (!isset($rowData['InvoiceOut_DisputeAmount'])) {
+                            $rowData['InvoiceOut_DisputeAmount'] = 0;
+                        }
+                        //Payment In
+                        if (!isset($rowData['PaymentIn_PeriodCover'])) {
+                            $rowData['PaymentIn_PeriodCover'] = '';
+                        }
+                        if (!isset($rowData['PaymentIn_PaymentID'])) {
+                            $rowData['PaymentIn_PaymentID'] = '';
+                        }
+                        if (!isset($rowData['PaymentIn_Amount'])) {
+                            $rowData['PaymentIn_Amount'] = 0;
+                        }
+                        //Invoice In
+                        if (!isset($rowData['InvoiceIn_InvoiceNo'])) {
+                            $rowData['InvoiceIn_InvoiceNo'] = '';
+                        }
+                        if (!isset($rowData['InvoiceIn_PeriodCover'])) {
+                            $rowData['InvoiceIn_PeriodCover'] = '';
+                        }
+                        if (!isset($rowData['InvoiceIn_Amount'])) {
+                            $rowData['InvoiceIn_Amount'] = 0;
+                        }
+                        if (!isset($rowData['InvoiceIn_DisputeAmount'])) {
+                            $rowData['InvoiceIn_DisputeAmount'] = 0;
+                        }
+                        //Payment Out
+                        if (!isset($rowData['PaymentOut_PeriodCover'])) {
+                            $rowData['PaymentOut_PeriodCover'] = '';
+                        }
+                        if (!isset($rowData['PaymentOut_PaymentID'])) {
+                            $rowData['PaymentOut_PaymentID'] = '';
+                        }
+                        if (!isset($rowData['PaymentOut_Amount'])) {
+                            $rowData['PaymentOut_Amount'] = 0;
+                        }
+
+                        $InvoiceOut_Amount = number_format($rowData['InvoiceOut_Amount'], $roundplaces,'.','');
+                        $InvoiceIn_Amount = number_format($rowData['InvoiceIn_Amount'], $roundplaces,'.','');
+
+                        $InvoiceIn_DisputeAmount = number_format($rowData['InvoiceIn_DisputeAmount'], $roundplaces,'.','');
+                        $InvoiceIn_DisputeAmount = $InvoiceIn_DisputeAmount > 0 ? $InvoiceIn_DisputeAmount : '';
+
+                        $InvoiceOut_DisputeAmount = number_format($rowData['InvoiceOut_DisputeAmount'], $roundplaces,'.','');
+                        $InvoiceOut_DisputeAmount = $InvoiceOut_DisputeAmount > 0 ? $InvoiceOut_DisputeAmount : '';
+
+                        $PaymentIn_Amount = number_format($rowData['PaymentIn_Amount'], $roundplaces,'.','');
+                        $PaymentIn_Amount = $PaymentIn_Amount > 0 ? $PaymentIn_Amount : '';
+
+                        $PaymentOut_Amount = number_format($rowData['PaymentOut_Amount'], $roundplaces,'.','');
+                        $PaymentOut_Amount = $PaymentOut_Amount > 0 ? $PaymentOut_Amount : '';
+
+
+                        $columnIndex = 0;
+
+                        //INVOICE OUT
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++]   . $RowIndex, $rowData['InvoiceOut_InvoiceNo']);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $rowData['InvoiceOut_PeriodCover']);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $InvoiceOut_Amount);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $InvoiceOut_DisputeAmount);
+
+                        $columnIndex++;
+
+
+                        //PAYMEMT IN
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++]   . $RowIndex, $rowData['PaymentIn_PeriodCover']);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $PaymentIn_Amount);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, ''); //Balance
+
+                        $columnIndex++;
+
+                        //INVOICE In
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++]   . $RowIndex, $rowData['InvoiceIn_InvoiceNo']);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $rowData['InvoiceIn_PeriodCover']);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $InvoiceIn_Amount);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $InvoiceIn_DisputeAmount);
+
+                        $columnIndex++;
+
+                        //PAYMEMT OUT
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++]   . $RowIndex, $rowData['PaymentOut_PeriodCover']);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, $PaymentOut_Amount);
+                        AccountStatementCustomerController::insertExcelCellData($sheet, $Alpha[$columnIndex++] . $RowIndex, ''); //Balance
+
+                        $RowIndex++;
+
+                    }
+                }
+
+                /**
+                 * SUMMERY DATA START
+                 */
+
+                $SOADataStartRow = ($StartRowIndex+1);
+                $SOADataEndRow = $RowIndex-1;
+
+                //Invoice Out Amount Total
+                $InvoiceOutAmountTotalFormula = '=SUM('.$Alpha[$InvoiceOutAmountIndex].$SOADataStartRow  . ':' . $Alpha[$InvoiceOutAmountIndex] . $SOADataEndRow . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$InvoiceOutAmountIndex].$RowIndex, $InvoiceOutAmountTotalFormula);
+
+                //Invoice Out Dispute Total
+                $InvoiceOutDisputeAmountTotalFormula = '=SUM('.$Alpha[$InvoiceOutDisputeAmountIndex].$SOADataStartRow  . ':' . $Alpha[$InvoiceOutDisputeAmountIndex] . $SOADataEndRow . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$InvoiceOutDisputeAmountIndex].$RowIndex, $InvoiceOutDisputeAmountTotalFormula);
+
+
+
+                //Total Payment In Amount
+                $PaymentInAmountTotalFormula = '=SUM('.$Alpha[$PaymentInAmountIndex].$SOADataStartRow  . ':' . $Alpha[$PaymentInAmountIndex] . $SOADataEndRow . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$PaymentInAmountIndex].$RowIndex, $PaymentInAmountTotalFormula);
+
+                //Total balance after Payment In
+                $PaymentInBalanceFormula = '=('.$Alpha[$InvoiceOutAmountIndex].$RowIndex  . '-' . $Alpha[$PaymentInAmountIndex].$RowIndex . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$PaymentInBalanceIndex].$RowIndex, $PaymentInBalanceFormula);
+                $PaymentInBalanceIndexCell = $Alpha[$PaymentInBalanceIndex].$RowIndex;
+
+
+
+                //Invoice In Amount Total
+                $InvoiceInAmountTotalFormula = '=SUM('.$Alpha[$InvoiceInAmountIndex].$SOADataStartRow  . ':' . $Alpha[$InvoiceInAmountIndex] . $SOADataEndRow . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$InvoiceInAmountIndex].$RowIndex, $InvoiceInAmountTotalFormula);
+
+                //Invoice In Dispute Total
+                $InvoiceInDisputeAmountTotalFormula = '=SUM('.$Alpha[$InvoiceInDisputeAmountIndex].$SOADataStartRow  . ':' . $Alpha[$InvoiceInDisputeAmountIndex] . $SOADataEndRow . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$InvoiceInDisputeAmountIndex].$RowIndex, $InvoiceInDisputeAmountTotalFormula);
+
+
+
+                //Total Payment Out Amount
+                $PaymentOutAmountTotalFormula = '=SUM('.$Alpha[$PaymentOutAmountIndex].$SOADataStartRow  . ':' . $Alpha[$PaymentOutAmountIndex] . $SOADataEndRow . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$PaymentOutAmountIndex].$RowIndex, $PaymentOutAmountTotalFormula);
+
+                //Total balance after Payment Out
+                $PaymentOutBalanceFormula = '=('.$Alpha[$InvoiceInAmountIndex].$RowIndex  . '-' . $Alpha[$PaymentOutAmountIndex].$RowIndex . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[$PaymentOutBalanceIndex].$RowIndex, $PaymentOutBalanceFormula);
+                $PaymentOutBalanceIndexCell = $Alpha[$PaymentOutBalanceIndex].$RowIndex;
+                $RowIndex++;
+
+                /**
+                 * SOA OFFSET SUMMERY DATA START
+                 */
+                $RowIndex = $RowIndex + 3; // give some space
+
+                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
+                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[1].$RowIndex, 'BALANCE AFTER OFFSET:',14);
+
+                $BalanceAfterOffsetFormula = '=('.$PaymentInBalanceIndexCell  . '-' . $PaymentOutBalanceIndexCell . ')';
+                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[2].$RowIndex, $BalanceAfterOffsetFormula);
+
+            });
+        })->download('xls');
+    }
+
+    static function generateExcel_OLD($account_statement){
         Excel::create('Account Statement', function ($excel) use ($account_statement) {
             $excel->sheet('Account Statement', function ($sheet) use ($account_statement) {
                 //$sheet->mergeCells('A4:D4');
@@ -142,43 +500,43 @@ class AccountStatementCustomerController extends \BaseController {
                 });
                 $sheet->mergeCells('A4:D4');
                 $sheet->cell('A4', function($cell)use($account_statement){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue($account_statement['firstCompany'].' INVOICE');
                     $cell->setFontSize(12);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('A5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('INVOICE NO');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('B5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('PERIOD COVERED');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('C5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('AMOUNT');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('E5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('DATE');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('F5', function($cell) use ($account_statement){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue($account_statement['secondCompany'].' PAYMENT');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('G5', function($cell) {
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('BALANCE');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
@@ -205,8 +563,8 @@ class AccountStatementCustomerController extends \BaseController {
 
                         foreach($rowData as $cellValue) {
                             if(is_numeric($cellValue)){
-                                $sheet->cell($currentColumn . $startRow, function($cell) use($cellValue,$valid,$count) {
-                                    AccountStatementController::formateCell($cell,false);
+                                $sheet->cell($currentColumn . $startRow, function($cell) use($cellValue,$valid,$count,$account_statement) {
+                                    AccountStatementCustomerController::formateCell($cell,false);
                                     if($count == 6){
                                         if($valid==1){
                                             $cell->setValue($cellValue);
@@ -214,6 +572,7 @@ class AccountStatementCustomerController extends \BaseController {
                                             $cell->setValue('');
                                         }
                                     }else{
+                                        $cellValue = '=ROUND('.$cellValue.','.$account_statement['roundplaces'].')';
                                         $cell->setValue($cellValue);
                                     }
 
@@ -221,7 +580,7 @@ class AccountStatementCustomerController extends \BaseController {
                                 });
                             }else{
                                 $sheet->cell($currentColumn . $startRow, function($cell) use($cellValue,$currentColumn,$valid,$count) {
-                                    AccountStatementController::formateCell($cell);
+                                    AccountStatementCustomerController::formateCell($cell);
                                     if($currentColumn!='D'){
                                         $cell->setBackground('#EBF5F2');
                                     }
@@ -247,43 +606,43 @@ class AccountStatementCustomerController extends \BaseController {
 
                 $sheet->mergeCells('I4:L4');
                 $sheet->cell('I4', function($cell) use($account_statement){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue($account_statement['secondCompany'].' INVOICE');
                     $cell->setFontSize(12);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('I5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('INVOICE NO');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('J5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('PERIOD COVERED');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('K5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('AMOUNT');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('M5', function($cell){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('DATE');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('N5', function($cell)use($account_statement){
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue($account_statement['firstCompany'].' PAYMENT');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
                 });
                 $sheet->cell('O5', function($cell) {
-                    AccountStatementController::formateCell($cell);
+                    AccountStatementCustomerController::formateCell($cell);
                     $cell->setValue('BALANCE');
                     $cell->setFontSize(11);
                     $cell->setFontWeight('bold');
@@ -306,8 +665,8 @@ class AccountStatementCustomerController extends \BaseController {
                         }
                         foreach ($rowData as $cellValue) {
                             if (is_numeric($cellValue)) {
-                                $sheet->cell($currentColumn . $startRow, function ($cell) use ($cellValue,$valid,$count) {
-                                    AccountStatementController::formateCell($cell,false);
+                                $sheet->cell($currentColumn . $startRow, function ($cell) use ($cellValue,$valid,$count,$account_statement) {
+                                    AccountStatementCustomerController::formateCell($cell,false);
                                     if($count == 6){
                                         if($valid==1){
                                             $cell->setValue($cellValue);
@@ -315,12 +674,13 @@ class AccountStatementCustomerController extends \BaseController {
                                             $cell->setValue('');
                                         }
                                     }else{
+                                        $cellValue = '=ROUND('.$cellValue.','.$account_statement['roundplaces'].')';
                                         $cell->setValue($cellValue);
                                     }
                                 });
                             } else {
                                 $sheet->cell($currentColumn . $startRow, function ($cell) use ($cellValue,$currentColumn,$valid,$count) {
-                                    AccountStatementController::formateCell($cell);
+                                    AccountStatementCustomerController::formateCell($cell);
                                     if($currentColumn!='L'){
                                         $cell->setBackground('#EBF5F2');
                                     }
@@ -350,38 +710,38 @@ class AccountStatementCustomerController extends \BaseController {
                 //Sum up invoices amount for company
                 $startRow++;
                 $sheet->cell('C' . $startRow, function ($cell) use ($startrowtemp,$startRow) {
-                    AccountStatementController::formateCell($cell,false);
+                    AccountStatementCustomerController::formateCell($cell,false);
                     $formula = '=SUM(C'.$startrowtemp.':C'.($startRow-1).')';
                     $cell->setValue($formula);
                 });
                 //Sum up payments amount for company
                 $sheet->cell('F' . $startRow, function ($cell) use ($startrowtemp,$startRow) {
-                    AccountStatementController::formateCell($cell,false);
+                    AccountStatementCustomerController::formateCell($cell,false);
                     $formula = '=SUM(F'.$startrowtemp.':F'.($startRow-1).')';
                     $cell->setValue($formula);
                 });
                 //ballance for Company invoices and payments
                 $sheet->cell('G' . $startRow, function ($cell) use ($startRow) {
-                    AccountStatementController::formateCell($cell,false);
+                    AccountStatementCustomerController::formateCell($cell,false);
                     $formula = '= C'.($startRow).'-F'.($startRow);
                     $cell->setValue($formula);
                 });
 
                 //Sum up invoices amount for customer or vendor
                 $sheet->cell('K' . $startRow, function ($cell) use ($startrowtemp,$startRow) {
-                    AccountStatementController::formateCell($cell,false);
+                    AccountStatementCustomerController::formateCell($cell,false);
                     $formula = '=SUM(K'.$startrowtemp.':K'.($startRow-1).')';
                     $cell->setValue($formula);
                 });
                 //Sum up payments amount for customer or vendor
                 $sheet->cell('N' . $startRow, function ($cell) use ($startrowtemp,$startRow) {
-                    AccountStatementController::formateCell($cell,false);
+                    AccountStatementCustomerController::formateCell($cell,false);
                     $formula = '=SUM(N'.$startrowtemp.':N'.($startRow-1).')';
                     $cell->setValue($formula);
                 });
                 //ballance for customer or vendor invoices and payments
                 $sheet->cell('O' . $startRow, function ($cell) use ($startRow) {
-                    AccountStatementController::formateCell($cell,false);
+                    AccountStatementCustomerController::formateCell($cell,false);
                     $formula = '= K'.($startRow).'-N'.($startRow);
                     $cell->setValue($formula);
                 });
@@ -405,15 +765,50 @@ class AccountStatementCustomerController extends \BaseController {
         })->download('xls');
     }
 
-    static function formateCell(&$cell,$isCenter=true){
+// Excel functions
+    public static function formateExcelCell(&$cell, $isCenter = true)
+    {
         $cell->setFont(array(
-            'family'     => 'Arial',
-            'size'       => '11',
-            'bold'       =>  false
+            'family' => 'Arial',
+            'size' => '11',
+            'bold' => false
         ));
-        if($isCenter) {
+        if ($isCenter) {
             $cell->setAlignment('center');
         }
+    }
+
+// Excel functions
+    public static function insertExcelCellData(&$sheet, $target_cell, $value)
+    {
+
+        $sheet->cell($target_cell, function ($cell) use ($value) {
+            AccountStatementCustomerController::formateExcelCell($cell, false);
+            $cell->setValue($value);
+            $cell->setBackground('#EBF5F2');
+        });
+
+    }
+
+    public static function insertExcelHeaderData(&$sheet, $target_cell, $value , $font_size = 11){
+        $sheet->cell($target_cell, function($cell) use ($value, $font_size) {
+            AccountStatementCustomerController::formateExcelCell($cell);
+            $cell->setValue($value);
+            $cell->setFontSize($font_size);
+            $cell->setFontWeight('bold');
+            $cell->setAlignment('center');
+        });
+
+    }
+
+    public static function insertExcelSummeryData(&$sheet, $target_cell, $value , $font_size = 11){
+
+        $sheet->cell($target_cell, function ($cell) use ($value , $font_size) {
+            AccountStatementCustomerController::formateExcelCell($cell, false);
+            $cell->setValue($value);
+            $cell->setFontSize($font_size);
+        });
+
     }
 
 }

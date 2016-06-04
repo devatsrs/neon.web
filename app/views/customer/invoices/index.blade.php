@@ -15,7 +15,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -27,23 +27,30 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Number</label>
+                        <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
                         <div class="col-sm-2">
-                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
-                        </div>
-                         <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                            {{ Form::text('IssueDateStart', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                            {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Number</label>
+                        <div class="col-sm-2">
+                            {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
+                        </div>
+
+                        <label for="field-1" class="col-sm-2 control-label">Zero Value</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
+                            </p>
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -76,8 +83,11 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
-            <div class="pull-right"> Sent/Receive</div></th>
+        <th width="10%">
+            @if(is_authorize())
+                <div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+            @endif
+            <div class="pull-right"></div></th>
         <th width="20%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
@@ -100,6 +110,7 @@ var postdata;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
         //show_loading_bar(40);
+        var InvoiceID = '';
         var invoicestatus = JSON.parse('{{$invoice_status_json}}');
         var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail'];
 
@@ -107,6 +118,7 @@ var postdata;
         $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
+        $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -118,9 +130,9 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{ "name": "Export", "value": 1});
             },
              "aoColumns":
                      [
@@ -133,7 +145,9 @@ var postdata;
                                      invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Received"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                     action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
+                                     if('{{is_authorize()}}'){
+                                        action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
+                                     }
                                  }
                                  action += invoiceType;
                                  return action;
@@ -168,10 +182,10 @@ var postdata;
                                  }
                                  action += '</div>';
                                  if (full[0] == '{{Invoice::INVOICE_OUT}}'){
-                                     action += ' <a href="'+invoice_preview+'" class="view-invoice-sent btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Print </a>';
+                                     action += ' <a href="'+invoice_preview+'" target="_blank" class="view-invoice-sent btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
                                  }else{
                                      action += ' <a></a>';
-                                     action += ' <a class="view-invoice-in btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Print </a>';
+                                     action += ' <a class="view-invoice-in btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
                                  }
 
                                  return action;
@@ -195,6 +209,7 @@ var postdata;
                 ]
             },
            "fnDrawCallback": function() {
+               get_total_grand(); //get result total
                    //After Delete done
                    FnDeleteInvoiceTemplateSuccess = function(response){
 
@@ -228,17 +243,62 @@ var postdata;
             $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
+            $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+
             data_table.fnFilter('', 0);
             return false;
         });
+        function get_total_grand(){
+            $.ajax({
+                url: baseurl + "/customer/invoice/ajax_datagrid_total",
+                type: 'GET',
+                dataType: 'json',
+                data:{
+                    "InvoiceType":$("#invoice_filter [name='InvoiceType']").val(),
+                    "InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
+                    "IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
+                    "IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
+                    "zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"),
+                    "bDestroy": true,
+                    "bProcessing":true,
+                    "bServerSide":true,
+                    "sAjaxSource": baseurl + "/customer/invoice/ajax_datagrid/type",
+                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "sPaginationType": "bootstrap",
+                    "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "aaSorting": [[3, 'desc']],},
+                success: function(response1) {
+                    console.log("sum of result"+response1);
+                    if(response1.total_grand!=null)
+                    {
+                        $('.result_row').remove();
+                        $('.result_row').hide();
+                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+                    }
+                },
+            });
+        }
         $('table tbody').on('click', '.view-invoice-in', function (ev) {
-            var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
-
+            var cur_obj = $(this).parent().parent().find("div.hiddenRowData");
+            InvoiceID = cur_obj.find("input[name='InvoiceID']").val();
+            $.ajax({
+                url: baseurl + '/customer/invoice/getInvoiceDetail',
+                data: 'InvoiceID='+InvoiceID,
+                dataType: 'json',
+                success: function (response) {
+                    $("#modal-invoice-in-view").find("[data-id='StartDate']").html(response.StartDate);
+                    $("#modal-invoice-in-view").find("[data-id='StartTime']").html(response.StartTime);
+                    $("#modal-invoice-in-view").find("[data-id='EndDate']").html(response.EndDate);
+                    $("#modal-invoice-in-view").find("[data-id='EndTime']").html(response.EndTime);
+                    $("#modal-invoice-in-view").find("[data-id='Description']").html(response.Description);
+                },
+                type: 'POST'
+            });
             for(var i = 0 ; i< list_fields.length; i++){
             $("#modal-invoice-in-view").find("[data-id='"+list_fields[i]+"']").html('');
                 if(list_fields[i] == 'Attachment'){
                     if(cur_obj.find("input[name='"+list_fields[i]+"']").val() != ''){
-                        var down_html = ' <a href="' + baseurl +'/invoice/download_doc_file/'+cur_obj.find("input[name='InvoiceID']").val() +'" class="edit-invoice btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>'
+                        var down_html = ' <a href="' + baseurl +'/customer/invoice/download_invoice_file/'+cur_obj.find("input[name='InvoiceID']").val() +'" class="edit-invoice btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>';
                         $("#modal-invoice-in-view").find("[data-id='"+list_fields[i]+"']").html(down_html);
                     }
                 }else{
@@ -357,9 +417,23 @@ var postdata;
                     <div class="form-group">
                         <label for="field-5" class="col-sm-2 control-label">Account Name<span id="currency"></span></label>
                         <div class="col-sm-4 control-label">
-                        <span data-id="AccountName">abcs</span>
+                        <span data-id="AccountName">{{Customer::get_accountName()}}</span>
                         </div>
                      </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="field-1">Start Date</label>
+                        <div class="col-sm-4 control-label">
+                            <span data-id="StartDate"></span>
+                            <span data-id="StartTime"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="field-1">End Date</label>
+                        <div class="col-sm-4 control-label">
+                            <span data-id="EndDate"></span>
+                            <span data-id="EndTime"></span>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
                         <div class="col-sm-4 control-label">
@@ -384,12 +458,12 @@ var postdata;
                             <span data-id="Description"></span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!--<div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Attachment</label>
                         <div class="col-sm-4 control-label">
                             <span data-id="Attachment"></span>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
                 <div class="modal-footer">
                      <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">

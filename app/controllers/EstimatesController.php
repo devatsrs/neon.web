@@ -3,7 +3,7 @@
 class EstimatesController extends \BaseController {
 	
 	public function ajax_datagrid_total()
-	{
+	{		
         $data 						 = 	Input::all();
 		$data['iDisplayStart'] 		 =	0;
         $data['iDisplayStart'] 		+=	1;
@@ -36,10 +36,11 @@ class EstimatesController extends \BaseController {
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
-			"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand
+			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand
 		);
 		
-		return json_encode($result4,JSON_NUMERIC_CHECK);		
+		return json_encode($result4,JSON_NUMERIC_CHECK);	
+	
 	}
 
     public function ajax_datagrid($type)
@@ -95,22 +96,9 @@ class EstimatesController extends \BaseController {
     {
         $companyID 				= 	User::get_companyID();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        $accounts 				= 	Account::getAccountIDList();
-		
-        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
-        $emailTemplates 	 	= 	EmailTemplate::getTemplateArray(array('Type'=>Estimate::ESTIMATE_TEMPLATE));
-        $templateoption 	 	= 	[''=>'Select',1=>'New Create',2=>'Update'];
-        $EstimateNo 				= 	Estimate::where(array('CompanyID'=>$companyID))->get(['EstimateNumber']);
-        $EstimateNoarray 		= 	array();
-        
-		foreach($EstimateNo as $Estimaterow)
-		{
-            $EstimateNoarray[] = $Estimaterow->EstimateNumber;
-        }
-		
-        $estimate = implode(',',$EstimateNoarray);
-		
-        return View::make('estimates.index',compact('products','accounts','estimate_status_json','estimate','emailTemplates','templateoption','DefaultCurrencyID'));
+        $accounts 				= 	Account::getAccountIDList();		
+        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());	
+        return View::make('estimates.index',compact('accounts','estimate_status_json','DefaultCurrencyID'));
     }
 
     /**
@@ -278,7 +266,6 @@ class EstimatesController extends \BaseController {
                         $Estimate->update(["PDF" => $pdf_path]);
                     }
 
-                    Log::info('PDF fullPath ' . $pdf_path);
 
                     DB::connection('sqlsrv2')->commit();
 
@@ -404,7 +391,7 @@ class EstimatesController extends \BaseController {
                                 $i++;
                             }
                         }
-                        //print_r($EstimateDetailData);
+
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -420,7 +407,6 @@ class EstimatesController extends \BaseController {
                                 $Estimate->update(["PDF" => $pdf_path]);
                             }
 
-                            Log::info('PDF fullPath ' . $pdf_path);
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
                         }
@@ -473,7 +459,6 @@ class EstimatesController extends \BaseController {
                                 $TaxRates->toArray();
                             }
                             $AccountTaxRate = explode(",", $Account->TaxRateId);
-                            //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
@@ -736,7 +721,8 @@ class EstimatesController extends \BaseController {
                     }
                 }
             }
-            $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo'))->render();
+			$print_type = 'Estimate';
+            $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);

@@ -32,8 +32,14 @@ $(function() {
                         data: sales_data_2,
                         xkey: 'x',
                         ykeys: ['y','z','a'],
-                        labels:['Payment Received','Total Invoice','Total Outstanding'],
-                        barColors: ['#3399FF', '#333399', '#3366CC']
+                        labels:['Payment Deposited','Total Invoice','Total Outstanding'],
+                        barColors: ['#3399FF', '#333399', '#3366CC'],
+                            hoverCallback:function (index, options, content, row) {
+                                var StartDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-01';
+                                var lastday = new Date(2008, row.x.split('/')[0], 0).getDate();
+                                var EndDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-'+lastday;
+                                return '<div class="morris-hover-row-label">'+row.x+'</div><div  class="morris-hover-point"><a  style="color: #3399FF" target="_blank" href="'+baseurl+'/customer/payments?StartDate='+StartDate+'&EndDate='+EndDate+'">Payment Deposited: {{$CurrencySymbol}}'+row.y+'</a></div><div  class="morris-hover-point"><a style="color: #333399" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a></div><div  class="morris-hover-point"><a style="color: #3366CC" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a></div>'
+                            }
 
                     });
             line_chart_demo_2.parent().attr('style', '');

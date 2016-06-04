@@ -133,13 +133,31 @@ class RateTablesController extends \BaseController {
                             ->where("tblRateTable.RateTableId", $id)->count();
             //Is RateTable assigne to RateTableRate table then dont delete
             if ($is_id_assigned == 0) {
-				if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
-                    return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                if(!empty(RateTable::checkRateTableInCronjob($id))){
+                    if(RateTableRate::where(["RateTableId" => $id])->count()>0){
+                        if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
+                            return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                        }
+                    }else{
+                        if (RateTable::where(["RateTableId" => $id])->delete()) {
+                            return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                        }
+                    }
+
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to CronJob."));
                 }
+
             } else {
-                return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                if(empty(RateTable::checkRateTableInCronjob($id))){
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate and CronJob."));
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                }
             }
         }
     }
@@ -512,6 +530,8 @@ class RateTablesController extends \BaseController {
         $save['checkbox_replace_all'] = $data['checkbox_replace_all'];
         $save['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
         $save['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+        $save['ratetablename'] = RateTable::where(["RateTableId" => $id])->pluck('RateTableName');
+
         //Inserting Job Log
         try {
             DB::beginTransaction();

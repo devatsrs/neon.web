@@ -2143,6 +2143,7 @@ th {
 }
 .table-bordered {
   border: 1px solid #ebebeb;
+  background-color: #ffffff;
 }
 .table-bordered > thead > tr > th,
 .table-bordered > tbody > tr > th,
@@ -2151,16 +2152,18 @@ th {
 .table-bordered > tbody > tr > td,
 .table-bordered > tfoot > tr > td {
   border: 1px solid #ebebeb;
+  /*background-color: #fff !important;*/
 }
 .table-bordered > thead > tr > th,
 .table-bordered > thead > tr > td {
-  background-color: #f5f5f6;
+  /*background-color: #f5f5f6;*/
+  background-color: #fff;
   border-bottom-width: 1px;
   color: #a6a7aa;
 }
 .table-bordered > tfoot > tr > th,
 .table-bordered > tfoot > tr > td {
-  background-color: #f5f5f6;
+  background-color: #fff;
   border-top-width: 1px;
   color: #a6a7aa;
 }
@@ -2344,7 +2347,7 @@ table th[class*="col-"] {
 }
 table > tbody > tr.highlight > td,
 table > tbody > tr.highlight > th {
-  background-color: #f1f2f4 !important;
+  background-color: #fff !important;
   color: #303641;
 }
 .table > thead > tr > .middle-align,
