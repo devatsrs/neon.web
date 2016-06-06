@@ -55,7 +55,10 @@
     </div>
     <div class="clear"></div>
 
-     <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+      @if(User::checkCategoryPermission('Disputes','Add'))
+          <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+      @endif
+
 
      <table class="table table-bordered datatable" id="table-4">
           <thead>
