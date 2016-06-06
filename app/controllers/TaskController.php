@@ -14,7 +14,7 @@ class TaskController extends \BaseController {
     public function ajax_task_board($id){
         $data = Input::all();
         if(User::is('AccountManager')){
-            $data['account_owners'] = User::get_userID();
+            $data['AccountOwner'] = User::get_userID();
         }
         $data['fetchType'] = 'Board';
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data,true,true);
