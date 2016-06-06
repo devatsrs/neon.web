@@ -7,7 +7,7 @@ BEGIN
   THEN
     update `tblJob` set `ShowInCounter` = '0' where `CompanyID` = p_CompanyId and `ShowInCounter` = '1';
   END IF;
-        select  `tblJob`.`JobID`, `tblJob`.`Title`, `tblJobStatus`.`Title` as Status, `tblJob`.`HasRead`, `tblJob`.`CreatedBy`, `tblJob`.`created_at` 
+        select  `tblJob`.`JobID`, `tblJob`.`Title`, `tblJobStatus`.`Title` as Status, `tblJob`.`HasRead`, `tblJob`.`CreatedBy`, `tblJob`.`created_at`, `tblJobType`.`Title` as JobType
         from `tblJob` inner join `tblJobStatus` on `tblJob`.`JobStatusID` = `tblJobStatus`.`JobStatusID` 
         inner join `tblJobType` on `tblJob`.`JobTypeID` = `tblJobType`.`JobTypeID` 
         where `tblJob`.`CompanyID` = p_CompanyId AND  `tblJob`.JobLoggedUserID = p_userId

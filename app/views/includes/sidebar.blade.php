@@ -94,7 +94,8 @@
     @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
-    User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View') )
+    User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
+    User::checkCategoryPermission('Disputes','View'))
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
