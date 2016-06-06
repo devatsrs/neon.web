@@ -215,7 +215,7 @@
     <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
-                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
+                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -323,9 +323,9 @@
                                     var recall_ = "{{ URL::to('payments/{id}/recall')}}";
                                     Approve_Payment = Approve_Payment.replace('{id}', full[0]);
                                     Reject_Payment = Reject_Payment.replace('{id}', full[0]);
-                                    recall_  = recall_ .replace( '{id}', full[0]);
+                                    recall_  = recall_ .replace( '{id}', full[0]);									
                                     action = '<div class = "hiddenRowData" >';
-                                    for(var i = 0 ; i< list_fields.length; i++){
+                                    for(var i = 0 ; i< list_fields.length; i++){										
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
@@ -392,9 +392,10 @@
                         ev.stopPropagation();
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){							
-                            if(list_fields[i] == 'Amount'){
-                                $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
+                        for(var i = 0 ; i< list_fields.length+1; i++){												
+                            if(list_fields[i] == 'AmountWithSymbol'){							
+								
+                                $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
                             }else if(list_fields[i] == 'Currency'){ 							
 							var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields[i] + "']").val()];
 								if(currency_sign_show!='Select a Currency'){								
