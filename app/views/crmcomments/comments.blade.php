@@ -1,7 +1,7 @@
 <div class="col-md-6">
-    <h4>Total Comments: {{$commentcount}}</h4>
+    <h4>Total Comments: {{!empty($Comments)?count($Comments):0}}</h4>
 </div>
-<div class="col-md-12 fancyscroll" style="max-height:600px; overflow-y:auto">
+<div class="col-md-12 perfect-scrollbar" style="max-height:600px; overflow-y:auto">
     <div class="panel panel-primary">
         <div class="panel-body no-padding">
 
@@ -17,15 +17,15 @@
                                 </p>
                                 <div class="comment-footer">
                                     <div class="comment-time">
-                                        {{$comment['created_at']}}
+                                        {{\Carbon\Carbon::createFromTimeStamp(strtotime($comment['created_at']))->diffForHumans()}}
                                     </div>
                                     <div class="comment-time pull-left">
                                         @if(!empty($comment['AttachmentPaths']))
                                             <a href="javascript:void(0)" title="View attachments" class="viewattachments btn-sm btn-default btn-xs">
                                                 <i class="entypo-attach"></i>
                                             </a>
-                                            @foreach($comment['AttachmentPaths'] as $attachment)
-                                                <div class="comment-attachment btn-default hidden"><a href="{{$attachment['filepath']}}" target="_blank">{{basename($attachment['filename'])}}</a></div>
+                                            @foreach(json_decode($comment['AttachmentPaths'],true) as $attachment)
+                                                <div class="comment-attachment btn-default hidden"><a href="{{ validfilepath($attachment['filepath'])}}" target="_blank">{{basename($attachment['filename'])}}</a></div>
                                             @endforeach
                                         @endif
                                     </div>

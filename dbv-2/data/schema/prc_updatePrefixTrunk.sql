@@ -3,6 +3,8 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
+	 
+
     -- update trunk with first trunk if not set UseInBilling
     SET @stm1 = CONCAT(' UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
     LEFT JOIN LocalRatemanagement.tblCustomerTrunk ct 
@@ -16,7 +18,6 @@ BEGIN
     AND ud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
     AND ud.processId = "' , p_processId , '"
 	AND ud.is_inbound = 0;
-
     ');
 
     PREPARE stmt1 FROM @stm1;

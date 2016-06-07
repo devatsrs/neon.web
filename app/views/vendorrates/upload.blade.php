@@ -14,7 +14,7 @@
         <strong>Rate upload</strong>
     </li>
 </ol>
-<h3>Rate upload</h3>
+<h3>Vendor Rate upload</h3>
 @include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
 <li>
@@ -282,6 +282,19 @@
                         <label for="field-1" class="col-sm-2 control-label">Action Delete</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="selection[ActionDelete]" value="D" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <br />
+                        <br />
+                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
+                        </div>
+
+                        <label for="field-1" class="col-sm-2 control-label">Preference</label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[Preference]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
                     </div>
                     <div class="form-group">

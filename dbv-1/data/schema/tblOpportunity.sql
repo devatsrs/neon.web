@@ -21,7 +21,7 @@ CREATE TABLE `tblOpportunity` (
   `Order` int(11) DEFAULT NULL,
   `Status` int(11) DEFAULT NULL,
   `AttachmentPaths` longtext COLLATE utf8_unicode_ci,
-  `TaggedUser` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TaggedUsers` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime(3) DEFAULT NULL,
   `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,

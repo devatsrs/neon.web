@@ -148,7 +148,16 @@ class Porta{
                                 $tempItemData['PostCode'] = '';
                             }
                             if(!empty($Country)){
-                                $tempItemData['Country'] = $Country;
+                                $checkCountry=strtoupper($Country);
+                                if($checkCountry=='UK'){
+                                    $checkCountry = 'UNITED KINGDOM';
+                                }
+                                $count = DB::table('tblCountry')->where(["Country" => $checkCountry])->count();
+                                if($count>0){
+                                    $tempItemData['Country'] = $checkCountry;
+                                }else{
+                                    $tempItemData['Country'] = '';
+                                }
                             }else{
                                 $tempItemData['Country'] = '';
                             }
@@ -177,7 +186,7 @@ class Porta{
                             $tempItemData['created_by'] = 'Imported';
 
                             if(!empty($tempItemData['AccountName'])){
-                                $count = DB::table('tblTempAccount')->where('AccountName','=',$tempItemData['AccountName'])->count();
+                                $count = DB::table('tblAccount')->where(["AccountName" => $tempItemData['AccountName'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
                                 if($count==0){
                                     $batch_insert_array[] = $tempItemData;
                                 }

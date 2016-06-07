@@ -149,7 +149,8 @@ class AccountActivityController extends \BaseController {
     }
 	
 	public function sendMailApi($AccountID)
-	{		
+	{
+			
 	    $data 					= 	Input::all();
 		$data['AccountID']		=   $AccountID;
 		$emailattachments		=   $data['emailattachment_sent'];		
@@ -159,10 +160,7 @@ class AccountActivityController extends \BaseController {
 		//token_attachment
 		$files_array	=	Session::get("activty_email_attachments");
 		
-		
-
-		
-       	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
+	   	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
 		if(isset($files_array[$data['token_attachment']]))
 		{
 			$data['file']		=	$files_array[$data['token_attachment']];
@@ -173,22 +171,16 @@ class AccountActivityController extends \BaseController {
 		$data['address']		=    Auth::user()->EmailAddress;
 	   
 		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
-		
-		if(!isset($response->status_code)){
+	
+		if($response->status=='failed'){
 				return  json_response_api($response);
-			}
-			
-			if ($response->status_code == 200) {	
-				$logID 	  		 = 	$response->LogID;					
-				$response 		 = 	$response->data->result;
-				$response->type  = 	2;				
-				$response->LogID = 	$logID;
+		}else{										
+				$response 		 = 	$response->data;
+				$response->type  = 	Task::Mail;			
+				$response->LogID = 	$response->AccountEmailLogID;
 				unset($files_array[$data['token_attachment']]);
 				Session::set("activty_email_attachments", $files_array); 
-			}
-			else{
-			 return  json_response_api($response);
-			}
+		}
 			
 			$key 			= $data['scrol']!=""?$data['scrol']:0;	
 			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;

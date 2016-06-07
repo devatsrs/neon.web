@@ -9,7 +9,8 @@ class VendorProfilingController extends \BaseController {
         $data['Status'] = 1;
         $data['IsVendor'] = 1;
         $active_vendor = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
-        $data['Status'] = '0';
+        $data['Status']   = '1';
+		$data['IsVendor'] = '0';
         $inactive_vendor = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         //$allvendorcodes =  VendorTrunk::getAllVendorCodes();
         $allvendorcodes = array();
@@ -31,22 +32,23 @@ class VendorProfilingController extends \BaseController {
         Datatables::of($vendors)->make();
     }
 
-    public function active_deactivate_vendor(){
+    public function active_deactivate_vendor(){		
         $data = Input::all();
         $CompanyID = User::get_companyID();
         if($data['action'] == 'deactivate' && !empty($data['AccountID']) && is_array($data['AccountID'])){
-            Account::whereIn('AccountID',$data['AccountID'])->update(array('Status'=>'0'));
-            $active_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1,'Status'=>1])->orderBy('AccountName')->get();
-            $inactive_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1,'Status'=>0])->orderBy('AccountName')->get();
+            Account::whereIn('AccountID',$data['AccountID'])->update(array('IsVendor'=>'0'));
+            $active_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1])->orderBy('AccountName')->get();
+            $inactive_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>0])->orderBy('AccountName')->get();
             return Response::json(array("status" => "success", "message" => "Vendor Deactivated","active_vendor"=>$active_vendor,"inactive_vendor"=>$inactive_vendor));
         }elseif($data['action'] == 'activate' && !empty($data['AccountID']) && is_array($data['AccountID'])){
-            Account::whereIn('AccountID',$data['AccountID'])->update(array('Status'=>1));
-            $active_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1,'Status'=>1])->orderBy('AccountName')->get();
-            $inactive_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1,'Status'=>0])->orderBy('AccountName')->get();
+            Account::whereIn('AccountID',$data['AccountID'])->update(array('IsVendor'=>1,'Status'=>1));
+            $active_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1])->orderBy('AccountName')->get();
+            $inactive_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>0])->orderBy('AccountName')->get();
             return Response::json(array("status" => "success", "message" => "Vendor Activated.","active_vendor"=>$active_vendor,"inactive_vendor"=>$inactive_vendor));
         }
         return Response::json(array("status" => "failed", "message" => "No Vendor Selected."));
-    }
+    
+	}
 
     public function ajax_datagrid(){
         $data = Input::all();

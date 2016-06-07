@@ -213,7 +213,7 @@ class JobsController extends \BaseController {
 
         $PID = $data['PID'];
         $JobData = array();
-        $JobData['PID'] = '';
+        $JobData['PID'] = 0;
         $JobData['JobStatusID'] = $data['JobStatusID'];
         $JobData['JobStatusMessage'] = $Job->JobStatusMessage.' User message:'.$data['message'];
 
@@ -225,7 +225,9 @@ class JobsController extends \BaseController {
         $output = exec($command,$op);
         Log::info($command);
         Log::info($output);
-        $Job->update($JobData);
+
+
+        Job::where('JobID',$JobID)->update($JobData);
 
 
         if(isset($output) && $output == !''){

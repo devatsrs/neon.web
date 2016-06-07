@@ -9,18 +9,14 @@ class TaskCommentsController extends \BaseController {
      * @return mixed
      */
     public function ajax_taskcomments($id){
-        $response = NeonAPI::request('taskcomments/'.$id.'/get_comments',[],false);
-        $comments ='';
-        if(isset($response->status_code)) {
-            if ($response->status_code == 200) {
-                $result = $response->data->result;
-            }else{
-                return json_response_api($response);
-            }
+        $response = NeonAPI::request('taskcomments/'.$id.'/get_comments',[],false,true);
+        $Comments = [];
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
         }else{
-            return json_response_api($response);
+            $Comments = json_response_api($response,true,false,false);
         }
-        $Comments=[];
+        /*$Comments=[];
         $commentcount = 0;
         if(!empty($result)) {
             foreach ($result as $comment) {
@@ -40,7 +36,7 @@ class TaskCommentsController extends \BaseController {
                 ];
                 $commentcount++;
             }
-        }
+        }*/
         return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
     }
 
@@ -58,10 +54,11 @@ class TaskCommentsController extends \BaseController {
             $data['file'] = $file;
         }
         $response = NeonAPI::request('taskcomment/add_comment',$data,true,false,true);
-        if ($response->status_code == 200) {
+        if($response->status!='failed'){
             unset($files_array[$data['token_attachment']]);
             Session::set("email_attachments", $files_array);
         }
+
         return  json_response_api($response);
     }
 

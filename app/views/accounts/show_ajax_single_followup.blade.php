@@ -1,5 +1,5 @@
  @if(count($response))
-          @if($response_data['type']==2)
+          @if($response_data['type']==Task::Mail)
           <li id="timeline-{{$key}}"  class="count-li">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response_data['created_at'])); ?>">
               <?php if(date("Y-m-d h:i",strtotime($response_data['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -11,7 +11,7 @@
               <?php } ?>
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-  <div class="cbp_tmlabel normal">  
+  <div class="cbp_tmlabel normal_tag">  
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['CreatedBy']==$current_user_title) You @else {{$response_data['CreatedBy']}}  @endif <span>sent an email to</span> @if($response_data['EmailTo']==$current_user_title) You @else {{$response_data['EmailTo']}}  @endif</h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response_data['Cc'])<p>CC: {{$response_data['Cc']}}</p>@endif
@@ -51,7 +51,7 @@
 
             
 </li>
-@elseif($response_data['type']==3)
+@elseif($response_data['type']==Task::Note)
 <li id="timeline-{{$key}}" row-id="{{$response_data['NoteID']}}" class="count-li">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response_data['created_at'])); ?>">
     <?php if(date("Y-m-d h:i",strtotime($response_data['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -63,7 +63,7 @@
     <?php } ?>
   </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-  <div class="cbp_tmlabel normal">  
+  <div class="cbp_tmlabel normal_tag">  
     <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['created_by']==$current_user_title) You @else {{$response_data['created_by']}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response_data['Note']}}</p>

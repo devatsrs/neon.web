@@ -8,14 +8,14 @@ class Dispute extends \Eloquent {
 	protected $table = 'tblDispute';
 	protected  $primaryKey = "DisputeID";
 	const  PENDING = 0;
-	const SETTELED =1;
+	const SETTLED =1;
 	const CANCEL  = 2;
 
-	public static $Status = [''=>'Select a Status',self::PENDING=>'Pending',self::SETTELED=>'Setteled',self::CANCEL=>'Cancel'];
+	public static $Status = [''=>'Select a Status',self::PENDING=>'Pending',self::SETTLED=>'Settled',self::CANCEL=>'Cancel'];
 
 	public static function reconcile($companyID,$accountID,$StartDate,$EndDate,$GrandTotal,$TotalMinutes){
 
-		$output = array("total"=>0,"total_difference"=>0,"total_difference_per"=>0, "minutes"=>0,"minutes_difference" =>0, "minutes_difference_per" => 0 );
+		$output = array("DisputeTotal"=>0,"DisputeDifference"=>0,"DisputeDifferencePer"=>0, "DisputeMinutes"=>0,"MinutesDifference" =>0, "MinutesDifferencePer" => 0 );
 
 		if ( !empty($accountID) && !empty($StartDate) && !empty($EndDate) ) {
 
@@ -25,31 +25,58 @@ class Dispute extends \Eloquent {
 
 			$output = Dispute::calculate_dispute($GrandTotal,$result_array[0]["DisputeTotal"],$TotalMinutes,$result_array[0]["DisputeMinutes"] );
 
+			$round_places = get_round_decimal_places($accountID);
+
+			$output["DisputeTotal"] 					= number_format($output["DisputeTotal"] , $round_places , '.' , '' );
+			$output["DisputeDifference"] 		= number_format($output["DisputeDifference"] , $round_places , '.' , '' );
+			$output["DisputeDifferencePer"] 	= number_format($output["DisputeDifferencePer"] , $round_places , '.' , '');
+			$output["MinutesDifferencePer"] 	= number_format($output["MinutesDifferencePer"] , $round_places , '.' , '' );
+
 		}
 
 		return $output;
 	}
+
+
 	public static function calculate_dispute($GrandTotal,$DisputeTotal,$TotalMinutes,$DisputeMinutes){
 
-		$DisputeTotal = number_format($DisputeTotal,4);
-		$DisputeDifference = number_format($GrandTotal - $DisputeTotal,4);
-		$total_average = $GrandTotal + $DisputeTotal / 2;
+		if($DisputeTotal > 0 ){
 
-		if($total_average > 0){
-			$DisputeDifferencePer =  number_format(abs(($DisputeDifference / $total_average) * 100),4);
+			if($DisputeTotal > $GrandTotal){
+
+				$formula_total = (100 - ($GrandTotal / $DisputeTotal ) * 100);
+			}else {
+
+				$formula_total = (100 - ($DisputeTotal / $GrandTotal ) * 100);
+			}
+
 		}else{
-			$DisputeDifferencePer =  0;
+
+			$formula_total = 100;
+		}
+		$DisputeDifference = $GrandTotal - $DisputeTotal;
+
+		$DisputeDifferencePer =  $formula_total;
+
+		if($DisputeMinutes > 0) {
+
+			if ( $DisputeMinutes > $TotalMinutes ){
+
+				$formula_seconds = (100 - ($TotalMinutes / $DisputeMinutes ) * 100);
+			}else {
+
+				$formula_seconds = (100 - ($DisputeMinutes / $TotalMinutes ) * 100);
+			}
+
+		}else{
+
+			$formula_seconds = 100;
 		}
 
-		$DisputeMinutes = $DisputeMinutes;
 		$MinutesDifference = $TotalMinutes - $DisputeMinutes;
-		$minutes_average = $TotalMinutes + $DisputeMinutes / 2;
 
-		if($minutes_average > 0){
-			$MinutesDifferencePer =  number_format(abs(($MinutesDifference / $minutes_average) * 100),4);
-		}else{
-			$MinutesDifferencePer = 0;
-		}
+		$MinutesDifferencePer =  $formula_seconds;
+
 
 		return array(
 

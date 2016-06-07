@@ -110,11 +110,11 @@ BEGIN
 						SELECT GROUP_CONCAT(code) into errormessage FROM(
 							select distinct code, 1 as a FROM(
 								SELECT   count(code) as c,code FROM tmp_TempRateTableRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl) as tbl2 GROUP by a;				
-								
-						SELECT 'DUPLICATE CODE : \n\r' INTO errorheader;		
-						
-						INSERT INTO tmp_JobLog_ (Message)
-							 SELECT CONCAT(errorheader ,errormessage);						
+						INSERT INTO tmp_JobLog_ (Message)		
+						SELECT DISTINCT
+                        CONCAT(code , ' DUPLICATE CODE')
+                        FROM(
+								SELECT   count(code) as c,code FROM tmp_TempRateTableRate_  GROUP BY Code,EffectiveDate HAVING c>1) as tbl;
 							
 			END IF;
 			
@@ -205,8 +205,17 @@ BEGIN
                     
                     IF errormessage IS NOT NULL
 	                 THEN
-                        INSERT INTO tmp_JobLog_ (Message)
-					 				SELECT CONCAT(' INVALID CODE - COUNTRY NOT FOUND : \n\r ',errormessage );	
+	                 		INSERT INTO tmp_JobLog_ (Message)
+		                  SELECT DISTINCT
+      	                  CONCAT(tblTempRateTableRate.Code , ' INVALID CODE - COUNTRY NOT FOUND ')
+      	                  FROM tmp_TempRateTableRate_  as tblTempRateTableRate 
+                    INNER JOIN tblRate
+				             ON tblRate.Code = tblTempRateTableRate.Code
+				             AND tblRate.CompanyID = p_companyId
+				             AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+						  WHERE tblRate.CountryID IS NULL
+                    AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+                    
 					 	 END IF;
 					 	 
             ELSE
@@ -228,8 +237,22 @@ BEGIN
                         
                  IF errormessage IS NOT NULL
                   THEN
-                    INSERT INTO tmp_JobLog_ (Message)
-					 			SELECT CONCAT(' CODE DOES NOT EXIST IN CODE DECK : \n\r ',errormessage );
+                     INSERT INTO tmp_JobLog_ (Message)
+	                  SELECT DISTINCT
+                        CONCAT(tblTempRateTableRate.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+                         FROM
+               	     (
+                        SELECT DISTINCT
+                            tblTempRateTableRate.Code,
+                            tblTempRateTableRate.Description
+                        FROM tmp_TempRateTableRate_  as tblTempRateTableRate 
+                        LEFT JOIN tblRate
+			                ON tblRate.Code = tblTempRateTableRate.Code
+			                AND tblRate.CompanyID = p_companyId
+			                AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+								WHERE tblRate.RateID IS NULL
+                        AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) as tbl;									
+
 					 	END IF;
 
 
@@ -332,18 +355,11 @@ BEGIN
                     ON tblRate.Code = tblTempRateTableRate.Code
                     AND tblRate.CompanyID = p_companyId
                     AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
-                    LEFT JOIN tblRateTableRate
-                        ON tblRate.RateID = tblRateTableRate.RateId
-                        AND tblRateTableRate.RateTableId = p_ratetableid
-                WHERE (tblRateTableRate.RateTableRateID IS NULL
-                OR (
-                tblRateTableRate.RateTableRateID IS NOT NULL
-                AND tblTempRateTableRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d')
-                AND tblTempRateTableRate.Rate <> tblRateTableRate.Rate
-                AND tblTempRateTableRate.EffectiveDate <> tblRateTableRate.EffectiveDate
-                AND tblRateTableRate.EffectiveDate <> tblTempRateTableRate.EffectiveDate
-                )
-                )
+                LEFT JOIN tblRateTableRate
+						   ON tblRate.RateID = tblRateTableRate.RateId
+						   AND tblRateTableRate.RateTableId = p_ratetableid
+						   AND tblRateTableRate.EffectiveDate =  tblTempRateTableRate.EffectiveDate
+					 WHERE tblRateTableRate.RateTableRateID IS NULL
                 AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
                 AND tblTempRateTableRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d');
 

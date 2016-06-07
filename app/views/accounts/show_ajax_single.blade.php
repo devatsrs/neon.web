@@ -1,5 +1,5 @@
  @if(count($response))
-          @if($response->type==2)
+          @if($response->type==Task::Mail)
           <li id="timeline-{{$key}}" row-id="{{$response->LogID}}" class="count-li">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
               <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
@@ -11,7 +11,7 @@
               <?php } ?>
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-  <div class="cbp_tmlabel normal">  
+  <div class="cbp_tmlabel normal_tag">  
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif</h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response->Cc)<p>CC: {{$response->Cc}}</p>@endif
@@ -49,7 +49,7 @@
     </div>
             </div>
 </li>
-@elseif($response->type==1)
+@elseif($response->type==Task::Tasks)
 
           <li id="timeline-{{$key}}" class="count-li">
            <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
@@ -62,7 +62,7 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-            <div class="cbp_tmlabel normal">
+            <div class="cbp_tmlabel normal_tag">
                   <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>You created a task</span>
@@ -82,7 +82,7 @@
                  </div>
             </div>
           </li>
-@elseif($response->type==3)
+@elseif($response->type==Task::Note)
 <li id="timeline-{{$key}}" row-id="{{$response->NoteID}}" class="count-li">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
     <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
@@ -94,7 +94,7 @@
     <?php } ?>
   </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-  <div class="cbp_tmlabel normal">  
+  <div class="cbp_tmlabel normal_tag">  
     <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$response->created_by}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response->Note}}</p>

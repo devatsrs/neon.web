@@ -25,12 +25,11 @@
 @include('includes.success')
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
-
-    <div class="steps-progress">
+    <div class="steps-progress" style="display:none">
         <div class="progress-indicator"></div>
     </div>
 
-    <ul id="wizardul">
+    <ul id="wizardul" style="display:none">
         <li class="active" id="st1">
             <a href="#tab2-1" data-toggle="tab"><span>1</span><h5 class="test">Select Import Type</h5></a>
         </li>
@@ -44,9 +43,11 @@
 
 
     <div class="tab-content">
+        <span class="itype"><h3>Select Import Type</h3></span>
         <div class="tab-pane active" id="tab2-1">
 
             <div class="row">
+
                 </br></br>
                 <div class="col-md-1"></div>
                 <div class="col-md-11">
@@ -105,10 +106,11 @@
             <div class="row" id="gatewayimport">
                 <input type="hidden" name="gateway" value="">
                 <input type="hidden" name="CompanyGatewayID" value="">
+                <input type="hidden" name="importprocessid" value="">
                 <input type="hidden" name="importaccountsuccess" value="">
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
-                <span class="gatewayloading">Import Account Processing</span>
+                <span class="gatewayloading">Retrieving Accounts ... </span>
                 <p style="float: right">
                     <button type="button" id="uploadaccount"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
                 </p>
@@ -230,7 +232,7 @@
                                                 <input type="hidden" class="form-control" name="AccountType" value="1" />
                                                 <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">First Name*</label>
+                                            <label for="field-1" class="col-sm-2 control-label">First Name</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[FirstName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
@@ -241,62 +243,59 @@
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[LastName]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Email</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Phone</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Phone]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Address1</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Address2</label>
+                                            <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Address3</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Country*</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-
-                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">City</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Job Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Title]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">BillingEmail</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Address1</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Address2</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Address3</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">City</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Country</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Currency]', array(),'',array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <label for="field-1" class="col-sm-2 control-label">Employee</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -307,26 +306,6 @@
                                             <label for="field-1" class="col-sm-2 control-label">Fax</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[Fax]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Mobile</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Mobile]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Skype</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Skype]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Twitter</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Twitter]', array(),'',array("class"=>"selectboxit"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Employee</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"selectboxit"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -459,6 +438,9 @@
             onNext: function(tab, navigation, index) {
                 activetab = tab.attr('id');
                 if(activetab=='st1'){
+                    $('.itype').hide();
+                    $('#wizardul').removeAttr('style');
+                    $('.steps-progress').removeAttr('style');
                     var importfrom = $("#rootwizard-2 input[name='size']:checked").val();
                     if(importfrom=='csv' || importfrom=='excel'){
                         if($('#st3 h5').hasClass("test")){
@@ -482,8 +464,8 @@
                         $('#csvimport').show();
                     }else if(importfrom=='PBX' || importfrom=='Porta'){
                         $('#st3').remove();
-                        $("#st2 h5.test").html('Get Account From Gateway');
-                        $("#st3 h5.test").html('Import Account');
+                        $("#st2 h5.test").html('Select Accounts');
+                        $("#st3 h5.test").html('Import Accounts');
                         var cgid = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
                         var cgname = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
                         $('#csvimport').hide();
@@ -508,60 +490,68 @@
                         var filename = $("#rootwizard-2 input[name='excel']").val();
                         if (filename == '') {
                             toastr.error('Please upload file.', "Error", toastr_opts);
+                            $(".pager .next").removeClass('disabled');
                             return false;
                         } else {
                             var formData = new FormData($('#rootwizard-2')[0]);
-                            show_loading_bar(0);
-                            $.ajax({
-                                url: '{{URL::to('/import/account/check_upload')}}',  //Server script to process data
-                                type: 'POST',
-                                dataType: 'json',
-                                xhr: function () {  // Custom XMLHttpRequest
-                                    var myXhr = $.ajaxSettings.xhr();
-                                    if (myXhr.upload) { // Check if upload property exists
-                                        myXhr.upload.addEventListener('progress', function (evt) {
-                                            var percent = (evt.loaded / evt.total) * 100;
-                                            show_loading_bar(percent);
-                                        }, false);
-                                    }
-                                    return myXhr;
-                                },
-                                beforeSend: function () {
+                            var timeDelay = 500;
+                            setTimeout(loadXML, timeDelay);
+                            function loadXML() {
+                                $.ajax({
+                                    url: '{{URL::to('/import/account/check_upload')}}',  //Server script to process data
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    xhr: function () {  // Custom XMLHttpRequest
+                                        var myXhr = $.ajaxSettings.xhr();
+                                        if (myXhr.upload) { // Check if upload property exists
+                                            myXhr.upload.addEventListener('progress', function (evt) {
+                                                var percent = (evt.loaded / evt.total) * 100;
+                                                show_loading_bar(percent);
+                                            }, false);
+                                        }
+                                        return myXhr;
+                                    },
+                                    beforeSend: function () {
 
-                                },
-                                afterSend: function () {
-                                    console.log("Afer Send");
-                                },
-                                success: function (response) {
+                                    },
+                                    afterSend: function () {
+                                        console.log("Afer Send");
+                                    },
+                                    success: function (response) {
+                                        setTimeout(function() {
+                                            if (response.status == 'success') {
+                                                $('#pbxactive').hide();
+                                                $('#csvactive').show();
+                                                var data = response.data;
+                                                createGrid(data);
+                                                $('#add-template').removeClass('hidden');
 
-                                    if (response.status == 'success') {
-                                        $('#pbxactive').hide();
-                                        $('#csvactive').show();
-                                        var data = response.data;
-                                        createGrid(data);
-                                        $('#add-template').removeClass('hidden');
-
-                                    } else {
-                                        toastr.error(response.message, "Error", toastr_opts);
-                                        return false;
-                                    }
-                                    //alert(response.message);
-                                    //$('.btn.upload').button('reset');
-                                },
-                                // Form data
-                                data: formData,
-                                //Options to tell jQuery not to process data or worry about content-type.
-                                cache: false,
-                                contentType: false,
-                                processData: false
-                            });
+                                            } else {
+                                                toastr.error(response.message, "Error", toastr_opts);
+                                                return false;
+                                            }
+                                        },500);
+                                        //alert(response.message);
+                                        //$('.btn.upload').button('reset');
+                                    },
+                                    // Form data
+                                    data: formData,
+                                    //Options to tell jQuery not to process data or worry about content-type.
+                                    cache: false,
+                                    contentType: false,
+                                    processData: false
+                                });
+                            }
                         }
                     } // import from excel-csv over
 
                 }
             },
             onPrevious: function(tab, navigation, index) {
-
+                activetab = tab.attr('id');
+                if(activetab=='st2'){
+                    location.reload();
+                }
             }
         });
 
@@ -746,6 +736,7 @@
                         //$('#importaccount').hide();
                         $("#gatewayimport input[name='importaccountsuccess']").val('1');
                         $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
+                        $("#gatewayimport input[name='importprocessid']").val(response.processid);
                         //toastr.success(response.message, "Success", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
@@ -764,6 +755,7 @@
         $("#get_account").click(function(e) {
             e.preventDefault();
             var CGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
+            var cprocessid=$("#gatewayimport input[name='importprocessid']").val();
             data_table = $("#table-5").dataTable({
                 "bProcessing":true,
                 "bDestroy": true,
@@ -772,9 +764,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID});
+                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"CompanyGatewayID","value":10},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"Export","value":1});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -859,6 +851,7 @@
             var criteria = '';
             var AccountIDs = [];
             var gatewayid = $("#rootwizard-2 input[name='CompanyGatewayID']").val();
+            var importprocessid = $("#rootwizard-2 input[name='importprocessid']").val();
             if($('#selectallbutton').is(':checked')){
                 //criteria = JSON.stringify($searchFilter);
                 criteria = 1;
@@ -881,7 +874,7 @@
                 }
                 $.ajax({
                     url: baseurl + '/import/account/add_missing_gatewayaccounts',
-                    data: 'TempAccountIDs='+AccountIDs+'&criteria='+criteria+'&companygatewayid='+gatewayid,
+                    data: 'TempAccountIDs='+AccountIDs+'&criteria='+criteria+'&companygatewayid='+gatewayid+'&importprocessid='+importprocessid,
                     error: function () {
                         toastr.error("error", "Error", toastr_opts);
                     },
@@ -1009,26 +1002,24 @@
                             <th>Account Number(Opt.)</th>
                             <th>Account Name</th>
                             <th>Title(Opt.)</th>
-                            <th>First Name</th>
+                            <th>First Name(Opt.)</th>
                             <th>Last Name(Opt.)</th>
-                            <th>Email(Opt.)</th>
                             <th>Phone(Opt.)</th>
-                            <th>Job Title(Opt.)</th>
-                            <th>Post Code(Opt.)</th>
+                            <th>Email(Opt.)</th>
+                            <th>Billing Email(Opt.)</th>
                             <th>Address1(Opt.)</th>
                             <th>Address2(Opt.)</th>
                             <th>Address3(Opt.)</th>
-                            <th>Country</th>
                             <th>City(Opt.)</th>
-                            <th>Tags(Opt.)</th>
+                            <th>Post Code(Opt.)</th>
+                            <th>Country(Opt.)</th>
+                            <th>Currency(Opt.)</th>
+                            <th>Employee(Opt.)</th>
                             <th>Website(Opt.)</th>
                             <th>Fax(Opt.)</th>
-                            <th>Mobile(Opt.)</th>
-                            <th>Skype(Opt.)</th>
-                            <th>Twitter(Opt.)</th>
-                            <th>Employee(Opt.)</th>
                             <th>Description(Opt.)</th>
                             <th>VatNumber(Opt.)</th>
+                            <th>Tags(Opt.)</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -1038,24 +1029,22 @@
                             <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
-                            <td>test@gmail.com</td>
                             <td>999999</td>
-                            <td>Director</td>
-                            <td>123456</td>
+                            <td>test@gmail.com</td>
+                            <td>testbilling@gmail.com</td>
                             <td>address line1</td>
                             <td>address line2</td>
                             <td>address line3</td>
-                            <td>India</td>
-                            <td>Rajkot</td>
-                            <td>test1,test2</td>
+                            <td>London</td>
+                            <td>WC2N</td>
+                            <td>UNITED KINGDOM</td>
+                            <td>USD</td>
+                            <td>4</td>
                             <td>WWW.abc.com</td>
                             <td>12546</td>
-                            <td>990990999</td>
-                            <td>abc.skype</td>
-                            <td>abc.twitter</td>
-                            <td>4</td>
                             <td>test Description</td>
                             <td>789546</td>
+                            <td>test1,test2</td>
                         </tr>
                         <tr>
                             <td>202</td>
@@ -1063,50 +1052,45 @@
                             <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
-                            <td>test@gmail.com</td>
                             <td>999999</td>
-                            <td>Director</td>
-                            <td>123456</td>
+                            <td>test@gmail.com</td>
+                            <td>testbilling@gmail.com</td>
                             <td>address line1</td>
                             <td>address line2</td>
                             <td>address line3</td>
-                            <td>India</td>
-                            <td>Rajkot</td>
-                            <td>test1,test2</td>
+                            <td>London</td>
+                            <td>WC2N</td>
+                            <td>UNITED KINGDOM</td>
+                            <td>USD</td>
+                            <td>4</td>
                             <td>WWW.abc.com</td>
                             <td>12546</td>
-                            <td>990990999</td>
-                            <td>abc.skype</td>
-                            <td>abc.twitter</td>
-                            <td>4</td>
                             <td>test Description</td>
                             <td>789546</td>
+                            <td>test1,test2</td>
                         </tr>
                         <tr>
                             <td>203</td>
                             <td>Test Account</td>
-                            <td>India</td>
                             <td>Mr</td>
                             <td>Test</td>
                             <td>Abc</td>
-                            <td>test@gmail.com</td>
                             <td>999999</td>
-                            <td>Director</td>
-                            <td>123456</td>
+                            <td>test@gmail.com</td>
+                            <td>testbilling@gmail.com</td>
                             <td>address line1</td>
                             <td>address line2</td>
                             <td>address line3</td>
-                            <td>India</td>
-                            <td>Rajkot</td>
-                            <td>test1,test2</td>
+                            <td>London</td>
+                            <td>WC2N</td>
+                            <td>UNITED KINGDOM</td>
+                            <td>USD</td>
+                            <td>4</td>
                             <td>WWW.abc.com</td>
                             <td>12546</td>
-                            <td>990990999</td>
-                            <td>abc.skype</td>
-                            <td>abc.twitter</td>
-                            <td>4</td>
                             <td>test Description</td>
                             <td>789546</td>
+                            <td>test1,test2</td>
                         </tr>
                         </tbody>
                     </table>

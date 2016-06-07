@@ -133,8 +133,15 @@ BEGIN
 	          
 	   IF errormessage IS NOT NULL
           THEN
-                    INSERT INTO tmp_JobLog_ (Message)
-					 			SELECT CONCAT(' FAILED TO DELETE - CODE IS IN USE : \n\r ',errormessage );
+                    INSERT INTO tmp_JobLog_ (Message)                    
+                    SELECT distinct 
+						  CONCAT(tblRate.Code , ' FAILED TO DELETE - CODE IS IN USE')
+					      FROM   tblRate
+					              INNER JOIN tblTempCodeDeck ON tblTempCodeDeck.Code = tblRate.Code
+					      	    AND tblRate.CompanyID = p_companyId AND tblRate.CodeDeckId = v_CodeDeckId_
+					          WHERE   tblTempCodeDeck.Action = 'D'
+					          AND tblTempCodeDeck.ProcessId = p_processId
+					          AND tblTempCodeDeck.CompanyID = p_companyId AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_;
 	 	END IF;
       
       UPDATE  tblRate

@@ -1,7 +1,56 @@
 <?php
 
 class PaymentsController extends \BaseController {
-
+	
+			public function ajax_datagrid_total()
+		{
+			$data 							 = 		Input::all();
+			$CompanyID 						 = 		User::get_companyID();
+			$data['iDisplayStart'] 		 	 =		0;
+			$data['iDisplayStart'] 			+=		1;
+			$data['iSortCol_0']			 	 =  	0;     
+			$data['sSortDir_0']			 	 =  	'desc';
+			$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
+			$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
+			$data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
+			$data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
+			$data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';		
+			$data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
+			$data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'00:00:00';		
+			$data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
+			$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
+			$data['p_paymentstart']			 =		'null';		
+			$data['p_paymentend']			 =		'null';
+			$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+			 
+			if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
+			{
+				 $data['p_paymentstart']		=	"'".$data['p_paymentstartdate'].' '.$data['p_paymentstartTime']."'";	
+			}		
+			
+			if($data['p_paymentenddate']!='' && $data['p_paymentenddate']!='null' && $data['p_paymentendtime']!='')
+			{
+				 $data['p_paymentend']			=	"'".$data['p_paymentenddate'].' '.$data['p_paymentendtime']."'";	
+			}
+			
+			if($data['p_paymentstart']!='null' && $data['p_paymentend']=='null') 
+			{
+				$data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
+			}
+	
+			$data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
+			$columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
+			$sort_column = $columns[$data['iSortCol_0']];
+			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0)";
+		   
+			$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
+			$result2  = $result['data']['Total_grand_field'][0]->total_grand;
+			$result4  = array(
+					"total_grand"=>$result['data']['Total_grand_field'][0]->total_grand
+			);
+				
+			return json_encode($result4,JSON_NUMERIC_CHECK);		
+		}
 
     public function ajax_datagrid($type)
 	{
@@ -19,6 +68,7 @@ class PaymentsController extends \BaseController {
 		$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
+		$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
 		 
 		if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
 		{
@@ -38,7 +88,7 @@ class PaymentsController extends \BaseController {
         $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -64,11 +114,13 @@ class PaymentsController extends \BaseController {
     public function index()
     {
         $id=0;
+		$companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList(); 
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
         $accounts = Account::getAccountIDList();
-        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids'));
+		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
 	}
 
 	/**

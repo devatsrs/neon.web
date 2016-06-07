@@ -104,8 +104,10 @@ class CompaniesController extends \BaseController {
         if(!isset($data['DefaultTextRate'])) {
             $data['DefaultTextRate'] = '';
         }
-        CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
-        unset($data['DefaultTextRate']);
+		if(isset($data['DefaultTextRate']) && is_array($data['DefaultTextRate'])){
+			CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
+		}
+		unset($data['DefaultTextRate']);
 
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
@@ -121,7 +123,7 @@ class CompaniesController extends \BaseController {
             if(count($CurrencyConversion)>0){
                 $cval = $CurrencyConversion->Value;
                 if($cval!='1.000000'){
-                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyID']))->update($CurrencyCon);
+                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
                 }
             }else{
                 CurrencyConversion::create($CurrencyCon);

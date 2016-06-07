@@ -155,6 +155,7 @@
                 </div>
 
                 <div class="panel-options">
+                    {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway','class'=>'select_gray')) }}
                     <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                     <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                     <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
@@ -269,12 +270,15 @@ $(function() {
     });
     $("#PinExt").change(function(){
         pin_report();
+    })
+    $("#company_gateway").change(function(){
+        missingAccounts();
     });
 });
 function missingAccounts(){
     var table = $('#missingAccounts');
     loadingUnload(table,1);
-    var url = baseurl+'/dashboard/ajax_get_missing_accounts';
+    var url = baseurl+'/dashboard/ajax_get_missing_accounts?CompanyGatewayID='+$("#company_gateway").val();
     $.ajax({
         url: url,  //Server script to process data
         type: 'POST',

@@ -30,7 +30,6 @@ GenerateRateTable:BEGIN
 	DECLARE v_Commit int;
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN      
-             show warnings;
 		   ROLLBACK;	  
 		   CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', ''); 
                		   

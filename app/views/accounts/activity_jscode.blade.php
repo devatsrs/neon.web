@@ -538,6 +538,8 @@ $('#emai_attachments_form').submit(function(e) {
 							$("#timeline-ul").append(html_end);	
 						 }
 						document.getElementById('save-task-form').reset();
+						
+						$('#save-task-form #Description').css("height","48px");
 					}
                     show_popup=0;
 				    $("#save-task").button('reset');

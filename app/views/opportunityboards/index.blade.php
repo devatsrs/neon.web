@@ -181,16 +181,6 @@
                         $('#add-edit-modal-opportunity-board').modal('show');
                     });
 
-                    $('#configure-taskboard,#manage-taskboard').click(function(){
-                        var taskBoradID = $(this).attr('data-id');
-                        if(taskBoradID){
-                            var url = $(this).attr('id')=='configure-taskboard'?'{{URL::to('task/{id}/configure')}}':'{{URL::to('task/manage')}}';
-                            window.location = url.replace('{id}',taskBoradID);
-                        }else{
-                            toastr.error('Please create Task Board first.', "Error", toastr_opts);
-                        }
-                    });
-
                     $('#add-edit-opportunitybaord-form').submit(function(e){
                         e.preventDefault();
                         var BoardID = $("#add-edit-opportunitybaord-form [name='BoardID']").val();

@@ -155,69 +155,101 @@ class LeadsController extends \BaseController {
 
     }
 	
-		public function show($id) {
-            $account 					= 	 Account::find($id);
+		public function show($id) {		
+            $account 					= 	 Lead::find($id);
             $companyID 					= 	 User::get_companyID();
-            $notes 						= 	 Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
-		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-			$verificationflag 			= 	 AccountApprovalList::isVerfiable($id);
-            $outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
-            $currency 					= 	 Currency::getCurrencySymbol($account->CurrencyId);
-            $activity_type 				= 	 AccountActivity::$activity_type;
-            $activity_status 			=	 [1 => 'Open', 2 => 'Closed'];
-			$UserList				  	=	 USer::getUserIDList();			
-            $data['iDisplayStart'] 	    =	 0;          
+			
+			//get account contacts
+		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
+			
+			//get account time line data
+            $data['iDisplayStart'] 	    =	 0;
             $data['iDisplayLength']     =    10;
             $data['AccountID']          =    $id;
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
             $RowsPerPage                =    $data['iDisplayLength'];
 			$message 					= 	 '';
-            $response 				    = 	 NeonAPI::request('account/GetTimeLine',$data,false);
-			 $sql 						= 	 "select `tblAccount`.`AccountName`, concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername, `tblAccount`.`Phone`, `tblAccount`.`Email`, `tblAccount`.`AccountID`, `IsCustomer`, `IsVendor`, `tblAccount`.`Address1`, `tblAccount`.`Address2`, `tblAccount`.`Address3`, `tblAccount`.`City`, `tblAccount`.`Country`, `Picture`, `tblAccount`.`PostCode` from `tblAccount` where (`tblAccount`.`AccountType` = '0') and `tblAccount`.`AccountID` = '".$id."' limit 1";  
-			$Account_card  				= 	 DB::select($sql);			
-			$account_owners 			= 	 User::getUserIDList();
-			$Board 						= 	 CRMBoard::getTaskBoard();
-			$priority 					= 	 CRMBoardColumn::getTaskStatusList($Board[0]->BoardID);
-			$Board 						=	 CRMBoard::getTaskBoard();
-			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(0,1);
-			$random_token				=	 get_random_number();
-            //Backup code for getting extensions from api
-            $response_extensions   		=	 NeonAPI::request('get_allowed_extensions',[],false);
- 			$response_extensions 		= 	 json_response_api($response_extensions,true,false);
-	        
-			if(!empty($response_extensions)){
-                if(!isJson($response_extensions)){
-					$message = $response_extensions['errors'];
+            $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
+			
+			if($response_timeline['status']!='failed'){
+				if(isset($response_timeline['data']))
+				{
+					$response_timeline =  $response_timeline['data'];
+				}else{
+					$response_timeline = array();
 				}
-            }
-            //$response_extensions     =  getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+			}
+			else{
+				$message = json_response_api($response_timeline,false,true);
+			}
+			
+			
+			//get account card data
+			$sql = "select `tblAccount`.`AccountName`, concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
+		`tblAccount`.`Phone`, `tblAccount`.`Email`, `tblAccount`.`AccountID`, `IsCustomer`, `IsVendor`, 
+		`tblAccount`.`Address1`, `tblAccount`.`Address2`, `tblAccount`.`Address3`, `tblAccount`.`City`,
+		 `tblAccount`.`Country`, `Picture`, `tblAccount`.`PostCode` from `tblAccount`
+ 		where (`tblAccount`.`AccountType` = '0' and `tblAccount`.`CompanyID` = '".$companyID."') and tblAccount.AccountID='".$account->AccountID."'";
+          
+		   
+            $Account_card  				= 	 DB::select($sql);
+			$Account_card  				=	 array_shift($Account_card);
+			
+			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $account_owners 			= 	 User::getUserIDList();
+			//$Board 						=	 CRMBoard::getTaskBoard();
+			
+			
+			
+			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			$random_token				=	 get_random_number();
+            
+			//Backup code for getting extensions from api
+           $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
+		   $response_extensions 	=  [];
+		
+			if($response->status=='failed'){
+				 $message = json_response_api($response,false,true);
+			 }else{
+				$response_extensions = json_response_api($response,true,true);
+			}
+	        
+		
+
+           //all users email address
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
 			
-			$leadTags 					= 	json_encode(Tags::getTagsArray(Tags::Lead_tag)); //opperturnity variables start
-			$boards 		 			= 	CRMBoard::getBoards(CRMBoard::OpportunityBoard);
-			$opportunityTags 			= 	json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+			//Account oppertunity data
+			$boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
+			if(count($boards)<1){
+				
+				$message 				= 	 "No Task Board Found. PLease create task board first";
+			}else{
+				$boards					=	  $boards[0];
+			}
+			
 			$leads 			 			= 	Lead::getLeadList();
 			$leadOrAccountID 			= 	'';
 			$leadOrAccount 				= 	$leads;
 			$leadOrAccountCheck 		= 	'lead';
-			$opportunitytags 			= 	json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-			
+		
+			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 
 			 if (isset($response->status_code) && $response->status_code == 200) {			
-				$response = $response->data->result;
+				$response = $response->data;
 			}else{				
 			 	$message	=	isset($response->message)?$response->message:$response->error;
 			 	Session::set('error_message',$message);
 			}
 			
-			$max_file_env				=	getenv('MAX_UPLOAD_FILE_SIZE');
-			$max_file_size				=	!empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
 			
+			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-            return View::make('accounts.show1', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','response','message','current_user_title','per_scroll','UserList','Account_card','account_owners','priority','Board','emailTemplates','response_extensions','random_token','users','max_file_size','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','data'));
-    }
+			
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
+    	}
 
     /**
      * Show the form for editing the specified resource.

@@ -129,7 +129,19 @@
                 <li>
                    <a href="{{ URL::to('/import/account') }}" >
                         <i class="entypo-user-add"></i>
-                        <span>Import Accounts</span>
+                        <span>Import</span>
+                   </a>
+                </li>
+                <li class="li_active">
+                   <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
+                        <i class="fa fa-plus-circle"></i>
+                        <span>Activate</span>
+                   </a>
+                </li>
+                <li class="li_deactive">
+                   <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
+                        <i class="fa fa-minus-circle"></i>
+                        <span>Deactivate</span>
                    </a>
                 </li>
                 @endif
@@ -173,7 +185,70 @@
     var view = 1;
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
-      
+		
+		function check_status(){
+            var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
+			if(selected_active_type){
+
+
+				$('.li_active').hide();
+				$('.li_deactive').show();
+			}else{
+				$('.li_active').show();
+				$('.li_deactive').hide();		
+			}
+		}
+		
+		$('.type_active_deactive').click(function(e) {
+			
+            var type_active_deactive  =  $(this).attr('type_ad');
+			var SelectedIDs 		  =  getselectedIDs();	
+			var criteria_ac			  =  '';
+			
+			if($('#selectallbutton').is(':checked')){
+				criteria_ac = 'criteria';
+			}else{
+				criteria_ac = 'selected';				
+			}
+			
+			if(SelectedIDs=='' || criteria_ac=='')
+			{
+				alert("Please select atleast one account.");
+				return false;
+			}
+			
+			account_ac_url =  '{{ URL::to('accounts/update_bulk_account_status')}}';
+			$.ajax({
+				url: account_ac_url,
+				type: 'POST',
+				dataType: 'json',
+				success: function(response) {
+					   if(response.status =='success'){
+							toastr.success(response.message, "Success", toastr_opts);
+							data_table.fnFilter('', 0);
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+                   	 	}				
+					},				
+				data: {
+			"account_name":$("#account_filter [name='account_name']").val(),
+			"account_number":$("#account_filter [name='account_number']").val(),
+			"contact_name":$("#account_filter [name='contact_name']").val(),
+			"tag":$("#account_filter [name='tag']").val(),
+			"verification_status":$("#account_filter [name='verification_status']").val(),
+			"account_owners":$("#account_filter [name='account_owners']").val(),			
+			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
+			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
+			"account_active":$("#account_filter [name='account_active']").prop("checked"),
+			"SelectedIDs":SelectedIDs,
+			"criteria_ac":criteria_ac,	
+			"type_active_deactive":type_active_deactive,
+			}			
+				
+			});
+			
+        });
+		
 
         //["tblAccount.Number",
         // "tblAccount.AccountName",
@@ -311,6 +386,7 @@
             ]
         },
         "fnDrawCallback": function() {
+			check_status();
              $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
@@ -923,6 +999,8 @@
     #selectcheckbox{
         padding: 15px 10px;
     }
+
+	.li_active{display:none;}
 </style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
@@ -1089,6 +1167,7 @@
                                 <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
                                 <div class="col-sm-4">
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+
                                 </div>
                             </div>
                         </div>

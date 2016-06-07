@@ -179,25 +179,26 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
-                    </div>
+ 
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
+                    
+                     <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2"))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit"))}}
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2",'disabled'))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit",'disabled'))}}
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -213,7 +214,10 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
-
+ <label for="NominalAnalysisNominalAccountNumber" class="col-sm-2 control-label">Nominal Code</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                    </div>
 
                 </div>
                 <script>
@@ -222,9 +226,9 @@
                     });
                 </script>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Customer Panel Password</label>
+                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
@@ -259,12 +263,7 @@
                     </div>
                     <input type="hidden" class="form-control"  name="CustomerCLI" id="field-1" placeholder="" value="{{$account->CustomerCLI}}" />
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
-                    </div>
-                </div>
+                
                 <div class="panel-title desc clear">
                     Description
                 </div>
@@ -273,6 +272,14 @@
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
                 </div>
+                
+                            <div class="form-group">            
+                    <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
+                    <div class="col-sm-4">
+        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
+                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
+                    </div>  
+                    </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)
@@ -1128,4 +1135,9 @@
         </div>
     </div>
 </div>
+<script>
+setTimeout(function(){
+	$('#CustomerPassword_hide').hide();
+	},1000);
+</script>
 @stop
