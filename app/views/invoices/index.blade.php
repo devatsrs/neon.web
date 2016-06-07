@@ -488,12 +488,12 @@ var postdata;
             "aaSorting": [[3, 'desc']]},
                 success: function(response1) {
 					//console.log("sum of result"+response1);
-                    if(response1.total_grand!=null) {
-                        $('.result_row').remove();
-                        $('.result_row').hide();
-                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
-                    }
-				}
+						if(response1.total_grand!=null) {
+						$('.result_row').remove();
+						$('.result_row').hide();
+				        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="4"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+						}
+					}
 			});	
 		}
 		
