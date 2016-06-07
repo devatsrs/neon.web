@@ -36,7 +36,7 @@ class TaskController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         if(User::is('AccountManager')){
-            $data['AccountOwners'] = User::get_userID();
+            $data['AccountOwner'] = User::get_userID();
         }
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data,true);
         return json_response_api($response,true,true,true);

@@ -44,7 +44,7 @@
                     10. Added grid totals on Payments and CDR pages<br>
                     11. Fixed issue with xls file import<br>
                     12. Improved Account/Lead view section<br>
-                    13. Imporoved menu icons<br>
+                    13. improved menu icons<br>
                     14. Added following menu options to Customer Panel: Monitor Dashboard,Commercials and CDR<br>
                 </div>
             </li>
