@@ -35,7 +35,7 @@
                         </button>
                     </form>
                 </li>--> 
-    @if( User::checkCategoryPermission('RmDashboard','All')  || User::checkCategoryPermission('SalesDashboard','All')||User::checkCategoryPermission('BillingDashboard','All'))
+    @if(User::checkCategoryPermission('MonitorDashboard','All'))
     <li class=""><a href="{{Url::to('/monitor')}}"><i class="entypo-monitor"></i><span>Monitor Dashboard</span></a>
     </li>
     @endif

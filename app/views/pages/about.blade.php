@@ -13,13 +13,44 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.02</h1>
+    <h1>NEON - 4.03</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.02</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.03</strong></div>
 </p>
+</div>
+
+<h2>
+    <span class="label label-success">4.03</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>06-06-2016</h4>
+                    1.  Added an option to create Disputes<br>
+                    2.  Added an option to Import Accounts from Mirta/Porta/CSV/Excel<br>
+                    3.  Added an option to import Leads<br>
+                    4.  Added LCR policy (LCR/LCR+Prefix) option against Rate Generator and LCR<br>
+                    5.  Added CRM module (Opportunities and Tasks)<br>
+                    6.  Added Monitor Dashboard<br>
+                    7.  Added Customer/Vendor Analysis by Destination,Prefix,Trunk and Gateway<br>
+                    8.  Added Forbidden and Preference options under Vendor Rate Upload<br>
+                    9.  Added an option to activate/deactivate multiple accounts<br>
+                    10. Added grid totals on Payments and CDR pages<br>
+                    11. Fixed issue with xls file import<br>
+                    12. Improved Account/Lead view section<br>
+                    13. Imporoved menu icons<br>
+                    14. Added following menu options to Customer Panel: Monitor Dashboard,Commercials and CDR<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 <h2>
