@@ -20,11 +20,13 @@
 
 <p style="text-align: right;">
 
+    @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
         Add Opportunity
     </a>
 
+    @endif
 @if($account->VerificationStatus == Account::NOT_VERIFIED)
      <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
         <i class="entypo-check"></i>

@@ -108,10 +108,12 @@
         </div>
 
         <p style="text-align: right;">
+            @if(User::checkCategoryPermission('Opportunity','Add'))
             <a href="javascript:void(0)" class="btn btn-primary opportunity">
                 <i class="entypo-plus"></i>
                 Add New Opportunity
             </a>
+            @endif
         </p>
 
         <section class="deals-board" >
@@ -185,6 +187,7 @@
             });
 
 
+            @if(User::checkCategoryPermission('Opportunity','Edit'))
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
                 e.stopPropagation();
                 var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
@@ -221,6 +224,8 @@
                 $('#edit-modal-opportunity').modal('show');
             });
 
+            @endif
+            @if(User::checkCategoryPermission('OpportunityComment','View'))
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
                 $('.sendmail').removeClass('hidden');
@@ -243,6 +248,7 @@
                 $('#add-view-modal-opportunity-comments').modal('show');
             });
 
+            @endif
             $('#add-opportunity-comments-form').submit(function(e){
                 e.preventDefault();
                 var formData = new FormData($('#add-opportunity-comments-form')[0]);
@@ -274,7 +280,7 @@
                     processData: false
                 });
             });
-
+            @if(User::checkCategoryPermission('OpportunityAttachment','Add'))
             $(document).on('change','#add-opportunity-attachment-form input[type="file"]',function(){
                 var opportunityID = $('#add-opportunity-attachment-form [name="OpportunityID"]').val();
                 var formData = new FormData($('#add-opportunity-attachment-form')[0]);
@@ -307,7 +313,8 @@
                     processData: false
                 });
             });
-
+            @endif
+            @if(User::checkCategoryPermission('OpportunityAttachment','Delete'))
             $(document).on('click','#attachments i.delete-file',function(){
                 var con = confirm('Are you sure you want to delete this attachments?');
                 if(!con){
@@ -337,7 +344,7 @@
                     processData: false
                 });
             });
-
+            @endif
             $(document).on('click','#addTtachment',function(){
                 $('#filecontrole1').click();
             });
@@ -855,6 +862,7 @@
                         <h4 class="modal-title">Opportunity Name</h4>
                     </div>
                     <div class="modal-body">
+                        @if(User::checkCategoryPermission('OpportunityComment','Add'))
                         <form id="add-opportunity-comments-form" method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <div class="col-md-12 text-left">
@@ -894,6 +902,7 @@
                                 </div>
                             </div>
                         </form>
+                        @endif
                         <br>
                         <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div id="allComments" class="form-group">

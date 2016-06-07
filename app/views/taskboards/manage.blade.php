@@ -43,10 +43,12 @@
         </div>
     </div>
     <p style="text-align: right;">
+        @if(User::checkCategoryPermission('TaskBoard','Configure'))
         <a href="{{URL::to('task/'.$Board[0]->BoardID.'/configure')}}" class="btn btn-primary">
             <i class="entypo-cog"></i>
             Configure Board
         </a>
+        @endif
     </p>
 
     <div class="row">
@@ -121,10 +123,12 @@
         <p id="tools">
             <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
             <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
+            @if(User::checkCategoryPermission('Task','Add'))
             <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                 <i class="entypo-plus"></i>
                 Add Task
             </a>
+            @endif
         </p>
 
         <section class="deals-board">
@@ -260,7 +264,9 @@
                                 action += '<input type = "hidden"  name = "' + task[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                             }
                             action += '</div>';
+                            @if(User::checkCategoryPermission('Task','Edit'))
                             action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            @endif
                             return action;
                         }
                     }
@@ -293,7 +299,7 @@
                 e.preventDefault();
                 getRecord();
             });
-
+            @if(User::checkCategoryPermission('Task','Edit'))
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#taskGrid .edit-deal',function(e){
                 e.stopPropagation();
                 if($(this).is('a')){
@@ -340,7 +346,7 @@
                 $('#edit-modal-task h4').text('Edit Task');
                 $('#edit-modal-task').modal('show');
             });
-
+            @endif
             $('#tools .toggle').click(function(){
                 if($(this).hasClass('list')){
                     $(this).addClass('active');
@@ -354,7 +360,7 @@
                     $('#taskGrid_wrapper,#taskGrid').addClass('hidden');
                 }
             });
-
+            @if(User::checkCategoryPermission('TaskComment','View'))
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-task-comments-form').trigger("reset");
                 $('.sendmail').removeClass('hidden');
@@ -376,7 +382,8 @@
                 autosizeUpdate();
                 $('#add-view-modal-task-comments').modal('show');
             });
-
+            @endif
+            @if(User::checkCategoryPermission('TaskComment','Add'))
             $('#add-task-comments-form').submit(function(e){
                 e.preventDefault();
                 var formData = new FormData($('#add-task-comments-form')[0]);
@@ -408,7 +415,8 @@
                     processData: false
                 });
             });
-
+            @endif
+            @if(User::checkCategoryPermission('TaskAttachment','Add'))
             $(document).on('change','#add-task-attachment-form input[type="file"]',function(){
                 var taskID = $('#add-task-attachment-form [name="TaskID"]').val();
                 var formData = new FormData($('#add-task-attachment-form')[0]);
@@ -439,7 +447,8 @@
                     processData: false
                 });
             });
-
+            @endif
+            @if(User::checkCategoryPermission('TaskAttachment','Delete'))
             $(document).on('click','#attachments i.delete-file',function(){
                 var con = confirm('Are you sure you want to delete this attachments?');
                 if(!con){
@@ -469,7 +478,7 @@
                     processData: false
                 });
             });
-
+            @endif
             $(document).on('click','#addTtachment',function(){
                 $('#filecontrole1').click();
             });
@@ -538,7 +547,7 @@
                     });
                 }
             });
-
+            @if(User::checkCategoryPermission('TaskAttachment','Delete'))
             $(document).on("click",".del_attachment",function(ee){
                 var file_delete_url  =  baseurl + '/task/delete_attachment_file';
                 var del_file_name   =  $(this).attr('del_file_name');
@@ -554,7 +563,7 @@
                     success: function(response1) {}
                 });
             });
-
+            @endif
             $('#add-view-modal-task-comments').on('shown.bs.modal', function(event){
                 email_file_list = [];
                 $(".file-input-names").empty();

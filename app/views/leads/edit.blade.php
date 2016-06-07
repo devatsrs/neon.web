@@ -17,10 +17,12 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+    @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
         Add Opportunity
     </a>
+    @endif
     <button type="button" id="leadsave"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
