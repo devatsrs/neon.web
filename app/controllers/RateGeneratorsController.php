@@ -519,6 +519,7 @@ class RateGeneratorsController extends \BaseController {
                 if($action == 'create'){
                     $RateTableName = Input::get('RateTableName');
                     $data["rate_table_name"] = $RateTableName;
+                    $data['ratetablename'] = $RateTableName;
                     $rules = array(
                         'rate_table_name' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].',RateGeneratorID,'.$id,
                         'EffectiveDate'=>'required'
@@ -526,6 +527,7 @@ class RateGeneratorsController extends \BaseController {
                 }else if($action == 'update'){
                     $RateTableID = Input::get('RateTableID');
                     $data["RateTableId"] = $RateTableID;
+                    $data['ratetablename'] = RateTable::where(["RateTableId" => $RateTableID])->pluck('RateTableName');
                     $rules = array(
                         'RateTableId' => 'required',
                         'EffectiveDate'=>'required'
@@ -549,6 +551,7 @@ class RateGeneratorsController extends \BaseController {
                         $data["RateTableID"] = $RateTableID;
                     }
                 }*/
+
                 $result = Job::logJob("GRT", $data);
                 if ($result ['status'] != "success") {
                     DB::rollback();

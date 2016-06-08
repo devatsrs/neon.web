@@ -67,7 +67,7 @@
               <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
               
               <label for="field-1" class="col-sm-2 control-label" style="width: 7%;">Currency</label>
-            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} </div>
+            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}} </div>
        
             </div> 
             <p style="text-align: right;">
@@ -213,7 +213,7 @@
     </table>
     </div>
     <script type="text/javascript">
-	
+        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
 	 var currency_signs = {{$currency_ids}};
                 var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
                 var $searchFilter = {};
@@ -277,7 +277,7 @@
                             {
                                 "bSortable": true, //Amount
                                 mRender: function (id, type, full) {
-                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
+                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(toFixed);
                                     a = a.toString();
                                     return full[16]
                                 }
@@ -392,9 +392,8 @@
                         ev.stopPropagation();
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length+1; i++){												
-                            if(list_fields[i] == 'AmountWithSymbol'){							
-								
+                        for(var i = 0 ; i< list_fields.length; i++){							
+                            if(list_fields[i] == 'AmountWithSymbol'){
                                 $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
                             }else if(list_fields[i] == 'Currency'){ 							
 							var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields[i] + "']").val()];

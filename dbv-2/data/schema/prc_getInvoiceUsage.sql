@@ -32,13 +32,13 @@ BEGIN
             max(Trunk) as Trunk,
             (SELECT 
                 Country
-            FROM Ratemanagement3.tblRate r
-            INNER JOIN Ratemanagement3.tblCountry c
+            FROM LocalRatemanagement.tblRate r
+            INNER JOIN LocalRatemanagement.tblCountry c
                 ON c.CountryID = r.CountryID
             WHERE  r.Code = ud.area_prefix limit 1)
             AS Country,
             (SELECT Description
-            FROM Ratemanagement3.tblRate r
+            FROM LocalRatemanagement.tblRate r
             WHERE  r.Code = ud.area_prefix limit 1 )
             AS Description,
             COUNT(UsageDetailID) AS NoOfCalls,
@@ -59,8 +59,8 @@ BEGIN
             select
             trunk,
             area_prefix,
-            cli,
-            cld,
+            concat("'",cli,"'") as cli,
+            concat("'",cld,"'") as cld,
             connect_time,
             disconnect_time,
             billed_duration,

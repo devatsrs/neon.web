@@ -1864,7 +1864,7 @@ text-align:left
 }
 
 /*Used for large text area*/
-.description{
+.textarea{
     min-height: 200px;
 }
 

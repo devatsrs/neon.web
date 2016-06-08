@@ -17,7 +17,7 @@ BEGIN
         CONCAT(ltrim(rtrim(IFNULL(it.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))) as InvoiceNumber,
         inv.IssueDate,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) as GrandTotal2,
-		  CONCAT(IFNULL(cr.Symbol,''),format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_),'/',IFNULL(cr.Symbol,''),format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_)) as `PendingAmount`,
+		  CONCAT(IFNULL(cr.Symbol,''),format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_),'/',format((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ),v_Round_)) as `PendingAmount`,
         inv.InvoiceStatus,
         inv.InvoiceID,
         inv.Description,
@@ -73,7 +73,7 @@ BEGIN
         
         
         SELECT
-            COUNT(*) AS totalcount,ROUND(sum(inv.GrandTotal),v_Round_) as total_grand,ROUND(sum(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_)),v_Round_) as `first_amount`,sum(ROUND(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0 ),v_Round_)) as second_amount
+            COUNT(*) AS totalcount,ROUND(sum(inv.GrandTotal),v_Round_) as total_grand,ROUND(sum(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_)),v_Round_) as `TotalPayment`,sum(ROUND(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0 ),v_Round_)) as TotalPendingAmount,cr.Symbol as currency_symbol
         FROM
         tblInvoice inv
         inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID

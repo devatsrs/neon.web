@@ -37,8 +37,11 @@ class CDRCustomerController extends BaseController {
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
         $data['AccountID']           = User::get_userID();
-		
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",0,".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $account                     = Account::find($data['AccountID']);
+        $CurrencyId                  = $account->CurrencyId;
+        $accountCurrencyID 		 = 	 empty($CurrencyId)?'0':$CurrencyId;
+
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
@@ -70,16 +73,17 @@ class CDRCustomerController extends BaseController {
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
         $data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
         $data['AccountID']           = User::get_userID();
-        $account = Account::find($data['AccountID']);
+        $account                     = Account::find($data['AccountID']);
+        $CurrencyId                  = $account->CurrencyId;
+        $accountCurrencyID 		 = 	 empty($CurrencyId)?'0':$CurrencyId;
+
         if(!empty($account->CurrencyId)){
             $currency = Currency::getCurrencySymbol($account->CurrencyId);
         }else{
             $currency = '';
         }
 
-
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",0,".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
-
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('DataGrid','SumData'));
         $result4  = array(
             "totalcount"=>$result['data']['SumData'][0]->totalcount,
