@@ -1023,13 +1023,19 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
-        {
-            return 'opened';
+        {  if($controller=='users' && isset($_REQUEST['show'])){
+            	return 'opened';
+			}
+			else
+			{
+				return 'opened';
+			}
         }
 
         if(in_array($controller,$array_admin) && $parent_link =='Admin')
-        {
-            return 'opened';
+        {	if(!isset($_REQUEST['show'])){
+            	return 'opened';
+			}
         }
 
         if(in_array($controller,$array_summary) && $parent_link =='Summary')

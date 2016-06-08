@@ -160,7 +160,7 @@
     <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
       <ul>
         @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') )
-        <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">  <span>My Profile</span> </a> </li>
+        <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}?show=1">  <span>My Profile</span> </a> </li>
         @endif
         @if( User::checkCategoryPermission('Trunk','View') )
         <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
