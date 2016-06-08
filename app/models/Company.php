@@ -63,7 +63,7 @@ class Company extends \Eloquent {
     }
 
     public static function ValidateLicenceKey(){
-        $LICENCE_KEY = getenv('LICENCE_KEY');
+         $LICENCE_KEY = getenv('LICENCE_KEY');  
         $result = array();
         $result['LicenceHost'] = $_SERVER['HTTP_HOST'];
         $result['LicenceIP'] = $_SERVER['SERVER_ADDR'];

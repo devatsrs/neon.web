@@ -22,6 +22,21 @@ var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
     jQuery(document).ready(function ($) {	
+
+			$("#form_timeline_filter [name=timeline_filter]").click(function(e){
+        	var show_timeline_data = $(this).attr('show_data'); console.log(show_timeline_data);
+			if(show_timeline_data!='')
+			{
+				if(show_timeline_data=='all'){
+					$('#timeline-ul .count-li').show();
+				}else{
+					$('#timeline-ul .count-li').hide();
+					$('#timeline-ul ').find('.'+show_timeline_data).show();
+				}
+			}
+    	});
+		
+	
 	
 	@if(!empty($message))
  var status = '{{$message}}';
@@ -153,7 +168,7 @@ toastr.error(status, "Error", toastr_opts);
 							$("#timeline-ul").append(response1); 
 						}
 							$('div#last_msg_loader').empty();
-						
+							change_click_filter();
 						},
 				});	
 			
@@ -493,6 +508,7 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 
             } show_popup=0;
+			change_click_filter();
       			},
 			});
 
@@ -545,6 +561,7 @@ $('#emai_attachments_form').submit(function(e) {
 				    $("#save-task").button('reset');
 			   	    $("#save-task").removeClass('disabled');
                     //getOpportunities();
+					change_click_filter();
                 },
                 // Form data
                 data: formData,
@@ -556,6 +573,12 @@ $('#emai_attachments_form').submit(function(e) {
         
 			//////////////
         });
+		
+		function change_click_filter()
+		{
+			var current_time_line_filter =  $(".timeline_filter:checked");
+			$(current_time_line_filter).click();
+		}
 		
 		function isJson(str) {
 		try {
@@ -694,7 +717,7 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				///				
 				
-            } show_popup=0;
+            } show_popup=0; change_click_filter();
       			},
 			});	
 		 });

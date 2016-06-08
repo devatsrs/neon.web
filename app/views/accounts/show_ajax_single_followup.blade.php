@@ -1,6 +1,6 @@
  @if(count($response))
           @if($response_data['type']==Task::Mail)
-          <li id="timeline-{{$key}}"  class="count-li">
+          <li id="timeline-{{$key}}"  class="count-li timeline_task_entry">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response_data['created_at'])); ?>">
               <?php if(date("Y-m-d h:i",strtotime($response_data['created_at'])) == date('Y-m-d h:i')) { ?>
               <span>Now</span>
@@ -52,7 +52,7 @@
             
 </li>
 @elseif($response_data['type']==Task::Note)
-<li id="timeline-{{$key}}" row-id="{{$response_data['NoteID']}}" class="count-li">
+<li id="timeline-{{$key}}" row-id="{{$response_data['NoteID']}}" class="count-li timeline_note_entry">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response_data['created_at'])); ?>">
     <?php if(date("Y-m-d h:i",strtotime($response_data['created_at'])) == date('Y-m-d h:i')) { ?>
     <span>Now</span>
@@ -71,7 +71,7 @@
   </div> 
 </li>
 @endif
-<li id="timeline-{{$key+1}}"  class="count-li followup_task">
+<li id="timeline-{{$key+1}}"  class="count-li timeline_task_entry followup_task">
        <time class="cbp_tmtime" datetime="{{date("Y-m-d h:i",strtotime($response->created_at))}}">
               <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
               <span>Now</span>

@@ -75,5 +75,36 @@ class DashboardCustomerController extends BaseController {
         return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail'));
 
     }
+	
+	public function subscriptions(){
+		$id=0;
+        $companyID = User::get_companyID();
+        return View::make('customer.subscriptions.index', compact(''));
+	}
+	
+   public function subscriptions_ajax_datagrid(){
+        $data 	= 	Input::all();        
+        $id		=	Customer::get_accountID();
+        $select = 	["tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax"];
+        $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
+        if(!empty($data['SubscriptionName'])){
+            $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
+        }
+        if(!empty($data['SubscriptionInvoiceDescription'])){
+            $subscriptions->where('tblAccountSubscription.InvoiceDescription','Like','%'.trim($data['SubscriptionInvoiceDescription']).'%');
+        }
+        if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
+            $subscriptions->where(function($query){
+                $query->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));
+                $query->orwhere('tblAccountSubscription.EndDate','=','0000-00-00');
+            });
+
+        }elseif(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'false'){
+            $subscriptions->where('tblAccountSubscription.EndDate','<',date('Y-m-d'));
+        }
+        $subscriptions->select($select);
+
+        return Datatables::of($subscriptions)->make();
+    }
 
 }

@@ -94,6 +94,12 @@
                 <span>Analysis</span>
             </a>
         </li>
+         <li>
+            <a href="{{URL::to('reseller/subscriptions')}}">
+                <i class="entypo-info"></i>
+                <span>Subscriptions</span>
+            </a>
+        </li>
         <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="glyphicon glyphicon-user"></i>

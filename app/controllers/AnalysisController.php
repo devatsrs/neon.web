@@ -172,6 +172,23 @@ class AnalysisController extends BaseController {
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
         return View::make('customer.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID'));
     }
+	
+	public function reseller_index(){
+		$companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        $isAdmin = 1;
+        $UserID  = 0;
+        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $Country = Country::getCountryDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList();
+        $currency = Currency::getCurrencyDropdownIDList();
+        $is_customer = Reseller::get_currentUser()->IsCustomer;
+        $is_vendor = Reseller::get_currentUser()->IsVendor;
+        $CurrencyID = Reseller::get_currentUser()->CurrencyId;
+        return View::make('reseller.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID'));	
+	}
     public function vendor_index(){
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");

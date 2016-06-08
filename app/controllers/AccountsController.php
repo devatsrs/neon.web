@@ -147,6 +147,7 @@ class AccountsController extends \BaseController {
             $data['AccountType'] = 1;
             $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
             $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+			$data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
@@ -303,7 +304,7 @@ class AccountsController extends \BaseController {
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			
+
             return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
     
 		}
@@ -389,11 +390,12 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $account = Account::find($id);
         Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
-        $message = $password = "";
+        $message = $password = ""; $ResellerPassword = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+		$data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
 
@@ -426,6 +428,16 @@ class AccountsController extends \BaseController {
                 /* Send mail to Customer */
                 $password       = $data['password'];
                 $data['password']       = Hash::make($password);
+            }
+        }
+		
+		  if(empty($data['ResellerPassword'])){ /* if empty, dont update password */
+            unset($data['ResellerPassword']);
+        }else{
+            if($account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
+                /* Send mail to Customer */
+                $ResellerPassword      			= $data['ResellerPassword'];
+                $data['ResellerPassword']       = Hash::make($ResellerPassword);
             }
         }
         $data['Number'] = trim($data['Number']);

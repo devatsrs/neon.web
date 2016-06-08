@@ -18,7 +18,7 @@ class BaseController extends Controller {
         }
 
         $route = Route::currentRouteAction();
-        if(!Auth::guest() && Session::get("customer") != 1){
+        if(!Auth::guest() && Session::get("customer") != 1 && Session::get("reseller") != 1){
             $controller = explode('@',$route);
             if(isset($controller[0]) && isset($controller[1])){
                 $action = $controller[1];
