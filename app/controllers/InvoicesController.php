@@ -42,18 +42,18 @@ class InvoicesController extends \BaseController {
 		
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
 		{
-            $query = $query.',0,0,1,"")';
+            $query = $query.',0,0,1,"",1)';
         }
 		else
 		{
-            $query .=',0,0,0,"")';
+            $query .=',0,0,0,"",1)';
         }
     	
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
-		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
+		$result2  = $result['data']['ResultCurrentPage'][0]->total_grand;
 		$result4  = array(
-			"total_grand"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->total_grand,
-			"os_pp"=>$result['data']['Total_grand_field'][0]->currency_symbol.$result['data']['Total_grand_field'][0]->TotalPayment.' / '.$result['data']['Total_grand_field'][0]->TotalPendingAmount,
+			"total_grand"=>$result['data']['ResultCurrentPage'][0]->currency_symbol.$result['data']['ResultCurrentPage'][0]->total_grand,
+			"os_pp"=>$result['data']['ResultCurrentPage'][0]->currency_symbol.$result['data']['ResultCurrentPage'][0]->TotalPayment.' / '.$result['data']['ResultCurrentPage'][0]->TotalPendingAmount,
 		);
 		
 		return json_encode($result4,JSON_NUMERIC_CHECK);		
@@ -96,9 +96,9 @@ class InvoicesController extends \BaseController {
             })->download('xls');*/
         }
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
-            $query = $query.',0,0,1,"")';
+            $query = $query.',0,0,1,"",0)';
         }else{
-            $query .=',0,0,0,"")';
+            $query .=',0,0,0,"",0)';
         }
         //echo $query;exit;
         return DataTableSql::of($query,'sqlsrv2')->make();
@@ -1381,7 +1381,7 @@ class InvoicesController extends \BaseController {
         }else{
             $query = $query.',2,0,0';
         }
-        $query .= ",'')";
+        $query .= ",'',0)";
         $exceldatas  = DB::connection('sqlsrv2')->select($query);
         $exceldatas = json_decode(json_encode($exceldatas),true);
         $invoiceid='';
@@ -1397,12 +1397,12 @@ class InvoicesController extends \BaseController {
         if(!empty($data['InvoiceIDs'])){
             $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',1 ,".count($data['InvoiceIDs']).",'','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
-                $query = $query.',0,2,0';
+                $query = $query.',0,2,0,0';
             }else{
-                $query = $query.',0,1,0';
+                $query = $query.',0,1,0,0';
             }
             if(!empty($data['InvoiceIDs'])){
-                $query = $query.",'".$data['InvoiceIDs']."')";
+                $query = $query.",'".$data['InvoiceIDs']."',0)";
             }
 			else			
             $query .= ")";
@@ -1439,7 +1439,7 @@ class InvoicesController extends \BaseController {
             }else{
                 $query = $query.',0';
             }
-            $query .= ",'')";
+            $query .= ",'',0)";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 
