@@ -35,7 +35,7 @@
                         </button>
                     </form>
                 </li>--> 
-    @if( User::checkCategoryPermission('RmDashboard','All')  || User::checkCategoryPermission('SalesDashboard','All')||User::checkCategoryPermission('BillingDashboard','All'))
+    @if(User::checkCategoryPermission('MonitorDashboard','All'))
     <li class=""><a href="{{Url::to('/monitor')}}"><i class="entypo-monitor"></i><span>Monitor Dashboard</span></a>
     </li>
     @endif
@@ -79,7 +79,7 @@
           </ul>
         </li>--}}
     @endif
-    <li><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
+    <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
                 <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
@@ -94,7 +94,8 @@
     @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
-    User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View') )
+    User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
+    User::checkCategoryPermission('Disputes','View'))
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
@@ -160,7 +161,7 @@
     <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
       <ul>
         @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') )
-        <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">  <span>My Profile</span> </a> </li>
+        <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}?sm=1">  <span>My Profile</span> </a> </li>
         @endif
         @if( User::checkCategoryPermission('Trunk','View') )
         <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>

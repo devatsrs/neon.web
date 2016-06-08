@@ -55,7 +55,10 @@
     </div>
     <div class="clear"></div>
 
-     <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+      @if(User::checkCategoryPermission('Disputes','Add'))
+          <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+      @endif
+
 
      <table class="table table-bordered datatable" id="table-4">
           <thead>
@@ -93,6 +96,7 @@
      var update_new_url;
      var postdata;
      var dispute_status = {{json_encode(Dispute::$Status);}};
+     var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
 
      jQuery(document).ready(function ($) {
                     data_table = $("#table-4").dataTable({
@@ -146,7 +150,7 @@
                             {
                                 "bSortable": true, //DisputeAmount
                                 mRender: function (id, type, full) {
-                                    return parseFloat(id).toFixed(2);
+                                    return parseFloat(id).toFixed(toFixed);
                                 }
                             },
                             {
