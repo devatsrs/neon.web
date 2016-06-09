@@ -28,7 +28,7 @@ BEGIN
 	set @stm3 = CONCAT('
 	insert into tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID)
 	select UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID
-		 from  `' , p_tbltempusagedetail_name , '` d left join tblUsageHeader h	 on h.CompanyID = d.CompanyID
+		 from  `' , p_tbltempusagedetail_name , '` d inner join tblUsageHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
@@ -52,7 +52,7 @@ BEGIN
 	set @stm5 = CONCAT(' 
 	insert into tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound)
 	select UsageHeaderID,connect_time,disconnect_time,billed_duration,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound
-		 from  `' , p_tbltempusagedetail_name , '` d left join tblUsageHeader h	 on h.CompanyID = d.CompanyID
+		 from  `' , p_tbltempusagedetail_name , '` d inner join tblUsageHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
