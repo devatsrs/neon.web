@@ -884,14 +884,13 @@
 				"aaSorting": [[4, 'desc']],},
 					success: function(response1) {
 						console.log("sum of result"+response1);
-						
-						if(response1.total_grand!=null)
-						{ 
-							$('#table-4 tbody').append('<tr class="total_ajax"><td colspan="2"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');	
-						}
+
+                        if(response1.total_grand!=null) {
+                            $('#table-4 tbody').append('<tr class="total_ajax"><td colspan="2"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');
+                        }
 						
 	
-						},
+						}
 				});	
 		}
 
