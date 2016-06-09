@@ -1010,25 +1010,32 @@ function check_uri($parent_link=''){
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
-    $array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+	$array_crm 		  =    array("OpportunityBoard","Task");
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
     if(count($path_array)>0)
     {
-        $controller = $path_array[0];
-        if(in_array($controller,$array_billing) && $parent_link =='Billing')
+         $controller = $path_array[0]; Log::info($controller."---".$parent_link); 
+	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-            return 'opened';
+			if(Request::segment(1)!='monitor'){
+            	return 'opened';
+			}  		
         }
 
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
-        {
-            return 'opened';
+        {  if($controller=='Users' && isset($_REQUEST['sm'])){
+            	return 'opened';
+			}else if($controller!='Users'){
+				return 'opened';
+			}
         }
 
         if(in_array($controller,$array_admin) && $parent_link =='Admin')
-        {
-            return 'opened';
+        {	if(!isset($_REQUEST['sm'])){
+            	return 'opened';
+			}
         }
 
         if(in_array($controller,$array_summary) && $parent_link =='Summary')
@@ -1041,10 +1048,10 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 
-        /*if(in_array($controller,$array_template) && $parent_link =='Template')
+        if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
             return 'opened';
-        }*/
+        }
 
         if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
         {
