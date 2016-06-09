@@ -159,7 +159,7 @@ BEGIN
 		ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
 	WHERE tblCronJob.CompanyID = p_CompanyID
 	AND tblCronJob.Status = 1
-	AND tblCronJob.DownloadActive = 0
+	-- AND tblCronJob.DownloadActive = 0
 	AND tblCronJobCommand.Command = 'vosaccountusage';
 
 	/**PendingBulkMailSend**/
@@ -973,7 +973,7 @@ BEGIN
 		ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
 	WHERE tblCronJob.CompanyID = p_CompanyID
 	AND tblCronJob.Status = 1
-	AND tblCronJob.DownloadActive = 0
+	-- AND tblCronJob.DownloadActive = 0
 	AND tblCronJobCommand.Command = 'sippyaccountusage';
 
 
