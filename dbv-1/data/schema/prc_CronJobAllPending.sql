@@ -150,8 +150,7 @@ BEGIN
 
 
 	/**getVosDownloadCommand**/
-	
-	SELECT
+	/*SELECT
 		'vosdownloadcdr' as Command,
 		tblCronJob.CronJobID
 	FROM tblCronJob
@@ -160,7 +159,7 @@ BEGIN
 	WHERE tblCronJob.CompanyID = p_CompanyID
 	AND tblCronJob.Status = 1
 	-- AND tblCronJob.DownloadActive = 0
-	AND tblCronJobCommand.Command = 'vosaccountusage';
+	AND tblCronJobCommand.Command = 'vosaccountusage';*/
 
 	/**PendingBulkMailSend**/
 	SELECT
@@ -230,7 +229,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Porta"%'	
+		AND j.Options like '%"Format":"Porta"%'
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -245,7 +244,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Porta"%'	
+		AND j.Options like '%"Format":"Porta"%'
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -295,8 +294,8 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-	
-	 
+
+
 
 	/** PendingInvoice Usage File Generation. **/
 
@@ -342,7 +341,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
+
 	/** Pending RatesheetGeneration **/
 	SELECT
 		TBL1.JobID,
@@ -674,7 +673,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Sippy"%'	
+		AND j.Options like '%"Format":"Sippy"%'
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -689,7 +688,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Sippy"%'	
+		AND j.Options like '%"Format":"Sippy"%'
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -735,7 +734,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Sippy"%'	
+		AND j.Options like '%"Format":"Sippy"%'
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -767,7 +766,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND j.Options like '%"Format":"Vos 3.2"%'
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -782,7 +781,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND j.Options like '%"Format":"Vos 3.2"%'
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -813,7 +812,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND j.Options like '%"Format":"Vos 3.2"%'
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -828,7 +827,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND j.Options like '%"Format":"Vos 3.2"%'
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -877,7 +876,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-	
+
 	/** Rate Table Rate Upload **/
 	SELECT
 		TBL1.JobID,
@@ -964,8 +963,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-	/*Sippy CDr Download */
-	SELECT
+	/*SELECT
 		'sippydownloadcdr' as Command,
 		tblCronJob.CronJobID
 	FROM tblCronJob
@@ -974,11 +972,9 @@ BEGIN
 	WHERE tblCronJob.CompanyID = p_CompanyID
 	AND tblCronJob.Status = 1
 	-- AND tblCronJob.DownloadActive = 0
-	AND tblCronJobCommand.Command = 'sippyaccountusage';
+	AND tblCronJobCommand.Command = 'sippyaccountusage';*/
 
-
-	
-	/** Import account or lead **/
+		/** Import account or lead **/
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
