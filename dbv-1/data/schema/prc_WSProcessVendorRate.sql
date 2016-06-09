@@ -4,7 +4,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessVendorRate`(IN `p_acco
 , IN `p_effectiveImmediately` INT
 , IN `p_processId` VARCHAR(200)
 , IN `p_addNewCodesToCodeDeck` INT
-, IN `p_companyId` INT)
+, IN `p_companyId` INT, IN `p_forbidden` INT, IN `p_preference` INT)
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;
@@ -29,10 +29,11 @@ BEGIN
 			`EffectiveDate` Datetime ,
 			`Change` varchar(100) ,
 			`ProcessId` varchar(200) ,
-			`Preference` int ,
+			`Preference` varchar(100) ,
 			`ConnectionFee` decimal(18, 6),
 			`Interval1` int,
 			`IntervalN` int,
+			`Forbidden` varchar(100) ,
 			INDEX tmp_EffectiveDate (`EffectiveDate`),
 			INDEX tmp_Code (`Code`),
             INDEX tmp_CC (`Code`,`Change`),
@@ -47,10 +48,8 @@ BEGIN
  		AND  n1.ProcessId = p_processId and n2.ProcessId = p_processId;
 
 		  INSERT INTO tmp_TempVendorRate_
-        SELECT distinct `CodeDeckId`,`Code`,`Description`,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN` FROM tblTempVendorRate WHERE tblTempVendorRate.ProcessId = p_processId;
+        SELECT distinct `CodeDeckId`,`Code`,`Description`,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN`,`Forbidden` FROM tblTempVendorRate WHERE tblTempVendorRate.ProcessId = p_processId;
 			
-		 
-      
 		
 	 	     SELECT CodeDeckId INTO v_CodeDeckId_ FROM tmp_TempVendorRate_ WHERE ProcessId = p_processId  LIMIT 1;
 
@@ -226,7 +225,7 @@ BEGIN
                   
                     INSERT INTO tmp_JobLog_ (Message)
                     	 SELECT DISTINCT
-                        CONCAT(tblTempVendorRate.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+                        CONCAT(tblTempVendorRate.Code , ' INVALID CODE - COUNTRY NOT FOUND')
                         FROM tmp_TempVendorRate_  as tblTempVendorRate 
                     INNER JOIN tblRate
 				             ON tblRate.Code = tblTempVendorRate.Code
@@ -287,6 +286,7 @@ BEGIN
                     AND TrunkID = p_trunkId;
 
             END IF;
+            				
 
             DELETE tblVendorRate
                 FROM tblVendorRate
@@ -315,8 +315,9 @@ BEGIN
 							tblVendorRate.IntervalN = tblTempVendorRate.IntervalN
 					WHERE tblVendorRate.AccountId = p_accountId
 			            AND tblVendorRate.TrunkId = p_trunkId ;
+			            
 
-            DELETE tblTempVendorRate
+           /* DELETE tblTempVendorRate
                 FROM tmp_TempVendorRate_ as tblTempVendorRate
                 JOIN tblRate
                     ON tblRate.Code = tblTempVendorRate.Code
@@ -338,11 +339,11 @@ BEGIN
                             ELSE 0
                         END)
                         )
-            WHERE  tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
+            WHERE  tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block'); */
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 
-
+				
             UPDATE tmp_TempVendorRate_ as tblTempVendorRate
             JOIN tblRate
                 ON tblRate.Code = tblTempVendorRate.Code
@@ -357,8 +358,6 @@ BEGIN
             AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
             AND DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempVendorRate.EffectiveDate, '%Y-%m-%d');
 
-
-            
 
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
@@ -397,15 +396,140 @@ BEGIN
                 AND tblTempVendorRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d');
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS(); 
-
-	 
+			
+			-- VENDOR UNBLOCK AND BLOCK
+            IF  p_forbidden = 1
+				THEN
+					
+					INSERT INTO tblVendorBlocking
+					(
+						 `AccountId`
+						 ,`RateId`
+						 ,`TrunkID`
+						 ,`BlockedBy`
+					)
+					SELECT distinct
+					   p_accountId as AccountId,
+					   tblRate.RateID as RateId,						
+						p_trunkId as TrunkID,
+						'RMService' as BlockedBy
+					 FROM tmp_TempVendorRate_ as tblTempVendorRate
+					 INNER JOIN tblRate 
+						ON tblRate.Code = tblTempVendorRate.Code
+						AND tblRate.CompanyID = p_companyId
+			         AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+			       INNER JOIN tblVendorRate 
+					 	ON   tblVendorRate.RateId = tblRate.RateID
+					 	AND tblVendorRate.AccountId = p_accountId
+					   AND tblVendorRate.trunkid = p_trunkId
+			       LEFT JOIN tblVendorBlocking vb 			       		
+					 	ON vb.AccountId=p_accountId
+						 AND vb.RateId = tblRate.RateID
+						 AND vb.TrunkID = p_trunkId   
+					WHERE tblTempVendorRate.Forbidden IN('B')
+					 AND vb.VendorBlockingId is null;
+					 
+					 delete tblVendorBlocking from tblVendorBlocking 
+					INNER JOIN(
+						select VendorBlockingId 
+						FROM `tblVendorBlocking` tv
+							INNER JOIN(
+							 SELECT 
+							 	tblRate.RateId as RateId
+							 FROM tmp_TempVendorRate_ as tblTempVendorRate
+							INNER JOIN tblRate 
+								ON tblRate.Code = tblTempVendorRate.Code
+								AND tblRate.CompanyID = p_companyId
+					         AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+							WHERE tblTempVendorRate.Forbidden IN('UB')
+					     )tv1 on  tv.AccountId=p_accountId
+						  	AND tv.TrunkID=p_trunkId
+						  	AND tv.RateId = tv1.RateID
+					 )vb2 on vb2.VendorBlockingId=tblVendorBlocking.VendorBlockingId;
+	
+				END IF;
+				
+				
+				-- VENDOR PREFRENCE ADD-UPDATE-DELETE
+				IF  p_preference = 1
+				THEN
+				
+				INSERT INTO tblVendorPreference
+					(
+						 `AccountId`
+						 ,`Preference`
+						 ,`RateId`
+						 ,`TrunkID`
+						 ,`CreatedBy`
+						 ,`created_at`
+					)
+				SELECT 
+					   p_accountId AS AccountId,
+					   tblTempVendorRate.Preference as Preference,
+					   tblRate.RateID AS RateId,						
+						p_trunkId AS TrunkID,
+						'RMService' AS CreatedBy,
+						NOW() AS created_at
+					 FROM tmp_TempVendorRate_ as tblTempVendorRate
+					INNER JOIN tblRate 
+						ON tblRate.Code = tblTempVendorRate.Code
+						AND tblRate.CompanyID = p_companyId
+			         AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+			      INNER JOIN tblVendorRate 
+					 	ON   tblVendorRate.RateId = tblRate.RateID
+					 	AND tblVendorRate.AccountId = p_accountId
+					   AND tblVendorRate.trunkid = p_trunkId   
+					LEFT JOIN tblVendorPreference vp 
+						ON vp.RateId=tblRate.RateID
+						AND vp.AccountId = p_accountId 	
+						AND vp.TrunkID = p_trunkId
+					WHERE  tblTempVendorRate.Preference IS NOT NULL
+					 AND  tblTempVendorRate.Preference > 0
+					 AND  vp.VendorPreferenceID IS NULL;
+					 
+					 
+					 update tblVendorPreference
+					 	INNER JOIN tblRate 
+					 		ON tblVendorPreference.RateId=tblRate.RateID
+					 	INNER JOIN tblVendorRate 
+						 	ON   tblVendorRate.RateId = tblRate.RateID
+						 	AND tblVendorRate.AccountId = p_accountId
+						   AND tblVendorRate.trunkid = p_trunkId
+				      INNER JOIN tmp_TempVendorRate_ as tblTempVendorRate
+							ON tblTempVendorRate.Code = tblRate.Code							
+				         AND tblTempVendorRate.CodeDeckId = tblRate.CodeDeckId   
+				         AND tblRate.CompanyID = p_companyId
+				      SET tblVendorPreference.Preference = tblTempVendorRate.Preference
+						WHERE tblVendorPreference.AccountId = p_accountId  
+							AND tblVendorPreference.TrunkID = p_trunkId
+							AND  tblTempVendorRate.Preference IS NOT NULL
+							AND  tblTempVendorRate.Preference > 0
+							AND tblVendorPreference.VendorPreferenceID IS NOT NULL; 
+							
+						DELETE tblVendorPreference
+							from	tblVendorPreference
+					 	INNER JOIN tblRate 
+					 		ON tblVendorPreference.RateId=tblRate.RateID
+				      INNER JOIN tmp_TempVendorRate_ as tblTempVendorRate
+							ON tblTempVendorRate.Code = tblRate.Code							
+				         AND tblTempVendorRate.CodeDeckId = tblRate.CodeDeckId   
+				         AND tblRate.CompanyID = p_companyId
+						WHERE tblVendorPreference.AccountId = p_accountId  
+							AND tblVendorPreference.TrunkID = p_trunkId
+							AND  tblTempVendorRate.Preference IS NOT NULL
+							AND  tblTempVendorRate.Preference = '' 
+							AND tblVendorPreference.VendorPreferenceID IS NOT NULL; 
+					 
+				END IF;   
+                        
+				
 	 END IF;
 	 
 	 INSERT INTO tmp_JobLog_ (Message)
 	 	SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * from tmp_JobLog_;
-	-- DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId;
+	 DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId;
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

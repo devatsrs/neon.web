@@ -5,6 +5,7 @@ class Job extends \Eloquent {
     protected $fillable = ['PID'];
     protected $table = "tblJob";
     protected $primaryKey = "JobID";
+    public $timestamps = false; // no created_at and updated_at
 
     public static function logJob($JobType, $options = "") {
         switch ($JobType) {
@@ -44,7 +45,7 @@ class Job extends \Eloquent {
                 $data["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
                 $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
                 $data["JobLoggedUserID"] = User::get_userID();
-                $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+                $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) ;
                 $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $data["CreatedBy"] = User::get_user_full_name();
                 $data["updated_at"] = date('Y-m-d H:i:s');
@@ -164,7 +165,12 @@ class Job extends \Eloquent {
                 $data["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
                 $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
                 $data["JobLoggedUserID"] = User::get_userID();
-                $data["Title"] =  (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+                if(!empty($options['codedeckname'])){
+                    $codedeckname = $options['codedeckname'];
+                }else{
+                    $codedeckname = '';
+                }
+                $data["Title"] =  $codedeckname;
                 $data["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $data["CreatedBy"] = User::get_user_full_name();
                 $data["updated_at"] = date('Y-m-d H:i:s');
@@ -356,7 +362,7 @@ class Job extends \Eloquent {
                 break;
             case 'RTU':
                 /*
-                 *  Vendor Upload  Job Log
+                 *  Rate Table Upload  Job Log
                  */
                 $rules = array(
                     'CompanyID' => 'required',
@@ -389,7 +395,12 @@ class Job extends \Eloquent {
                 $data["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
                 $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
                 $data["JobLoggedUserID"] = User::get_userID();
-                $data["Title"] = (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+                if(!empty($options['ratetablename'])){
+                    $ratetablename = $options['ratetablename'];
+                }else{
+                    $ratetablename = '';
+                }
+                $data["Title"] = $ratetablename;
                 $data["Description"] = ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $data["CreatedBy"] = User::get_user_full_name();
                 $data["updated_at"] = date('Y-m-d H:i:s');
@@ -662,8 +673,12 @@ class Job extends \Eloquent {
         $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
         $data["JobLoggedUserID"] = User::get_userID();
         $data["CreatedBy"] = User::get_user_full_name();
-
-        $data["Title"] =   (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+        if(!empty($options['ratetablename'])){
+            $ratetablename = $options['ratetablename'];
+        }else{
+            $ratetablename = '';
+        }
+        $data["Title"] =   $ratetablename;
         $data["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
         $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
         $data["updated_at"] = date('Y-m-d H:i:s');
@@ -722,7 +737,13 @@ class Job extends \Eloquent {
             $data["JobLoggedUserID"] = User::get_userID();
             $data["CreatedBy"] = User::get_user_full_name();
 
-            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+            if(!empty($options['Format'])){
+                $format = "(".$options['Format'].")";
+            }else{
+                $format = "";
+            }
+
+            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format;
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
             $data["updated_at"] = date('Y-m-d H:i:s');
@@ -746,7 +767,14 @@ class Job extends \Eloquent {
             $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
             $data["JobLoggedUserID"] = User::get_userID();
             $data["CreatedBy"] = User::get_user_full_name();
-            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+
+            if(!empty($options['Format'])){
+                $format = "(".$options['Format'].")";
+            }else{
+                $format = "";
+            }
+
+            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format;
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $data["updated_at"] = date('Y-m-d H:i:s');
 

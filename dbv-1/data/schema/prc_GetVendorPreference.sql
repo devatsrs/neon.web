@@ -14,6 +14,7 @@ BEGIN
 			THEN
 
 				SELECT
+					distinct
 					tblRate.RateID,
 					Code,
 					Preference,
