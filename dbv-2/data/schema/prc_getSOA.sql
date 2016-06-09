@@ -1,9 +1,15 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getSOA`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_StartDate` datetime, IN `p_EndDate` datetime, IN `p_isExport` INT )
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	CONTAINS SQL
+	SQL SECURITY DEFINER
+	COMMENT ''
 BEGIN
-	
-		
+
+
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-    -- SET SESSION sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+    SET SESSION sql_mode='';
+
 
 
 	 DROP TEMPORARY TABLE IF EXISTS tmp_Invoices;
@@ -15,9 +21,9 @@ BEGIN
        -- DisputeAmount NUMERIC(18, 8),
         -- DisputeID INT
     );
-    
-    
-    
+
+
+
     DROP TEMPORARY TABLE IF EXISTS tmp_Payments;
     CREATE TEMPORARY TABLE tmp_Payments (
         InvoiceNo VARCHAR(50),
@@ -26,8 +32,8 @@ BEGIN
         PaymentID INT,
         PaymentType VARCHAR(50)
     );
-    
-    
+
+
     DROP TEMPORARY TABLE IF EXISTS tmp_Disputes;
     CREATE TEMPORARY TABLE tmp_Disputes (
         InvoiceNo VARCHAR(50),
@@ -37,14 +43,14 @@ BEGIN
         DisputeID INT
 
     );
-    
+
     /*
 	    New Logic
-    
-	    -- 1 Invoice Sent 
-	    -- 2 Payment against Invoice Sent 
-	    
-	    -- 3 Invoice Received 
+
+	    -- 1 Invoice Sent
+	    -- 2 Payment against Invoice Sent
+
+	    -- 3 Invoice Received
 	    -- 4 Payment against Invoice Received
 
     */
@@ -52,28 +58,27 @@ BEGIN
      -- 1 Invoices
     INSERT into tmp_Invoices
     SELECT
-			DISTINCT 
+			DISTINCT
          tblInvoice.InvoiceNumber,
          CASE
-         	WHEN (tblInvoice.ItemInvoice = 1 ) THEN
+         	WHEN (tblInvoice.ItemInvoice = 1 ) THEN   /* Item Invoice  */
                 DATE_FORMAT(tblInvoice.IssueDate,'%d-%m-%Y')
-				WHEN (tblInvoice.ItemInvoice IS NUll ) THEN
-            	Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,' - ' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y'))
-         END AS PeriodCover,
+		WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
+		 	  (select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d-%m-%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d-%m-%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)
+       END AS PeriodCover,
          tblInvoice.GrandTotal,
          tblInvoice.InvoiceType
         FROM tblInvoice
-        LEFT JOIN tblInvoiceDetail
-        ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID 
         WHERE tblInvoice.CompanyID = p_CompanyID
         AND tblInvoice.AccountID = p_accountID
         AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
   		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') >= p_StartDate ) )
  		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') <= p_EndDate ) )
-		  Order by tblInvoice.IssueDate
+		  Order by tblInvoice.IssueDate desc
 		;
-		
-	 
+
+
+
      -- 2 Payments
      INSERT into tmp_Payments
 	     SELECT
@@ -84,17 +89,17 @@ BEGIN
             tblPayment.PaymentID,
             tblPayment.PaymentType
         FROM tblPayment
-        WHERE 
+        WHERE
   		      tblPayment.CompanyID = p_CompanyID
 		  AND tblPayment.AccountID = p_accountID
 		  AND tblPayment.Status = 'Approved'
         AND tblPayment.Recall = 0
 		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') >= p_StartDate ) )
  		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') <= p_EndDate ) )
-		Order by tblPayment.PaymentDate;
-    
-    	  
-     -- 3 Disputes 
+		Order by tblPayment.PaymentDate desc;
+
+
+     -- 3 Disputes
      INSERT INTO tmp_Disputes
     	 SELECT
             InvoiceNo,
@@ -102,13 +107,15 @@ BEGIN
             DisputeAmount,
             InvoiceType,
             DisputeID
-		  FROM tblDispute 
-        WHERE 
+		  FROM tblDispute
+        WHERE
   		      CompanyID = p_CompanyID
 		  AND AccountID = p_accountID
-		  AND Status = 0 
+		  AND Status = 0
 		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') >= p_StartDate ) )
- 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') <= p_EndDate ) );
+ 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') <= p_EndDate ) )
+			order by created_at
+			;
       	###################################################
     	
 		 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_dup AS (SELECT * FROM tmp_Invoices);
