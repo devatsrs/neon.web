@@ -1,6 +1,6 @@
  @if(count($response))
           @if($response->type==Task::Mail)
-          <li id="timeline-{{$key}}" row-id="{{$response->LogID}}" class="count-li timeline_mail_entry">
+          <li id="timeline" row-id="{{$response->LogID}}" class="count-li timeline_mail_entry">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
               <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
               <span>Now</span>
@@ -50,9 +50,7 @@
             </div>
 </li>
 @elseif($response->type==Task::Tasks)
-
-          <li id="timeline-{{$key}}" class="count-li timeline_task_entry">
-           <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
+          <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
               <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
               <span>Now</span>
               <?php }else{ ?>
@@ -63,7 +61,7 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel normal_tag">
-             <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
+               <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
             <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-cancel"></i></a>
                   <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
@@ -82,29 +80,9 @@
                 <p>Status: {{$response->TaskStatus}}. </p>
                 <p>Description: {{$response->Description}} </p>
                  </div>
-            </div>
-          </li>
+            </div>          
 @elseif($response->type==Task::Note)
-<li id="timeline-{{$key}}" row-id="{{$response->NoteID}}" class="count-li timeline_note_entry">
-  <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
-    <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
-    <span>Now</span>
-    <?php }else{ ?>
-    <span><?php echo date("h:i a",strtotime($response->created_at));  ?></span> <span>
-    <?php if(date("d",strtotime($response->created_at)) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($response->created_at));} ?>
-    </span>
-    <?php } ?>
-  </time>
-  <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-  <div class="cbp_tmlabel normal_tag">  
-    <a id="edit_note_{{$response->NoteID}}" note-id="{{$response->NoteID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_note_{{$response->NoteID}}" note-id="{{$response->NoteID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-cancel"></i></a>
-    <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->created_by==$current_user_title) You @else {{$response->created_by}}  @endif <span>added a note</span></h2>
-    <div id="hidden-timeline-{{$key}}" class="details no-display">
-      <p>{{$response->Note}}</p>
-    </div>
-  </div>
-</li>
+<p>{{$response->Note}}</p>
 @endif
           
         @endif 

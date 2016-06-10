@@ -22,6 +22,182 @@ var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
     jQuery(document).ready(function ($) {	
+	
+	function biuldSwicth(container,name,formID,checked){
+				var make = '<span class="make-switch switch-small">';
+				make += '<input name="'+name+'" value="{{Task::Close}}" '+checked+' type="checkbox">';
+				make +='</span>';
+	
+				var container = $(formID).find(container);
+				container.empty();
+				container.html(make);
+				container.find('.make-switch').bootstrapSwitch();
+			} 
+			
+	
+	$( document ).on("click",'.delete_task_link' ,function(e) {
+		  if (!confirm("Are you sure to delete?")) {
+      	  	return false;
+    		}
+        var del_task_id  = $(this).attr('task-id');
+		var del_key_id   = $(this).attr('key_id');
+		
+		var url_del_task1 	= 	"<?php echo URL::to('/task/{id}/delete_task'); ?>";
+		var url_del_task	=	url_del_task1.replace( '{id}', del_task_id );
+		 $.ajax({
+			url: url_del_task,
+			type: 'POST',
+			dataType: 'json',
+			async :false,
+			data:{TaskID:del_task_id},
+			success: function(response) {
+				console.log('timeline-'+del_key_id);
+				$('#timeline-'+del_key_id).remove();
+				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_task_entry"></li>');
+			},
+		});	
+		
+    });
+	  
+	
+	$( document ).on("click",'.edit_task_link' ,function(e) {
+	    var edit_task_id  = $(this).attr('task-id');
+		var edit_key_id   = $(this).attr('key_id');	
+        
+		if(edit_task_id!='' && edit_key_id!=''){
+			//
+			
+		var url_get_task 	= 	"<?php echo URL::to('task/GetTask'); ?>";
+		 $.ajax({
+					url: url_get_task,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:{TaskID:edit_task_id},
+					success: function(response) {
+						if(response.Priority!='Low'){							
+							biuldSwicth('.make','Priority','#edit-modal-task','checked');
+						}else{
+							biuldSwicth('.make','Priority','#edit-modal-task','');
+						}
+						
+						$('#edit-modal-task #Subject').val(response.Subject);
+						$('#edit-modal-task #Description_task').val(response.Description);
+						var date_time = response.DueDate.split(" ");
+						$('#edit-modal-task #DueDate_date').val(date_time[0]);
+						$('#edit-modal-task #DueDate_time').val(date_time[1]);
+						var status_id = 0;
+						$('#edit-task-form  [name="TaskStatus"] option').each(function(){
+						  if ($(this).text() == response.TaskStatus){
+								$(this).attr("selected","selected");
+								status_id = $(this).attr("value");
+							}
+						});
+						var account_id = 0;
+						$('#edit-task-form  [name="UsersIDs"] option').each(function(){
+						  if ($(this).text() == response.Name){
+								$(this).attr("selected","selected");
+								account_id = $(this).attr("value");
+							}
+						});
+						$('#edit-task-form  [name="TaskStatus"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(status_id);
+						$('#edit-task-form [name="UsersIDs"]').select2('val', account_id);
+						$('#edit-task-form #TaskID').val(edit_task_id);
+						$('#edit-task-form #KeyID').val(edit_key_id);
+						$('#edit-modal-task').modal('show');												
+					},
+				});	
+					
+		}
+    });
+	
+	
+		$( document ).on("click",'.delete_note_link' ,function(e) {
+		  if (!confirm("Are you sure to delete?")) {
+      	  	return false;
+    		}
+        var del_note_id  = $(this).attr('note-id');
+		var del_key_id   = $(this).attr('key_id');
+		
+		var url_del_note1 	= 	"<?php echo URL::to('/accounts/{id}/delete_note'); ?>";
+		var url_del_note	=	url_del_note1.replace( '{id}', del_note_id );
+		 $.ajax({
+			url: url_del_note,
+			type: 'POST',
+			dataType: 'json',
+			async :false,
+			data:{NoteID:del_note_id},
+			success: function(response) {
+				console.log('timeline-'+del_key_id);
+				$('#timeline-'+del_key_id).remove();
+				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_note_entry"></li>');
+				//follow up delete
+				var followup = parseInt(del_key_id)+1;
+				if ($('#timeline-'+followup).hasClass("followup_task")) {
+					 if (!confirm("Delete Follow up Task?")) {
+      	  				return false;
+    				}
+					else
+					{
+						$('#timeline-'+followup+' .delete_task_link').click();
+					}
+					$('#timeline-'+del_key_id+1).remove();
+					$('#timeline-ul').append('<li id="timeline-'+del_key_id+1+'" class="count-li timeline_task_entry"></li>');
+				}
+				
+			},
+		});	
+		
+    });
+	
+	$( document ).on("click",'.edit_note_link' ,function(e) {
+        var edit_note_id = $(this).attr('note-id');
+		var edit_key_id  = $(this).attr('key_id');
+		///////
+		var url_get_note 	= 	"<?php echo URL::to('accounts/get_note'); ?>";
+		 $.ajax({
+					url: url_get_note,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:{NoteID:edit_note_id},
+					success: function(response) {
+						$('#edit-note-model #Description_edit_note').val(response.Note);
+						$('#edit-note-model #NoteID').val(parseInt(edit_note_id));
+						$('#edit-note-model #KeyID').val(parseInt(edit_key_id));
+						//
+						
+						$('#edit-note-model').modal('show'); 								
+					},
+				});	
+				
+				      $('#edit-note-model').on('shown.bs.modal', function(event){
+                        var modal = $('#edit-note-model');
+                        modal.find('.editor-note').wysihtml5({
+									"font-styles": true,
+									"leadoptions":false,
+									"Crm":false,
+									"emphasis": true,
+									"lists": true,
+									"html": true,
+									"link": true,
+									"image": true,
+									"color": false,
+									parser: function(html) {
+										return html;
+									}
+							});
+                    });
+
+                    $('#edit-note-model').on('hidden.bs.modal', function(event){
+                        var modal = $('#edit-note-model');
+                        modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+                        modal.find('.editor-note').show();
+                    });
+				
+		/////////
+		
+    });
 
 			$("#form_timeline_filter [name=timeline_filter]").click(function(e){
         	var show_timeline_data = $(this).attr('show_data'); console.log(show_timeline_data);
