@@ -10,7 +10,7 @@
     </span>
               <?php } ?>
             </time>
-  <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
+  <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
   <div class="cbp_tmlabel normal_tag">  
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['CreatedBy']==$current_user_title) You @else {{$response_data['CreatedBy']}}  @endif <span>sent an email to</span> @if($response_data['EmailTo']==$current_user_title) You @else {{$response_data['EmailTo']}}  @endif</h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">

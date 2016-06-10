@@ -286,15 +286,16 @@
           <div class="col-sm-12">
             <ul class="icheck-list">
               <li><form id="form_timeline_filter">
-              <label >Show</label> &nbsp;&nbsp;&nbsp;&nbsp;
-                <input class="icheck-11 timeline_filter" show_data="all" type="radio" id="minimal-radio-1" name="timeline_filter" checked>
-                <label for="minimal-radio-1">All</label> &nbsp;&nbsp;
-                <input class="icheck-11 timeline_filter" show_data="timeline_note_entry" type="radio" id="minimal-radio-2" name="timeline_filter">
-                <label for="minimal-radio-2">Notes</label>&nbsp;&nbsp;
-                <input class="icheck-11 timeline_filter" show_data="timeline_task_entry" type="radio" id="minimal-radio-3" name="timeline_filter">
-                <label for="minimal-radio-3">Tasks</label>&nbsp;&nbsp;
-                <input class="icheck-11 timeline_filter" show_data="timeline_mail_entry" type="radio" id="minimal-radio-4" name="timeline_filter">
-                <label for="minimal-radio-4">Emails</label>
+             <div class="pull-left">  <label >Show</label> &nbsp;&nbsp;&nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-primary pull-left">
+ <input class="icheck-11 timeline_filter" show_data="all" type="radio" id="minimal-radio-1" name="timeline_filter" checked>
+                <label for="minimal-radio-1">All</label> &nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-green pull-left"><input class="icheck-11 timeline_filter" show_data="timeline_note_entry" type="radio" id="minimal-radio-2" name="timeline_filter">
+                <label for="minimal-radio-2">Notes</label>&nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-blue pull-left"><input class="icheck-11 timeline_filter" show_data="timeline_task_entry" type="radio" id="minimal-radio-3" name="timeline_filter">
+                <label for="minimal-radio-3">Tasks</label>&nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-gold pull-left"><input class="icheck-11 timeline_filter" show_data="timeline_mail_entry" type="radio" id="minimal-radio-4" name="timeline_filter">
+                <label for="minimal-radio-4">Emails</label></div>
                 </form>
               </li>
             </ul>
@@ -316,7 +317,7 @@
               </span>
               <?php } ?>
             </time>
-            <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
+            <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
             <div class="cbp_tmlabel normal_tag">
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display"> @if($rows['EmailCc'])
@@ -478,5 +479,6 @@ ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-heigh
 .col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
+#form_timeline_filter .radio + .radio, .checkbox + .checkbox{margin-top:0px !important; }
 </style>
 @stop
