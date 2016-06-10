@@ -247,7 +247,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-2">Description</label>
                 <div class="col-sm-10">
-                  <textarea style="height:48px;" name="Description" id="Description_task" placeholder="I will grow as you type new lines." class="form-control descriptions autogrow resizevertical"></textarea>
+                  <textarea style="height:250px;" name="Description" id="Description_task" placeholder="I will grow as you type new lines." class="form-control descriptions autogrow resizevertical"></textarea>
                 </div>
               </div>
             </div>
