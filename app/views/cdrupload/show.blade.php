@@ -141,7 +141,7 @@
         </div>
         <p style="text-align: right;">
             @if(User::checkCategoryPermission('CDR','Delete') )
-                <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete Selected CDR </button>
+                <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete</button>
             @endif
             <form id="delete-customer-cdr-form" >
                 <input type="hidden" name="UsageDetailIDs" />
