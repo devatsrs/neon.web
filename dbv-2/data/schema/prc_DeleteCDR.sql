@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT, IN `p_CDRType` CHAR(1))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT, IN `p_CDRType` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_CurrencyID` INT)
 BEGIN
 
     DECLARE v_BillingTime_ int;
@@ -36,7 +36,7 @@ BEGIN
 			FROM `LocalRMCdr`.tblUsageDetails  ud 
 			INNER JOIN `LocalRMCdr`.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
-	        LEFT JOIN LocalRatemanagement.tblAccount a
+	        INNER JOIN LocalRatemanagement.tblAccount a
 	            ON uh.AccountID = a.AccountID
 	        WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 			  AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
@@ -45,6 +45,10 @@ BEGIN
 	        AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	        AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
 	        AND (p_CDRType = '' OR ud.is_inbound = p_CDRType)
+	        AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
+			  AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
+			  AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))
+			  AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)	
 	        
 	        ) tbl
 	        WHERE 

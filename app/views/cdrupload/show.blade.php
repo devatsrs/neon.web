@@ -105,7 +105,7 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID1")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Account</label>
                                 <div class="col-sm-2">
@@ -190,7 +190,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
         $('#bluk_CompanyGatewayID').change(function(e){
         if($(this).val()){
-            $.ajax({
+            /*$.ajax({
                 url:  baseurl +'/cdr_upload/get_accounts/'+$(this).val(),  //Server script to process data
                 type: 'POST',
                 success: function (response) {
@@ -202,7 +202,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 },
                 //Options to tell jQuery not to process data or worry about content-type.
                 cache: false
-            });
+            });*/
             $('#cdr_rerate').removeClass('hidden');
             /*$.each(rate_cdr, function(key, value) {
                  if(key == $('#bluk_CompanyGatewayID').val()){

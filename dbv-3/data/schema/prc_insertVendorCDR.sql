@@ -24,7 +24,7 @@ BEGIN
 	set @stm6 = CONCAT('
 	insert into tblVendorCDRFailed (VendorCDRHeaderID,billed_duration, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
 	select VendorCDRHeaderID,billed_duration, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
-		 from  `' , p_tbltempusagedetail_name , '` d left join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
+		 from  `' , p_tbltempusagedetail_name , '` d inner join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
@@ -48,7 +48,7 @@ BEGIN
 	set @stm4 = CONCAT('
 	insert into tblVendorCDR (VendorCDRHeaderID,billed_duration, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
 	select VendorCDRHeaderID,billed_duration, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
-		 from  `' , p_tbltempusagedetail_name , '` d left join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
+		 from  `' , p_tbltempusagedetail_name , '` d inner join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d") 

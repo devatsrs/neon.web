@@ -196,9 +196,10 @@ BEGIN
      SET v_pointer_ = v_pointer_ + 1;
      END WHILE;
    
-    SELECT DISTINCT
+    /*SELECT DISTINCT
         GatewayAccountID,AccountID,AccountName,CDRType
     FROM tmp_ActiveAccount;
+    */
 
 
     UPDATE tblGatewayAccount
