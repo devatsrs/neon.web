@@ -1018,7 +1018,7 @@ function check_uri($parent_link=''){
     if(count($path_array)>0)
     {
          $controller = $path_array[0]; 
-	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
+   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
 			if(Request::segment(1)!='monitor'){
             	return 'opened';
