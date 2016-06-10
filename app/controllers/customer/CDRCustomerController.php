@@ -33,7 +33,7 @@ class CDRCustomerController extends BaseController {
         $data						 =   Input::all();
         $data['iDisplayStart'] 		+=	 1;
         $companyID 					 =	 User::get_companyID();
-        $columns 					 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
+        $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
         $data['AccountID']           = User::get_userID();
@@ -69,7 +69,7 @@ class CDRCustomerController extends BaseController {
         $data['iSortCol_0']			 =  0;
         $data['sSortDir_0']			 =  'desc';
         $companyID 					 =	 User::get_companyID();
-        $columns 					 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
+        $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
         $data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
         $data['AccountID']           = User::get_userID();

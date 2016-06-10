@@ -94,11 +94,25 @@
         </form>
       </div>
     </div>
+      <p style="text-align: right;">
+          @if(User::checkCategoryPermission('CDR','Delete') )
+              <button id="delete-vendor-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete</button>
+          @endif
+              <form id="delete-vendor-cdr-form" >
+                  <input type="hidden" name="VendorCDRIDs" />
+                  <input type="hidden" name="criteria" />
+              </form>
+      </p>
     <div class="row">
       <div class="col-md-12">
         <table class="table table-bordered datatable" id="table-4">
           <thead>
             <tr>
+              <th width="5%" >
+                <div class="checkbox ">
+                    <input type="checkbox" id="selectall" name="checkbox[]" />
+                </div>
+              </th>
               <th width="15%" >Account Name</th>
               <th width="15%" >Connect Time</th>
               <th width="10%" >Disconnect Time</th>
@@ -120,6 +134,7 @@
 var $searchFilter = {};
 var update_new_url;
 var postdata;
+var checked='';
 
     jQuery(document).ready(function ($) {
         $('input[name="StartTime"]').click();
@@ -151,7 +166,7 @@ var postdata;
 
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
-            var list_fields  =['AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date'];
+            var list_fields  =['VendorCDRID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date'];
             var starttime = $("#cdr_filter [name='StartTime']").val();
             if(starttime =='0:00:01'){
                 starttime = '0:00:00';
@@ -182,7 +197,7 @@ var postdata;
                 "bDestroy": true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/type",
-                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluebuyingcost","value":$searchFilter.zerovaluebuyingcost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
@@ -210,6 +225,11 @@ var postdata;
                 },
                 "aoColumns":
                 [
+                    {"bSortable": false,
+                        mRender: function(id, type, full) {
+                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                        }
+                    }, //0Checkbox
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
@@ -235,9 +255,75 @@ var postdata;
                         minimumResultsForSearch: -1
                     });
 
+                    $("#selectall").click(function(ev) {
+                        var is_checked = $(this).is(':checked');
+                        $('#table-4 tbody tr').each(function(i, el) {
+                            if (is_checked) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                                $(this).addClass('selected');
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                                $(this).removeClass('selected');
+                            }
+                        });
+                    });
+
+                    //select all button
+                    $('#table-4 tbody tr').each(function(i, el) {
+                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (checked != '') {
+                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                $(this).addClass('selected');
+                                $('#selectallbutton').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                $(this).removeClass('selected');
+                            }
+                        }
+                    });
+
+                    $('#selectallbutton').click(function(ev) {
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall").prop("checked", true).prop('disabled', true);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-4 tbody tr').each(function(i, el) {
+                                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                        $(this).addClass('selected');
+                                    }
+                                });
+                            }
+                        }else{
+                            checked = '';
+                            $("#selectall").prop("checked", false).prop('disabled', false);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-4 tbody tr').each(function(i, el) {
+                                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                        $(this).removeClass('selected');
+                                    }
+                                });
+                            }
+                        }
+                    });
+
                 }
                 });
+                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
             });
+
+            $('#table-4 tbody').on('click', 'tr', function() {
+                if (checked =='') {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
+            });
+
             $('table tbody').on('click', '.delete_cdr', function (e) {
                 response = confirm('Are you sure?');
                 if (response) {
@@ -258,6 +344,66 @@ var postdata;
                    submit_ajax(baseurl + "/cdr_upload/delete_cdr",$.param($searchFilter))
                 }
             });
+
+        $("#delete-vendor-cdr").click(function(e) {
+            e.preventDefault();
+            var criteria='';
+            if($('#selectallbutton').is(':checked')){
+                criteria = JSON.stringify($searchFilter);
+            }
+            var VendorCDRIDs = [];
+            var i = 0;
+            $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                //console.log($(this).val());
+                VendorCDRID = $(this).val();
+                if(typeof VendorCDRID != 'undefined' && VendorCDRID != null && VendorCDRID != 'null'){
+                    VendorCDRIDs[i++] = VendorCDRID;
+                }
+            });
+
+            if(VendorCDRIDs.length){
+                if (!confirm('Are you sure you want to delete cdr?')) {
+                    return;
+                }
+
+                $("#delete-vendor-cdr-form").find("input[name='VendorCDRIDs']").val(VendorCDRIDs.join(","));
+                $("#delete-vendor-cdr-form").find("input[name='criteria']").val(criteria);
+
+                var formData = new FormData($('#delete-vendor-cdr-form')[0]);
+                $(this).button('loading');
+
+                $.ajax({
+                    url: baseurl + '/cdr_upload/delete_vendor_cdr',
+                    type: 'POST',
+                    error: function () {
+                        $('#delete-vendor-cdr').button('reset');
+                        toastr.error("error", "Error", toastr_opts);
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            $('#delete-vendor-cdr').button('reset');
+                            toastr.success(response.message, "Success", toastr_opts);
+                            data_table.fnFilter('', 0);
+                        } else {
+                            $('#delete-vendor-cdr').button('reset');
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+
+            }else{
+                alert("Please select cdr.");
+                return false;
+            }
+
+
+
+        });
 			
 			function get_total_grand()
 			{
@@ -294,11 +440,11 @@ var postdata;
 						
 						if(response1.total_billed_duration!=null)
 						{ 
-							$('#table-4 tbody').append('<tr class="odd result_tr_end"><td><strong>Total</strong></td><td align="right" colspan="2"></td><td><strong>'+response1.total_billed_duration+'</strong></td><td><strong>'+response1.total_cost+'</strong></td><td colspan="2"></td></tr>');	
+							$('#table-4 tbody').append('<tr class="odd result_tr_end"><td><strong>Total</strong></td><td></td><td align="right" colspan="2"></td><td><strong>'+response1.total_billed_duration+'</strong></td><td><strong>'+response1.total_cost+'</strong></td><td colspan="2"></td></tr>');
 						}
 						
 	
-						},
+						}
 				});	
 			}
 
@@ -312,6 +458,9 @@ var postdata;
 }
 .dataTables_wrapper .export-data{
     right: 30px !important;
+}
+#selectcheckbox{
+    padding: 15px 10px;
 }
 </style>
 @stop 
