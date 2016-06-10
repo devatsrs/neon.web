@@ -54,6 +54,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				console.log('timeline-'+del_key_id);
 				$('#timeline-'+del_key_id).remove();
 				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_task_entry"></li>');
+				ShowToastr("success","Task Successfully Deleted"); 
 			},
 		});	
 		
@@ -144,7 +145,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 					$('#timeline-'+del_key_id+1).remove();
 					$('#timeline-ul').append('<li id="timeline-'+del_key_id+1+'" class="count-li timeline_task_entry"></li>');
 				}
-				
+				ShowToastr("success","Note Successfully Deleted"); 
 			},
 		});	
 		
