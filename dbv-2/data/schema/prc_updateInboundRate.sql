@@ -11,11 +11,11 @@ BEGIN
 	UPDATE   LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud 
 	INNER JOIN LocalRatemanagement.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
 	SET cost = 
-		CASE WHEN  duration >= Interval1
+		CASE WHEN  billed_second >= Interval1
 		THEN
-			(Rate/60.0)*Interval1+CEILING((duration-Interval1)/IntervalN)*(Rate/60.0)*IntervalN+IFNULL(ConnectionFee,0)
+			(Rate/60.0)*Interval1+CEILING((billed_second-Interval1)/IntervalN)*(Rate/60.0)*IntervalN+IFNULL(ConnectionFee,0)
 		ElSE
-			CASE WHEN  duration > 0
+			CASE WHEN  billed_second > 0
 			THEN
 				Rate+IFNULL(ConnectionFee,0)
 			ELSE
@@ -23,12 +23,13 @@ BEGIN
 			END		    
 		END
 	,is_rerated=1
+	,duration=billed_second
 	,billed_duration =
-		CASE WHEN  duration >= Interval1
+		CASE WHEN  billed_second >= Interval1
 		THEN
-			Interval1+CEILING((duration-Interval1)/IntervalN)*IntervalN
+			Interval1+CEILING((billed_second-Interval1)/IntervalN)*IntervalN
 		ElSE 
-			CASE WHEN  duration > 0
+			CASE WHEN  billed_second > 0
 			THEN
 				Interval1
 			ELSE
