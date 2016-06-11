@@ -16,6 +16,7 @@ CREATE TABLE `tblUsageDetails` (
   `ProcessID` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ID` int(11) DEFAULT NULL,
   `is_inbound` tinyint(1) DEFAULT '0' COMMENT '0=outbound,1=inbound,2=none',
+  `billed_second` int(11) DEFAULT NULL,
   PRIMARY KEY (`UsageDetailID`),
   KEY `IXUsageDetailCMP_GaTGatACPrID` (`UsageHeaderID`),
   KEY `Index_ID` (`ID`),

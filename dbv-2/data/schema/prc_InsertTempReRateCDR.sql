@@ -14,9 +14,9 @@ BEGIN
     
     set @stm1 = CONCAT('
 
-    INSERT INTO LocalRMCdr.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound,ID)
+    INSERT INTO LocalRMCdr.`' , p_tbltempusagedetail_name , '` (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,connect_time,disconnect_time,billed_duration,billed_second,trunk,area_prefix,cli,cld,cost,ProcessID,duration,is_inbound,ID)
 
-    SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",ud.GatewayAccountID ,ud.AccountID,ud.connect_time,ud.disconnect_time,ud.billed_duration,"Other" as trunk,"Other" as area_prefix,ud.cli,ud.cld,ud.cost,"',p_ProcessID,'",ud.duration,ud.is_inbound,ud.ID
+    SELECT "',p_CompanyID,'","',p_CompanyGatewayID,'",ud.GatewayAccountID ,ud.AccountID,ud.connect_time,ud.disconnect_time,ud.billed_duration,ud.billed_second,"Other" as trunk,"Other" as area_prefix,ud.cli,ud.cld,ud.cost,"',p_ProcessID,'",ud.duration,ud.is_inbound,ud.ID
     FROM tmp_tblUsageDetails_ ud
 	 INNER JOIN LocalRatemanagement.tblAccount a
 	 	ON ud.AccountID = a.AccountID
