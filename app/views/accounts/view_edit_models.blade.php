@@ -104,7 +104,10 @@
 						document.getElementById('edit-note-form').reset();
 						$("#note-edit").button('reset');
 						//$("#add-task-form .btn-danger").click();
-						$('#edit-note-model').modal('hide');						
+						$('#edit-note-model').modal('hide');	
+						$('#edit-note-model').find('.wysihtml5-toolbar').remove();
+						$('#edit-note-model').find('.wysihtml5-sandbox').remove();
+                        $('#edit-note-model').find('.editor-note').show();					
 					}                    
                   // $('#edit-note-form #Description_edit_note').css("height","48px"); 
 				   change_click_filter();

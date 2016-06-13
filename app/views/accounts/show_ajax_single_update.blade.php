@@ -1,3 +1,5 @@
+ @section('footer_ext')
+@parent
  @if(count($response))
           @if($response->type==Task::Mail)
           <li id="timeline" row-id="{{$response->LogID}}" class="count-li timeline_mail_entry">
@@ -12,7 +14,7 @@
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
   <div class="cbp_tmlabel normal_tag">  
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif</h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif <br><p>Subject: {{$response_data['Subject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response->Cc)<p>CC: {{$response->Cc}}</p>@endif
       @if($response->Bcc)<p>BCC: {{$response->Bcc}}</p>@endif
@@ -62,7 +64,7 @@
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel normal_tag">
                <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-cancel"></i></a>
+            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
                   <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>You created a task</span>
@@ -84,5 +86,7 @@
 @elseif($response->type==Task::Note)
 <p>{{$response->Note}}</p>
 @endif
-          
-        @endif 
+@endif 
+@stop
+       
+        

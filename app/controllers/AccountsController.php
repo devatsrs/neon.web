@@ -218,7 +218,7 @@ class AccountsController extends \BaseController {
     }
 
 	
-		public function show($id) {
+		public function show($id){
 		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();

@@ -319,7 +319,7 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
             <div class="cbp_tmlabel normal_tag">
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br><p>Subject: {{$rows['EmailSubject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display"> @if($rows['EmailCc'])
                 <p>CC: {{$rows['EmailCc']}}</p>
                 @endif
@@ -377,7 +377,7 @@
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif ">
              <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-cancel"></i></a>
+            <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}"> @if($rows['TaskPriority']=='High') <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span> @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span> @else <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> @endif </h2>
@@ -407,7 +407,7 @@
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
             <div class="cbp_tmlabel normal_tag">
             <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-cancel"></i></a>
+            <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash-o"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>{{$rows['Note']}}</p>
@@ -440,6 +440,13 @@
     </section>
   </div>
 </div>
+@include('includes.submit_note_script',array("controller"=>"accounts")) 
+@include("accounts.taskmodal")
+<?php unset($BoardID); ?>
+@include('opportunityboards.opportunitymodal')
+@include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token))
+@include('accounts.view_edit_models')
+
 <div class="followup_task_data hidden">
   <ul>
     <li></li>
@@ -453,12 +460,6 @@
   <input  hidden="" name="token_attachment" value="{{$random_token}}" />
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
-@include('includes.submit_note_script',array("controller"=>"accounts")) 
-@include("accounts.taskmodal")
-<?php unset($BoardID); ?>
-@include('opportunityboards.opportunitymodal')
-@include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token))
-@include('accounts.view_edit_models')
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
@@ -473,12 +474,4 @@
             tags:{{$opportunitytags}}
         });
 </script>
-<style>
-#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
-ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
-#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
-.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
-#form_timeline_filter .radio + .radio, .checkbox + .checkbox{margin-top:0px !important; }
-</style>
 @stop

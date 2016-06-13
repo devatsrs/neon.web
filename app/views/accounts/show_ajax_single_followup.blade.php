@@ -12,7 +12,8 @@
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
   <div class="cbp_tmlabel normal_tag">  
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['CreatedBy']==$current_user_title) You @else {{$response_data['CreatedBy']}}  @endif <span>sent an email to</span> @if($response_data['EmailTo']==$current_user_title) You @else {{$response_data['EmailTo']}}  @endif</h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['CreatedBy']==$current_user_title) You @else {{$response_data['CreatedBy']}}  @endif <span>sent an email to</span> @if($response_data['EmailTo']==$current_user_title) You @else {{$response_data['EmailTo']}}  @endif <br>
+ <p>Subject: {{$response_data['Subject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response_data['Cc'])<p>CC: {{$response_data['Cc']}}</p>@endif
       @if($response_data['Bcc'])<p>BCC: {{$response_data['Bcc']}}</p>@endif
@@ -65,7 +66,7 @@
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
   <div class="cbp_tmlabel normal_tag">  
                  <a id="edit_note_{{$response_data['NoteID']}}" note-id="{{$response_data['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_note_{{$response_data['NoteID']}}" note-id="{{$response_data['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-cancel"></i></a>
+            <a id="delete_note_{{$response_data['NoteID']}}" note-id="{{$response_data['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash-o"></i></a>
     <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['created_by']==$current_user_title) You @else {{$response_data['created_by']}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response_data['Note']}}</p>
@@ -86,7 +87,7 @@
             <div id_toggle="{{$key+1}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
          <div class="cbp_tmlabel">
           <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal delete_task_link"><i class="entypo-cancel"></i></a>
+            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
                  <h2 class="toggle_open" id_toggle="{{$key+1}}">
                  @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                  

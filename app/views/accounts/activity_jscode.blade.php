@@ -173,6 +173,11 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				});	
 				
 				      $('#edit-note-model').on('shown.bs.modal', function(event){
+						  var modal = $(this);
+                        modal.find('.wysihtml5-toolbar').remove();
+						modal.find('.wysihtml5-sandbox').remove();
+                        modal.find('.editor-note').show();
+						  
                         var modal = $('#edit-note-model');
                         modal.find('.editor-note').wysihtml5({
 									"font-styles": true,
@@ -190,15 +195,16 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 							});
                     });
 
-                    $('#edit-note-model').on('hidden.bs.modal', function(event){
-                        var modal = $('#edit-note-model');
-                        modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-                        modal.find('.editor-note').show();
-                    });
-				
-		/////////
-		
+                   	
+		/////////		
     });
+	
+			 $('#edit-note-model').on('hidden.bs.modal', function(event){				 	
+                        var modal = $(this);
+                        modal.find('.wysihtml5-toolbar').remove();
+						modal.find('.wysihtml5-sandbox').remove();
+                        modal.find('.editor-note').show();
+              });			
 
 			$("#form_timeline_filter [name=timeline_filter]").click(function(e){
         	var show_timeline_data = $(this).attr('show_data'); console.log(show_timeline_data);
@@ -353,9 +359,8 @@ toastr.error(status, "Error", toastr_opts);
 	
 	}
 
-$(window).scroll(function(){
+$(window).scroll(function(){ 
 if ($(window).scrollTop() == $(document).height() - $(window).height()){
-
 setTimeout(function() {
    last_msg_funtion();
 }, 1000);
@@ -911,7 +916,12 @@ $('#emai_attachments_form').submit(function(e) {
             $("#hidden-timeline-" + id).addClass('no-display');
             $("#show-more-" + id).removeClass('no-display');
         }
-		
-	
-		
     </script> 
+    <style>
+#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
+ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
+#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
+.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
+#form_timeline_filter .radio + .radio, .checkbox + .checkbox{margin-top:0px !important; }
+</style>
