@@ -192,7 +192,7 @@ class CDRController extends BaseController {
 			$data['iSortCol_0']			 =  0;
 			$data['sSortDir_0']			 =  strtoupper('desc');
 			$companyID 					 =	 User::get_companyID();
-			$columns 					 = 	 array('AccountName','connect_time','disconnect_time','duration','cost','cli','cld');
+			$columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld');
 			$sort_column 				 = 	 $columns[$data['iSortCol_0']];
 			$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
 			$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -216,7 +216,7 @@ class CDRController extends BaseController {
         $data						 =   Input::all();
         $data['iDisplayStart'] 		+=	 1;
         $companyID 					 =	 User::get_companyID();
-        $columns 					 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
+        $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -247,16 +247,46 @@ class CDRController extends BaseController {
          $query .=',0)';
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
-	
-    public function delete_cdr(){
+
+    public function delete_customer_cdr(){
         $data = Input::all();
-        $companyID = User::get_companyID();
-        $query = "call prc_DeleteCDR (".$companyID.",'".(int)$data['CompanyGatewayID']."','".$data['StartDate']."','".$data['EndDate']."','".(int)$data['AccountID']."')";
-        $results = DB::connection('sqlsrv2')->statement($query);
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "CDR Successfully Cleared."));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Clearing CDR."));
+        if(!empty($data['criteria'])){
+            $criteria = json_decode($data['criteria'],true);
+
+            $criteria['zerovaluecost'] = $criteria['zerovaluecost']== 'true'?1:0;
+            $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
+            $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
+            $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
+
+            $companyID = User::get_companyID();
+            $query = "call prc_DeleteCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CDRType']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluecost']."','".(int)$criteria['CurrencyID']."')";
+            //echo $query;exit;
+            $results = DB::connection('sqlsrv2')->statement($query);
+            if ($results) {
+                return Response::json(array("status" => "success", "message" => "CDR Successfully Cleared."));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Clearing CDR."));
+            }
+
+        }else{
+            if(!empty($data['UsageDetailIDs']))
+            {
+                $UsageDetailIDs = array_filter(explode(',',$data['UsageDetailIDs']),'intval');
+
+                try{
+                    DB::connection('sqlsrvcdr')->beginTransaction();
+                    UsageDetail::whereIn('UsageDetailID',$UsageDetailIDs)->delete();
+                    DB::connection('sqlsrvcdr')->commit();
+                    return Response::json(array("status" => "success", "message" => "CDR Successfully Deleted"));
+
+                }catch (Exception $e){
+                    DB::connection('sqlsrvcdr')->rollback();
+                    return Response::json(array("status" => "failed", "message" => "Problem Clearing CDR \n". $e->getMessage() ));
+                }
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Please select cdr."));
+            }
+
         }
 
     }
@@ -479,7 +509,7 @@ class CDRController extends BaseController {
 			$data['iSortCol_0']			 	 =   0;
 			$data['sSortDir_0']				 =   strtoupper('desc');
 			$companyID 						 = 	 User::get_companyID();
-			$columns 						 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
+			$columns 						 = 	 array('VendorCDRID','AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
 			$sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
 			$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
 			$data['CurrencyID'] 		 	 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -501,7 +531,7 @@ class CDRController extends BaseController {
         $data 							 =   Input::all();
         $data['iDisplayStart'] 			+=	 1;
         $companyID 						 = 	 User::get_companyID();
-        $columns 						 = 	 array('AccountName','connect_time','disconnect_time','billed_duration','buying_cost','cli','cld');
+        $columns 						 = 	 array('VendorCDRID','AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
         $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
 		$data['CurrencyID'] 		 	 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -667,6 +697,48 @@ class CDRController extends BaseController {
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
         }
+    }
+
+    public function delete_vendor_cdr(){
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $criteria = json_decode($data['criteria'],true);
+
+            $criteria['zerovaluecost'] = $criteria['zerovaluebuyingcost']== 'true'?1:0;
+            $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
+            $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
+            $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
+
+            $companyID = User::get_companyID();
+            $query = "call prc_DeleteVCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluecost']."','".(int)$criteria['CurrencyID']."')";
+            //echo $query;exit;
+            $results = DB::connection('sqlsrv2')->statement($query);
+            if ($results) {
+                return Response::json(array("status" => "success", "message" => "CDR Successfully Cleared."));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Clearing CDR."));
+            }
+
+        }else{
+            if(!empty($data['VendorCDRIDs'])){
+                $VendorCDRIDs = array_filter(explode(',',$data['VendorCDRIDs']),'intval');
+
+                try{
+                    DB::connection('sqlsrvcdr')->beginTransaction();
+                    DB::connection('sqlsrvcdr')->table('tblVendorCDR')->whereIn('VendorCDRID',$VendorCDRIDs)->delete();
+                    DB::connection('sqlsrvcdr')->commit();
+                    return Response::json(array("status" => "success", "message" => "CDR Successfully Deleted"));
+
+                }catch (Exception $e){
+                    DB::connection('sqlsrvcdr')->rollback();
+                    return Response::json(array("status" => "failed", "message" => "Problem Clearing CDR \n". $e->getMessage() ));
+                }
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Please select cdr."));
+            }
+
+        }
+
     }
 
 

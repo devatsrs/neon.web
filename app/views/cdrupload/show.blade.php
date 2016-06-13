@@ -139,11 +139,25 @@
                 </form>
             </div>
         </div>
+        <p style="text-align: right;">
+            @if(User::checkCategoryPermission('CDR','Delete') )
+                <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete</button>
+            @endif
+            <form id="delete-customer-cdr-form" >
+                <input type="hidden" name="UsageDetailIDs" />
+                <input type="hidden" name="criteria" />
+            </form>
+        </p>
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>
+                        <th width="5%" >
+                            <div class="checkbox ">
+                                <input type="checkbox" id="selectall" name="checkbox[]" />
+                            </div>
+                        </th>
                         <th width="15%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
@@ -168,6 +182,7 @@ var currency_symbol = '';
 var $searchFilter = {};
 var update_new_url;
 var postdata;
+var checked='';
 var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
     jQuery(document).ready(function ($) {
         $('input[name="StartTime"]').click();
@@ -211,7 +226,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
 			$('.result_tr_end').remove();
-            var list_fields  =['AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
+            var list_fields  =['UsageDetailID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
             var starttime = $("#cdr_filter [name='StartTime']").val();
             if(starttime =='0:00:01'){
                 starttime = '0:00:00';
@@ -225,8 +240,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
-			
-			
+
 			
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
                toastr.error("Please Select a Start date", "Error", toastr_opts);
@@ -244,7 +258,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "bDestroy": true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid/type",
-                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
@@ -272,6 +286,11 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 },
                 "aoColumns":
                 [
+                    {"bSortable": false,
+                        mRender: function(id, type, full) {
+                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                        }
+                    }, //0Checkbox
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
@@ -279,10 +298,10 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     {   "bSortable": true,
 
                 mRender:function( id, type, full){
-														currency_symbol =full[12];
+														currency_symbol =full[13];
 														if(currency_symbol!=null)
 														{
-                                                      		var output = full[12]+' '+id;
+                                                      		var output = full[13]+' '+id;
 														}
 														else
 														{
@@ -312,9 +331,74 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                         minimumResultsForSearch: -1
                     });
 
+                    $("#selectall").click(function(ev) {
+                        var is_checked = $(this).is(':checked');
+                        $('#table-4 tbody tr').each(function(i, el) {
+                            if (is_checked) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                                $(this).addClass('selected');
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                                $(this).removeClass('selected');
+                            }
+                        });
+                    });
+
+                    //select all button
+                    $('#table-4 tbody tr').each(function(i, el) {
+                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (checked != '') {
+                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                $(this).addClass('selected');
+                                $('#selectallbutton').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                $(this).removeClass('selected');
+                            }
+                        }
+                    });
+
+                    $('#selectallbutton').click(function(ev) {
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall").prop("checked", true).prop('disabled', true);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-4 tbody tr').each(function(i, el) {
+                                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                        $(this).addClass('selected');
+                                    }
+                                });
+                            }
+                        }else{
+                            checked = '';
+                            $("#selectall").prop("checked", false).prop('disabled', false);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-4 tbody tr').each(function(i, el) {
+                                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                        $(this).removeClass('selected');
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
                 });
+                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
             });
+
+            $('#table-4 tbody').on('click', 'tr', function() {
+                if (checked =='') {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
+            });
+
             $('table tbody').on('click', '.delete_cdr', function (e) {
                 response = confirm('Are you sure?');
                 if (response) {
@@ -357,6 +441,66 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                    submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter))
                 }
             });
+
+        $("#delete-customer-cdr").click(function(e) {
+            e.preventDefault();
+            var criteria='';
+            if($('#selectallbutton').is(':checked')){
+                criteria = JSON.stringify($searchFilter);
+            }
+            var UsageDetailIDs = [];
+            var i = 0;
+            $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                //console.log($(this).val());
+                UsageDetailID = $(this).val();
+                if(typeof UsageDetailID != 'undefined' && UsageDetailID != null && UsageDetailID != 'null'){
+                    UsageDetailIDs[i++] = UsageDetailID;
+                }
+            });
+
+            if(UsageDetailIDs.length){
+                if (!confirm('Are you sure you want to delete cdr?')) {
+                    return;
+                }
+
+                $("#delete-customer-cdr-form").find("input[name='UsageDetailIDs']").val(UsageDetailIDs.join(","));
+                $("#delete-customer-cdr-form").find("input[name='criteria']").val(criteria);
+
+
+                var formData = new FormData($('#delete-customer-cdr-form')[0]);
+                $(this).button('loading');
+                $.ajax({
+                    url: baseurl + '/cdr_upload/delete_customer_cdr',
+                    type: 'POST',
+                    error: function () {
+                        $('#delete-customer-cdr').button('reset');
+                        toastr.error("error", "Error", toastr_opts);
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            $('#delete-customer-cdr').button('reset');
+                            toastr.success(response.message, "Success", toastr_opts);
+                            data_table.fnFilter('', 0);
+                        } else {
+                            $('#delete-customer-cdr').button('reset');
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+
+            }else{
+                alert("Please select cdr.");
+                return false;
+            }
+
+
+
+        });
 			
 			
 			function get_total_grand()
@@ -389,7 +533,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 				"iDisplayLength": '{{Config::get('app.pageSize')}}',
 				"sPaginationType": "bootstrap",
 				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-				"aaSorting": [[3, 'desc']],},
+				"aaSorting": [[3, 'desc']]},
 					success: function(response1) {
 						console.log("sum of result"+response1);
 						
@@ -407,11 +551,11 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 								currency_symbol = '';	
 							}
 							concat_currency = '';
-							$('#table-4 tbody').append('<tr class="odd result_tr_end"><td><strong>Total</strong></td><td align="right" colspan="2"></td><td><strong>'+response1.total_billed_duration+'</strong></td><td><strong>'+currency_symbol+' '+response1.total_cost+'</strong></td><td colspan="2"></td></tr>');	
+							$('#table-4 tbody').append('<tr class="odd result_tr_end"><td><strong>Total</strong></td><td></td><td align="right" colspan="2"></td><td><strong>'+response1.total_billed_duration+'</strong></td><td><strong>'+currency_symbol+' '+response1.total_cost+'</strong></td><td colspan="2"></td></tr>');
 						}
 						
 	
-						},
+						}
 				});	
 			}
 
@@ -425,6 +569,9 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 }
 .dataTables_wrapper .export-data{
     right: 30px !important;
+}
+#selectcheckbox{
+    padding: 15px 10px;
 }
 </style>
 @stop

@@ -14,6 +14,7 @@ CREATE TABLE `tblVendorCDR` (
   `area_prefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `remote_ip` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ProcessID` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `billed_second` int(11) DEFAULT NULL,
   PRIMARY KEY (`VendorCDRID`),
   KEY `IX_VendorCDRHeaderID` (`VendorCDRHeaderID`),
   KEY `IX_ProcessID` (`ProcessID`)
