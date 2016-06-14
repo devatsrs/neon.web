@@ -43,18 +43,11 @@ class DashboardCustomerController extends BaseController {
         }
         $companyID = User::get_companyID();
 
-        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
-        $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
-
-        $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
+        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
+        $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         $TotalOutstanding = 0;
-        if(count($InvoiceExpense)) {
-
-            foreach ($InvoiceExpense as $row) {
-                if(isset($row->TotalOutstanding)) {
-                    $TotalOutstanding += $row->TotalOutstanding;
-                }
-            }
+        if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            $TotalOutstanding = $InvoiceExpenseResult[0]->TotalOutstanding;
         }
 
         return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
