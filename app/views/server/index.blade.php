@@ -4,6 +4,9 @@
 #IframeServer body .navbar-fixed-top{display:none;}
 iframe .navbar-fixed-top{display:none;}
 </style>
+<script>
+$('#IframeServer').contents().find('.navbar-fixed-top').hide();
+</script>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <a href="javascript:void(0)">Server Information</a> </li>
