@@ -1,14 +1,7 @@
 @extends('layout.main')
 @section('content')
-<style>
-#IframeServer body .navbar-fixed-top{display:none;}
-iframe .navbar-fixed-top{display:none;}
-iframe nav{display:none;}
 
-</style>
-<script>
-$('#IframeServer').contents().find('.navbar-fixed-top').hide();
-</script>
+
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <a href="javascript:void(0)">Server Information</a> </li>
@@ -19,7 +12,21 @@ $('#IframeServer').contents().find('.navbar-fixed-top').hide();
  <iframe width="100%;" height="1024px;" id="IframeServer" src="<?php echo "http://".$_SERVER['HTTP_HOST'].":19999/"; ?>"></iframe>
    </div>
   @include('includes.errors')
-  @include('includes.success') </div>
+  @include('includes.success')
+  
+  <script>
+$('#IframeServer').contents().find('.navbar-fixed-top').hide();
+var frame = document.getElementById('IframeServer');
+var doc = frame.contentWindow || frame.contentDocument;
+var html = doc.document.body.innerHTML
+$(html).find('navbar-fixed-top').hide();
+</script>
+<style>
+#IframeServer body .navbar-fixed-top{display:none;}
+iframe .navbar-fixed-top{display:none;}
+iframe nav{display:none;}
+</style>
+   </div>
 @stop
 @section('footer_ext')
     @parent
