@@ -7,7 +7,7 @@
 <h3>Server Information</h3>
 <div class="tab-content">
   <div class="tab-pane active">
- <iframe src="<?php echo $_SERVER['HTTP_HOST'].":19999"; ?>"></iframe>
+ <iframe src="<?php echo "http://".$_SERVER['HTTP_HOST'].":19999/"; ?>"></iframe>
    </div>
   @include('includes.errors')
   @include('includes.success') </div>
