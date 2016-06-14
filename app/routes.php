@@ -29,8 +29,10 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('reseller/payments/ajax_datagrid_total', 'PaymentsResellerController@ajax_datagrid_total');
 
 
-    //Account Statement
+	//serverinfo
+	Route::any('serverinfo', 'ServerController@index');	
 
+    //Account Statement
     Route::any('reseller/account_statement', 'AccountStatementResellerController@index');
     Route::any('reseller/account_statement/payment', 'AccountStatementResellerController@getPayment');
     Route::any('reseller/account_statement/ajax_datagrid', 'AccountStatementResellerController@ajax_datagrid');

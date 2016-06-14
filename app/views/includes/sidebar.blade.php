@@ -206,6 +206,9 @@
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
     	@endif
+         @if( User::checkCategoryPermission('ServerInfo','View'))
+        <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Information</span> </a> </li>
+    	@endif
         
         @if(User::checkCategoryPermission('Jobs','view')) 
         <!-- <li>
