@@ -3,6 +3,8 @@
 <style>
 #IframeServer body .navbar-fixed-top{display:none;}
 iframe .navbar-fixed-top{display:none;}
+iframe nav{display:none;}
+
 </style>
 <script>
 $('#IframeServer').contents().find('.navbar-fixed-top').hide();
