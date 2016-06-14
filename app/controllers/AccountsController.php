@@ -221,7 +221,7 @@ class AccountsController extends \BaseController {
 		public function show($id){
 		
             $account 					= 	 Account::find($id);
-            $companyID 					= 	 User::get_companyID(); Log::info("--".$_SERVER['HTTP_HOST']."--");
+            $companyID 					= 	 User::get_companyID();
 			
 			//get account contacts
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
