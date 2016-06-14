@@ -111,7 +111,6 @@
 					}                    
                   // $('#edit-note-form #Description_edit_note').css("height","48px"); 
 				  $('#hidden-timeline-'+KeyID).html(response);
-				  console.log('#hidden-timeline-'+KeyID);
 				   change_click_filter();
 				   
                 },
