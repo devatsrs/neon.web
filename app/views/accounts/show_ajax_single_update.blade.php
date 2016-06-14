@@ -1,6 +1,4 @@
- @section('footer_ext')
-@parent
- @if(count($response))
+@if(count($response)) 
           @if($response->type==Task::Mail)
           <li id="timeline" row-id="{{$response->LogID}}" class="count-li timeline_mail_entry">
   <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($response->created_at)); ?>">
@@ -87,6 +85,3 @@
 <p>{{$response->Note}}</p>
 @endif
 @endif 
-@stop
-       
-        

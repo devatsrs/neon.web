@@ -922,6 +922,18 @@ $('#emai_attachments_form').submit(function(e) {
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
 .col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
-.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
+
+/*.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px; border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";}*/
+.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{ right: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-right-color: #fff;
+    border-width: 10px;
+    top: 10px;}
+ footer.main{clear:both;} .followup_task {margin-top:-30px;}
 #form_timeline_filter .radio + .radio, .checkbox + .checkbox{margin-top:0px !important; }
 </style>

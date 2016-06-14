@@ -221,7 +221,7 @@ class AccountsController extends \BaseController {
 		public function show($id){
 		
             $account 					= 	 Account::find($id);
-            $companyID 					= 	 User::get_companyID();
+            $companyID 					= 	 User::get_companyID(); Log::info("--".$_SERVER['HTTP_HOST']."--");
 			
 			//get account contacts
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
@@ -544,7 +544,7 @@ class AccountsController extends \BaseController {
      * Update a Note
      */	
 	function update_note()
-	{
+	{ 
         $data 					= 	Input::all();
         $companyID 				= 	User::get_companyID();
         $user_name 				= 	User::get_user_full_name();
@@ -560,9 +560,9 @@ class AccountsController extends \BaseController {
 			$response = $response->data;
 			$response->type = Task::Note;
 		}
-				
+			
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-		return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));      
+		return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));   
 	}
 
     /**
