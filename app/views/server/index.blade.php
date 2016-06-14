@@ -15,7 +15,7 @@
   @include('includes.success')
   
   <script>
-$('#IframeServer').contents().find('.navbar-fixed-top').hide();
+$('#IframeServer').contents().find('nav').hide();
 var frame = document.getElementById('IframeServer');
 var doc = frame.contentWindow || frame.contentDocument;
 var html = doc.document.body.innerHTML
@@ -25,6 +25,7 @@ $(html).find('navbar-fixed-top').hide();
 #IframeServer body .navbar-fixed-top{display:none;}
 iframe .navbar-fixed-top{display:none;}
 iframe nav{display:none;}
+iframe{border:0px;}
 </style>
    </div>
 @stop
