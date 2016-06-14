@@ -1,7 +1,8 @@
 @extends('layout.main')
 @section('content')
 <style>
-#IframeServer .navbar-fixed-top{display:none;}
+#IframeServer body .navbar-fixed-top{display:none;}
+iframe .navbar-fixed-top{display:none;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
