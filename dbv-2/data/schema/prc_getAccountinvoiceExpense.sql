@@ -15,8 +15,8 @@ BEGIN
 
 	INSERT INTO tmp_InvoiceSent_
 	SELECT 
-		YEAR(created_at) as Year, 
-		MONTH(created_at) as Month,
+		YEAR(IssueDate) as Year, 
+		MONTH(IssueDate) as Month,
 		ROUND(SUM(IF(InvoiceType=1,GrandTotal,0)),v_Round_) AS  TotalSentAmount,
 		ROUND(SUM(IF(InvoiceType=2,GrandTotal,0)),v_Round_) AS  TotalReceivedAmount
 	FROM tblInvoice
@@ -30,7 +30,7 @@ BEGIN
 		)
 		AND AccountID = p_AccountID
 
-	GROUP BY YEAR(IssueDate), MONTH(created_at),CurrencyID
+	GROUP BY YEAR(IssueDate), MONTH(IssueDate),CurrencyID
 	ORDER BY Year, Month;
 
 	SELECT * FROM tmp_InvoiceSent_ ORDER BY YEAR;

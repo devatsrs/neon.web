@@ -52,16 +52,18 @@
                 <table class="table table-bordered datatable">
                     <thead>
                     <tr>
-                        <th width="20%">Year</th>
-                        <th width="20%">Invoice Sent</th>
-                        <th width="20%">Invoice Received</th>
+                        <th width="30%">Year</th>
+                        <th width="30%">Invoice Sent</th>
+                        <th width="40%">Invoice Received</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($InvoiceExpenseYear as $year => $total)
-                        <td>{{$year}}</td>
-                        <td>{{$total['TotalSentAmount']}}</td>
-                        <td>{{$total['TotalReceivedAmount']}}</td>
+                        <tr>
+                            <td>{{$year}}</td>
+                            <td>{{$total['TotalSentAmount']}}</td>
+                            <td>{{$total['TotalReceivedAmount']}}</td>
+                        </tr>
                     @endforeach
 
                     </tbody>
