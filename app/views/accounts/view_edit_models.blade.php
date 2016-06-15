@@ -201,7 +201,7 @@
       <form id="edit-task-form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Edit task</h4>
+          <h4 class="modal-title">Edit Task</h4>
         </div>
         <div class="modal-body">
           <div class="row"> @if(count($boards)>0)
