@@ -567,6 +567,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/download_sample_excel_file/{type}', 'CDRController@download_sample_excel_file');
 	Route::any('/cdr_upload/get_accounts/{id}', 'CDRController@get_accounts');
 	Route::any('/cdr_show', 'CDRController@show');
+	Route::any('/cdr_upload/delete_customer_cdr', 'CDRController@delete_customer_cdr');
+	Route::any('/cdr_upload/delete_vendor_cdr', 'CDRController@delete_vendor_cdr');
 	//Route::any('/cdr_upload/delete', 'CDRController@delete'); // Temporary hidden
 	//Route::any('/cdr_upload/delete_cdr', 'CDRController@delete_cdr');// Temporary hidden
 	Route::any('/cdr_upload/ajax_datagrid/{type}', 'CDRController@ajax_datagrid');

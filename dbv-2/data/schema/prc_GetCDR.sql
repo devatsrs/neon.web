@@ -20,16 +20,21 @@ BEGIN
     
     
     	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost);
-
+		
+		SET @stm = CONCAT('ALTER TABLE tmp_tblUsageDetails_ ADD INDEX temp_index (`',p_lSortCol,'`);');
+    	PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
 
 	IF p_isExport = 0
 	THEN 
 		   SELECT
+		   	  uh.UsageDetailID,
 		        uh.AccountName,        
 		        uh.connect_time,
 		        uh.disconnect_time,        
 		        uh.billed_duration,
-		        CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.cost,6)) AS cost,
+		        CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(cost,v_Round_)) AS cost,
 		        uh.cli,
 		        uh.cld,
 		        uh.AccountID,
@@ -97,7 +102,7 @@ BEGIN
 		        uh.connect_time,
 		        uh.disconnect_time,        
 		        uh.billed_duration as duration,
-		        CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.cost,6)) AS cost,
+		        CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.cost,v_Round_)) AS cost,
 		        uh.cli,
 		        uh.cld,
 		        uh.is_inbound		        

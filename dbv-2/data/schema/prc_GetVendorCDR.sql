@@ -24,11 +24,12 @@ BEGIN
 	THEN 
 	
    SELECT
+        uh.VendorCDRID,
         uh.AccountName as AccountName,        
         uh.connect_time,
         uh.disconnect_time,        
         uh.billed_duration,
-        uh.buying_cost,
+        CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.buying_cost,v_Round_)) AS buying_cost,
         uh.cli,
         uh.cld,
         uh.AccountID,
@@ -94,7 +95,7 @@ BEGIN
 		        uh.connect_time,
 		        uh.disconnect_time,        
 		        uh.billed_duration,
-		        CONCAT(IFNULL(v_CurrencyCode_,''),format(uh.buying_cost,6)) AS Cost,
+		        CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.buying_cost,v_Round_)) AS Cost,
 		        uh.cli,
 		        uh.cld
 		        FROM tmp_tblVendorUsageDetails_ uh
