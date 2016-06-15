@@ -173,6 +173,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
 	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
+	Route::any('accounts/invoice_expense/{id}', 'AccountsController@account_invoice_expense');
 
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');

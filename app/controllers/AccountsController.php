@@ -967,6 +967,28 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
+    public function account_invoice_expense($id){
+        $CurrencySymbol = Account::getCurrency($id);
+        $companyID = User::get_companyID();
+        $query = "call prc_getAccountinvoiceExpense ('". $companyID  . "',  '". $id  . "')";
+        $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
+        $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
+
+        $InvoiceExpenseYear = array();
+        $previousyear = '';
+        foreach($InvoiceExpense as $InvoiceExpenseRow){
+            if($previousyear != $InvoiceExpenseRow->Year){
+                $previousyear = $InvoiceExpenseRow->Year;
+                $InvoiceExpenseYear[$previousyear]['TotalSentAmount'] = $InvoiceExpenseRow->TotalSentAmount;
+                $InvoiceExpenseYear[$previousyear]['TotalReceivedAmount'] = $InvoiceExpenseRow->TotalReceivedAmount;
+            }else{
+                $InvoiceExpenseYear[$previousyear]['TotalSentAmount'] += $InvoiceExpenseRow->TotalSentAmount;
+                $InvoiceExpenseYear[$previousyear]['TotalReceivedAmount'] += $InvoiceExpenseRow->TotalReceivedAmount;
+            }
+
+        }
+        return View::make('accounts.expense',compact('id','InvoiceExpense','CurrencySymbol','InvoiceExpenseYear'));
+    }
 	
 	
 }
