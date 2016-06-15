@@ -976,6 +976,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         $InvoiceExpenseYear = array();
         $previousyear = '';
+        $datacount = 0;
+        $outbound = $inbound = $cat = array();
         foreach($InvoiceExpense as $InvoiceExpenseRow){
             if($previousyear != $InvoiceExpenseRow->Year){
                 $previousyear = $InvoiceExpenseRow->Year;
@@ -985,9 +987,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $InvoiceExpenseYear[$previousyear]['TotalSentAmount'] += $InvoiceExpenseRow->TotalSentAmount;
                 $InvoiceExpenseYear[$previousyear]['TotalReceivedAmount'] += $InvoiceExpenseRow->TotalReceivedAmount;
             }
+            $inbound[$datacount] = $InvoiceExpenseRow->TotalSentAmount;
+            $outbound[$datacount] = $InvoiceExpenseRow->TotalReceivedAmount;
+            $month = $InvoiceExpenseRow->Month<10 ? '0'.$InvoiceExpenseRow->Month:$InvoiceExpenseRow->Month;
+            $cat[$datacount] = "'".$InvoiceExpenseRow->Year.' - '.$month."'";
+            $datacount++;
 
         }
-        return View::make('accounts.expense',compact('id','InvoiceExpense','CurrencySymbol','InvoiceExpenseYear'));
+        return View::make('accounts.expense',compact('id','InvoiceExpense','CurrencySymbol','InvoiceExpenseYear','inbound','outbound','cat'));
     }
 	
 	

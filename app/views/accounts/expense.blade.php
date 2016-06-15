@@ -20,7 +20,7 @@
         <div class="invoice_expsense panel panel-primary panel-table">
             <div class="panel-heading">
                 <div class="panel-title">
-                    <h3>Invoices & Expenses</h3>
+                    <h3>Inbound & Outbound</h3>
                 </div>
                 <div class="panel-options">
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -53,8 +53,8 @@
                     <thead>
                     <tr>
                         <th width="30%">Year</th>
-                        <th width="30%">Invoice Sent</th>
-                        <th width="40%">Invoice Received</th>
+                        <th width="30%">Inbound</th>
+                        <th width="40%">Outbound</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -78,35 +78,56 @@
         </div>
     </div>
 </div>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript">
     $(function() {
+        Highcharts.theme = {
+            colors: ['#3366cc', '#dc3912', '#ff9900', '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
+        };
+        // Apply the theme
+        Highcharts.setOptions(Highcharts.theme);
     @if(isset($InvoiceExpense) && count($InvoiceExpense))
-        var line_chart_demo_2 = $("#bar-chart");
-        var sales_data_2 =  [];
-        <?php $i=0; ?>
-        @foreach($InvoiceExpense as $key => $InvoiceExpenseRow)
-
-            @if(isset($InvoiceExpenseRow->TotalSentAmount) && isset($InvoiceExpenseRow->TotalReceivedAmount))
-
-                sales_data_2[{{$i++}}] =
-                {
-                    x: '{{$InvoiceExpenseRow->Year.' - '.$InvoiceExpenseRow->Month}}',
-                    y: {{$InvoiceExpenseRow->TotalSentAmount}},
-                    z: {{$InvoiceExpenseRow->TotalReceivedAmount}}
-                }
-            @endif
-        @endforeach
-        Morris.Bar({
-            element: 'bar-chart',
-            data: sales_data_2,
-            xkey: 'x',
-            ykeys: ['y','z'],
-            labels:['Invoice Sent','Invoice Received'],
-            barColors: ['#3399FF', '#333399']
-
-
+        $('#bar-chart').highcharts({
+            title: {
+                text: 'Inbound & Outbound',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: [{{implode(',',$cat)}}]
+            },
+            yAxis: {
+                title: {
+                    text: 'Amount({{$CurrencySymbol}})'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valuePrefix: '{{$CurrencySymbol}}'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Inbound',
+                data: [{{implode(',',$inbound)}}]
+            }, {
+                name: 'Outbound',
+                data: [{{implode(',',$outbound)}}]
+            }
+            ]
         });
-        line_chart_demo_2.parent().attr('style', '');
+
         @endif
     });
 </script>
