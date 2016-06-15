@@ -11,11 +11,10 @@ class NeonAPI{
         $curl = new Curl\Curl();
         $call_method = 'login';
         $curl->post(self::$api_url.$call_method, array(
-            'EmailAddress' => Input::get('email'),
+            'LoggedEmailAddress' => Input::get('email'),
             'password' => Input::get('password'),
-			"LicenceHost" =>$_SERVER['HTTP_HOST'],
-			"LicenceIP" => $_SERVER['SERVER_ADDR'],
-			"LicenceKey" =>  getenv('LICENCE_KEY'),
+			'LicenceKey' =>  getenv('LICENCE_KEY'),
+            'CompanyName'=>getenv('COMPANY_NAME')
 
         ));
         $curl->close();
@@ -37,10 +36,13 @@ class NeonAPI{
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-        $api_url = getenv('Neon_API_URL');
+       self::$api_url = getenv('Neon_API_URL');
 
-        $curl->get($api_url.$call_method, array());
-        $curl->close();
+       $curl->post(self::$api_url.$call_method, array(
+           'LoggedUserID' => $id,
+           "LicenceKey" =>  getenv('LICENCE_KEY'),
+           'CompanyName'=>getenv('COMPANY_NAME')
+       ));
 
         $response = json_decode($curl->response);
         if(isset($response->token)){
@@ -70,6 +72,8 @@ class NeonAPI{
             $curl->setOpt(CURLOPT_RETURNTRANSFER,true);
             $curl->setOpt(CURLOPT_POST,true);
         }
+        $post_data['LicenceKey'] = getenv('LICENCE_KEY');
+        $post_data['CompanyName']= getenv('COMPANY_NAME');
         if($post) {
             $curl->post(self::$api_url . $call_method, $post_data);
         }else{
