@@ -61,8 +61,8 @@
                     @foreach($InvoiceExpenseYear as $year => $total)
                         <tr>
                             <td>{{$year}}</td>
-                            <td>{{$total['TotalSentAmount']}}</td>
-                            <td>{{$total['TotalReceivedAmount']}}</td>
+                            <td>{{$CurrencySymbol}}{{$total['TotalSentAmount']}}</td>
+                            <td>{{$CurrencySymbol}}{{$total['TotalReceivedAmount']}}</td>
                         </tr>
                     @endforeach
 
