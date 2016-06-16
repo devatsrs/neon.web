@@ -108,8 +108,9 @@ class TaskController extends \BaseController {
 	 * @return Response
 	 */
     public function create(){
-        $data = Input::all();
-        $response = NeonAPI::request('task/add_task',$data);
+        $data 					= 	Input::all();
+		$data['TaskBoardUrl']	=	URL::to('/task');
+        $response 				= 	NeonAPI::request('task/add_task',$data);
 
         if($response->status!='failed'){
             if(isset($data['Task_view'])){
@@ -155,9 +156,10 @@ class TaskController extends \BaseController {
     public function update($id)
     {
         if( $id > 0 ) {
-            $data 			= Input::all();
-			$required_data  = 0;
-			$key			= 0;	
+            $data 					= 	Input::all();
+			$required_data  		= 	0;
+			$key					= 	0;
+			$data['TaskBoardUrl']	=	URL::to('/task');	
 			if(isset($data['KeyID']) && $data['KeyID']!=''){
 				$key = $data['KeyID'];
 			}
