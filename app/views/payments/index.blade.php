@@ -482,8 +482,13 @@
                             },
                             success: function(response) {
                                 $(".btn.save").button('reset');
-                                if (response.status == 'success') {
+                                if( typeof response.ProcessID != 'undefined'){
                                     var ProcessID = response.ProcessID;
+                                }else {
+                                    toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
+                                    return;
+                                }
+                                if (response.status == 'success') {
                                     if(response.message) {
                                         $('#confirm-modal-payment h4').text('Confirm Payment');
                                         message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');

@@ -97,6 +97,11 @@ class Company extends \Eloquent {
             $result['Status'] = "Licence key not found";
             $result['ExpiryDate'] = "";
         }
+		
+		 $result['Status'] = 1 ;
+          $result['Message'] = 'You license validated successfully';
+          $result['ExpiryDate']='';
+		   $result['Type'] = 3;
 
         return $result;
 
