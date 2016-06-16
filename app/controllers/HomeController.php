@@ -1,11 +1,9 @@
 <?php
 
 class HomeController extends BaseController {
-	private $request;
     var $dashboard_url = 'process_redirect';
 
-    public function __construct(Illuminate\Http\Request $request) {
-		$this->request = $request;
+    public function __construct() {
         $DefaultDashboard = '';
         if (!Auth::guest()){
             $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
