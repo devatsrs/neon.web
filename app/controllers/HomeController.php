@@ -326,8 +326,7 @@ class HomeController extends BaseController {
             exit;
         }
     }
-    public function process_redirect(){			
-		 $redirect_to = isset($data['redirect_to'])?$data['redirect_to']:URL::to($this->dashboard_url);		
-        return Redirect::to($redirect_to);
+    public function process_redirect(){
+        return Redirect::to($this->dashboard_url);
     }
 }
