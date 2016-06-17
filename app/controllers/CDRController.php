@@ -357,6 +357,9 @@ class CDRController extends BaseController {
         }
         $rules['Account'] = 'required';
         $rules['Authentication'] = 'required';
+        $rules['connect_datetime'] = 'required';
+        $rules['billed_duration'] = 'required';
+        $rules['cld'] = 'required';
         if($data['RateFormat'] == Company::CHARGECODE) {
             $rules['ChargeCode'] = 'required';
         }
@@ -368,6 +371,15 @@ class CDRController extends BaseController {
         }
         if(!empty($data['selection']['Authentication'])){
             $data['Authentication'] = $data['selection']['Authentication'];
+        }
+        if(!empty($data['selection']['connect_datetime'])){
+            $data['connect_datetime'] = $data['selection']['connect_datetime'];
+        }
+        if(!empty($data['selection']['billed_duration'])){
+            $data['billed_duration'] = $data['selection']['billed_duration'];
+        }
+        if(!empty($data['selection']['cld'])){
+            $data['cld'] = $data['selection']['cld'];
         }
         $validator = Validator::make($data, $rules);
 
