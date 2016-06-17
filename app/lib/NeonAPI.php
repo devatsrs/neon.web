@@ -50,7 +50,7 @@ class NeonAPI{
             return true;
         }else{
             Log::info("-----Not Loggedin on API-----");
-            Log::info($response);
+            Log::info(print_r($response,true));
         }
         return false;
 
