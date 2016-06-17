@@ -78,9 +78,10 @@ class OpportunityController extends \BaseController {
 	 */
     //@clarification:will not update attribute against leads
     public function update($id)
-    {
+    {	
         if( $id > 0 ) {
             $data = Input::all();
+			$data['TaskBoardUrl']	=	$_SERVER['HTTP_REFERER'];	
             $response = NeonAPI::request('opportunity/'.$id.'/update_opportunity',$data);
             return json_response_api($response,false,true);
         }else {
