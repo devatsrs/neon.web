@@ -13,7 +13,7 @@ class DialPlanController extends \BaseController {
 
 	public function dialplan_datagrid(){
         $CompanyID = User::get_companyID();
-        $dialplans = DialPlan::where(["CompanyId" => $CompanyID])->select(["Name","created_at","CreatedBy","DialPlanID"]);
+        $dialplans = DialPlan::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy","DialPlanID"]);
         return Datatables::of($dialplans)->make();
     }
 
@@ -22,7 +22,7 @@ class DialPlanController extends \BaseController {
     public function exports($type) {
 
         $CompanyID = User::get_companyID();
-        $dialplans = DialPlan::where(["CompanyId" => $CompanyID])->select(["Name","created_at","CreatedBy"])->get()->toArray();
+        $dialplans = DialPlan::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy"])->get()->toArray();
 
         if($type=='csv'){
             $file_path = getenv('UPLOAD_PATH') .'/Dial Plan.csv';
