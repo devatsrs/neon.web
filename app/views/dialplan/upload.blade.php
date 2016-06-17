@@ -1,75 +1,33 @@
 @extends('layout.main')
 @section('content')
-<ol class="breadcrumb bc-3">
-    <li>
-        <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
-    </li>
-    <li>
-        <a href="{{URL::to('accounts')}}">Accounts</a>
-    </li>
-    <li>
-        {{customer_dropbox($id,["IsVendor"=>1])}}
-    </li>
-    <li class="active">
-        <strong>Rate upload</strong>
-    </li>
-</ol>
-<h3>Vendor Rate upload</h3>
-@include('accounts.errormessage')
-<ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-<li>
-    <a href="{{ URL::to('vendor_rates/'.$id) }}" >
-        <span class="hidden-xs">Vendor Rate</span>
-    </a>
-</li>
-<li class="active">
-    <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
-        <span class="hidden-xs">Vendor Rate Upload</span>
-    </a>
-</li>
-@if(User::checkCategoryPermission('VendorRates','Download'))
-<li>
-    <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
-        <span class="hidden-xs">Vendor Rate Download</span>
-    </a>
-</li>
-@endif
-@if(User::checkCategoryPermission('VendorRates','Settings'))
-<li>
-    <a href="{{ URL::to('/vendor_rates/'.$id.'/settings') }}" >
-        <span class="hidden-xs">Settings</span>
-    </a>
-</li>
-@endif
-@if(User::checkCategoryPermission('VendorRates','Blocking'))
-<li >
-    <a href="{{ URL::to('vendor_blocking/'.$id) }}" >
-        <span class="hidden-xs">Blocking</span>
-    </a>
-</li>
-@endif
-@if(User::checkCategoryPermission('VendorRates','Preference'))
-<li >
-    <a href="{{ URL::to('/vendor_rates/vendor_preference/'.$id) }}" >
-        <span class="hidden-xs">Preference</span>
-    </a>
-</li>
-@endif
-@if(User::checkCategoryPermission('VendorRates','History'))
-<li>
-    <a href="{{ URL::to('/vendor_rates/'.$id.'/history') }}" >
-        <span class="hidden-xs">Vendor Rate History</span>
-    </a>
-</li>
-@endif
-</ul>
+    <ol class="breadcrumb bc-3">
+        <li>
+            <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+        </li>
+        <li>
+            <a href="{{URL::to('dialplans')}}">Dial Plans</a>
+        </li>
+        <li class="active">
+            <strong>{{$DialPlanName}}</strong>
+        </li>
+    </ol>
+    <h3>Dial String Upload</h3>
+    <ul class="nav nav-tabs bordered">
+        <!-- available classes "bordered", "right-aligned" -->
+        <li><a href="{{URL::to('/dialplans/dialplancode/'.$id)}}"> <span
+                        class="hidden-xs">Dial String</span>
+            </a></li>
+        <li class="active"><a href="{{URL::to('/dialplans/'.$id.'/upload')}}"> <span
+                        class="hidden-xs">Upload</span>
+            </a></li>
+    </ul>
 <div class="row">
 <div class="col-md-12">
-    <form role="form" id="form-upload" name="form-upload" method="post" action="{{URL::to('vendor_rates/'.$id.'/process_upload')}}" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+    <form role="form" id="form-upload" name="form-upload" method="post" action="{{URL::to('dialplans/'.$id.'/process_upload')}}" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Upload Rate sheet
+                    Upload Dial Strings
                 </div>
                 
                 <div class="panel-options">
@@ -81,15 +39,6 @@
                     <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
                     <div class="col-sm-4">
                         {{ Form::select('uploadtemplate', $uploadtemplate, '' , array("class"=>"select2")) }}
-
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Trunk</label>
-                    <div class="col-sm-4">
-
-                       {{ Form::select('Trunk', $trunks, $trunk_keys , array("class"=>"selectboxit")) }}
-                        
                     </div>
                 </div>
                 <div class="form-group">
@@ -101,41 +50,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Settings</label>
-                    
-                    <div class="col-sm-10">
-                        <div class="checkbox ">
-                            <label>
-                            <input type="hidden" name="checkbox_replace_all" value="0" >
-                            <input type="checkbox" id="rd-1" name="checkbox_replace_all" value="1" > Replace all of the existing rates with the rates from the file</label>
-
-                        </div>
-                        <div class="checkbox ">
-                            <input type="hidden" name="checkbox_rates_with_effected_from" value="0" >
-                            <label><input type="checkbox" id="rd-1" name="checkbox_rates_with_effected_from" value="1" checked> Rates with 'effective from' date in the past should be uploaded as effective immediately</label>
-                        </div>
-                        {{--<div class="checkbox ">
-                            <label><input type="checkbox" id="rd-1" name="checkbox_skip_rates_with_same_date" value="1" checked> Skip rates with the same date</label>
-                        </div>--}}
-                        <div class="checkbox ">
-                            <input type="hidden" name="checkbox_add_new_codes_to_code_decks" value="0" >
-                            <label><input type="checkbox" id="rd-1" name="checkbox_add_new_codes_to_code_decks" value="1" checked> Add new codes from the file to code decks</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label class="col-sm-2 control-label">Note</label>
                     <div class="col-sm-8">
                         
                         <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
                         <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
 
-                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('vendor_rates/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
-
-                         <i class="glyphicon glyphicon-minus"></i> <strong>Replace all of the existing rates with the rates from the file -</strong> The default option is to add new rates. If there is at least one parameter that differentiates a new rate from the existent one then the new rate will override it. If a rate for a certain prefix exists in the tariff but is not present in the file you received from the carrier, it will remain unchanged. The replace mode uploads all the new rates from the file and marks all the existent rates as discontinued. <br><br>
-                        
-                        <i class="glyphicon glyphicon-minus"></i> <strong>Rates with 'effective from' date in the past should be uploaded as 'effective immediately' - </strong> Sometimes you might receive a file with rates later than expected, when the moment at which the rates were supposed to become effective has already passed. By default this check box is disabled and a rate that has an 'effective from' date that has passed will be rejected and not included in the tariff. Altematively, you may choose to insert these rates into the tariff and make them effective from the current moment; to do so enable this check box. <br><br>
-                        
+                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('dialplans/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p><br>
 
                     </div>
                     
@@ -181,7 +102,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Call Rate Rules CSV Importer
+                        CSV Importer
                     </div>
 
                     <div class="panel-options">
@@ -236,28 +157,29 @@
 
                 <div class="panel-body" id="mapping">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Code*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Dial String*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Code]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[DialString]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Description*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Charge Code*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[ChargeCode]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
                     </div>
                     <div class="form-group">
                         <br />
                         <br />
-                        <label for="field-1" class="col-sm-2 control-label">Rate*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Description*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Rate]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[EffectiveDate]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
+
                     </div>
                     <div class="form-group">
                         <br />
@@ -282,55 +204,6 @@
                         <label for="field-1" class="col-sm-2 control-label">Action Delete</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="selection[ActionDelete]" value="D" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Preference</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Preference]', array(),'',array("class"=>"selectboxit"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Interval1</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Interval1]', array(),'',array("class"=>"selectboxit"))}}
-                        </div>
-
-                        <label for=" field-1" class="col-sm-2 control-label">IntervalN</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[IntervalN]', array(),'',array("class"=>"selectboxit"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Connection Fee</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[ConnectionFee]', array(),'',array("class"=>"selectboxit"))}}
-                        </div>
-                        <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span>
-
-                        </label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Dial Plans<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please Select Dial Plan and date displays in grid." data-original-title="Dial Plan">?</span>
-                        </label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[DialPlan]',$dialplan ,'',array("class"=>"selectboxit"))}}
                         </div>
                     </div>
                 </div>
@@ -380,7 +253,7 @@ jQuery(document).ready(function ($) {
             var formData = new FormData($('#form-upload')[0]);
             show_loading_bar(0);
             $.ajax({
-                url:  '{{URL::to('vendor_rates/'.$id.'/check_upload')}}',  //Server script to process data
+                url:  '{{URL::to('dialplans/'.$id.'/check_upload')}}',  //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 beforeSend: function(){
@@ -432,7 +305,7 @@ jQuery(document).ready(function ($) {
             }
         }
         $.ajax({
-            url:'{{URL::to('vendor_rates/'.$id.'/ajaxfilegrid')}}',
+            url:'{{URL::to('dialplans/'.$id.'/ajaxfilegrid')}}',
             type: 'POST',
             dataType: 'json',
             beforeSend: function(){
@@ -464,7 +337,7 @@ jQuery(document).ready(function ($) {
             }
         }
         $.ajax({
-            url:'{{URL::to('vendor_rates/'.$id.'/storeTemplate')}}', //Server script to process data
+            url:'{{URL::to('dialplans/'.$id.'/storeTemplate')}}', //Server script to process data
             type: 'POST',
             dataType: 'json',
             beforeSend: function(){
@@ -488,51 +361,6 @@ jQuery(document).ready(function ($) {
         });
     });
 
-    $("#form-upload").submit(function () {
-           // return false;
-            var formData = new FormData($('#form-upload')[0]);
-            show_loading_bar(0);
-            $.ajax({
-                url:  $('#form-upload').attr("action"),  //Server script to process data
-                type: 'POST',
-                dataType: 'json',
-                beforeSend: function(){
-                    $('.btn.upload').button('loading');
-                    show_loading_bar({
-                        pct: 50,
-                        delay: 5
-                    });
-
-                },
-                afterSend: function(){
-                    console.log("Afer Send");
-                },
-                success: function (response) {
-                    show_loading_bar({
-                        pct: 100,
-                        delay: 2
-                    });
-
-                    if (response.status == 'success') {
-                        toastr.success(response.message, "Success", toastr_opts);
-                        reloadJobsDrodown(0);
-                     } else {
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                    //alert(response.message);
-                    $('.btn.upload').button('reset');
-                },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-            return false;
-
-        });
-
     function createGrid(data){
         var tr = $('#table-4 thead tr');
         var body = $('#table-4 tbody');
@@ -555,7 +383,7 @@ jQuery(document).ready(function ($) {
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name !='selection[DialPlan]'){
+            if(el.name !='selection[DateFormat]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){
@@ -563,8 +391,8 @@ jQuery(document).ready(function ($) {
                 });
             }
         });
-        if(data.VendorFileUploadTemplate){
-            $.each( data.VendorFileUploadTemplate, function( optionskey, option_value ) {
+        if(data.DialPlanFileUploadTemplate){
+            $.each( data.DialPlanFileUploadTemplate, function( optionskey, option_value ) {
                 if(optionskey == 'Title'){
                     $('#add-template-form').find('[name="TemplateName"]').val(option_value)
                 }
@@ -606,65 +434,40 @@ jQuery(document).ready(function ($) {
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Vendor Rate File Format</h4>
+                <h4 class="modal-title">Dial String File Format</h4>
             </div>
-
-
-
             <div class="modal-body">
-            <p>All columns are mandatory and the first line should have the column headings.</p>
                         <table class="table responsive">
                             <thead>
                                 <tr>
-                                    <th>Code</th>
-                                    <th>Destination</th>
-                                    <th>Rate</th>
-                                    <th>Effective Date</th>
-                                    <th>Action</th>
-                                    <th>Connection Fee(Opt.)</th>
-                                    <th>Interval1(Opt.)</th>
-                                    <th>IntervalN(Opt.)</th>
+                                    <th>Dial String</th>
+                                    <th>Charge Code</th>
+                                    <th>Description</th>
                                     <th>Forbidden(Opt.)</th>
-                                    <th>Preference(Opt.)</th>
-
+                                    <th>Action(Opt.)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>9379</td>
-                                    <td>Afghanistan Cellular-Others</td>
-                                    <td>0.001</td>
-                                    <td> 11-12-2014  12:00:00 AM</td>
-                                    <td>I <span data-original-title="Insert" data-content="When action is set to 'I', It will insert new Vendor Rate" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
-                                    <td>0.05</td>
+                                    <td>441224</td>
+                                    <td>UKN</td>
+                                    <td>UK ABERDEEN</td>
                                     <td>1</td>
+                                    <td>I</td>
+                                </tr>
+                                <tr>
+                                    <td>441224</td>
+                                    <td>UKN</td>
+                                    <td>UK ABERDEEN</td>
                                     <td>1</td>
+                                    <td>I</td>
+                                </tr>
+                                <tr>
+                                    <td>441224</td>
+                                    <td>UKN</td>
+                                    <td>UK ABERDEEN</td>
                                     <td>0</td>
-                                    <td>5</td>
-                                </tr>
-                                <tr>
-                                    <td>9377</td>
-                                    <td>Afghanistan Cellular-Areeba</td>
-                                    <td>0.002</td>
-                                    <td> 11-12-2014  12:00:00 AM</td>
-                                    <td>U <span data-original-title="Update" data-content="When action is set to 'U',It will replace existing Vendor Rate" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
-                                    <td>0.05</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>2</td>
-                                </tr>
-                                <tr>
-                                    <td>9378</td>
-                                    <td>Afghanistan Cellular</td>
-                                    <td>0.003</td>
-                                    <td> 11-12-2014  12:00:00 AM</td>
-                                    <td>D <span data-original-title="Delete" data-content="When action is set to 'D',It will delete existing Vendor Rate" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
-                                    <td>0.05</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
+                                    <td>I</td>
                                 </tr>
                             </tbody>
                         </table>
