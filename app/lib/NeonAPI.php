@@ -48,6 +48,9 @@ class NeonAPI{
         if(isset($response->token)){
             self::setToken($response->token);
             return true;
+        }else{
+            Log::info("-----Not Loggedin on API-----");
+            Log::info($response);
         }
         return false;
 
