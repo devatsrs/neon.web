@@ -73,12 +73,12 @@ BEGIN
 	DELETE us FROM tblUsageSummaryLive us 
 	INNER JOIN tblSummaryHeader sh ON us.SummaryHeaderID = sh.SummaryHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	WHERE sh.CompanyID = p_CompanyID;
 	
 	DELETE usd FROM tblUsageSummaryDetailLive usd
 	INNER JOIN tblSummaryHeader sh ON usd.SummaryHeaderID = sh.SummaryHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	WHERE sh.CompanyID = p_CompanyID;
 	
 	INSERT INTO tblUsageSummaryLive (SummaryHeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT ANY_VALUE(sh.SummaryHeaderID),SUM(us.TotalCharges),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)
