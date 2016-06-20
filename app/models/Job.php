@@ -486,9 +486,9 @@ class Job extends \Eloquent {
 
                 break;
 
-            case 'DPU':
+            case 'DSU':
                 /*
-                 *  DialPlan Upload  Job Log
+                 *  DialString Upload  Job Log
                  */
                 $rules = array(
                     'CompanyID' => 'required',
@@ -508,12 +508,12 @@ class Job extends \Eloquent {
                 $data["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
                 $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
                 $data["JobLoggedUserID"] = User::get_userID();
-                if(!empty($options['dialplanname'])){
-                    $dialplanname = $options['dialplanname'];
+                if(!empty($options['dialstringname'])){
+                    $dialstringname = $options['dialstringname'];
                 }else{
-                    $dialplanname = '';
+                    $dialstringname = '';
                 }
-                $data["Title"] = $dialplanname;
+                $data["Title"] = $dialstringname;
                 $data["Description"] = ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $data["CreatedBy"] = User::get_user_full_name();
                 $data["updated_at"] = date('Y-m-d H:i:s');

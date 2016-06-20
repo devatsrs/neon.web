@@ -34,7 +34,7 @@ class AmazonS3 {
         'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
 		'THEMES_IMAGES'=>'ThemeImages',
 		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
-        'DIALPLAN_UPLOAD'=>'DialPlan'
+        'DIALSTRING_UPLOAD'=>'DialString'
     );
 
     // Instantiate an S3 client

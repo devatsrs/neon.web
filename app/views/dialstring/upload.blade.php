@@ -5,25 +5,25 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('dialplans')}}">Dial Plans</a>
+            <a href="{{URL::to('dialstrings')}}">Dial Strings</a>
         </li>
         <li class="active">
-            <strong>{{$DialPlanName}}</strong>
+            <strong>{{$DialStringName}}</strong>
         </li>
     </ol>
     <h3>Dial String Upload</h3>
     <ul class="nav nav-tabs bordered">
         <!-- available classes "bordered", "right-aligned" -->
-        <li><a href="{{URL::to('/dialplans/dialplancode/'.$id)}}"> <span
+        <li><a href="{{URL::to('/dialstrings/dialstringcode/'.$id)}}"> <span
                         class="hidden-xs">Dial String</span>
             </a></li>
-        <li class="active"><a href="{{URL::to('/dialplans/'.$id.'/upload')}}"> <span
+        <li class="active"><a href="{{URL::to('/dialstrings/'.$id.'/upload')}}"> <span
                         class="hidden-xs">Upload</span>
             </a></li>
     </ul>
 <div class="row">
 <div class="col-md-12">
-    <form role="form" id="form-upload" name="form-upload" method="post" action="{{URL::to('dialplans/'.$id.'/process_upload')}}" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+    <form role="form" id="form-upload" name="form-upload" method="post" action="{{URL::to('dialstrings/'.$id.'/process_upload')}}" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -56,7 +56,7 @@
                         <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
                         <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
 
-                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('dialplans/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p><br>
+                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('dialstrings/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p><br>
 
                     </div>
                     
@@ -253,7 +253,7 @@ jQuery(document).ready(function ($) {
             var formData = new FormData($('#form-upload')[0]);
             show_loading_bar(0);
             $.ajax({
-                url:  '{{URL::to('dialplans/'.$id.'/check_upload')}}',  //Server script to process data
+                url:  '{{URL::to('dialstrings/'.$id.'/check_upload')}}',  //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 beforeSend: function(){
@@ -305,7 +305,7 @@ jQuery(document).ready(function ($) {
             }
         }
         $.ajax({
-            url:'{{URL::to('dialplans/'.$id.'/ajaxfilegrid')}}',
+            url:'{{URL::to('dialstrings/'.$id.'/ajaxfilegrid')}}',
             type: 'POST',
             dataType: 'json',
             beforeSend: function(){
@@ -337,7 +337,7 @@ jQuery(document).ready(function ($) {
             }
         }
         $.ajax({
-            url:'{{URL::to('dialplans/'.$id.'/storeTemplate')}}', //Server script to process data
+            url:'{{URL::to('dialstrings/'.$id.'/storeTemplate')}}', //Server script to process data
             type: 'POST',
             dataType: 'json',
             beforeSend: function(){
@@ -391,8 +391,8 @@ jQuery(document).ready(function ($) {
                 });
             }
         });
-        if(data.DialPlanFileUploadTemplate){
-            $.each( data.DialPlanFileUploadTemplate, function( optionskey, option_value ) {
+        if(data.DialStringFileUploadTemplate){
+            $.each( data.DialStringFileUploadTemplate, function( optionskey, option_value ) {
                 if(optionskey == 'Title'){
                     $('#add-template-form').find('[name="TemplateName"]').val(option_value)
                 }

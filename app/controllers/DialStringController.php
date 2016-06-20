@@ -1,47 +1,47 @@
 <?php
 
-class DialPlanController extends \BaseController {
+class DialStringController extends \BaseController {
 
     /**
-     * Display a listing of DialpLan
+     * Display a listing of DialString
      *
      * @return Response
      */
     public function index() {					
-		return View::make('dialplan.index');
+		return View::make('dialstring.index');
     }
 
-	public function dialplan_datagrid(){
+	public function dialstring_datagrid(){
         $CompanyID = User::get_companyID();
-        $dialplans = DialPlan::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy","DialPlanID"]);
-        return Datatables::of($dialplans)->make();
+        $dialstrings = DialString::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy","DialStringID"]);
+        return Datatables::of($dialstrings)->make();
     }
 
 
-    // dial plan export
+    // dial String export
     public function exports($type) {
 
         $CompanyID = User::get_companyID();
-        $dialplans = DialPlan::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy"])->get()->toArray();
+        $dialstring = DialString::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy"])->get()->toArray();
 
         if($type=='csv'){
-            $file_path = getenv('UPLOAD_PATH') .'/Dial Plan.csv';
+            $file_path = getenv('UPLOAD_PATH') .'/Dial String.csv';
             $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_csv($dialplans);
+            $NeonExcel->download_csv($dialstring);
         }elseif($type=='xlsx'){
-            $file_path = getenv('UPLOAD_PATH') .'/Dial Plan.xls';
+            $file_path = getenv('UPLOAD_PATH') .'/Dial String.xls';
             $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($dialplans);
+            $NeonExcel->download_excel($dialstring);
         }
 
     }
 
-    public function create_dialplan(){
+    public function create_dialstring(){
         $data = Input::all();
         $data['CompanyID'] = User::get_companyID();
 
         $rules = array(
-            'Name' => 'required|unique:tblDialPlan,Name,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
+            'Name' => 'required|unique:tblDialString,Name,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
             'CompanyID' => 'required',
         );
         $validator = Validator::make($data, $rules);
@@ -51,21 +51,21 @@ class DialPlanController extends \BaseController {
         }
         $data['CreatedBy'] = User::get_user_full_name();
 
-        if ($dialplan = DialPlan::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Dial Plan Successfully Created",'LastID'=>$dialplan->DialPlanID));
+        if ($dialstring = DialString::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$dialstring->DialStringID));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Dial Plan."));
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Dial String."));
         }
 
     }
 
-    public function update_dialplan($id){
+    public function update_dialstring($id){
         $data = Input::all();
-        $dialplan = DialPlan::find($id);
+        $dialstring = DialString::find($id);
         $data['CompanyID'] = User::get_companyID();
 
         $rules = array(
-            'Name' => 'required|unique:tblDialPlan,Name,'.$id.',DialPlanID,CompanyID,'.$data['CompanyID'],
+            'Name' => 'required|unique:tblDialString,Name,'.$id.',DialStringID,CompanyID,'.$data['CompanyID'],
             'CompanyID' => 'required',
         );
         $validator = Validator::make($data, $rules);
@@ -75,39 +75,39 @@ class DialPlanController extends \BaseController {
         }
         $data['ModifiedBy'] = User::get_user_full_name();
 
-        if ($dialplan->update($data)) {
-            return Response::json(array("status" => "success", "message" => "Dial Plan Successfully Updated"));
+        if ($dialstring->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Dial String Successfully Updated"));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Plan."));
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Dial String."));
         }
 
     }
 
-    public function delete_dialplan($id){
+    public function delete_dialstring($id){
         if( intval($id) > 0){
             try{
-                $result = DialPlan::find($id)->delete();
+                $result = DialString::find($id)->delete();
                 if ($result) {
-                    return Response::json(array("status" => "success", "message" => "Dial Plan Deleted"));
+                    return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial Plan."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
                 }
             }catch (Exception $ex){
-                return Response::json(array("status" => "failed", "message" => "Dial Plan is in Use, You cant delete this Dial Plan."));
+                return Response::json(array("status" => "failed", "message" => "Dial String is in Use, You cant delete this Dial String."));
             }
         }else{
-            return Response::json(array("status" => "failed", "message" => "Please Select dial Plan."));
+            return Response::json(array("status" => "failed", "message" => "Please Select Dial String."));
         }
     }
 
-    //dial string view
-    public function dialplancode($id){
-        $DialPlanName = DialPlan::getDialPlanName($id);
-        return View::make('dialplan.dialplancode', compact('id','DialPlanName'));
+    //dial string detail view
+    public function dialstringcode($id){
+        $DialStringName = DialString::getDialStringName($id);
+        return View::make('dialstring.dialstringcode', compact('id','DialStringName'));
 
     }
 
-    //get datagrid of dial string
+    //get datagrid of dial strings
     public function ajax_datagrid($type) {
 
         $companyID = User::get_companyID();
@@ -118,19 +118,19 @@ class DialPlanController extends \BaseController {
         $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
 
         $data['iDisplayStart'] +=1;
-        $columns = array('DialPlanCodeID','DialString','ChargeCode','Description','Forbidden');
+        $columns = array('DialStringCodeID','DialString','ChargeCode','Description','Forbidden');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetDialStrings (".$data['ft_dialplanid'].",".$data['ft_dialstring'].",".$data['ft_chargecode'].",".$data['ft_description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetDialStrings (".$data['ft_dialstringid'].",".$data['ft_dialstring'].",".$data['ft_chargecode'].",".$data['ft_description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/DialPlanCode.csv';
+                $file_path = getenv('UPLOAD_PATH') .'/DialStrings.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/DialPlanCode.xls';
+                $file_path = getenv('UPLOAD_PATH') .'/DialStrings.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -147,9 +147,9 @@ class DialPlanController extends \BaseController {
      */
     public function store() {
         $data = Input::all();
-        $rules = DialPlanCode::$rules;
+        $rules = DialStringCode::$rules;
 
-        $rules['DialString'] = 'required|unique:tblDialPlanCode,DialString,NULL,DialPlanID,DialPlanID,'.$data['DialPlanID'];
+        $rules['DialString'] = 'required|unique:tblDialStringCode,DialString,NULL,DialStringID,DialStringID,'.$data['DialStringID'];
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -167,8 +167,8 @@ class DialPlanController extends \BaseController {
 
         $data['created_by'] = User::get_user_full_name();
 
-        if ($DialPlanCode = DialPlanCode::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$DialPlanCode->tblDialPlanCode));
+        if ($DialStringCode = DialStringCode::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$DialStringCode->DialStringCodeID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dial String."));
         }
@@ -183,11 +183,11 @@ class DialPlanController extends \BaseController {
      */
     public function update($id) {
         $data = Input::all();
-        $DialPlanCode = DialPlanCode::find($id);
+        $DialStringCode = DialStringCode::find($id);
 
-        $rules = DialPlanCode::$rules;
+        $rules = DialStringCode::$rules;
 
-        $rules['DialString'] = 'required|unique:tblDialPlanCode,DialString,'.$id.',DialPlanCodeID,DialPlanID,'.$data['DialPlanID'];
+        $rules['DialString'] = 'required|unique:tblDialStringCode,DialString,'.$id.',DialStringCodeID,DialStringID,'.$data['DialStringID'];
 
 
         $validator = Validator::make($data, $rules);
@@ -204,7 +204,7 @@ class DialPlanController extends \BaseController {
             $data['Forbidden'] = '';
         }
 
-        if ($DialPlanCode->update($data)) {
+        if ($DialStringCode->update($data)) {
             return Response::json(array("status" => "success", "message" => "Dial Strings Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
@@ -216,14 +216,14 @@ class DialPlanController extends \BaseController {
     public function deletecode($id){
         if( intval($id) > 0){
             try{
-                $result = DialPlanCode::find($id)->delete();
+                $result = DialStringCode::find($id)->delete();
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
                 }
             }catch (Exception $ex){
-                return Response::json(array("status" => "failed", "message" => "Dial String is in Use, You cant delete this Dial Plan Code."));
+                return Response::json(array("status" => "failed", "message" => "Dial String is in Use, You cant delete this Dial String Code."));
             }
         }else{
             return Response::json(array("status" => "failed", "message" => "Please Select Dial String."));
@@ -284,7 +284,7 @@ class DialPlanController extends \BaseController {
             $criteria['ft_chargecode'] = $criteria['ft_chargecode'] != ''?"'".$criteria['ft_chargecode']."'":'null';
             $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
 
-            $query = "call prc_dialplancodekbulkupdate ('".$data['DialPlanID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -297,7 +297,7 @@ class DialPlanController extends \BaseController {
             //update from selected dialstrings
 
             $Dialcodes = $data['Dialcodes'];
-            $query = "call prc_dialplancodekbulkupdate ('".$data['DialPlanID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -328,7 +328,7 @@ class DialPlanController extends \BaseController {
             $criteria['ft_chargecode'] = $criteria['ft_chargecode'] != ''?"'".$criteria['ft_chargecode']."'":'null';
             $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
 
-            $query = "call prc_dialplancodekbulkupdate ('".$data['DialPlanID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'','','','1')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'','','','1')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -339,7 +339,7 @@ class DialPlanController extends \BaseController {
 
         }elseif(!empty($data['Action']) && $data['Action'] == 'code'){
             $Dialcodes = $data['Dialcodes'];
-            $query = "call prc_dialplancodekbulkupdate ('".$data['DialPlanID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,'','','','1')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,'','','','1')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -356,9 +356,9 @@ class DialPlanController extends \BaseController {
 
     // dial string upload view
     public function upload($id) {
-        $DialPlanName = DialPlan::getDialPlanName($id);
-        $uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_DIALPLAN);
-        return View::make('dialplan.upload', compact('id','DialPlanName','uploadtemplate'));
+        $DialStringName = DialString::getDialStringName($id);
+        $uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_DIALSTRING);
+        return View::make('dialstring.upload', compact('id','DialStringName','uploadtemplate'));
     }
 
     public function check_upload($id) {
@@ -366,7 +366,7 @@ class DialPlanController extends \BaseController {
             ini_set('max_execution_time', 0);
             $data = Input::all();
             if (empty($id)) {
-                return json_encode(["status" => "failed", "message" => 'No Dial Plan Available']);
+                return json_encode(["status" => "failed", "message" => 'No Dial String Available']);
             } else if (Input::hasFile('excel')) {
                 $upload_path = getenv('TEMP_PATH');
                 $excel = Input::file('excel');
@@ -387,8 +387,8 @@ class DialPlanController extends \BaseController {
             if (!empty($file_name)) {
 
                 if ($data['uploadtemplate'] > 0) {
-                    $DialPlanFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
-                    $options = json_decode($DialPlanFileUploadTemplate->Options, true);
+                    $DialStringFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
+                    $options = json_decode($DialStringFileUploadTemplate->Options, true);
                     $data['Delimiter'] = $options['option']['Delimiter'];
                     $data['Enclosure'] = $options['option']['Enclosure'];
                     $data['Escape'] = $options['option']['Escape'];
@@ -398,9 +398,9 @@ class DialPlanController extends \BaseController {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;
                 $grid['filename'] = $file_name;
-                if (!empty($DialPlanFileUploadTemplate)) {
-                    $grid['DialPlanFileUploadTemplate'] = json_decode(json_encode($DialPlanFileUploadTemplate), true);
-                    $grid['DialPlanFileUploadTemplate']['Options'] = json_decode($DialPlanFileUploadTemplate->Options, true);
+                if (!empty($DialStringFileUploadTemplate)) {
+                    $grid['DialStringFileUploadTemplate'] = json_decode(json_encode($DialStringFileUploadTemplate), true);
+                    $grid['DialStringFileUploadTemplate']['Options'] = json_decode($DialStringFileUploadTemplate->Options, true);
                 }
                 return Response::json(array("status" => "success", "data" => $grid));
             }
@@ -417,13 +417,13 @@ class DialPlanController extends \BaseController {
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
             if ($data['uploadtemplate'] > 0) {
-                $DialPlanFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
-                $grid['DialPlanFileUploadTemplate'] = json_decode(json_encode($DialPlanFileUploadTemplate), true);
+                $DialStringFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
+                $grid['DialStringFileUploadTemplate'] = json_decode(json_encode($DialStringFileUploadTemplate), true);
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
-            $grid['DialPlanFileUploadTemplate']['Options'] = array();
-            $grid['DialPlanFileUploadTemplate']['Options']['option'] = $data['option'];
-            $grid['DialPlanFileUploadTemplate']['Options']['selection'] = $data['selection'];
+            $grid['DialStringFileUploadTemplate']['Options'] = array();
+            $grid['DialStringFileUploadTemplate']['Options']['option'] = $data['option'];
+            $grid['DialStringFileUploadTemplate']['Options']['selection'] = $data['selection'];
             return Response::json(array("status" => "success", "data" => $grid));
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -434,11 +434,11 @@ class DialPlanController extends \BaseController {
     public function storeTemplate($id) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        DialPlanCode::$DialPlanUploadrules['selection.DialString'] = 'required';
-        DialPlanCode::$DialPlanUploadrules['selection.ChargeCode'] = 'required';
-        DialPlanCode::$DialPlanUploadrules['selection.Description'] = 'required';
+        DialStringCode::$DialStringUploadrules['selection.DialString'] = 'required';
+        DialStringCode::$DialStringUploadrules['selection.ChargeCode'] = 'required';
+        DialStringCode::$DialStringUploadrules['selection.Description'] = 'required';
 
-        $validator = Validator::make($data, DialPlanCode::$DialPlanUploadrules,DialPlanCode::$DialPlanUploadMessages);
+        $validator = Validator::make($data, DialStringCode::$DialStringUploadrules,DialStringCode::$DialStringUploadMessages);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -447,11 +447,11 @@ class DialPlanController extends \BaseController {
 
         $temp_path = getenv('TEMP_PATH') . '/';
 
-        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIALPLAN_UPLOAD']);
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIALSTRING_UPLOAD']);
         $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-            return Response::json(array("status" => "failed", "message" => "Failed to upload Dial Plan file."));
+            return Response::json(array("status" => "failed", "message" => "Failed to upload Dial String file."));
         }
         if(!empty($data['TemplateName'])){
             $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
@@ -459,7 +459,7 @@ class DialPlanController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplate::TEMPLATE_DIALPLAN;
+            $save['Type'] = FileUploadTemplate::TEMPLATE_DIALSTRING;
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
@@ -474,17 +474,17 @@ class DialPlanController extends \BaseController {
         $save['Options'] = json_encode($option);
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
-        $save["DialPlanID"] = $id;
+        $save["DialStringID"] = $id;
         if(isset($data['uploadtemplate'])) {
             $save['uploadtemplate'] = $data['uploadtemplate'];
         }
-        $save['dialplanname'] = DialPlan::getDialPlanName($id);
+        $save['dialstringname'] = DialString::getDialStringName($id);
 
         //Inserting Job Log
         try {
             DB::beginTransaction();
             //remove unnecesarry object
-            $result = Job::logJob("DPU", $save);
+            $result = Job::logJob("DSU", $save);
             if ($result['status'] != "success") {
                 DB::rollback();
                 return json_encode(["status" => "failed", "message" => $result['message']]);

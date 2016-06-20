@@ -327,10 +327,9 @@
                     <div class="form-group">
                         <br />
                         <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Dial Plans<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please Select Dial Plan and date displays in grid." data-original-title="Dial Plan">?</span>
-                        </label>
+                        <label for=" field-1" class="col-sm-2 control-label">Dial String</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[DialPlan]',$dialplan ,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"selectboxit"))}}
                         </div>
                     </div>
                 </div>
@@ -555,7 +554,7 @@ jQuery(document).ready(function ($) {
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name !='selection[DialPlan]'){
+            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){

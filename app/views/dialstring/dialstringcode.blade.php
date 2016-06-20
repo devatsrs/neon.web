@@ -7,10 +7,10 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li>
-            <a href="{{URL::to('dialplans')}}">Dial Plans</a>
+            <a href="{{URL::to('dialstrings')}}">Dial Strings</a>
     </li>
     <li class="active">
-        <strong>{{$DialPlanName}}</strong>
+        <strong>{{$DialStringName}}</strong>
     </li>
 </ol>
 <h3>Dial Strings</h3>
@@ -19,7 +19,7 @@
 @include('includes.success')
 
 <div style="float: right;">
-    @if( User::checkCategoryPermission('DialPlans','Add') )
+    @if( User::checkCategoryPermission('DialStrings','Add') )
         <a href="javascript:;" id="add-new-code" class="btn upload btn-primary ">
             <i class="entypo-upload"></i>
             Add Dial String
@@ -30,12 +30,12 @@
 <ul class="nav nav-tabs bordered">
     <!-- available classes "bordered", "right-aligned" -->
     <li class="active">
-        <a href="{{URL::to('/dialplans/'.$id.'/dialplancode')}}">
+        <a href="{{URL::to('/dialstrings/'.$id.'/dialstringcode')}}">
             <span class="hidden-xs">Dial String</span>
         </a>
     </li>
-    @if( User::checkCategoryPermission('DialPlans','Upload') )
-    <li><a href="{{URL::to('/dialplans/'.$id.'/upload')}}"> <span
+    @if( User::checkCategoryPermission('dialstrings','Upload') )
+    <li><a href="{{URL::to('/dialstrings/'.$id.'/upload')}}"> <span
                     class="hidden-xs">Upload</span>
         </a></li>
     @endif
@@ -43,7 +43,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="dialplan_filter">
+        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="dialstring_filter">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -58,7 +58,7 @@
                         <label class="col-sm-1 control-label" for="field-1">Dial String</label>
                         <div class="col-sm-2">
                             <input type="text" name="ft_dialstring" class="form-control">
-                            <input name="ft_dialplanid" value="{{$id}}" type="hidden" >
+                            <input name="ft_dialstringid" value="{{$id}}" type="hidden" >
                         </div>
                         <label class="col-sm-1 control-label">Charge Code</label>
                         <div class="col-sm-2">
@@ -81,13 +81,13 @@
     </div>
 </div>
 <div style="text-align: right;padding:10px 0 ">
-    @if( User::checkCategoryPermission('DialPlans','Edit'))
+    @if( User::checkCategoryPermission('DialStrings','Edit'))
     <a href="javascript:;"  id="changeSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;">
         <i class="entypo-floppy"></i>
         Change Selected Dial String
     </a>
     @endif
-    @if( User::checkCategoryPermission('DialPlans','Delete'))
+    @if( User::checkCategoryPermission('DialStrings','Delete'))
     <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Delete Selected Dial String
@@ -122,16 +122,16 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        $("#dialplan_filter").submit(function(e) {
+        $("#dialstring_filter").submit(function(e) {
             e.preventDefault();
 
-            $searchFilter.ft_dialstring = $("#dialplan_filter [name='ft_dialstring']").val();
-            $searchFilter.ft_chargecode = $("#dialplan_filter [name='ft_chargecode']").val();
-            $searchFilter.ft_description = $("#dialplan_filter [name='ft_description']").val();
-            $searchFilter.ft_dialplanid = $("#dialplan_filter [name='ft_dialplanid']").val();
+            $searchFilter.ft_dialstring = $("#dialstring_filter [name='ft_dialstring']").val();
+            $searchFilter.ft_chargecode = $("#dialstring_filter [name='ft_chargecode']").val();
+            $searchFilter.ft_description = $("#dialstring_filter [name='ft_description']").val();
+            $searchFilter.ft_dialstringid = $("#dialstring_filter [name='ft_dialstringid']").val();
 
-            if($searchFilter.ft_dialplanid == ''){
-                ShowToastr("error",'Please Select DialPlan');
+            if($searchFilter.ft_dialstringid == ''){
+                ShowToastr("error",'Please Select DialString');
                 return false;
             }
 
@@ -140,19 +140,19 @@ var postdata;
                 "bDestroy": true,
                 "bProcessing":true,
                 "bServerSide":true,
-                "sAjaxSource": baseurl + "/dialplans/ajax_datagrid/type",
+                "sAjaxSource": baseurl + "/dialstrings/ajax_datagrid/type",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialplanid","value":$searchFilter.ft_dialplanid});
+                    aoData.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialplanid","value":$searchFilter.ft_dialplanid},{ "name": "Export", "value": 1});
+                    data_table_extra_params.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid},{ "name": "Export", "value": 1});
                 },
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[1, 'ASC']],
                 "aoColumns":
                         [
-                            {"bSortable": false, //DialPlanCodeID
+                            {"bSortable": false, //DialStringCodeID
                                 mRender: function(id, type, full) {
                                     return '<div class="checkbox "><input type="checkbox" name="codedeck[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
@@ -166,29 +166,29 @@ var postdata;
                                 "bSortable": true,
                                 mRender: function ( id, type, full ) {
                                     var action , edit_ , show_ , delete_;
-                                    delete_ = "{{ URL::to('dialplans/{id}/deletecode')}}";
+                                    delete_ = "{{ URL::to('dialstrings/{id}/deletecode')}}";
 
                                     delete_ = delete_.replace( '{id}', full[0] );
 
-                                    DialPlanCodeID = full[0];
+                                    DialStringCodeID = full[0];
                                     DialString = full[1];
                                     ChargeCode = full[2];
                                     Description = full[3];
                                    // Forbidden = ( full[4] == null )? 1:full[4];
                                     Forbidden = full[4];
                                     action = '<div class = "hiddenRowData" >';
-                                    action += '<input type = "hidden"  name = "DialPlanCodeID" value = "' + DialPlanCodeID + '" / >';
+                                    action += '<input type = "hidden"  name = "DialStringCodeID" value = "' + DialStringCodeID + '" / >';
                                     action += '<input type = "hidden"  name = "DialString" value = "' + DialString + '" / >';
                                     action += '<input type = "hidden"  name = "ChargeCode" value = "' + ChargeCode + '" / >';
                                     action += '<input type = "hidden"  name = "Description" value = "' + Description + '" / >';
                                     action += '<input type = "hidden"  name = "Forbidden" value = "' +  Forbidden + '" / >' ;
                                     action += '</div>';
 
-                                    <?php if(User::checkCategoryPermission('DialPlans','Edit')){ ?>
-                                            action += '<a href="javascript:;" class="edit-dialplan btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                    <?php if(User::checkCategoryPermission('DialStrings','Edit')){ ?>
+                                            action += '<a href="javascript:;" class="edit-dialstring btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                     <?php } ?>
-                                            <?php if(User::checkCategoryPermission('DialPlans','Delete') ){ ?>
-                                            action += ' <a href="'+ delete_ +'" class="delete-dialplancode btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                            <?php if(User::checkCategoryPermission('DialStrings','Delete') ){ ?>
+                                            action += ' <a href="'+ delete_ +'" class="delete-dialstringcode btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
                                     <?php } ?>
 
                                             return action;
@@ -200,13 +200,13 @@ var postdata;
                         {
                             "sExtends": "download",
                             "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/dialplans/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                            "sUrl": baseurl + "/dialstrings/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                             sButtonClass: "save-collection btn-sm"
                         },
                         {
                             "sExtends": "download",
                             "sButtonText": "CSV",
-                            "sUrl": baseurl + "/dialplans/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                            "sUrl": baseurl + "/dialstrings/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                             sButtonClass: "save-collection btn-sm"
                         }
                     ]
@@ -217,7 +217,7 @@ var postdata;
                         minimumResultsForSearch: -1
                     });
 
-                    $(".delete-dialplancode").click(function(e) {
+                    $(".delete-dialstringcode").click(function(e) {
                         e.preventDefault();
                         response = confirm('Are you sure?');
                         if (response) {
@@ -302,16 +302,16 @@ var postdata;
         $('#add-new-code').click(function(ev){
             ev.preventDefault();
             $('#add-new-code-form').trigger("reset");
-            $("#add-new-code-form [name='DialPlanCodeID']").val('');
+            $("#add-new-code-form [name='DialStringCodeID']").val('');
             $('#add-new-modal').modal('show');
         });
 
-        $('table tbody').on('click','.edit-dialplan',function(ev){
+        $('table tbody').on('click','.edit-dialstring',function(ev){
             ev.preventDefault();
             ev.stopPropagation();
             var prev_raw = $(this).prev("div.hiddenRowData");
             $('#add-new-code-form').trigger("reset");
-            $("#add-new-code-form [name='DialPlanCodeID']").val(prev_raw.find("input[name='DialPlanCodeID']").val());
+            $("#add-new-code-form [name='DialStringCodeID']").val(prev_raw.find("input[name='DialStringCodeID']").val());
             $("#add-new-code-form [name='DialString']").val(prev_raw.find("input[name='DialString']").val());
             $("#add-new-code-form [name='ChargeCode']").val(prev_raw.find("input[name='ChargeCode']").val());
             $("#add-new-code-form [name='Description']").val(prev_raw.find("input[name='Description']").val());
@@ -322,11 +322,11 @@ var postdata;
 
         $("#add-new-code-form").submit(function(e) {
             e.preventDefault();
-            var codeid = $("#add-new-code-form [name='DialPlanCodeID']").val();
+            var codeid = $("#add-new-code-form [name='DialStringCodeID']").val();
             if( typeof codeid != 'undefined' && codeid != ''){
-                update_new_url = baseurl + '/dialplans/update/'+codeid;
+                update_new_url = baseurl + '/dialstrings/update/'+codeid;
             }else{
-                update_new_url = baseurl + '/dialplans/store';
+                update_new_url = baseurl + '/dialstrings/store';
             }
 
             bulk_update(update_new_url,$("#add-new-code-form").serialize());
@@ -340,11 +340,11 @@ var postdata;
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
-                    $("#dialplan-update").button('reset');
+                    $("#dialstring-update").button('reset');
                     $(".btn").button('reset');
 
                     if (response.status == 'success') {
-                        $('#modal-DialPlan').modal('hide');
+                        $('#modal-DialString').modal('hide');
                         $('#add-new-modal').modal('hide');
                         toastr.success(response.message, "Success", toastr_opts);
                         if( typeof data_table !=  'undefined'){
@@ -370,7 +370,7 @@ var postdata;
             });
             if(Dialcodes.length){
                 $('#bulk-edit-code-form').trigger("reset");
-                $('#modal-DialPlan').modal('show', {backdrop: 'static'});
+                $('#modal-DialString').modal('show', {backdrop: 'static'});
             }
 
         });
@@ -394,7 +394,7 @@ var postdata;
                 });
             }
             if(Dialcodes.length!='' || criteria!=''){
-                update_new_url = baseurl + '/dialplans/update_selected';
+                update_new_url = baseurl + '/dialstrings/update_selected';
                 bulk_update(update_new_url,'Action='+Action+'&Dialcodes='+Dialcodes+'&criteria='+criteria+'&'+$('#bulk-edit-code-form').serialize());
             }
 
@@ -408,7 +408,7 @@ var postdata;
             var Dialcodes = [];
             var Action = '';
 
-            var dialplanid = $("#dialplan_filter [name='ft_dialplanid']").val();
+            var dialstringid = $("#dialstring_filter [name='ft_dialstringid']").val();
             if($('#selectallbutton').is(':checked')){
                 criteria = JSON.stringify($searchFilter);
                 Action = 'criteria';
@@ -424,8 +424,8 @@ var postdata;
             if(Dialcodes.length!='' || criteria!=''){
                 result = confirm("Are you Sure?");
                 if(result) {
-                    update_new_url = baseurl + '/dialplans/delete_selected';
-                    bulk_update(update_new_url, 'DialPlanID=' + dialplanid + '&Action=' + Action + '&Dialcodes=' + Dialcodes + '&criteria=' + criteria);
+                    update_new_url = baseurl + '/dialstrings/delete_selected';
+                    bulk_update(update_new_url, 'DialStringID=' + dialstringid + '&Action=' + Action + '&Dialcodes=' + Dialcodes + '&criteria=' + criteria);
                 }
             }
 
@@ -483,14 +483,14 @@ var postdata;
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Forbidden</label>
                                 <input type="text" name="Forbidden" class="form-control" id="field-5" placeholder="">
-                                <input name="DialPlanID" value="{{$id}}" type="hidden" >
-                                <input name="DialPlanCodeID" value="" type="hidden" >
+                                <input name="DialStringID" value="{{$id}}" type="hidden" >
+                                <input name="DialStringCodeID" value="" type="hidden" >
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="dialplan-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <button type="submit" id="dialstring-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
@@ -503,7 +503,7 @@ var postdata;
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-DialPlan">
+<div class="modal fade" id="modal-DialString">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -546,7 +546,7 @@ var postdata;
                                 <input type="checkbox" name="updateForbidden" class="" />
                                 <label for="field-5" class="control-label">Forbidden</label>
                                 <input type="text" name="Forbidden" class="form-control" id="field-5" placeholder="">
-                                <input name="DialPlanID" value="{{$id}}" type="hidden" >
+                                <input name="DialStringID" value="{{$id}}" type="hidden" >
                             </div>
                         </div>
                     </div>
@@ -554,7 +554,7 @@ var postdata;
 
                 <div class="modal-footer">
 
-                    <button type="submit" id="dialplan-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <button type="submit" id="dialstring-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>

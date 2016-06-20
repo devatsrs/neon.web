@@ -810,26 +810,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/{id}/download_attachment','DisputeController@download_attachment');
 	Route::any('/disputes/{id}/view','DisputeController@view');
 
-	//DailPlan
-	Route::any('/dialplans', "DialPlanController@index");
-	Route::any('/dialplans/dialplan_datagrid', "DialPlanController@dialplan_datagrid");
-	Route::any('/dialplans/exports/{type}', "DialPlanController@exports");
-	Route::any('/dialplans/create_dialplan', "DialPlanController@create_dialplan");
-	Route::any('/dialplans/update_dialplan/{id}', "DialPlanController@update_dialplan");
-	Route::any('/dialplans/{id}/delete_dialplan', "DialPlanController@delete_dialplan");
+	//DailString
+	Route::any('/dialstrings', "DialStringController@index");
+	Route::any('/dialstrings/dialstring_datagrid', "DialStringController@dialstring_datagrid");
+	Route::any('/dialstrings/exports/{type}', "DialStringController@exports");
+	Route::any('/dialstrings/create_dialstring', "DialStringController@create_dialstring");
+	Route::any('/dialstrings/update_dialstring/{id}', "DialStringController@update_dialstring");
+	Route::any('/dialstrings/{id}/delete_dialstring', "DialStringController@delete_dialstring");
 
-	Route::any('/dialplans/dialplancode/{id}', "DialPlanController@dialplancode");
-	Route::any('/dialplans/ajax_datagrid/{type}', "DialPlanController@ajax_datagrid");
-	Route::any('/dialplans/store', "DialPlanController@store");
-	Route::any('/dialplans/update/{id}', "DialPlanController@update");
-	Route::any('/dialplans/{id}/deletecode', "DialPlanController@deletecode");
-	Route::any('/dialplans/update_selected', "DialPlanController@update_selected");
-	Route::any('/dialplans/delete_selected', "DialPlanController@delete_selected");
-	Route::any('/dialplans/{id}/upload', "DialPlanController@upload");
-	Route::any('/dialplans/{id}/check_upload', "DialPlanController@check_upload");
-	Route::any('/dialplans/{id}/ajaxfilegrid', 'DialPlanController@ajaxfilegrid');
-	Route::any('/dialplans/{id}/storeTemplate', 'DialPlanController@storeTemplate');
-	Route::any('/dialplans/download_sample_excel_file', "DialPlanController@download_sample_excel_file");
+	Route::any('/dialstrings/dialstringcode/{id}', "DialStringController@dialstringcode");
+	Route::any('/dialstrings/ajax_datagrid/{type}', "DialStringController@ajax_datagrid");
+	Route::any('/dialstrings/store', "DialStringController@store");
+	Route::any('/dialstrings/update/{id}', "DialStringController@update");
+	Route::any('/dialstrings/{id}/deletecode', "DialStringController@deletecode");
+	Route::any('/dialstrings/update_selected', "DialStringController@update_selected");
+	Route::any('/dialstrings/delete_selected', "DialStringController@delete_selected");
+	Route::any('/dialstrings/{id}/upload', "DialStringController@upload");
+	Route::any('/dialstrings/{id}/check_upload', "DialStringController@check_upload");
+	Route::any('/dialstrings/{id}/ajaxfilegrid', 'DialStringController@ajaxfilegrid');
+	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
+	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
 
 });
 

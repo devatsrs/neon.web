@@ -7,10 +7,10 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>Dial Plans</strong>
+        <strong>Dial Strings</strong>
     </li>
 </ol>
-<h3>Dial Plans</h3>
+<h3>Dial Strings</h3>
 
 @include('includes.errors')
 @include('includes.success')
@@ -19,10 +19,10 @@
 <!--<script src="{{URL::to('/')}}/assets/js/neon-fileupload.js" type="text/javascript"></script>-->
 
 <p style="text-align: right;">
-    @if( User::checkCategoryPermission('DialPlans','Add'))
-    <a href="#" id="add-new-dialplan" class="btn btn-primary ">
+    @if( User::checkCategoryPermission('DialStrings','Add'))
+    <a href="#" id="add-new-dialstring" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New DialPlan
+        Add New Dial String
     </a>
     @endif
 </p>
@@ -53,7 +53,7 @@ var postdata;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/dialplans/dialplan_datagrid",
+            "sAjaxSource": baseurl + "/dialstrings/dialstring_datagrid",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -67,16 +67,16 @@ var postdata;
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_;
-                        show_ = "{{ URL::to('dialplans/dialplancode/{id}')}}";
-                        delete_ = "{{ URL::to('dialplans/{id}/delete_dialplan')}}";
+                        show_ = "{{ URL::to('dialstrings/dialstringcode/{id}')}}";
+                        delete_ = "{{ URL::to('dialstrings/{id}/delete_dialstring')}}";
                         show_ = show_.replace( '{id}', id);
                         delete_ = delete_.replace( '{id}', id);
                         action = '<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';
-                        <?php if(User::checkCategoryPermission('DialPlans','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-type = "'+full[4]+'" data-id="'+ id +'" class="edit-dialplan btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                        <?php if(User::checkCategoryPermission('DialStrings','Edit') ){ ?>
+                            action += ' <a data-name = "'+full[0]+'" data-type = "'+full[4]+'" data-id="'+ id +'" class="edit-dialstring btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                         <?php } ?>
-                        <?php if(User::checkCategoryPermission('DialPlans','Delete') ){ ?>
-                            action += ' <a href="'+ delete_ +'" class="delete-dialplan btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                        <?php if(User::checkCategoryPermission('DialStrings','Delete') ){ ?>
+                            action += ' <a href="'+ delete_ +'" class="delete-dialstring btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
                         <?php } ?>
 
                         return action;
@@ -88,13 +88,13 @@ var postdata;
                     {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/dialplans/exports/xlsx", //baseurl + "/generate_xls.php",
+                        "sUrl": baseurl + "/dialstrings/exports/xlsx", //baseurl + "/generate_xls.php",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/dialplans/exports/csv", //baseurl + "/generate_csv.php",
+                        "sUrl": baseurl + "/dialstrings/exports/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
@@ -104,7 +104,7 @@ var postdata;
                        minimumResultsForSearch: -1
                    });
 
-               $(".delete-dialplan").click(function(e) {
+               $(".delete-dialstring").click(function(e) {
                    e.preventDefault();
                    response = confirm('Are you sure?');
                    if (response) {
@@ -149,33 +149,33 @@ var postdata;
         });
 
 
-    $('#add-new-dialplan').click(function(ev){
+    $('#add-new-dialstring').click(function(ev){
         ev.preventDefault();
-        $('#add-new-dialplan-form').trigger("reset");
-        $("#add-new-dialplan-form [name='DialPlanID']").val('')
-        $('#add-new-modal-dialplan h4').html('Add New Dial Plan');
-        $('#add-new-modal-dialplan').modal('show');
+        $('#add-new-dialstring-form').trigger("reset");
+        $("#add-new-dialstring-form [name='DialStringID']").val('')
+        $('#add-new-modal-dialstring h4').html('Add New Dial String');
+        $('#add-new-modal-dialstring').modal('show');
     });
-    $('table tbody').on('click','.edit-dialplan',function(ev){
+    $('table tbody').on('click','.edit-dialstring',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
-        $('#add-new-dialplan-form').trigger("reset");
-        $("#add-new-dialplan-form [name='Name']").val($(this).attr('data-name'));
-        $("#add-new-dialplan-form [name='Type']").select2().select2('val',$(this).attr('data-type'));
-        $("#add-new-dialplan-form [name='DialPlanID']").val($(this).attr('data-id'));
-        $('#add-new-modal-dialplan h4').html('Edit Dial Plan');
-        $('#add-new-modal-dialplan').modal('show');
+        $('#add-new-dialstring-form').trigger("reset");
+        $("#add-new-dialstring-form [name='Name']").val($(this).attr('data-name'));
+        $("#add-new-dialstring-form [name='Type']").select2().select2('val',$(this).attr('data-type'));
+        $("#add-new-dialstring-form [name='DialStringID']").val($(this).attr('data-id'));
+        $('#add-new-modal-dialstring h4').html('Edit Dial String');
+        $('#add-new-modal-dialstring').modal('show');
     });
 
-    $('#add-new-dialplan-form').submit(function(e){
+    $('#add-new-dialstring-form').submit(function(e){
         e.preventDefault();
-        var DialPlanID = $("#add-new-dialplan-form [name='DialPlanID']").val();
-        if( typeof DialPlanID != 'undefined' && DialPlanID != ''){
-            update_new_url = baseurl + '/dialplans/update_dialplan/'+DialPlanID;
+        var DialStringID = $("#add-new-dialstring-form [name='DialStringID']").val();
+        if( typeof DialStringID != 'undefined' && DialStringID != ''){
+            update_new_url = baseurl + '/dialstrings/update_dialstring/'+DialStringID;
         }else{
-            update_new_url = baseurl + '/dialplans/create_dialplan';
+            update_new_url = baseurl + '/dialstrings/create_dialstring';
         }
-        ajax_update(update_new_url,$('#add-new-dialplan-form').serialize());
+        ajax_update(update_new_url,$('#add-new-dialstring-form').serialize());
     })
 
 
@@ -188,12 +188,12 @@ function ajax_update(fullurl,data){
         type: 'POST',
         dataType: 'json',
         success: function(response) {
-            $("#dialplan-update").button('reset');
+            $("#dialstring-update").button('reset');
             $(".btn").button('reset');
-            $('#modal-dialplan').modal('hide');
+            $('#modal-dialstring').modal('hide');
 
             if (response.status == 'success') {
-                $('#add-new-modal-dialplan').modal('hide');
+                $('#add-new-modal-dialstring').modal('hide');
                 toastr.success(response.message, "Success", toastr_opts);
                 if( typeof data_table !=  'undefined'){
                     data_table.fnFilter('', 0);
@@ -222,28 +222,28 @@ function ajax_update(fullurl,data){
 
 @section('footer_ext')
 @parent
-<div class="modal fade" id="add-new-modal-dialplan">
+<div class="modal fade" id="add-new-modal-dialstring">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="add-new-dialplan-form" method="post">
+            <form id="add-new-dialstring-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New Dial plan</h4>
+                    <h4 class="modal-title">Add New Dial String</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Dialplan Name</label>
+                                <label for="field-5" class="control-label">Dial String Name</label>
                                 <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
-                                <input type="hidden" name="DialPlanID" >
+                                <input type="hidden" name="DialStringID" >
                             </div>
                         </div>
                     </div>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="dialplan-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <button type="submit" id="dialstring-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
