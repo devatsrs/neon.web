@@ -614,7 +614,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
 	Route::any('/billing_subscription/create', 'BillingSubscriptionController@create');
 	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
-	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');
+	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');	
+	Route::any('/billing_subscription/{id}/getSubscriptionData_ajax', 'BillingSubscriptionController@getSubscriptionData_ajax');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
 	//InvoiceTemplate

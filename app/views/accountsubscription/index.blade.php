@@ -85,7 +85,19 @@
             var postdata;
 
             jQuery(document).ready(function ($) {
-                var list_fields  = ["Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax"];
+				
+				$("#subscription-form [name=MonthlyFee]").change(function(){
+        var monthly = $(this).val();
+        weekly =  parseFloat(monthly / 30 * 7);
+        daily = parseFloat(monthly / 30);
+
+        decimal_places = 2;
+
+        $("#subscription-form [name=WeeklyFee]").val(weekly.toFixed(decimal_places));
+        $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));
+});
+				
+                var list_fields  = ["Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
@@ -134,7 +146,8 @@
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                  action = '<div class = "hiddenRowData" >';
-                                 for(var i = 0 ; i< list_fields.length; i++){
+                                 for(var i = 0 ; i< list_fields.length; i++){									 
+									list_fields[i] =  list_fields[i].replace("tblBillingSubscription.",'');
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                  }
                                  action += '</div>';
@@ -188,7 +201,7 @@
                         $('#subscription-form').attr("action",edit_url);
                         $('#modal-subscription h4').html('Edit Subscription');
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){
+                        for(var i = 0 ; i< list_fields.length; i++){							
                             $("#subscription-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'SubscriptionID'){
                                 $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
@@ -228,12 +241,27 @@
                $('#subscription-form [name="SubscriptionID"]').change(function(e){
 
                        id = $(this).val();
-                       getTableFieldValue("billing_subscription",id,"InvoiceLineDescription",function(description){
+				   		var UrlGetSubscription1 	= 	"<?php echo URL::to('/billing_subscription/{id}/getSubscriptionData_ajax'); ?>";
+					   	var UrlGetSubscription		=	UrlGetSubscription1.replace( '{id}', id );
+					 $.ajax({
+						url: UrlGetSubscription,
+						type: 'POST',
+						dataType: 'json',
+						async :false,
+						
+						success: function(response) {
+								if(response){
+									$("#subscription-form [name='InvoiceDescription']").val(response.InvoiceLineDescription);
+								}
+							},
+					});	
+					   
+                    /*   getTableFieldValue("billing_subscription",id,"InvoiceLineDescription",function(description){
                            if( description != undefined && description.length > 0){
                                 $("#subscription-form [name='InvoiceDescription']").val(description);
                            }
 
-                       });
+                       });*/
 
 
                 });
@@ -275,6 +303,34 @@
                             <input type="text" name="Qty" class="form-control" value="" />
                         </div>
                     </div>
+                    <!-- -->
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="MonthlyFee" class="control-label">Monthly Fee</label>
+                           <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="WeeklyFee" class="control-label">Weekly Fee</label>
+                            <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
+                        </div>
+                    </div>
+                    
+                     <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="DailyFee" class="control-label">Daily Fee</label>
+                            <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
+                        </div>
+                    </div>
+                     <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="ActivationFee" class="control-label">Activation Fee</label>
+                            <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
+                        </div>
+                    </div>
+                    <!-- -->
+                    
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Start Date</label>
