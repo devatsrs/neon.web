@@ -5,7 +5,7 @@ BEGIN
 	
 	CALL fnGetCountry(); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
-	/* used for success call summary*/
+	/* used for success call summary
 	DROP TEMPORARY TABLE IF EXISTS tmp_UsageSummary;
 	CREATE TEMPORARY TABLE `tmp_UsageSummary` (
 		`DateID` BIGINT(20) NOT NULL,
@@ -27,8 +27,9 @@ BEGIN
 		INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
 		INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
 		
-	);
+	);*/
  	/* insert into success summary*/
+ 	DELETE FROM tmp_UsageSummary WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
@@ -44,12 +45,12 @@ BEGIN
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
 		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
 		SUM(IF(ud.call_status=2,1,0)) AS  NoOfFailCalls
-	FROM tmp_tblUsageDetailsReport_ ud  
+	FROM tmp_tblUsageDetailsReport ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
-	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_;
+	-- DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_;
 	
 	UPDATE tmp_UsageSummary  FORCE INDEX (tmp_UsageSummary_AreaPrefix)
 	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
@@ -73,12 +74,12 @@ BEGIN
 	DELETE us FROM tblUsageSummary us 
 	INNER JOIN tblSummaryHeader sh ON us.SummaryHeaderID = sh.SummaryHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate;
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	DELETE usd FROM tblUsageSummaryDetail usd
 	INNER JOIN tblSummaryHeader sh ON usd.SummaryHeaderID = sh.SummaryHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate;
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	
 	INSERT INTO tblUsageSummary (SummaryHeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)

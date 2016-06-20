@@ -70,6 +70,21 @@ BEGIN
 	AND uh.CompanyID = p_CompanyID
 	AND uh.CompanyGatewayID = p_CompanyGatewayID;
 	
+	/* update UseInBilling when cdr upload*/
+	SET @stm = CONCAT('
+	UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
+	INNER JOIN LocalRatemanagement.tblCustomerTrunk ct 
+		ON ct.AccountID = ud.AccountID AND ct.TrunkID = ud.TrunkID AND ct.Status =1
+	INNER JOIN LocalRatemanagement.tblTrunk t 
+		ON t.TrunkID = ct.TrunkID  
+		SET ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
+	WHERE  ud.ProcessID = "' , p_processId , '";
+	');
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
 	/* if rate format is prefix base not charge code*/
 	IF p_RateFormat = 2
 	THEN
@@ -107,17 +122,17 @@ BEGIN
 		DEALLOCATE PREPARE stm;
 		
 	END IF;
-		
+
 	/* if rerate on */
 	IF p_RateCDR = 1
 	THEN
-   	SET @stm = CONCAT('UPDATE   LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
+	SET @stm = CONCAT('UPDATE   LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
-   
-   END IF;
+
+	END IF;
 	
 	/* temp accounts and trunks*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_AccountTrunk_;
@@ -128,17 +143,18 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_AccountTrunk_(AccountID,TrunkID)
-	SELECT DISTINCT AccountID,TrunkID FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+	SELECT DISTINCT AccountID,TrunkID FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
 	');
+	
+	
 	
 	PREPARE stm FROM @stm;
 	EXECUTE stm;
 	DEALLOCATE PREPARE stm;
 	
 	SET v_pointer_ = 1;
- 	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AccountTrunk_);
- 	
-     
+	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AccountTrunk_);
+
 	WHILE v_pointer_ <= v_rowCount_
 	DO
 
@@ -161,15 +177,13 @@ BEGIN
 		THEN
 			CALL prc_updateOutboundRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name);
 		END IF;
-		
- 	
+
 		SET v_pointer_ = v_pointer_ + 1;
 	END WHILE;
 	
 	
-	
 	/* inbound rerate process*/
-	IF p_RateCDR = 1
+	IF p_RateCDR = 1  
 	THEN
 		/* temp accounts and trunks*/
 		DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
@@ -178,8 +192,8 @@ BEGIN
 			AccountID INT
 		);
 		SET @stm = CONCAT('
-		INSERT INTO tmp_AccountTrunk_(AccountID)
-		SELECT DISTINCT AccountID FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL;
+		INSERT INTO tmp_Account_(AccountID)
+		SELECT DISTINCT AccountID FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 		');
 		
 		PREPARE stm FROM @stm;
@@ -187,9 +201,9 @@ BEGIN
 		DEALLOCATE PREPARE stm;
 		
 		SET v_pointer_ = 1;
-    	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
-    	
-    	WHILE v_pointer_ <= v_rowCount_
+		SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
+
+		WHILE v_pointer_ <= v_rowCount_
 		DO
 
 			SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
@@ -206,10 +220,9 @@ BEGIN
 			SET v_pointer_ = v_pointer_ + 1;
 			
 		END WHILE;
-    	
- 	END IF;
-    	
-	
+
+	END IF;
+
 	SET @stm = CONCAT('
 	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
 	SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,1,  CONCAT( "Account:  " , ga.AccountName ," - Gateway: ",cg.Title," - Doesnt exist in NEON") as Message ,DATE(NOW())
@@ -229,7 +242,7 @@ BEGIN
 	THEN
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
-		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",ud.cld," - No Matching prefix found") as Message ,DATE(NOW())
+		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN LocalRatemanagement.tblAccount a on  ud.AccountID = a.AccountID
 		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 and ud.area_prefix = "Other"');
@@ -240,7 +253,7 @@ BEGIN
 		
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
-		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",ud.cld," - No Matching prefix found") as Message ,DATE(NOW())
+		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN LocalRatemanagement.tblAccount a on  ud.AccountID = a.AccountID
 		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 and ud.area_prefix = "Other"');

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetVendorUsageForSummary`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetVendorUsageForSummaryLive`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -21,8 +21,8 @@ BEGIN
 		INDEX temp_connect_time (`connect_time`,`connect_date`)
 
 	);*/
-	DELETE FROM tmp_tblVendorUsageDetailsReport WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_tblVendorUsageDetailsReport  
+	DELETE FROM tmp_tblVendorUsageDetailsReportLive WHERE CompanyID = p_CompanyID;
+	INSERT INTO tmp_tblVendorUsageDetailsReportLive  
 	SELECT
 		ud.VendorCDRID,
 		uh.AccountID,
@@ -46,7 +46,7 @@ BEGIN
 	AND uh.AccountID is not null
 	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
 
-	INSERT INTO tmp_tblVendorUsageDetailsReport  
+	INSERT INTO tmp_tblVendorUsageDetailsReportLive  
 	SELECT
 		ud.VendorCDRFailedID,
 		uh.AccountID,

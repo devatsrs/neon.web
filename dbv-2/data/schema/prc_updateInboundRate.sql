@@ -38,7 +38,6 @@ BEGIN
 		END 
 	WHERE ProcessID = "',p_processId,'"
 	AND AccountID = "',p_AccountID ,'" 
-	AND TrunkID = "',p_TrunkID ,'" 
 	AND is_inbound = 1') ;
 	
 	PREPARE stmt FROM @stm;

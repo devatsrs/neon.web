@@ -185,9 +185,11 @@ function getHourlyChart(){
 }
 function getBarWidth(){
     var barWidth;
-    if($(window).width() > 1280){
+    if($(window).width() >= 1920){
         barWidth = 14;
-    }else if ($(window).width() < 1200 && $(window).width() > 800){
+    }else if ($(window).width() >= 1680 && $(window).width() < 1920){
+        barWidth = 10;
+    }else if ($(window).width() >= 1024 && $(window).width() < 1680){
         barWidth = 8;
     }else{
         barWidth = 5;

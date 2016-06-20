@@ -2,7 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetUsageForSummary`(IN `p_Company
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_;
+	/*DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetailsReport_(
 		UsageDetailID INT,
 		AccountID int,
@@ -19,9 +19,9 @@ BEGIN
 		call_status tinyint, 
 		INDEX temp_connect_time (`connect_time`,`connect_date`)
 
-	);
-	
-	INSERT INTO tmp_tblUsageDetailsReport_  
+	);*/
+	DELETE FROM tmp_tblUsageDetailsReport WHERE CompanyID = p_CompanyID;
+	INSERT INTO tmp_tblUsageDetailsReport  
 	SELECT
 		ud.UsageDetailID,
 		uh.AccountID,
@@ -44,7 +44,7 @@ BEGIN
 	AND uh.AccountID is not null
 	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
 
-	INSERT INTO tmp_tblUsageDetailsReport_  
+	INSERT INTO tmp_tblUsageDetailsReport  
 	SELECT
 		ud.UsageDetailFailedCallID,
 		uh.AccountID,
