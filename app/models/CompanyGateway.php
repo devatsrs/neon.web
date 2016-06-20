@@ -42,8 +42,6 @@ class CompanyGateway extends \Eloquent {
         return $row;
 
     }
-
-    // not in use
     public static function getAccountIDList($CompanyGatewayID){
         $row = array();
         $trunk = CustomerTrunk::join('tblaccount','tblaccount.accountid','=','tblcustomertrunk.accountid')->where(array('tblaccount.CompanyID'=>User::get_companyID(),'tblaccount.Status'=>1,'tblcustomertrunk.Status'=>1))->where('CompanyGatewayIDs','!=','')->whereNull('CompanyGatewayIDs','and','NotNull')->select(array('tblaccount.AccountName','CompanyGatewayIDs','tblaccount.AccountID'))->orderBy('AccountName')->get();

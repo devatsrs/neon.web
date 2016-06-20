@@ -61,13 +61,14 @@
                             <thead>
                                 <tr>
                                     <th width="1%"><div class="checkbox "><input type="checkbox" id="selectall" name="checkbox[]" class="" ></div></th>
-                                    <th width="13%">Trunk</th>
-                                    <th width="13%">Prefix</th>
-                                    <th style="text-align:center" width="7%">Show Prefix in Ratesheet</th>
-                                    <th width="7%">Use Prefix In CDR</th>
-                                    <th style="text-align:center" width="7%">Enable Routing Plan</th>
-                                    <th width="18%">CodeDeck</th>
-                                    <th width="30%">Base Rate Table</th>
+                                    <th width="10%">Trunk</th>
+                                    <th width="10%">Prefix</th>
+                                    <th style="text-align:center" width="5%">Show Prefix in Ratesheet</th>
+                                    <th width="15%">Use Prefix In CDR</th>
+                                    <th style="text-align:center" width="5%">Enable Routing Plan</th>
+                                    <th width="15%">Gateway</th>
+                                    <th width="15%">CodeDeck</th>
+                                    <th width="20%">Base Rate Table</th>
                                     <th width="4%">Status</th>
                                 </tr>
                             </thead>
@@ -83,6 +84,9 @@
                                     <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][IncludePrefix]" @if(isset($customer_trunks[$trunk->TrunkID]->IncludePrefix) && $customer_trunks[$trunk->TrunkID]->IncludePrefix == 1 ) checked @endif  ></td>
                                     <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][UseInBilling]" @if((isset($customer_trunks[$trunk->TrunkID]->UseInBilling) && $customer_trunks[$trunk->TrunkID]->UseInBilling == 1)  || (CompanySetting::getKeyVal('UseInBilling') == 1 && !isset($customer_trunks[$trunk->TrunkID]->UseInBilling))) checked @endif  ></td>
                                     <td class="center" style="text-align:center"><input type="checkbox" value="1" name="CustomerTrunk[{{{$trunk->TrunkID}}}][RoutinePlanStatus]" @if(isset($customer_trunks[$trunk->TrunkID]->RoutinePlanStatus) && $customer_trunks[$trunk->TrunkID]->RoutinePlanStatus == 1 ) checked @endif  ></td>
+                                    <td>
+                                        {{ Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][CompanyGatewayID][]', $companygateway, (isset($customer_trunks[$trunk->TrunkID]->CompanyGatewayIDs)? explode(',',$customer_trunks[$trunk->TrunkID]->CompanyGatewayIDs) : '' ), array("class"=>"select2",'multiple',"data-placeholder"=>"Select a Gateway")) }}
+                                    </td>
                                     <td  class="center">
                                     <?php $CodeDeckId =  isset($customer_trunks[$trunk->TrunkID])? $customer_trunks[$trunk->TrunkID]->CodeDeckId:''?>
                                         {{ Form::select('CustomerTrunk['.$trunk->TrunkID.'][CodeDeckId]', $codedecklist, $CodeDeckId , array("class"=>"select2 codedeckid")) }}

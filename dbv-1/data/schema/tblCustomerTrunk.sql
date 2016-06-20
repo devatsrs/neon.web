@@ -12,6 +12,7 @@ CREATE TABLE `tblCustomerTrunk` (
   `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CompanyGatewayIDs` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `RoutinePlanStatus` tinyint(3) unsigned DEFAULT NULL,
   `RateTableAssignDate` datetime DEFAULT NULL,
   `UseInBilling` tinyint(1) NOT NULL DEFAULT '0',

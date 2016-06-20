@@ -82,7 +82,7 @@
     <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
-                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunities</span></a></li>
+                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
                 <li><a href="{{URL::to('/task')}}"><span>Tasks</span></a></li>
@@ -201,13 +201,10 @@
         <li> <a href="{{URL::to('/cronjobs')}}">  <span>Cron Jobs</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <!--<li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>-->
+        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
-    	@endif
-         @if( User::checkCategoryPermission('ServerInfo','View'))
-        <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Information</span> </a> </li>
     	@endif
         
         @if(User::checkCategoryPermission('Jobs','view')) 
