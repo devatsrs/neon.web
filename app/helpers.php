@@ -1160,3 +1160,32 @@ function get_round_decimal_places($AccountID = 0) {
 
     return $RoundChargesAmount;
 }
+
+function account_expense_table($Expense,$customer_vendor){
+    $datacount = $colsplan=  0;
+    $tableheader = $tablebody = '';
+    foreach($Expense as $ExpenseRow){
+        if($datacount == 0) {
+            $tableheader = '<tr>';
+        }
+        $tablebody .=  '<tr>';
+        foreach($ExpenseRow as $yearmonth => $total){
+            if($datacount == 0) {
+                if($yearmonth != 'AreaPrefix') {
+                    $tableheader .= "<th>$yearmonth</th>";
+                }else{
+                    $tableheader .= "<th>Top Prefix</th>";
+                }
+                $colsplan++;
+            }
+            $tablebody .= "<td>$total</td>";
+        }
+        if($datacount == 0) {
+            $tableheader .= '</tr>';
+        }
+        $tablebody .= '</tr>';
+        $datacount++;
+    }
+    $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader;
+    return $tablehtml = $tableheader.$tablebody;
+}

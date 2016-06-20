@@ -967,34 +967,56 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
-    public function account_invoice_expense($id){
+    public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
+        return View::make('accounts.expense',compact('id','CurrencySymbol'));
+    }
+    public function expense_chart(){
+        $data = Input::all();
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $companyID = User::get_companyID();
-        $query = "call prc_getAccountinvoiceExpense ('". $companyID  . "',  '". $id  . "')";
-        $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
-        $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
-
-        $InvoiceExpenseYear = array();
+        $query = "call prc_getAccountExpense ('". $companyID  . "',  '". $data['AccountID']  . "')";
+        $ExpenseResult = DataTableSql::of($query, 'neon_report')->getProcResult(array('Expense','CustomerExpense','VendorExpense'));
+        $Expense = $ExpenseResult['data']['Expense'];
+        $CustomerExpense = $ExpenseResult['data']['CustomerExpense'];
+        $VendorExpense = $ExpenseResult['data']['VendorExpense'];
+        $ExpenseYear = array();
         $previousyear = '';
         $datacount = 0;
-        $outbound = $inbound = $cat = array();
-        foreach($InvoiceExpense as $InvoiceExpenseRow){
-            if($previousyear != $InvoiceExpenseRow->Year){
-                $previousyear = $InvoiceExpenseRow->Year;
-                $InvoiceExpenseYear[$previousyear]['TotalSentAmount'] = $InvoiceExpenseRow->TotalSentAmount;
-                $InvoiceExpenseYear[$previousyear]['TotalReceivedAmount'] = $InvoiceExpenseRow->TotalReceivedAmount;
+        $customer = $vendor = $cat = array();
+        foreach($Expense as $ExpenseRow){
+            if($previousyear != $ExpenseRow->Year){
+                $previousyear = $ExpenseRow->Year;
+                $ExpenseYear[$previousyear]['CustomerTotal'] = $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] = $ExpenseRow->VendorTotal;
             }else{
-                $InvoiceExpenseYear[$previousyear]['TotalSentAmount'] += $InvoiceExpenseRow->TotalSentAmount;
-                $InvoiceExpenseYear[$previousyear]['TotalReceivedAmount'] += $InvoiceExpenseRow->TotalReceivedAmount;
+                $ExpenseYear[$previousyear]['CustomerTotal'] += $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] += $ExpenseRow->VendorTotal;
             }
-            $inbound[$datacount] = $InvoiceExpenseRow->TotalSentAmount;
-            $outbound[$datacount] = $InvoiceExpenseRow->TotalReceivedAmount;
-            $month = $InvoiceExpenseRow->Month<10 ? '0'.$InvoiceExpenseRow->Month:$InvoiceExpenseRow->Month;
-            $cat[$datacount] = "'".$InvoiceExpenseRow->Year.' - '.$month."'";
+            $customer[$datacount] = $ExpenseRow->CustomerTotal;
+            $vendor[$datacount] = $ExpenseRow->VendorTotal;
+            $month = $ExpenseRow->Month<10 ? '0'.$ExpenseRow->Month:$ExpenseRow->Month;
+            $cat[$datacount] = $ExpenseRow->Year.'-'.$month;
             $datacount++;
 
         }
-        return View::make('accounts.expense',compact('id','InvoiceExpense','CurrencySymbol','InvoiceExpenseYear','inbound','outbound','cat'));
+        $ExpenseYearHTML = '';
+        if(!empty($ExpenseYear)) {
+            foreach ($ExpenseYear as $year => $total) {
+                $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
+            }
+        }else{
+            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+        }
+
+        $response['customer'] =  implode(',',$customer);
+        $response['vendor'] = implode(',',$vendor);
+        $response['categories'] = implode(',',$cat);
+        $response['ExpenseYear'] = $ExpenseYearHTML;
+        $response['CustomerActivity'] = account_expense_table($CustomerExpense,'Customer');
+        $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
+
+        return $response;
     }
 	
 	

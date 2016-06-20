@@ -271,3 +271,62 @@ function loadTable(table_id,pageSize,$searchFilter){
     });
     return data_table;
 }
+function account_expense_chart(submit_data){
+    loading("#account_expense_bar_chart",1);
+    $.ajax({
+        type: 'POST',
+        url: baseurl+'/accounts/expense_chart',
+        dataType: 'json',
+        data:submit_data,
+        aysync: true,
+        success: function(data) {
+            loading("#account_expense_bar_chart",0);
+            if(data.categories != '' && data.categories.split(',').length > 0) {
+                $('#expense_year_table').find('tbody').html(data.ExpenseYear);
+                $('#expense_customer_table').html(data.CustomerActivity);
+                $('#expense_vendor_table').html(data.VendorActivity);
+                $('#account_expense_bar_chart').highcharts({
+                    title: {
+                        text: 'Inbound & Outbound',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: data.categories.split(',')
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Amount('+CurrencySymbol+')'
+                        },
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+                    },
+                    tooltip: {
+                        valuePrefix: CurrencySymbol
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Customer',
+                        data: data.customer.split(',').map(parseFloat)
+                    }, {
+                        name: 'Vendor',
+                        data: data.vendor.split(',').map(parseFloat)
+                    }
+                    ]
+                });
+            }else{
+                $('#account_expense_bar_chart').html('NO DATA!!');
+            }
+        }
+    });
+}
