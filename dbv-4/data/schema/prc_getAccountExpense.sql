@@ -119,7 +119,7 @@ BEGIN
 							SELECT AreaPrefix , ', @sql, ' 
 							FROM tmp_tblCustomerPrefix_ 
 							GROUP BY AreaPrefix
-							ORDER BY FinalTotal DESC
+							ORDER BY MAX(FinalTotal) DESC
 						');
 		
 		PREPARE stmt FROM @sql;
@@ -162,7 +162,7 @@ BEGIN
 							SELECT AreaPrefix , ', @stm, ' 
 							FROM tmp_tblVendorPrefix_ 
 							GROUP BY AreaPrefix
-							ORDER BY FinalTotal DESC
+							ORDER BY MAX(FinalTotal) DESC
 						');
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
