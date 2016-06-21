@@ -86,11 +86,18 @@ class DialStringController extends \BaseController {
     public function delete_dialstring($id){
         if( intval($id) > 0){
             try{
-                $result = DialString::find($id)->delete();
-                if ($result) {
-                    return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
+                if(DialStringCode::where(["DialStringID"=>$id])->count()>0){
+                    if (DialStringCode::where(["DialStringID" => $id])->delete() && DialString::where(["DialStringID" => $id])->delete()) {
+                        return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
+                    }
+                }else{
+                    if (DialString::where(["DialStringID" => $id])->delete()) {
+                        return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
+                    }
                 }
             }catch (Exception $ex){
                 return Response::json(array("status" => "failed", "message" => "Dial String is in Use, You cant delete this Dial String."));
