@@ -1175,10 +1175,10 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$CompanyName,$IsSSL,$SMTPUser
     $mail->Body 		= 	"Testing Smtp mail Settings";
     $mail->Subject 		= 	"Test Smtp Email";
   
-  //if($mail->smtpConnect()){
-	//	$mail->smtpClose();
-	$mail->addAddress($ToEmail);
-   if ($mail->send()) {
+  if($mail->smtpConnect()){
+		$mail->smtpClose();
+	//$mail->addAddress($ToEmail);
+  // if ($mail->send()) {
 	   return "Validated Successfully.";
 	}else{
 		return "Validation Failed.";
