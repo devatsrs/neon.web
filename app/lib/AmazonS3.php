@@ -33,7 +33,8 @@ class AmazonS3 {
         'PAYMENT_UPLOAD'=>'PaymentUpload',
         'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
 		'THEMES_IMAGES'=>'ThemeImages',
-		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment'
+		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
+        'DIALSTRING_UPLOAD'=>'DialString'
     );
 
     // Instantiate an S3 client

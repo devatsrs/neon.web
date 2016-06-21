@@ -813,6 +813,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/{id}/download_attachment','DisputeController@download_attachment');
 	Route::any('/disputes/{id}/view','DisputeController@view');
 
+	//DailString
+	Route::any('/dialstrings', "DialStringController@index");
+	Route::any('/dialstrings/dialstring_datagrid', "DialStringController@dialstring_datagrid");
+	Route::any('/dialstrings/exports/{type}', "DialStringController@exports");
+	Route::any('/dialstrings/create_dialstring', "DialStringController@create_dialstring");
+	Route::any('/dialstrings/update_dialstring/{id}', "DialStringController@update_dialstring");
+	Route::any('/dialstrings/{id}/delete_dialstring', "DialStringController@delete_dialstring");
+
+	Route::any('/dialstrings/dialstringcode/{id}', "DialStringController@dialstringcode");
+	Route::any('/dialstrings/ajax_datagrid/{type}', "DialStringController@ajax_datagrid");
+	Route::any('/dialstrings/store', "DialStringController@store");
+	Route::any('/dialstrings/update/{id}', "DialStringController@update");
+	Route::any('/dialstrings/{id}/deletecode', "DialStringController@deletecode");
+	Route::any('/dialstrings/update_selected', "DialStringController@update_selected");
+	Route::any('/dialstrings/delete_selected', "DialStringController@delete_selected");
+	Route::any('/dialstrings/{id}/upload', "DialStringController@upload");
+	Route::any('/dialstrings/{id}/check_upload', "DialStringController@check_upload");
+	Route::any('/dialstrings/{id}/ajaxfilegrid', 'DialStringController@ajaxfilegrid');
+	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
+	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
 
 });
 
