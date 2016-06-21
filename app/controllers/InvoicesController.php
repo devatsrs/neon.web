@@ -123,9 +123,8 @@ class InvoicesController extends \BaseController {
             $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
         }
         $invoice 						= 	implode(',',$InvoiceNoarray);
-		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime("-30 days", strtotime(date('Y-m-d'))));
+		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
 		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
-		
         return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data'));
 
     }

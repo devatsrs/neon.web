@@ -358,7 +358,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Mail Settings
+                        Mail Settings  <button data-loading-text="Loading..." title="Validate Mail Settings"  type="button" class="ValidateSmtp btn btn-primary">Validate</button> 
                     </div>
 
                     <div class="panel-options">
@@ -401,14 +401,7 @@
                             </div>
                         </div>
                     </div>
-					<div class="form-group"> 
-                    <label  class="col-sm-2 control-label" style="visibility:hidden;">Enable SSL</label>
-                        <div class="col-sm-1">
-                        <button data-loading-text="Loading..."  type="button" class="ValidateSmtp btn btn-primary">Test</button>
-                        </div>
-                          <div class="col-sm-1 SmtpResponse">
-                          </div>
-                    </div>
+					
                 </div>
             </div>
 
@@ -484,7 +477,8 @@
 	                           toastr.error(Response.message, "Error", toastr_opts);
 							   return false;
                           }
-						  $('.SmtpResponse').html(Response.response);
+						  alert(Response.response);
+						  //$('.SmtpResponse').html(Response.response);
 						},
 				});	
         });
