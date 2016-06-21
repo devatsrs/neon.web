@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDialStrings`(IN `p_dialplanid` int, IN `p_dialstring` varchar(250), IN `p_chargecode` varchar(250), IN `p_description` varchar(250), IN `p_PageNumber` int, IN `p_RowspPage` int, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` int )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDialStrings`(IN `p_dialstringid` int, IN `p_dialstring` varchar(250), IN `p_chargecode` varchar(250), IN `p_description` varchar(250), IN `p_PageNumber` int, IN `p_RowspPage` int, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` int )
 BEGIN
 
    DECLARE v_OffSet_ int;
@@ -12,13 +12,13 @@ BEGIN
 
 
         SELECT
-            DialPlanCodeID,
+            DialStringCodeID,
             DialString,
             ChargeCode,
             Description,
             Forbidden
-        FROM tblDialPlanCode
-        WHERE  (DialPlanID = p_dialplanid)
+        FROM tblDialStringCode
+        WHERE  (DialStringID = p_dialstringid)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'))            
@@ -44,9 +44,9 @@ BEGIN
         LIMIT p_RowspPage OFFSET v_OffSet_;
 
         SELECT
-            COUNT(DialPlanCodeID) AS totalcount
-        FROM tblDialPlanCode
-        WHERE  (DialPlanID = p_dialplanid)
+            COUNT(DialStringCodeID) AS totalcount
+        FROM tblDialStringCode
+        WHERE  (DialStringID = p_dialstringid)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'));
@@ -61,8 +61,8 @@ BEGIN
             ChargeCode,
             Description,
             Forbidden
-        FROM tblDialPlanCode
-        WHERE  (DialPlanID = p_dialplanid)
+        FROM tblDialStringCode
+        WHERE  (DialStringID = p_dialstringid)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'));   
@@ -72,13 +72,13 @@ BEGIN
     THEN
 
         SELECT
-            DialPlanCodeID,
+            DialStringCodeID,
             DialString,
             ChargeCode,
             Description,
             Forbidden
-        FROM tblDialPlanCode
-        WHERE  (DialPlanID = p_dialplanid)
+        FROM tblDialStringCode
+        WHERE  (DialStringID = p_dialstringid)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'));   
