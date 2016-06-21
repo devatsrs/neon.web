@@ -155,7 +155,7 @@ BEGIN
 	
 		SET @stm = NULL;
 		SELECT
-			GROUP_CONCAT( DISTINCT CONCAT('MAX(IF(YearMonth = ''',YearMonth,''', CustomerTotal, 0)) AS ''',YearMonth,'''') ) INTO @stm
+			GROUP_CONCAT( DISTINCT CONCAT('MAX(IF(YearMonth = ''',YearMonth,''', VendorTotal, 0)) AS ''',YearMonth,'''') ) INTO @stm
 		FROM tmp_tblVendorPrefix_;
 
 		SET @stm = CONCAT('
