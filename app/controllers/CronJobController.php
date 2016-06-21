@@ -273,4 +273,10 @@ class CronJobController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Cron Job Process is not terminated"));
         }
     }
+
+    public function cronjob_monitor(){
+
+        return View::make('cronjob.cronjob_monitor', compact(''));
+
+    }
 }

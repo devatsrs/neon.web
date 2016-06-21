@@ -371,7 +371,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/jobs/reset', 'JobsController@resetJobsAlert');
 	Route::any('/jobs/{id}/jobRead', 'JobsController@jobRead');
 	Route::any('/jobs/{id}/downloaoutputfile', 'JobsController@downloaOutputFile');
-    Route::any('/activejob', 'JobsController@activejob');
+    Route::any('/activejob', 'JobsController@activejob');// remove in future
     Route::any('/jobs/jobactive_ajax_datagrid', 'JobsController@jobactive_ajax_datagrid');
     Route::any('/jobs/activeprocessdelete/', 'JobsController@activeprocessdelete');
 	Route::resource('jobs', 'JobsController');
@@ -482,6 +482,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activecronjob', 'CronJobController@activecronjob');
     Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
     Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+
+
+	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
 
 	//Company
 	Route::any('/company', 'CompaniesController@edit');
