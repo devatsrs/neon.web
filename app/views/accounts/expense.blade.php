@@ -21,16 +21,6 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-primary panel-table loading">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <h3>Customer & Vendor Expenses</h3>
-                </div>
-                <div class="panel-options">
-                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                    <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                </div>
-            </div>
             <div class="panel-body">
                 <div id="account_expense_bar_chart">
                 </div>
@@ -40,36 +30,58 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <table class="table table-bordered datatable" id="expense_customer_table">
-        </table>
+        <div class="panel loading panel-default dataTables_wrapper" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+
+            <!-- panel body -->
+            <div class="panel-body">
+
+                <table class="table table-bordered datatable" id="expense_customer_table">
+                </table>
+            </div>
+        </div>
+
     </div>
     <div class="col-sm-12">
-        <table class="table table-bordered datatable" id="expense_vendor_table">
-        </table>
+        <div class="panel loading panel-default dataTables_wrapper" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+
+            <!-- panel body -->
+            <div class="panel-body">
+
+                <table class="table table-bordered datatable" id="expense_vendor_table">
+                </table>
+            </div>
+        </div>
+
     </div>
 
 </div>
 <div class="row">
     <div class="col-sm-3">
-        <table class="table table-bordered datatable" id="expense_year_table">
-            <thead>
-            <tr>
-                <th width="30%">Year</th>
-                <th width="30%">Customer</th>
-                <th width="40%">Vendor</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="panel loading panel-default dataTables_wrapper" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+            <!-- panel body -->
+            <div class="panel-body">
+                <table class="table table-bordered datatable" id="expense_year_table">
+                    <thead>
+                    <tr>
+                        <th width="30%">Year</th>
+                        <th width="30%">Customer</th>
+                        <th width="40%">Vendor</th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
 
-            </tbody>
-            <tfoot>
-            <tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
 
-            </tr>
-            </tfoot>
+                    </tr>
+                    </tfoot>
 
-        </table>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 <form class="hidden" id="hidden_form">

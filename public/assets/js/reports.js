@@ -287,7 +287,7 @@ function account_expense_chart(submit_data){
                 $('#expense_vendor_table').html(data.VendorActivity);
                 $('#account_expense_bar_chart').highcharts({
                     title: {
-                        text: 'Inbound & Outbound',
+                        text: 'Customer & Vendor Activity',
                         x: -20 //center
                     },
                     xAxis: {
@@ -316,10 +316,10 @@ function account_expense_chart(submit_data){
                         enabled: false
                     },
                     series: [{
-                        name: 'Customer',
+                        name: 'Customer Activity',
                         data: data.customer.split(',').map(parseFloat)
                     }, {
-                        name: 'Vendor',
+                        name: 'Vendor Activity',
                         data: data.vendor.split(',').map(parseFloat)
                     }
                     ]

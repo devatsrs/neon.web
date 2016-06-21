@@ -1164,28 +1164,32 @@ function get_round_decimal_places($AccountID = 0) {
 function account_expense_table($Expense,$customer_vendor){
     $datacount = $colsplan=  0;
     $tableheader = $tablebody = '';
-    foreach($Expense as $ExpenseRow){
-        if($datacount == 0) {
-            $tableheader = '<tr>';
-        }
-        $tablebody .=  '<tr>';
-        foreach($ExpenseRow as $yearmonth => $total){
-            if($datacount == 0) {
-                if($yearmonth != 'AreaPrefix') {
-                    $tableheader .= "<th>$yearmonth</th>";
-                }else{
-                    $tableheader .= "<th>Top Prefix</th>";
-                }
-                $colsplan++;
+    if(!empty($Expense) && !isset($Expense[0]->datacount)) {
+        foreach ($Expense as $ExpenseRow) {
+            if ($datacount == 0) {
+                $tableheader = '<tr>';
             }
-            $tablebody .= "<td>$total</td>";
+            $tablebody .= '<tr>';
+            foreach ($ExpenseRow as $yearmonth => $total) {
+                if ($datacount == 0) {
+                    if ($yearmonth != 'AreaPrefix') {
+                        $tableheader .= "<th>$yearmonth</th>";
+                    } else {
+                        $tableheader .= "<th>Top Prefix</th>";
+                    }
+                    $colsplan++;
+                }
+                $tablebody .= "<td>$total</td>";
+            }
+            if ($datacount == 0) {
+                $tableheader .= '</tr>';
+            }
+            $tablebody .= '</tr>';
+            $datacount++;
         }
-        if($datacount == 0) {
-            $tableheader .= '</tr>';
-        }
-        $tablebody .= '</tr>';
-        $datacount++;
+    }else{
+        $tablebody = '<tr><td>!! NO DATA</td></tr>';
     }
-    $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader;
-    return $tablehtml = $tableheader.$tablebody;
+    $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
+    return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
 }

@@ -126,7 +126,7 @@ BEGIN
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
 	ELSE
-		SELECT 0;
+		SELECT 0 as datacount;
 	END IF;
 
 	/* top 5 vendor destination month and year */
@@ -168,7 +168,7 @@ BEGIN
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
 	ELSE
-		SELECT 0;	
+		SELECT 0 as datacount;	
 	END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
