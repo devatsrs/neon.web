@@ -397,14 +397,18 @@
                         <label for="field-1" class="col-sm-2 control-label">Enable SSL</label>
                         <div class="col-sm-4">
                             <div class="make-switch switch-small" data-on-label="ON" data-off-label="OFF">
-
-
-
                                 <input type="checkbox" name="IsSSL" @if($company->IsSSL == 1 )checked=""@endif value="1">
                             </div>
                         </div>
                     </div>
-
+					<div class="form-group"> 
+                    <label  class="col-sm-2 control-label" style="visibility:hidden;">Enable SSL</label>
+                        <div class="col-sm-1">
+                        <button data-loading-text="Loading..."  type="button" class="ValidateSmtp btn btn-primary">Test</button>
+                        </div>
+                          <div class="col-sm-1 SmtpResponse">
+                          </div>
+                    </div>
                 </div>
             </div>
 
@@ -459,9 +463,32 @@
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
             $('#form-user-add').submit();
-            $(this).attr('disabled', 'disabled');
-            ;
+            $(this).attr('disabled', 'disabled'); 
         });
+		
+		$('.ValidateSmtp').click(function(e) {
+        	$(this).attr('disabled', 'disabled');  
+			
+				var ValidateUrl 	=  "<?php echo URL::to('/company/validatesmtp'); ?>";
+				var form_data 		=  $('#form-user-add').serialize();
+				$('.SmtpResponse').html('');
+				 $.ajax({
+					url: ValidateUrl,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:form_data,
+					success: function(Response) {
+				    $('.ValidateSmtp').button('reset');
+						 if (Response.status == 'failed') {
+	                           toastr.error(Response.message, "Error", toastr_opts);
+							   return false;
+                          }
+						  $('.SmtpResponse').html(Response.response);
+						},
+				});	
+        });
+		
         $('select[name="BillingCycleType"]').on( "change",function(e){
                 var selection = $(this).val();
                 $(".billing_options input, .billing_options select").attr("disabled", "disabled");

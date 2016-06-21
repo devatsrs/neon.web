@@ -17,7 +17,7 @@
   
   <h3>View {{$leadOrAccountCheck}}
 
-    <div style="float: right; text-align: right " class="col-sm-6">
+    <div style="float: right; text-align: right; padding-right:0px; " class="col-sm-6">
         @if($leadOrAccountCheck =='lead' &&  User::checkCategoryPermission('Leads','Convert'))
         <a href="{{ URL::to('leads/'.$account->AccountID.'/convert')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Convert to Account</a>
         @endif

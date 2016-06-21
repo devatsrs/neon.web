@@ -1160,3 +1160,23 @@ function get_round_decimal_places($AccountID = 0) {
 
     return $RoundChargesAmount;
 }
+
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$CompanyName,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$name){
+    $mail 				= 	new PHPMailer;
+    $mail->isSMTP();
+    $mail->Host 		= 	$SMTPServer;
+    $mail->SMTPAuth 	= 	true;
+    $mail->Username 	= 	$SMTPUsername;
+    $mail->Password 	= 	$SMTPPassword;
+    $mail->SMTPSecure	= 	$IsSSL==1?'SSL':'TLS';
+    $mail->Port 		= 	$Port;
+    $mail->From 		= 	$address;
+    $mail->FromName 	= 	$name;
+  
+  if($mail->smtpConnect()){
+		$mail->smtpClose();
+	   return "Validated Successfully.";
+	}else{
+		return "Validation Failed.";
+	}	 
+}
