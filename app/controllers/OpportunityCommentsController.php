@@ -27,17 +27,20 @@ class OpportunityCommentsController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
+        $files_array = '';
+        $attachmentsinfo            = $data['attachmentsinfo'];
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
         $files_array	=	Session::get("email_attachments");
 
-        if(isset($files_array[$data['token_attachment']])) {
+        if(!empty($files_array) && count($files_array)>0) {
             $FilesArray = array();
-            foreach($files_array[$data['token_attachment']] as $key=> $array_file_data){
+            foreach($files_array as $key=> $array_file_data){
                 $file_name = basename($array_file_data['filepath']);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['OPPORTUNITY_ATTACHMENT']);
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
                 copy($array_file_data['filepath'], $destinationPath . $file_name);
-
-                $deleteFilesArray[] = $array_file_data['filepath'];
 
                 if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
