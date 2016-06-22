@@ -515,6 +515,7 @@
 							   return false;
                           }
 						  alert(Response.response);
+						  $('#Test_smtp_mail_modal').modal('hide'); 
 						  //$('.SmtpResponse').html(Response.response);
 						},
 				});	

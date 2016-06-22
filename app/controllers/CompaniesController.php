@@ -140,7 +140,6 @@ class CompaniesController extends \BaseController {
 	
 	function ValidateSmtp(){
 		$data 				= 		Input::all();
-		Log::info($_REQUEST);
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
 		
