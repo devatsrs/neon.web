@@ -123,12 +123,13 @@ class DialStringController extends \BaseController {
         $data['ft_dialstring'] = $data['ft_dialstring'] != ''?"'".$data['ft_dialstring']."'":'null';
         $data['ft_chargecode'] = $data['ft_chargecode'] != ''?"'".$data['ft_chargecode']."'":'null';
         $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
+        $data['ft_forbidden'] = $data['ft_forbidden']== 'true'?1:0;
 
         $data['iDisplayStart'] +=1;
         $columns = array('DialStringCodeID','DialString','ChargeCode','Description','Forbidden');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetDialStrings (".$data['ft_dialstringid'].",".$data['ft_dialstring'].",".$data['ft_chargecode'].",".$data['ft_description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetDialStrings (".$data['ft_dialstringid'].",".$data['ft_dialstring'].",".$data['ft_chargecode'].",".$data['ft_description'].",".$data['ft_forbidden'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

@@ -68,6 +68,12 @@
                         <div class="col-sm-2">
                             <input type="text" name="ft_description" class="form-control">
                         </div>
+                        <label class="col-sm-1 control-label">Forbidden</label>
+                        <div class="col-sm-1">
+                            <p class="make-switch switch-small">
+                                <input name="ft_forbidden" type="checkbox" value="1">
+                            </p>
+                        </div>
                     </div>
                     <p style="text-align: right;">
                         <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
@@ -84,13 +90,13 @@
     @if( User::checkCategoryPermission('DialStrings','Edit'))
     <a href="javascript:;"  id="changeSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;">
         <i class="entypo-floppy"></i>
-        Change Selected Dial String
+        Change Selected
     </a>
     @endif
     @if( User::checkCategoryPermission('DialStrings','Delete'))
     <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
-        Delete Selected Dial String
+        Delete Selected
     </button>
     @endif
 </div>
@@ -129,6 +135,7 @@ var postdata;
             $searchFilter.ft_chargecode = $("#dialstring_filter [name='ft_chargecode']").val();
             $searchFilter.ft_description = $("#dialstring_filter [name='ft_description']").val();
             $searchFilter.ft_dialstringid = $("#dialstring_filter [name='ft_dialstringid']").val();
+            $searchFilter.ft_forbidden = $("#dialstring_filter [name='ft_forbidden']").prop("checked");
 
             if($searchFilter.ft_dialstringid == ''){
                 ShowToastr("error",'Please Select DialString');
@@ -143,9 +150,9 @@ var postdata;
                 "sAjaxSource": baseurl + "/dialstrings/ajax_datagrid/type",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid});
+                    aoData.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid},{"name":"ft_forbidden","value":$searchFilter.ft_forbidden});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid},{ "name": "Export", "value": 1});
+                    data_table_extra_params.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid},{"name":"ft_forbidden","value":$searchFilter.ft_forbidden},{ "name": "Export", "value": 1});
                 },
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
