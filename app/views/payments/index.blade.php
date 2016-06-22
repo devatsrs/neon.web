@@ -35,7 +35,7 @@
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
               <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Action</label>
-              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, '', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
                      <label class="col-sm-1 control-label">Recalled</label>
               <div class="col-sm-1">
                 <p class="make-switch switch-small">
@@ -483,8 +483,13 @@
                             },
                             success: function(response) {
                                 $(".btn.save").button('reset');
-                                if (response.status == 'success') {
+                                if( typeof response.ProcessID != 'undefined'){
                                     var ProcessID = response.ProcessID;
+                                }else {
+                                    toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
+                                    return;
+                                }
+                                if (response.status == 'success') {
                                     if(response.message) {
                                         $('#confirm-modal-payment h4').text('Confirm Payment');
                                         message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');

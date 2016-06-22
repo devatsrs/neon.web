@@ -35,7 +35,7 @@
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Action</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('type', $action, '', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                                        {{ Form::select('type', $action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
 
                                     <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
