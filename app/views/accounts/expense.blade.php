@@ -13,7 +13,7 @@
         <a><span>{{customer_dropbox($id)}}</span></a>
     </li>
     <li class="active">
-        <strong> Account Expenses</strong>
+        <strong> Account Activity</strong>
     </li>
 </ol>
 @include('includes.errors')
