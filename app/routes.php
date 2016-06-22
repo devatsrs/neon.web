@@ -173,7 +173,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
 	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
-	Route::any('accounts/expense/{id}', 'AccountsController@expense');
+	Route::any('accounts/activity/{id}', 'AccountsController@expense');
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 

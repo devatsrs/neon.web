@@ -308,7 +308,7 @@
                                 action='';
                                 edit_ = "{{ URL::to('accounts/{id}/edit')}}";
                                 show_ = "{{ URL::to('accounts/{id}/show')}}";
-                                chart_ = "{{ URL::to('accounts/expense/{id}')}}";
+                                chart_ = "{{ URL::to('accounts/activity/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
 
@@ -325,8 +325,8 @@
                                 action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
-                                <?php if(User::checkCategoryPermission('AccountExpense','View')){ ?>
-                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn btn-default btn-xs" title="Account Expense Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
+                                <?php if(User::checkCategoryPermission('AccountActivityChart','View')){ ?>
+                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
                                 action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
