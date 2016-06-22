@@ -291,7 +291,7 @@ function account_expense_chart(submit_data){
                 $('#expense_vendor_table').html(data.VendorActivity);
                 $('#account_expense_bar_chart').highcharts({
                     title: {
-                        text: 'Customer & Vendor Activity',
+                        text: 'Account Activity',
                         x: -20 //center
                     },
                     xAxis: {
