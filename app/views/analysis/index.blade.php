@@ -140,7 +140,7 @@
             });
             set_search_parameter($("#customer_analysis"));
             Highcharts.theme = {
-                colors: ['#ec3b83', '#ffa812', '#0073b7', '#333399', '#287AFF', '#236BFF','#1E5BFF', '#194CFF', '#143DFF']
+                colors: ['#3366cc', '#dc3912', '#ff9900', '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
             };
             // Apply the theme
             Highcharts.setOptions(Highcharts.theme);
