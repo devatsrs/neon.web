@@ -50,7 +50,7 @@
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
-    User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All') || User::checkCategoryPermission('DialStrings','All'))
+    User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All') || User::checkCategoryPermission('DialStrings','View'))
     <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateTables','View'))

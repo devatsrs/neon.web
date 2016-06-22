@@ -17,9 +17,11 @@
         <li><a href="{{URL::to('/dialstrings/dialstringcode/'.$id)}}"> <span
                         class="hidden-xs">Dial String</span>
             </a></li>
+        @if( User::checkCategoryPermission('DialStrings','Upload') )
         <li class="active"><a href="{{URL::to('/dialstrings/'.$id.'/upload')}}"> <span
                         class="hidden-xs">Upload</span>
             </a></li>
+        @endif
     </ul>
 <div class="row">
 <div class="col-md-12">

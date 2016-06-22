@@ -34,7 +34,7 @@
             <span class="hidden-xs">Dial String</span>
         </a>
     </li>
-    @if( User::checkCategoryPermission('dialstrings','Upload') )
+    @if( User::checkCategoryPermission('DialStrings','Upload') )
     <li><a href="{{URL::to('/dialstrings/'.$id.'/upload')}}"> <span
                     class="hidden-xs">Upload</span>
         </a></li>
