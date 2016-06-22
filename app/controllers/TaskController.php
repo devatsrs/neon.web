@@ -108,8 +108,9 @@ class TaskController extends \BaseController {
 	 * @return Response
 	 */
     public function create(){
-        $data = Input::all();
-        $response = NeonAPI::request('task/add_task',$data);
+        $data 					= 	Input::all();
+		$data['TaskBoardUrl']	=	URL::to('/task');
+        $response 				= 	NeonAPI::request('task/add_task',$data);
 
         if($response->status!='failed'){
             if(isset($data['Task_view'])){
@@ -155,12 +156,56 @@ class TaskController extends \BaseController {
     public function update($id)
     {
         if( $id > 0 ) {
-            $data = Input::all();
+            $data 					= 	Input::all();
+			$required_data  		= 	0;
+			$key					= 	0;
+			$data['TaskBoardUrl']	=	URL::to('/task');	
+			if(isset($data['KeyID']) && $data['KeyID']!=''){
+				$key = $data['KeyID'];
+			}
+			unset($data['KeyID']);
             $response = NeonAPI::request('task/'.$id.'/update_task',$data);
+			if(isset($data['required_data']) && $data['required_data']!=''){
+					$required_data = 1;
+			}
+			if($required_data==1){
+				$response = $response->data;
+				$response = $response[0];
+				$response->type = Task::Tasks;
+				$current_user_title = User::get_user_full_name();				
+				return View::make('accounts.show_ajax_single_update', compact('response','key','current_user_title'));  
+			}else{
             return json_response_api($response);
+			}
         }else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Task."));
         }
+    }
+	
+	function GetTask(){
+		$response				=	array();
+		$data 					= 	Input::all();
+		$response_note    		=   NeonAPI::request('task/GetTask',array('TaskID'=>$data['TaskID']),false,true);
+		
+		if($response_note['status']=='failed'){
+			return json_response_api($response_note,false,true);
+		}else{ Log::info($response_note['data']);
+			return json_encode($response_note['data']);
+		}
+	}
+	
+	 /**
+     * Delete a Note
+     */
+    public function delete_task($id) {        
+		$data['TaskID']			=	$id;		 
+		$response 				= 	NeonAPI::request('task/deletetask',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			return Response::json(array("status" => "success", "message" => "Task Successfully Deleted", "TaskID" => $id));
+		}     
     }
 
     function updateColumnOrder($id){

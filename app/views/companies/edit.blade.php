@@ -358,7 +358,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Mail Settings
+                        Mail Settings  <button data-loading-text="Loading..." title="Validate Mail Settings"  type="button" class="ValidateSmtp btn btn-primary">Test</button> 
                     </div>
 
                     <div class="panel-options">
@@ -452,6 +452,34 @@
     </div>
 </div>
 
+<div class="modal fade" id="Test_smtp_mail_modal">
+  <div class="modal-dialog" style="width: 70%;">
+    <div class="modal-content">
+      <form id="Test_smtp_mail_form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Validate Smtp Settings</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">            
+            <div class="col-md-6 margin-top">
+              <div class="form-group">
+                <label for="SampleEmail" class="control-label col-sm-4">Test email address *</label>
+                <div class="col-sm-8">
+                  <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">           
+          <button type="submit"   class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
@@ -459,9 +487,63 @@
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
             $('#form-user-add').submit();
-            $(this).attr('disabled', 'disabled');
-            ;
+           // $(this).attr('disabled', 'disabled'); 
         });
+		
+		$('#Test_smtp_mail_form').submit(function(e) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+				var SampleEmail 	=  $("#Test_smtp_mail_form [name='SampleEmail']").val();				
+				var SMTPServer 		=  $("#form-user-add [name='SMTPServer']").val();
+				var EmailFrom 		=  $("#form-user-add [name='EmailFrom']").val();
+				var SMTPUsername 	=  $("#form-user-add [name='SMTPUsername']").val();
+				var SMTPPassword 	=  $("#form-user-add [name='SMTPPassword']").val();
+				var Port 			=  $("#form-user-add [name='Port']").val();
+				var IsSSL 			=  $("#form-user-add [name='IsSSL']").prop("checked");
+				
+					$('#Test_smtp_mail_modal .modal-title').html('Validating...');
+			
+				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
+
+				 $.ajax({
+					url: ValidateUrl,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:{SampleEmail:SampleEmail,SMTPServer:SMTPServer,EmailFrom:EmailFrom,SMTPUsername:SMTPUsername,SMTPPassword:SMTPPassword,Port:Port,IsSSL:IsSSL},
+					success: function(Response) {
+				    $('.ValidateSmtp').button('reset');
+						 if (Response.status == 'failed') {
+	                           toastr.error(Response.message, "Error", toastr_opts);
+							   return false;
+                          }
+						  alert(Response.response);
+						  $('#Test_smtp_mail_modal').modal('hide'); 
+						  //$('.SmtpResponse').html(Response.response);
+						  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+						  
+						},
+				});	
+        
+            	
+        });
+		
+		$('.ValidateSmtp').click(function(e) {
+        	$(this).attr('disabled', 'disabled');  
+			
+				$('#Test_smtp_mail_modal').modal('show'); return false;
+				
+        });
+		
+		
+		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
+			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+		 });
+		 
+		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
+			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+		 });
+		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
                 var selection = $(this).val();
                 $(".billing_options input, .billing_options select").attr("disabled", "disabled");
