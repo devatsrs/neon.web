@@ -515,18 +515,57 @@ class AccountsController extends \BaseController {
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
 		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));      
 	}
+	/**
+     * Get a Note
+     */
+	function get_note(){
+		$response				=	array();
+		$data 					= 	Input::all();
+		$response_note    		=   NeonAPI::request('account/get_note',array('NoteID'=>$data['NoteID']),false,true);
+		if($response_note['status']=='failed'){
+			return json_response_api($response_note,false,true);
+		}else{
+			return json_encode($response_note['data']);
+		}
+	}
+	/**
+     * Update a Note
+     */	
+	function update_note()
+	{ 
+        $data 					= 	Input::all();
+        $companyID 				= 	User::get_companyID();
+        $user_name 				= 	User::get_user_full_name();
+        $data['CompanyID'] 		= 	$companyID;
+        $data['updated_by'] 	=	$user_name;
+        $data["Note"] 			= 	nl2br($data["Note"]);
+		unset($data['KeyID']);
+ 		$response 				= 	NeonAPI::request('account/update_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			$response = $response->data;
+			$response->type = Task::Note;
+		}
+			
+		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+		return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));   
+	}
 
     /**
      * Delete a Note
      */
     public function delete_note($id) {
-
-        $result = Note::find($id)->delete();
-        if ($result) {
-            return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Note."));
-        }
+        ///$result = Note::find($id)->delete();
+		$data['NoteID']			=	$id;		 
+		$response 				= 	NeonAPI::request('account/delete_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
+		}     
     }
 
     public  function  upload($id){

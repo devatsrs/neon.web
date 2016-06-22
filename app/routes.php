@@ -8,6 +8,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/vendor_analysis', "AnalysisController@vendor_index");
     Route::any('customer/invoice_expense_chart', 'DashboardCustomerController@invoice_expense_chart');
     Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
+	Route::any('customer/subscriptions', 'DashboardCustomerController@subscriptions');	
+	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
     Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
     //Invoice
     Route::any('customer/invoice', 'InvoicesCustomerController@index');
@@ -142,7 +144,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
+	Route::any('/task/GetTask', 'TaskController@GetTask');
+	Route::any('/task/{id}/delete_task', 'TaskController@delete_task');
 	Route::any('/account/upload_file', 'AccountsController@upload_file');
+	Route::any('/accounts/get_note', 'AccountsController@get_note');
+	Route::any('/account/note/update', 'AccountsController@update_note');	
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
@@ -489,6 +495,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Company
 	Route::any('/company', 'CompaniesController@edit');
 	Route::any('/company/update', 'CompaniesController@update');
+	Route::post('/company/validatesmtp', 'CompaniesController@ValidateSmtp');
 	//Route::resource('Companies', 'CompaniesController');
 
 	//payment
@@ -543,7 +550,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
 	Route::any('/billing_subscription/create', 'BillingSubscriptionController@create');
 	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
-	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');
+	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');	
+	Route::any('/billing_subscription/{id}/getSubscriptionData_ajax', 'BillingSubscriptionController@getSubscriptionData_ajax');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
 	//InvoiceTemplate
