@@ -21,13 +21,56 @@
     </ol>
     <h3>Cron Job Monitor</h3>
 
+
+    <div class="row">
+        <div class="col-md-12">
+            <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="panel panel-primary" data-collapsed="0">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Filter
+                        </div>
+                        <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-1 control-label">Search</label>
+                            <div class="col-sm-2">
+                                <input class="form-control" name="search"  type="text" >
+                            </div>
+                            <label for="field-1" class="col-sm-1 control-label">Status</label>
+                            <div class="col-sm-2">
+                                {{Form::select('status',["0"=>"Running",CronJob::CRON_FAIL=>"Failed"],Account::VERIFIED,array("class"=>"selectboxit"))}}
+
+                            </div>
+
+                        </div>
+
+                        <p style="text-align: right;">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                <i class="entypo-search"></i>
+                                Search
+                            </button>
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="clear-fix clear"><br><br></div>
+
+
     <table class="table table-bordered datatable" id="cronjobs">
         <thead>
         <tr>
-            <th width="20%">Title</th>
             <th width="20%">PID</th>
-            <th width="20%">Since Process Running</th>
-            <th width="20%">Last Run Time</th>
+            <th width="20%">Title</th>
+            <th width="20%"></th>
             <th width="20%"></th>
         </tr>
         </thead>
@@ -41,40 +84,55 @@
         var postdata;
         jQuery(document).ready(function ($) {
             public_vars.$body = $("body");
+            var list_fields  = ['PID','Title','RunningTime','CronJobID','LastRunTime'];
+            var $searchFilter = {};
 
-            //show_loading_bar(40);
             data_table_cronjob = $("#cronjobs").dataTable({
                 "bDestroy": true,
                 "bProcessing":true,
                 "bServerSide":true,
+                //"bPaginate": false,
                 "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name":"Export","value":1});
                 },
-                "aaSorting": [[0, 'asc']],
+                "aaSorting": [[0, 'desc']],
                 "aoColumns":
                         [
-                            {  "bSortable": true },//0 title
-                            {  "bSortable": true },  //1   Pid
-                            {  "bSortable": true },  //2   Running Hour
-                            {  "bSortable": true },  //3   Last Run Time
-                            {                       //4
+                            {  "bSortable": true },//0 Pid
+                            {  "bSortable": true },  //1   Title
+                            {  "bSortable": true,
+
+                                mRender: function ( RunningTime, type, full ) {
+                                    var PID =  full[0];
+                                    if(PID > 0){
+                                        return RunningTime;
+                                    }
+
+                                }
+
+                            },  //2   Running Hour
+                            {                       //3
                                 "bSortable": false,
                                 mRender: function ( CronJobID, type, full ) {
 
                                     var action ='';
 
                                     action = '<div class = "hiddenRowData" >';
-                                    action += '<input type = "hidden"  name = "JobTitle" value = "' + (full[0] !== null ?full[0]:'') + '" / >';
-                                    action += '<input type = "hidden"  name = "PID" value = "' + (full[1] !== null ?full[1]:'') + '" / >';
-                                    action += '<input type = "hidden"  name = "RunningHour" value = "' + (full[2] !== null ?full[2]:'')+ '" / >';
-                                    action += '<input type = "hidden"  name = "LastRunTime" value = "' + (full[2] !== null ?full[2]:'')+ '" / >';
-                                    action += '<input type = "hidden"  name = "CronJobID" value = "' + CronJobID + '" / >';
-                                    action += ' <a data-id="'+ CronJobID +'" data-pid="'+(full[1] !== null ?full[1]:'')+'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Terminate</a>';
+                                    for(var i = 0 ; i< list_fields.length; i++){
+                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                    }
+
+                                    var PID = full[0];
+                                    if(PID > 0 ){
+                                        action += ' <a data-id="'+ CronJobID +'" data-pid="'+PID+'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Kill</a>';
+                                    }else {
+                                        action += ' <a data-id="'+ CronJobID +'" class="btn start btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>Start</a>';
+                                    }
 
                                     return action;
                                 }
@@ -97,7 +155,6 @@
                 }
 
             });
-
 
             setInterval(function() {
                 data_table_cronjob.fnFilter('', 0);
@@ -127,6 +184,10 @@
             right: 30px !important;
             padding-bottom: 5px;;
         }
+        #selectcheckbox{
+            padding: 15px 10px;
+        }
+
     </style>
     @stop
 
