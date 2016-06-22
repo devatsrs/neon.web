@@ -177,7 +177,7 @@
                             {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
+                        <label for="field-1" class="col-sm-2 control-label">Forbidden</label>
                         <div class="col-sm-4">
                             {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
                         </div>

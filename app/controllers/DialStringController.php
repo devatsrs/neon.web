@@ -163,15 +163,7 @@ class DialStringController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        // forbidden - 0-unblock,1-block
-        if($data['Forbidden']=='0'){
-            $data['Forbidden'] = '0';
-        }elseif($data['Forbidden']=='1'){
-            $data['Forbidden'] = '1';
-        }else{
-            $data['Forbidden'] = '';
-        }
-
+        $data['Forbidden'] = isset($data['Forbidden']) ? 1 : 0;
         $data['created_by'] = User::get_user_full_name();
 
         if ($DialStringCode = DialStringCode::create($data)) {
@@ -202,14 +194,9 @@ class DialStringController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        // forbidden - 0-unblock,1-block
-        if($data['Forbidden']=='0'){
-            $data['Forbidden'] = '0';
-        }elseif($data['Forbidden']=='1'){
-            $data['Forbidden'] = '1';
-        }else{
-            $data['Forbidden'] = '';
-        }
+
+        $data['Forbidden'] = isset($data['Forbidden']) ? 1 : 0;
+        $data['updated_by'] = User::get_user_full_name();
 
         if ($DialStringCode->update($data)) {
             return Response::json(array("status" => "success", "message" => "Dial Strings Successfully Updated"));
@@ -246,6 +233,7 @@ class DialStringController extends \BaseController {
         $updateDescription = 0;
         $updateForbidden = 0;
         $Dialcodes = '';
+        $data['Forbidden'] = isset($data['Forbidden']) ? 1 : 0;
 
         // check which fileds need to update
         if(!empty($data['updateChageCode']) || !empty($data['updateDescription']) || !empty($data['updateForbidden'])){
@@ -266,13 +254,6 @@ class DialStringController extends \BaseController {
 
             if(!empty($data['updateForbidden'])){
                 $updateForbidden = 1;
-                if($data['Forbidden']=='0'){
-                    $data['Forbidden'] = '0';
-                }elseif($data['Forbidden']=='1'){
-                    $data['Forbidden'] = '1';
-                }else{
-                    $data['Forbidden'] = '';
-                }
             }
 
             $validator = Validator::make($data, $rules);
