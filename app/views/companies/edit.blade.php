@@ -449,6 +449,34 @@
     </div>
 </div>
 
+<div class="modal fade" id="Test_smtp_mail_modal">
+  <div class="modal-dialog" style="width: 70%;">
+    <div class="modal-content">
+      <form id="Test_smtp_mail_form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add New task</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">            
+            <div class="col-md-6 margin-top">
+              <div class="form-group">
+                <label for="SampleEmail" class="control-label col-sm-4">Test email address *</label>
+                <div class="col-sm-8">
+                  <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">           
+          <button type="submit"   class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
@@ -456,21 +484,30 @@
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
             $('#form-user-add').submit();
-            $(this).attr('disabled', 'disabled'); 
+           // $(this).attr('disabled', 'disabled'); 
         });
 		
-		$('.ValidateSmtp').click(function(e) {
-        	$(this).attr('disabled', 'disabled');  
+		$('#Test_smtp_mail_form').submit(function(e) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+				var SampleEmail 	=  $("#Test_smtp_mail_form [name='SampleEmail']").val();				
+				var SMTPServer 		=  $("#form-user-add [name='SMTPServer']").val();
+				var EmailFrom 		=  $("#form-user-add [name='EmailFrom']").val();
+				var SMTPUsername 	=  $("#form-user-add [name='SMTPUsername']").val();
+				var SMTPPassword 	=  $("#form-user-add [name='SMTPPassword']").val();
+				var Port 			=  $("#form-user-add [name='Port']").val();
+				var IsSSL 			=  $("#form-user-add [name='IsSSL']").prop("checked");
+				
+				
 			
-				var ValidateUrl 	=  "<?php echo URL::to('/company/validatesmtp'); ?>";
-				var form_data 		=  $('#form-user-add').serialize();
-				$('.SmtpResponse').html('');
+				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
+
 				 $.ajax({
 					url: ValidateUrl,
 					type: 'POST',
 					dataType: 'json',
 					async :false,
-					data:form_data,
+					data:{SampleEmail:SampleEmail,SMTPServer:SMTPServer,EmailFrom:EmailFrom,SMTPUsername:SMTPUsername,SMTPPassword:SMTPPassword,Port:Port,IsSSL:IsSSL},
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
 						 if (Response.status == 'failed') {
@@ -481,6 +518,16 @@
 						  //$('.SmtpResponse').html(Response.response);
 						},
 				});	
+        
+            	
+        });
+		
+		$('.ValidateSmtp').click(function(e) {
+        	$(this).attr('disabled', 'disabled');  
+			
+				$('#Test_smtp_mail_modal').modal('show'); return false;
+				
+				
         });
 		
         $('select[name="BillingCycleType"]').on( "change",function(e){
@@ -507,6 +554,9 @@
         $("#InvoiceStatus").select2({
             tags:{{json_encode(explode(',',$company->InvoiceStatus))}}
         });
+		
+		
+		
     });
 
 </script>

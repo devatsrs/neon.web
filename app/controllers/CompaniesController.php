@@ -140,6 +140,7 @@ class CompaniesController extends \BaseController {
 	
 	function ValidateSmtp(){
 		$data 				= 		Input::all();
+		Log::info($_REQUEST);
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
 		
@@ -150,7 +151,7 @@ class CompaniesController extends \BaseController {
             'SMTPUsername' => 'required',
 			'SMTPPassword' => 'required',
 			'IsSSL' => 'required',
-			"Email" =>'required', 
+			"SampleEmail" =>'required', 
         );
 
         $validator = Validator::make($data, $rules);
@@ -159,7 +160,7 @@ class CompaniesController extends \BaseController {
             return json_validator_response($validator);
         }
 		
-		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['CompanyName'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['CompanyName'],$data['Email']);
+		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
 		
 		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
 		return json_encode($ResponseArray);

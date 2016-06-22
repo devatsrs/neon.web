@@ -1161,7 +1161,7 @@ function get_round_decimal_places($AccountID = 0) {
     return $RoundChargesAmount;
 }
 
-function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$CompanyName,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$name,$ToEmail){
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
     $mail 				= 	new PHPMailer;
     $mail->isSMTP();
     $mail->Host 		= 	$SMTPServer;
@@ -1171,16 +1171,16 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$CompanyName,$IsSSL,$SMTPUser
     $mail->SMTPSecure	= 	$IsSSL==1?'SSL':'TLS';
     $mail->Port 		= 	$Port;
     $mail->From 		= 	$address;
-    $mail->FromName 	= 	$name;
+    $mail->FromName 	= 	'Test Smtp server';
     $mail->Body 		= 	"Testing Smtp mail Settings";
     $mail->Subject 		= 	"Test Smtp Email";
   
-  if($mail->smtpConnect()){
-		$mail->smtpClose();
-	//$mail->addAddress($ToEmail);
-  // if ($mail->send()) {
-	   return "Validated Successfully.";
+  /*if($mail->smtpConnect()){
+		$mail->smtpClose();*/
+	$mail->addAddress($ToEmail);
+   if ($mail->send()) {
+	   return "Valid mail settings.";
 	}else{
-		return "Validation Failed.";
+		return "Invalid mail settings.";
 	}	 
 }
