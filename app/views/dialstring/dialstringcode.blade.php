@@ -160,7 +160,19 @@ var postdata;
                             {  "bSortable": true },//dialstring
                             { "bSortable": true },//chargecode
                             { "bSortable": true },//description
-                            { "bSortable": true },//forbidden
+                            { "bSortable": true,
+                                mRender:function( id, type, full) {
+
+                                    var output;
+                                    if (id == 1) {
+                                        output = 'Y';
+                                    } else {
+                                        output = 'N';
+                                    }
+                                    return output;
+                                }
+
+                            },//forbidden
 
                             {
                                 "bSortable": true,
@@ -315,7 +327,11 @@ var postdata;
             $("#add-new-code-form [name='DialString']").val(prev_raw.find("input[name='DialString']").val());
             $("#add-new-code-form [name='ChargeCode']").val(prev_raw.find("input[name='ChargeCode']").val());
             $("#add-new-code-form [name='Description']").val(prev_raw.find("input[name='Description']").val());
-            $("#add-new-code-form [name='Forbidden']").val(prev_raw.find("input[name='Forbidden']").val());
+            if(prev_raw.find("input[name='Forbidden']").val() == 1 ){
+                $('#add-new-code-form [name="Forbidden"]').prop('checked',true)
+            }else{
+                $('#add-new-code-form [name="Forbidden"]').prop('checked',false)
+            }
 
             $('#add-new-modal').modal('show');
         });
@@ -482,7 +498,11 @@ var postdata;
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Forbidden</label>
-                                <input type="text" name="Forbidden" class="form-control" id="field-5" placeholder="">
+                                </br>
+                                <div class="make-switch switch-small" >
+                                    <input type="checkbox" name="Forbidden" value="1">
+                                </div>
+                               <!-- <input type="text" name="Forbidden" class="form-control" id="field-5" placeholder="">-->
                                 <input name="DialStringID" value="{{$id}}" type="hidden" >
                                 <input name="DialStringCodeID" value="" type="hidden" >
                             </div>
@@ -545,7 +565,11 @@ var postdata;
                             <div class="form-group">
                                 <input type="checkbox" name="updateForbidden" class="" />
                                 <label for="field-5" class="control-label">Forbidden</label>
-                                <input type="text" name="Forbidden" class="form-control" id="field-5" placeholder="">
+                                </br>
+                                <!--<input type="text" name="Forbidden" class="form-control" id="field-5" placeholder="">-->
+                                <div class="make-switch switch-small" >
+                                    <input type="checkbox" name="Forbidden" value="1">
+                                </div>
                                 <input name="DialStringID" value="{{$id}}" type="hidden" >
                             </div>
                         </div>
