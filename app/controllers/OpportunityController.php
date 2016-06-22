@@ -129,13 +129,11 @@ class OpportunityController extends \BaseController {
         $data       =  Input::all();
         $data['file']    = array();
         $attachment    =  Input::file('commentattachment');
-
         if(!empty($attachment)) {
             $data['file'] = NeonAPI::UploadFileLocal($attachment);
-
             try {
-                $return_str = check_upload_file($data['file'], 'email_attachments', $data);
-                return $return_str;
+                $returnArray = check_upload_file($data['file'], 'email_attachments', $data);
+                return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
             } catch (Exception $ex) {
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
             }
@@ -145,7 +143,12 @@ class OpportunityController extends \BaseController {
 
     function delete_upload_file(){
         $data    =  Input::all();
-        delete_file('email_attachments',$data);
+        try {
+            $returnArray = delete_file($data);
+            return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
     }
 
 }

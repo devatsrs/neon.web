@@ -397,12 +397,14 @@
                     $.ajax({
                         url: url,  //Server script to process data
                         type: 'POST',
+                        dataType: 'json',
                         success: function (response) {
-                            if (isJson(response)) {
-                                var response_json  =  JSON.parse(response);
-                                ShowToastr("error",response_json.message);
-                            } else {
-                                $('#card-features-details').find('.file-input-names').html(response);
+                            if(response.status =='success'){
+                                $('#card-features-details').find('.file-input-names').html(response.data.text);
+                                $('#card-features-details').find('[name="attachmentsinfo"]').val(JSON.stringify(response.data.attachmentsinfo));
+
+                            }else{
+                                toastr.error(response.message, "Error", toastr_opts);
                             }
                         },
                         // Form data
@@ -418,32 +420,21 @@
             $(document).on("click",".del_attachment",function(ee){
                 var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
                 var del_file_name   =  $(this).attr('del_file_name');
+                var attachmentsinfo = $('#card-features-details').find('[name="attachmentsinfo"]').val();
+                if(!attachmentsinfo){
+                    return true;
+                }
+                attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
                 $(this).parent().remove();
                 var index_file = email_file_list.indexOf(del_file_name);
                 email_file_list.splice(index_file, 1);
-                $.ajax({
-                    url: file_delete_url,
-                    type: 'POST',
-                    dataType: 'html',
-                    data:{file:del_file_name,token_attachment:token},
-                    async :false,
-                    success: function(response1) {}
-                });
+                attachmentsinfo.splice(index_file, 1);
+                $('#card-features-details').find('[name="attachmentsinfo"]').val(JSON.stringify(attachmentsinfo));
             });
 
             $('#add-view-modal-opportunity-comments').on('shown.bs.modal', function(event){
                 email_file_list = [];
                 $(".file-input-names").empty();
-                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
-                $.ajax({
-                    url: file_delete_url,
-                    type: 'POST',
-                    dataType: 'html',
-                    data:{token_attachment:token,destroy:1},
-                    async :false,
-                    success: function(response1) {}
-                });
-
             });
 
             $(document).on('mouseover','#attachments a',
@@ -898,6 +889,7 @@
                                         <div class="file-input-names"></div>
                                         <input id="filecontrole1" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
+                                        <input type="hidden" name="attachmentsinfo" >
                                     </div>
                                 </div>
                             </div>

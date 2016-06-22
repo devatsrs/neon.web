@@ -968,40 +968,46 @@ function get_random_number(){
     return md5(uniqid(rand(), true));
 }
 
-function delete_file($session,$data){
-    $files_array	=	Session::get($session);
+function delete_file($data){
+    $attachmentsinfo            = $data['attachmentsinfo'];
+    if(!empty($attachmentsinfo)){
+        $files_array = json_decode($attachmentsinfo,true);
+    }
 
-    if(isset($files_array[$data['token_attachment']])){
+    if(!empty($files_array) && count($files_array)>0){
 
-        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
+        foreach($files_array as $key=> $array_file_data) {
             if($array_file_data['filename'] == $data['file']) {
                 unset($files_array[$data['token_attachment']][$key]);
                 unlink($array_file_data['filepath']);
             }
         }
     }
-    Session::set($session, $files_array);
+    return['attachmentsinfo'=>$files_array];
 }
 
 
 function check_upload_file($files,$session,$data){
-    $files_array		        =	Session::get($session);
+    $files_array = '';
+    $attachmentsinfo            = $data['attachmentsinfo'];
+
+    if(!empty($attachmentsinfo)){
+        $files_array = json_decode($attachmentsinfo,true);
+    }
     $return_txt					=	'';
 
-    if(isset($files_array[$data['token_attachment']])) {
-        $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
+    if(!empty($files_array) && count($files_array)>0) {
+        $files_array	=	array_merge($files_array,$files);
     } else {
-        $files_array[$data['token_attachment']]	=	$files;
+        $files_array	=	$files;
     }
 
-    Session::set($session, $files_array);
-
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
+    foreach($files_array as $key=> $array_file_data) {
         $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['filename'].'<a  del_file_name="'.$array_file_data['filename'].'" class="del_attachment"> X </a><br></span>';
 
     }
 
-    return $return_txt;
+    return ['text'=>$return_txt,'attachmentsinfo'=>$files_array];
 }
 
 // sideabar submenu open when click on
