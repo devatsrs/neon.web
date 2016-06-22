@@ -16,27 +16,6 @@ class OpportunityCommentsController extends \BaseController {
         }else{
             $Comments = json_response_api($response,true,false,false);
         }
-        /*$Comments=[];
-        $commentcount = 0;
-        if(!empty($result)) {
-            foreach ($result as $comment) {
-                $attachments = '';
-                $attachmentPaths = json_decode($comment->AttachmentPaths);
-                if (!empty($attachmentPaths)) {
-                    foreach ($attachmentPaths as $item) {
-                        $path = validfilepath($item->filepath);
-                        $attachments[] = ['filename'=>$item->filename,'filepath'=>$path];
-                    }
-                }
-                $Comments[] = [
-                    'CommentText' => $comment->CommentText,
-                    'AttachmentPaths' => $attachments,
-                    'created_at' => \Carbon\Carbon::createFromTimeStamp(strtotime($comment->created_at))->diffForHumans(),
-                    'CreatedBy'=>$comment->CreatedBy
-                ];
-                $commentcount++;
-            }
-        }*/
         return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
     }
 
@@ -49,9 +28,24 @@ class OpportunityCommentsController extends \BaseController {
     public function create(){
         $data = Input::all();
         $files_array	=	Session::get("email_attachments");
-        $file = get_uploaded_files('email_attachments',$data);
-        if(!empty($file)){
-            $data['file'] = $file;
+
+        if(isset($files_array[$data['token_attachment']])) {
+            $FilesArray = array();
+            foreach($files_array[$data['token_attachment']] as $key=> $array_file_data){
+                $file_name = basename($array_file_data['filepath']);
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+
+                $deleteFilesArray[] = $array_file_data['filepath'];
+
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$destinationPath . $file_name);
+                unlink($array_file_data['filepath']);
+            }
+            $data['file']		=	json_encode($FilesArray);
         }
         $response = NeonAPI::request('opportunitycomment/add_comment',$data,true,false,true);
 
@@ -61,6 +55,11 @@ class OpportunityCommentsController extends \BaseController {
         }
 
         return json_response_api($response);
+    }
+
+    public function getAttachment($commentdID,$attachmentID){
+        echo $commentdID.$attachmentID;
+        $response = NeonAPI::request('opportunitycomment/'.$commentdID.'/getattachment/'.$attachmentID,[],true,true,true);
     }
 
 }

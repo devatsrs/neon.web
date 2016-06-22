@@ -834,6 +834,15 @@ function getUploadedFileRealPath($files)
 }
 
 function validfilepath($path){
+
+    /*$FilePath =  AmazonS3::preSignedUrl($path);
+    if(file_exists($FilePath)){
+        download_file($FilePath);
+    }else{
+        header('Location: '.$FilePath);
+    }
+    exit;*/
+
     $path = AmazonS3::unSignedImageUrl($path);
     /*if (!is_numeric(strpos($path, "https://"))) {
         //$path = str_replace('/', '\\', $path);
@@ -959,22 +968,18 @@ function get_random_number(){
     return md5(uniqid(rand(), true));
 }
 
-function delete_file($session,$data)
-{
+function delete_file($session,$data){
     $files_array	=	Session::get($session);
 
     if(isset($files_array[$data['token_attachment']])){
 
-        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-        {
-            if($array_file_data['fileName'] == $data['file'])
-            {
+        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
+            if($array_file_data['filename'] == $data['file']) {
                 unset($files_array[$data['token_attachment']][$key]);
+                unlink($array_file_data['filepath']);
             }
         }
     }
-
-    //unset($files_array[$data['token_attachment']]);
     Session::set($session, $files_array);
 }
 
@@ -989,11 +994,10 @@ function check_upload_file($files,$session,$data){
         $files_array[$data['token_attachment']]	=	$files;
     }
 
-
     Session::set($session, $files_array);
 
     foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
-        $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
+        $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['filename'].'<a  del_file_name="'.$array_file_data['filename'].'" class="del_attachment"> X </a><br></span>';
 
     }
 

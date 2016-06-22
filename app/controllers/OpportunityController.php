@@ -130,14 +130,15 @@ class OpportunityController extends \BaseController {
         $data['file']    = array();
         $attachment    =  Input::file('commentattachment');
 
-        if(!empty($attachment)){
-            $data['file'] = NeonAPI::base64byte($attachment);
-        }
-        try {
-            $return_str = check_upload_file($data['file'], 'email_attachments', $data);
-            return $return_str;
-        }catch (Exception $ex) {
-            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        if(!empty($attachment)) {
+            $data['file'] = NeonAPI::UploadFileLocal($attachment);
+
+            try {
+                $return_str = check_upload_file($data['file'], 'email_attachments', $data);
+                return $return_str;
+            } catch (Exception $ex) {
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
         }
 
     }

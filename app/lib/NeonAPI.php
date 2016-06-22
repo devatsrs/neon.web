@@ -144,4 +144,16 @@ class NeonAPI{
         }
         return $files_array;
     }
+
+    public static function UploadFileLocal($files){
+        $files_array = [];
+        foreach ($files as $file){
+            $upload_path = getenv('TEMP_PATH');
+            $file_name_without_ext = GUID::generate();
+            $file_name = $file_name_without_ext . '.' . $file->getClientOriginalExtension();
+            $file->move($upload_path, $file_name);
+            $files_array[]	=	 array ("filename"=>$file->getClientOriginalName(),"filepath"=>$upload_path . '/' . $file_name);
+        }
+        return $files_array;
+    }
 }

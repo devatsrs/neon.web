@@ -7,7 +7,7 @@
 
             <!-- List of Comments -->
             <ul class="comments-list">
-                @if(!empty($Comments))
+                @if(!empty($Comments) && count($Comments)>0)
                     @foreach($Comments as $comment)
                         <li class="countComments" id="comment-1">
                             <div class="name">{{$comment['CreatedBy']}}</div>
