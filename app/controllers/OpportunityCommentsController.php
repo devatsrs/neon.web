@@ -32,7 +32,6 @@ class OpportunityCommentsController extends \BaseController {
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
             $files_array = json_decode($attachmentsinfo,true);
         }
-        $files_array	=	Session::get("email_attachments");
 
         if(!empty($files_array) && count($files_array)>0) {
             $FilesArray = array();
