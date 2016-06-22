@@ -78,7 +78,8 @@ BEGIN
          
          SELECT  COUNT(*) as count into totaldialstringcode FROM tblTempVendorRate vr LEFT JOIN tmp_DialString_ ds
          ON vr.Code = ds.ChargeCode AND vr.Description = ds.Description
-			WHERE vr.ProcessId = p_processId AND ds.DialStringID IS NULL;
+			WHERE vr.ProcessId = p_processId AND ds.DialStringID IS NULL
+				AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
 		   
          IF totaldialstringcode > 0
          THEN
@@ -96,12 +97,12 @@ BEGIN
          IF totaldialstringcode = 0
          THEN
          	
-				       		
+				  /*     		
 				  DELETE tblTempVendorRate FROM tblTempVendorRate INNER JOIN(			          			
 		        SELECT vr.TempVendorRateID FROM  tblTempVendorRate vr INNER JOIN tmp_DialString_ ds
 				  	ON vr.Code = ds.ChargeCode AND vr.Description = ds.Description
 				  WHERE vr.ProcessId = p_processId AND ds.Forbidden = 1
-				  	AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')) tvr ON tvr.TempVendorRateID = tblTempVendorRate.TempVendorRateID ;
+				  	AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')) tvr ON tvr.TempVendorRateID = tblTempVendorRate.TempVendorRateID ; */
 				  						
 					INSERT INTO tmp_VendorRateDialString_
 			        SELECT distinct `CodeDeckId`,`DialString`,tblTempVendorRate.Description as Description,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN`,tblTempVendorRate.Forbidden as Forbidden 
@@ -118,7 +119,21 @@ BEGIN
 						)
 					 SELECT dISTINCT `CodeDeckId`,`Code`,`Description`,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN`,`Forbidden` 
 					   FROM tmp_VendorRateDialString_;
-				  		
+					   
+				  	UPDATE  tblTempVendorRate
+					JOIN tmp_DialString_ ds ON tblTempVendorRate.Code = ds.DialString
+						AND tblTempVendorRate.Description = ds.Description 
+						AND tblTempVendorRate.ProcessId = p_processId
+						AND ds.Forbidden = 1
+					SET tblTempVendorRate.Forbidden = 'B';
+					
+					UPDATE  tblTempVendorRate
+					JOIN tmp_DialString_ ds ON tblTempVendorRate.Code = ds.DialString
+						AND tblTempVendorRate.Description = ds.Description 
+						AND tblTempVendorRate.ProcessId = p_processId
+						AND ds.Forbidden = 0
+					SET tblTempVendorRate.Forbidden = 'UB';
+					
 			END IF;	  
         
     END IF;
