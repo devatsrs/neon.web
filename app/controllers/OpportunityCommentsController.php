@@ -33,7 +33,7 @@ class OpportunityCommentsController extends \BaseController {
             $FilesArray = array();
             foreach($files_array[$data['token_attachment']] as $key=> $array_file_data){
                 $file_name = basename($array_file_data['filepath']);
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['OPPORTUNITY_ATTACHMENT']);
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
                 copy($array_file_data['filepath'], $destinationPath . $file_name);
 
