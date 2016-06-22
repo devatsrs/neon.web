@@ -498,7 +498,7 @@
 				var Port 			=  $("#form-user-add [name='Port']").val();
 				var IsSSL 			=  $("#form-user-add [name='IsSSL']").prop("checked");
 				
-				
+					$('#Test_smtp_mail_modal .modal-title').html('Validating...');
 			
 				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
 
@@ -517,6 +517,8 @@
 						  alert(Response.response);
 						  $('#Test_smtp_mail_modal').modal('hide'); 
 						  //$('.SmtpResponse').html(Response.response);
+						  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+						  
 						},
 				});	
         
@@ -528,9 +530,17 @@
 			
 				$('#Test_smtp_mail_modal').modal('show'); return false;
 				
-				
         });
 		
+		
+		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
+			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+		 });
+		 
+		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
+			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+		 });
+		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
                 var selection = $(this).val();
                 $(".billing_options input, .billing_options select").attr("disabled", "disabled");
