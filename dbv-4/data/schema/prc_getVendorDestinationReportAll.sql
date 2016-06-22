@@ -21,7 +21,7 @@ BEGIN
 	THEN
 	
 	/* country by call count */	
-	SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
+	SELECT IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
 	FROM tmp_tblUsageVendorSummary_ us
 	LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
 	WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
@@ -65,7 +65,13 @@ BEGIN
 	END ASC
 	LIMIT p_RowspPage OFFSET v_OffSet_;
 	
-	SELECT FOUND_ROWS() as totalcount;
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,SUM(TotalSeconds) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY c.Country
+	)tbl;
 
 	
 	END IF;

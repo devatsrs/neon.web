@@ -1188,7 +1188,7 @@ function account_expense_table($Expense,$customer_vendor){
             $datacount++;
         }
     }else{
-        $tablebody = '<tr><td>!! NO DATA</td></tr>';
+        $tablebody = '<tr><td>NO DATA</td></tr>';
     }
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
