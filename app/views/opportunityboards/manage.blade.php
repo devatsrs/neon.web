@@ -261,14 +261,14 @@
                         if(response.status =='success'){
                             email_file_list = [];
                             $(".file-input-names").empty();
-                            toastr.success(response.message, "Success", toastr_opts);
                             $('#add-opportunity-comments-form').trigger("reset");
+                            $('#commentadd').siblings('.file-input-name').empty();
+                            $('#card-features-details').find('[name="attachmentsinfo"]').val('');
+                            toastr.success(response.message, "Success", toastr_opts);
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                         $("#commentadd").button('reset');
-                        $('#add-opportunity-comments-form').trigger("reset");
-                        $('#commentadd').siblings('.file-input-name').empty();
                         autosizeUpdate();
                         getComments();
                     },
