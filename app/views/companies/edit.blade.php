@@ -455,7 +455,7 @@
       <form id="Test_smtp_mail_form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add New task</h4>
+          <h4 class="modal-title">Validate Smtp Settings</h4>
         </div>
         <div class="modal-body">
           <div class="row">            
