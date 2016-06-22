@@ -304,15 +304,17 @@
                         {
                             "bSortable": false,
                             mRender: function ( id, type, full ) {
-                                var action , edit_ , show_ ;
+                                var action , edit_ , show_,chart_;
                                 action='';
                                 edit_ = "{{ URL::to('accounts/{id}/edit')}}";
                                 show_ = "{{ URL::to('accounts/{id}/show')}}";
+                                chart_ = "{{ URL::to('accounts/activity/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
                                 show_ = show_.replace( '{id}', full[0] );
+                                chart_ = chart_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
@@ -321,6 +323,10 @@
                                 <?php } ?>
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
                                 action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                                //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php } ?>
+                                <?php if(User::checkCategoryPermission('AccountActivityChart','View')){ ?>
+                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
                                 action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info

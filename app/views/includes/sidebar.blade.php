@@ -50,7 +50,7 @@
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
-    User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All') || User::checkCategoryPermission('DialStrings','View'))
+    User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All'))
     <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateTables','View'))
@@ -64,9 +64,6 @@
         @endif
         @if(User::checkCategoryPermission('VendorProfiling','All'))
         <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('DialStrings','View'))
-        <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
         @endif
       </ul>
     </li>
@@ -160,7 +157,7 @@
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
     User::checkCategoryPermission('Currency','View') || User::checkCategoryPermission('ExchangeRate','View') ||
-    User::checkCategoryPermission('CodeDecks','View'))
+    User::checkCategoryPermission('CodeDecks','View')  || User::checkCategoryPermission('DialStrings','View'))
     <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
       <ul>
         @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') )
@@ -171,6 +168,9 @@
         @endif
         @if( User::checkCategoryPermission('CodeDecks','View') )
         <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
+        @endif
+          @if(User::checkCategoryPermission('DialStrings','View'))
+            <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Gateway','View'))
         <li> <a href="{{Url::to('/gateway')}}">  <span>Gateway</span> </a> </li>

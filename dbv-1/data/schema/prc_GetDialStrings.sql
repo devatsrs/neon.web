@@ -40,6 +40,12 @@ BEGIN
             END DESC,
             CASE
                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+            END ASC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ForbiddenDESC') THEN Forbidden
+            END DESC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ForbiddenASC') THEN Forbidden
             END ASC
         LIMIT p_RowspPage OFFSET v_OffSet_;
 
