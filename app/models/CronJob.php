@@ -19,6 +19,9 @@ class CronJob extends \Eloquent {
     const  CRON_SUCCESS = 1;
     const  CRON_FAIL = 2;
 
+    const ACTIVE = 1;
+    const INACTIVE = 0;
+
     public static $cron_type = array(self::MINUTE=>'Minute',self::HOUR=>'Hourly',self::DAILY=>'Daily');
 
     public static function checkForeignKeyById($id){
@@ -147,6 +150,53 @@ class CronJob extends \Eloquent {
          return $valid;
     }
 
+
+    public static function ActiveCronJobEmailSend($CronJobID){
+        $emaildata = array();
+
+        if(empty($CronJobID)){
+            return NULL;
+        }
+
+        $CronJob = CronJob::find($CronJobID);
+        $JobTitle = $CronJob->JobTitle;
+        $CompanyID = $CronJob->CompanyID;
+        $LastRunTime = $CronJob->LastRunTime;
+        $ComanyName = Company::getName($CompanyID);
+        $PID = $CronJob->PID;
+
+        $minute = CronJob::calcTimeDiff($LastRunTime);
+
+        $cronsetting = json_decode($CronJob->Settings,true);
+        $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
+
+
+        if(getenv("APP_OS") == "Linux"){
+            $KillCommand = 'kill -9 '.$PID;
+        }else{
+            $KillCommand = 'Taskkill /PID '.$PID.' /F';
+        }
+        //Kill the process.
+        $ReturnStatus = exec($KillCommand,$DetailOutput);
+        CronJob::find($CronJobID)->update(["Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
+
+        $emaildata['KillCommand'] = $KillCommand;
+        $emaildata['ReturnStatus'] = $ReturnStatus;
+        $emaildata['DetailOutput'] = $DetailOutput;
+
+        $emaildata['CompanyID'] = $CompanyID;
+        $emaildata['Minute'] = $minute;
+        $emaildata['JobTitle'] = $CronJob->JobTitle;
+        $emaildata['PID'] = $CronJob->PID;
+        $emaildata['CompanyName'] = $ComanyName;
+        $emaildata['EmailTo'] = $ActiveCronJobEmailTo;
+        $emaildata['EmailToName'] = '';
+        $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
+        $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/activejob');
+
+        $emailstatus = Helper::sendMail('emails.ActiveCronJobEmailSend', $emaildata);
+        return $emailstatus;
+    }
 
 
 }

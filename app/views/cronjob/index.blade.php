@@ -37,10 +37,9 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Active</label>
+                        <label for="field-1" class="col-sm-2 control-label">Status</label>
                         <div class="col-sm-2">
-                            <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                            {{ Form::select('Active', $active, 1, array("class"=>"form-control selectboxit")) }}
+                            {{ Form::select('Active', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
                         </div>
                     </div>
                     <p style="text-align: right;">

