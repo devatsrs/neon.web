@@ -164,7 +164,7 @@
             var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
             var BoardID = "{{$BoardID}}";
             var board = $('#board-start');
-            var email_file_list     =    new Array();
+            var emailFileList     =    new Array();
             var token               =   '{{$token}}';
             var max_file_size_txt   =   '{{$max_file_size}}';
             var max_file_size       =   '{{str_replace("M","",$max_file_size)}}';
@@ -259,7 +259,7 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
-                            email_file_list = [];
+                            emailFileList = [];
                             $(".file-input-names").empty();
                             $('#add-opportunity-comments-form').trigger("reset");
                             $('#commentadd').siblings('.file-input-name').empty();
@@ -346,23 +346,15 @@
             });
             @endif
             $(document).on('click','#addTtachment',function(){
-                $('#filecontrole1').click();
+                $('#filecontrole').click();
             });
 
-            $(document).on('change','#filecontrole',function(e){
-                var files = e.target.files;
-                var fileText = '';
-                for(i=0;i<files.length;i++){
-                    fileText+=files[i].name+'<br>';
-                }
-                $('#commentadd').siblings('.file-input-name').html(fileText);
-            });
             $(document).on('click','.viewattachments',function(){
                 $(this).siblings('.comment-attachment').toggleClass('hidden');
             });
 
 
-            $(document).on('change','#filecontrole1',function(e){
+            $(document).on('change','#filecontrole',function(e){
                 e.stopImmediatePropagation();
                 e.preventDefault();
                 var files     = e.target.files;
@@ -374,7 +366,7 @@
                     var ext_current_file  = f.name.split('.').pop();
                     if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 ) {
                         var name_file = f.name;
-                        var index_file = email_file_list.indexOf(f.name);
+                        var index_file = emailFileList.indexOf(f.name);
                         if(index_file >-1 ) {
                             ShowToastr("error",f.name+" file already selected.");
                         } else if(bytesToSize(f.size)) {
@@ -382,7 +374,7 @@
                             file_check = 0;
                             return false;
                         }else {
-                            //email_file_list.push(f.name);
+                            //emailFileList.push(f.name);
                             local_array.push(f.name);
                         }
                     } else {
@@ -390,10 +382,10 @@
                     }
                 });
                 if(local_array.length>0 && file_check==1) {
-                    email_file_list = email_file_list.concat(local_array);
+                    emailFileList = emailFileList.concat(local_array);
 
                     var formData = new FormData($('#add-opportunity-comments-form')[0]);
-                    var url = baseurl + '/opportunity/upload_file';
+                    var url = baseurl + '/opportunity/uploadfile';
                     $.ajax({
                         url: url,  //Server script to process data
                         type: 'POST',
@@ -418,22 +410,37 @@
             });
 
             $(document).on("click",".del_attachment",function(ee){
-                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
-                var del_file_name   =  $(this).attr('del_file_name');
+                var url  =  baseurl + '/opportunity/deleteattachmentfile';
+                var fileName   =  $(this).attr('del_file_name');
                 var attachmentsinfo = $('#card-features-details').find('[name="attachmentsinfo"]').val();
                 if(!attachmentsinfo){
                     return true;
                 }
                 attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
                 $(this).parent().remove();
-                var index_file = email_file_list.indexOf(del_file_name);
-                email_file_list.splice(index_file, 1);
-                attachmentsinfo.splice(index_file, 1);
+                var fileIndex = emailFileList.indexOf(fileName);
+                var fileinfo = attachmentsinfo[fileIndex];
+                emailFileList.splice(fileIndex, 1);
+                attachmentsinfo.splice(fileIndex, 1);
                 $('#card-features-details').find('[name="attachmentsinfo"]').val(JSON.stringify(attachmentsinfo));
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data:{file:fileinfo},
+                    async :false,
+                    success: function(response) {
+                        if(response.status =='success'){
+
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+                });
             });
 
             $('#add-view-modal-opportunity-comments').on('shown.bs.modal', function(event){
-                email_file_list = [];
+                emailFileList = [];
                 $(".file-input-names").empty();
             });
 
@@ -887,7 +894,7 @@
                                     <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
-                                        <input id="filecontrole1" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
                                         <input type="hidden" name="attachmentsinfo" >
                                     </div>

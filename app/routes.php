@@ -704,13 +704,14 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/updatetaggeduser', 'OpportunityController@updateTaggedUser');
 
     //File Upload
-    Route::any('/opportunity/upload_file', 'OpportunityController@upload_file');
-    Route::any('/opportunity/delete_attachment_file', 'OpportunityController@delete_upload_file');
+    Route::any('/opportunity/uploadfile', 'OpportunityController@uploadFile');
+    Route::any('/opportunity/deleteattachmentfile', 'OpportunityController@deleteUploadFile');
 
     //Opportunity Comments
 
     Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');
     Route::any('/opportunitycomments/{id}/ajax_opportunitycomments', 'OpportunityCommentsController@ajax_opportunityComments');
+    Route::any('/opportunitycomments/{id}/getattachment/{attachmentID}', 'OpportunityCommentsController@getAttachment');
 
     //Task
 

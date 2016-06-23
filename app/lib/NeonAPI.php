@@ -145,15 +145,26 @@ class NeonAPI{
         return $files_array;
     }
 
-    public static function UploadFileLocal($files){
-        $files_array = [];
+    public static function UploadFileLocal($data){
+        $filesArray = [];
+        $uploadedFile = [];
+        $files = Input::file('fileattachments');
+        $attachmentsinfo = $data['attachmentsinfo'];
+        if(!empty($attachmentsinfo)){
+            $filesArray = json_decode($attachmentsinfo,true);
+        }
         foreach ($files as $file){
             $upload_path = getenv('TEMP_PATH');
             $file_name_without_ext = GUID::generate();
             $file_name = $file_name_without_ext . '.' . $file->getClientOriginalExtension();
             $file->move($upload_path, $file_name);
-            $files_array[]	=	 array ("filename"=>$file->getClientOriginalName(),"filepath"=>$upload_path . '/' . $file_name);
+            $uploadedFile[]	=	 array ("filename"=>$file->getClientOriginalName(),"filepath"=>$upload_path . '/' . $file_name);
         }
-        return $files_array;
+        if(!empty($filesArray) && count($filesArray)>0) {
+            $filesArray	=	array_merge($filesArray,$uploadedFile);
+        } else {
+            $filesArray	=	$uploadedFile;
+        }
+        return $filesArray;
     }
 }

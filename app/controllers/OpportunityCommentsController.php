@@ -48,7 +48,7 @@ class OpportunityCommentsController extends \BaseController {
                 if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
-                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$destinationPath . $file_name);
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
                 unlink($array_file_data['filepath']);
             }
             $data['file']		=	json_encode($FilesArray);
@@ -63,9 +63,23 @@ class OpportunityCommentsController extends \BaseController {
         return json_response_api($response);
     }
 
-    public function getAttachment($commentdID,$attachmentID){
-        echo $commentdID.$attachmentID;
-        $response = NeonAPI::request('opportunitycomment/'.$commentdID.'/getattachment/'.$attachmentID,[],true,true,true);
+    public function getAttachment($commentID,$attachmentID){
+        $response = NeonAPI::request('opportunitycomment/'.$commentID.'/getattachment/'.$attachmentID,[],true,true,true);
+
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
+        }else{
+            $Comment = json_response_api($response,true,false,false);
+
+            $FilePath =  AmazonS3::preSignedUrl($Comment['filepath']);
+
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
+            exit;
+        }
     }
 
 }
