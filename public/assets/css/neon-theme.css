@@ -5949,6 +5949,10 @@ fieldset[disabled] .calendar-env .calendar-body .fc-content .fc-view table tbody
   background-color: #00a651;
   color: #ffffff;
 }
+.page-body .main-content .cbp_tmtimeline > li .cbp_tmicon.bg-gold {
+  background-color: #fad839;
+  color: #ffffff;
+}
 .page-body .main-content .cbp_tmtimeline > li .cbp_tmicon.bg-info {
   background-color: #21a9e1;
   color: #ffffff;
