@@ -142,8 +142,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
-	Route::any('/account/upload_file', 'AccountsController@upload_file');
-	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
+	Route::any('/account/upload_file', 'AccountsController@uploadFile');
+	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
 	
@@ -731,8 +731,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/task/{id}/updatetaggeduser', 'TaskController@updateTaggedUser');
 
     //File Upload
-    Route::any('/task/upload_file', 'TaskController@upload_file');
-    Route::any('/task/delete_attachment_file', 'TaskController@delete_upload_file');
+    Route::any('/task/uploadfile', 'OpportunityController@uploadFile');
+    Route::any('/task/deleteattachmentfile', 'OpportunityController@deleteUploadFile');
+    Route::any('/taskcomment/{id}/getattachment/{attachmentID}', 'TaskCommentsController@getAttachment');
 
     //task boards column
 

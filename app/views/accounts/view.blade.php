@@ -208,14 +208,15 @@
                 <label for="subject">Email *</label>                            
                  <textarea id="Message" class="form-control message"    name="Message"></textarea>
                 </div>
-                <div class="form-group no_margin_bt">
+
                 <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
-                </div>
+
                 <div class="form-group email_attachment">
                 <input type="hidden" value="1" name="email_send" id="email_send"  />
                <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
                
                <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
+                    <input id="info2" type="hidden" name="attachmentsinfo" />
                     
                   <span class="file-input-names"></span>
                 </div>
@@ -466,6 +467,7 @@
 </span>
 <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
 <input  hidden="" name="token_attachment" value="{{$random_token}}" />
+    <input id="info1" type="hidden" name="attachmentsinfo" />
 
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>

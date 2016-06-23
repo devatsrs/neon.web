@@ -16,7 +16,8 @@ class OpportunityCommentsController extends \BaseController {
         }else{
             $Comments = json_response_api($response,true,false,false);
         }
-        return View::make('crmcomments.comments', compact('Comments','commentcount'))->render();
+        $type = 'opportunitycomment';
+        return View::make('crmcomments.comments', compact('Comments','commentcount','type'))->render();
     }
 
 	/**
@@ -27,7 +28,7 @@ class OpportunityCommentsController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
-        $files_array = '';
+        $files_array = [];
         $attachmentsinfo            = $data['attachmentsinfo'];
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
             $files_array = json_decode($attachmentsinfo,true);
@@ -54,12 +55,6 @@ class OpportunityCommentsController extends \BaseController {
             $data['file']		=	json_encode($FilesArray);
         }
         $response = NeonAPI::request('opportunitycomment/add_comment',$data,true,false,true);
-
-        if($response->status!='failed'){
-            unset($files_array[$data['token_attachment']]);
-            Session::set("email_attachments", $files_array);
-        }
-
         return json_response_api($response);
     }
 

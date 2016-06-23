@@ -153,17 +153,32 @@ class AccountActivityController extends \BaseController {
 			
 	    $data 					= 	Input::all();
 		$data['AccountID']		=   $AccountID;
-		$emailattachments		=   $data['emailattachment_sent'];		
-		$all_files 				=	Session::get("activty_email_attachments");
-		$email_files_sent		=	array();
-		
-		//token_attachment
-		$files_array	=	Session::get("activty_email_attachments");
+
+        $attachmentsinfo            = $data['emailattachment_sent'];
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
 		
 	   	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
-		if(isset($files_array[$data['token_attachment']]))
-		{
-			$data['file']		=	$files_array[$data['token_attachment']];
+        if(!empty($files_array) && count($files_array)>0) {
+            $FilesArray = array();
+            foreach($files_array as $key=> $array_file_data){
+                $file_name = basename($array_file_data['filepath']);
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                unlink($array_file_data['filepath']);
+            }
+            $data['file']		=	json_encode($FilesArray);
 		}
 		
 		$data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;

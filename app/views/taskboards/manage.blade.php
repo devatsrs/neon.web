@@ -189,7 +189,7 @@
             @endif;
             var BoardID = '{{$Board[0]->BoardID}}';
             var board = $('#board-start');
-            var email_file_list     =    new Array();
+            var emailFileList     =    new Array();
             var token               =   '{{$token}}';
             var max_file_size_txt   =   '{{$max_file_size}}';
             var max_file_size       =   '{{str_replace("M","",$max_file_size)}}';
@@ -394,7 +394,7 @@
                     dataType: 'json',
                     success: function (response) {
                         if(response.status =='success'){
-                            email_file_list = [];
+                            emailFileList = [];
                             $(".file-input-names").empty();
                             toastr.success(response.message, "Success", toastr_opts);
                             $('#add-task-comments-form').trigger("reset");
@@ -480,7 +480,7 @@
             });
             @endif
             $(document).on('click','#addTtachment',function(){
-                $('#filecontrole1').click();
+                $('#filecontrole').click();
             });
 
             $(document).on('click','.viewattachments',function(){
@@ -495,7 +495,7 @@
                 }
             });
 
-            $(document).on('change','#filecontrole1',function(e){
+            $(document).on('change','#filecontrole',function(e){
                 e.stopImmediatePropagation();
                 e.preventDefault();
                 var files     = e.target.files;
@@ -507,7 +507,7 @@
                     var ext_current_file  = f.name.split('.').pop();
                     if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 ) {
                         var name_file = f.name;
-                        var index_file = email_file_list.indexOf(f.name);
+                        var index_file = emailFileList.indexOf(f.name);
                         if(index_file >-1 ) {
                             ShowToastr("error",f.name+" file already selected.");
                         } else if(bytesToSize(f.size)) {
@@ -515,7 +515,7 @@
                             file_check = 0;
                             return false;
                         }else {
-                            //email_file_list.push(f.name);
+                            //emailFileList.push(f.name);
                             local_array.push(f.name);
                         }
                     } else {
@@ -523,19 +523,21 @@
                     }
                 });
                 if(local_array.length>0 && file_check==1) {
-                    email_file_list = email_file_list.concat(local_array);
+                    emailFileList = emailFileList.concat(local_array);
 
                     var formData = new FormData($('#add-task-comments-form')[0]);
-                    var url = baseurl + '/task/upload_file';
+                    var url = baseurl + '/task/uploadfile';
                     $.ajax({
                         url: url,  //Server script to process data
                         type: 'POST',
+                        dataType: 'json',
                         success: function (response) {
-                            if (isJson(response)) {
-                                var response_json  =  JSON.parse(response);
-                                ShowToastr("error",response_json.message);
-                            } else {
-                                $('#card-features-details').find('.file-input-names').html(response);
+                            if(response.status =='success'){
+                                $('#card-features-details').find('.file-input-names').html(response.data.text);
+                                $('#card-features-details').find('[name="attachmentsinfo"]').val(JSON.stringify(response.data.attachmentsinfo));
+
+                            }else{
+                                toastr.error(response.message, "Error", toastr_opts);
                             }
                         },
                         // Form data
@@ -547,36 +549,35 @@
                     });
                 }
             });
-            @if(User::checkCategoryPermission('TaskAttachment','Delete'))
-            $(document).on("click",".del_attachment",function(ee){
-                var file_delete_url  =  baseurl + '/task/delete_attachment_file';
-                var del_file_name   =  $(this).attr('del_file_name');
-                $(this).parent().remove();
-                var index_file = email_file_list.indexOf(del_file_name);
-                email_file_list.splice(index_file, 1);
-                $.ajax({
-                    url: file_delete_url,
-                    type: 'POST',
-                    dataType: 'html',
-                    data:{file:del_file_name,token_attachment:token},
-                    async :false,
-                    success: function(response1) {}
-                });
-            });
-            @endif
-            $('#add-view-modal-task-comments').on('shown.bs.modal', function(event){
-                email_file_list = [];
-                $(".file-input-names").empty();
-                var file_delete_url  =  baseurl + '/opportunity/delete_attachment_file';
-                $.ajax({
-                    url: file_delete_url,
-                    type: 'POST',
-                    dataType: 'html',
-                    data:{token_attachment:token,destroy:1},
-                    async :false,
-                    success: function(response1) {}
-                });
 
+            $(document).on("click",".del_attachment",function(ee){
+                var url  =  baseurl + '/task/deleteattachmentfile';
+                var fileName   =  $(this).attr('del_file_name');
+                var attachmentsinfo = $('#card-features-details').find('[name="attachmentsinfo"]').val();
+                if(!attachmentsinfo){
+                    return true;
+                }
+                attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
+                $(this).parent().remove();
+                var fileIndex = emailFileList.indexOf(fileName);
+                var fileinfo = attachmentsinfo[fileIndex];
+                emailFileList.splice(fileIndex, 1);
+                attachmentsinfo.splice(fileIndex, 1);
+                $('#card-features-details').find('[name="attachmentsinfo"]').val(JSON.stringify(attachmentsinfo));
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data:{file:fileinfo},
+                    async :false,
+                    success: function(response) {
+                        if(response.status =='success'){
+
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+                });
             });
 
             $(document).on('mouseover','#attachments a',
@@ -974,8 +975,9 @@
                                     <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
-                                        <input id="filecontrole1" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
+                                        <input type="hidden" name="attachmentsinfo" >
                                     </div>
                                 </div>
                             </div>

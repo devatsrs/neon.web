@@ -25,7 +25,7 @@
                                                 <i class="entypo-attach"></i>
                                             </a>
                                             @foreach(json_decode($comment['AttachmentPaths'],true) as $index=>$attachment)
-                                                <div class="comment-attachment btn-default hidden"><a href="{{ URL::to('opportunitycomments/'.$comment['CommentID'].'/getattachment/'.$index)}}" target="_blank">{{basename($attachment['filename'])}}</a></div>
+                                                <div class="comment-attachment btn-default hidden"><a href="{{ URL::to($type.'/'.$comment['CommentID'].'/getattachment/'.$index)}}" target="_blank">{{basename($attachment['filename'])}}</a></div>
                                             @endforeach
                                         @endif
                                     </div>

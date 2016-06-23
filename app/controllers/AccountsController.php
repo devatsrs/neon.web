@@ -871,33 +871,33 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
     }
-	
-	function upload_file()
-	{		
-		$data 						= 	Input::all();
-		$data['file']				=	array();
-		$emailattachment 			= 	Input::file('emailattachment');
-		$return_txt 				=	'';
 
-        if(!empty($emailattachment)){
-            $data['file'] = NeonAPI::base64byte($emailattachment);
+    //////////////////////
+    function uploadFile(){
+        $data       =  Input::all();
+        $attachment    =  Input::file('emailattachment');
+        if(!empty($attachment)) {
+            try {
+                $data['file'] = $attachment;
+                $returnArray = UploadFile::UploadFileLocal($data);
+                return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
+            } catch (Exception $ex) {
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
         }
 
-       try {
-           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $data);
-           return $return_str;
-       }catch (Exception $ex)
-       {
-           return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
-       }	
-	}
-	
-	function delete_upload_file()
-	{
-        $data 		= 	Input::all();
-        delete_file('activty_email_attachments',$data);
+    }
 
-	}
+    function deleteUploadFile(){
+        $data    =  Input::all();
+        try {
+            UploadFile::DeleteUploadFileLocal($data);
+            return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
 	
 	function Delete_task_parent()
 	{
