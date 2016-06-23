@@ -71,7 +71,8 @@ class Company extends \Eloquent {
         $result['Type'] = '';
         $result['LicenceProperties'] = '';
         $company_id = User::get_companyID();
-        $result['CompanyName'] = company::getName($company_id);
+        //$result['CompanyName'] = company::getName($company_id);
+        $result['CompanyName'] = getenv('COMPANY_NAME');
         //$result['CompanyName'] = 'abc';
         if(!empty($LICENCE_KEY)) {
 
@@ -174,5 +175,13 @@ class Company extends \Eloquent {
             $LicenceApiResponse = $valresponse;
         }
         return $LicenceApiResponse;
+    }
+
+    public static function getCompanyTimeZone($companyID=0){
+            if($companyID>0){
+                return Company::find($companyID)->TimeZone;
+            }else{
+                return Company::find(User::get_companyID())->TimeZone;
+            }
     }
 }

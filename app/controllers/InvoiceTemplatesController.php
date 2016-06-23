@@ -2,19 +2,24 @@
 
 class InvoiceTemplatesController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod')->get();
-            Excel::create('Invoice Template', function ($excel) use ($invoiceCompanies) {
-                $excel->sheet('Invoice Template', function ($sheet) use ($invoiceCompanies) {
-                    $sheet->fromArray($invoiceCompanies);
-                });
-            })->download('xls');
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix')->get();
+            $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Template.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($invoiceCompanies);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Invoice Template.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($invoiceCompanies);
+            }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -69,6 +74,10 @@ class InvoiceTemplatesController extends \BaseController {
                 //If saved from view.
                 unset($rules['InvoiceStartNumber']);
             }
+			if(!isset($data['EstimateStartNumber'])){
+                //If saved from view.
+                unset($rules['EstimateStartNumber']);
+            }
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
@@ -91,7 +100,6 @@ class InvoiceTemplatesController extends \BaseController {
                 $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
-                Log::info($destinationPath);
 
                 //Create profile company_logo dir if not exists
                 if (!file_exists($destinationPath)) {
@@ -172,7 +180,6 @@ class InvoiceTemplatesController extends \BaseController {
         unset($data['CompanyLogo']);
         unset($data['Status_name']);
 
-        //print_r($data);
         if ($invoiceCompany = InvoiceTemplate::create($data)) {
             if(isset($data['CompanyLogoAS3Key']) && !empty($data['CompanyLogoAS3Key'])){
                 $data['CompanyLogoUrl'] = URL::to("/invoice_templates/".$invoiceCompany->InvoiceTemplateID) ."/get_logo";
@@ -250,13 +257,13 @@ class InvoiceTemplatesController extends \BaseController {
             }
 
 
-
+			$print_type = 'Invoice Template';
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
             $htmlfile_name = 'Invoice--' . date('d-m-Y') . '.html';
-            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo'))->render();
+            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
             $body = htmlspecialchars_decode($body);
 
-            $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate'))->render();
+            $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
             $destination_dir = getenv('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
             if (!file_exists($destination_dir)) {

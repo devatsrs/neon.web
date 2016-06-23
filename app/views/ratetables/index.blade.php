@@ -66,7 +66,8 @@
                                 <thead>
                                     <tr>
                                         <th width="30%">Name</th>
-                                        <th width="30%">Currency</th>
+                                        <th width="20%">Currency</th>
+                                        <th width="28%">Codedeck</th>
                                         <th width="20%">last update</th>
                                          <th width="20%">Action</th>
                                     </tr>
@@ -98,7 +99,7 @@
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[2, "desc"]],
+            "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID});
                 data_table_extra_params.length = 0;
@@ -109,6 +110,7 @@
             },
             "aoColumns":
                     [
+                        {},
                         {},
                         {},
                         {},
@@ -124,7 +126,7 @@
                                 action = '<a href="' + view_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
-                                    action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a>';
+                                    action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</a>';
                                 <?php } ?>
                                 //action += status_link;
                                 return action;
@@ -136,9 +138,15 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": baseurl + "/rate_tables/exports", 
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/rate_tables/exports/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/rate_tables/exports/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     }, 
@@ -148,22 +156,28 @@
                 });
 
                 $(".btn.delete").click(function(e) {
-
+                    e.preventDefault();
                     response = confirm('Are you sure?');
                     //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
                     if (response) {
+                        $(this).text('Loading..');
+                        $('#table-4_processing').css('visibility','visible');
                         $.ajax({
                             url: $(this).attr("href"),
                             type: 'POST',
                             dataType: 'json',
+                            beforeSend: function(){
+                            //    $(this).text('Loading..');
+                            },
                             success: function(response) {
-                                $(".btn.delete").button('reset');
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
+                                    data_table.fnFilter('', 0);
                                 }
+                                $('#table-4_processing').css('visibility','hidden');
                             },
                             // Form data
                             //data: {},
@@ -171,8 +185,6 @@
                             contentType: false,
                             processData: false
                         });
-
-
                     }
                     return false;
 

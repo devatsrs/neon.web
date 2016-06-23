@@ -61,7 +61,7 @@ return array(
     |
     */
 
-    'timezone' => 'Europe/London',
+    'timezone' => getenv('APP_TIMEZONE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -165,6 +165,9 @@ return array(
         //Image
         'Intervention\Image\ImageServiceProvider',
 
+        //Agent
+        'Jenssegers\Agent\AgentServiceProvider',
+
     ),
 
     /*
@@ -238,6 +241,7 @@ return array(
         'PDF' => 'Barryvdh\DomPDF\Facade',
         'Image' => 'Intervention\Image\Facades\Image',
         'CreditCard'      => 'Inacho\CreditCard',
+        'Agent' => 'Jenssegers\Agent\Facades\Agent',
     )
 
 

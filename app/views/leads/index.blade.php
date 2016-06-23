@@ -25,103 +25,9 @@
 @endif    
 </p>
 
-<style>
-
-    ul.grid {
-        list-style: outside none none;
-        margin: 0 auto;
-        padding-left: 0px;
-        font-size:11px;
-    }
-    .clearfix {
-        display: block;
-    }
-
-    ul.grid li {
-        box-sizing: border-box;
-        padding: 3px 3px 2px;
-    }
-    ul.grid li div.box{
-        border: 1px solid #b6bdbe;
-        padding: 5px 5px;
-        width:100%;
-    }
-    ul.grid li div.selected{
-        background :#a94442 none repeat scroll 0 0;
-    }
-    ul.grid li div.header {
-        min-height: 66px;
-    }
-    ul.grid li div.block {
-        min-height: 80px;
-        word-wrap: break-word;
-    }
-    ul.grid li div.cellNo{
-        min-height: 40px;
-    }
-    ul.grid li .address{
-        height: 120px;
-        overflow-y:auto;
-    }
-    ul.grid li div.block a,ul.grid li div.cellNo a{
-        color: #74B1C4;
-    }
-    ul.grid li div.meta {
-        color: #93989b;
-        display: block;
-        font-weight: normal;
-    }
-    ul.grid li div.action{
-        text-align: right;
-        margin: 5px 0px;
-        min-height:20px;
-        padding-bottom: 5px;;
-        nargin-to:-20px;
-    }
-
-    .right-padding-0{
-        padding-right: 0px;
-    }
-    .left-padding-0{
-        padding-left: 0px;
-    }
-
-    .change-view header {
-        position: absolute;
-        top:15px;
-        right:150px;
-        width:65px;
-    }
-
-    .change-view header .list-style-buttons {
-        position: absolute;
-        right: 0;
-    }
-    .padding-0{
-        padding: 0px !important;
-    }
-    .padding-left-1{
-        padding: 0px 0px 0px 1px !important;
-    }
-    .padding-3{
-        padding:3px;
-    }
-    ul.grid .head{
-        font-size:12px;
-        font-weight: 700;
-        color:#373e4a;
-        word-wrap: break-word;
-    }
-
-    #selectcheckbox{
-        padding: 15px 10px;
-    }
-
-</style>
-
 <div class="row">
     <div class="col-md-12">
-        <form id="lead_filter" method="get"  action="{{URL::to('leads/ajax_datagrid')}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="lead_filter" method="get"  action="{{URL::to('leads/ajax_datagrid')}}" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -133,21 +39,17 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                        <label for="field-1" class="col-sm-1 control-label">Company</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_name"  type="text" >
-                        </div>
-                        <label for="field-1" class="col-sm-1 control-label">Account Number</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" name="account_number" type="text"  >
-                        </div>
-                        <label class="col-sm-1 control-label">Contact Name</label>
+                        </div>            
+                        <label class="col-sm-2 control-label">Contact Name</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="contact_name" type="text" >
                         </div>
                         <label class="col-sm-1 control-label">Tag</label>
                         <div class="col-sm-2">
-                            <input class="form-control tags" name="tag" type="text" >
+                            <input class="form-control leadTags" name="tag" type="text" >
                         </div>
                     </div>
                     <div class="form-group">
@@ -158,7 +60,7 @@
                             </p>
                         </div>
                         @if(User::is_admin())
-                            <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                            <label for="field-1" class="col-sm-1 control-label">Owner</label>
                             <div class="col-sm-2">
                                 {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                             </div>
@@ -199,6 +101,12 @@
                         </a>
                     </li>
                 @endif
+                <li>
+                    <a href="{{URL::to('/import/leads')}}">
+                        <i class="entypo-user-add"></i>
+                        <span>Import</span>
+                    </a>
+                </li>
             </ul>
         </div><!-- /btn-group -->
     </div>
@@ -217,8 +125,8 @@
 <thead>
 <tr>
     <th width="10%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+    <th width="15%">Company</th>
     <th width="15%">Name</th>
-    <th width="15%">Owner</th>
     <th width="15%">Phone</th>
     <th width="15%">Email</th>
     <th width="30%">Actions</th>
@@ -289,19 +197,22 @@
                             id = full[4];
                             edit_ = "{{ URL::to('leads/{id}/edit')}}";
                             clone_ = "{{ URL::to('leads/{id}/clone')}}";
-                            show_ = "{{ URL::to('leads/{id}/show')}}";
+							show_ = "{{ URL::to('leads/{id}/show')}}";
 
                             edit_ = edit_.replace('{id}', id);
                             clone_ = clone_.replace('{id}', id);
                             show_ = show_.replace('{id}', id);
                             action = '';
+                            <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="entypo-ticket"></i> </button>';
+                            <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
-                            action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
+                            //action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
                             <?php } ?>
-                            action += '&nbsp;<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                            action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';
                             action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
@@ -310,6 +221,7 @@
                             action +='<input type="hidden" name="city" value="'+full[10]+'"/>';
                             action +='<input type="hidden" name="country" value="'+full[11]+'"/>';
                             action +='<input type="hidden" name="picture" value="'+full[12]+'"/>';
+							action +='<input type="hidden" name="PostCode" value="'+full[13]+'"/>';
                             return action;
                         }
                     },
@@ -318,29 +230,30 @@
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/leads/exports",
-                            sButtonClass: "save-collection"
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/leads/exports/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/leads/exports/csv",
+                            sButtonClass: "save-collection btn-sm"
                         }
                     ]
                 },
                 "fnDrawCallback": function() {
                     $(".dropdown").removeClass("hidden");
                     var toggle = '<header>';
-                    toggle += '   <span class="list-style-buttons">';
-
+                    toggle += '<span class="list-style-buttons">';
                     if(view==1){
-                        var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                        var desctiveurl = baseurl + '/assets/images/list-view.png';
-                        toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl+'"></a>';
-                        toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="'+desctiveurl+'"></a>';
+                        toggle += '<a href="javascript:void(0)" title="Grid View" class="btn btn-primary switcher grid active"><i class="entypo-book-open"></i></a>';
+                        toggle += '<a href="javascript:void(0)" title="List View" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
                     }else{
-                        var activeurl = baseurl + '/assets/images/list-view-active.png';
-                        var desctiveurl = baseurl + '/assets/images/grid-view.png';
-                        toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+desctiveurl+'"></a>';
-                        toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="'+activeurl+'"></a>';
+                        toggle += '<a href="javascript:void(0)" title="Grid View" class="btn btn-primary switcher grid"><i class="entypo-book-open"></i></a>';
+                        toggle += '<a href="javascript:void(0)" title="List View" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
                     }
-                    toggle += '   </span>';
+                    toggle +='</span>';
                     toggle += '</header>';
                     $('.change-view').html(toggle);
                     var html = '<ul class="clearfix grid col-md-12">';
@@ -359,46 +272,59 @@
                              $(this).find('i').remove();
                              $(this).removeClass('btn btn-icon icon-left');
                              $(this).addClass('label');
-                             $(this).addClass('padding-3');
+                             $(this).addClass('padding-4');
                          });
-                         var address1 = $(temp).find('input[name="address1"]').val();
-                         var address2 = $(temp).find('input[name="address2"]').val();
-                         var address3 = $(temp).find('input[name="address3"]').val();
-                         var city = $(temp).find('input[name="city"]').val();
-                         var country = $(temp).find('input[name="country"]').val();
-                         address1 = (address1=='null'||address1==''?'':'1:'+address1);
-                         address2 = (address2=='null'||address2==''?'':'<br>2:'+address2);
-                         address3 = (address3=='null'||address3==''?'':'<br>3:'+address3);
-                         city = (city=='null'||city==''?'':'<br>City:'+city);
-                         country = (country=='null'||country==''?'':'&nbsp;&nbsp;Country:'+country);
-                        var url = baseurl + '/assets/images/placeholder-male.gif';
+                         var address1 	= 	$(temp).find('input[name="address1"]').val();
+                         var address2 	= 	$(temp).find('input[name="address2"]').val();
+                         var address3 	= 	$(temp).find('input[name="address3"]').val();
+                         var city 		= 	$(temp).find('input[name="city"]').val();
+                         var country 	= 	$(temp).find('input[name="country"]').val();
+						 var PostCode 	= 	$(temp).find('input[name="PostCode"]').val();
+                         address1 		= 	(address1=='null'||address1==''?'':address1+'<br>');
+                         address2 		= 	(address2=='null'||address2==''?'':address2+'<br>');
+                         address3 		= 	(address3=='null'||address3==''?'':address3+'<br>');
+                         city 			= 	(city=='null'||city==''?'':city+'<br>');
+						 PostCode 		= 	(PostCode=='null'||PostCode==''?'':PostCode+'<br>');
+                         country 		= 	(country=='null'||country==''?'':country);
+                        var url 		= 	baseurl + '/assets/images/placeholder-male.gif';
                          var select='';
                          if (checked!='') {
                              select = 'selected';
                          }
                          if(checkClass=='1'){
-                             html += '<li class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xsm-12">';
+                             html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                          }else{
-                             html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-6 col-xsm-12">';
+                             html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                          }
+						 var account_title = childrens.eq(1).text();
+				if(account_title.length>22){
+					account_title  = account_title.substring(0,22)+"...";	
+				}
+				
+				var account_name = childrens.eq(2).text();
+				if(account_name.length>40){
+					account_name  = account_name.substring(0,40)+"...";	
+				}
+						 
                          html += '  <div class="box clearfix ' + select + '">';
-                         html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                         html += '  <div class="col-sm-8 header padding-left-1">  <span class="head">' + childrens.eq(1).text() + '</span><br>';
-                         html += '  <span class="meta">Owner:' + childrens.eq(2).text() + '</span></div>';
+                         //html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
+                         html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
+                         html += '  <span class="meta complete_name">' + account_name + '</span></div>';
                          html += '  <div class="col-sm-6 padding-0">';
                          html += '  <div class="block">';
-                         html += '     <div class="meta">Send Email</div>';
+                         html += '     <div class="meta">Email</div>';
                          html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(4).text() + '</a></div>';
                          html += '  </div>';
                          html += '  <div class="cellNo">';
-                         html += '     <div class="meta">Call Work</div>';
+                         html += '     <div class="meta">Phone</div>';
                          html += '     <div><a href="tel:' + childrens.eq(3).text() + '">' + childrens.eq(3).text() + '</a></div>';
                          html += '  </div>';
                          html += '  </div>';
                          html += '  <div class="col-sm-6 padding-0">';
                          html += '  <div class="block">';
                          html += '     <div class="meta">Address</div>';
-                         html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+country+'</div>';
+                         //html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+country+'</div>';
+						 html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                          html += '  </div>';
                          html += '  </div>';
                          html += '  <div class="col-sm-11 padding-0 action">';
@@ -631,7 +557,7 @@
             var el = $('#lead_filter').find('[name="tags"]');
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$leadTags}}});
         });
 
         $("#bulk-tags").click(function() {
@@ -639,7 +565,7 @@
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
             el.val('');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$leadTags}}});
             $('#modal-BulkTags').find('[name="SelectedIDs"]').val('');
             $('#modal-BulkTags').modal('show');
         });
@@ -685,9 +611,13 @@
         });
 
 
-        $(".tags").select2({
-                    tags:{{$tags}}
-         });
+        $(".leadTags").select2({
+            tags:{{$leadTags}}
+        });
+
+        $('.opportunityTags').select2({
+            tags:{{$opportunityTags}}
+        });
 
         $("#test").click(function(e){
             e.preventDefault();
@@ -729,20 +659,13 @@
             }
             var activeurl;
             var desctiveurl;
-            if(self.attr('id')=='gridview'){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
+            if(self.hasClass('grid')){
                 view = 1;
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
                 view = 2;
             }
-            self.find('img').attr('src',activeurl);
             self.addClass('active');
-            var sibling = self.siblings('a');
-            sibling.find('img').attr('src',desctiveurl);
-            sibling.removeClass('active');
+            var sibling = self.siblings('a').removeClass('active');
             $('.gridview').toggleClass('hidden');
             $('#table-4').toggleClass('hidden');
         });
@@ -815,9 +738,21 @@
 
 
 </script>
+<style>
+    .dataTables_filter label{
+        display:none !important;
+    }
+    .dataTables_wrapper .export-data{
+        right: 30px !important;
+    }
+    #selectcheckbox{
+        padding: 15px 10px;
+    }
+</style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+@include('opportunityboards.opportunitymodal')
 @stop
 
 @section('footer_ext')
@@ -979,7 +914,7 @@
                             <div class="form-Group">
                                 <label class="col-sm-2 control-label">Tag</label>
                                 <div class="col-sm-8">
-                                    <input class="form-control tags" name="tags" type="text" >
+                                    <input class="form-control leadTags" name="tags" type="text" >
                                     <input type="hidden" name="SelectedIDs" />
                                 </div>
                             </div>

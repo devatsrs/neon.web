@@ -24,100 +24,9 @@
     </a>
 @endif    
 </p>
-
-<style>
-
-    ul.grid {
-        list-style: outside none none;
-        margin: 0 auto;
-        padding-left: 0px;
-        font-size:11px;
-    }
-    .clearfix {
-        display: block;
-    }
-
-    ul.grid li {
-        box-sizing: border-box;
-        padding: 3px 3px 2px;
-    }
-    ul.grid li div.box{
-        border: 1px solid #b6bdbe;
-        padding: 5px 5px;
-        width:100%;
-    }
-    ul.grid li div.selected{
-        background :#a94442 none repeat scroll 0 0;
-    }
-    ul.grid li div.header {
-        min-height: 66px;
-    }
-    ul.grid li div.block {
-        min-height: 80px;
-        word-wrap: break-word;
-    }
-    ul.grid li div.cellNo{
-        min-height: 40px;
-    }
-    ul.grid li .address{
-        height: 120px;
-        overflow-y:auto;
-    }
-    ul.grid li div.block a,ul.grid li div.cellNo a{
-        color: #74B1C4;
-    }
-    ul.grid li div.meta {
-        color: #93989b;
-        display: block;
-        font-weight: normal;
-    }
-    ul.grid li div.action{
-        text-align: right;
-        margin: 5px 0px;
-        min-height:20px;
-        padding-bottom: 5px;;
-        nargin-to:-20px;
-    }
-
-    .right-padding-0{
-        padding-right: 0px;
-    }
-    .left-padding-0{
-        padding-left: 0px;
-    }
-
-    .change-view header {
-        position: absolute;
-        top:15px;
-        right:150px;
-        width:65px;
-    }
-
-    .change-view header .list-style-buttons {
-        position: absolute;
-        right: 0;
-    }
-    .padding-0{
-        padding: 0px !important;
-    }
-    .padding-left-1{
-        padding: 0px 0px 0px 1px !important;
-    }
-    .padding-3{
-        padding:3px;
-    }
-    ul.grid .head{
-        font-size:12px;
-        font-weight: 700;
-        color:#373e4a;
-        word-wrap: break-word;
-    }
-
-</style>
-
 <div class="row">
     <div class="col-md-12">
-        <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -129,11 +38,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_name"  type="text" >
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">Account Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Number</label>
                         <div class="col-sm-2">
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
@@ -170,7 +79,7 @@
                             {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"selectboxit"))}}
                         </div>
                         @if(User::is_admin())
-                         <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                         <label for="field-1" class="col-sm-1 control-label">Owner</label>
                         <div class="col-sm-2">
                             {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                         </div>
@@ -217,6 +126,24 @@
                         <span>Bulk Rate sheet Email</span>
                     </a>
                 </li>
+                <li>
+                   <a href="{{ URL::to('/import/account') }}" >
+                        <i class="entypo-user-add"></i>
+                        <span>Import</span>
+                   </a>
+                </li>
+                <li class="li_active">
+                   <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
+                        <i class="fa fa-plus-circle"></i>
+                        <span>Activate</span>
+                   </a>
+                </li>
+                <li class="li_deactive">
+                   <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
+                        <i class="fa fa-minus-circle"></i>
+                        <span>Deactivate</span>
+                   </a>
+                </li>
                 @endif
             </ul>
         </div><!-- /btn-group -->
@@ -256,7 +183,72 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
+		
+		function check_status(){
+            var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
+			if(selected_active_type){
+
+
+				$('.li_active').hide();
+				$('.li_deactive').show();
+			}else{
+				$('.li_active').show();
+				$('.li_deactive').hide();		
+			}
+		}
+		
+		$('.type_active_deactive').click(function(e) {
+			
+            var type_active_deactive  =  $(this).attr('type_ad');
+			var SelectedIDs 		  =  getselectedIDs();	
+			var criteria_ac			  =  '';
+			
+			if($('#selectallbutton').is(':checked')){
+				criteria_ac = 'criteria';
+			}else{
+				criteria_ac = 'selected';				
+			}
+			
+			if(SelectedIDs=='' || criteria_ac=='')
+			{
+				alert("Please select atleast one account.");
+				return false;
+			}
+			
+			account_ac_url =  '{{ URL::to('accounts/update_bulk_account_status')}}';
+			$.ajax({
+				url: account_ac_url,
+				type: 'POST',
+				dataType: 'json',
+				success: function(response) {
+					   if(response.status =='success'){
+							toastr.success(response.message, "Success", toastr_opts);
+							data_table.fnFilter('', 0);
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+                   	 	}				
+					},				
+				data: {
+			"account_name":$("#account_filter [name='account_name']").val(),
+			"account_number":$("#account_filter [name='account_number']").val(),
+			"contact_name":$("#account_filter [name='contact_name']").val(),
+			"tag":$("#account_filter [name='tag']").val(),
+			"verification_status":$("#account_filter [name='verification_status']").val(),
+			"account_owners":$("#account_filter [name='account_owners']").val(),			
+			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
+			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
+			"account_active":$("#account_filter [name='account_active']").prop("checked"),
+			"SelectedIDs":SelectedIDs,
+			"criteria_ac":criteria_ac,	
+			"type_active_deactive":type_active_deactive,
+			}			
+				
+			});
+			
+        });
+		
 
         //["tblAccount.Number",
         // "tblAccount.AccountName",
@@ -268,8 +260,8 @@
         // "tblAccount.IsVendor",
         // 'tblAccount.VerificationStatus']
 
-        var varification_status = [{{Account::NOT_VERIFIED}},{{Account::PENDING_VERIFICATION}},{{Account::VERIFIED}}];
-        var varification_status_text = ["{{Account::$doc_status[Account::NOT_VERIFIED]}}","{{Account::$doc_status[Account::PENDING_VERIFICATION]}}","{{Account::$doc_status[Account::VERIFIED]}}"];
+        var varification_status = [{{Account::NOT_VERIFIED}},{{Account::VERIFIED}}];
+        var varification_status_text = ["{{Account::$doc_status[Account::NOT_VERIFIED]}}","{{Account::$doc_status[Account::VERIFIED]}}"];
 
         $searchFilter.account_name = $("#account_filter [name='account_name']").val();
         $searchFilter.account_number = $("#account_filter [name='account_number']").val();
@@ -286,7 +278,7 @@
                     "bProcessing":true,
                     "bDestroy": true,
                     "bServerSide":true,
-                    "sAjaxSource": baseurl + "/accounts/ajax_datagrid",
+                    "sAjaxSource": baseurl + "/accounts/ajax_datagrid/type",
                     "iDisplayLength": '{{Config::get('app.pageSize')}}',
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -312,36 +304,44 @@
                         {
                             "bSortable": false,
                             mRender: function ( id, type, full ) {
-                                var action , edit_ , show_ ;
+                                var action , edit_ , show_,chart_;
                                 action='';
                                 edit_ = "{{ URL::to('accounts/{id}/edit')}}";
                                 show_ = "{{ URL::to('accounts/{id}/show')}}";
+                                chart_ = "{{ URL::to('accounts/activity/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
                                 show_ = show_.replace( '{id}', full[0] );
+                                chart_ = chart_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
-                                <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="entypo-ticket"></i> </button>';
                                 <?php } ?>
-                                action += '&nbsp;<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
-
+                                <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                                //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php } ?>
+                                <?php if(User::checkCategoryPermission('AccountActivityChart','View')){ ?>
+                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
+                                //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php } ?>
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
                                 varification_url = varification_url.replace('{id}',full[0]);
 
                                 NOT_VERIFIED = varification_url +'{{Account::NOT_VERIFIED}}';
-                                PENDING_VERIFICATION = varification_url + '{{Account::PENDING_VERIFICATION}}';
+                               
                                 VERIFIED = varification_url + '{{Account::VERIFIED}}';
 
-                                 /*action += ' <div class="btn-group"><button href="#" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Verification Status<span class="caret"></span></button>'
-                                 action += '<ul class="dropdown-menu dropdown-primary" role="menu"><li><a href="' + NOT_VERIFIED + '" class="change_verification_status" >{{Account::$doc_status[Account::NOT_VERIFIED]}}</a></li><li><a href="' + PENDING_VERIFICATION + '" class="change_verification_status">{{Account::$doc_status[Account::PENDING_VERIFICATION]}}</a></li><li><a href="' + VERIFIED + '" class="change_verification_status">{{Account::$doc_status[Account::VERIFIED]}}</a></li></ul></div>';*/
+                                 
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                 action += '<select name="varification_status" class="change_verification_status">';
+                                /* action += '<select name="varification_status" class="change_verification_status">';
                                  for(var i = 0; i < varification_status.length ; i++){
                                     var selected = "";
                                     if(full[9] == varification_status[i]){
@@ -349,7 +349,7 @@
                                     }
                                     action += '<option data-id="'+full[0]+'" value="' + varification_status[i] + '" ' + selected   +'     >'+varification_status_text[i]+'</option>';
                                  }
-                                 action += '</select>';
+                                 action += '</select>';*/
                                 <?php } ?>
 
                                 if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
@@ -369,7 +369,8 @@
                                 action +='<input type="hidden" name="address3" value="'+full[12]+'"/>';
                                 action +='<input type="hidden" name="city" value="'+full[13]+'"/>';
                                 action +='<input type="hidden" name="country" value="'+full[14]+'"/>';
-                                action +='<input type="hidden" name="picture" value="'+full[15]+'"/>';
+								action +='<input type="hidden" name="PostCode" value="'+full[15]+'"/>';
+                                action +='<input type="hidden" name="picture" value="'+full[16]+'"/>';
                                 return action;
                             }
                         },
@@ -378,33 +379,35 @@
             "aButtons": [
                 {
                     "sExtends": "download",
-                    "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/accounts/ajax_datagrid", //baseurl + "/generate_xls.php",
-                    sButtonClass: "save-collection"
+                    "sButtonText": "EXCEL",
+                    "sUrl": baseurl + "/accounts/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                    sButtonClass: "save-collection btn-sm"
+                },
+                {
+                    "sExtends": "download",
+                    "sButtonText": "CSV",
+                    "sUrl": baseurl + "/accounts/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                    sButtonClass: "save-collection btn-sm"
                 }
             ]
         },
         "fnDrawCallback": function() {
+			check_status();
              $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
 
             $(".dropdown").removeClass("hidden");
             var toggle = '<header>';
-            toggle += '   <span class="list-style-buttons">';
-
+            toggle += '<span class="list-style-buttons">';
             if(view==1){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
-                toggle += '      <a class="switcher active" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+activeurl+'"></a>';
-                toggle += '      <a class="switcher" id="listview" href="javascript:void(0)"><img alt="List" src="'+desctiveurl+'"></a>';
+                toggle += '<a href="javascript:void(0)" title="Grid View" class="btn btn-primary switcher grid active"><i class="entypo-book-open"></i></a>';
+                toggle += '<a href="javascript:void(0)" title="List View" class="btn btn-primary switcher list"><i class="entypo-list"></i></a>';
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
-                toggle += '      <a class="switcher" id="gridview" href="javascript:void(0)"><img alt="Grid" src="'+desctiveurl+'"></a>';
-                toggle += '      <a class="switcher active" id="listview" href="javascript:void(0)"><img alt="List" src="'+activeurl+'"></a>';
+                toggle += '<a href="javascript:void(0)" title="Grid View" class="btn btn-primary switcher grid"><i class="entypo-book-open"></i></a>';
+                toggle += '<a href="javascript:void(0)" title="List View" class="btn btn-primary switcher list active"><i class="entypo-list"></i></a>';
             }
-            toggle += '   </span>';
+            toggle +='</span>';
             toggle += '</header>';
             $('.change-view').html(toggle);
             var html = '<ul class="clearfix grid col-md-12">';
@@ -424,7 +427,7 @@
                     $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
                     $(this).addClass('label');
-                    $(this).addClass('padding-3');
+                    $(this).addClass('padding-4');
                 });
                 $(temp).find('.select2-container').remove();
                 $(temp).find('select[name="varification_status"]').remove();
@@ -433,32 +436,51 @@
                 var address3 = $(temp).find('input[name="address3"]').val();
                 var city = $(temp).find('input[name="city"]').val();
                 var country = $(temp).find('input[name="country"]').val();
-                address1 = (address1=='null'||address1==''?'':'1:'+address1);
-                address2 = (address2=='null'||address2==''?'':'<br>2:'+address2);
-                address3 = (address3=='null'||address3==''?'':'<br>3:'+address3);
-                city = (city=='null'||city==''?'':'<br>City:'+city);
-                country = (country=='null'||country==''?'':'&nbsp;&nbsp;Country:'+country);
-                var url = baseurl + '/assets/images/placeholder-male.gif';
+				var PostCode = $(temp).find('input[name="PostCode"]').val();
+				
+				
+                address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
+                address2 = (address2=='null'||address2==''?'':address2+'<br>');
+                address3 = (address3=='null'||address3==''?'':address3+'<br>');
+                city 	 = (city=='null'||city==''?'':city+'<br>');
+				PostCode = (PostCode=='null'||PostCode==''?'':PostCode+'<br>');
+                country  = (country=='null'||country==''?'':country);
+                var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
                 if (checked != '') {
                     select = ' selected';
                 }
-                if(checkClass=='1'){
-                    html += '<li class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xsm-12">';
-                }else{
-                    html += '<li class="col-xl-2 col-lg-3 col-md-3 col-sm-6 col-xsm-12">';
+				
+				//col-xl-2 col-md-4 col-sm-6 col-xsm-12 col-lg-3
+				
+                if(checkClass=='1')
+				{
+                    html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
                 }
+				else
+				{
+                    html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
+                }
+				var account_title = childrens.eq(2).text();
+				if(account_title.length>22){
+					account_title  = account_title.substring(0,22)+"...";	
+				}
+				
+				var account_name = childrens.eq(3).text();
+				if(account_name.length>40){
+					account_name  = account_name.substring(0,40)+"...";	
+				}
                 html += '  <div class="box clearfix ' + select + '">';
-                html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
-                html += '  <div class="col-sm-8 header padding-left-1">  <span class="head">' + childrens.eq(2).text() + '</span><br>';
-                html += '  <span class="meta">Owner:' + childrens.eq(3).text() + '</span></div>';
+               // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
+                html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
+                html += '  <span class="meta complete_name">' + account_name + '</span></div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
-                html += '     <div class="meta">Send Email</div>';
+                html += '     <div class="meta">Email</div>';
                 html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(6).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div class="cellNo">';
-                html += '     <div class="meta">Call Work</div>';
+                html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div>';
@@ -469,7 +491,7 @@
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Address</div>';
-                html += '     <div class="address">' + address1 + ''+address2+''+address3+''+city+''+country+'</div>';
+                html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-11 padding-0 action">';
@@ -807,7 +829,7 @@
             var el = $('#account_filter').find('[name="tags"]');
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$accountTags}}});
         });
 
         $("#bulk-tags").click(function() {
@@ -815,7 +837,7 @@
             el.siblings('div').remove();
             el.removeClass('select2-offscreen');
             el.val('');
-            el.select2({tags:{{$tags}}});
+            el.select2({tags:{{$accountTags}}});
             $('#modal-BulkTags').find('[name="SelectedIDs"]').val('');
             $('.save').button('reset');
             $('#modal-BulkTags').modal('show');
@@ -828,24 +850,36 @@
             }
             var activeurl;
             var desctiveurl;
-            if(self.attr('id')=='gridview'){
-                var activeurl = baseurl + '/assets/images/grid-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/list-view.png';
+            if(self.hasClass('grid')){
                 view = 1;
             }else{
-                var activeurl = baseurl + '/assets/images/list-view-active.png';
-                var desctiveurl = baseurl + '/assets/images/grid-view.png';
                 view = 2;
             }
-            self.find('img').attr('src',activeurl);
             self.addClass('active');
-            var sibling = self.siblings('a');
-            sibling.find('img').attr('src',desctiveurl);
-            sibling.removeClass('active');
+            var sibling = self.siblings('a').removeClass('active');
             $('.gridview').toggleClass('hidden');
             $('#table-4').toggleClass('hidden');
         });
 
+        $('#add-edit-modal-opportunity .reset').click(function(){
+            var colorPicker = $(this).parents('.form-group').find('[type="text"].colorpicker');
+            var color = $(this).attr('data-color');
+            setcolor(colorPicker,color);
+        });
+
+        $(document).on('mouseover','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            setrating(currentrateid);
+        });
+        $(document).on('click','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            $('#rating input[name="Rating"]').val(currentrateid);
+            setrating(currentrateid);
+        });
+        $(document).on('mouseleave','#rating',function(){
+            var defultrateid = $('#rating input[name="Rating"]').val();
+            setrating(defultrateid);
+        });
 
         $("#BulkTag-form").submit(function(e){
             e.preventDefault();
@@ -887,8 +921,12 @@
             }
         });
 
-        $(".tags").select2({
-            tags:{{$tags}}
+        $(".accountTags").select2({
+            tags:{{$accountTags}}
+        });
+
+        $('.opportunityTags').select2({
+            tags:{{$opportunityTags}}
         });
 
         function drodown_reset(){
@@ -967,10 +1005,13 @@
     #selectcheckbox{
         padding: 15px 10px;
     }
+
+	.li_active{display:none;}
 </style>
 <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+@include('opportunityboards.opportunitymodal')
 @stop
 
 @section('footer_ext')
@@ -1132,6 +1173,7 @@
                                 <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
                                 <div class="col-sm-4">
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+
                                 </div>
                             </div>
                         </div>

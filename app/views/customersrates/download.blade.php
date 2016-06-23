@@ -83,7 +83,25 @@
                 <label for="field-1" class="col-sm-3 control-label">Output format</label>
                 <div class="col-sm-5">
  
-                   {{ Form::select('Format', $rate_sheet_formates, Input::get('Format') , array("class"=>"selectboxit")) }}
+                   {{ Form::select('Format', $rate_sheet_formates, Input::get('Format') , array("class"=>"selectboxit","id"=>"fileformat")) }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="field-1" class="col-sm-3 control-label">File Type</label>
+                <div class="col-sm-5">
+
+                   {{ Form::select('filetype', array(''=>'Select a Type'), Input::get('downloadtype') , array("class"=>"select2","id"=>"filetype",'allowClear'=>'true')) }}
+                </div>
+            </div>
+            <div class="form-group effective">
+                <label for="field-1" class="col-sm-3 control-label">Effective</label>
+                <div class="col-sm-5">
+
+                    <select name="Effective" class="selectboxit" data-allow-clear="true" data-placeholder="Select Effective">
+                        <option value="Now">Now</option>
+                        <option value="Future">Future</option>
+                        <option value="All">All</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group">
@@ -149,6 +167,30 @@
 </style>
 <script type="text/javascript">
 jQuery(document).ready(function ($) {
+
+    $('#fileformat').change(function(e){
+        if($(this).val()){
+            var url = baseurl +'/customers_rates/{{$id}}/customerdownloadtype/'+$(this).val();
+            $.ajax({
+                url:  url,  //Server script to process data
+                type: 'POST',
+                success: function (response) {
+                    $('#filetype').empty();
+                    $('#filetype').append(response);
+                    setTimeout(function(){
+                        $("#filetype").select2('val','');
+                    },200)
+                },
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
+
+        }else{
+            $('#filetype').empty();
+            $("#filetype").select2('val','');
+        }
+    });
+
     $(".btn.download").click(function () {
            // return false;
             var formData = new FormData($('#form-download')[0]);
@@ -264,6 +306,7 @@ jQuery(document).ready(function ($) {
     $("#BulkMail-form [name=template_option]").change(function(e){
         if($(this).val()==1){
             $('#templatename').removeClass("hidden");
+
         }else{
             $('#templatename').addClass("hidden");
         }
@@ -397,11 +440,14 @@ jQuery(document).ready(function ($) {
     $('#form-download [name="Format"]').change(function(e) {
         if($(this).val() == '{{RateSheetFormate::RATESHEET_FORMAT_RATESHEET}}'){
             $('.emailsend.btn').removeClass('hidden')
+            $('.effective').addClass('hidden');
         }else{
             $('.emailsend.btn').addClass('hidden');
+            $('.effective').removeClass('hidden');
         }
 
     });
+    $('#fileformat').trigger('change');
 
 });
 function initCustomerGrid(tableID,OwnerFl){

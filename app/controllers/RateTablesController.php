@@ -4,10 +4,15 @@ class RateTablesController extends \BaseController {
 
     public function ajax_datagrid() {
         $CompanyID = User::get_companyID();
-        $rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+        $rate_tables = RateTable::
+        join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+            ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
+            ->select(['tblRateTable.RateTableName','tblCurrency.Code','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId'])
+            ->where("tblRateTable.CompanyId",$CompanyID);
+        //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
         if($data['TrunkID']){
-            $rate_tables->where('TrunkID',$data['TrunkID']);
+            $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
         }
         return Datatables::of($rate_tables)->make();
     }
@@ -128,13 +133,31 @@ class RateTablesController extends \BaseController {
                             ->where("tblRateTable.RateTableId", $id)->count();
             //Is RateTable assigne to RateTableRate table then dont delete
             if ($is_id_assigned == 0) {
-                if (RateTable::where(["RateTableId" => $id])->delete()) {
-                    return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                if(RateTable::checkRateTableInCronjob($id)){
+                    if(RateTableRate::where(["RateTableId" => $id])->count()>0){
+                        if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
+                            return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                        }
+                    }else{
+                        if (RateTable::where(["RateTableId" => $id])->delete()) {
+                            return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                        }
+                    }
+
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to CronJob."));
                 }
+
             } else {
-                return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                if(RateTable::checkRateTableInCronjob($id)){
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate and CronJob."));
+                }
             }
         }
     }
@@ -201,7 +224,7 @@ class RateTablesController extends \BaseController {
 
             $data["ModifiedBy"] = User::get_user_full_name();
 
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -228,7 +251,7 @@ class RateTablesController extends \BaseController {
             $data["PreviousRate"] = 0;
             unset($data['RateTableRateID']);
 
-            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'Interval1'=>'required','IntervalN'=>'required','PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -248,7 +271,7 @@ class RateTablesController extends \BaseController {
         if ($id > 0) {
             $data = Input::all();
             $username = User::get_user_full_name();
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required');
+            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required','Interval1'=>'required','IntervalN'=>'required');
 
             $validator = Validator::make($data, $rules);
 
@@ -281,22 +304,46 @@ class RateTablesController extends \BaseController {
         }
     }
     
-    public function exports() {
+    public function exports($type) {
             $CompanyID = User::get_companyID();
-            $rate_tables = RateTable::where(["CompanyId" => $CompanyID])->orderBy("RateTableId", "desc");
+            /*$rate_tables = RateTable::where(["CompanyId" => $CompanyID])->orderBy("RateTableId", "desc");
             $data = Input::all();
             if($data['TrunkID']){
                 $rate_tables->where('TrunkID',$data['TrunkID']);
             }
-            $rate_tables = $rate_tables->get(["RateTableName"]);
+            $rate_tables = $rate_tables->get(["RateTableName"]);*/
+            $rate_tables = RateTable::
+            join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+                ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
+                ->select(['tblRateTable.RateTableName','tblCurrency.Code as Currency Code','tblCodeDeck.CodeDeckName'])
+                ->where("tblRateTable.CompanyId",$CompanyID);
+            //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+            $data = Input::all();
+            if($data['TrunkID']){
+                $rate_tables = $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
+            }
+            $rate_tables = $rate_tables->get();
+            $excel_data = json_decode(json_encode($rate_tables),true);
+
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*
             Excel::create('Rates Table', function ($excel) use ($rate_tables) {
                 $excel->sheet('Rates Table', function ($sheet) use ($rate_tables) {
                     $sheet->fromArray($rate_tables);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
     
-    public function rate_exports($id) {
+    public function rate_exports($id,$type) {
             $companyID = User::get_companyID();
             $data = Input::all();
             $RateTableName = RateTable::find($id)->RateTableName;
@@ -306,11 +353,22 @@ class RateTablesController extends \BaseController {
             $rate_table_rates  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
+            $RateTableName = str_replace( '\/','-',$RateTableName);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($rate_table_rates);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($rate_table_rates);
+            }
+            /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
                 $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
                     $sheet->fromArray($rate_table_rates);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
     public static function add_newrate($id){
         $data = Input::all();
@@ -319,6 +377,9 @@ class RateTablesController extends \BaseController {
         $RateTableRate['RateID'] = $data['RateID'];
         $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
         $RateTableRate['Rate'] = $data['Rate'];
+        $RateTableRate['Interval1'] = $data['Interval1'];
+        $RateTableRate['IntervalN'] = $data['IntervalN'];
+        $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
         $rules = RateTableRate::$rules;
         $rules['RateID'] = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
         $validator = Validator::make($RateTableRate, $rules);
@@ -469,6 +530,8 @@ class RateTablesController extends \BaseController {
         $save['checkbox_replace_all'] = $data['checkbox_replace_all'];
         $save['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
         $save['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+        $save['ratetablename'] = RateTable::where(["RateTableId" => $id])->pluck('RateTableName');
+
         //Inserting Job Log
         try {
             DB::beginTransaction();
@@ -485,5 +548,32 @@ class RateTablesController extends \BaseController {
             DB::rollback();
             return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
+    }
+	
+	//get ajax code for add new rate
+    public function getCodeByAjax(){
+        $CompanyID = User::get_companyID();
+        $list = array();
+        $data = Input::all();
+        $rate = $data['q'].'%';
+        $ratetableid = $data['page'];
+        $CodeDeckId = RateTable::getCodeDeckId($ratetableid);
+        $codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+            ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
+
+        if(count($codes) > 0){
+            foreach($codes as $key => $value){
+                $list2 = array();
+                $list2['id'] = $key;
+                $list2['text'] = $value;
+                $list[]= json_encode($list2);
+            }
+            $rateids = '['.implode(',',$list).']';
+        }else{
+            $rateids = '[]';
+        }
+
+
+        return $rateids;
     }
 }

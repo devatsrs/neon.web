@@ -2,7 +2,7 @@
 
 class GatewayController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
 
         $CompanyID = User::get_companyID();
@@ -14,11 +14,16 @@ class GatewayController extends \BaseController {
                 ->where("CompanyID", $CompanyID);
             $excel_data = $Gateway->get();
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Gateway', function ($excel) use ($excel_data) {
-                $excel->sheet('Gateway', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Gateway.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Gateway.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
         }
 
         return Datatables::of($Gateway)->make();

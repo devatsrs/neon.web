@@ -48,13 +48,17 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Password</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                        <input class="hide">
+                        <input type="password" class="hide">
+                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value=""/>
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">Picture</label>
                     <div class="col-sm-4">
                             <input id="picture" type="file" name="Picture" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                            @if(Customer::get_customer_picture_url(Customer::get_accountID()) !='')
                             <img src="{{ Customer::get_customer_picture_url(Customer::get_accountID()) }}" alt="" class="img-circle" width="44" />
+                            @endif
 
                     </div>
                 </div>
@@ -218,14 +222,15 @@
 
             @if ($account->VerificationStatus == Account::NOT_VERIFIED)
                 $(".btn-toolbar .btn").first().button("toggle");
-            @elseif ($account->VerificationStatus == Account::PENDING_VERIFICATION)
-                $(".btn-toolbar .btn").first().next().button("toggle");
+          
             @elseif ($account->VerificationStatus == Account::VERIFIED)
                 $(".btn-toolbar .btn").last().button("toggle");
             @endif
     });
 </script>
-
+<style>
+    .hide{ display:none; }
+</style>
 @include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('customer/profile/update')))
 
 @stop

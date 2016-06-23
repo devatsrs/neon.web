@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertPayments`(IN `p_CompanyID` INT, IN `p_ProcessID` VARCHAR(100), IN `p_UserID` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_insertPayments`(IN `p_CompanyID` INT, IN `p_ProcessID` VARCHAR(100), IN `p_UserID` INT)
 BEGIN
 
 	
@@ -44,8 +44,14 @@ BEGIN
 			 1 as BulkUpload
 	from tblTempPayment tp
 	INNER JOIN Ratemanagement3.tblAccount ac 
-		ON  ac.AccountID = tp.AccountID
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1
 	where tp.ProcessID = p_ProcessID
 			AND tp.PaymentDate <= NOW()
 			AND tp.CompanyID = p_CompanyID;
+			
+	
+	/* Delete tmp table */		
+	delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+	 
+			
 END

@@ -84,7 +84,7 @@ class JobsController extends \BaseController {
         //}
     }
 
-    public function exports() {
+    public function exports($type) {
         //if( User::checkPermission('Job') ) {
             //When admin show all jobs by all user.
             if (User::is_admin()) {
@@ -110,12 +110,22 @@ class JobsController extends \BaseController {
                     ->get(['tblJob.Title', 'tblJobType.Title as Type', 'tblJobStatus.Title as Status', 'tblJob.created_at as Created', 'tblJob.CreatedBy as CreatedBy']);
             }
 
+            $excel_data = json_decode(json_encode($jobs),true);
 
-            Excel::create('Jobs', function ($excel) use ($jobs) {
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Jobs.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Jobs.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+           /* Excel::create('Jobs', function ($excel) use ($jobs) {
                 $excel->sheet('Jobs', function ($sheet) use ($jobs) {
                     $sheet->fromArray($jobs);
                 });
-            })->download('xls');
+            })->download('xls');*/
         //}
     }
 
@@ -203,7 +213,7 @@ class JobsController extends \BaseController {
 
         $PID = $data['PID'];
         $JobData = array();
-        $JobData['PID'] = '';
+        $JobData['PID'] = 0;
         $JobData['JobStatusID'] = $data['JobStatusID'];
         $JobData['JobStatusMessage'] = $Job->JobStatusMessage.' User message:'.$data['message'];
 
@@ -215,7 +225,9 @@ class JobsController extends \BaseController {
         $output = exec($command,$op);
         Log::info($command);
         Log::info($output);
-        $Job->update($JobData);
+
+
+        Job::where('JobID',$JobID)->update($JobData);
 
 
         if(isset($output) && $output == !''){

@@ -56,7 +56,7 @@ BEGIN
         ratesheetdetailsid int,
         RateID int ,
         RateSheetID int,
-        Destination varchar(50),
+        Destination varchar(200),
         Code varchar(50),
         Rate DECIMAL(18, 6),
         `change` varchar(50),
@@ -91,13 +91,13 @@ BEGIN
     AND tblCustomerTrunk.Status = 1;
 
 
-  SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+  /*SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
 	 	SELECT MAX(EffectiveDate) as EffectiveDate
 		FROM
 		tblRateTableRate
 		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW()
 		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	)tbl;
+	)tbl;*/
 
   INSERT INTO tmp_CustomerRates_
       SELECT  RateID,
@@ -126,11 +126,13 @@ BEGIN
          tblRateTableRate.Interval1,
          tblRateTableRate.IntervalN,
          tblRateTableRate.Rate,
-         CASE WHEN v_NewA2ZAssign_ = 1   THEN
+         /*CASE WHEN v_NewA2ZAssign_ = 1   THEN
          	v_RateTableAssignDate_
          ELSE
          	tblRateTableRate.EffectiveDate
          END as EffectiveDate ,
+         */
+         tblRateTableRate.EffectiveDate,
          tblRateTableRate.updated_at
       FROM tblAccount
       JOIN tblCustomerTrunk

@@ -13,7 +13,10 @@ CREATE TABLE `tblRateTableRate` (
   `IntervalN` int(11) DEFAULT NULL,
   `ConnectionFee` decimal(18,6) DEFAULT NULL,
   PRIMARY KEY (`RateTableRateID`),
+  UNIQUE KEY `IX_Unique_RateID_RateTableId_EffectiveDate` (`RateID`,`RateTableId`,`EffectiveDate`),
   KEY `FK_tblRateTableRate_tblRate` (`RateID`),
-  KEY `XI_tblRateTableRate_RateID` (`RateID`),
-  KEY `IX_RateTableRate_RateID` (`RateID`)
+  KEY `XI_RateID_RatetableID` (`RateID`,`RateTableRateID`),
+  KEY `IX_RateTableId_RateID_EffectiveDate` (`RateTableId`,`RateID`,`EffectiveDate`),
+  KEY `IX_RateTableId` (`RateTableId`),
+  CONSTRAINT `FKtblratetablerate_tblrate_rateid` FOREIGN KEY (`RateID`) REFERENCES `tblRate` (`RateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -7,7 +7,7 @@ class Payment extends \Eloquent {
     protected $table = 'tblPayment';
     protected  $primaryKey = "PaymentID";
 
-    public static $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
+    public static $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT');
     public static $action = array(''=>'Select Action','Payment In'=>'Payment In','Payment Out'=>'Payment Out');
     public static $status = array(''=>'Select Status','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
     //public $timestamps = false; // no created_at and updated_at
@@ -141,11 +141,12 @@ class Payment extends \Eloquent {
         $Accounts = array_change_key_case($Accounts);
         if (!empty($file)) {
 
-            $results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {
-                $reader->formatDates(true, 'Y-m-d');
-            })->get();
+            $NeonExcel = new NeonExcelIO($file);
+            $results = $NeonExcel->read();
 
-            $results = json_decode(json_encode($results), true);
+            /*$results =  Excel::selectSheetsByIndex(0)->load($file, function ($reader) {})->get();
+
+            $results = json_decode(json_encode($results), true);*/
 
 
             $ProcessID =  GUID::generate();
@@ -161,72 +162,75 @@ class Payment extends \Eloquent {
             $response_status = "";
 
             foreach($results as $row){
-                if (empty($row[$selection['AccountName']])) {
-                    $response_message  .= ' <br>Account Name is empty at line no' . $lineno;
-                    $has_Error = true;
-                }elseif (!array_key_exists(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
-                    $response_message .= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
-                    $has_Error = true;
-                }
-                if (empty($row[$selection['PaymentDate']])) {
-                    $response_message .= ' <br>Payment Date is empty at line no ' . $lineno;
-                    $has_Error = true;
-                }else{
-                    $date = formatSmallDate(trim($row[$selection['PaymentDate']]),$selection['DateFormat']);
-                    if (empty($date)) {
-                        $response_message .= '<br>Invalid Payment Date at line no ' . $lineno;
+                $checkemptyrow = array_filter(array_values($row));
+                if(!empty($checkemptyrow)){
+                    if (empty($row[$selection['AccountName']])) {
+                        $response_message  .= ' <br>Account Name is empty at line no' . $lineno;
+                        $has_Error = true;
+                    }elseif (!array_key_exists(strtolower(trim($row[$selection['AccountName']])), $Accounts)) {
+                        $response_message .= " <br>Invalid Account Name '" . $row[$selection['AccountName']] . "' at line no " . $lineno;
+                        $has_Error = true;
+                    }
+                    if (empty($row[$selection['PaymentDate']])) {
+                        $response_message .= ' <br>Payment Date is empty at line no ' . $lineno;
                         $has_Error = true;
                     }else{
-                        $row[$selection['PaymentDate']] = $date;
+                        $date = formatSmallDate(str_replace( '/','-',trim($row[$selection['PaymentDate']])),$selection['DateFormat']);
+                        if (empty($date)) {
+                            $response_message .= '<br>Invalid Payment Date at line no ' . $lineno;
+                            $has_Error = true;
+                        }else{
+                            $row[$selection['PaymentDate']] = $date;
+                        }
                     }
-                }
-                if (empty($row[$selection['PaymentMethod']])) {
-                    $response_message .= ' <br>Payment Method is empty at line no ' . $lineno;
-                    $has_Error = true;
-                }elseif (!in_array(strtolower(trim($row[$selection['PaymentMethod']])), array_map('strtolower', Payment::$method))) {
-                    $response_message  .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
-                    $has_Error = true;
-                }
-                if (empty($row[$selection['PaymentType']])) {
-                    $response_message .= ' <br>Action is empty at line no ' . $lineno;
-                    $has_Error = true;
-                }elseif(!in_array(strtolower(trim($row[$selection['PaymentType']])), array_map('strtolower', Payment::$action) )){
-                    $response_message  .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
-                    $has_Error = true;
-                }
-
-                if (empty($row[$selection['Amount']])) {
-                    $response_message .= ' <br>Amount is empty at line no ' . $lineno;
-                    $has_Error = true;
-                }elseif(!is_numeric($row[$selection['Amount']])){
-                    $response_message .= ' <br>Invalid Amount at line no ' . $lineno;
-                    $has_Error = true;
-                }
-                if (!$has_Error) {
-                    $PaymentStatus = 'Pending Approval';
-                    if(User::is('BillingAdmin') || User::is_admin()){
-                        $PaymentStatus = 'Approved';
+                    if (empty($row[$selection['PaymentMethod']])) {
+                        $response_message .= ' <br>Payment Method is empty at line no ' . $lineno;
+                        $has_Error = true;
+                    }elseif (!in_array(strtolower(trim($row[$selection['PaymentMethod']])), array_map('strtolower', Payment::$method))) {
+                        $response_message  .= " <br>Invalid Payment Method : '" . $row[$selection['PaymentMethod']] . "' at line no " . $lineno;
+                        $has_Error = true;
                     }
-                    $temp = array('CompanyID' => $CompanyID,
-                        'ProcessID' => $ProcessID,
-                        'AccountID' => $Accounts[strtolower(trim($row[$selection['AccountName']]))],
-                        'PaymentDate' => trim($row[$selection['PaymentDate']]),
-                        'PaymentMethod' => trim(strtoupper($row[$selection['PaymentMethod']])),
-                        'PaymentType' => trim(ucfirst($row[$selection['PaymentType']])),
-                        'Status' => $PaymentStatus,
-                        'Amount' => trim($row[$selection['Amount']])
-                    );
-
-                    if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
-                        $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                    if (empty($row[$selection['PaymentType']])) {
+                        $response_message .= ' <br>Action is empty at line no ' . $lineno;
+                        $has_Error = true;
+                    }elseif(!in_array(strtolower(trim($row[$selection['PaymentType']])), array_map('strtolower', Payment::$action) )){
+                        $response_message  .= " <br>Invalid Action : '".$row[$selection['PaymentType']]."' at line no ".$lineno;
+                        $has_Error = true;
                     }
 
-                    if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
-                        $temp['Notes'] = trim($row[$selection['Notes']]);
+                    if (empty($row[$selection['Amount']])) {
+                        $response_message .= ' <br>Amount is empty at line no ' . $lineno;
+                        $has_Error = true;
+                    }elseif(!is_numeric($row[$selection['Amount']])){
+                        $response_message .= ' <br>Invalid Amount at line no ' . $lineno;
+                        $has_Error = true;
                     }
-                    $batch_insert[] = $temp;
+                    if (!$has_Error) {
+                        $PaymentStatus = 'Pending Approval';
+                        if(User::is('BillingAdmin') || User::is_admin()){
+                            $PaymentStatus = 'Approved';
+                        }
+                        $temp = array('CompanyID' => $CompanyID,
+                            'ProcessID' => $ProcessID,
+                            'AccountID' => $Accounts[strtolower(trim($row[$selection['AccountName']]))],
+                            'PaymentDate' => trim(str_replace( '/','-',$row[$selection['PaymentDate']])),
+                            'PaymentMethod' => trim(strtoupper($row[$selection['PaymentMethod']])),
+                            'PaymentType' => trim(ucfirst($row[$selection['PaymentType']])),
+                            'Status' => $PaymentStatus,
+                            'Amount' => trim($row[$selection['Amount']])
+                        );
+
+                        if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
+                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                        }
+
+                        if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
+                            $temp['Notes'] = trim($row[$selection['Notes']]);
+                        }
+                        $batch_insert[] = $temp;
+                    }
+                    $counter++;
                 }
-                $counter++;
                 $lineno++;
 
             } // loop over
@@ -266,7 +270,7 @@ class Payment extends \Eloquent {
 
             return ["ProcessID" => $ProcessID, "message" => $response_message, "status" => $response_status,'confirmshow'=>$confirm_show];
 
-        }
+        } 
     }
 
 }

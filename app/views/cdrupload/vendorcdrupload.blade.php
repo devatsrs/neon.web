@@ -30,7 +30,7 @@
     <div class="tab-pane active">
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="bulk_upload" enctype="multipart/form-data">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="bulk_upload" enctype="multipart/form-data">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -263,7 +263,7 @@
                         </div>
                     </div>
 
-                    <div class="panel-body" style="overflow-x: auto;">
+                    <div class="panel-body scrollx">
                         <table class="table table-bordered datatable" id="table-4">
                             <thead>
                             <tr>
@@ -468,7 +468,7 @@ var click_btn;
                 $("#rate_dropdown").addClass("hidden");
             }
         });
-        $('#RateCDR').trigger('click');
+        $('#RateCDR').trigger('change');
 
     });
     function createGrid(data){

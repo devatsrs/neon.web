@@ -35,7 +35,10 @@ $(function() {
                         labels:['Payment Received','Total Invoice','Total Outstanding'],
                         barColors: ['#3399FF', '#333399', '#3366CC'],
                             hoverCallback:function (index, options, content, row) {
-                                return '<div class="morris-hover-row-label">'+row.x+'</div><div style="color: #3399FF" class="morris-hover-point">Payment Received: {{$CurrencySymbol}}'+row.y+'</div><div style="color: #333399" class="morris-hover-point">Total Invoice: {{$CurrencySymbol}}'+row.z+'</div><div style="color: #3366CC" class="morris-hover-point">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</div>'
+                                var StartDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-01';
+                                var lastday = new Date(2008, row.x.split('/')[0], 0).getDate();
+                                var EndDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-'+lastday;
+                                return '<div class="morris-hover-row-label">'+row.x+'</div><div  class="morris-hover-point"><a  style="color: #3399FF" target="_blank" href="'+baseurl+'/payments?StartDate='+StartDate+'&EndDate='+EndDate+'&Status=Approved&Type=Payment In&CurrencyID={{Input::get('CurrencyID')}}">Payment Received: {{$CurrencySymbol}}'+row.y+'</a></div><div  class="morris-hover-point"><a style="color: #333399" target="_blank" href="'+baseurl+'/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1&CurrencyID={{Input::get('CurrencyID')}}">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a></div><div  class="morris-hover-point"><a style="color: #3366CC" target="_blank" href="'+baseurl+'/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceStatus=send,awaiting,partially_paid&CurrencyID={{Input::get('CurrencyID')}}&InvoiceType=1">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a></div>'
                             }
 
                     });

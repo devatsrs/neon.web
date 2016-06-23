@@ -2,12 +2,49 @@
 @section('content')
 <br />
 <div class="row">
+    <div class="col-sm-12">
+        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
+            <div data-collapsed="0" class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Filter
+                    </div>
+                    <div class="panel-options">
+                        <a data-rel="collapse" href="#">
+                            <i class="entypo-down-open"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label" for="Startdate">Start date</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="Startdate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_startdate}}" data-enddate="{{date('Y-m-d')}}" />
+                        </div>
+                        <label class="col-sm-1 control-label" for="field-1">End Date</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="Enddate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_enddate}}" data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}" />
+                        </div>
+
+                    </div>
+                    <p style="text-align: right;">
+                        <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
+                            <i class="entypo-search"></i>Search
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+<div class="row">
     <div class="col-sm-3">
                 <div class="invoice_expsense panel panel-primary panel-table">
                     <div class="panel-heading">
                         <div class="panel-title">
                             <h3>Total Outstanding</h3>
-                            <span>Total Outstanding</span>
+
                         </div>
 
                         <div class="panel-options">
@@ -26,7 +63,7 @@
                 <div class="panel-heading">
                     <div class="panel-title">
                         <h3>Invoices & Expenses</h3>
-                        <span>Invoices & Expenses</span>
+
                     </div>
 
                     <div class="panel-options">
@@ -195,7 +232,7 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
         "bDestroy": true,
         "bProcessing": true,
         "bServerSide": true,
-        "sAjaxSource": baseurl + "/billing_dashboard/ajaxgrid_top_pincode",
+        "sAjaxSource": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/type",
         "fnServerParams": function (aoData) {
             aoData.push(
                     {"name": "Pincode", "value": Pincode},
@@ -229,9 +266,15 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
             "aButtons": [
                 {
                     "sExtends": "download",
-                    "sButtonText": "Export Data",
-                    "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode", //baseurl + "/generate_xls.php",
-                    sButtonClass: "save-collection"
+                    "sButtonText": "EXCEL",
+                    "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/xlsx", //baseurl + "/generate_xls.php",
+                    sButtonClass: "save-collection btn-sm"
+                },
+                {
+                    "sExtends": "download",
+                    "sButtonText": "CSV",
+                    "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/csv", //baseurl + "/generate_csv.php",
+                    sButtonClass: "save-collection btn-sm"
                 }
             ]
         },

@@ -4,7 +4,7 @@ class BillingSubscriptionController extends \BaseController {
 
     var $model = 'BillingSubscription';
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();                
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
@@ -18,11 +18,20 @@ class BillingSubscriptionController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $billexports = json_decode(json_encode($excel_data),true);
-            Excel::create('Billing Subscription', function ($excel) use ($billexports) {
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($billexports);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($billexports);
+            }
+            /*Excel::create('Billing Subscription', function ($excel) use ($billexports) {
                 $excel->sheet('Billing Subscription', function ($sheet) use ($billexports) {
                     $sheet->fromArray($billexports);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
 
@@ -132,5 +141,16 @@ class BillingSubscriptionController extends \BaseController {
             }
         }
     }
+	
+	function getSubscriptionData_ajax($id){		
+       $BillingSubscription = BillingSubscription::find($id);
+	   Log::info($BillingSubscription);
+		if(empty($BillingSubscription)){
+			return Response::json(array("status" => "failed", "message" => "Subscription Not found." ));
+		}else{
+			return Response::json($BillingSubscription);
+		}
+	
+	}
 
 }

@@ -23,6 +23,18 @@
         <i class="entypo-cancel"></i>
         Credit Control
     </a>
+    <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
+        <i class="entypo-plus"></i>
+        Add Opportunity
+    </a>
+
+    @if($account->VerificationStatus == Account::NOT_VERIFIED)
+     <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
+        <i class="entypo-check"></i>
+        Verify
+    </a>
+    @endif
+
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Authentication Rule
@@ -170,25 +182,26 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
-                    </div>
+ 
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
+                    
+                     <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2"))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit"))}}
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2",'disabled'))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit",'disabled'))}}
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -204,7 +217,10 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
-
+ <label for="NominalAnalysisNominalAccountNumber" class="col-sm-2 control-label">Nominal Code</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                    </div>
 
                 </div>
                 <script>
@@ -213,9 +229,9 @@
                     });
                 </script>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Customer Panel Password</label>
+                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
+                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">CLI</label>
@@ -250,12 +266,7 @@
                     </div>
                     <input type="hidden" class="form-control"  name="CustomerCLI" id="field-1" placeholder="" value="{{$account->CustomerCLI}}" />
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
-                    </div>
-                </div>
+                
                 <div class="panel-title desc clear">
                     Description
                 </div>
@@ -264,6 +275,14 @@
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
                 </div>
+                
+                            <div class="form-group">            
+                    <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
+                    <div class="col-sm-4">
+        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
+                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
+                    </div>  
+                    </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)
@@ -402,7 +421,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                     <div class="col-sm-4">
-                        {{Form::select('TaxRateId[]', $taxrates, (isset($account->TaxRateId)? explode(',',$account->TaxRateId) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
+                        {{Form::select('TaxRateId[]', $taxrates, (isset($account->TaxRateId)? explode(',',$account->TaxRateId) : explode(',',$DefaultTextRate) ) ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
@@ -581,7 +600,47 @@
 </div>
 </div>
 <script type="text/javascript">
+    var accountID = '{{$account->AccountID}}';
+    var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
+		//account status start
+		$(".change_verification_status").click(function(e) {
+		if (!confirm('Are you sure you want to change verification status?')) {
+			return false;
+		}
+		
+
+		var id = $(this).attr("data-id");
+		varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/'+{{Account::VERIFIED}}
+		varification_url = varification_url.replace('{id}',id);
+
+		$.ajax({
+			url: varification_url,
+			type: 'POST',
+			dataType: 'json',
+			success: function(response) {
+				$(this).button('reset');
+				if (response.status == 'success') {
+					$('.toast-error').remove();
+					$('.change_verification_status').remove();
+					toastr.success(response.message, "Success", toastr_opts);					
+				} else {
+					toastr.error(response.message, "Error", toastr_opts);
+				}
+			},
+
+			// Form data
+			//data: {},
+			cache: false,
+			contentType: false,
+			processData: false
+		});
+		return false;
+	});
+		//account status end
+		
+		
+		
         $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
         $("#save_account").click(function (ev) {
             ev.preventDefault();
@@ -766,8 +825,6 @@
 
             @if ($account->VerificationStatus == Account::NOT_VERIFIED)
                 $(".btn-toolbar .btn").first().button("toggle");
-            @elseif ($account->VerificationStatus == Account::PENDING_VERIFICATION)
-                $(".btn-toolbar .btn").first().next().button("toggle");
             @elseif ($account->VerificationStatus == Account::VERIFIED)
                 $(".btn-toolbar .btn").last().button("toggle");
             @endif
@@ -775,10 +832,110 @@
             $("#tags").select2({
                 tags:{{$tags}}
              });
+
+        $('#createopportunity').on('click',function(){
+            $('#add-edit-opportunity-form').trigger('reset');
+            $('#add-edit-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+            if(accountID) {
+                var url = baseurl + '/opportunity/' + accountID + '/getlead';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        setunsetreadonly(response[0],true);
+                        $('#add-edit-modal-opportunity').modal('show');
+                    },
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+
+        $('#add-edit-modal-opportunity .reset').click(function(){
+            var colorPicker = $(this).parents('.form-group').find('[type="text"].colorpicker');
+            var color = $(this).attr('data-color');
+            setcolor(colorPicker,color);
+        });
+
+        $(document).on('mouseover','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            setrating(currentrateid);
+        });
+        $(document).on('click','#rating i',function(){
+            var currentrateid = $(this).attr('rate-id');
+            $('#rating input[name="Rating"]').val(currentrateid);
+            setrating(currentrateid);
+        });
+        $(document).on('mouseleave','#rating',function(){
+            var defultrateid = $('#rating input[name="Rating"]').val();
+            setrating(defultrateid);
+        });
+
+        $('#add-edit-opportunity-form').submit(function(e){
+            e.preventDefault();
+            var url = baseurl + '/accounts/'+accountID+'/createOpportunity';
+            var formData = new FormData($('#add-edit-opportunity-form')[0]);
+            $.ajax({
+                url: url,  //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if(response.status =='success'){
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('#add-edit-modal-opportunity').modal('hide');
+                    }else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                    $("#opportunity-update").button('reset');
+                },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
+        $('.opportunityTags').select2({
+            tags:{{$opportunityTags}}
+        });
+
+        function setunsetreadonly(data,status){
+            for(var i = 0 ; i< readonly.length; i++){
+                $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val('');
+                $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
+                if(data){
+                    $('#add-edit-opportunity-form [name="'+readonly[i]+'"]').val(data[readonly[i]]);
+                }
+            }
+        }
+
+        function setcolor(elem,color){
+            elem.colorpicker('destroy');
+            elem.val(color);
+            elem.colorpicker({color:color});
+            elem.siblings('.input-group-addon').find('.color-preview').css('background-color', color);
+        }
+
+        function setrating(currentrateid){
+            $('#rating i').css('color','black');
+            $('#rating i').each(function(){
+                var rateid = $(this).attr('rate-id');
+                if(currentrateid<rateid){
+                    return false;
+                }
+                $(this).css('color','#e9dc3c');
+            });
+        }
     });
 </script>
 
 <!--@include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('accounts/update/'.$account->AccountID)))-->
+    @include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
 
 @stop
 @section('footer_ext')
@@ -846,4 +1003,144 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="add-edit-modal-opportunity">
+    <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-content">
+            <form id="add-edit-opportunity-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add New Opportunity</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-2">Account Owner *</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('UserID',$account_owners,User::get_userID(),array("class"=>"selectboxit",'disabled'))}}
+                                </div>
+                                <label for="field-5" class="control-label col-sm-2">Opportunity Name *</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="leads">
+                                    <label for="field-5" class="control-label col-sm-2">Account</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('AccountID',$accounts,'',array("class"=>"selectboxit",'disabled'))}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-2">Company</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="Company" class="form-control" id="field-5">
+                                </div>
+                                <label for="field-5" class="control-label col-sm-2">Contact Name</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="ContactName" class="form-control" id="field-5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-2">Phone Number</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="Phone" class="form-control" id="field-5">
+                                </div>
+                                <label for="field-5" class="control-label col-sm-2">Email Address</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="Email" class="form-control" id="field-5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-2">Select Board</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                </div>
+                                <label for="field-5" class="control-label col-sm-2">Select Background</label>
+                                <div class="col-sm-3 input-group">
+                                    <input name="BackGroundColour" type="text" class="form-control colorpicker" value="#303641" />
+                                    <div class="input-group-addon">
+                                        <i class="color-preview"></i>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button class="btn btn-xs btn-danger reset" data-color="#303641" type="button">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-2">Text Color</label>
+                                <div class="col-sm-3 input-group">
+                                    <input name="TextColour" type="text" class="form-control colorpicker" value="#ffffff" />
+                                    <div class="input-group-addon">
+                                        <i class="color-preview"></i>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <button class="btn btn-xs btn-danger reset" data-color="#ffffff" type="button">Reset</button>
+                                </div>
+                                <label for="field-5" class="control-label col-sm-2">Tags</label>
+                                <div class="col-sm-4 input-group">
+                                    <input class="form-control opportunityTags" name="Tags" type="text" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="input-1" class="control-label col-sm-2">Rate This</label>
+                                <div id="rating" class="col-sm-4">
+                                    <i rate-id="1" class="entypo-star"></i>
+                                    <i rate-id="2" class="entypo-star"></i>
+                                    <i rate-id="3" class="entypo-star"></i>
+                                    <i rate-id="4" class="entypo-star"></i>
+                                    <i rate-id="5" class="entypo-star"></i>
+                                    <input type="hidden" name="Rating" value="1" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="OpportunityID">
+                    <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+setTimeout(function(){
+	$('#CustomerPassword_hide').hide();
+	},1000);
+</script>
 @stop

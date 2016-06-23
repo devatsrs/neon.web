@@ -72,7 +72,7 @@
                 "bProcessing": true,
                 "bServerSide": true,
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "sAjaxSource": baseurl + "/invoice_log/ajax_datagrid/{{$id}}",
+                "sAjaxSource": baseurl + "/invoice_log/ajax_datagrid/{{$id}}/type",
                 "fnServerParams": function(aoData) {
                     aoData.push();
                     data_table_extra_params.length = 0;
@@ -104,9 +104,15 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/invoice_log/ajax_datagrid/{{$id}}",
-                                    sButtonClass: "save-collection"
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/invoice_log/ajax_datagrid/{{$id}}/xlsx",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/invoice_log/ajax_datagrid/{{$id}}/csv",
+                                    sButtonClass: "save-collection btn-sm"
                                 }
                             ]
                         },
@@ -122,7 +128,7 @@
                 "bProcessing": true,
                 "bServerSide": true,
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "sAjaxSource": baseurl + "/invoice_log/ajax_invoice_datagrid/{{$id}}",
+                "sAjaxSource": baseurl + "/invoice_log/ajax_invoice_datagrid/{{$id}}/type",
                 "fnServerParams": function(aoData) {
                     aoData.push();
                     data_table_extra_params.length = 0;
@@ -149,9 +155,15 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": baseurl + "/invoice_log/ajax_invoice_datagrid/{{$id}}",
-                                    sButtonClass: "save-collection"
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/invoice_log/ajax_invoice_datagrid/{{$id}}/xlsx",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/invoice_log/ajax_invoice_datagrid/{{$id}}/csv",
+                                    sButtonClass: "save-collection btn-sm"
                                 }
                             ]
                         },

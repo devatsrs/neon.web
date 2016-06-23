@@ -4,7 +4,8 @@ jQuery.extend( true, jQuery.fn.dataTable.defaults, {
 	"sPaginationType": "bootstrap",
 	"oLanguage": {
 		"sLengthMenu": "_MENU_ records per page"
-	}
+	},
+	"bAutoWidth": false
 } );
 
 

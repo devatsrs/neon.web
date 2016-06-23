@@ -6,7 +6,7 @@ class UsageDetail extends \Eloquent {
 
     protected $guarded = array('UsageDetailID');
 
-    protected $table = 'tblUsageDetail';
+    protected $table = 'tblUsageDetails';
 
     protected  $primaryKey = "UsageDetailID";
 

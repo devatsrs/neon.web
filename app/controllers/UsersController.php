@@ -129,7 +129,7 @@ class UsersController extends BaseController {
         return Datatables::of($users)->make();
     }
 
-    public function exports() {
+    public function exports($type) {
             $data = Input::all();
             $companyID = User::get_companyID();
 
@@ -145,11 +145,17 @@ class UsersController extends BaseController {
 //                            });
 //                })->download('xls');
 
-            Excel::create('Users', function ($excel) use ($users) {
-                $excel->sheet('Users', function ($sheet) use ($users) {
-                    $sheet->fromArray($users);
-                });
-            })->download('xls');
+            $excel_data = json_decode(json_encode($users),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Users.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Users.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
     }
 
     public function edit_profile($id){

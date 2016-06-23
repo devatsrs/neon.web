@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`root` PROCEDURE `prc_GetVendorCodes`(IN `p_companyid` INT , IN `p_trunkID` INT, IN `p_contryID` VARCHAR(50) , IN `p_code` VARCHAR(50), IN `p_PageNumber` INT , IN `p_RowspPage` INT , IN `p_lSortCol` NVARCHAR(50) , IN `p_SortOrder` NVARCHAR(5) , IN `p_isExport` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetVendorCodes`(IN `p_companyid` INT , IN `p_trunkID` INT, IN `p_contryID` VARCHAR(50) , IN `p_code` VARCHAR(50), IN `p_PageNumber` INT , IN `p_RowspPage` INT , IN `p_lSortCol` NVARCHAR(50) , IN `p_SortOrder` NVARCHAR(5) , IN `p_isExport` INT)
 BEGIN
 
 	DECLARE v_OffSet_ int;

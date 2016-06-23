@@ -171,7 +171,7 @@ class CodeDecksController extends \BaseController {
                 }
                 $fullPath = $amazonPath . $file_name;
                 $data['full_path'] = $fullPath;
-
+                $data['codedeckname'] = BaseCodeDeck::getCodeDeckName($data['codedeckid']);
                 try {
                     DB::beginTransaction();
                     unset($data['excel']); //remove unnecesarry object.
@@ -208,12 +208,12 @@ class CodeDecksController extends \BaseController {
     }
 
 
-    public function exports() {
+    public function exports($type) {
             $companyID = User::get_companyID();
 
             $data = Input::all();
 
-            $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'null';
+            $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
             $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
             $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
 
@@ -224,11 +224,16 @@ class CodeDecksController extends \BaseController {
             $codedecks  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));
 
-            Excel::create('Code Decks', function ($excel) use ($codedecks) {
-                $excel->sheet('Code Decks', function ($sheet) use ($codedecks) {
-                    $sheet->fromArray($codedecks);
-                });
-            })->download('xls');
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($codedecks);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($codedecks);
+            }
+
     }
 
     public function delete($id){
@@ -258,13 +263,57 @@ class CodeDecksController extends \BaseController {
     public  function update_selected(){
 
             $data = Input::all();
+            $updatedta = array();
+            $error = array();
+            $rules = array();
+            if(!empty($data['updateCountryID']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN'])){
+                if(!empty($data['updateCountryID'])){
+                    $updatedta['CountryID'] = $data['CountryID'];
+                }
+                if(!empty($data['updateDescription'])){
+                    if(!empty($data['Description'])){
+                        $updatedta['Description'] = $data['Description'];
+                    }else{
+
+                        $rules['Description'] = 'required';
+                    }
+
+                }
+                if(!empty($data['updateInterval1'])){
+                    if(!empty($data['Interval1'])){
+                        $updatedta['Interval1'] = $data['Interval1'];
+                    }else{
+                        $rules['Interval1'] = 'required | numeric';
+                        //return Response::json(array("status" => "failed", "message" => "Please Insert Interval."));
+                    }
+
+                }
+                if(!empty($data['updateIntervalN'])){
+                    if(!empty($data['IntervalN'])){
+                        $updatedta['IntervalN'] = $data['IntervalN'];
+                    }else{
+                        $rules['IntervalN'] = 'required | numeric';
+
+                    }
+
+                }
+
+                $validator = Validator::make($data, $rules);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No field selected to Update."));
+            }
+
             $companyID = User::get_companyID();
             $rateids='';
             if(empty($data['CodeDecks']) && !empty($data['criteria'])){
                 $criteria = json_decode($data['criteria'],true);
                 if(!empty($criteria['ft_codedeckid'])){
 
-                    $criteria['ft_country']=$criteria['ft_country']!= ''?$criteria['ft_country']:'null';
+                    $criteria['ft_country']=$criteria['ft_country']!= ''?$criteria['ft_country']:'0';
                     $criteria['ft_code'] = $criteria['ft_code'] != ''?"'".$criteria['ft_code']."'":'null';
                     $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
 
@@ -283,17 +332,18 @@ class CodeDecksController extends \BaseController {
                 $rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
             }
             //$companyID = User::get_companyID();
-            $rules = array(
-                'CountryID' => 'required',
+            /*$rules = array(
+                //'CountryID' => 'required',
                 'Description' => 'required',
             );
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
-            }
+            }*/
             if(is_array($rateids) && !empty($rateids)){
-                $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->update(array('CountryID'=>$data['CountryID'],'Description'=>$data['Description'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN']));
+
+                $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->update($updatedta);
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Updated"));
                 } else {
@@ -306,15 +356,23 @@ class CodeDecksController extends \BaseController {
     public  function delete_selected(){
             try {
                 $data = Input::all();
-                $rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
+                //$rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
+                $rateids = $data['CodeDecks'];
                 $companyID = User::get_companyID();
-                if(is_array($rateids) && !empty($rateids)){
-                    $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->delete();
+                $CodeDeckID = $data['CodeDeckID'];
+
+                if(!empty($rateids) || !empty($CodeDeckID)){
+                    //$result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->delete();
+                    $query = "call prc_RateDeleteFromCodedeck('".$companyID."','" . $CodeDeckID . "','".$rateids."',0,'','')";
+                    //echo $query;exit;
+                    $result = DB::statement($query);
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
                     }
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Please select CodeDeck."));
                 }
             } catch (Exception $ex) {
                 return Response::json(array("status" => "failed", "message" => "CodeDeck is in Use, You cant delete this CodeDeck."));
@@ -325,24 +383,21 @@ class CodeDecksController extends \BaseController {
             try {
                 $data = Input::all();
                 $companyID = User::get_companyID();
-                $query = CodeDeck::where('CompanyID',$companyID);
-                if($data['ft_country']){
-                    $query->where('CountryID',$data['ft_country']);
-                }
-                if($data['ft_code']){
-                    $query->where('Code','like',str_replace('*','%',$data['ft_code']));
-                }
-                if($data['ft_description']){
-                    $query->where('Description','like',str_replace('*','%',$data['ft_description']));
-                }
-                if($data['ft_codedeckid']){
-                    $query->where('CodeDeckId',$data['ft_codedeckid']);
-                }
-                $result = $query->delete();
-                if ($result) {
-                    return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
+                $CodeDeckID = $data['ft_codedeckid'];
+                $data['ft_country'] = !empty($data['ft_country']) ? $data['ft_country'] : '0';
+                $data['ft_code'] = !empty($data['ft_code']) ? $data['ft_code'] : '';
+                $data['Description'] = !empty($data['Description']) ? $data['Description'] : '';
+
+                if(!empty($CodeDeckID)){
+                    $query = "call prc_RateDeleteFromCodedeck('".$companyID."','" . $CodeDeckID . "','',".$data['ft_country'].",'".$data['ft_code']."','".$data['Description']."')";
+                    $result = DB::statement($query);
+                    if ($result) {
+                        return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
+                    }
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Please select CodeDeck."));
                 }
 
             } catch (Exception $ex) {
@@ -425,14 +480,24 @@ class CodeDecksController extends \BaseController {
             }
         }
     }
-    public function base_exports() {
+    public function base_exports($type) {
             $CompanyID = User::get_companyID();
             $codedecks = BaseCodeDeck::where(["CompanyId" => $CompanyID])->get(["CodeDeckName","updated_at","ModifiedBy"]);
 
-            Excel::create('Code Decks', function ($excel) use ($codedecks) {
+            $excel_data = json_decode(json_encode($codedecks),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Code Decks', function ($excel) use ($codedecks) {
                 $excel->sheet('Code Decks', function ($sheet) use ($codedecks) {
                     $sheet->fromArray($codedecks);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 }

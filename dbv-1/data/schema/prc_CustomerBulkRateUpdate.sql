@@ -106,7 +106,7 @@ BEGIN
 						AND ( ( p_CountryId IS NULL )  OR ( p_CountryId IS NOT NULL AND r.CountryID = p_CountryId ) )
       				AND cr.RateID IS NULL; 
       				
-      CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId);
+     CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId);
 
     	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END

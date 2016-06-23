@@ -131,9 +131,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/email_template/exports", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/email_template/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/email_template/exports/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },

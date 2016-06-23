@@ -2,7 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAjaxUserList`(IN `p_CompanyI
 BEGIN
 
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;  
-	/* get users from roleid */
+	
 	IF p_action = 1
 	THEN
 
@@ -25,7 +25,7 @@ BEGIN
 	  desc, UserName asc;
 
 	END IF;
-	/* get users from ResourceCategoryID */
+	
 	IF p_action = 2
 	THEN
 

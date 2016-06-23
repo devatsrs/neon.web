@@ -1,11 +1,12 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT   
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_isAdmin` INT, IN `p_billing_time` INT   
 
 , IN `p_cdr_type` CHAR(1))
 BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
 			AccountID int,
-			AccountName varchar(50),
+			AccountName varchar(100),
+			GatewayAccountID varchar(100),
 			trunk varchar(50),
 			area_prefix varchar(50),
 			pincode VARCHAR(50),
@@ -13,12 +14,14 @@ BEGIN
 			UsageDetailID int,
 			duration int,
 			billed_duration int,
+			billed_second int,
 			cli varchar(100),
 			cld varchar(100),
 			cost decimal(18,6),
 			connect_time datetime,
 			disconnect_time datetime,
-			is_inbound tinyint(1) default 0
+			is_inbound tinyint(1) default 0,
+			ID INT
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -26,6 +29,7 @@ BEGIN
 	FROM (SELECT
 		uh.AccountID,
 		a.AccountName,
+		uh.GatewayAccountID,
 		trunk,
 		area_prefix,
 		pincode,
@@ -33,12 +37,14 @@ BEGIN
 		UsageDetailID,
 		duration,
 		billed_duration,
+		billed_second,
 		cli,
 		cld,
 		cost,
 		connect_time,
 		disconnect_time,
-		ud.is_inbound
+		ud.is_inbound,
+		ud.ID
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -53,6 +59,9 @@ BEGIN
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
+	AND (p_CLI = '' OR (p_CLI!= '' AND cli = p_CLI)) 
+	AND (p_CLD = '' OR (p_CLD!= '' AND cld = p_CLD)) 
+	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))
 	) tbl
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)

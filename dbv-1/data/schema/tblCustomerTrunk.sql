@@ -15,7 +15,8 @@ CREATE TABLE `tblCustomerTrunk` (
   `CompanyGatewayIDs` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `RoutinePlanStatus` tinyint(3) unsigned DEFAULT NULL,
   `RateTableAssignDate` datetime DEFAULT NULL,
-  `UseInBilling` tinyint(1) unsigned zerofill NOT NULL DEFAULT '0',
+  `UseInBilling` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`CustomerTrunkID`),
-  UNIQUE KEY `IX_AccountIDTrunkID_Unique` (`AccountID`,`TrunkID`)
+  UNIQUE KEY `IX_AccountIDTrunkID_Unique` (`AccountID`,`TrunkID`),
+  KEY `Index_AccountID_TrunkID_Status` (`TrunkID`,`AccountID`,`Status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

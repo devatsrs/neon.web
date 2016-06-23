@@ -7,5 +7,7 @@ CREATE TABLE `tblVendorCDRHeader` (
   `StartDate` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`VendorCDRHeaderID`)
+  PRIMARY KEY (`VendorCDRHeaderID`),
+  KEY `Index_C_CG_A_GA` (`CompanyID`,`CompanyGatewayID`,`GatewayAccountID`,`AccountID`),
+  KEY `Index_A_S_CG` (`AccountID`,`StartDate`,`CompanyGatewayID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -68,6 +68,7 @@ class RateGeneratorsController extends \BaseController {
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
+            'Policy' => 'required',
         );
 
         $validator = Validator::make($data, $rules);
@@ -145,6 +146,7 @@ class RateGeneratorsController extends \BaseController {
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
+            'Policy' => 'required',
         );
 
 
@@ -495,6 +497,7 @@ class RateGeneratorsController extends \BaseController {
                 if($action == 'create'){
                     $RateTableName = Input::get('RateTableName');
                     $data["rate_table_name"] = $RateTableName;
+                    $data['ratetablename'] = $RateTableName;
                     $rules = array(
                         'rate_table_name' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].',RateGeneratorID,'.$id,
                         'EffectiveDate'=>'required'
@@ -502,6 +505,7 @@ class RateGeneratorsController extends \BaseController {
                 }else if($action == 'update'){
                     $RateTableID = Input::get('RateTableID');
                     $data["RateTableId"] = $RateTableID;
+                    $data['ratetablename'] = RateTable::where(["RateTableId" => $RateTableID])->pluck('RateTableName');
                     $rules = array(
                         'RateTableId' => 'required',
                         'EffectiveDate'=>'required'
@@ -525,6 +529,7 @@ class RateGeneratorsController extends \BaseController {
                         $data["RateTableID"] = $RateTableID;
                     }
                 }*/
+
                 $result = Job::logJob("GRT", $data);
                 if ($result ['status'] != "success") {
                     DB::rollback();
@@ -557,7 +562,7 @@ class RateGeneratorsController extends \BaseController {
             }
         }
     }
-    public function exports() {
+    public function exports($type) {
             $companyID = User::get_companyID();
             $RateGenerators = RateGenerator::join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")->where(["tblRateGenerator.CompanyID" => $companyID])
                 ->orderBy("RateGeneratorID", "desc")
@@ -566,11 +571,16 @@ class RateGeneratorsController extends \BaseController {
                     'tblTrunk.Trunk',
                     'tblRateGenerator.Status',
                 ));
-            Excel::create('Rate Generator', function ($excel) use ($RateGenerators) {
-                $excel->sheet('Rate Generator', function ($sheet) use ($RateGenerators) {
-                    $sheet->fromArray($RateGenerators);
-                });
-            })->download('xls');
+            $excel_data = json_decode(json_encode($RateGenerators),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
     }
 
     public function ajax_load_rate_table_dropdown(){

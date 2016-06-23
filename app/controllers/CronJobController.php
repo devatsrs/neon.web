@@ -1,22 +1,27 @@
 <?php
 
 class CronJobController extends \BaseController {
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
         $columns = array('JobTitle','Title','Status');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetCronJob (".$companyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $data['Active'] = $data['Active']==''?2:$data['Active'];
+        $query = "call prc_GetCronJob (".$companyID.",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Cron Job', function ($excel) use ($excel_data) {
-                $excel->sheet('Cron Job', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
         }
         $query .=',0)';
 
@@ -128,20 +133,21 @@ class CronJobController extends \BaseController {
     public function delete($id)
     {
         if( intval($id) > 0){
-            if(!CronJob::checkForeignKeyById($id)) {
+           /* if(!CronJob::checkForeignKeyById($id)) {*/
                 try {
                     $result = CronJob::find($id)->delete();
-                    if ($result) {
+					CronJobLog::where("CronJobID",$id)->delete();
+                   	 if ($result) {
                         return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted"));
-                    } else {
+                   	 } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Cron Job."));
-                    }
-                } catch (Exception $ex) {
+                    	}
+                	} catch (Exception $ex) {
                     return Response::json(array("status" => "failed", "message" => "Cron Job is in Use, You cant delete this Cron Job."));
-                }
-            }else{
+                	}
+           /* }else{
                 return Response::json(array("status" => "failed", "message" => "Cron Job is in Use, You cant delete this Cron Job."));
-            }
+            }*/
         }else{
             return Response::json(array("status" => "failed", "message" => "Cron Job is in Use, You cant delete this Cron Job."));
         }
@@ -187,7 +193,7 @@ class CronJobController extends \BaseController {
 
 
             $commandconfig = json_decode($commandconfig,true);
-            //print_r($commandconfigval);exit;
+
 
             return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts'));
         }
@@ -197,7 +203,7 @@ class CronJobController extends \BaseController {
     public function history($id){
         return View::make('cronjob.history', compact('id'));
     }
-    public function history_ajax_datagrid($id) {
+    public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data = Input::all();
@@ -207,16 +213,20 @@ class CronJobController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetCronJobHistory (".$id.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
-
-
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Cron Job History', function ($excel) use ($excel_data) {
-                $excel->sheet('Cron Job History', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+
         }
         $query .=',0)';
 
@@ -264,5 +274,11 @@ class CronJobController extends \BaseController {
         }else{
             return Response::json(array("status" => "failed", "message" => "Cron Job Process is not terminated"));
         }
+    }
+
+    public function cronjob_monitor(){
+
+        return View::make('cronjob.cronjob_monitor', compact(''));
+
     }
 }

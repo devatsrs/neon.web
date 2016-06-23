@@ -14,9 +14,6 @@
 
 @include('includes.errors')
 @include('includes.success')
-
-
-
 <p style="text-align: right;">
     @if(User::checkCategoryPermission('Invoice','Add'))
     <a href="javascript:;" id="invoice-in" class="btn btn-primary ">
@@ -39,9 +36,12 @@
         Bulk Invoice Generate.
     </a>-->
 </p>
-<div class="row">
+<div class="tab-content">
+    <div class="tab-pane active">
+
+    <div class="row">
     <div class="col-md-12">
-        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -53,123 +53,128 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Account</label>
+                        <label for="field-1" class="col-sm-1 control-label">Account</label>
                         <div class="col-sm-2">
                             {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
+                        <label for="field-1" class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):array()), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
-
+            <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
+                            </p>
+                        </div>
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
                         <div class="col-sm-2">
                             {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                         </div>
-                         <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
+                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                              {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
+                        <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                              {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Hide Zero Invoice Value</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox">
-                            </p>
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
+                   
+            
+                          <label for="field-1" class="col-sm-1 control-label">Currency</label>
+                     <div class="col-sm-2">
+                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
+                    </div>                  
+                </div>
+                  <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-search"></i>
                             Search
                         </button>
                     </p>
-                </div>
+            </div>
             </div>
         </form>
     </div>
 </div>
-<div class="row">
+    <div class="row">
  <div  class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:230px;">
-            <span style="text-align: right;padding-right: 10px;"><button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button></span>
-            <!--<span style="text-align: right;padding-right: 10px;"><button type="button" id="selectallbutton"  class="btn btn-primary "><i class="entypo-check"></i><span>Select all found Accounts</span></button></span>-->
-            @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                @if(User::checkCategoryPermission('Invoice','Send'))
-                <li>
-                    <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;" style="width:100%">
-                        Send Invoice
-                    </a>
-                </li>
-                @endif
-                @if(User::checkCategoryPermission('Invoice','Edit'))
-                <li>
-                    <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;" >
-                        Change Status
-                    </a>
-                </li>
-                @endif
-                @if(User::checkCategoryPermission('Invoice','Generate'))
-                <li>
-                    <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;" >
-                        Regenerate
-                    </a>
-                </li>
-                @endif
-                @if(is_authorize())
-                    @if(User::checkCategoryPermission('Invoice','Edit'))
+        <div class="input-group-btn pull-right" style="width:180px;">
+                 <span style="text-align: right;padding-right: 10px;">
+                    <button type="button" id="sage-export"  class="btn btn-primary "><span>Sage Export</span></button>
+                </span>
+                @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                    @if(User::checkCategoryPermission('Invoice','Send'))
                     <li>
-                        <a class="pay_now create" id="pay_now" href="javascript:;" >
-                            Pay Now
+                        <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;" style="width:100%">
+                            Send Invoice
                         </a>
                     </li>
                     @endif
+                    @if(User::checkCategoryPermission('Invoice','Edit'))
+                    <li>
+                        <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;" >
+                            Change Status
+                        </a>
+                    </li>
+                    @endif
+                    @if(User::checkCategoryPermission('Invoice','Generate'))
+                    <li>
+                        <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;" >
+                            Regenerate
+                        </a>
+                    </li>
+                    @endif
+                    @if(is_authorize())
+                        @if(User::checkCategoryPermission('Invoice','Edit'))
+                        <li>
+                            <a class="pay_now create" id="pay_now" href="javascript:;" >
+                                Pay Now
+                            </a>
+                        </li>
+                        @endif
+                    @endif
+                    @if(User::checkCategoryPermission('Invoice','Email'))
+                    <li>
+                        <a class="pay_now create" id="bulk_email" href="javascript:;" >
+                            Bulk Email
+                        </a>
+                    </li>
+                    @endif
+                </ul>
                 @endif
-                @if(User::checkCategoryPermission('Invoice','Email'))
-                <li>
-                    <a class="pay_now create" id="bulk_email" href="javascript:;" >
-                        Bulk Email
-                    </a>
-                </li>
-                @endif
-            </ul>
-            @endif
-            <form id="clear-bulk-rate-form" >
+             <form id="clear-bulk-rate-form" >
                 <input type="hidden" name="CustomerRateIDs" value="">
             </form>
         </div><!-- /btn-group -->
+     <div class="clear"><br></div>
+
  </div>
-    <div class="clear"></div>
-    </div>
-<br>
-<table class="table table-bordered datatable" id="table-4">
+</div>
+
+
+ <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="5%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
-                <div class="pull-right"> Sent/Receive</div></th>
-        <th width="20%">Account Name</th>
+        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
+                <div class="pull-right">&nbsp;</div></th>
+        <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
         <th width="10%">Grand Total</th>
         <th width="10%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
-        <th width="25%">Action</th>
+        <th width="20%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -178,6 +183,9 @@
     </tbody>
 </table>
 
+
+ </div>
+</div>
 <script type="text/javascript">
 var $searchFilter = {};
 var checked='';
@@ -191,25 +199,26 @@ var postdata;
         var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
         $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
         $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
-        $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val();
+        $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
         $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
         $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+		$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/invoice/ajax_datagrid",
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
             },
              "aoColumns":
             [
@@ -217,9 +226,9 @@ var postdata;
                                 mRender: function ( id, type, full ) {
                                      var action , action = '<div class = "hiddenRowData" >';
                                      if (id != '{{Invoice::INVOICE_IN}}'){
-                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Sent"><i class="entypo-left-bold"></i>SNT</a>';
+                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-left-bold"></i>SNT</a>';
                                       }else{
-                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Received"><i class="entypo-right-bold"></i>RCV</a>';
+                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                                       }
                                       if (full[0] != '{{Invoice::INVOICE_IN}}'){
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
@@ -264,7 +273,7 @@ var postdata;
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
                 {  "bSortable": true },  // 4 GrandTotal
-                {  "bSortable": true },  // 4 GrandTotal
+                {  "bSortable": true },  // 4 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
                         return invoicestatus[full[6]];
@@ -354,13 +363,20 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/invoice/ajax_datagrid", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/invoice/ajax_datagrid/csv", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },
            "fnDrawCallback": function() {
+				   get_total_grand(); //get result total
                 $('#table-4 tbody tr').each(function(i, el) {
                     if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                         if (checked != '') {
@@ -436,17 +452,56 @@ var postdata;
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
-            $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val();
+            $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+			$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
             data_table.fnFilter('', 0);
             return false;
         });
 		
 		
+				function get_total_grand()
+		{
+			 $.ajax({
+                url: baseurl + "/invoice/ajax_datagrid_total",
+                type: 'GET',
+                dataType: 'json',
+				data:{
+			"InvoiceType":$("#invoice_filter [name='InvoiceType']").val(),
+			"AccountID":$("#invoice_filter select[name='AccountID']").val(),
+			"InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
+			"InvoiceStatus":$("#invoice_filter select[name='InvoiceStatus']").val(),
+			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
+			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
+			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
+			"CurrencyID":$("#invoice_filter [name='CurrencyID']").val(),
+			"bDestroy": true,
+            "bProcessing":true,
+            "bServerSide":true,
+            "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[3, 'desc']],},
+                success: function(response1) {
+					//console.log("sum of result"+response1);
+						if(response1.total_grand!=null)
+						{ 
+						$('.result_row').remove();
+						$('.result_row').hide();							
+				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+						}
+					},
+			});	
+		}
+		
+		
 		
          $('#invoice-in').click(function(ev){
+
+
                 ev.preventDefault();
                 $('#add-invoice_in_template-form').trigger("reset");
                 $('#modal-invoice-in h4').html('Add Invoice');
@@ -454,20 +509,146 @@ var postdata;
                 $("#add-invoice_in_template-form [name='InvoiceID']").val('');
                 $('.file-input-name').text('');
                 $('#modal-invoice-in').modal('show');
+                reset_dispute();
+
         });
          $("#add-invoice_in_template-form [name='AccountID']").change(function(){
             $("#add-invoice_in_template-form [name='AccountName']").val( $("#add-invoice_in_template-form [name='AccountID'] option:selected").text());
-            var url = baseurl + '/payments/getcurrency/'+$("#add-invoice_in_template-form [name='AccountID'] option:selected").val();
-             if($("#add-invoice_in_template-form [name='AccountID'] option:selected").val() > 0) {
-                 $.get(url, function (Currency) {
-                     $("#currency").text('(' + Currency + ')');
+
+             var AccountID = $("#add-invoice_in_template-form [name='AccountID'] option:selected").val();
+             if(AccountID > 0 ) {
+                 var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                 $.get(url, function (response) {
+
+                     if( typeof response.status != 'undefined' && response.status == 'success'){
+                         $("#currency").text('(' + response.Currency_Symbol + ')');
+                     }
+
                  });
+
              }
+
+
+
         });
+
+        $(".btn.ignore").click(function(e){
+
+            reset_dispute();
+
+        });
+
+        $(".btn.reconcile").click(function(e){
+
+
+            e.preventDefault();
+            var curnt_obj = $(this);
+            curnt_obj.button('loading');
+
+
+            var formData =$('#add-invoice_in_template-form').serializeArray();
+
+            reconcile_url = baseurl + '/invoice/reconcile';
+            ajax_json(reconcile_url,formData, function(response){
+
+                $(".btn").button('reset');
+
+                if (response.status == 'success') {
+
+                    console.log(response);
+                    set_dispute(response);
+                }
+
+            });
+
+
+        });
+
+        function set_dispute(response){
+
+            if(typeof response.DisputeID != 'undefined'){
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeID]").val(response.DisputeID);
+
+            }else{
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeID]").val("");
+
+            }
+
+            if(typeof response.DisputeTotal == 'undefined'){
+
+                $(".reconcile_table").addClass("hidden");
+                $(".btn.ignore").addClass("hidden");
+
+
+            }else{
+
+                $(".reconcile_table").removeClass("hidden");
+                $(".btn.ignore").removeClass("hidden");
+            }
+
+            if(typeof response.DisputeAmount != 'undefined'){
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val(response.DisputeAmount);
+
+            }else{
+
+                $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val(response.DisputeDifference);
+            }
+
+
+            $('#add-invoice_in_template-form').find("table .DisputeTotal").text(response.DisputeTotal);
+            $('#add-invoice_in_template-form').find("table .DisputeDifference").text(response.DisputeDifference);
+            $('#add-invoice_in_template-form').find("table .DisputeDifferencePer").text(response.DisputeDifferencePer);
+
+
+            $('#add-invoice_in_template-form').find("table .DisputeMinutes").text(response.DisputeMinutes);
+            $('#add-invoice_in_template-form').find("table .MinutesDifference").text(response.MinutesDifference);
+            $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text(response.MinutesDifferencePer);
+
+
+            /*$('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val(response.DisputeTotal);
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val(response.DisputeDifference);
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val(response.DisputeDifferencePer);
+            $('#add-invoice_in_template-form').find("input[name=DisputeMinutes]").val(response.DisputeMinutes);
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifference]").val(response.MinutesDifference);
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val(response.MinutesDifferencePer);*/
+
+        }
+
+        function reset_dispute(){
+
+            $('#add-invoice_in_template-form').find("table .DisputeTotal").text("");
+            $('#add-invoice_in_template-form').find("table .DisputeDifference").text("");
+            $('#add-invoice_in_template-form').find("table .DisputeDifferencePer").text("");
+
+
+            $('#add-invoice_in_template-form').find("table .DisputeMinutes").text("");
+            $('#add-invoice_in_template-form').find("table .MinutesDifference").text("");
+            $('#add-invoice_in_template-form').find("table .MinutesDifferencePer").text("");
+
+
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeAmount]").val("")
+
+            /*$('#add-invoice_in_template-form').find("input[name=DisputeTotal]").val("");
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifference]").val("");
+            $('#add-invoice_in_template-form').find("input[name=DisputeDifferencePer]").val("");
+
+            $('#add-invoice_in_template-form').find("input[name=DisputeMinutes]").val("");
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifference]").val("");
+            $('#add-invoice_in_template-form').find("input[name=MinutesDifferencePer]").val("");*/
+
+            $(".reconcile_table").addClass("hidden");
+            $(".btn.ignore").addClass("hidden");
+
+        }
+
         $("#add-invoice_in_template-form").submit(function(e){
             e.preventDefault();
             var formData = new FormData($('#add-invoice_in_template-form')[0]);
-             var InvoiceID = $("#add-invoice_in_template-form [name='InvoiceID']").val()
+             var InvoiceID = $("#add-invoice_in_template-form [name='InvoiceID']").val();
             if( typeof InvoiceID != 'undefined' && InvoiceID != ''){
                 update_new_url = baseurl + '/invoice/update_invoice_in/'+InvoiceID;
             }else{
@@ -494,6 +675,10 @@ var postdata;
                      $("#add-invoice_in_template-form [name='EndTime']").val(response.EndTime);
                      $("#add-invoice_in_template-form [name='Description']").val(response.Description);
                      $("#add-invoice_in_template-form [name='InvoiceDetailID']").val(response.InvoiceDetailID);
+                     $("#add-invoice_in_template-form [name='TotalMinutes']").val(response.TotalMinutes);
+
+                     set_dispute(response);
+
                  },
                  type: 'POST'
              });
@@ -825,12 +1010,25 @@ var postdata;
         });
         $("#add-edit-payment-form [name='AccountID']").change(function(){
             $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
-            var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
+
+            /*var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
             if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
                 $.get(url, function (Currency) {
                     $("#AccountID_currency").text('(' + Currency + ')');
                 });
+            }*/
+
+            var AccountID = $("#add-edit-payment-form [name='AccountID'] option:selected").val()
+            if(AccountID >0) {
+                var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                $.get(url, function (response) {
+                     if( typeof response.status != 'undefined' && response.status == 'success'){
+                        $("#AccountID_currency").text('(' + response.Currency_Symbol + ')');
+                    }
+                });
+
             }
+
         });
         $("#bulk_email").click(function(){
             $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
@@ -949,6 +1147,7 @@ var postdata;
                 processData: false
             });
         });
+		
         $("#test").click(function(e){
             e.preventDefault();
             $("#BulkMail-form").find('[name="test"]').val(1);
@@ -1027,7 +1226,7 @@ var postdata;
                     data_table.fnFilter('', 0);
                 },1000);
         });
-
+ 
 });
 
 </script>
@@ -1099,7 +1298,7 @@ var postdata;
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Start Date</label>
                         <div class="col-sm-2">
-                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d',strtotime(" -1 day"))}}" />
+                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
                         </div>
                         <div class="col-sm-2">
                             <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
@@ -1133,6 +1332,65 @@ var postdata;
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="field-1">Total Seconds</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="TotalMinutes" class="form-control"  value="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="DisputeAmount" class="form-control"  value="" />
+                        </div>
+                    </div>
+                    <div class="form-group ">
+                        <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
+                        <div class="col-sm-4">
+                            <table class="reconcile_table table table-bordered datatable  hidden">
+                                <thead>
+                                <th></th>
+                                <th>Total</th>
+                                <th>Difference</th>
+                                <th>Difference %</th>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th>Amount</th>
+                                    <td><span class="DisputeTotal"></span></td>
+                                    <td><span class="DisputeDifference"></span></td>
+                                    <td><span class="DisputeDifferencePer"></span></td>
+                                </tr>
+                                <tr>
+                                    <th>Seconds</th>
+                                    <td><span class="DisputeMinutes"></span></td>
+                                    <td><span class="MinutesDifference"></span></td>
+                                    <td><span class="MinutesDifferencePer"></span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button" data-loading-text="Loading...">
+                                <i class="entypo-pencil"></i>
+                                Reconcile
+                            </button>
+                            <button class="btn ignore btn-danger btn-sm btn-icon icon-left hidden" type="button" data-loading-text="Loading...">
+                                <i class="entypo-pencil"></i>
+                                Ignore
+                            </button>
+
+                             <input type="hidden" name="DisputeID">
+
+                            {{--<input type="hidden" name="DisputeTotal">--}}
+                            {{--<input type="hidden" name="DisputeDifference">--}}
+                            {{--<input type="hidden" name="DisputeDifferencePer">--}}
+
+                            {{--<input type="hidden" name="DisputeMinutes">--}}
+                            {{--<input type="hidden" name="MinutesDifference">--}}
+                            {{--<input type="hidden" name="MinutesDifferencePer">--}}
+
+
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Description</label>
                         <div class="col-sm-4">
                             <input type="text" name="Description" class="form-control"  value="" />
@@ -1147,6 +1405,7 @@ var postdata;
                             <!--<br><span class="file-input-name"></span>-->
                         </div>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                      <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
@@ -1459,7 +1718,7 @@ var postdata;
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Invoice</label>
-                                    <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" id="InvoiceAuto"  name="InvoiceNo" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">

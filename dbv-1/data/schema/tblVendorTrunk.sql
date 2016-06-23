@@ -11,7 +11,8 @@ CREATE TABLE `tblVendorTrunk` (
   `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `UseInBilling` tinyint(1) unsigned zerofill DEFAULT '0',
+  `UseInBilling` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`VendorTrunkID`),
-  KEY `IX_AccountID_TrunkID_Status` (`AccountID`,`TrunkID`,`Status`)
+  KEY `IX_AccountID_TrunkID_Status` (`AccountID`,`TrunkID`,`Status`),
+  KEY `IX_AccountID_TrunkID_Codedeckid` (`TrunkID`,`CodeDeckId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

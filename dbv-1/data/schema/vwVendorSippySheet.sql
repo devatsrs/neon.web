@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorSippySheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorSippySheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT, IN `p_Effective` VARCHAR(50))
 BEGIN
 
 DROP TEMPORARY TABLE IF EXISTS tmp_VendorSippySheet_;
@@ -24,7 +24,7 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorSippySheet_;
 	);
 	
 
-call vwVendorCurrentRates(p_AccountID,p_Trunks); 
+call vwVendorCurrentRates(p_AccountID,p_Trunks,p_Effective); 
 
 INSERT INTO tmp_VendorSippySheet_ 
 SELECT

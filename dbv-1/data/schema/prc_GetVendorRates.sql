@@ -9,15 +9,15 @@ BEGIN
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 		 
 
-	SELECT CodeDeckId into v_CodeDeckId_  FROM tblVendorTrunk WHERE AccountID = p_AccountID AND TrunkID = p_trunkID;
+		select CodeDeckId into v_CodeDeckId_  from tblVendorTrunk where AccountID = p_AccountID and TrunkID = p_trunkID;
 		
 		
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
-	    CREATE TEMPORARY TABLE tmp_VendorRate_ (
+	   CREATE TEMPORARY TABLE tmp_VendorRate_ (
 	        VendorRateID INT,
 	        Code VARCHAR(50),
 	        Description VARCHAR(200),
-			ConnectionFee DECIMAL(18, 6),
+			  ConnectionFee DECIMAL(18, 6),
 	        Interval1 INT,
 	        IntervalN INT,
 	        Rate DECIMAL(18, 6),
@@ -25,11 +25,10 @@ BEGIN
 	        updated_at DATETIME,
 	        updated_by VARCHAR(50),
 	        INDEX tmp_VendorRate_RateID (`Code`)
-
 	    );
 	    
 	    INSERT INTO tmp_VendorRate_
-		SELECT
+		 SELECT
 					VendorRateID,
 					Code,
 					tblRate.Description,
@@ -67,9 +66,9 @@ BEGIN
 					);
 		IF p_effective = 'Now'
 		THEN
-		   	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate2_ as (select * from tmp_VendorRate_);	        
-         	DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate2_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-		    AND  n1.Code = n2.Code;
+		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate2_ as (select * from tmp_VendorRate_);	        
+         DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate2_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+		   AND  n1.Code = n2.Code;
 		END IF;        
         
 		  

@@ -26,7 +26,7 @@
             @endif
             <div class="row">
                 <div class="col-md-12">
-                    <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                    <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -38,11 +38,11 @@
                             </div>
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Item Name</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Name</label>
                                     <div class="col-sm-2">
                                         {{ Form::text('Name', '', array("class"=>"form-control")) }}
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Item Code</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Code</label>
                                      <div class="col-sm-2">
                                            {{ Form::text('Code', '', array("class"=>"form-control")) }}
                                     </div>
@@ -66,8 +66,8 @@
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="30%">Item Name</th>
-                    <th width="10%">Item Code</th>
+                    <th width="30%">Name</th>
+                    <th width="10%">Code</th>
                     <th width="10%">Unit Cost</th>
                     <th width="20%">Last Updated</th>
                     <th width="10%">Active</th>
@@ -91,7 +91,7 @@
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
-                            "sAjaxSource": baseurl + "/products/ajax_datagrid",
+                            "sAjaxSource": baseurl + "/products/ajax_datagrid/type",
                             "fnServerParams": function (aoData) {
                                 aoData.push({ "name": "Name", "value": $searchFilter.Name },
                                             { "name": "Code","value": $searchFilter.Code },
@@ -148,9 +148,15 @@
                                 "aButtons": [
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "Export Data",
-                                        "sUrl": baseurl + "/products/ajax_datagrid", //baseurl + "/generate_xls.php",
-                                        sButtonClass: "save-collection"
+                                        "sButtonText": "EXCEL",
+                                        "sUrl": baseurl + "/products/ajax_datagrid/xlsx",
+                                        sButtonClass: "save-collection btn-sm"
+                                    },
+                                    {
+                                        "sExtends": "download",
+                                        "sButtonText": "CSV",
+                                        "sUrl": baseurl + "/products/ajax_datagrid/csv",
+                                        sButtonClass: "save-collection btn-sm"
                                     }
                                 ]
                             },

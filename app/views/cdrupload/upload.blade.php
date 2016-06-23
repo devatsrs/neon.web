@@ -30,7 +30,7 @@
     <div class="tab-pane active">
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="bulk_upload" enctype="multipart/form-data">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="bulk_upload" enctype="multipart/form-data">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -81,8 +81,8 @@
 
                             </div>
                             <div class="checkbox ">
-                                <input type="hidden" name="CheckCustomerCLI" value="0" >
-                                <label><input type="checkbox" id="rd-1" name="CheckCustomerCLI" value="1">   CLI verification</label>
+                                <input type="hidden" name="CheckFile" value="0" >
+                                <label><input type="checkbox" id="rd-1" name="CheckFile" checked value="1"> Verify this file</label>
                             </div>
                         </div>
                     </div>
@@ -192,19 +192,6 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for="field-1" class="col-sm-2 control-label">Connect Date</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[connect_date]', array(),'',array("class"=>"selectboxit"))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-2 control-label">Connect Time</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[connect_time]', array(),'',array("class"=>"selectboxit"))}}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <br />
-                            <br />
                             <label for="field-1" class="col-sm-2 control-label">Billed Duration</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[billed_duration]', array(),'',array("class"=>"selectboxit"))}}
@@ -230,7 +217,19 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for="field-1" class="col-sm-2 control-label">Account</label>
+                            <label for=" field-1" class="col-sm-2 control-label">CLI Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLI Translation Rule">?</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="selection[CLITranslationRule]" value="" />
+                            </div>
+                            <label for=" field-1" class="col-sm-2 control-label">CLD Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLD Translation Rule">?</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="selection[CLDTranslationRule]" value="" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label for="field-1" class="col-sm-2 control-label">Account*</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[Account]', array(),'',array("class"=>"selectboxit"))}}
                             </div>
@@ -255,11 +254,11 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for=" field-1" class="col-sm-2 control-label">ID</label>
+                            <label for=" field-1" class="col-sm-2 control-label">Extension</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[ID]',array() ,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[extension]',array() ,'',array("class"=>"selectboxit"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound</label>
+                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then cdrs will be uploaded as outbound" data-original-title="Inbound/Outbound">?</span></label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
@@ -267,13 +266,10 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for=" field-1" class="col-sm-2 control-label">Extension</label>
+                            <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
+                            <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[extension]',array() ,'',array("class"=>"selectboxit"))}}
-                            </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Pincode</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[pincode]',array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Authentication]',$NameFormat ,'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                     </div>
@@ -289,7 +285,7 @@
                         </div>
                     </div>
 
-                    <div class="panel-body" style="overflow-x: auto;">
+                    <div class="panel-body scrollx">
                         <table class="table table-bordered datatable" id="table-4">
                             <thead>
                             <tr>
@@ -495,7 +491,7 @@ var click_btn;
                 $("#rate_dropdown").addClass("hidden");
             }
         });
-        $('#RateCDR').trigger('click');
+        $('#RateCDR').trigger('change');
     });
     function createGrid(data){
         var tr = $('#table-4 thead tr');
@@ -515,7 +511,7 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]'){
+            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){

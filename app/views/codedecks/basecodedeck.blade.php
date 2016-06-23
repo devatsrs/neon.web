@@ -29,7 +29,7 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="30%">CodedeckName</th>
+        <th width="30%">Name</th>
         <th width="25%">Modified Date</th>
         <th width="25%">ModifiedBy</th>
         <th width="20%">Actions</th>
@@ -85,9 +85,15 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/codedecks/base_exports", //baseurl + "/generate_xls.php",
-                        sButtonClass: "save-collection"
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/codedecks/base_exports/xlsx", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/codedecks/base_exports/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
                     }
                 ]
             },

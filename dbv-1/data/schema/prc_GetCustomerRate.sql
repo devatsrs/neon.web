@@ -5,18 +5,32 @@ BEGIN
    DECLARE v_RateTableAssignDate_ DATETIME;
    DECLARE v_NewA2ZAssign_ INT;
    DECLARE v_OffSet_ int;
+   DECLARE v_IncludePrefix_ INT;
+   DECLARE v_Prefix_ VARCHAR(50);
+   DECLARE v_RatePrefix_ VARCHAR(50);
+   DECLARE v_AreaPrefix_ VARCHAR(50);
+   
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
     SELECT
         CodeDeckId,
         RateTableID,
-        RateTableAssignDate INTO v_codedeckid_, v_ratetableid_, v_RateTableAssignDate_
+        RateTableAssignDate,IncludePrefix INTO v_codedeckid_, v_ratetableid_, v_RateTableAssignDate_,v_IncludePrefix_
     FROM tblCustomerTrunk
     WHERE CompanyID = p_companyid
     AND tblCustomerTrunk.TrunkID = p_trunkID
     AND tblCustomerTrunk.AccountID = p_AccountID
     AND tblCustomerTrunk.Status = 1;
+    
+    SELECT
+        Prefix,RatePrefix,AreaPrefix INTO v_Prefix_,v_RatePrefix_,v_AreaPrefix_
+    FROM tblTrunk
+    WHERE CompanyID = p_companyid
+    AND tblTrunk.TrunkID = p_trunkID
+    AND tblTrunk.Status = 1;
+    
+    
 
     DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates_;
     CREATE TEMPORARY TABLE tmp_CustomerRates_ (
@@ -54,7 +68,28 @@ BEGIN
         INDEX tmp_RateTableRate__EffectiveDate (`EffectiveDate`)
 
     );
-
+    /* if you chnage this table ,change in all sheet download and customer rate  */
+    DROP TEMPORARY TABLE IF EXISTS tmp_customerrate_;
+    CREATE TEMPORARY TABLE tmp_customerrate_ (
+        RateID INT,
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        RoutinePlanName VARCHAR(50),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE,
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        CustomerRateId INT,
+        TrunkID INT,
+        RateTableRateId INT,
+        IncludePrefix TINYINT,
+        Prefix VARCHAR(50),
+        RatePrefix VARCHAR(50),
+        AreaPrefix VARCHAR(50)
+    );
      
 
     INSERT INTO tmp_CustomerRates_
@@ -85,11 +120,7 @@ BEGIN
             AND tblCustomerRate.TrunkID = p_trunkID
             AND (p_RoutinePlan = 0 or tblCustomerRate.RoutinePlan = p_RoutinePlan)
             AND CustomerID = p_AccountID
-            AND (
-                   (p_Effective = 'Now' AND EffectiveDate <= NOW() )
-                OR (p_Effective = 'Future' AND EffectiveDate > NOW())
-                OR  p_Effective = 'All'
-               )
+             
             ORDER BY
                 tblCustomerRate.TrunkId, tblCustomerRate.CustomerId,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
          
@@ -98,13 +129,27 @@ BEGIN
 		
                 
             
-    	SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
+    	/*SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
 	 	SELECT MAX(EffectiveDate) as EffectiveDate
 		FROM 
 		tblRateTableRate
 		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
 		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	 	)tbl;
+	 	)tbl;*/
+	 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);	        
+			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
+			AND n1.TrunkID = n2.TrunkID
+			AND  n1.RateID = n2.RateID
+			AND  n1.EffectiveDate <= NOW()
+			AND  n2.EffectiveDate <= NOW();
+	 	
+	 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates2_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
+		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates3_;
+	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
+	   DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates5_;
+	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates5_ as (select * from tmp_CustomerRates_);
 
     INSERT INTO tmp_RateTableRate_
             SELECT
@@ -113,16 +158,17 @@ BEGIN
                 tblRateTableRate.IntervalN,
                 tblRateTableRate.Rate,
                 tblRateTableRate.ConnectionFee,
-                 case when v_NewA2ZAssign_ = 1
+                /*case when ( tblRateTableRate.EffectiveDate <= v_RateTableAssignDate_  )
                 then
                     v_RateTableAssignDate_  
                 else 
                     tblRateTableRate.EffectiveDate
-                end  as EffectiveDate,
+                end  as EffectiveDate,*/
+                tblRateTableRate.EffectiveDate,
                 NULL AS LastModifiedDate,
                 NULL AS LastModifiedBy,
                 NULL AS CustomerRateId,
-                RateTableRateID,
+                tblRateTableRate.RateTableRateID,
                 p_trunkID as TrunkID
             FROM tblRateTableRate
             INNER JOIN tblRate
@@ -134,56 +180,52 @@ BEGIN
             AND tblRate.CodeDeckId = v_codedeckid_
             AND RateTableID = v_ratetableid_
             AND (
-                   (p_Effective = 'Now' AND EffectiveDate <= NOW() 
-                     OR (v_NewA2ZAssign_ = 1 AND EffectiveDate >= NOW() )
-                    )
-                OR (p_Effective = 'Future' AND EffectiveDate > NOW())
-                OR  p_Effective = 'All'
-               )
+						(
+							(SELECT count(*) from tmp_CustomerRates2_ cr where cr.RateID = tblRateTableRate.RateID) >0 	
+							AND tblRateTableRate.EffectiveDate < 
+								( SELECT MIN(cr.EffectiveDate)
+                          FROM tmp_CustomerRates_ as cr
+                          WHERE cr.RateID = tblRateTableRate.RateID
+								)
+							AND (SELECT count(*) from tmp_CustomerRates5_ cr where cr.RateID = tblRateTableRate.RateID AND cr.EffectiveDate <= NOW() ) = 0  
+						)
+						or  (  SELECT count(*) from tmp_CustomerRates3_ cr where cr.RateID = tblRateTableRate.RateID ) = 0
+					)
+            
                 ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC;
             
-		IF p_Effective = 'Now'
-		THEN
-			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);	        
-			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-			AND n1.TrunkId = n2.TrunkId
-			AND  n1.RateID = n2.RateID;
+	 
+		 	
 		  
+		  DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate4_;
 		  CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);	        
         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-	 	  AND n1.TrunkId = n2.TrunkId
-		  AND  n1.RateID = n2.RateID;
-		END IF;
+	 	  AND n1.TrunkID = n2.TrunkID
+		  AND  n1.RateID = n2.RateID
+		  AND  n1.EffectiveDate <= NOW()
+		  AND  n2.EffectiveDate <= NOW();
+		 
 
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
-	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
-
-   
-    
-
-    IF p_isExport = 0
-    THEN
-
-
-
-
-
-         SELECT
-                r.RateID,
+		
+	   
+	   
+		  INSERT INTO tmp_customerrate_
+        SELECT
+        			 r.RateID,
                 r.Code,
                 r.Description,
-                case when allRates.Interval1 is null
-                then 
+                CASE WHEN allRates.Interval1 IS NULL
+                THEN 
                     r.Interval1
-                else
+                ELSE
                     allRates.Interval1
-                end as Interval1,
-                case when allRates.IntervalN is null
-                then 
+                END as Interval1,
+                CASE WHEN allRates.IntervalN IS NULL
+                THEN 
                     r.IntervalN
-                else
+                ELSE
                     allRates.IntervalN
-                end as IntervalN,
+                END  IntervalN,
                 allRates.ConnectionFee,
                 allRates.RoutinePlanName,
                 allRates.Rate,
@@ -192,228 +234,26 @@ BEGIN
                 allRates.LastModifiedBy,
                 allRates.CustomerRateId,
                 p_trunkID as TrunkID,
-                allRates.RateTableRateId
-            FROM tblRate r
-            LEFT JOIN (SELECT
-                    CustomerRates.RateID,
-                    CustomerRates.Interval1,
-                    CustomerRates.IntervalN,
-                    CustomerRates.ConnectionFee,
-                    tblTrunk.Trunk as RoutinePlanName,
-                    CustomerRates.Rate,
-                    CustomerRates.EffectiveDate,
-                    CustomerRates.LastModifiedDate,
-                    CustomerRates.LastModifiedBy,
-                    CustomerRates.CustomerRateId,
-                    NULL AS RateTableRateID,
-                    p_trunkID as TrunkID
-                FROM tmp_CustomerRates_ CustomerRates
-                left join tblTrunk on tblTrunk.TrunkID = CustomerRates.RoutinePlan
-
-                UNION ALL
-
-                SELECT
-                DISTINCT
-                    rtr.RateID,
-                    rtr.Interval1,
-                    rtr.IntervalN,
-                    rtr.ConnectionFee,
-                    NULL,
-                    rtr.Rate,
-                    rtr.EffectiveDate,
-                    NULL,
-                    NULL,
-                    NULL AS CustomerRateId,
-                    rtr.RateTableRateID,
-                    p_trunkID as TrunkID
-                FROM tmp_RateTableRate_ AS rtr
-                LEFT JOIN tmp_CustomerRates2_ cr
-                    ON cr.RateID = rtr.RateID
-                WHERE (
-                (
-                    p_Effective = 'Now'
-                    AND rtr.EffectiveDate <= NOW()
-                    AND (
-                            (cr.RateID IS NULL) -- no data in C... *** SQLINES FOR EVALUATION USE ONLY *** 
-                            OR
-                            (cr.RateID IS NOT NULL AND rtr.RateTableRateID IS NULL) -- Only CR Data
-                        )
-
-                )
-                OR
-                (
-                    p_Effective = 'Future'
-                    AND rtr.EffectiveDate > NOW()
-                    AND (
-                            (cr.RateID IS NULL) -- no data in C... *** SQLINES FOR EVALUATION USE ONLY *** 
-                            OR
-                            ( cr.RateID IS NOT NULL AND rtr.EffectiveDate < (
-                                                                            SELECT IFNULL(MIN(cr.EffectiveDate), rtr.EffectiveDate)
-                                                                            FROM tmp_CustomerRates3_ cr
-                                                                            WHERE cr.RateID = rtr.RateID
-                                                                            )
-                            )
-                        )
-                )
-                OR p_Effective = 'All'
-
-                )) allRates
-                ON allRates.RateID = r.RateID
-
-            WHERE (p_contryID IS NULL OR r.CountryID = p_contryID)
-            AND (p_code IS NULL OR Code LIKE REPLACE(p_code, '*', '%'))
-            AND (p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%'))
-            AND (r.CompanyID = p_companyid)
-            AND r.CodeDeckId = v_codedeckid_
-            AND ((p_effectedRates = 1 AND Rate IS NOT NULL) OR  (p_effectedRates = 0))
-            ORDER BY
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN r.Description
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN r.Description
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN allRates.Rate
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN allRates.Rate
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN allRates.Interval1
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN allRates.Interval1
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN allRates.IntervalN
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN allRates.IntervalN
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN allRates.ConnectionFee
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN allRates.ConnectionFee
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN allRates.EffectiveDate
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN allRates.EffectiveDate
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedDateDESC') THEN allRates.LastModifiedDate
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedDateASC') THEN allRates.LastModifiedDate
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedByDESC') THEN allRates.LastModifiedBy
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedByASC') THEN allRates.LastModifiedBy
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CustomerRateIdDESC') THEN allRates.CustomerRateId
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CustomerRateIdASC') THEN allRates.CustomerRateId
-                END ASC
-            LIMIT p_RowspPage OFFSET v_OffSet_;
-
-        SELECT
-            COUNT(r.RateID) AS totalcount
-        FROM tblRate r
-        LEFT JOIN (
-            SELECT
-                CustomerRates.RateID,
-                CustomerRates.Rate,
-                CustomerRates.EffectiveDate,
-                CustomerRates.LastModifiedDate,
-                CustomerRates.LastModifiedBy,
-                CustomerRates.CustomerRateId,
-                NULL AS RateTableRateID,
-                p_trunkID as TrunkID
-            FROM tmp_CustomerRates_ CustomerRates
-
-
-            UNION ALL
-
-            SELECT
-            DISTINCT
-                rtr.RateID,
-                rtr.Rate,
-                rtr.EffectiveDate,
-                NULL,
-                NULL,
-                NULL AS CustomerRateId,
-                rtr.RateTableRateID,
-                p_trunkID as TrunkID
-            FROM tmp_RateTableRate_ AS rtr
-            LEFT JOIN tmp_CustomerRates2_ cr
-                ON cr.RateID = rtr.RateID
-            WHERE (
-                (
-                    p_Effective = 'Now' AND rtr.EffectiveDate <= NOW()
-                    AND (
-                            (cr.RateID IS NULL) -- no data in C... *** SQLINES FOR EVALUATION USE ONLY *** 
-                            OR
-                            (cr.RateID IS NOT NULL AND rtr.RateTableRateID IS NULL) -- Only CR Data
-                        )
-
-                )
-                OR
-                ( p_Effective = 'Future' AND rtr.EffectiveDate > NOW()
-                    AND (
-                            (cr.RateID IS NULL) -- no data in C... *** SQLINES FOR EVALUATION USE ONLY *** 
-                            OR
-                            (
-                                cr.RateID IS NOT NULL AND rtr.EffectiveDate < (
-                                                                                SELECT IFNULL(MIN(cr.EffectiveDate), rtr.EffectiveDate)
-                                                                                FROM tmp_CustomerRates3_ cr
-                                                                                WHERE cr.RateID = rtr.RateID
-                                                                                )
-                            )
-                        )
-                )
-            OR p_Effective = 'All'
-
-            )) allRates
-            ON allRates.RateID = r.RateID
-        WHERE (p_contryID IS NULL OR r.CountryID = p_contryID)
-        AND (p_code IS NULL OR Code LIKE REPLACE(p_code, '*', '%'))
-        AND (p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%'))
-        AND (r.CompanyID = p_companyid)
-        AND r.CodeDeckId = v_codedeckid_
-        AND  ((p_effectedRates = 1 AND Rate IS NOT NULL) OR  (p_effectedRates = 0));
-
-    END IF;
-
-    IF p_isExport = 1
-    THEN
-
-        CREATE TEMPORARY TABLE IF NOT EXISTS  tmp_customerrate_ as (
-
-
-        SELECT
-            r.Code,
-            r.Description,
-            allRates.Interval1,
-            allRates.IntervalN,
-            allRates.RoutinePlanName,
-            allRates.ConnectionFee,
-            allRates.Rate,
-            allRates.EffectiveDate,
-            allRates.LastModifiedDate,
-            allRates.LastModifiedBy
+                allRates.RateTableRateId,
+					v_IncludePrefix_ as IncludePrefix ,
+   	         CASE  WHEN tblTrunk.TrunkID is not null
+               THEN
+               	tblTrunk.Prefix
+               ELSE
+               	v_Prefix_
+					END AS Prefix,
+					CASE  WHEN tblTrunk.TrunkID is not null
+               THEN
+               	tblTrunk.RatePrefix
+               ELSE
+               	v_RatePrefix_
+					END AS RatePrefix,
+					CASE  WHEN tblTrunk.TrunkID is not null
+               THEN
+               	tblTrunk.AreaPrefix
+               ELSE
+               	v_AreaPrefix_
+					END AS AreaPrefix
         FROM tblRate r
         LEFT JOIN (SELECT
                 CustomerRates.RateID,
@@ -427,9 +267,17 @@ BEGIN
                 CustomerRates.LastModifiedBy,
                 CustomerRates.CustomerRateId,
                 NULL AS RateTableRateID,
-                p_trunkID as TrunkID
+                p_trunkID as TrunkID,
+                RoutinePlan
             FROM tmp_CustomerRates_ CustomerRates
-            left join tblTrunk on tblTrunk.TrunkID = CustomerRates.RoutinePlan
+            LEFT JOIN tblTrunk on tblTrunk.TrunkID = CustomerRates.RoutinePlan
+            WHERE 
+                (
+					 	( p_Effective = 'Now' AND CustomerRates.EffectiveDate <= NOW() )
+					 	OR
+					 	( p_Effective = 'Future' AND CustomerRates.EffectiveDate > NOW())
+					 	OR p_Effective = 'All'
+					 )
 
 
             UNION ALL
@@ -447,10 +295,17 @@ BEGIN
                 NULL,
                 NULL AS CustomerRateId,
                 rtr.RateTableRateID,
-                p_trunkID as TrunkID
+                p_trunkID as TrunkID,
+                NULL AS RoutinePlan
             FROM tmp_RateTableRate_ AS rtr
             LEFT JOIN tmp_CustomerRates2_ as cr
-                ON cr.RateID = rtr.RateID
+                ON cr.RateID = rtr.RateID AND 
+						 (
+						 	( p_Effective = 'Now' AND cr.EffectiveDate <= NOW() )
+						 	OR
+						 	( p_Effective = 'Future' AND cr.EffectiveDate > NOW())
+						 	OR p_Effective = 'All'
+						 )
             WHERE (
                 (
                     p_Effective = 'Now' AND rtr.EffectiveDate <= NOW()
@@ -477,18 +332,142 @@ BEGIN
                 )
             OR p_Effective = 'All'
 
-            )) allRates
+            )
+				
+				) allRates
             ON allRates.RateID = r.RateID
+         LEFT JOIN tblTrunk on tblTrunk.TrunkID = RoutinePlan
         WHERE (p_contryID IS NULL OR r.CountryID = p_contryID)
         AND (p_code IS NULL OR Code LIKE REPLACE(p_code, '*', '%'))
         AND (p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%'))
         AND (r.CompanyID = p_companyid)
         AND r.CodeDeckId = v_codedeckid_
-        AND  ((p_effectedRates = 1 AND Rate IS NOT NULL) OR  (p_effectedRates = 0))
-          );
-          select * from tmp_customerrate_;
+        AND  ((p_effectedRates = 1 AND Rate IS NOT NULL) OR  (p_effectedRates = 0));
+
+   
+    
+
+    IF p_isExport = 0
+    THEN
+
+
+         SELECT
+                RateID,
+                Code,
+                Description,
+                Interval1,
+                IntervalN,
+                ConnectionFee,
+                RoutinePlanName,
+                Rate,
+                EffectiveDate,
+                LastModifiedDate,
+                LastModifiedBy,
+                CustomerRateId,
+                TrunkID,
+                RateTableRateId
+            FROM tmp_customerrate_ 
+            ORDER BY
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN Rate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN Interval1
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN IntervalN
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN IntervalN
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ConnectionFee
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedDateDESC') THEN LastModifiedDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedDateASC') THEN LastModifiedDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedByDESC') THEN LastModifiedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedByASC') THEN LastModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CustomerRateIdDESC') THEN CustomerRateId
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CustomerRateIdASC') THEN CustomerRateId
+                END ASC
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+
+        SELECT
+            COUNT(RateID) AS totalcount
+        FROM tmp_customerrate_;
 
     END IF;
+
+    IF p_isExport = 1
+    THEN
+			 
+          select 
+            Code,
+            Description,
+            Interval1,
+            IntervalN,
+            ConnectionFee,
+            Rate,
+            EffectiveDate,
+            LastModifiedDate,
+            LastModifiedBy from tmp_customerrate_;
+
+    END IF;
+
+
+	-- for customer panel export
+	IF p_isExport = 2
+    THEN
+			 
+          select 
+            Code,
+            Description,
+            Interval1,
+            IntervalN,
+            ConnectionFee,
+            Rate,
+            EffectiveDate from tmp_customerrate_;
+
+    END IF;    
+    
  
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

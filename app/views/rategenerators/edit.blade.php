@@ -100,6 +100,10 @@
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
                         </div>
+                        <label for="field-1" class="col-sm-2 control-label">Policy</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('Policy', LCR::$policy, $rategenerators->Policy , array("class"=>"select2")) }}
+                        </div>
                     </div>
 
                 </div>
@@ -202,7 +206,6 @@
         </div>
 
     </div>
-</div>
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {

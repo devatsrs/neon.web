@@ -47,11 +47,42 @@ class InvoiceTemplate extends \Eloquent {
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
         $NewInvoiceNumber =  (($InvoiceTemplate->LastInvoiceNumber > 0)?($InvoiceTemplate->LastInvoiceNumber + 1):$InvoiceTemplate->InvoiceStartNumber);
         $CompanyID = User::get_companyID();
-        while(Invoice::where(["InvoiceNumber"=> $NewInvoiceNumber,'CompanyID'=>$CompanyID])->count() ==1){
+        while(Invoice::where(["InvoiceNumber"=> $NewInvoiceNumber,'CompanyID'=>$CompanyID])->count()>0){
             $NewInvoiceNumber++;
         }
         return $NewInvoiceNumber;
     }
+		/////////////////
+	public static function getAccountNextEstimateNumber($AccountID)
+	{
+
+        $InvoiceTemplateID = Account::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        
+		if($InvoiceTemplateID > 0)
+		{
+            return self::getNextEstimateNumber($InvoiceTemplateID);
+        }
+		else
+		{
+            return 0;
+        }
+    }
+	
+    public static function getNextEstimateNumber($InvoiceTemplateid)
+	{
+        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
+        $NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->EstimateStartNumber);
+        $CompanyID = User::get_companyID();
+        
+		while(Estimate::where(["EstimateNumber"=> $NewEstimateNumber,'CompanyID'=>$CompanyID])->count()>0)
+		{
+            $NewEstimateNumber++;
+        }
+		
+        return $NewEstimateNumber;
+    }
+	//////////////////////
+	
     public static function clearCache(){
 
         Cache::flush("it_dropdown1_cache");

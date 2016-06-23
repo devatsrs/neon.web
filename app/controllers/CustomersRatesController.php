@@ -10,7 +10,7 @@ class CustomersRatesController extends \BaseController {
         $this->rate_sheet_formates = RateSheetFormate::getCustomerRateSheetFormatesDropdownList('customer');
     }
 
-    public function search_ajax_datagrid($id) {
+    public function search_ajax_datagrid($id,$type) {
 
         $data = Input::all();
         $data['iDisplayStart'] +=1;
@@ -27,16 +27,24 @@ class CustomersRatesController extends \BaseController {
 
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1');
+            $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
-            Excel::create('Customer Rates', function ($excel) use ($excel_data) {
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Customer Rates', function ($excel) use ($excel_data) {
                 $excel->sheet('Customer Rates', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
-            })->download('xls');
+            })->download('xls');*/
         }
         $query .=',0)';
-        //echo $query;exit;
         return DataTableSql::of($query)->make();
     }
     public  function search_customer_grid($id){
@@ -91,10 +99,7 @@ class CustomersRatesController extends \BaseController {
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
-            //echo '<pre>';print_r($rate_tables);exit;
 
-            // Debugbar::addMessage($customer_trunks);
-            //print_r($customer_trunks);
 
             return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
     }
@@ -222,13 +227,14 @@ class CustomersRatesController extends \BaseController {
             $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
             $accounts = Account::getAccountIDList();
             $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
+            $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
             $privacy = EmailTemplate::$privacy;
             $type = EmailTemplate::$Type;
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
 
-            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts'));
+            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype'));
     }
 
     public function process_download($id) {
@@ -236,7 +242,7 @@ class CustomersRatesController extends \BaseController {
         if (Request::ajax()) {
             $data = Input::all();
             $test = 0;
-            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
+            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype'=> 'required');
 
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
@@ -247,6 +253,12 @@ class CustomersRatesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+
+            if(!empty($data['filetype'])){
+                $data['downloadtype'] = $data['filetype'];
+                unset($data['filetype']);
+            }
+
             if($data['sendMail'] == 0){
                 $data['customer'][] = $id;
                 foreach($data['customer'] as $customerID){
@@ -441,7 +453,8 @@ class CustomersRatesController extends \BaseController {
             return View::make('customersrates.show_history', compact('id', 'history', 'job_file'));
 
     }
-    
+
+    // not in use
     public function exports($id) {
             $data = Input::all();
             $data['iDisplayStart'] +=1;
@@ -466,7 +479,7 @@ class CustomersRatesController extends \BaseController {
                 });
             })->download('xls');
     }
-    public function history_exports($id) {
+    public function history_exports($id,$type) {
             $companyID = User::get_companyID();
 
             $RateSheetHistory = RateSheetHistory::join('tblJob', 'tblJob.JobID', '=', 'tblRateSheetHistory.JobID')
@@ -474,11 +487,21 @@ class CustomersRatesController extends \BaseController {
                 ->orderBy("tblRateSheetHistory.RateSheetHistoryID", "desc")
                 ->get(array('tblJob.Title', 'tblRateSheetHistory.created_at as Created'));
 
-            Excel::create('Customer Rates History', function ($excel) use ($RateSheetHistory) {
+            $excel_data = json_decode(json_encode($RateSheetHistory),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+            /*Excel::create('Customer Rates History', function ($excel) use ($RateSheetHistory) {
                 $excel->sheet('Customer Rates History', function ($sheet) use ($RateSheetHistory) {
                     $sheet->fromArray($RateSheetHistory);
                 });
-            })->download('xls');
+            })->download('xls');*/
     }
 
     public function download_excel_file($id,$JobID){
@@ -571,5 +594,14 @@ class CustomersRatesController extends \BaseController {
             $results = DB::statement("prc_merge_vendor_into_customer '".$vendor."','".$customer."'");
             DB::table('vendor_merge')->where(["vendor"=>$vendor,"customer"=>$customer])->update(["status"=>1]);
         }
+    }
+
+    public function customerdownloadtype($id,$type){
+        if($type=='Vos 3.2'){
+            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+        }else{
+            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+        }
+        return $downloadtype;
     }
 }
