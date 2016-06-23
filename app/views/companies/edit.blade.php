@@ -462,10 +462,10 @@
         </div>
         <div class="modal-body">
           <div class="row">            
-            <div class="col-md-6 margin-top">
+            <div class="col-md-10 margin-top">
               <div class="form-group">
-                <label for="SampleEmail" class="control-label col-sm-6">Send Test Email To *</label>
-                <div class="col-sm-6">
+                <label for="SampleEmail" class="control-label col-sm-3">Send Test Email To *</label>
+                <div class="col-sm-5">
                   <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
                 </div>
               </div>
