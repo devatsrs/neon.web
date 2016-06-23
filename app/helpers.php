@@ -1160,7 +1160,9 @@ function get_round_decimal_places($AccountID = 0) {
 
     return $RoundChargesAmount;
 }
-
+/*
+* Validate Smtp settings
+*/
 function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
     $mail 				= 	new PHPMailer;
     $mail->isSMTP();
@@ -1174,11 +1176,10 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->FromName 	= 	'Test Smtp server';
     $mail->Body 		= 	"Testing Smtp mail Settings";
     $mail->Subject 		= 	"Test Smtp Email";
-  
+    $mail->Timeout		=    15;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
 	$mail->addAddress($ToEmail);
-	
    if ($mail->send()) {
 	   return "Valid mail settings.";
 	}else{
