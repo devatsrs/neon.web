@@ -539,6 +539,8 @@
 		 
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
 			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+			  $('.ValidateSmtp').button('reset');
+
 		 });
 		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
