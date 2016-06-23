@@ -160,22 +160,13 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-		  try{
-      	$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
 		
-	 $ResponseArray= array("response"=>$checkValidation,"status"=>"success");
-		return json_encode($ResponseArray);
-    }catch (Exception $e){
-         $ResponseArray= array("response"=>"Invalid mail settings.","status"=>"success");
-		return json_encode($ResponseArray);
-    }
 		
-	/*	$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
+		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
 		
 		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
-		return json_encode($ResponseArray);*/
+		return json_encode($ResponseArray);
 		
 	}
-
 
 }
