@@ -58,15 +58,15 @@
             <thead>
             <tr>
                 <th width="5%">Subscription</th>
-                <th width="25%">Invoice Description</th>
+                <th width="20%">Invoice Description</th>
                 <th width="5%">Qty</th>
                 <th width="10%">StartDate</th>
                 <th width="10%">EndDate</th>
                 <th width="5%">ActivationFee</th>
                 <th width="5%">DailyFee</th>
-                <th width="5%">WeeklyFee</th>
-                <th width="5%">MonthlyFee</th>
-                <th width="25%">Action</th>
+                <th width="10%">WeeklyFee</th>
+                <th width="10%">MonthlyFee</th>
+                <th width="20%">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -252,6 +252,11 @@
 						success: function(response) {
 								if(response){
 									$("#subscription-form [name='InvoiceDescription']").val(response.InvoiceLineDescription);
+									$("#subscription-form [name='MonthlyFee']").val(response.MonthlyFee);
+									$("#subscription-form [name='WeeklyFee']").val(response.WeeklyFee);
+									$("#subscription-form [name='DailyFee']").val(response.DailyFee);
+									$("#subscription-form [name='DailyFee']").val(response.DailyFee);
+									$("#subscription-form [name='ActivationFee']").val(response.ActivationFee);
 								}
 							},
 					});	

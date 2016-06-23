@@ -458,14 +458,14 @@
       <form id="Test_smtp_mail_form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="model-title-set modal-title">Test mail settings</h4>
+          <h4 class="model-title-set modal-title">Test Mail Settings</h4>
         </div>
         <div class="modal-body">
           <div class="row">            
             <div class="col-md-6 margin-top">
               <div class="form-group">
-                <label for="SampleEmail" class="control-label col-sm-4">Send test email to *</label>
-                <div class="col-sm-8">
+                <label for="SampleEmail" class="control-label col-sm-6">Send Test Email To *</label>
+                <div class="col-sm-6">
                   <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
                 </div>
               </div>
