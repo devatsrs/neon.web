@@ -458,7 +458,7 @@
       <form id="Test_smtp_mail_form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Validate Smtp Settings</h4>
+          <h4 class="model-title-set modal-title">Test mail settings</h4>
         </div>
         <div class="modal-body">
           <div class="row">            
@@ -501,7 +501,7 @@
 				var Port 			=  $("#form-user-add [name='Port']").val();
 				var IsSSL 			=  $("#form-user-add [name='IsSSL']").prop("checked");
 				
-					$('#Test_smtp_mail_modal .modal-title').html('Validating...');
+					$('.model-title-set').html('Validating...');
 			
 				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
 
@@ -520,7 +520,7 @@
 						  alert(Response.response);
 						  $('#Test_smtp_mail_modal').modal('hide'); 
 						  //$('.SmtpResponse').html(Response.response);
-						  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+						  $('.model-title-set').html('Test mail settings');
 						  
 						},
 				});	
@@ -537,11 +537,13 @@
 		
 		
 		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
-			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+			  $('.model-title-set').html('Test mail settings');
 		 });
 		 
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
-			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+			  $('.model-title-set').html('Test mail settings');
+			  $('.ValidateSmtp').button('reset');
+
 		 });
 		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
