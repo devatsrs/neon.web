@@ -711,7 +711,7 @@ Route::group(array('before' => 'auth'), function () {
 
     Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');
     Route::any('/opportunitycomments/{id}/ajax_opportunitycomments', 'OpportunityCommentsController@ajax_opportunityComments');
-    Route::any('/opportunitycomments/{id}/getattachment/{attachmentID}', 'OpportunityCommentsController@getAttachment');
+    Route::any('/opportunitycomment/{id}/getattachment/{attachmentID}', 'OpportunityCommentsController@getAttachment');
 
     //Task
 
