@@ -464,7 +464,7 @@
           <div class="row">            
             <div class="col-md-6 margin-top">
               <div class="form-group">
-                <label for="SampleEmail" class="control-label col-sm-4">Test email address *</label>
+                <label for="SampleEmail" class="control-label col-sm-4">Send test email to *</label>
                 <div class="col-sm-8">
                   <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
                 </div>
