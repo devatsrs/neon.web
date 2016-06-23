@@ -1178,6 +1178,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
 	$mail->addAddress($ToEmail);
+	
    if ($mail->send()) {
 	   return "Valid mail settings.";
 	}else{
