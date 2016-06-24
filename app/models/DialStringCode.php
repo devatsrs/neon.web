@@ -6,7 +6,6 @@ class DialStringCode extends \Eloquent {
 	public static $rules = [
             'DialString' => 'required',
             'ChargeCode' => 'required',
-            'Description' => 'required',
             'DialStringID' => 'required',
 	];
     protected $table = 'tblDialStringCode';
@@ -16,14 +15,12 @@ class DialStringCode extends \Eloquent {
 
     public static $DialStringUploadrules = array(
         'selection.DialString' => 'required',
-        'selection.ChargeCode'=>'required',
-        'selection.Description'=>'required',
+        'selection.ChargeCode'=>'required'
     );
 
     public static $DialStringUploadMessages = array(
-        'selection.DialString.required' =>'Dial String Field is required',
-        'selection.ChargeCode.required' =>'Charge Code Field is required',
-        'selection.Description.required' =>'Description Field is required'
+        'selection.DialString.required' =>'Prefix Field is required',
+        'selection.ChargeCode.required' =>'Charge Code Field is required'
     );
 
 }

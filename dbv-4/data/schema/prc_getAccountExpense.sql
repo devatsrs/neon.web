@@ -102,8 +102,7 @@ BEGIN
 			 us.CustomerVendor = 1 
 		AND us.AreaPrefix != 'other'
 		AND dd.DateID >= v_DateID_
-	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix
-	ORDER BY FinalTotal DESC ,dd.year,dd.month_of_year;
+	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix;
 	
 	/* convert into pivot table*/
 	
@@ -119,7 +118,7 @@ BEGIN
 							SELECT AreaPrefix , ', @sql, ' 
 							FROM tmp_tblCustomerPrefix_ 
 							GROUP BY AreaPrefix
-							ORDER BY MAX(FinalTotal) DESC
+							ORDER BY MAX(FinalTotal) desc, MAX(YearMonth)
 						');
 		
 		PREPARE stmt FROM @sql;
@@ -145,8 +144,7 @@ BEGIN
 			 us.CustomerVendor = 2 
 		AND us.AreaPrefix != 'other'
 		AND dd.DateID >= v_DateID_
-	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix
-	ORDER BY FinalTotal DESC ,dd.year,dd.month_of_year;
+	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix;
 
 	/* convert into pivot table*/
 	
@@ -162,7 +160,7 @@ BEGIN
 							SELECT AreaPrefix , ', @stm, ' 
 							FROM tmp_tblVendorPrefix_ 
 							GROUP BY AreaPrefix
-							ORDER BY MAX(FinalTotal) DESC
+							ORDER BY MAX(FinalTotal) desc, MAX(YearMonth)
 						');
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;

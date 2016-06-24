@@ -248,9 +248,6 @@ class DialStringController extends \BaseController {
 
             if(!empty($data['updateDescription'])){
                 $updateDescription = 1;
-                if(empty($data['Description'])){
-                    $rules['Description'] = 'required';
-                }
             }
 
             if(!empty($data['updateForbidden'])){
@@ -272,8 +269,9 @@ class DialStringController extends \BaseController {
             $criteria['ft_dialstring'] = $criteria['ft_dialstring'] != ''?"'".$criteria['ft_dialstring']."'":'null';
             $criteria['ft_chargecode'] = $criteria['ft_chargecode'] != ''?"'".$criteria['ft_chargecode']."'":'null';
             $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
+            $criteria['ft_forbidden'] = $criteria['ft_forbidden']== 'true'?1:0;
 
-            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",".$criteria['ft_forbidden'].",'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -286,7 +284,7 @@ class DialStringController extends \BaseController {
             //update from selected dialstrings
 
             $Dialcodes = $data['Dialcodes'];
-            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,0,'".$data['ChargeCode']."','".$data['Description']."','".$data['Forbidden']."','0')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -308,6 +306,7 @@ class DialStringController extends \BaseController {
         $updateDescription = 0;
         $updateForbidden = 0;
         $Dialcodes = '';
+        $data['Forbidden'] = isset($data['Forbidden']) ? 1 : 0;
 
 
         if(!empty($data['Action']) && $data['Action'] == 'criteria'){
@@ -316,8 +315,9 @@ class DialStringController extends \BaseController {
             $criteria['ft_dialstring'] = $criteria['ft_dialstring'] != ''?"'".$criteria['ft_dialstring']."'":'null';
             $criteria['ft_chargecode'] = $criteria['ft_chargecode'] != ''?"'".$criteria['ft_chargecode']."'":'null';
             $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
+            $criteria['ft_forbidden'] = $criteria['ft_forbidden']== 'true'?1:0;
 
-            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'','','','1')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','1','',".$criteria['ft_dialstring'].",".$criteria['ft_chargecode'].",".$criteria['ft_description'].",'".$criteria['ft_forbidden']."','','','','1')";
 
             $result = DB::statement($query);
             if ($result) {
@@ -328,7 +328,7 @@ class DialStringController extends \BaseController {
 
         }elseif(!empty($data['Action']) && $data['Action'] == 'code'){
             $Dialcodes = $data['Dialcodes'];
-            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,'','','','1')";
+            $query = "call prc_dialstringcodekbulkupdate ('".$data['DialStringID']."','".$updateChageCode."','".$updateDescription."','".$updateForbidden."','0','".$Dialcodes."',null,null,null,0,'','','','1')";
 
             $result = DB::statement($query);
             if ($result) {
