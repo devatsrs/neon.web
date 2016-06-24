@@ -881,7 +881,7 @@ function addhttp($url) {
 
 function chart_reponse($alldata){
 
-    $chartColor = array('#0073b7','#ba79cb','#00a65a','#701c1c','#00b29e','#6c541e','#ffa812','#00c0ef','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
+    $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
@@ -1163,6 +1163,7 @@ function get_round_decimal_places($AccountID = 0) {
 /*
 * Validate Smtp settings
 */
+
 function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
     $mail 				= 	new PHPMailer;
     $mail->isSMTP();
@@ -1176,7 +1177,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->FromName 	= 	'Test Smtp server';
     $mail->Body 		= 	"Testing Smtp mail Settings";
     $mail->Subject 		= 	"Test Smtp Email";
-    $mail->Timeout		=    15;
+    $mail->Timeout		=    25;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
 	$mail->addAddress($ToEmail);
@@ -1184,5 +1185,39 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
 	   return "Valid mail settings.";
 	}else{
 		return "Invalid mail settings.";
-	}	 
+	}
+ }
+	 
+function account_expense_table($Expense,$customer_vendor){
+    $datacount = $colsplan=  0;
+    $tableheader = $tablebody = '';
+    if(!empty($Expense) && !isset($Expense[0]->datacount)) {
+        foreach ($Expense as $ExpenseRow) {
+            if ($datacount == 0) {
+                $tableheader = '<tr>';
+            }
+            $tablebody .= '<tr>';
+            foreach ($ExpenseRow as $yearmonth => $total) {
+                if ($datacount == 0) {
+                    if ($yearmonth != 'AreaPrefix') {
+                        $tableheader .= "<th>$yearmonth</th>";
+                    } else {
+                        $tableheader .= "<th>Top Prefix</th>";
+                    }
+                    $colsplan++;
+                }
+                $tablebody .= "<td>$total</td>";
+            }
+            if ($datacount == 0) {
+                $tableheader .= '</tr>';
+            }
+            $tablebody .= '</tr>';
+            $datacount++;
+        }
+    }else{
+        $tablebody = '<tr><td>NO DATA</td></tr>';
+    }
+    $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
+    return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
+
 }

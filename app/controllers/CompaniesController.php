@@ -139,8 +139,6 @@ class CompaniesController extends \BaseController {
     }
 	
 	function ValidateSmtp(){
-		set_time_limit(15);
-		//ini_set('max_execution_time', 0);
 		$data 				= 		Input::all();
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
@@ -160,7 +158,6 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-		
 		
 		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
 		

@@ -50,6 +50,12 @@ class AccountSubscriptionController extends \BaseController {
             'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
             'StartDate'               =>'required',
+			'MonthlyFee' => 'required|numeric',
+            'WeeklyFee' => 'required|numeric',
+            'DailyFee' => 'required|numeric',
+			 'ActivationFee' => 'required|numeric',
+			 'Qty' => 'required|numeric',
+			 
             //'EndDate'               =>'required'
         );
         $validator = Validator::make($data, $rules);
@@ -84,6 +90,12 @@ class AccountSubscriptionController extends \BaseController {
                 'AccountID' => 'required',
                 'SubscriptionID' => 'required',
                 'StartDate' => 'required',
+				'MonthlyFee' => 'required|numeric',
+            'WeeklyFee' => 'required|numeric',
+            'DailyFee' => 'required|numeric',
+			 'ActivationFee' => 'required|numeric',
+			 'Qty' => 'required|numeric',
+			 
                 //'EndDate' => 'required'
             );
             $validator = Validator::make($data, $rules);

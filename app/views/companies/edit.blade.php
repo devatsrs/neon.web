@@ -397,11 +397,14 @@
                         <label for="field-1" class="col-sm-2 control-label">Enable SSL</label>
                         <div class="col-sm-4">
                             <div class="make-switch switch-small" data-on-label="ON" data-off-label="OFF">
+
+
+
                                 <input type="checkbox" name="IsSSL" @if($company->IsSSL == 1 )checked=""@endif value="1">
                             </div>
                         </div>
                     </div>
-					
+
                 </div>
             </div>
 
@@ -455,14 +458,14 @@
       <form id="Test_smtp_mail_form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="model-title-set modal-title">Validate Smtp Settings</h4>
+          <h4 class="model-title-set modal-title">Test Mail Settings</h4>
         </div>
         <div class="modal-body">
           <div class="row">            
-            <div class="col-md-6 margin-top">
+            <div class="col-md-10 margin-top">
               <div class="form-group">
-                <label for="SampleEmail" class="control-label col-sm-4">Test email address *</label>
-                <div class="col-sm-8">
+                <label for="SampleEmail" class="control-label col-sm-3">Send Test Email To *</label>
+                <div class="col-sm-5">
                   <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
                 </div>
               </div>
@@ -470,7 +473,7 @@
           </div>
         </div>
         <div class="modal-footer">           
-          <button type="submit"   class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button type="submit"   class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>
@@ -517,7 +520,7 @@
 						  alert(Response.response);
 						  $('#Test_smtp_mail_modal').modal('hide'); 
 						  //$('.SmtpResponse').html(Response.response);
-						  $('.model-title-set').html('Validate Smtp Settings');
+						  $('.model-title-set').html('Test mail settings');
 						  
 						},
 				});	
@@ -534,11 +537,11 @@
 		
 		
 		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
-			  $('.model-title-set').html('Validate Smtp Settings');
+			  $('.model-title-set').html('Test mail settings');
 		 });
 		 
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
-			  $('.model-title-set').html('Validate Smtp Settings');
+			  $('.model-title-set').html('Test mail settings');
 			  $('.ValidateSmtp').button('reset');
 
 		 });
@@ -567,9 +570,6 @@
         $("#InvoiceStatus").select2({
             tags:{{json_encode(explode(',',$company->InvoiceStatus))}}
         });
-		
-		
-		
     });
 
 </script>

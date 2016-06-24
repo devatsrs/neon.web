@@ -324,6 +324,14 @@
                             {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
                         </div>
                     </div>
+                    <div class="form-group">
+                        <br />
+                        <br />
+                        <label for=" field-1" class="col-sm-2 control-label">Dial String</label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"selectboxit"))}}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="panel panel-primary" data-collapsed="0">
@@ -546,7 +554,7 @@ jQuery(document).ready(function ($) {
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]'){
+            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){
@@ -615,6 +623,8 @@ jQuery(document).ready(function ($) {
                                     <th>Connection Fee(Opt.)</th>
                                     <th>Interval1(Opt.)</th>
                                     <th>IntervalN(Opt.)</th>
+                                    <th>Forbidden(Opt.)</th>
+                                    <th>Preference(Opt.)</th>
 
                                 </tr>
                             </thead>
@@ -628,6 +638,8 @@ jQuery(document).ready(function ($) {
                                     <td>0.05</td>
                                     <td>1</td>
                                     <td>1</td>
+                                    <td>0</td>
+                                    <td>5</td>
                                 </tr>
                                 <tr>
                                     <td>9377</td>
@@ -638,6 +650,8 @@ jQuery(document).ready(function ($) {
                                     <td>0.05</td>
                                     <td>1</td>
                                     <td>1</td>
+                                    <td>1</td>
+                                    <td>2</td>
                                 </tr>
                                 <tr>
                                     <td>9378</td>
@@ -646,6 +660,8 @@ jQuery(document).ready(function ($) {
                                     <td> 11-12-2014  12:00:00 AM</td>
                                     <td>D <span data-original-title="Delete" data-content="When action is set to 'D',It will delete existing Vendor Rate" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>0.05</td>
+                                    <td>1</td>
+                                    <td>1</td>
                                     <td>1</td>
                                     <td>1</td>
                                 </tr>
