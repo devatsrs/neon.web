@@ -580,6 +580,14 @@
                 });
             });
 
+            $('#add-view-modal-task-comments').on('shown.bs.modal', function(event){
+                emailFileList = [];
+                $(".file-input-names").empty();
+                $('#add-task-comments-form').trigger("reset");
+                $('#commentadd').siblings('.file-input-name').empty();
+                $('#card-features-details').find('[name="attachmentsinfo"]').val('');
+            });
+
             $(document).on('mouseover','#attachments a',
                     function(){
                         var a = $(this).attr('alt');
