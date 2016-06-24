@@ -155,10 +155,10 @@ class DialStringController extends \BaseController {
      */
     public function store() {
         $data = Input::all();
-        $rules = DialStringCode::$rules;
 
-        $rules['DialString'] = 'required|unique:tblDialStringCode,DialString,NULL,DialStringID,DialStringID,'.$data['DialStringID'];
-        $validator = Validator::make($data, $rules);
+        DialStringCode::$DialStringStorerules['DialString'] = 'required|unique:tblDialStringCode,DialString,NULL,DialStringID,DialStringID,'.$data['DialStringID'];
+        DialStringCode::$DialStringStorerules['ChargeCode'] = 'required';
+        $validator = Validator::make($data, DialStringCode::$DialStringStorerules,DialStringCode::$DialStringStoreMessages);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -185,12 +185,10 @@ class DialStringController extends \BaseController {
         $data = Input::all();
         $DialStringCode = DialStringCode::find($id);
 
-        $rules = DialStringCode::$rules;
+        DialStringCode::$DialStringStorerules['DialString'] = 'required|unique:tblDialStringCode,DialString,'.$id.',DialStringCodeID,DialStringID,'.$data['DialStringID'];
+        DialStringCode::$DialStringStorerules['ChargeCode'] = 'required';
+        $validator = Validator::make($data, DialStringCode::$DialStringStorerules,DialStringCode::$DialStringStoreMessages);
 
-        $rules['DialString'] = 'required|unique:tblDialStringCode,DialString,'.$id.',DialStringCodeID,DialStringID,'.$data['DialStringID'];
-
-
-        $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
@@ -425,7 +423,6 @@ class DialStringController extends \BaseController {
         $CompanyID = User::get_companyID();
         DialStringCode::$DialStringUploadrules['selection.DialString'] = 'required';
         DialStringCode::$DialStringUploadrules['selection.ChargeCode'] = 'required';
-        DialStringCode::$DialStringUploadrules['selection.Description'] = 'required';
 
         $validator = Validator::make($data, DialStringCode::$DialStringUploadrules,DialStringCode::$DialStringUploadMessages);
 
