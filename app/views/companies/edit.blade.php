@@ -523,7 +523,7 @@
 						  alert(Response.response);
 						  $('#Test_smtp_mail_modal').modal('hide'); 
 						  //$('.SmtpResponse').html(Response.response);
-						  $('.model-title-set').html('Test mail settings');
+						  $('.model-title-set').html('Test Mail Settings');
 						  
 						},
 				});	
@@ -540,11 +540,11 @@
 		
 		
 		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
-			  $('.model-title-set').html('Test mail settings');
+			  $('.model-title-set').html('Test Mail Settings');
 		 });
 		 
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
-			  $('.model-title-set').html('Test mail settings');
+			  $('.model-title-set').html('Test Mail Settings');
 			  $('.ValidateSmtp').button('reset');
 
 		 });
