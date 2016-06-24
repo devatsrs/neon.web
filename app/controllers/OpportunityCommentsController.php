@@ -28,7 +28,6 @@ class OpportunityCommentsController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
-        $data = Input::all();
         $rules = array(
             'OpportunityID' => 'required',
             'CommentText'=>'required'

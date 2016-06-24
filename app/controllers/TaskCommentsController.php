@@ -28,6 +28,14 @@ class TaskCommentsController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
+        $rules = array(
+            'TaskID' => 'required',
+            'CommentText'=>'required'
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
         $files_array = [];
         $attachmentsinfo            = $data['attachmentsinfo'];
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
