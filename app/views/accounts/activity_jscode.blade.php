@@ -41,13 +41,15 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 	    var del_task_id  = $(this).attr('task-id');
 		var del_key_id   = $(this).attr('key_id');
 		
-		if(Not_ask_delete_Note==1 && $('#timeline-'+del_key_id).hasClass("followup_task")){
+		if(Not_ask_delete_Note==1 && $('#timeline-'+del_key_id).hasClass("followup_task"))
+		{
 				Not_ask_delete_Note = 0;	
-		}else{
+		}
+		else{
 		  if (!confirm("Are you sure to delete?")) {
 				return false;
+				}
 			}
-		}
      
 		
 		var url_del_task1 	= 	"<?php echo URL::to('/task/{id}/delete_task'); ?>";
@@ -126,7 +128,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			var del_key_id   = $(this).attr('key_id');
 			
 			var followup = parseInt(del_key_id)+1;
-			if ($('#timeline-'+followup).hasClass("followup_task_"+del_key_id))
+			if ($('#timeline-'+followup).hasClass("followup_task"))
 			{
 					 if (!confirm("Do You want to delete Note which have Follow up Task?"))
 					 {
@@ -139,7 +141,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 					{
       	  				return false;
     				}					
-			}
+				}
 			
 		var url_del_note1 	= 	"<?php echo URL::to('/accounts/{id}/delete_note'); ?>";
 		var url_del_note	=	url_del_note1.replace( '{id}', del_note_id );
@@ -155,7 +157,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_note_entry"></li>');
 				//follow up delete
 				var followup = parseInt(del_key_id)+1;
-				if ($('#timeline-'+followup).hasClass("followup_task_"+del_key_id)) {
+				if ($('#timeline-'+followup).hasClass("followup_task")) {
 					 if (!confirm("Delete Follow up Task?")) {
       	  				return false;
     				}

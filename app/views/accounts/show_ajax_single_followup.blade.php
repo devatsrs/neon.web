@@ -74,7 +74,7 @@
   </div> 
 </li>
 @endif
-<li id="timeline-{{$key+1}}"  class="count-li timeline_task_entry followup_task_{{$response->ParentID}} followup_task">
+<li id="timeline-{{$key+1}}"  class="count-li timeline_task_entry  followup_task">
        <time class="cbp_tmtime" datetime="{{date("Y-m-d h:i",strtotime($response->created_at))}}">
               <?php if(date("Y-m-d h:i",strtotime($response->created_at)) == date('Y-m-d h:i')) { ?>
               <span>Now</span>
