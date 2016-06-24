@@ -7,6 +7,7 @@ var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
 var file_count 		  =  		0;
 var current_tab       =  		'';
+Not_ask_delete_Note   = 		0;
 @if(empty($message)){
 	var allow_extensions  = 		{{$response_extensions}};
 }
@@ -36,11 +37,18 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			
 	
 	$( document ).on("click",'.delete_task_link' ,function(e) {
-		  if (!confirm("Are you sure to delete?")) {
-      	  	return false;
-    		}
-        var del_task_id  = $(this).attr('task-id');
+		
+	    var del_task_id  = $(this).attr('task-id');
 		var del_key_id   = $(this).attr('key_id');
+		
+		if(Not_ask_delete_Note==1 && $('#timeline-'+del_key_id).hasClass("followup_task")){
+				Not_ask_delete_Note = 0;	
+		}else{
+		  if (!confirm("Are you sure to delete?")) {
+				return false;
+			}
+		}
+     
 		
 		var url_del_task1 	= 	"<?php echo URL::to('/task/{id}/delete_task'); ?>";
 		var url_del_task	=	url_del_task1.replace( '{id}', del_task_id );
@@ -114,12 +122,25 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 	
 	
 		$( document ).on("click",'.delete_note_link' ,function(e) {
-		  if (!confirm("Are you sure to delete?")) {
-      	  	return false;
-    		}
-        var del_note_id  = $(this).attr('note-id');
-		var del_key_id   = $(this).attr('key_id');
-		
+			var del_note_id  = $(this).attr('note-id');
+			var del_key_id   = $(this).attr('key_id');
+			
+			var followup = parseInt(del_key_id)+1;
+			if ($('#timeline-'+followup).hasClass("followup_task"))
+			{
+					 if (!confirm("Do You want to delete Note which have Follow up Task?"))
+					 {
+      	  				return false;
+    				 }
+			}
+			else
+			{
+					if (!confirm("Are you sure to delete?"))
+					{
+      	  				return false;
+    				}					
+			}
+			
 		var url_del_note1 	= 	"<?php echo URL::to('/accounts/{id}/delete_note'); ?>";
 		var url_del_note	=	url_del_note1.replace( '{id}', del_note_id );
 		 $.ajax({
@@ -139,7 +160,8 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
       	  				return false;
     				}
 					else
-					{
+					{ 
+						Not_ask_delete_Note = 1;
 						$('#timeline-'+followup+' .delete_task_link').click();
 					}
 					$('#timeline-'+del_key_id+1).remove();
