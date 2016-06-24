@@ -9,6 +9,7 @@
             <strong>Opportunity Board</strong>
         </li>
     </ol>
+    <h3>Opportunity Boards</h3>
     <div class="tab-content">
         <div class="tab-pane active">
             <p style="text-align: right;">

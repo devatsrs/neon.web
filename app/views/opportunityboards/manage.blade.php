@@ -43,7 +43,7 @@
             <strong>{{$Board->BoardName}}</strong>
         </li>
     </ol>
-
+    <h3>Tasks</h3>
         <div class="row">
             <div class="col-md-12 clearfix">
             </div>
