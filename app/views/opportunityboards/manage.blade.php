@@ -442,6 +442,9 @@
             $('#add-view-modal-opportunity-comments').on('shown.bs.modal', function(event){
                 emailFileList = [];
                 $(".file-input-names").empty();
+                $('#add-opportunity-comments-form').trigger("reset");
+                $('#commentadd').siblings('.file-input-name').empty();
+                $('#card-features-details').find('[name="attachmentsinfo"]').val('');
             });
 
             $(document).on('mouseover','#attachments a',

@@ -702,6 +702,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/ajax_opportunity', 'OpportunityController@ajax_opportunity');
     Route::any('/opportunity/{id}/ajax_getattachments', 'OpportunityController@ajax_getattachments');
     Route::any('/opportunity/{id}/updatetaggeduser', 'OpportunityController@updateTaggedUser');
+    Route::any('/opportunity/{id}/getattachment/{attachmentID}', 'OpportunityController@getAttachment');
 
     //File Upload
     Route::any('/opportunity/uploadfile', 'OpportunityController@uploadFile');
@@ -729,6 +730,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/task/{id}/ajax_task_grid', 'TaskController@ajax_task_grid');
     Route::any('/task/{id}/ajax_getattachments', 'TaskController@ajax_getattachments');
     Route::any('/task/{id}/updatetaggeduser', 'TaskController@updateTaggedUser');
+    Route::any('/task/{id}/getattachment/{attachmentID}', 'TaskController@getAttachment');
 
     //File Upload
     Route::any('/task/uploadfile', 'OpportunityController@uploadFile');
