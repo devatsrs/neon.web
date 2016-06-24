@@ -150,16 +150,23 @@ class AccountActivityController extends \BaseController {
 	
 	public function sendMailApi($AccountID)
 	{
-			
-	    $data 					= 	Input::all();
+
+        $data = Input::all();
+        $rules = array(
+            'Subject'=>'required',
+            'Message'=>'required'
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 		$data['AccountID']		=   $AccountID;
 
-        $attachmentsinfo            = $data['emailattachment_sent'];
+        $attachmentsinfo            =$data['attachmentsinfo'];
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
             $files_array = json_decode($attachmentsinfo,true);
         }
-		
-	   	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
+
         if(!empty($files_array) && count($files_array)>0) {
             $FilesArray = array();
             foreach($files_array as $key=> $array_file_data){
@@ -193,8 +200,6 @@ class AccountActivityController extends \BaseController {
 				$response 		 = 	$response->data;
 				$response->type  = 	Task::Mail;			
 				$response->LogID = 	$response->AccountEmailLogID;
-				unset($files_array[$data['token_attachment']]);
-				Session::set("activty_email_attachments", $files_array); 
 		}
 			
 			$key 			= $data['scrol']!=""?$data['scrol']:0;	

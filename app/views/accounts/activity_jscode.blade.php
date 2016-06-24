@@ -279,7 +279,7 @@ setTimeout(function() {
             $(document).on("click",".del_attachment",function(ee){
                 var url  =  baseurl + '/account/delete_actvity_attachment_file';
                 var fileName   =  $(this).attr('del_file_name');
-                var attachmentsinfo = $('#emai_attachments_form').find('[name="attachmentsinfo"]').val();
+                var attachmentsinfo = $('#info1').val();
                 if(!attachmentsinfo){
                     return true;
                 }
@@ -289,7 +289,6 @@ setTimeout(function() {
                 var fileinfo = attachmentsinfo[fileIndex];
                 emailFileList.splice(fileIndex, 1);
                 attachmentsinfo.splice(fileIndex, 1);
-                $('#emai_attachments_form').find('[name="attachmentsinfo"]').val(JSON.stringify(attachmentsinfo));
                 $('#info1').val(JSON.stringify(attachmentsinfo));
                 $('#info2').val(JSON.stringify(attachmentsinfo));
                 $.ajax({
@@ -324,9 +323,8 @@ $('#emai_attachments_form').submit(function(e) {
             console.log(response);
             if(response.status =='success'){
                 $('.file-input-names').html(response.data.text);
-                $('#emai_attachments_form').find('[name="attachmentsinfo"]').val(JSON.stringify(response.data.attachmentsinfo));
-                $('#info1').val(response.data.attachmentsinfo);
-                $('#info2').val(response.data.attachmentsinfo);
+                $('#info1').val(JSON.stringify(response.data.attachmentsinfo));
+                $('#info2').val(JSON.stringify(response.data.attachmentsinfo));
 
             }else{
                 toastr.error(response.message, "Error", toastr_opts);
