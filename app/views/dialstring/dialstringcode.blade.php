@@ -486,8 +486,8 @@ var postdata;
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Dial String</label>
-                                <input type="text" name="DialString" class="form-control"  placeholder="DialString">
+                                <label for="field-5" class="control-label">Prefix</label>
+                                <input type="text" name="DialString" class="form-control"  placeholder="Prefix">
                             </div>
                         </div>
                         <div class="col-md-6">
