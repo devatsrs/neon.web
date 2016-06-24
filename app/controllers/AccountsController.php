@@ -911,7 +911,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
-        $response =  NeonAPI::getrequest('account/get_creditinfo',$getdata);
+        $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = 0;
         if(!empty($response) && $response->status_code == 200 ){
             if(!empty($response->data->PermanentCredit)){
@@ -932,24 +932,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function update_credit(){
         $data = Input::all();
-        $account = Account::find($data['AccountID']);
         $postdata= $data;
-        $response =  NeonAPI::postrequest('account/update_creditinfo',$postdata);
-        return Response::json($response);
+        $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
+        return json_response_api($response);
     }
     public function ajax_datagrid_credit(){
         $getdata = Input::all();
-        $response =  NeonAPI::getrequest('account/get_credithistorygrid',$getdata);
-        //Log::info('reponse');
-        //Log::info(print_r($response,true));
-
-        //echo '<pre>';print_r($response);exit;
-        if(isset($response->status_code) && $response->status_code == 200) {
-            return Response::json($response->data->result);
-        } else {
-            $message = !empty($response->message)?$response->message:'';
-            throw  new \Exception($message);
-        }
+        $response =  NeonAPI::request('account/get_credithistorygrid',$getdata,false,false,false);
+        return json_response_api($response,true,true,true);
     }
 	function upload_file()
 	{		
