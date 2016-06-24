@@ -56,7 +56,7 @@
               </div>
             </li>
             @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Tasks)
-            <li id="timeline-{{$key}}" class="count-li timeline_task_entry @if($rows['followup_task']) followup_task_{{$rows['NoteID']>0?$rows['NoteID']:$rows['TaskID']}}  followup_task @endif">
+            <li id="timeline-{{$key}}" class="count-li timeline_task_entry @if($rows['followup_task']) followup_task_{{$rows['NoteID']>0?$rows['NoteID']:$rows['AccountEmailLogID']}}  followup_task @endif">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>
