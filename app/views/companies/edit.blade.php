@@ -473,7 +473,7 @@
           </div>
         </div>
         <div class="modal-footer">           
-          <button type="submit"   class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
+          <button type="submit"   class="btn_smtp_submit btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>
@@ -491,6 +491,9 @@
         });
 		
 		$('#Test_smtp_mail_form').submit(function(e) {
+			$('.model-title-set').html('Sending Test Email...');
+			 $('.btn_smtp_submit').button('loading');
+			 console.log('form submitted');
 			e.preventDefault();
 			e.stopImmediatePropagation();
 				var SampleEmail 	=  $("#Test_smtp_mail_form [name='SampleEmail']").val();				
@@ -501,7 +504,7 @@
 				var Port 			=  $("#form-user-add [name='Port']").val();
 				var IsSSL 			=  $("#form-user-add [name='IsSSL']").prop("checked");
 				
-					$('.model-title-set').html('Validating...');
+					
 			
 				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
 
@@ -509,10 +512,10 @@
 					url: ValidateUrl,
 					type: 'POST',
 					dataType: 'json',
-					async :false,
 					data:{SampleEmail:SampleEmail,SMTPServer:SMTPServer,EmailFrom:EmailFrom,SMTPUsername:SMTPUsername,SMTPPassword:SMTPPassword,Port:Port,IsSSL:IsSSL},
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
+					$('.btn_smtp_submit').button('reset');
 						 if (Response.status == 'failed') {
 	                           toastr.error(Response.message, "Error", toastr_opts);
 							   return false;
