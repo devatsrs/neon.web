@@ -237,7 +237,7 @@ class AccountsController extends \BaseController {
 			
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
-				{
+				{ Log::info($response_timeline['status']);
 					$response_timeline =  $response_timeline['data'];
 				}else{
 					$response_timeline = array();
@@ -297,7 +297,7 @@ class AccountsController extends \BaseController {
 				$response = $response->data;
 			}else{				
 			 	$message	=	isset($response->message)?$response->message:$response->error;
-			 	Session::set('error_message',$message);
+			 	Session::set('error_message',isset($message[0])?$message[0]:$message);
 			}
 			
 			
