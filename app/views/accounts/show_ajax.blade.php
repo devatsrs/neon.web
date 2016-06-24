@@ -39,7 +39,7 @@
 					{
 						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 					}
-                    $Attachmenturl = URL::to('accounts/'.$rows['AccountEmailLogID'].'/getattachment/'.$key_acttachment);
+                    $Attachmenturl = URL::to('emails/'.$rows['AccountEmailLogID'].'/getattachment/'.$key_acttachment);
 					if($key_acttachment==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
 					}else{

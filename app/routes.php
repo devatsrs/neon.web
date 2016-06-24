@@ -205,6 +205,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/{id}/activities/sendemail/api', 'AccountActivityController@sendMailApi');
     Route::any('accounts/{id}/activities/{log_id}/view_email_log', 'AccountActivityController@view_email_log')->where('log_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
+    Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
 
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
