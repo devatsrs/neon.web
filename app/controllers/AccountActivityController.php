@@ -227,4 +227,23 @@ class AccountActivityController extends \BaseController {
        return AccountEmailLog::find($logID);
     }
 
+    public function getAttachment($emailID,$attachmentID){
+        $response = NeonAPI::request('emailattachment/'.$emailID.'/getattachment/'.$attachmentID,[],true,true,true);
+
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
+        }else{
+            $Comment = json_response_api($response,true,false,false);
+
+            $FilePath =  AmazonS3::preSignedUrl($Comment['filepath']);
+
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
+            exit;
+        }
+    }
+
 }
