@@ -823,6 +823,7 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $('.btn').button('reset');
+                    $('.autogrow').trigger('autosize.resize');
                 }
             });
         });
@@ -874,7 +875,7 @@
                 toastr.error('Please select at least one IP Address.', "Error", toastr_opts);
                 return false;
             }else{
-                if(confirm('Do you want to delete selected ip addresses?')){
+                if(confirm('Are you sure you want to delete selected CLIs?')){
                     var url = baseurl + "/accounts/"+accountID+"/deleteclis";
                     var clis = SelectedIDs.join(",");
                     $.ajax({
@@ -992,7 +993,7 @@
                     <label class="col-sm-3 control-label">CLI</label>
                     <div class="col-sm-9">
                         <textarea name="CustomerCLI" class="form-control autogrow"></textarea>
-                        *Add one CLI in each row
+                        *Adding multiple CLIs ,Add one CLI in each line.
                     </div>
                 </div>
             </div>

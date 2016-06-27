@@ -307,6 +307,7 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $('.btn').button('reset');
+                    $('.autogrow').trigger('autosize.resize');
                 }
             });
         });
@@ -361,7 +362,7 @@
                 toastr.error('Please select at least one IP Address.', "Error", toastr_opts);
                 return false;
             }else{
-                if(confirm('Do you want to delete selected ip addresses?')){
+                if(confirm('Are you sure you want to delete selected IP Addresses?')){
                     $('#'+processing).removeClass('hidden');
                     var url = baseurl + "/accounts/"+accountID+"/deleteips";
                     var ips = SelectedIDs.join(",");
@@ -449,7 +450,7 @@
                         <label class="col-sm-3 control-label">Account IP</label>
                         <div class="col-sm-9">
                             <textarea name="AccountIP" class="form-control autogrow"></textarea>
-                            *Add one IP in each row
+                            *Adding multiple IPS ,Add one IP in each line.
                         </div>
                     </div>
                 </div>
