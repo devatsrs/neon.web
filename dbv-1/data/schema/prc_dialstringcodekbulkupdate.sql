@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_dialstringcodekbulkupdate`(IN `p_dialstringid` int, IN `p_up_chargecode` int, IN `p_up_description` int, IN `p_up_forbidden` int, IN `p_critearea` int, IN `p_dialstringcode` varchar(500), IN `p_critearea_dialstring` varchar(250), IN `p_critearea_chargecode` varchar(250), IN `p_critearea_description` varchar(250), IN `p_critearea_forbidden` INT, IN `p_chargecode` varchar(250), IN `p_description` varchar(250), IN `p_forbidden` varchar(250), IN `p_isAction` int )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DialStringCodekBulkUpdate`(IN `p_dialstringid` int, IN `p_up_chargecode` int, IN `p_up_description` int, IN `p_up_forbidden` int, IN `p_critearea` int, IN `p_dialstringcode` varchar(500), IN `p_critearea_dialstring` varchar(250), IN `p_critearea_chargecode` varchar(250), IN `p_critearea_description` varchar(250), IN `p_critearea_forbidden` INT, IN `p_chargecode` varchar(250), IN `p_description` varchar(250), IN `p_forbidden` varchar(250), IN `p_isAction` int )
 BEGIN
 
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; 
