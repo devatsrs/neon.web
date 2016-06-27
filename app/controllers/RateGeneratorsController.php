@@ -427,7 +427,7 @@ class RateGeneratorsController extends \BaseController {
             if($maxRate>0){
                 return Response::json(array(
                     "status" => "failed",
-                    "message" => "MaxRate should greater then MinRate."
+                    "message" => "MaxRate should be greater then MinRate."
                 ));
             }
 
@@ -478,14 +478,18 @@ class RateGeneratorsController extends \BaseController {
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
-                return json_validator_response($validator);
+                $errors = '';
+                foreach ($validator->messages()->all() as $error){
+                    $errors .= $error."<br>";
+                }
+                return Redirect::back()->with('error_message', $errors);
             }
 
             if($minRateCount>0 || $maxRateCount>0 || $minRate>0){
                 return Redirect::back()->with('error_message', "RateGenerator Rule Margin is overlapping");
             }
             if($maxRate>0){
-                return Redirect::back()->with('error_message', "MaxRate should greater then MinRate.");
+                return Redirect::back()->with('error_message', "MaxRate should be greater then MinRate.");
             }
 
             if (RateRuleMargin::insert($data)) {
