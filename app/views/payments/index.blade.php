@@ -289,7 +289,11 @@
                             {
                                 "bSortable": false, //Account
                                 mRender: function (id, type, full) {
-                                    return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                    var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                    if($('#Recall_on_off').prop("checked")){
+                                        chackbox='';
+                                    }
+                                    return chackbox;
                                 }
                             }, //1   CurrencyDescription
                             {
@@ -411,6 +415,13 @@
                                     $p[is_checked ? 'addClass' : 'removeClass']('selected');
                                 });
                             });
+
+                            $('.tohidden').removeClass('hidden');
+                            $('#selectall').removeClass('hidden');
+                            if($('#Recall_on_off').prop("checked")){
+                                $('.tohidden').addClass('hidden');
+                                $('#selectall').addClass('hidden');
+                            }
                         }
 
                     });
@@ -727,12 +738,6 @@
                         }
                     });
 
-                    $('#Recall_on_off').on('change',function(){
-                        $('.tohidden').removeClass('hidden');
-                        if($(this).prop("checked")){
-                            $('.tohidden').addClass('hidden');
-                        }
-                    });
 
                     $('#add-edit-payment-form').submit(function(e){
                         e.preventDefault();
