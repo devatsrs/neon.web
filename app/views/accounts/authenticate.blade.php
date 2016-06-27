@@ -230,7 +230,7 @@
         var accountID = {{$account->AccountID}};
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
-        $('.vendoriptable,.customeriptable').DataTable({"fnDrawCallback": function() {
+        $('.vendoriptable,.customeriptable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
@@ -401,10 +401,11 @@
 					}
                 });
                 $('.' + acountiptable).children('tbody').html(accoutiphtml);
-                $('.' + acountiptable).DataTable({"iDisplayLength":5});
-                $(".dataTables_wrapper select").select2({
-                    minimumResultsForSearch: -1
-                });
+                $('.' + acountiptable).DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                }});
             }
         }
 
@@ -436,7 +437,7 @@
 @section('footer_ext')
 @parent
 <div class="modal fade" id="addip-modal" >
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 30%;">
         <div class="modal-content">
             <form role="form" id="form-addip-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">
@@ -446,8 +447,9 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Account IP</label>
-                        <div class="col-sm-5">
-                            <textarea name="AccountIP" class="form-control autogrow resizevertical"></textarea>
+                        <div class="col-sm-9">
+                            <textarea name="AccountIP" class="form-control autogrow"></textarea>
+                            *Add one IP in each row
                         </div>
                     </div>
                 </div>

@@ -624,7 +624,7 @@
     jQuery(document).ready(function ($) {
 		//account status start
         attachchangeevent('acountclitable');
-        $('.acountclitable').DataTable({"fnDrawCallback": function() {
+        $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
@@ -906,7 +906,7 @@
                     }
                 });
                 $('.acountclitable').children('tbody').html(accoutclihtml);
-                $('.acountclitable').DataTable({"fnDrawCallback": function() {
+                $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -980,7 +980,7 @@
 </div>
 
 <div class="modal fade" id="addcli-modal" >
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 30%;">
         <div class="modal-content">
         <form role="form" id="form-addcli-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
             <div class="modal-header">
@@ -990,8 +990,9 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">CLI</label>
-                    <div class="col-sm-5">
-                        <textarea name="CustomerCLI" class="form-control autogrow resizevertical"></textarea>
+                    <div class="col-sm-9">
+                        <textarea name="CustomerCLI" class="form-control autogrow"></textarea>
+                        *Add one CLI in each row
                     </div>
                 </div>
             </div>
