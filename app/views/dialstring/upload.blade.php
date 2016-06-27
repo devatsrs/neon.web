@@ -159,7 +159,7 @@
 
                 <div class="panel-body" id="mapping">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Dial String*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Prefix*</label>
                         <div class="col-sm-4">
                             {{Form::select('selection[DialString]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
@@ -172,7 +172,7 @@
                     <div class="form-group">
                         <br />
                         <br />
-                        <label for="field-1" class="col-sm-2 control-label">Description*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Description</label>
                         <div class="col-sm-4">
                             {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
@@ -442,9 +442,9 @@ jQuery(document).ready(function ($) {
                         <table class="table responsive">
                             <thead>
                                 <tr>
-                                    <th>Dial String</th>
+                                    <th>Prefix</th>
                                     <th>Charge Code</th>
-                                    <th>Description</th>
+                                    <th>Description(Opt.)</th>
                                     <th>Forbidden(Opt.)</th>
                                     <th>Action(Opt.)</th>
                                 </tr>

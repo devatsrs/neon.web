@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('DialStrings','Add') )
         <a href="javascript:;" id="add-new-code" class="btn upload btn-primary ">
             <i class="entypo-upload"></i>
-            Add Dial String
+            Add Prefix
         </a>
     @endif
 </div>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label class="col-sm-1 control-label" for="field-1">Dial String</label>
+                        <label class="col-sm-1 control-label" for="field-1">Prefix</label>
                         <div class="col-sm-2">
                             <input type="text" name="ft_dialstring" class="form-control">
                             <input name="ft_dialstringid" value="{{$id}}" type="hidden" >
@@ -105,7 +105,7 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="codedeck[]" class="" />
         </th>
-        <th width="20%">Dial String</th>
+        <th width="20%">Prefix</th>
         <th width="20%">Charge Code</th>
         <th width="20%">Description</th>
         <th width="10%">Forbidden</th>

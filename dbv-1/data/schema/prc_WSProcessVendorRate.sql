@@ -201,7 +201,7 @@ BEGIN
 			            AND tblVendorRate.TrunkId = p_trunkId ;
 			    
 				 -- VENDOR UNBLOCK AND BLOCK
-            IF  p_forbidden = 1
+            IF  p_forbidden = 1 OR p_dialstringid > 0
 				THEN
 					
 					INSERT INTO tblVendorBlocking

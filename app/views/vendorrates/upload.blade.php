@@ -327,7 +327,7 @@
                     <div class="form-group">
                         <br />
                         <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Dial String <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you want code to prefix mapping then select dial string." data-original-title="Date Format">?</span>
+                        <label for=" field-1" class="col-sm-2 control-label">Dial String <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you want code to prefix mapping then select dial string." data-original-title="Dial String">?</span>
                         </label>
                         <div class="col-sm-4">
                             {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"selectboxit"))}}
