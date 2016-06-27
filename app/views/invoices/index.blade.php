@@ -196,7 +196,7 @@ var postdata;
         //show_loading_bar(40);
         var invoicestatus = {{$invoice_status_json}};
         var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
+        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
         $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
         $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
         $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
@@ -272,11 +272,7 @@ var postdata;
 
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
-                {  "bSortable": true,
-                    mRender:function( id, type, full){
-                        return full[15];
-                    }
-                },  //4 Invoice period
+                {  "bSortable": true },  //4 Invoice period
                 {  "bSortable": true },  // 5 GrandTotal
                 {  "bSortable": true },  // 6 PAID/OS
                 {  "bSortable": true,
@@ -289,6 +285,7 @@ var postdata;
                    "bSortable": false,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_,view_url,edit_url,download_url,invoice_preview,invoice_log;
+                        id = full[8];
                          action = '<div class = "hiddenRowData" >';
                         if (full[0] != '{{Invoice::INVOICE_IN}}'){
                             edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}",id);
@@ -352,7 +349,7 @@ var postdata;
                              action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                              $.each(invoicestatus, function( index, value ) {
                                  if(index!=''){
-                                     action +='<li><a data-invoicestatus="' + index+ '" data-invoiceid="' + full[7]+ '" href="' + Invoice_Status_Url+ '" class="changestatus" >'+value+'</a></li>';
+                                     action +='<li><a data-invoicestatus="' + index+ '" data-invoiceid="' + id+ '" href="' + Invoice_Status_Url+ '" class="changestatus" >'+value+'</a></li>';
                                  }
 
                              });
