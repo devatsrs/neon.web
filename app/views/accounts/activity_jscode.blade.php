@@ -128,7 +128,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			var followup = parseInt(del_key_id)+1;
 			if ($('#timeline-'+followup).hasClass("followup_task"))
 			{
-					 if (!confirm("Do You want to delete Note which have Follow up Task?"))
+					 if (!confirm("Are you sure you want delete? This note has follow up task against it."))
 					 {
       	  				return false;
     				 }
