@@ -282,7 +282,9 @@ class CronJobController extends \BaseController {
      */
     public function cronjob_monitor(){
 
-        return View::make('cronjob.cronjob_monitor', compact(''));
+        $commands = CronJobCommand::getCommands();
+
+        return View::make('cronjob.cronjob_monitor', compact('commands'));
 
     }
 
@@ -300,8 +302,9 @@ class CronJobController extends \BaseController {
         $CronJob = DB::connection('sqlsrv')->select($query);
         $CronJob = json_decode(json_encode($CronJob), true);
         $success = false;
+        $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = env('PHPExePath') . " " . env('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
             if (getenv('APP_OS') == 'Linux') {
                 pclose(popen( $command . " &", "r"));
                 $success=true;

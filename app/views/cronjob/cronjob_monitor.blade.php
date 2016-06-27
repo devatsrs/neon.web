@@ -88,10 +88,10 @@
         var auto_refresh=true;
         jQuery(document).ready(function ($) {
             public_vars.$body = $("body");
-            var list_fields  = ['Status','PID','Title','RunningTime','CronJobID','LastRunTime',];
+            var list_fields  = ['Active','PID','JobTitle','RunningTime','CronJobID','LastRunTime','Status',"CronJobCommandID"];
             var $searchFilter = {};
 
-            data_table_cronjob = $("#cronjobs").dataTable({
+            data_table = $("#cronjobs").dataTable({
                 "bDestroy": true,
                 "bProcessing":true,
                 "bServerSide":true,
@@ -109,13 +109,13 @@
                         [
                             {  "bSortable": true,
 
-                                mRender: function ( Status, type, full ) {
+                                mRender: function ( Active, type, full ) {
                                     var action ='';
                                     var CronJobID = full[4];
-                                    if(Status==0){
-                                        action += ' <button data-id="'+ CronJobID +'" class="btn btn-green btn-sm" type="button" title="Enable" data-placement="top" data-toggle="tooltip"><i class="entypo-check"></i></button>';
+                                    if(Active==0){
+                                        action += ' <button data-id="'+ CronJobID +'" class="cronjob_trigger btn btn-green btn-sm" type="button" title="Manually Execute" data-placement="top" data-toggle="tooltip"><i class="entypo-play"></i></button>';
                                     } else {
-                                        action += ' <button data-id="'+ CronJobID +'" class="btn btn-red btn-sm" type="button" title="Disable" data-placement="top" data-toggle="tooltip"><i class="entypo-pause" ></i></button>';
+                                        action += ' <button data-id="'+ CronJobID +'" class="cronjob_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-pause" ></i></button>';
                                     }
                                     return action;
                                 }
@@ -144,25 +144,26 @@
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
+                                    action += '<div id="cron_set" style="display: none" >' + (full[7] !== null ? full[7] : '') + '</div>'
+                                    action += '</div>';
 
-                                    var PID = full[1];
-                                    var Status = full[0];
-                                    if(PID > 0 ){
 
-                                        action += ' <button data-id="'+ CronJobID +'" class="btn btn-red btn-sm" type="button" title="Terminate" data-placement="left" data-toggle="tooltip"><i class="entypo-cancel" ></i></button>';
 
+                                    var Status = full[6];
+
+                                    if(Status==1) {
+                                        action += ' <button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="Stop" data-placement="left" data-toggle="tooltip"><i class="entypo-stop" ></i></button>';
                                     }else {
-                                        if(Status==1) {
-                                            action += ' <button data-id="' + CronJobID + '" class="btn btn-green btn-sm" type="button" title="Manually Execute" data-placement="left" data-toggle="tooltip"><i class="entypo-play"></i></button>';
-                                        }
-
+                                        action += ' <button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Enable" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
                                     }
 
+                                    <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
+                                            action += ' <a data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                    <?php } ?>
 
+                                    var history_url = baseurl + "/cronjobs/history/" + CronJobID;
 
-                                    action += ' <a   data-id="'+ CronJobID+'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-
-                                    action += ' <a data-id="'+ CronJobID +'" class=" btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
+                                    action += ' <a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
 
                                     return action;
                                 }
@@ -231,7 +232,7 @@
                 if(auto_refresh == true){
 
                     auto_refresh = false;
-                    data_table_cronjob.fnFilter('', 0);
+                    data_table.fnFilter('', 0);
                 }
             }, 1000 * 5); // where X is your every X minutes
 
@@ -241,8 +242,36 @@
             });
 
             $("#refreshcronjob").click(function(){
-                data_table_cronjob.fnFilter('', 0);
+                data_table.fnFilter('', 0);
             });
+
+
+            $('table tbody').on('click','.cronjob_change_status',function(ev){
+                result = confirm("Are you Sure?");
+                if(result){
+                    status = ($(this).attr('data-status')==0)?1:0;
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/change_status/' +  status );
+                }
+            });
+
+            $('table tbody').on('click','.cronjob_terminate',function(ev){
+                result = confirm("Are you Sure?");
+                if(result){
+                    status = ($(this).attr('data-status')==0)?1:0;
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/terminate'  );
+                }
+            });
+
+             $('table tbody').on('click','.cronjob_trigger',function(ev){
+                result = confirm("Are you Sure?");
+                if(result){
+                    status = ($(this).attr('data-status')==0)?1:0;
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger'  );
+                }
+            });
+
+
+
 
         });
     </script>
@@ -266,6 +295,9 @@
     </style>
     @stop
 
-    @section('footer_ext')
+@section('footer_ext')
     @parent
+    @include('cronjob.cronjob_edit_popup')
+@stop
+
 @stop

@@ -194,9 +194,21 @@ class CronJob extends \Eloquent {
         $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
         $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/activejob');
 
-        $emailstatus = Helper::sendMail('emails.ActiveCronJobEmailSend', $emaildata);
+        $emailstatus = Helper::sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
         return $emailstatus;
     }
 
+    public static function calcTimeDiff($LastRunTime)
+    {
+        $seconds = strtotime(date('Y-m-d H:i:s')) - strtotime($LastRunTime);
+        $minutes = floor(($seconds / 60));
+        if (isset($minutes) && $minutes != '')
+        {
+            return $minutes;
+        }else{
+            return 0;
+        }
+
+    }
 
 }
