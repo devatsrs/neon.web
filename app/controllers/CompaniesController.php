@@ -139,7 +139,6 @@ class CompaniesController extends \BaseController {
     }
 	
 	function ValidateSmtp(){
-		set_time_limit(10);
 		$data 				= 		Input::all();
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);

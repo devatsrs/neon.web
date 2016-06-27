@@ -458,14 +458,14 @@
       <form id="Test_smtp_mail_form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Validate Smtp Settings</h4>
+          <h4 class="model-title-set modal-title">Test Mail Settings</h4>
         </div>
         <div class="modal-body">
           <div class="row">            
-            <div class="col-md-6 margin-top">
+            <div class="col-md-10 margin-top">
               <div class="form-group">
-                <label for="SampleEmail" class="control-label col-sm-4">Test email address *</label>
-                <div class="col-sm-8">
+                <label for="SampleEmail" class="control-label col-sm-3">Send Test Email To *</label>
+                <div class="col-sm-5">
                   <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
                 </div>
               </div>
@@ -473,7 +473,7 @@
           </div>
         </div>
         <div class="modal-footer">           
-          <button type="submit"   class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button type="submit"   class="btn_smtp_submit btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>
@@ -491,6 +491,9 @@
         });
 		
 		$('#Test_smtp_mail_form').submit(function(e) {
+			$('.model-title-set').html('Sending Test Email...');
+			 $('.btn_smtp_submit').button('loading');
+			 console.log('form submitted');
 			e.preventDefault();
 			e.stopImmediatePropagation();
 				var SampleEmail 	=  $("#Test_smtp_mail_form [name='SampleEmail']").val();				
@@ -501,7 +504,7 @@
 				var Port 			=  $("#form-user-add [name='Port']").val();
 				var IsSSL 			=  $("#form-user-add [name='IsSSL']").prop("checked");
 				
-					$('#Test_smtp_mail_modal .modal-title').html('Validating...');
+					
 			
 				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
 
@@ -509,10 +512,10 @@
 					url: ValidateUrl,
 					type: 'POST',
 					dataType: 'json',
-					async :false,
 					data:{SampleEmail:SampleEmail,SMTPServer:SMTPServer,EmailFrom:EmailFrom,SMTPUsername:SMTPUsername,SMTPPassword:SMTPPassword,Port:Port,IsSSL:IsSSL},
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
+					$('.btn_smtp_submit').button('reset');
 						 if (Response.status == 'failed') {
 	                           toastr.error(Response.message, "Error", toastr_opts);
 							   return false;
@@ -520,7 +523,7 @@
 						  alert(Response.response);
 						  $('#Test_smtp_mail_modal').modal('hide'); 
 						  //$('.SmtpResponse').html(Response.response);
-						  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+						  $('.model-title-set').html('Test Mail Settings');
 						  
 						},
 				});	
@@ -537,11 +540,13 @@
 		
 		
 		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
-			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+			  $('.model-title-set').html('Test Mail Settings');
 		 });
 		 
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
-			  $('#Test_smtp_mail_modal .modal-title').html('Validate Smtp Settings');
+			  $('.model-title-set').html('Test Mail Settings');
+			  $('.ValidateSmtp').button('reset');
+
 		 });
 		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
@@ -569,7 +574,7 @@
             tags:{{json_encode(explode(',',$company->InvoiceStatus))}}
         });
     });
-
+  
 </script>
 @include('includes.ajax_submit_script', array('formID'=>'form-user-add' , 'url' => 'company/update'))
 @stop

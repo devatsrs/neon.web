@@ -1,22 +1,20 @@
-@extends('layout.main')
+@extends('layout.main_only_sidebar')
 @section('content')
-
-
-<ol class="breadcrumb bc-3">
-  <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <a href="javascript:void(0)">Server Information</a> </li>
-</ol>
-<h3>Server Information</h3>
-<div class="tab-content">
-  <div class="tab-pane active">
- <iframe width="100%;" height="1024px;" id="IframeServer" src="<?php echo "http://".$_SERVER['HTTP_HOST'].":19999/"; ?>"></iframe>
-   </div>
+ <iframe width="100%;" height="100%;" id="IframeServer" src="<?php echo getenv("SERVER_MONITOR_URL"); ?>"></iframe>
   @include('includes.errors')
   @include('includes.success')
 <style>
 iframe{border:0px;}
+.main-content{ padding: 0 !important;}
 </style>
-   </div>
+<script>
+    setTimeout(
+            function(){
+                sidebar_height = $(".sidebar-menu").height() - 70;
+                $("#IframeServer").height(sidebar_height);
+            },1000
+    );
+</script>
 @stop
 @section('footer_ext')
     @parent
