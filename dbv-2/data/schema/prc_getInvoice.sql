@@ -1,4 +1,26 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_InvoiceStatus` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT, IN `p_sageExport` INT, IN `p_zerovalueinvoice` INT, IN `p_InvoiceID` LONGTEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_InvoiceNumber` VARCHAR(50),
+	IN `p_IssueDateStart` DATETIME,
+	IN `p_IssueDateEnd` DATETIME,
+	IN `p_InvoiceType` INT,
+	IN `p_InvoiceStatus` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CurrencyID` INT,
+	IN `p_isExport` INT,
+	IN `p_sageExport` INT,
+	IN `p_zerovalueinvoice` INT,
+	IN `p_InvoiceID` LONGTEXT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
 BEGIN
     DECLARE v_OffSet_ int;
     DECLARE v_Round_ int;
@@ -7,8 +29,8 @@ BEGIN
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';   	     
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-    SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
-	 SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+    SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
  
 		
@@ -18,6 +40,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 	AccountName varchar(100),
 	InvoiceNumber varchar(100),
 	IssueDate datetime,
+	InvoicePeriod varchar(100),
 	CurrencySymbol varchar(5),
 	GrandTotal decimal(18,6),
 	TotalPayment decimal(18,6),
@@ -49,6 +72,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			  END
 			  as InvoiceNumber,
 			inv.IssueDate,
+			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
 			inv.GrandTotal as GrandTotal,		
 			(select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
@@ -67,9 +91,10 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inv.TotalTax,
 			ac.NominalAnalysisNominalAccountNumber
 			FROM tblInvoice inv
-			inner join LocalRatemanagement.tblAccount ac on ac.AccountID = inv.AccountID
+			inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
+			left join tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
 			left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-			left join LocalRatemanagement.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+			left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			where ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
 			AND (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND inv.InvoiceNumber = p_InvoiceNumber))
@@ -94,6 +119,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         AccountName,
 	    InvoiceNumber,
         IssueDate,
+        InvoicePeriod,
         CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
 	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
         InvoiceStatus,
@@ -127,6 +153,10 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
             END ASC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
             END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodASC') THEN InvoicePeriod
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodDESC') THEN InvoicePeriod
+            END DESC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
             END DESC,
             CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
@@ -154,6 +184,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		AccountName ,
         InvoiceNumber,
         IssueDate,
+        REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
         CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
 	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
         InvoiceStatus,
@@ -170,6 +201,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		AccountName ,
         InvoiceNumber,
         IssueDate,
+        REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
         CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
 	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
         InvoiceStatus,
@@ -186,9 +218,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         IF p_sageExport = 2
         THEN 
         UPDATE tblInvoice  inv
-        INNER JOIN LocalRatemanagement.tblAccount ac
+        INNER JOIN NeonRMDev.tblAccount ac
           ON ac.AccountID = inv.AccountID
-        INNER JOIN LocalRatemanagement.tblCurrency c
+        INNER JOIN NeonRMDev.tblCurrency c
           ON c.CurrencyId = ac.CurrencyId
         SET InvoiceStatus = 'paid' 
         WHERE ac.CompanyID = p_CompanyID
