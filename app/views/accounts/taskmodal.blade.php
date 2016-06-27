@@ -133,6 +133,7 @@
 						$('#add-modal-task').modal('hide');						
 					}                    
                    $('#add-task-form #Description_task').css("height","48px"); 
+				   change_click_filter();
                 },
                 // Form data
                 data: formData,

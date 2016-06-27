@@ -44,7 +44,7 @@
   <hr>
   <div class="invoice" id="Invoicepdf"> @if( !empty($PDFurl))
     <div>
-      <iframe src="{{$unsignPDFurl}}" frameborder="1" scrolling="auto" height="100%" width="100%" ></iframe>
+      <iframe src="{{$unsignPDFurl}}" title="{{getenv('COMPANY_NAME')}}" frameborder="1" scrolling="auto" height="100%" width="100%" ></iframe>
     </div>
     @else
     <center>

@@ -3,7 +3,7 @@
 			  $rows = json_decode(json_encode($rows), True); //convert std array to simple array
 			   ?>
             @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Mail)
-            <li id="timeline-{{$key}}" class="count-li">
+            <li id="timeline-{{$key}}" class="count-li timeline_mail_entry">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>
@@ -13,9 +13,10 @@
                 </span>
                 <?php } ?>
               </time>
-              <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
+              <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
               <div class="cbp_tmlabel normal_tag">  
-                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p>Subject: {{$rows['EmailSubject']}}</p>
+</h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
                   @if($rows['EmailBcc'])<p>BCC: {{$rows['EmailBcc']}}</p>@endif
@@ -56,7 +57,7 @@
               </div>
             </li>
             @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Tasks)
-            <li id="timeline-{{$key}}" class="count-li @if($rows['followup_task'])followup_task @endif">
+            <li id="timeline-{{$key}}" class="count-li timeline_task_entry @if($rows['followup_task'])followup_task @endif">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>
@@ -68,6 +69,8 @@
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div> 
               <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif ">  
+                <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
+            <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
             <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span>
@@ -91,7 +94,7 @@
               </div>
             </li>
             @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Note)
-            <li id="timeline-{{$key}}" class="count-li">
+            <li id="timeline-{{$key}}" class="count-li timeline_note_entry">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>
@@ -102,7 +105,9 @@
                 <?php } ?>
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-              <div class="cbp_tmlabel normal_tag"> <!--<a id="show-less-{{$key}}" class="pull-right show-less no-display" onclick="hideDetail({{$key}})"> &#45; </a> <a id="show-more-{{$key}}" onclick="expandTimeLine({{$key}})" class="pull-right show-less"> &#x2B; </a>-->
+              <div class="cbp_tmlabel normal_tag"> 
+               <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
+            <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash-o"></i></a>
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   <p>{{$rows['Note']}}</p>

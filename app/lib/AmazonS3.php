@@ -36,6 +36,7 @@ class AmazonS3 {
 		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
         'TASK_ATTACHMENT'=>'TaskAttachment',
         'EMAIL_ATTACHMENT'=>'EmailAttachment',
+        'DIALSTRING_UPLOAD'=>'DialString'
     );
 
     // Instantiate an S3 client

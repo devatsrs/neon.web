@@ -751,7 +751,7 @@
 
                             <div class="col-md-6 margin-top pull-right">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Phone Number*</label>
+                                    <label for="field-5" class="control-label col-sm-4">Phone Number</label>
                                     <div class="col-sm-8">
                                         <input type="text" name="Phone" class="form-control" id="field-5">
                                     </div>

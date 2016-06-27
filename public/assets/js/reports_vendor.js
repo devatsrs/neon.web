@@ -167,6 +167,9 @@ function reloadCharts(table_id,pageSize,$searchFilter){
     loadTable(table_id,pageSize,$searchFilter);
 }
 function loadTable(table_id,pageSize,$searchFilter){
+    var TotalCall = 0;
+    var TotalDuration = 0;
+    var TotalCost = 0;
         data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -240,7 +243,17 @@ function loadTable(table_id,pageSize,$searchFilter){
             minimumResultsForSearch: -1
         });
     },
-    /*"fnFooterCallback": function ( row, data, start, end, display ) {
+    "fnServerData": function ( sSource, aoData, fnCallback ) {
+        /* Add some extra data to the sender */
+        $.getJSON( sSource, aoData, function (json) {
+            /* Do whatever additional processing you want on the callback, then tell DataTables */
+            TotalCall = json.Total.TotalCall;
+            TotalDuration = json.Total.TotalDuration;
+            TotalCost = json.Total.TotalCost;
+            fnCallback(json)
+        });
+    },
+    "fnFooterCallback": function ( row, data, start, end, display ) {
         if (end > 0) {
             $(row).html('');
             for (var i = 0; i < data[0].length; i++) {
@@ -248,25 +261,16 @@ function loadTable(table_id,pageSize,$searchFilter){
                 $(a).html('');
                 $(row).append(a);
             }
-            var TotalCall = 0;
-            var TotalDuration = 0;
-            var TotalCharge = 0;
-            var ACD = 0;
-            for (var i = display[0]; i <= display[i]; i++) {
-                TotalCall += parseFloat(data[i][1]);
-                TotalDuration += parseFloat(data[i][2]);
-                TotalCharge += parseFloat(data[i][3]);
-                ACD += parseFloat(data[i][4]);
+            $($(row).children().get(0)).html('<strong>Total</strong>')
+            $($(row).children().get(1)).html('<strong>'+TotalCall+'</strong>');
+            $($(row).children().get(2)).html('<strong>'+TotalDuration+'</strong>');
+            if(TotalCost) {
+                $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
             }
-            $($(row).children().get(0)).html('Total of current page:')
-            $($(row).children().get(1)).html(TotalCall);
-            $($(row).children().get(2)).html(TotalDuration);
-            $($(row).children().get(3)).html(TotalCharge.toFixed(toFixed));
-            $($(row).children().get(4)).html((TotalDuration/TotalCall).toFixed(toFixed));
         }else{
-            $(table_id).find('tfoot').html('');
+            $(table_id).find('tfoot').find('tr').html('');
         }
-    }*/
+    }
 
     });
     return data_table;

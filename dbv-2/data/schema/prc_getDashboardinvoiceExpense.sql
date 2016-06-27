@@ -19,21 +19,32 @@ BEGIN
 		TotalAmount float,
 		CurrencyID int
 	);
-	SELECT cs.Value INTO v_Round_ FROM LocalRatemanagement.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT cs.Value INTO v_Round_ 
+	FROM LocalRatemanagement.tblCompanySetting cs 
+	WHERE cs.`Key` = 'RoundChargesAmount' 
+		AND cs.CompanyID = p_CompanyID;
 
 	INSERT INTO tmp_MonthlyTotalDue_
-	SELECT YEAR(created_at) as Year, MONTH(created_at) as Month,MONTHNAME(MAX(created_at)) as  MonthName, ROUND(SUM(IFNULL(GrandTotal,0)),v_Round_) as TotalAmount,CurrencyID
+	SELECT YEAR(IssueDate) as Year
+			,MONTH(IssueDate) as Month
+			,MONTHNAME(MAX(IssueDate)) as  MonthName
+			,ROUND(SUM(IFNULL(GrandTotal,0)),v_Round_) as TotalAmount
+			,CurrencyID
 	FROM tblInvoice
 	WHERE 
 		CompanyID = p_CompanyID
 		AND CurrencyID = p_CurrencyID
-		AND created_at >= DATE_ADD(NOW(),INTERVAL -6 MONTH)
+		AND fnGetMonthDifference(IssueDate,NOW()) <= 12
 		AND InvoiceType = 1 -- Invoice Out
-		AND InvoiceStatus != 'cancel'
+		AND InvoiceStatus NOT IN ( 'cancel' , 'draft' )
 		AND (p_AccountID = 0 or AccountID = p_AccountID)
-
-	GROUP BY YEAR(created_at), MONTH(created_at),CurrencyID
-	ORDER BY Year, Month;
+	GROUP BY 
+			YEAR(IssueDate)
+			,MONTH(IssueDate)
+			,CurrencyID
+	ORDER BY 
+			Year
+			,Month;
 
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblPayment_;
@@ -47,7 +58,7 @@ BEGIN
 	SELECT 
 		CASE WHEN inv.InvoiceID IS NOT NULL
 		THEN
-			inv.created_at
+			inv.IssueDate
 		ELSE
 			p.PaymentDate
 		END as PaymentDate,
@@ -57,12 +68,16 @@ BEGIN
 	INNER JOIN LocalRatemanagement.tblAccount ac 
 		ON ac.AccountID = p.AccountID
 	LEFT JOIN tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-	LEFT JOIN tblInvoice inv on REPLACE(p.InvoiceNo,'-','') = CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber))) AND p.AccountID = inv.AccountID AND InvoiceType = 1 -- Invoice Out
-		AND InvoiceStatus != 'cancel'
+	LEFT JOIN tblInvoice inv on REPLACE(p.InvoiceNo,'-','') = CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber))) 
+		AND p.Status = 'Approved' 
+		AND p.AccountID = inv.AccountID 
+		AND p.Recall=0
+		AND InvoiceType = 1 
 	WHERE 
 			p.CompanyID = p_CompanyID
 		AND ac.CurrencyId = p_CurrencyID
-		AND (	p.PaymentDate >= DATE_ADD(NOW(),INTERVAL -6 MONTH) OR inv.created_at >= DATE_ADD(NOW(),INTERVAL -6 MONTH) )
+		AND ((	fnGetMonthDifference(p.PaymentDate,NOW()) <= 12) 
+				OR (	 fnGetMonthDifference(inv.IssueDate,NOW()) <= 12))
 		AND p.Status = 'Approved'
 		AND p.Recall=0
 		AND p.PaymentType = 'Payment In'
@@ -70,20 +85,35 @@ BEGIN
 
 
 	INSERT INTO tmp_MonthlyTotalReceived_
-	SELECT YEAR(p.PaymentDate) as Year, MONTH(p.PaymentDate) as Month,MONTHNAME(MAX(p.PaymentDate)) as  MonthName, ROUND(SUM(IFNULL(p.Amount,0)),v_Round_) as TotalAmount,CurrencyID
+	SELECT YEAR(p.PaymentDate) as Year
+			,MONTH(p.PaymentDate) as Month
+			,MONTHNAME(MAX(p.PaymentDate)) as  MonthName
+			, ROUND(SUM(IFNULL(p.Amount,0)),v_Round_) as TotalAmount
+			,CurrencyID
 	FROM tmp_tblPayment_ p 
-	GROUP BY YEAR(p.PaymentDate), MONTH(p.PaymentDate),CurrencyID
-	ORDER BY Year, Month;
+	GROUP BY 
+		YEAR(p.PaymentDate)
+		,MONTH(p.PaymentDate),CurrencyID
+	ORDER BY 
+		Year
+		,Month;
 
-	SELECT 	CONCAT(CONCAT(case when td.Month <10 then concat('0',td.Month) else td.Month End, '/'), td.Year) AS MonthName ,
+	SELECT 
+		CONCAT(CONCAT(case when td.Month <10 then concat('0',td.Month) else td.Month End, '/'), td.Year) AS MonthName ,
 			td.Year,
 			ROUND(IFNULL(td.TotalAmount,0),v_Round_) TotalInvoice ,  
 			ROUND(IFNULL(tr.TotalAmount,0),v_Round_) PaymentReceived, 
 			ROUND(IFNULL((IFNULL(td.TotalAmount,0) - IFNULL(tr.TotalAmount,0)),0),v_Round_) TotalOutstanding , 
 			td.CurrencyID CurrencyID 
-	FROM  tmp_MonthlyTotalDue_ td
-	LEFT JOIN tmp_MonthlyTotalReceived_ tr ON td.Month = tr.Month AND td.Year = tr.Year AND tr.CurrencyID = td.CurrencyID
-	ORDER BY td.Year,td.Month;
+	FROM  
+		tmp_MonthlyTotalDue_ td
+	LEFT JOIN tmp_MonthlyTotalReceived_ tr 
+		ON td.Month = tr.Month 
+		AND td.Year = tr.Year 
+		AND tr.CurrencyID = td.CurrencyID
+	ORDER BY 
+		td.Year
+		,td.Month;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

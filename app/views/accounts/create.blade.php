@@ -180,11 +180,26 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label">Reseller</label>
+                        <div class="col-sm-4">
+                            <div class="make-switch switch-small">
+                                <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
+                            </div>
+                        </div>
+                    
                     <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
                     </div>
                     </div>
+                   <div class="form-group">                       
+                        <label for="field-1" class="col-sm-2 control-label">Reseller Email</label>
+                        <div class="col-sm-4">
+                          <input type="text" class="form-control"  name="ResellerEmail" id="field-1" placeholder="" value="{{Input::old('ResellerEmail')}}" />
+                        </div>
+
+                    </div>
+                    
                     <div class="panel-title desc clear">
                         Description
                     </div>
