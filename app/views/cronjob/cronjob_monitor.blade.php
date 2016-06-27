@@ -180,7 +180,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    auto_refresh = true;
+                    auto_refresh = false;
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -262,7 +262,7 @@
                 }
             });
 
-             $('table tbody').on('click','.cronjob_trigger',function(ev){
+            $('table tbody').on('click','.cronjob_trigger',function(ev){
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
