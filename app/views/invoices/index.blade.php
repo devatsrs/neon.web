@@ -272,7 +272,11 @@ var postdata;
 
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
-                {  "bSortable": true },  //4 Invoice period
+                {  "bSortable": true,
+                    mRender:function( id, type, full){
+                        return full[15];
+                    }
+                },  //4 Invoice period
                 {  "bSortable": true },  // 5 GrandTotal
                 {  "bSortable": true },  // 6 PAID/OS
                 {  "bSortable": true,

@@ -15,6 +15,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
 	IN `p_sageExport` INT,
 	IN `p_zerovalueinvoice` INT,
 	IN `p_InvoiceID` LONGTEXT
+
 )
 LANGUAGE SQL
 NOT DETERMINISTIC
@@ -119,7 +120,6 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         AccountName,
 	    InvoiceNumber,
         IssueDate,
-        InvoicePeriod,
         CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
 	    CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
         InvoiceStatus,
@@ -130,7 +130,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         PendingAmount as OutstandingAmount, 
         ItemInvoice,
 		BillingEmail,
-		GrandTotal
+		GrandTotal,
+		InvoicePeriod
         FROM tmp_Invoices_
         ORDER BY
                 CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
