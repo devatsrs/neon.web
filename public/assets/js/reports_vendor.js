@@ -268,7 +268,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
             }
         }else{
-            $(table_id).find('tfoot').html('');
+            $(table_id).find('tfoot').find('tr').html('');
         }
     }
 

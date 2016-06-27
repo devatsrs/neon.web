@@ -291,7 +291,8 @@
       <!-- --> 
       <!-- --> 
       <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
-      <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> @if(count($response_timeline)>0 && $message=='')
+      <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
+      <?php  if(count($response_timeline)>0){	?>  
         <div class="row" style="padding:9px 7px 0;">
           <div class="col-sm-12">
             <ul class="icheck-list">
@@ -336,7 +337,6 @@
                 @if($rows['EmailBcc'])
                 <p>BCC: {{$rows['EmailBcc']}}</p>
                 @endif
-                <p>Subject: {{$rows['EmailSubject']}}</p>
                 <?php
 	  if($rows['EmailAttachments']!='')
 	  {
@@ -444,9 +444,9 @@
         @if(count($response_timeline)>($data['iDisplayLength'])-1)
         <div id="last_msg_loader"></div>
         @endif
-        @else <span style="padding:1px;">
+        <?php }else{ ?> <span style="padding:1px;">
         <h3>No Activity Found.</h3>
-        </span> @endif </div>
+        </span> <?php } ?> </div>
     </section>
   </div>
 </div>

@@ -1,4 +1,4 @@
-Dial String,Charge Code,Description,Action,Forbidden
+Prefix,Charge Code,Description,Action,Forbidden
 441224,UKN,UK ABERDEEN,I ,0
 441887,UKN,UK ABERFELDY,I,0
 441873,UKN,UK ABERGAVENNY,I,1
