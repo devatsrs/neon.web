@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('DialStrings','Add') )
         <a href="javascript:;" id="add-new-code" class="btn upload btn-primary ">
             <i class="entypo-plus"></i>
-            Add New Prefix
+            Add New
         </a>
     @endif
 </div>
