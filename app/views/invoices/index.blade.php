@@ -231,7 +231,7 @@ var postdata;
                                          invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                                       }
                                       if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                        action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
+                                        action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[8]+'" name="InvoiceID[]"></div>';
                                       }
                                         action += invoiceType;
                                         return action;
@@ -247,7 +247,7 @@ var postdata;
                                         output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                                             }
                                         output+= '</a>';
-                                        account_url = baseurl + "/accounts/"+ full[10] + "/show";
+                                        account_url = baseurl + "/accounts/"+ full[11] + "/show";
                                         output = output.replace("{url}",account_url);
                                         output = output.replace("{account_name}",id);
                                         return output;
@@ -261,7 +261,7 @@ var postdata;
                                                         var output , account_url;
                     if (full[0] != '{{Invoice::INVOICE_IN}}') {
                         output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                        account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
+                        account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
                         output = output.replace("{url}", account_url);
                         output = output.replace("{account_name}", id);
                     }else{
@@ -277,7 +277,7 @@ var postdata;
                 {  "bSortable": true },  // 6 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
-                        return invoicestatus[full[7]];
+                        return invoicestatus[full[8]];
                     }
 
                 },  // 7 InvoiceStatus
