@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_dialstringcodekbulkupdate`(IN `p_dialstringid` int, IN `p_up_chargecode` int, IN `p_up_description` int, IN `p_up_forbidden` int, IN `p_critearea` int, IN `p_dialstringcode` varchar(500), IN `p_critearea_dialstring` varchar(250), IN `p_critearea_chargecode` varchar(250), IN `p_critearea_description` varchar(250), IN `p_chargecode` varchar(250), IN `p_description` varchar(250), IN `p_forbidden` varchar(250), IN `p_isAction` int )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DialStringCodekBulkUpdate`(IN `p_dialstringid` int, IN `p_up_chargecode` int, IN `p_up_description` int, IN `p_up_forbidden` int, IN `p_critearea` int, IN `p_dialstringcode` varchar(500), IN `p_critearea_dialstring` varchar(250), IN `p_critearea_chargecode` varchar(250), IN `p_critearea_description` varchar(250), IN `p_critearea_forbidden` INT, IN `p_chargecode` varchar(250), IN `p_description` varchar(250), IN `p_forbidden` varchar(250), IN `p_isAction` int )
 BEGIN
 
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; 
@@ -22,8 +22,10 @@ BEGIN
     THEN
     	
     		INSERT INTO tmp_dialstringcode
-			  SELECT DialStringCodeID from tblDialStringCode
-				where DialStringID = p_dialstringid
+			  SELECT DialStringCodeID
+			   FROM tblDialStringCode
+				WHERE DialStringID = p_dialstringid
+						AND (Forbidden = p_critearea_forbidden)
 						AND (p_critearea_dialstring IS NULL OR DialString LIKE REPLACE(p_critearea_dialstring, '*', '%'))
 		            AND (p_critearea_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_critearea_chargecode, '*', '%'))
       		      AND (p_critearea_description IS NULL OR Description LIKE REPLACE(p_critearea_description, '*', '%'));
