@@ -45,7 +45,8 @@ class AuthenticationController extends \BaseController
         }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'Other' && empty($data['CustomerAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Customer Other Value required"));
         }
-
+        unset($data['vendoriptable_length']);
+        unset($data['customeriptable_length']);
         if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
             AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
