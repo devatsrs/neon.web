@@ -11,13 +11,17 @@ BEGIN
     THEN
          
 		SELECT
-			tblCronJob.Status	,
+			tblCronJob.Active,
 			tblCronJob.PID,
 			tblCronJob.JobTitle,                
 			CONCAT(TIMESTAMPDIFF(HOUR,LastRunTime,NOW()),' Hours, ',TIMESTAMPDIFF(minute,LastRunTime,now())%60,' Minutes, ',TIMESTAMPDIFF(second,LastRunTime,now())%60 , ' Seconds' ) AS RunningTime,
 			tblCronJob.CronJobID,
- 			tblCronJob.LastRunTime
-	                 							
+ 			tblCronJob.LastRunTime,
+			tblCronJob.Status,	                 	
+							  
+          tblCronJob.CronJobCommandID,
+          tblCronJob.Settings	
+			 						  						
 		FROM tblCronJob
       WHERE tblCronJob.CompanyID = p_companyid -- AND tblCronJob.Active=1
        

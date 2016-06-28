@@ -21,8 +21,8 @@
 <div style="float: right;">
     @if( User::checkCategoryPermission('DialStrings','Add') )
         <a href="javascript:;" id="add-new-code" class="btn upload btn-primary ">
-            <i class="entypo-upload"></i>
-            Add Prefix
+            <i class="entypo-plus"></i>
+            Add New
         </a>
     @endif
 </div>

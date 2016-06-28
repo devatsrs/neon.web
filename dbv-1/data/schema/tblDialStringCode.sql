@@ -10,6 +10,6 @@ CREATE TABLE `tblDialStringCode` (
   `created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`DialStringCodeID`),
-  UNIQUE KEY `IXUnique_DialStringID_DialString_ChargeCode` (`DialStringID`,`DialString`,`ChargeCode`),
+  UNIQUE KEY `IXUnique_DialStringID_DialString` (`DialStringID`,`DialString`),
   KEY `IX_tblDialStringCode_DialStringID` (`DialStringID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
