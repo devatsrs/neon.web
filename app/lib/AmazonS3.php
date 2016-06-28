@@ -34,6 +34,8 @@ class AmazonS3 {
         'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
 		'THEMES_IMAGES'=>'ThemeImages',
 		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
+        'TASK_ATTACHMENT'=>'TaskAttachment',
+        'EMAIL_ATTACHMENT'=>'EmailAttachment',
         'DIALSTRING_UPLOAD'=>'DialString'
     );
 

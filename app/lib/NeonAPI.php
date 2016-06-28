@@ -13,7 +13,7 @@ class NeonAPI{
         $curl->post(self::$api_url.$call_method, array(
             'LoggedEmailAddress' => Input::get('email'),
             'password' => Input::get('password'),
-            'LicenceKey' =>  getenv('LICENCE_KEY'),
+			'LicenceKey' =>  getenv('LICENCE_KEY'),
             'CompanyName'=>getenv('COMPANY_NAME')
 
         ));
@@ -26,23 +26,23 @@ class NeonAPI{
         return false;
     }
 
-
-    public static function logout()
-    {
-        NeonAPI::request('logout',[]);
-    }
-
-    public static function login_by_id($id){
+	
+	public static function logout()
+	{
+		NeonAPI::request('logout',[]);		 
+	}
+	
+   public static function login_by_id($id){
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-        self::$api_url = getenv('Neon_API_URL');
+       self::$api_url = getenv('Neon_API_URL');
 
-        $curl->post(self::$api_url.$call_method, array(
-            'LoggedUserID' => $id,
-            "LicenceKey" =>  getenv('LICENCE_KEY'),
-            'CompanyName'=>getenv('COMPANY_NAME')
-        ));
+       $curl->post(self::$api_url.$call_method, array(
+           'LoggedUserID' => $id,
+           "LicenceKey" =>  getenv('LICENCE_KEY'),
+           'CompanyName'=>getenv('COMPANY_NAME')
+       ));
 
         $response = json_decode($curl->response);
         if(isset($response->token)){
@@ -143,5 +143,28 @@ class NeonAPI{
             );
         }
         return $files_array;
+    }
+
+    public static function UploadFileLocal($data){
+        $filesArray = [];
+        $uploadedFile = [];
+        $files = Input::file('fileattachments');
+        $attachmentsinfo = $data['attachmentsinfo'];
+        if(!empty($attachmentsinfo)){
+            $filesArray = json_decode($attachmentsinfo,true);
+        }
+        foreach ($files as $file){
+            $upload_path = getenv('TEMP_PATH');
+            $file_name_without_ext = GUID::generate();
+            $file_name = $file_name_without_ext . '.' . $file->getClientOriginalExtension();
+            $file->move($upload_path, $file_name);
+            $uploadedFile[]	=	 array ("filename"=>$file->getClientOriginalName(),"filepath"=>$upload_path . '/' . $file_name);
+        }
+        if(!empty($filesArray) && count($filesArray)>0) {
+            $filesArray	=	array_merge($filesArray,$uploadedFile);
+        } else {
+            $filesArray	=	$uploadedFile;
+        }
+        return $filesArray;
     }
 }
