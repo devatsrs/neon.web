@@ -9,13 +9,16 @@
             <strong>Opportunity Board</strong>
         </li>
     </ol>
+    <h3>Opportunity Boards</h3>
     <div class="tab-content">
         <div class="tab-pane active">
             <p style="text-align: right;">
+                @if(User::checkCategoryPermission('OpportunityBoard','Add'))
                 <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
                     Add Opportunity Board
                 </a>
+                @endif
             </p>
             <div class="row">
                 <div class="col-md-12">
@@ -117,8 +120,10 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    @if(User::checkCategoryPermission('opportunityboards','Edit'))
+                                    @if(User::checkCategoryPermission('OpportunityBoard','Edit'))
                                         action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" class="edit-opportunitybaord btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                    @endif
+                                    @if(User::checkCategoryPermission('OpportunityBoard','Configure'))
                                         action += ' <a class="manage-deal-board btn btn-default btn-sm btn-icon icon-left" href="'+configure+'"><i class="entypo-cog"></i> Configure Board</a>';
                                     @endif
                                     return action;

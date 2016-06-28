@@ -50,7 +50,9 @@
                         }
                         ?>
                             <li class="tile-stats sortable-item count-cards {{$priorityborder}}" data-name="{{$task['Subject']}}" data-id="{{$task['TaskID']}}">
+                                @if(User::checkCategoryPermission('Task','Edit'))
                                 <button type="button" title="Edit Task" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
+                                @endif
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>
