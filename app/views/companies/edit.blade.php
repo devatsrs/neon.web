@@ -574,7 +574,7 @@
             tags:{{json_encode(explode(',',$company->InvoiceStatus))}}
         });
     });
-
+  
 </script>
 @include('includes.ajax_submit_script', array('formID'=>'form-user-add' , 'url' => 'company/update'))
 @stop

@@ -159,6 +159,47 @@ class DashboardController extends BaseController {
         return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
 
     }
+	
+	public function CrmDashboard(){ 
+        $companyID 			= 	User::get_companyID();
+        $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $original_startdate = 	date('Y-m-d', strtotime('-1 week'));
+        $original_enddate 	= 	date('Y-m-d');
+        $company_gateway 	=  CompanyGateway::getCompanyGatewayIdList();
+		 return View::make('dashboard.crm', compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));	
+	}
+	
+	public function GetUsersTasks(){
+		
+	    $data 					= 	Input::all();		
+		$companyID			 	= 	User::get_companyID();
+		$UserID	   			 	= 	User::get_userID();
+		$SearchDate				=	'';
+		$where['UsersIDs']		=	$UserID;
+		$task 					= 	Task::where($where)->select(['tblTask.Subject','tblTask.DueDate','tblCRMBoardColumn.BoardColumnName as Status','tblAccount.AccountName as Company']);
+		$task->where("tblTask.DueDate","!=",DB::raw("'0000-00-00 00:00:00'")); 
+
+		if(isset($data['TaskTypeData']) && $data['TaskTypeData']!=''){
+		 if($data['TaskTypeData'] == 'duetoday'){
+			 $task->where("tblTask.DueDate","=",DB::raw(''.date('Y-m-d')).'');
+		 }
+		 else if($data['TaskTypeData'] == 'duesoon'){
+			 $task->whereBetween('tblTask.DueDate',array(date("Y-m-d"),date("Y-m-d",strtotime(''.date('Y-m-d').' +1 months'))));			
+		 }
+		 else if($data['TaskTypeData'] == 'overdue'){
+			$task->where("tblTask.DueDate","<",DB::raw(''.date('Y-m-d')).'');
+			
+		 }		 
+		}		
+		$task->join('tblCRMBoardColumn', 'tblTask.BoardColumnID', '=', 'tblCRMBoardColumn.BoardColumnID');
+		
+		$task->join('tblAccount', 'tblTask.AccountIDs', '=', 'tblAccount.AccountID');
+		
+        $UserTasks 		 	 	= 	$task->orderBy('tblTask.TaskID', 'desc')->get();
+		
+        $jsondata['UserTasks']	=	$UserTasks;
+		return json_encode($jsondata);
+	}
 
     public function ajax_get_recent_due_sheets(){
         $companyID = User::get_companyID();
