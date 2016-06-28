@@ -249,12 +249,14 @@
         });
         $('body').on('click', '.customer-add-ip', function(e) {
             $('#form-addip-modal').find("[name='AccountIP']").val('');
+            $('.autogrow').trigger('autosize.resize');
             $("#addip-modal").modal('show');
             acountiptable = 'customeriptable';
             isCustomerOrVendor = 1; //1 for customer
         });
         $('body').on('click', '.vendor-add-ip', function(e) {
             $('#form-addip-modal').find("[name='AccountIP']").val('');
+            $('.autogrow').trigger('autosize.resize');
             $("#addip-modal").modal('show');
             acountiptable = 'vendoriptable';
             isCustomerOrVendor = 2; //2 for vendor
@@ -307,7 +309,6 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $('.btn').button('reset');
-                    $('.autogrow').trigger('autosize.resize');
                 }
             });
         });

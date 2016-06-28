@@ -1026,7 +1026,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $status = Account::validate_clis($data);
         if(count($status['clisExist'])>0){
             $iPsExist = implode('<br>',$status['clisExist']);
-            $message = ' and following IPs already exist. '.$iPsExist;
+            $message = ' and following CLIs already exist. '.$iPsExist;
         }
         unset($data['clis']);
         unset($data['AccountID']);

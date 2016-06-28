@@ -802,6 +802,7 @@
         //CLI Code Start
         $('body').on('click', '.add-cli', function(e) {
             $("#form-addcli-modal")[0].reset();
+            $('.autogrow').trigger('autosize.resize');
             $("#addcli-modal").modal('show');
         });
 
@@ -823,7 +824,6 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $('.btn').button('reset');
-                    $('.autogrow').trigger('autosize.resize');
                 }
             });
         });
