@@ -25,7 +25,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form id="cronjob_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+        <form id="cronjob_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">

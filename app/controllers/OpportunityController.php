@@ -37,14 +37,41 @@ class OpportunityController extends \BaseController {
         }else{
             $message = json_response_api($response,false,false);
         }
-        return View::make('crmcomments.attachments', compact('attachementPaths','message'))->render();
+        $type = 'opportunity';
+        return View::make('crmcomments.attachments', compact('attachementPaths','message','type','id'))->render();
     }
 
     public function saveattachment($id){
         $data = Input::all();
         $opportunityattachment = Input::file('opportunityattachment');
         if(!empty($opportunityattachment)) {
-            $data['file'] = NeonAPI::base64byte($opportunityattachment);
+            $FilesArray = array();
+            $allowed = getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+            $allowedextensions = explode(',',$allowed);
+            $allowedextensions = array_change_key_case($allowedextensions);
+            foreach ($opportunityattachment as $attachment) {
+                $ext = $attachment->getClientOriginalExtension();
+                if (!in_array(strtolower($ext), $allowedextensions)) {
+                    return generateResponse($ext." file type is not allowed. Allowed file types are ".$allowed,true,true);
+                }
+            }
+            foreach($opportunityattachment as $file){
+                $ext = $file->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['OPPORTUNITY_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                $file_name = "OpportunityAttachment_". GUID::generate() . '.' . $ext;
+                $file->move($destinationPath, $file_name);
+
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file."));
+                }
+                $FilesArray[] = array("filename" => $file->getClientOriginalName(), "filepath" => $amazonPath . $file_name);
+            }
+            $data['file']		=	json_encode($FilesArray);
             $response = NeonAPI::request('opportunity/'.$id.'/save_attachment',$data,true,false,true);
             return json_response_api($response);
         }else{
@@ -126,26 +153,46 @@ class OpportunityController extends \BaseController {
     }
 
     //////////////////////
-    function upload_file(){
+    function uploadFile(){
         $data       =  Input::all();
-        $data['file']    = array();
         $attachment    =  Input::file('commentattachment');
-
-        if(!empty($attachment)){
-            $data['file'] = NeonAPI::base64byte($attachment);
-        }
-        try {
-            $return_str = check_upload_file($data['file'], 'email_attachments', $data);
-            return $return_str;
-        }catch (Exception $ex) {
-            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        if(!empty($attachment)) {
+            try {
+                $data['file'] = $attachment;
+                $returnArray = UploadFile::UploadFileLocal($data);
+                return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
+            } catch (Exception $ex) {
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
         }
 
     }
 
-    function delete_upload_file(){
+    function deleteUploadFile(){
         $data    =  Input::all();
-        delete_file('email_attachments',$data);
+        try {
+            UploadFile::DeleteUploadFileLocal($data);
+            return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
+    public function getAttachment($opportunityID,$attachmentID){
+        $response = NeonAPI::request('opportunity/'.$opportunityID.'/getattachment/'.$attachmentID,[],true,true,true);
+
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
+        }else{
+            $attachment = json_response_api($response,true,false,false);
+            $FilePath =  AmazonS3::preSignedUrl($attachment['filepath']);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
+            exit;
+        }
     }
 
 }

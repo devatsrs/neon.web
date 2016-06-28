@@ -115,14 +115,15 @@ class RateTablesController extends \BaseController {
      * @return Response
      */
     public function view($id) {
-            $trunkID = RateTable::where(["RateTableId" => $id])->pluck('TrunkID');
-            $countries = Country::getCountryDropdownIDList();
-            $CodeDeckId = RateTable::getCodeDeckId($id);
-            $CompanyID = User::get_companyID();
-            $codes = CodeDeck::getCodeDropdownList($CodeDeckId,$CompanyID);
-            $isBandTable = RateTable::checkRateTableBand($id);
-            $code = RateTable::getCurrencyCode($id);
-            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code'));
+        $rateTable = RateTable::find($id);
+        $trunkID = RateTable::where(["RateTableId" => $id])->pluck('TrunkID');
+        $countries = Country::getCountryDropdownIDList();
+        $CodeDeckId = RateTable::getCodeDeckId($id);
+        $CompanyID = User::get_companyID();
+        $codes = CodeDeck::getCodeDropdownList($CodeDeckId,$CompanyID);
+        $isBandTable = RateTable::checkRateTableBand($id);
+        $code = RateTable::getCurrencyCode($id);
+        return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable'));
     }
 
 

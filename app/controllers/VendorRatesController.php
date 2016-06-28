@@ -422,12 +422,6 @@ class VendorRatesController extends \BaseController
                         if ($validator->fails()) {
                             return Redirect::back()->withInput(Input::all())->withErrors($validator);
                         }
-                        if( isset($data['CompanyGatewayID']) && is_array($data['CompanyGatewayID'])){
-                            $data['CompanyGatewayIDs'] = implode(',', $data['CompanyGatewayID']);
-                            unset($data['CompanyGatewayID']);
-                        }else{
-                            $data['CompanyGatewayIDs'] = '';
-                        }
 
 
                         if (isset($data['VendorTrunkID']) && $data['VendorTrunkID'] > 0) {
