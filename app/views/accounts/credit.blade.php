@@ -102,7 +102,7 @@
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/account/ajax_datagrid_credit",
+            "sAjaxSource": baseurl + "/account/ajax_datagrid_credit/type",
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -112,7 +112,8 @@
                 );
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push(
-                        {"name":"Export","value":1}
+                        {"name":"Export","value":1},
+                        {"name":"AccountID","value":'{{$account->AccountID}}'}
                 );
             },
             "aaSorting": [[0, 'asc']],
@@ -129,8 +130,14 @@
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "Export Data",
-                        "sUrl": baseurl + "/cronjobs/ajax_datagrid", //baseurl + "/generate_xls.php",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/account/ajax_datagrid_credit/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/account/ajax_datagrid_credit/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection"
                     }
                 ]

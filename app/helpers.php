@@ -1226,3 +1226,24 @@ function account_expense_table($Expense,$customer_vendor){
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
 }
+function view_response_api($response){
+    $message = '';
+    $isArray = false;
+    if(is_array($response)){
+        $isArray = true;
+    }
+    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+        $Code = $isArray?$response['Code']:$response->Code;
+        $validator = $isArray?$response['message']:(array)$response->message;
+        if (count($validator) > 0) {
+            foreach ($validator as $index => $error) {
+                if(is_array($error)){
+                    $message .= array_pop($error) . "<br>";
+                }
+            }
+        }
+        Log::info($message);
+        return App::abort($Code,$message);
+    }
+
+}

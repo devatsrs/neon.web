@@ -184,7 +184,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/authenticate_store', 'AuthenticationController@authenticate_store');
 	Route::any('account/get_credit/{id}', 'AccountsController@get_credit');
 	Route::any('account/update_credit', 'AccountsController@update_credit');
-	Route::any('account/ajax_datagrid_credit', 'AccountsController@ajax_datagrid_credit');
+	Route::any('account/ajax_datagrid_credit/{type}', 'AccountsController@ajax_datagrid_credit');
 	Route::any('accounts/activity/{id}', 'AccountsController@expense');
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');

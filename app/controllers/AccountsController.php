@@ -913,7 +913,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = 0;
-        if(!empty($response) && $response->status_code == 200 ){
+        if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
             }
@@ -926,8 +926,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($response->data->BalanceAmount)){
                 $BalanceThreshold = $response->data->BalanceAmount;
             }
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount'));
+        }else{
+            return view_response_api($response);
         }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount'));
+
     }
 
     public function update_credit(){
@@ -936,9 +939,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
         return json_response_api($response);
     }
-    public function ajax_datagrid_credit(){
+    public function ajax_datagrid_credit($type){
         $getdata = Input::all();
         $response =  NeonAPI::request('account/get_credithistorygrid',$getdata,false,false,false);
+        if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $excel_data = json_decode(json_encode($response->data),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
         return json_response_api($response,true,true,true);
     }
 	function upload_file()
