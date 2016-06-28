@@ -836,41 +836,14 @@ function getUploadedFileRealPath($files)
     return $realPaths;
 }
 
-function validfilepath($path){
-
-    $FilePath =  AmazonS3::preSignedUrl($path);
-    if(file_exists($FilePath)){
-        download_file($FilePath);
-    }else{
-        header('Location: '.$FilePath);
-    }
-    return $path;
-}
-
-function getFileData($path){
-    try{
-        $path = AmazonS3::unSignedUrl($path);
-        // Read image path, convert to base64 encoding
-        $imageData = base64_encode(file_get_contents($path));
-        // Format the image SRC:  data:{mime};base64,{data};
-        $base64 = 'data: '.mime_content_type($path).';base64,'.$imageData;
-        //$data = file_get_contents($path);
-        //$base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-    }catch (Exception $e){
-        return "";
-    }
-
-    return $base64;
-}
-
 
 function create_site_configration_cache(){
     $domain_url 					=   $_SERVER['HTTP_HOST'];
     $result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
     if($result){  //url found
-        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
-        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
+        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':AmazonS3::unSignedImageUrl($result[0]->Favicon);
+        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':AmazonS3::unSignedImageUrl($result[0]->Logo);
         $cache['Title']				=	$result[0]->Title;
         $cache['FooterText']		=	$result[0]->FooterText;
         $cache['FooterUrl']			=	$result[0]->FooterUrl;
