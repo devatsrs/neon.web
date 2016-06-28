@@ -180,7 +180,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    auto_refresh = false;
+                    auto_refresh = true;
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
