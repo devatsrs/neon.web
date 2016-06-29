@@ -178,7 +178,7 @@ class CronJob extends \Eloquent {
         }
         //Kill the process.
         $ReturnStatus = exec($KillCommand,$DetailOutput);
-        CronJob::find($CronJobID)->update(["Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
+        CronJob::find($CronJobID)->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
 
         $emaildata['KillCommand'] = $KillCommand;
         $emaildata['ReturnStatus'] = $ReturnStatus;
