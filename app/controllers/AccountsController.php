@@ -162,7 +162,7 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
-
+        unset($data['DataTables_Table_0_length']);
         if(Company::isBillingLicence()) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
@@ -407,6 +407,7 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
+        unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
