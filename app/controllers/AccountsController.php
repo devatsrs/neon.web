@@ -797,7 +797,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
             $data = Input::all();
             if (User::is('AccountManager')) { // Account Manager
-                $data['account_owners'] = $userID = User::get_userID();
+                $criteria = json_decode($data['criteria'],true);
+                $criteria['account_owners'] = $userID = User::get_userID();
+                $data['criteria'] = json_encode($criteria);
             }
             $type = $data['type'];
             if ($type == 'CD') {
