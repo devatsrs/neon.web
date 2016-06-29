@@ -14,7 +14,7 @@
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">
-        <input type="hidden" name="UserID" value="{{User::get_userID()}}">
+		<input type="hidden" name="UserID" value="{{User::get_userID()}}">
     </form>
     <div class="row">
         <div class="col-md-3 col-sm-6">

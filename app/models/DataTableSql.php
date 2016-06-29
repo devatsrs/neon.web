@@ -18,6 +18,7 @@ class DataTableSql extends \Eloquent {
         public $Columns;
         public $result ;
         public $connection;
+        public $totalColumns;
         
         public static  function of($query,$connection= null){
             $ins = new static;
@@ -45,6 +46,7 @@ class DataTableSql extends \Eloquent {
                         if(isset($row['totalcount'])){
                             $this->iTotalDisplayRecords =$row['totalcount'];
                             $this->iTotalRecords =$row['totalcount'];
+                            $this->totalColumns = $result_new[0];
                             break;
                         }
                         $rows[] = array_values((array)  $row);
@@ -90,7 +92,8 @@ class DataTableSql extends \Eloquent {
                 "iTotalRecords" => $this->iTotalRecords,
                 "iTotalDisplayRecords" => $this->iTotalDisplayRecords,
                 "aaData" => $this->data,
-                "sColumns" => $this->Columns
+                "sColumns" => $this->Columns,
+                "Total" => $this->totalColumns
             );
             if(Config::get('app.debug', false)) {
                 $output['aQueries'] = DB::getQueryLog();

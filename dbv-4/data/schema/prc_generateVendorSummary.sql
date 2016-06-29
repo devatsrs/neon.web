@@ -5,7 +5,7 @@ BEGIN
 	
 	CALL fnGetCountry(); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
-	/* used for success call summary*/
+	/* used for success call summary
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorUsageSummary;
 	CREATE TEMPORARY TABLE `tmp_VendorUsageSummary` (
 		`DateID` BIGINT(20) NOT NULL,
@@ -28,8 +28,9 @@ BEGIN
 		INDEX `tmp_VendorUsageSummary_AreaPrefix` (`AreaPrefix`),
 		INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
 		
-	);
+	);*/
  	/* insert into success summary*/
+ 	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_VendorUsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
@@ -46,12 +47,12 @@ BEGIN
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
 		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
 		SUM(IF(ud.call_status=2,1,0)) AS  NoOfFailCalls
-	FROM tmp_tblVendorUsageDetailsReport_ ud  
+	FROM tmp_tblVendorUsageDetailsReport ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
-	DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorUsageDetailsReport_;
+	-- DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorUsageDetailsReport_;
 	
 	UPDATE tmp_VendorUsageSummary  FORCE INDEX (tmp_VendorUsageSummary_AreaPrefix)
 	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
@@ -75,12 +76,12 @@ BEGIN
 	DELETE us FROM tblUsageVendorSummary us 
 	INNER JOIN tblSummaryVendorHeader sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate;
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	DELETE usd FROM tblUsageVendorSummaryDetail usd
 	INNER JOIN tblSummaryVendorHeader sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate;
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	
 	INSERT INTO tblUsageVendorSummary (SummaryVendorHeaderID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)

@@ -79,7 +79,7 @@
           </ul>
         </li>--}}
     @endif
-    <li><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
+    <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
                 <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
@@ -157,17 +157,20 @@
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
     User::checkCategoryPermission('Currency','View') || User::checkCategoryPermission('ExchangeRate','View') ||
-    User::checkCategoryPermission('CodeDecks','View'))
+    User::checkCategoryPermission('CodeDecks','View')  || User::checkCategoryPermission('DialStrings','View'))
     <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
       <ul>
         @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') )
-        <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">  <span>My Profile</span> </a> </li>
+        <li> <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}?sm=1">  <span>My Profile</span> </a> </li>
         @endif
         @if( User::checkCategoryPermission('Trunk','View') )
         <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
         @endif
         @if( User::checkCategoryPermission('CodeDecks','View') )
         <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
+        @endif
+          @if(User::checkCategoryPermission('DialStrings','View'))
+            <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Gateway','View'))
         <li> <a href="{{Url::to('/gateway')}}">  <span>Gateway</span> </a> </li>
@@ -201,10 +204,14 @@
         <li> <a href="{{URL::to('/cronjobs')}}">  <span>Cron Jobs</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>
+        <!--<li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>-->
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
+    	@endif
+        
+         @if( User::checkCategoryPermission('serverinfo','View'))
+        <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
         
         @if(User::checkCategoryPermission('Jobs','view')) 

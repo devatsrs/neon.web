@@ -737,7 +737,7 @@ display:none;
     bottom: 0;
     left: 0;
     right: 0;
-    overflow-x: auto;
+    /*overflow-x: auto;*/
     overflow:hidden
 }
 .board .header{
@@ -817,7 +817,7 @@ ul.board-column-list {
     height: 92%;
     width: 100%;
     /*text-align: center;*/
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     overflow:hidden;
     margin: 0px;
 }

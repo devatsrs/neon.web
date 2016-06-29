@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteVCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteVCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT, IN `p_CLI` VARCHAR(250), IN `p_CLD` VARCHAR(250), IN `p_zerovaluecost` INT, IN `p_CurrencyID` INT)
     COMMENT 'Delete Vendor CDR'
 BEGIN
 
@@ -6,7 +6,7 @@ BEGIN
     SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
 		SELECT BillingTime INTO v_BillingTime_
-		FROM Ratemanagement3.tblCompanyGateway cg
+		FROM LocalRatemanagement.tblCompanyGateway cg
 		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 		WHERE AccountID = p_AccountID AND (p_GatewayID = 0 OR ga.CompanyGatewayID = p_GatewayID)
 		LIMIT 1;
@@ -24,18 +24,28 @@ BEGIN
 	            ud.VendorCDRID,
 	            billed_duration,
 	            connect_time,
-	            disconnect_time
+	            disconnect_time,
+	            cli,
+	            cld,
+	            buying_cost,
+	            CompanyGatewayID,
+	            uh.AccountID
 	
-			FROM `RMCDR3`.tblVendorCDR  ud 
-			INNER JOIN `RMCDR3`.tblVendorCDRHeader uh
+			FROM `LocalRMCdr`.tblVendorCDR  ud 
+			INNER JOIN `LocalRMCdr`.tblVendorCDRHeader uh
 				ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID
-	        LEFT JOIN Ratemanagement3.tblAccount a
+	        LEFT JOIN LocalRatemanagement.tblAccount a
 	            ON uh.AccountID = a.AccountID
 	        WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 			  AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
 	        AND uh.CompanyID = p_CompanyID
-	        AND (p_AccountID = '' OR uh.AccountID = p_AccountID)
-	        AND (p_GatewayID = '' OR CompanyGatewayID = p_GatewayID)
+	        AND uh.AccountID is not null
+	        AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
+	        AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+	        AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
+			  AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
+			  AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND buying_cost > 0))
+			  AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 	        ) tbl
 	        WHERE 
 	    
@@ -48,7 +58,7 @@ BEGIN
 
 		
 		 delete ud.*
-        From `RMCDR3`.tblVendorCDR ud
+        From `LocalRMCdr`.tblVendorCDR ud
         inner join tmp_tblUsageDetail_ uds on ud.VendorCDRID = uds.VendorCDRID;
         
         SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

@@ -81,10 +81,13 @@ function download_file($file = ''){
                 '.gif'=>'image/gif',
                 '.png'=>'image/png'
             );
-            $extension = strrchr(basename($file), ".");
+            $f = new Symfony\Component\HttpFoundation\File\File($file);
+            $extension = $f->getExtension();
             $type = "application/octet-stream";
+            if (!isset($mime_types[$extension])) {
+                $mime_types[$extension] = $f->getMimeType();
+            }
             if (isset($mime_types[$extension])) {
-
                 $type = $mime_types[$extension];
                 header('Content-Description: File Transfer');
                 header('Content-disposition: attachment; filename="' . basename($file).'"');
@@ -833,25 +836,14 @@ function getUploadedFileRealPath($files)
     return $realPaths;
 }
 
-function validfilepath($path){
-    $path = AmazonS3::unSignedImageUrl($path);
-    /*if (!is_numeric(strpos($path, "https://"))) {
-        //$path = str_replace('/', '\\', $path);
-        if (copy($path, './uploads/' . basename($path))) {
-            $path = URL::to('/') . '/uploads/' . basename($path);
-        }
-    }*/
-    return $path;
-}
-
 
 function create_site_configration_cache(){
     $domain_url 					=   $_SERVER['HTTP_HOST'];
     $result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
     if($result){  //url found
-        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
-        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
+        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':AmazonS3::unSignedImageUrl($result[0]->Favicon);
+        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':AmazonS3::unSignedImageUrl($result[0]->Logo);
         $cache['Title']				=	$result[0]->Title;
         $cache['FooterText']		=	$result[0]->FooterText;
         $cache['FooterUrl']			=	$result[0]->FooterUrl;
@@ -880,7 +872,7 @@ function addhttp($url) {
 
 function chart_reponse($alldata){
 
-    $chartColor = array('#0073b7','#ba79cb','#00a65a','#701c1c','#00b29e','#6c541e','#ffa812','#00c0ef','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
+    $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
@@ -959,47 +951,6 @@ function get_random_number(){
     return md5(uniqid(rand(), true));
 }
 
-function delete_file($session,$data)
-{
-    $files_array	=	Session::get($session);
-
-    if(isset($files_array[$data['token_attachment']])){
-
-        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-        {
-            if($array_file_data['fileName'] == $data['file'])
-            {
-                unset($files_array[$data['token_attachment']][$key]);
-            }
-        }
-    }
-
-    //unset($files_array[$data['token_attachment']]);
-    Session::set($session, $files_array);
-}
-
-
-function check_upload_file($files,$session,$data){
-    $files_array		        =	Session::get($session);
-    $return_txt					=	'';
-
-    if(isset($files_array[$data['token_attachment']])) {
-        $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
-    } else {
-        $files_array[$data['token_attachment']]	=	$files;
-    }
-
-
-    Session::set($session, $files_array);
-
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
-        $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
-
-    }
-
-    return $return_txt;
-}
-
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
@@ -1010,25 +961,32 @@ function check_uri($parent_link=''){
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
-    $array_billing    =    array('Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+	$array_crm 		  =    array("OpportunityBoard","Task");
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
     if(count($path_array)>0)
     {
-        $controller = $path_array[0];
-        if(in_array($controller,$array_billing) && $parent_link =='Billing')
+         $controller = $path_array[0];
+	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-            return 'opened';
+			if(Request::segment(1)!='monitor'){
+            	return 'opened';
+			}  		
         }
 
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
-        {
-            return 'opened';
+        {  if($controller=='Users' && isset($_REQUEST['sm'])){
+            	return 'opened';
+			}else if($controller!='Users'){
+				return 'opened';
+			}
         }
 
         if(in_array($controller,$array_admin) && $parent_link =='Admin')
-        {
-            return 'opened';
+        {	if(!isset($_REQUEST['sm'])){
+            	return 'opened';
+			}
         }
 
         if(in_array($controller,$array_summary) && $parent_link =='Summary')
@@ -1041,10 +999,10 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 
-        /*if(in_array($controller,$array_template) && $parent_link =='Template')
+        if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
             return 'opened';
-        }*/
+        }
 
         if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
         {
@@ -1152,4 +1110,62 @@ function get_round_decimal_places($AccountID = 0) {
     }
 
     return $RoundChargesAmount;
+}
+
+
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
+    $mail 				= 	new PHPMailer;
+    $mail->isSMTP();
+    $mail->Host 		= 	$SMTPServer;
+    $mail->SMTPAuth 	= 	true;
+    $mail->Username 	= 	$SMTPUsername;
+    $mail->Password 	= 	$SMTPPassword;
+    $mail->SMTPSecure	= 	$IsSSL==1?'SSL':'TLS';
+    $mail->Port 		= 	$Port;
+    $mail->From 		= 	$address;
+    $mail->FromName 	= 	'Test Smtp server';
+    $mail->Body 		= 	"Testing Smtp mail Settings";
+    $mail->Subject 		= 	"Test Smtp Email";
+    $mail->Timeout		=    25;
+  /*if($mail->smtpConnect()){
+		$mail->smtpClose();*/
+	$mail->addAddress($ToEmail);
+   if ($mail->send()) {
+	   return "Valid mail settings.";
+	}else{
+		return "Invalid mail settings.";
+	}
+ }
+	 
+function account_expense_table($Expense,$customer_vendor){
+    $datacount = $colsplan=  0;
+    $tableheader = $tablebody = '';
+    if(!empty($Expense) && !isset($Expense[0]->datacount)) {
+        foreach ($Expense as $ExpenseRow) {
+            if ($datacount == 0) {
+                $tableheader = '<tr>';
+            }
+            $tablebody .= '<tr>';
+            foreach ($ExpenseRow as $yearmonth => $total) {
+                if ($datacount == 0) {
+                    if ($yearmonth != 'AreaPrefix') {
+                        $tableheader .= "<th>$yearmonth</th>";
+                    } else {
+                        $tableheader .= "<th>Top Prefix</th>";
+                    }
+                    $colsplan++;
+                }
+                $tablebody .= "<td>$total</td>";
+            }
+            if ($datacount == 0) {
+                $tableheader .= '</tr>';
+            }
+            $tablebody .= '</tr>';
+            $datacount++;
+        }
+    }else{
+        $tablebody = '<tr><td>NO DATA</td></tr>';
+    }
+    $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
+    return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
 }

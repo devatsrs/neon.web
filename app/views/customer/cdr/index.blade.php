@@ -129,6 +129,7 @@
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>
+                        <th width="5%" class="hide"></th>
                         <th width="15%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
@@ -164,7 +165,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
-            var list_fields  =['AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
+            var list_fields  =['UsageDetailID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
             var starttime = $("#cdr_filter [name='StartTime']").val();
             if(starttime =='0:00:01'){
                 starttime = '0:00:00';
@@ -223,6 +224,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 },
                 "aoColumns":
                 [
+                    { "bVisible": false, "bSortable": true  }, //0Checkbox
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },

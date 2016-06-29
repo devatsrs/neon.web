@@ -11,13 +11,20 @@ BEGIN
     THEN
          
 		SELECT
-			tblCronJob.JobTitle,                
+			tblCronJob.Active,
 			tblCronJob.PID,
-			CONCAT(TIMESTAMPDIFF(HOUR,LastRunTime,NOW()),':',TIMESTAMPDIFF(minute,LastRunTime,now())%60) AS RunningHour,
-			tblCronJob.LastRunTime,                				
-			tblCronJob.CronJobID
+			tblCronJob.JobTitle,                
+			CONCAT(TIMESTAMPDIFF(HOUR,LastRunTime,NOW()),' Hours, ',TIMESTAMPDIFF(minute,LastRunTime,now())%60,' Minutes, ',TIMESTAMPDIFF(second,LastRunTime,now())%60 , ' Seconds' ) AS RunningTime,
+			tblCronJob.CronJobID,
+ 			tblCronJob.LastRunTime,
+			tblCronJob.Status,	                 	
+							  
+          tblCronJob.CronJobCommandID,
+          tblCronJob.Settings	
+			 						  						
 		FROM tblCronJob
-      WHERE tblCronJob.CompanyID = p_companyid AND tblCronJob.Active=1
+      WHERE tblCronJob.CompanyID = p_companyid -- AND tblCronJob.Active=1
+       
       ORDER BY                
 			CASE
 			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'JobTitleDESC') THEN tblCronJob.JobTitle
@@ -37,13 +44,14 @@ BEGIN
 			CASE
 			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastRunTimeDESC') THEN tblCronJob.LastRunTime
 			END DESC
+		
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 
      SELECT
          COUNT(tblCronJob.CronJobID) as totalcount
      FROM tblCronJob
-         WHERE tblCronJob.CompanyID = p_companyid AND tblCronJob.Active=1;
+         WHERE tblCronJob.CompanyID = p_companyid ; -- AND tblCronJob.Active=1;
     END IF;
 
     IF p_isExport = 1
@@ -54,7 +62,7 @@ BEGIN
 			tblCronJob.CronJobID,
 			tblCronJob.LastRunTime  
         FROM tblCronJob
-        WHERE tblCronJob.CompanyID = p_companyid AND tblCronJob.Active=1;
+        WHERE tblCronJob.CompanyID = p_companyid; -- AND tblCronJob.Active=1;
     END IF;
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
