@@ -320,9 +320,9 @@ class ThemesController extends \BaseController {
 					{
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}
-					
+
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;					
+					$destinationPath 	= 	public_path($amazonPath);
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -371,7 +371,7 @@ class ThemesController extends \BaseController {
 					}
 					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;					
+					$destinationPath 	= 	public_path($amazonPath);
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
