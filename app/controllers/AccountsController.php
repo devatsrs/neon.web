@@ -162,7 +162,7 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
-
+        unset($data['DataTables_Table_0_length']);
         if(Company::isBillingLicence()) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
@@ -407,6 +407,7 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
+        unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
@@ -796,7 +797,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
             $data = Input::all();
             if (User::is('AccountManager')) { // Account Manager
-                $data['account_owners'] = $userID = User::get_userID();
+                $criteria = json_decode($data['criteria'],true);
+                $criteria['account_owners'] = $userID = User::get_userID();
+                $data['criteria'] = json_encode($criteria);
             }
             $type = $data['type'];
             if ($type == 'CD') {
