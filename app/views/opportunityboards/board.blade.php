@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="col-sm-2">
 		<div class="oppertunityworth">
-			<h4>Worth: <?php echo $WorthTotal; ?></h4>
+			<h4><strong> Worth: <?php echo $WorthTotal; ?></strong></h4>
 		</div>
 	</div>
 </div>
