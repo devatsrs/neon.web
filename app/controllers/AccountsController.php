@@ -912,7 +912,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = 0;
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $CreditUsed = 0;
         if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
@@ -924,9 +924,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $BalanceThreshold = $response->data->BalanceThreshold;
             }
             if(!empty($response->data->BalanceAmount)){
-                $BalanceThreshold = $response->data->BalanceAmount;
+                $BalanceAmount = $response->data->BalanceAmount;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount'));
+            if(!empty($response->data->CreditUsed)){
+                $CreditUsed = $response->data->CreditUsed;
+            }
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','CreditUsed'));
         }else{
             return view_response_api($response);
         }
