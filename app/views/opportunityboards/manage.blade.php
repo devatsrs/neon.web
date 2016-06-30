@@ -2,7 +2,15 @@
 
 @section('content')
 <style>
-
+	.oppertunityworth{
+		border-radius:5px;
+		border:2px solid #ccc;
+		background:#fff;
+		padding:5px;
+		margin-bottom:10px;
+		width:60%;
+		font-weight:bold;
+	}
     .file-input-wrapper{
         height: 26px;
     }
@@ -110,8 +118,7 @@
         <p style="text-align: right;">
             <a href="javascript:void(0)" class="btn btn-primary opportunity">
                 <i class="entypo-plus"></i>
-                Add New Opportunity
-            </a>
+                Add</a>
         </p>
 
         <section class="deals-board" >
@@ -149,7 +156,8 @@
                 'Tags',
                 'Rating',
                 'TaggedUsers',
-                'Status'
+                'Status',
+				'Worth' 
             ];
 
             @if(empty($message)){
@@ -159,7 +167,7 @@
                 toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
             }
             @endif;
-            var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
+            var readonly = ['Company','Phone','Email','Title','FirstName','LastName','Worth'];
             var BoardID = "{{$BoardID}}";
             var board = $('#board-start');
             var email_file_list     =    new Array();
@@ -524,7 +532,7 @@
                     url: url,  //Server script to process data
                     type: 'POST',
                     dataType: 'html',
-                    success: function (response) {
+                    success: function (response) {						
                         board.html(response);
                         initEnhancement();
                         initSortable();
@@ -784,8 +792,17 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                      <div class="col-md-6 margin-top-group pull-left">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">Value</label>
+                                <div class="col-sm-8">
+								<input class="form-control" value="" name="Worth" type="number" >                               
+                                 </div>
+                            </div>
+                        </div>
 
-                            <div class="col-md-6 margin-top-group pull-left">
+                            <div class="col-md-6 margin-top-group pull-right">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Close</label>
                                     <div class="col-sm-8 make">

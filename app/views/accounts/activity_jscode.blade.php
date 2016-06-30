@@ -241,13 +241,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			}
     	});
 		
-	
-	
-	@if(!empty($message))
- var status = '{{$message}}';
-toastr.error(status, "Error", toastr_opts);
- @endif
-	
+
 	$('.redirect_link').click(function(e) {
 		var id_redirect = $(this).attr('href_id');
 		

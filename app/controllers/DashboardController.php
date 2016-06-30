@@ -163,34 +163,43 @@ class DashboardController extends BaseController {
 	public function CrmDashboard(){ 
         $companyID 			= 	User::get_companyID();
         $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        $original_startdate = 	date('Y-m-d', strtotime('-1 week'));
-        $original_enddate 	= 	date('Y-m-d');
-        $company_gateway 	=  CompanyGateway::getCompanyGatewayIdList();
-		 return View::make('dashboard.crm', compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));	
+		$Country 			= 	Country::getCountryDropdownIDList();
+        $account 			= 	Account::getAccountIDList();
+		$currency 			= 	Currency::getCurrencyDropdownIDList();
+		$UserID 			= 	User::get_userID();
+		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		$users			 	= 	User::getUserIDList();	
+		
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users'));	
 	}
 	
 	public function GetUsersTasks(){
 		
 	    $data 					= 	Input::all();		
 		$companyID			 	= 	User::get_companyID();
-		$UserID	   			 	= 	User::get_userID();
 		$SearchDate				=	'';
-		$where['UsersIDs']		=	$UserID;
-		$task 					= 	Task::where($where)->select(['tblTask.Subject','tblTask.DueDate','tblCRMBoardColumn.BoardColumnName as Status','tblAccount.AccountName as Company']);
-		$task->where("tblTask.DueDate","!=",DB::raw("'0000-00-00 00:00:00'")); 
+		if(isset($data['UsersID']) && $data['UsersID']!=''){
+			$where['UsersIDs']		=	$data['UsersID'];
+		}
+		$where['taskClosed']	=	0;
+		$task 					= 	Task::where($where)->select(['tblTask.Subject','tblTask.DueDate','tblCRMBoardColumn.BoardColumnName as Status','tblAccount.AccountName as Company','tblTask.Priority']);
+		
 
 		if(isset($data['TaskTypeData']) && $data['TaskTypeData']!=''){
 		 if($data['TaskTypeData'] == 'duetoday'){
 			 $task->where("tblTask.DueDate","=",DB::raw(''.date('Y-m-d')).'');
 		 }
 		 else if($data['TaskTypeData'] == 'duesoon'){
-			 $task->whereBetween('tblTask.DueDate',array(date("Y-m-d"),date("Y-m-d",strtotime(''.date('Y-m-d').' +1 months'))));			
+			 $task->whereBetween('tblTask.DueDate',array(date("Y-m-d"),date("Y-m-d",strtotime(''.date('Y-m-d').' +1 months'))));						
 		 }
 		 else if($data['TaskTypeData'] == 'overdue'){
-			$task->where("tblTask.DueDate","<",DB::raw(''.date('Y-m-d')).'');
-			
+			$task->where("tblTask.DueDate","<",DB::raw(''.date('Y-m-d')).'');			
+		 }
+		 if($data['TaskTypeData'] != 'All'){
+			$task->where("tblTask.DueDate","!=",DB::raw("'0000-00-00 00:00:00'")); 			 
 		 }		 
-		}		
+		}
+				
 		$task->join('tblCRMBoardColumn', 'tblTask.BoardColumnID', '=', 'tblCRMBoardColumn.BoardColumnID');
 		
 		$task->join('tblAccount', 'tblTask.AccountIDs', '=', 'tblAccount.AccountID');
@@ -199,6 +208,42 @@ class DashboardController extends BaseController {
 		
         $jsondata['UserTasks']	=	$UserTasks;
 		return json_encode($jsondata);
+	}
+	
+	function GetPipleLineData(){
+        $companyID 			= 	User::get_companyID();
+        $userID 			= 	'';
+        $isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+        $data 				= 	Input::all();
+		$UserID 			=	(isset($data['UsersID']) && !empty($data['UsersID']))?$data['UsersID']:0;
+		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
+		$array_return 		= 	array("TotalOpportunites"=>0,"TotalWorth"=>0);
+		$array_status 		= 	array();
+		
+		if($isAdmin){		
+			$result1		=	Opportunity::where(['CompanyID'=>$companyID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
+		}else
+		{		
+			$result1		=	Opportunity::where(['CompanyID'=>$companyID,'UserID'=>$UserID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as TotalWorth'),'Status'])->groupby(['Status'])->toArray();
+		}
+		
+		 $statusarray = implode(",", array(Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned));
+		 $query  = "call prc_GetCrmDashboardPipeLine (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."')";
+		 $result = DB::select($query);
+		
+			foreach($result as $result_data){
+				$array_status[$result_data->Status] = array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites);
+			}
+			foreach(Opportunity::$status as $index => $status_text){				
+				$array_return['data'][$index] = isset($array_status[$index])?array("status"=>$status_text,"Worth"=>$array_status[$index]["Worth"],"Opportunites"=>$array_status[$index]["Opportunites"]): array("status"=>$status_text,"Worth"=>0,"Opportunites"=>0);
+				
+				$array_return['TotalOpportunites'] 			=   $array_return['TotalOpportunites']+(isset($array_status[$index]["Opportunites"])?$array_status[$index]["Opportunites"]:0);
+				$array_return['CurrencyCode'] 	= 	isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';
+				$array_return['TotalWorth'] 	= 	$array_return['TotalWorth']+(isset($array_status[$index]['Worth'])?$array_status[$index]['Worth']:0);	
+			}
+		
+		
+		return json_encode($array_return);
 	}
 
     public function ajax_get_recent_due_sheets(){

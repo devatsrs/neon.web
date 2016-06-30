@@ -424,7 +424,14 @@
                                 </div>
                             </div>
                         </div>
-
+     					 <div class="col-md-6 margin-top pull-left">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label col-sm-4">Value</label>
+                                <div class="col-sm-8">
+								<input class="form-control" value="0" name="Worth" type="number" >                               
+                                 </div>
+                            </div>
+                        </div>
 
                         <!--<div class="col-md-6 margin-top-group pull-left">
                             <div class="form-group">

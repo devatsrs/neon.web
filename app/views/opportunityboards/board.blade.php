@@ -1,3 +1,11 @@
+<div class="row">
+	<div class="col-sm-2">
+		<div class="oppertunityworth">
+			<h4>Worth: <?php echo $WorthTotal; ?></h4>
+		</div>
+	</div>
+</div>
+
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($columnsWithOpportunities)>0)
         @foreach($columnsWithOpportunities as $index=>$column )

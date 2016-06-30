@@ -53,7 +53,7 @@
                 <input id="Logo" type="file" name="Logo" class="form-control file2 inline btn btn-primary Logo-input-file"  data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
               </div>
               <div class="col-sm-6"> 
-              <img name="LogoUrl" src="{{!empty($Theme->Logo)?validfilepath($Theme->Logo):'http://placehold.it/200x58'}}" width="200">
+              <img name="LogoUrl" src="{{!empty($Theme->Logo)? AmazonS3::unSignedImageUrl($Theme->Logo):'http://placehold.it/200x58'}}" width="200">
                (Upload jpg,png file)
                </div>
             </div>
@@ -65,7 +65,7 @@
                 <input id="Favicon" type="file" name="Favicon" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
               </div>
               <div class="col-sm-6">
-              <img name="FaviconUrl" src="{{!empty($Theme->Favicon)?validfilepath($Theme->Favicon):'http://placehold.it/32x32'}}" width="32">
+              <img name="FaviconUrl" src="{{!empty($Theme->Favicon)? AmazonS3::unSignedImageUrl($Theme->Favicon):'http://placehold.it/32x32'}}" width="32">
                (Only Upload .ico file)
               
               </div>
