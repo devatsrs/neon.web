@@ -219,6 +219,8 @@ class AccountsController extends \BaseController {
 	
 		public function show($id) {
 		
+		
+		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
 			
@@ -236,7 +238,7 @@ class AccountsController extends \BaseController {
 			
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
-				{ Log::info($response_timeline['status']);
+				{
 					$response_timeline =  $response_timeline['data'];
 				}else{
 					$response_timeline = array();
@@ -291,21 +293,25 @@ class AccountsController extends \BaseController {
 	        $leadOrAccount 				= 	 $accounts;
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-
-			 if (isset($response->status_code) && $response->status_code == 200) {			
-				$response = $response->data;
-			}else{				
-			 	$message	=	isset($response->message)?$response->message:$response->error;
-			 	Session::set('error_message',isset($message[0])?$message[0]:$message);
-			}
 			
+				$array = json_decode(json_encode($response), True); 
+			 if (isset($response->status) && $response->status != 'failed') {			
+				$response = $response->data;
+			}else{		
+				if(isset($response->Code) && $response->Code==400){
+					return	Redirect::to('/logout'); 	
+				}
+				else{
+					$message	    =	$response->message['error'][0]; 
+			 		Session::set('error_message',$message);
+				}
+			}			
 			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
-    
+
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
 		}
 	
 	
