@@ -22,6 +22,7 @@ class AmazonS3 {
         'INVOICE_UPLOAD' =>  'Invoices',
 		'ESTIMATE_UPLOAD' =>  'estimates',
         'CUSTOMER_PROFILE_IMAGE' =>  'CustomerProfileImage',
+        'USER_PROFILE_IMAGE' =>  'UserProfileImage',
         'BULK_LEAD_MAIL_ATTACHEMENT' => 'bulkleadmailattachment',
         'TEMPLATE_FILE' => 'TemplateFile',
         'CDR_UPLOAD'=>'CDRUPload',
