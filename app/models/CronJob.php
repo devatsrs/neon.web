@@ -134,11 +134,13 @@ class CronJob extends \Eloquent {
                 $data['Setting']['CompanyGatewayID'] = $data['CompanyGatewayID'];
                 unset($data['CompanyGatewayID']);
             }
+            if(isset($data['AccountID'])){
+                $data['Setting']['AccountID'] = $data['AccountID'];
+                unset($data['AccountID']);
+            }
             if(isset($data['TemplateID'])){
                 $data['Setting']['TemplateID'] = $data['TemplateID'];
-                $data['Setting']['AccountID'] = $data['AccountID'];
                 unset($data['TemplateID']);
-                unset($data['AccountID']);
             }
             $data['Settings'] = json_encode($data['Setting']);
         }

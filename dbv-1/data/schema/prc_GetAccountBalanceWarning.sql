@@ -2,10 +2,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccountBalanceWarning`(IN `p
 BEGIN
 
 	SELECT
-		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.BalanceAmount ELSE ab.BalanceThreshold END) < ab.CurrentCredit ,1,0) as BalanceWarning,
+		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.PermanentCredit ELSE ab.BalanceThreshold END) < ab.BalanceAmount ,1,0) as BalanceWarning,
 		ab.BalanceAmount,
-		ab.CurrentCredit,
+		ab.CreditUsed,
 		ab.BalanceThreshold,
+		ab.PermanentCredit,
 		a.BillingEmail,
 		a.AccountName,
 		a.AccountID,

@@ -1243,7 +1243,9 @@ function view_response_api($response){
             }
         }
         Log::info($message);
-        return App::abort($Code,$message);
+        if($Code > 0) {
+            return App::abort($Code, $message);
+        }
     }
 
 }
