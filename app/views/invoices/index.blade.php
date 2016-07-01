@@ -243,7 +243,7 @@ var postdata;
                 mRender:function( id, type, full){
                                         var output , account_url;
                                         output = '<a href="{url}" target="_blank" >{account_name}';
-                                        if(full[13] ==''){
+                                        if(full[14] ==''){
                                         output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                                             }
                                         output+= '</a>';
@@ -316,7 +316,7 @@ var postdata;
                             action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                            if (full[12] == '{{Invoice::ITEM_INVOICE}}'){
+                            if (full[13] == '{{Invoice::ITEM_INVOICE}}'){
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}",id) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                 }
@@ -333,7 +333,7 @@ var postdata;
                                     action += '<li><a data-id="' + id  + '" class="send-invoice icon-left"><i class="entypo-mail"></i>Send </a></li>';
                                 }
                             }
-                            if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[6] != '{{Invoice::PAID}}')){
+                            if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[7] != '{{Invoice::PAID}}')){
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                     action += '<li><a data-id="' + id  + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Paytment</a></li>';
                                 }
