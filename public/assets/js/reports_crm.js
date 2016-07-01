@@ -207,6 +207,10 @@ function GetUsersTasks(){
 						html +='      <td><div class="normal inlinetable">&nbsp;</div> <div class="inlinetable">'+accounts[i]["Subject"]+'</div></td>';
 					}
 					
+					if(accounts[i]["DueDate"]=='0000-00-00 00:00:00')
+					{
+						accounts[i]["DueDate"] = '';
+					}
                     
 					html +='      <td>'+accounts[i]["Status"]+'</td>';
 					html +='      <td>'+accounts[i]["DueDate"]+'</td>';

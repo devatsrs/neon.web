@@ -204,7 +204,7 @@ class DashboardController extends BaseController {
 		
 		$task->join('tblAccount', 'tblTask.AccountIDs', '=', 'tblAccount.AccountID');
 		
-        $UserTasks 		 	 	= 	$task->orderBy('tblTask.TaskID', 'desc')->get();
+        $UserTasks 		 	 	= 	$task->orderBy('tblTask.DueDate', 'desc')->get();
 		
         $jsondata['UserTasks']	=	$UserTasks;
 		return json_encode($jsondata);
