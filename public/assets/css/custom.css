@@ -1777,9 +1777,9 @@ cursor:pointer;
     top:-20px;
     right:3px;
 }
-#card-features-details .modal-body div{
+/*#card-features-details .modal-body div{
     padding-left: 0px;
-}
+}*/
 
 .searchBar {
 list-style: none;
