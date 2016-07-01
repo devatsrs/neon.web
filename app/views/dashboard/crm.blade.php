@@ -42,7 +42,7 @@
 </div>
 @else
 <form novalidate class="form-horizontal form-groups-bordered filter validate" method="post" id="crm_dashboard">
-  <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
+  <input type="hidden" name="CurrencyID" value="{{$DefaultCurrencyID}}">
   <input type="hidden" name="UsersID" value="{{User::get_userID()}}">
 </form>
 @endif

@@ -169,7 +169,6 @@ class DashboardController extends BaseController {
 		$UserID 			= 	User::get_userID();
 		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
 		$users			 	= 	User::getUserIDList();	
-		
 		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users'));	
 	}
 	
@@ -224,7 +223,7 @@ class DashboardController extends BaseController {
 			$result1		=	Opportunity::where(['CompanyID'=>$companyID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
 		}else
 		{		
-			$result1		=	Opportunity::where(['CompanyID'=>$companyID,'UserID'=>$UserID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as TotalWorth'),'Status'])->groupby(['Status'])->toArray();
+			$result1		=	Opportunity::where(['CompanyID'=>$companyID,'UserID'=>$UserID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
 		}
 		
 		 $statusarray = implode(",", array(Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned));
