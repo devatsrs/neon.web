@@ -219,12 +219,12 @@ class DashboardController extends BaseController {
 		$array_return 		= 	array("TotalOpportunites"=>0,"TotalWorth"=>0);
 		$array_status 		= 	array();
 		
-		if($isAdmin){		
+	/*	if($isAdmin){		
 			$result1		=	Opportunity::where(['CompanyID'=>$companyID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
 		}else
 		{		
 			$result1		=	Opportunity::where(['CompanyID'=>$companyID,'UserID'=>$UserID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
-		}
+		}*/
 		
 		 $statusarray = implode(",", array(Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned));
 		 $query  = "call prc_GetCrmDashboardPipeLine (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."')";
