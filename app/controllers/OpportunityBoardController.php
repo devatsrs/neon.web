@@ -55,11 +55,10 @@ class OpportunityBoardController extends \BaseController {
         $response_extensions = [];
 
         if($response->status=='failed'){
-            $message = json_response_api($response,false,true);
+            $message = $response->message['error'][0];
         }else{
             $response_extensions = json_response_api($response,true,true);
         }
-
         $token    = get_random_number();
         $max_file_size = get_max_file_size();
         return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message'));

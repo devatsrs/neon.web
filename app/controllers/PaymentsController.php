@@ -256,27 +256,33 @@ class PaymentsController extends \BaseController {
      * @return Response
      */
     public function recall($id) {
-        if( intval($id) > 0){
-            $data = Input::all();
-            $rules['RecallReasoan'] = 'required';
-            $validator = Validator::make($data, $rules);
-            $data['RecallBy'] =  User::get_user_full_name();
-            $data['Recall'] = 1;
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            try {
-                $result = Payment::find($id)->update($data);
-                if ($result) {
-                    return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
-                } else {
+        $data = Input::all();
+        $rules['RecallReasoan'] = 'required';
+        $validator = Validator::make($data, $rules);
+        $data['RecallBy'] =  User::get_user_full_name();
+        $data['Recall'] = 1;
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        try {
+            $PaymentIDs = !empty($data['PaymentIDs'])?explode(',',$data['PaymentIDs']):'';
+            unset($data['PaymentIDs']);
+            if(is_array($PaymentIDs)){
+                $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
+            }else{
+                if($id>0) {
+                    $result = Payment::find($id)->update($data);
+                }else{
                     return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
                 }
-            } catch (Exception $ex) {
-                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
             }
-        }else{
-            return Response::json(array("status" => "failed", "message" => "Payment id is invalid."));
+            if ($result) {
+                return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
+            }
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
 

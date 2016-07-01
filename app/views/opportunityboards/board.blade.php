@@ -36,7 +36,9 @@
                         }
                         ?>
                             <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
+                                @if(User::checkCategoryPermission('Opportunity','Edit'))
                                 <button type="button" title="Edit Opportunity" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
+                                @endif
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>

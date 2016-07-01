@@ -5,7 +5,6 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
 .small-date-input{width:11%;}
 </style>
 <ol class="breadcrumb bc-3">
@@ -14,8 +13,6 @@
 </ol>
 <h3>Payments</h3>
 <p style="text-align: right;"> <a href="javascript:;" id="upload-payments" class="btn upload btn-primary "> <i class="entypo-upload"></i> Upload </a> </p>
-<div class="tab-content">
-  <div class="tab-pane active" id="customer_rate_tab_content">
     <div class="row">
       <div class="col-md-12">
         <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -191,27 +188,53 @@
       </div>
     </div>
     <br>
-    @if(User::can('Payments','Add'))
-    <p style="text-align: right;"> <a href="#" id="add-new-payment" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Payment Request </a> </p>
+    @if(User::can('Payments','Recall') || User::can('Payments','Add'))
+      <div class="row dropdown">
+          <div  class="col-md-12">
+              <div class="input-group-btn pull-right" style="width:70px;">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                      @if(User::can('Payments','Add'))
+                      <li class="li_active">
+                          <a id="add-new-payment" class="add-cli" type_ad="active" href="javascript:void(0);" >
+                              <i class="entypo-plus"></i>
+                              <span>Add</span>
+                          </a>
+                      </li>
+                      @endif
+                      @if(User::can('Payments','Recall'))
+                      <li class="tohidden">
+                          <a href="javascript:void(0);" class="recall" >
+                              <i class="entypo-ccw"></i>
+                              <span>Recall</span>
+                          </a>
+                      </li>
+                      @endif
+                  </ul>
+              </div><!-- /btn-group -->
+          </div>
+          <div class="clear"></div>
+      </div>
+      <br>
     @endif
     <table class="table table-bordered datatable" id="table-4">
-      <thead>
+        <thead>
         <tr>
-          <th width="10%">Account Name</th>
-          <th width="10%">Invoice No</th>
-          <th width="10%">Amount</th>
-          <th width="8%">Type</th>
-          <th width="10%">Payment Date</th>
-          <th width="10%">Status</th>
-          <th width="10%">CreatedBy</th>
-          <th width="10%">Notes</th>
-          <th width="15%">Action</th>
+            <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+            <th width="10%">Account Name</th>
+            <th width="10%">Invoice No</th>
+            <th width="9%">Amount</th>
+            <th width="8%">Type</th>
+            <th width="10%">Payment Date</th>
+            <th width="10%">Status</th>
+            <th width="10%">CreatedBy</th>
+            <th width="10%">Notes</th>
+            <th width="15%">Action</th>
         </tr>
-      </thead>
-      <tbody>
-      </tbody>
+        </thead>
+        <tbody>
+        </tbody>
     </table>
-    </div>
     <script type="text/javascript">
         var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
 	 var currency_signs = {{$currency_ids}};
@@ -262,6 +285,16 @@
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
                         "aoColumns": [
+                            {
+                                "bSortable": false, //Account
+                                mRender: function (id, type, full) {
+                                    var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                    if($('#Recall_on_off').prop("checked")){
+                                        chackbox='';
+                                    }
+                                    return chackbox;
+                                }
+                            }, //1   CurrencyDescription
                             {
                                 "bSortable": true, //Account
                                 mRender: function (id, type, full) {
@@ -340,7 +373,7 @@
                                     //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                     <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
                                     if(full[13]==0 && full[7]!='Rejected' ){
-                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
+                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
                                     }
                                     <?php } ?>
                                     if(full[9]!= null){
@@ -371,6 +404,23 @@
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
+                            $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
+                                var $this = $(el),
+                                        $p = $this.closest('tr');
+
+                                $(el).on('change', function () {
+                                    var is_checked = $this.is(':checked');
+
+                                    $p[is_checked ? 'addClass' : 'removeClass']('selected');
+                                });
+                            });
+
+                            $('.tohidden').removeClass('hidden');
+                            $('#selectall').removeClass('hidden');
+                            if($('#Recall_on_off').prop("checked")){
+                                $('.tohidden').addClass('hidden');
+                                $('#selectall').addClass('hidden');
+                            }
                         }
 
                     });
@@ -431,10 +481,15 @@
                         $('#add-edit-modal-payment').modal('show');
                     });
 
-                    $('body').on('click', '.btn.recall', function (e) {
+                    $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
                         $('#recall-payment-form').trigger("reset");
-                        $('#recall-payment-form').attr("action",$(this).attr('href'));
+                        if($(this).hasClass('btn')){
+                            $('#recall-payment-form').attr("action",$(this).attr('href'));
+                        }else{
+                            var PaymentIDs = getselectedIDs();
+                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                        }
                         $('#recall-modal-payment').modal('show');
                     });
 
@@ -653,6 +708,36 @@
                         $('#add-edit-modal-payment').modal('show');
                     });
 
+                    $(document).on('click', '#table-4 tbody tr', function() {
+                        $(this).toggleClass('selected');
+                        if($(this).is('tr')) {
+                            if ($(this).hasClass('selected')) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                            }
+                        }
+                    });
+
+                    $('#selectall').click(function(){
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked';
+                            $(this).prop("checked", true);
+                            $(this).parents('table').find('tbody tr').each(function (i, el) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                                $(this).addClass('selected');
+                            });
+                        }else{
+                            checked = '';
+                            $(this).prop("checked", false);
+                            $(this).parents('table').find('tbody tr').each(function (i, el) {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                                $(this).removeClass('selected');
+                            });
+                        }
+                    });
+
+
                     $('#add-edit-payment-form').submit(function(e){
                         e.preventDefault();
                         var PaymentID = $("#add-edit-payment-form [name='PaymentID']").val();
@@ -808,14 +893,13 @@
 				"aaSorting": [[4, 'desc']],},
 					success: function(response1) {
 						console.log("sum of result"+response1);
-						
-						if(response1.total_grand!=null)
-						{ 
-							$('#table-4 tbody').append('<tr class="total_ajax"><td colspan="2"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');	
-						}
+
+                        if(response1.total_grand!=null) {
+                            $('#table-4 tbody').append('<tr class="total_ajax"><td colspan="3"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');
+                        }
 						
 	
-						},
+						}
 				});	
 		}
 
@@ -898,6 +982,15 @@
                 $(".pagination a").click(function (ev) {
                     replaceCheckboxes();
                 });
+
+        function getselectedIDs(){
+            var SelectedIDs = [];
+            $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                var accountIDs = $(this).val().trim();
+                SelectedIDs[i++] = accountIDs;
+            });
+            return SelectedIDs;
+        }
 
 
             </script>
@@ -986,7 +1079,6 @@
       </div>
     </form>
   </div>
-</div>
 </div>
 <div class="modal fade" id="view-modal-payment">
   <div class="modal-dialog">
@@ -1182,7 +1274,7 @@
 <div class="modal fade" id="recall-modal-payment">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="recall-payment-form" action="{{URL::to('payments/recall')}}" method="post">
+      <form id="recall-payment-form" action="{{URL::to('payments/0/recall')}}" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Recall Payment</h4>
@@ -1198,6 +1290,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <input type="hidden" name="PaymentIDs" />
           <button type="submit" id="payment-recall"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Recall </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

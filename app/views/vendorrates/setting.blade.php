@@ -90,10 +90,9 @@
                                         <th width="1%"><div class="checkbox "><input type="checkbox" id="selectall" name="checkbox[]" class="" ></div></th>
                                         <th width="20%">Trunk</th>
                                         <th width="20%">Prefix</th>
-                                        <th width="15%">Use Prefix In CDR</th>
+                                        <th width="20%">Use Prefix In CDR</th>
                                         <th width="30%">CodeDeck</th>
-                                        <th width="45%">Gateway</th>
-                                        <th width="4%">Status</th>
+                                        <th width="9%">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -109,9 +108,6 @@
                                         {{ Form::select('VendorTrunk['.$trunk->TrunkID.'][CodeDeckId]', $codedecklist, $CodeDeckId , array("class"=>"select2 codedeckid")) }}
                                         <input type="hidden" name="prev_codedeckid" value="{{$CodeDeckId}}">
                                         <input type="hidden" name="trunkid" value="{{$trunk->TrunkID}}">
-                                    </td>
-                                    <td>
-                                        {{ Form::select( 'VendorTrunk['.$trunk->TrunkID.'][CompanyGatewayID][]', $companygateway, (isset($vendor_trunks[$trunk->TrunkID]->CompanyGatewayIDs)? explode(',',$vendor_trunks[$trunk->TrunkID]->CompanyGatewayIDs) : '' ), array("class"=>"select2",'multiple',"data-placeholder"=>"Select a Gateway")) }}
                                     </td>
                                     <td>
                                         @if(isset($vendor_trunks[$trunk->TrunkID]->Status) && ($vendor_trunks[$trunk->TrunkID]->Status == 1)) Active @else Inactive

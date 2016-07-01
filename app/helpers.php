@@ -81,10 +81,13 @@ function download_file($file = ''){
                 '.gif'=>'image/gif',
                 '.png'=>'image/png'
             );
-            $extension = strrchr(basename($file), ".");
+            $f = new Symfony\Component\HttpFoundation\File\File($file);
+            $extension = $f->getExtension();
             $type = "application/octet-stream";
+            if (!isset($mime_types[$extension])) {
+                $mime_types[$extension] = $f->getMimeType();
+            }
             if (isset($mime_types[$extension])) {
-
                 $type = $mime_types[$extension];
                 header('Content-Description: File Transfer');
                 header('Content-disposition: attachment; filename="' . basename($file).'"');
@@ -834,17 +837,6 @@ function getUploadedFileRealPath($files)
     return $realPaths;
 }
 
-function validfilepath($path){
-    $path = AmazonS3::unSignedImageUrl($path);
-    /*if (!is_numeric(strpos($path, "https://"))) {
-        //$path = str_replace('/', '\\', $path);
-        if (copy($path, './uploads/' . basename($path))) {
-            $path = URL::to('/') . '/uploads/' . basename($path);
-        }
-    }*/
-    return $path;
-}
-
 
 function create_site_configration_cache(){
     $domain_url 					=   $_SERVER['HTTP_HOST'];
@@ -960,47 +952,6 @@ function get_random_number(){
     return md5(uniqid(rand(), true));
 }
 
-function delete_file($session,$data)
-{
-    $files_array	=	Session::get($session);
-
-    if(isset($files_array[$data['token_attachment']])){
-
-        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-        {
-            if($array_file_data['fileName'] == $data['file'])
-            {
-                unset($files_array[$data['token_attachment']][$key]);
-            }
-        }
-    }
-
-    //unset($files_array[$data['token_attachment']]);
-    Session::set($session, $files_array);
-}
-
-
-function check_upload_file($files,$session,$data){
-    $files_array		        =	Session::get($session);
-    $return_txt					=	'';
-
-    if(isset($files_array[$data['token_attachment']])) {
-        $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
-    } else {
-        $files_array[$data['token_attachment']]	=	$files;
-    }
-
-
-    Session::set($session, $files_array);
-
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
-        $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
-
-    }
-
-    return $return_txt;
-}
-
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
@@ -1018,7 +969,7 @@ function check_uri($parent_link=''){
     if(count($path_array)>0)
     {
          $controller = $path_array[0]; 
-   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
+   		if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
 			if(Request::segment(1)!='monitor'){
             	return 'opened';

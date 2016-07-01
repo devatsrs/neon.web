@@ -65,6 +65,10 @@ Route::filter('auth', function()
         }
 	}else{
 
+        /**
+         * This code is used for just checking is licence is valid or not
+         * This code check in every page access.
+         */
         $admin = Session::get('admin');
         $customer = Session::get('customer');
 		$reseller = Session::get('reseller');
@@ -75,10 +79,15 @@ Route::filter('auth', function()
 
         if ( !Request::ajax() && !Request::is('/') && !Request::is('login') && !Request::is('forgot_password') ) {
 
-            //If Licence is not valid or expired
+            /**
+             * IF licence is not valid it will redirect to company page
+             * else will redirect to respected dashboard or profile page
+             */
             if(isset($LicenceApiResponse) && $LicenceApiResponse['Status'] != 1  && !Request::is('company')){
 
-                //Licence is not valid
+                /**
+                 * When licence is not valid.
+                 */
 
                 if($customer==1 || $reseller==1){
                     echo $LicenceApiResponse['Message'];
