@@ -24,7 +24,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+            <form id="cronjob_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -38,14 +38,20 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-1 control-label">Search</label>
                             <div class="col-sm-2">
-                                <input class="form-control" name="search"  type="text" >
+                                <input class="form-control" name="Title"  type="text" />
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Status</label>
                             <div class="col-sm-2">
 
-                                 {{ Form::select('Active', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                                 {{ Form::select('Status', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
 
+                            </div>
+                            <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>
+                            <div class="col-sm-2">
 
+                                <p class="make-switch switch-small">
+                                    <input id="" name="AutoRefresh" type="checkbox" checked value="1">
+                                </p>
                             </div>
 
                         </div>
@@ -90,6 +96,9 @@
             public_vars.$body = $("body");
             var list_fields  = ['Active','PID','JobTitle','RunningTime','CronJobID','LastRunTime','Status',"CronJobCommandID"];
             var $searchFilter = {};
+            $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
+            $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
+            $searchFilter.AutoRefresh = $('#cronjob_filter [name="AutoRefresh"]').val();
 
             data_table = $("#cronjobs").dataTable({
                 "bDestroy": true,
@@ -101,8 +110,8 @@
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"Export","value":1});
+                    //aoData.length = 0;
+                    aoData.push({"name": "Status", "value": $searchFilter.Status},{"name": "Title", "value": $searchFilter.Title},{"name": "Export", "value": 1});
                 },
                 "aaSorting": [[0, 'desc']],
                 "aoColumns":
@@ -180,7 +189,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    auto_refresh = true;
+
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -228,10 +237,19 @@
 
             });
 
-            setInterval(function() {
-                if(auto_refresh == true){
+            $("#cronjob_filter").submit(function(e) {
+                e.preventDefault();
 
-                    auto_refresh = false;
+                $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
+                $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
+
+                data_table.fnFilter('', 0);
+                return false;
+            });
+
+            setInterval(function() {
+
+                if($("#cronjob_filter [name='AutoRefresh']").prop("checked")){
                     data_table.fnFilter('', 0);
                 }
             }, 1000 * 5); // where X is your every X minutes
