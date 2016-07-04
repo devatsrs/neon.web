@@ -188,6 +188,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/activity/{id}', 'AccountsController@expense');
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
+	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
 
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');

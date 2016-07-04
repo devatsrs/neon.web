@@ -10,6 +10,9 @@
         <a href="{{URL::to('accounts')}}"> </i>Accounts</a>
     </li>
     <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
+    <li>
         <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}"></i>Edit Account({{$account->AccountName}})</a>
     </li>
     <li class="active">
@@ -55,6 +58,11 @@
                         <label for="field-1" class="col-sm-2 control-label">Unbilled Amount</label>
                         <div class="desc col-sm-4 ">
                             <input type="text" class="form-control" readonly name="CreditUsed" value="{{$CreditUsed}}" >
+                        </div>
+                        <div  class="col-sm-1">
+                            <button id="unbilled_report" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                <i class="fa fa-eye"></i>View Report
+                            </button>
                         </div>
                     </div>
                     <div class="form-group">
@@ -158,4 +166,5 @@
     });
 
 </script>
+@include('accounts.unbilledreportmodal')
 @stop
