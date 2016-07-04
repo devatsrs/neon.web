@@ -240,10 +240,21 @@ class CronJobController extends \BaseController {
     public function activecronjob_ajax_datagrid(){
         $data = Input::all();
         $data['iDisplayStart'] +=1;
+
+        $data['Active'] = -1; // all cronjobs running or not running
+        if(isset($data['Status']) ){
+
+            if($data['Status']=="running"){
+                $data['Status'] = -1;
+                $data['Active'] = 1;
+            } else if($data['Status']==""){
+                $data['Status'] = -1;
+            }
+        }
         $companyID = User::get_companyID();
         $columns = array('PID','JobTitle','RunningTime','CronJobID','LastRunTime');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetActiveCronJob (".$companyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         return DataTableSql::of($query)->make();
     }
 
