@@ -153,7 +153,7 @@
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
-                                    action += '<div id="cron_set" style="display: none" >' + (full[7] !== null ? full[7] : '') + '</div>'
+                                    action += '<div id="cron_set" style="display: none" >' + (full[8] !== null ? full[8] : '') + '</div>'
                                     action += '</div>';
 
 
