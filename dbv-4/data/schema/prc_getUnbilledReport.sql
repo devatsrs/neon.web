@@ -2,12 +2,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getUnbilledReport`(IN `p_Compan
 BEGIN
 	
 	DECLARE v_Round_ INT;
+	DECLARE v_Detail_ INT;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	
-	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,p_LastInvoiceDate,CONCAT(DATE(NOW()),' 23:59:59'),'','',0,0,1,p_Detail);
+	IF p_Detail = 3
+	THEN 
+		SET v_Detail_ = 1;
+	ELSE 
+		SET v_Detail_ = p_Detail;
+	END IF;
+	
+	
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,p_LastInvoiceDate,CONCAT(DATE(NOW()),' 23:59:59'),'','',0,0,1,v_Detail_);
 	
 	IF p_Detail = 1
 	THEN
@@ -34,6 +43,15 @@ BEGIN
 	INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 	INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
 	GROUP BY us.DateID,us.TimeID;
+	
+	END IF;
+	
+	IF p_Detail = 3
+	THEN
+	
+	SELECT 
+	ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as FinalAmount
+	FROM tmp_tblUsageSummary_ us;
 	
 	END IF;
  
