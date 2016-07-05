@@ -80,16 +80,16 @@
 <p style="text-align: right;">
     @if($isBandTable)
         @if(User::checkCategoryPermission('RateTables','Add') )
-            <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New Rates </button>
+            <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New</button>
         @endif    
     @endif
     @if(User::checkCategoryPermission('RateTables','Edit') )
         <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left" href="javascript:;"> <i class="entypo-floppy"></i>
-            Change Selected Rates
+            Change Selected
         </a>
     @endif
     @if(User::checkCategoryPermission('RateTables','Delete') )
-        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete Selected Rates </button>
+        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete Selected </button>
     @endif    
 <form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
 </p>
@@ -108,8 +108,8 @@
         <th width="5%">Interval N</th>
         <th width="5%">Connection Fee</th>
         <th width="5%">Rate ({{$code}})</th>
-        <th width="15%">Effective Date</th>
-        <th width="15%">Modified Date</th>
+        <th width="10%">Effective Date</th>
+        <th width="10%">Modified Date</th>
         <th width="10%">Modified By</th>
         <th width="12%" > Action</th>
         </tr>
@@ -183,12 +183,12 @@
                                     <?php } ?>
                                     if (id != null && id > 0) {
                                         <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                            action += ' <button href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete Rate</button>';
+                                            action += ' <button href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</button>';
                                         <?php } ?>
                                     }
                                     return action;
                                 }
-                            },
+                            }
                         ],
                         "oTableTools":
                         {
@@ -266,20 +266,23 @@
                     });
                     //Clear Button
                     $(".clear-rate-table.btn").click(function(ev) {
-                        var clear_url;
-                        clear_url = $(this).attr("href");
-                        $(this).button('loading');
-                        //get
-                        $.get(clear_url, function(response) {
-                            if (response.status == 'success') {
-                                $(this).button('reset');
-                                data_table.fnFilter('', 0);
-                                toastr.success(response.message, "Success", toastr_opts);
-                            } else {
-                                $(this).button('reset');
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        });
+                        response = confirm('Are you sure?');
+                        if (response) {
+                            var clear_url;
+                            clear_url = $(this).attr("href");
+                            $(this).button('loading');
+                            //get
+                            $.get(clear_url, function (response) {
+                                if (response.status == 'success') {
+                                    $(this).button('reset');
+                                    data_table.fnFilter('', 0);
+                                    toastr.success(response.message, "Success", toastr_opts);
+                                } else {
+                                    $(this).button('reset');
+                                    toastr.error(response.message, "Error", toastr_opts);
+                                }
+                            });
+                        }
                         return false;
 
 
@@ -340,6 +343,11 @@
 
         //Bulk Clear Submit
         $("#clear-bulk-rate").click(function() {
+            var responsecheck = confirm('Are you sure?');
+            if(!responsecheck){
+                return false;
+            }
+
             var RateTableRateIDs = [];
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
@@ -403,6 +411,7 @@
             var month = date.getMonth()+1;
             var day = date.getDate();
             currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
+            $("#bulk-edit-rate-table-form")[0].reset();
             $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","));
             $("#bulk-edit-rate-table-form").find("input[name='RateID']").val(RateIDs.join(","));
             $("#bulk-edit-rate-table-form").find("input[name='Interval1']").val(1);
@@ -635,6 +644,7 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
+                                <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label for="field-4" class="control-label">Effective Date</label>
 
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
@@ -645,10 +655,10 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label> <input
-                                    type="text" name="Rate" class="form-control" id="field-5"
-                                    placeholder="">
+                                <input type="checkbox" name="updateRate" class="" />
+                                <label for="field-5" class="control-label">Rate</label>
 
+                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
                             </div>
 
                         </div>
@@ -658,6 +668,7 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
+                                <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-4" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
 
@@ -668,6 +679,7 @@
                         <div class="col-md-6">
 
                             <div class="form-group">
+                                <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-5" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
 
@@ -679,6 +691,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="checkbox" name="updateConnectionFee" class="" />
                                 <label for="field-5" class="control-label">Connection Fee</label>
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
