@@ -1112,17 +1112,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $companyID = User::get_companyID();
         $LastInvoiceDate = Invoice::getLastInvoiceDate($id);
+        $account = Account::find($id);
         if(empty($LastInvoiceDate)){
-            $account = Account::find($id);
             if(!empty($account->BillingStartDate)) {
                 $LastInvoiceDate = $account->BillingStartDate;
             }else{
                 $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
             }
         }
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getUnbilledReport (?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
-        return View::make('accounts.unbilled_table', compact('UnbilledResult'));
+        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
     }
 	
 	

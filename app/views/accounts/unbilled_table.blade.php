@@ -17,7 +17,7 @@
             <tr>
                 <td>{{$UnbilledResultRaw->date}}</td>
                 <td>{{$UnbilledResultRaw->TotalMinutes}}</td>
-                <td>{{$UnbilledResultRaw->TotalCost}}</td>
+                <td>{{$CurrencySymbol.$UnbilledResultRaw->TotalCost}}</td>
             </tr>
         @endforeach
         </tbody>
@@ -25,7 +25,7 @@
         <tr>
             <td><strong>Total</strong></td>
             <td><strong>{{$totalSecond}}</strong></td>
-            <td><strong>{{$totalcost}}</strong></td>
+            <td><strong>{{$CurrencySymbol.$totalcost}}</strong></td>
         </tr>
         </tfoot>
     </table>
