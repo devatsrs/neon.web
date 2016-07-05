@@ -189,6 +189,8 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'autoinvoicereminder'){
                 $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
                 $accounts = Account::getAccountIDList();
+            }else if($CronJobCommand->Command == 'accountbalanceprocess'){
+                $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
             }
 
 

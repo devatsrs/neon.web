@@ -24,6 +24,8 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{GrandTotal}}'>" + locale.leadoptions.GrandTotal + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStanding}}'>" + locale.leadoptions.OutStanding + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TotalOutStanding}}'>" + locale.leadoptions.TotalOutStanding + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceAmount}}'>" + locale.leadoptions.BalanceAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.leadoptions.BalanceThreshold + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
                 "</ul>" +
                 "</li>";
@@ -1065,6 +1067,9 @@
                 GrandTotal:"GrandTotal",
                 OutStanding:"OutStanding",
                 TotalOutStanding:"TotalOutStanding",
+                Signature:"Signature",
+                BalanceAmount:"BalanceAmount",
+                BalanceThreshold:"BalanceThreshold"
             },
 			Crm:{				
                 FirstName:"FirstName",
