@@ -202,6 +202,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 },
                 //Options to tell jQuery not to process data or worry about content-type.
                 cache: false
+            });
             });*/
             $('#cdr_rerate').removeClass('hidden');
             /*$.each(rate_cdr, function(key, value) {

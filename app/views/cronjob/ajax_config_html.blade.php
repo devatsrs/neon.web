@@ -11,7 +11,8 @@
                 </div>
             </div>
         @endif
-        @if (isset($emailTemplates) && count($emailTemplates) > 0)
+
+        @if (isset($emailTemplates) && count($emailTemplates) > 0 && isset($accounts) && count($accounts) > 0)
             <div class="col-md-6">
                 <div class="form-group">
                 <label class="control-label ">Email Template</label>
@@ -22,6 +23,13 @@
                 <div class="form-group">
                 <label class="control-label ">Account</label>
                     {{Form::select('AccountID', $accounts, (isset($commandconfigval->AccountID)?$commandconfigval->AccountID:'') ,array("class"=>"selectboxit form-control"))}}
+                </div>
+            </div>
+        @elseif(isset($emailTemplates) && count($emailTemplates) > 0)
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label ">Email Template</label>
+                    {{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
                 </div>
             </div>
         @endif

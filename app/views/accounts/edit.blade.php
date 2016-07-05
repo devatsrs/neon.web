@@ -10,6 +10,9 @@
 
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit Account</strong>
     </li>
@@ -19,7 +22,10 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-
+    <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+        <i class="entypo-cancel"></i>
+        Credit Control
+    </a>
     @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
@@ -27,7 +33,7 @@
     </a>
 
     @endif
-@if($account->VerificationStatus == Account::NOT_VERIFIED)
+    @if($account->VerificationStatus == Account::NOT_VERIFIED)
      <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
         <i class="entypo-check"></i>
         Verify
