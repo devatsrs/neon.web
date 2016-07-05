@@ -20,6 +20,14 @@
         </li>
     </ol>
     <h3>Cron Job Monitor</h3>
+    <p style="text-align: right;">
+        @if( User::checkCategoryPermission('CronJob','Add') )
+            <a href="#" id="add-new-config" class="btn btn-primary ">
+                <i class="entypo-plus"></i>
+                Add Cron Job
+            </a>
+        @endif
+    </p>
 
 
     <div class="row">
@@ -70,16 +78,18 @@
 
 
 
-    <div class="clear-fix clear"><br><br></div>
+    <div class="clear-fix clear"></div>
 
 
     <table class="table table-bordered datatable" id="cronjobs">
         <thead>
         <tr>
-            <th width="20%"></th>
-            <th width="20%">PID</th>
+            <th width="5%"></th>
+            <th width="5%">PID</th>
             <th width="20%">Title</th>
-            <th width="20%"></th>
+            <th width="20%">Running Since</th>
+            <th width="15%">Last Run Time</th>
+            <th width="15%">Next Run Time</th>
             <th width="20%"></th>
         </tr>
         </thead>
@@ -94,7 +104,7 @@
         var auto_refresh=true;
         jQuery(document).ready(function ($) {
             public_vars.$body = $("body");
-            var list_fields  = ['Active','PID','JobTitle','RunningTime','CronJobID','LastRunTime','Status',"CronJobCommandID"];
+            var list_fields  = ['Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime','CronJobID','LastRunTime','Status',"CronJobCommandID"] /* Settings, CronJobStatus */;
             var $searchFilter = {};
             $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
             $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
@@ -114,18 +124,28 @@
                     aoData.push({"name": "Status", "value": $searchFilter.Status},{"name": "Title", "value": $searchFilter.Title},{"name": "Export", "value": 1});
                 },
                 "aaSorting": [[0, 'desc']],
+                "fnRowCallback": function( nRow, data, iDisplayIndex, iDisplayIndexFull ) {
+                    if(typeof data[11] != 'undefined' && data[11] == 0  ){ // CronJobStatus
+                        $(nRow).css('background-color', '#c50606');
+                    }
+                    if(typeof data[8] != 'undefined' && data[8] == 0  ){ // Disabled CronJob
+                        $(nRow).css('background-color', '#eaeaea');
+                    }
+
+                },
                 "aoColumns":
                         [
                             {  "bSortable": true,
 
                                 mRender: function ( Active, type, full ) {
                                     var action ='';
-                                    var CronJobID = full[4];
+                                    var CronJobID = full[6];
                                     if(Active==0){
                                         action += ' <button data-id="'+ CronJobID +'" class="cronjob_trigger btn btn-green btn-sm" type="button" title="Manually Execute" data-placement="top" data-toggle="tooltip"><i class="entypo-play"></i></button>';
                                     } else {
-                                        action += ' <button data-id="'+ CronJobID +'" class="cronjob_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-pause" ></i></button>';
+                                        action += ' <button data-id="'+ CronJobID +'" class="cronjob_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-stop" ></i></button>';
                                     }
+
                                     return action;
                                 }
 
@@ -137,12 +157,16 @@
                                 mRender: function ( RunningTime, type, full ) {
                                     var PID =  full[1];
                                     if(PID > 0){
+                                        RunningTime = RunningTime.replace("0 Hours, ", "")
+                                        RunningTime = RunningTime.replace("0 Minutes, ", "");
                                         return RunningTime;
                                     }
 
                                 }
 
                             },  //3   Running Hour
+                            {  "bSortable": true,},  //3   Last Run Time
+                            {  "bSortable": true,},  //3   Next Run Time
                             {                       //4
                                 "bSortable": false,
                                 mRender: function ( CronJobID, type, full ) {
@@ -158,21 +182,24 @@
 
 
 
-                                    var Status = full[6];
+                                    var Status = full[8];
 
                                     if(Status==1) {
-                                        action += ' <button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="Stop" data-placement="left" data-toggle="tooltip"><i class="entypo-stop" ></i></button>';
+                                        action += '&nbsp;<button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="Disable" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
                                     }else {
-                                        action += ' <button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Enable" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
+                                        action += '&nbsp;<button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Enable" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
                                     }
 
                                     <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
-                                            action += ' <a data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                            action += '&nbsp;<button   data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm" title="Edit" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></button>';
+                                    <?php } ?>
+                                    <?php if(User::checkCategoryPermission('CronJob','Delete')){ ?>
+                                            action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-cancel"></i></button>';
                                     <?php } ?>
 
                                     var history_url = baseurl + "/cronjobs/history/" + CronJobID;
 
-                                    action += ' <a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
+                                    action += '&nbsp;<button target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></button>';
 
                                     return action;
                                 }
