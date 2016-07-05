@@ -9,6 +9,7 @@
         </thead>
         <tbody>
         <?php $totalSecond = $totalcost = 0;?>
+        @if(count($UnbilledResult))
         @foreach($UnbilledResult as $UnbilledResultRaw)
             <?php
                 $totalSecond += $UnbilledResultRaw->TotalMinutes;
@@ -20,6 +21,11 @@
                 <td>{{$CurrencySymbol.$UnbilledResultRaw->TotalCost}}</td>
             </tr>
         @endforeach
+        @else
+            <tr>
+                <td colspan="3">No Data!!</td>
+            </tr>
+        @endif
         </tbody>
         <tfoot>
         <tr>
