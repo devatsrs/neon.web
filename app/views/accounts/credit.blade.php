@@ -72,18 +72,12 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Permanent Credit Limit</label>
+                        <label for="field-1" class="col-sm-2 control-label">Credit Limit</label>
                         <div class="desc col-sm-4 ">
                             <input type="text" class="form-control"  name="PermanentCredit" value="{{$PermanentCredit}}" >
                         </div>
-                        </div><div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Temporary Credit Limit
-                            <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span>
-                        </label>
-                        <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="TemporaryCredit" value="{{$TemporaryCredit}}" >
-                        </div>
-                    </div><div class="form-group">
+                    </div>
+                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Balance Threshold
                             <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span>
                         </label>
