@@ -189,18 +189,24 @@ class UsersController extends BaseController {
 
         if(Input::hasFile('Picture'))
         {
-            $file = Input::file('Picture');
-            $extension = '.'. $file->getClientOriginalExtension();
-            $destinationPath = public_path() . '/' . Config::get('app.user_profile_pictures_path');
 
-            //Create profile picture dir if not exists
-            if(!file_exists($destinationPath)){
-                mkdir($destinationPath);
+
+           /* $file = Input::file('Picture');
+            $extension = '.'. $file->getClientOriginalExtension();
+            $destinationPath = public_path() . '/' . Config::get('app.user_profile_pictures_path');*/
+
+
+
+            $file = Input::file('Picture');
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['USER_PROFILE_IMAGE']);
+            $destinationPath = public_path($amazonPath);
+            $filename 		 	= 	rename_upload_file($destinationPath,$file->getClientOriginalName());
+            $file->move($destinationPath, $filename);
+            if (!AmazonS3::upload($destinationPath . $filename, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
             }
 
-            $fileName = urlencode(str_replace(' ','',strtolower($user_data['FirstName']) .'_'. strtolower($user_data['LastName'] .'_'.str_random(4) ) .$extension));
-            $file->move($destinationPath, $fileName);
-            $picture = $fileName;
+            $user_profile_data['Picture'] = $amazonPath . "/" . $filename;
 
             //Delete old picture
             if(!empty($user_profile->Picture)){
@@ -209,7 +215,6 @@ class UsersController extends BaseController {
                     @unlink($delete_previous_file);
                 }
             }
-            $user_profile_data['Picture'] = $picture;
 
         }
 

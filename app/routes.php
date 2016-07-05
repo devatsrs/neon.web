@@ -147,6 +147,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
+
+	Route::any('/account/upload_file', 'AccountsController@uploadFile');
+	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
+
 	Route::any('/task/GetTask', 'TaskController@GetTask');
 	Route::any('/task/{id}/delete_task', 'TaskController@delete_task');
 	Route::any('/account/upload_file', 'AccountsController@upload_file');
@@ -185,6 +189,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account/get_credit/{id}', 'AccountsController@get_credit');
 	Route::any('account/update_credit', 'AccountsController@update_credit');
 	Route::any('account/ajax_datagrid_credit/{type}', 'AccountsController@ajax_datagrid_credit');
+    Route::any('accounts/{id}/addips', 'AuthenticationController@addIps');
+    Route::any('accounts/{id}/deleteips', 'AuthenticationController@deleteips');
+    Route::any('accounts/{id}/addclis', 'AccountsController@addclis');
+    Route::any('accounts/{id}/deleteclis', 'AccountsController@delete_clis');
 	Route::any('accounts/activity/{id}', 'AccountsController@expense');
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
@@ -217,6 +225,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/{id}/activities/sendemail/api', 'AccountActivityController@sendMailApi');
     Route::any('accounts/{id}/activities/{log_id}/view_email_log', 'AccountActivityController@view_email_log')->where('log_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
+    Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
 
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
@@ -722,15 +731,17 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/ajax_opportunity', 'OpportunityController@ajax_opportunity');
     Route::any('/opportunity/{id}/ajax_getattachments', 'OpportunityController@ajax_getattachments');
     Route::any('/opportunity/{id}/updatetaggeduser', 'OpportunityController@updateTaggedUser');
+    Route::any('/opportunity/{id}/getattachment/{attachmentID}', 'OpportunityController@getAttachment');
 
     //File Upload
-    Route::any('/opportunity/upload_file', 'OpportunityController@upload_file');
-    Route::any('/opportunity/delete_attachment_file', 'OpportunityController@delete_upload_file');
+    Route::any('/opportunity/uploadfile', 'OpportunityController@uploadFile');
+    Route::any('/opportunity/deleteattachmentfile', 'OpportunityController@deleteUploadFile');
 
     //Opportunity Comments
 
     Route::any('/opportunitycomment/create', 'OpportunityCommentsController@create');
     Route::any('/opportunitycomments/{id}/ajax_opportunitycomments', 'OpportunityCommentsController@ajax_opportunityComments');
+    Route::any('/opportunitycomment/{id}/getattachment/{attachmentID}', 'OpportunityCommentsController@getAttachment');
 
     //Task
 
@@ -748,10 +759,12 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/task/{id}/ajax_task_grid', 'TaskController@ajax_task_grid');
     Route::any('/task/{id}/ajax_getattachments', 'TaskController@ajax_getattachments');
     Route::any('/task/{id}/updatetaggeduser', 'TaskController@updateTaggedUser');
+    Route::any('/task/{id}/getattachment/{attachmentID}', 'TaskController@getAttachment');
 
     //File Upload
-    Route::any('/task/upload_file', 'TaskController@upload_file');
-    Route::any('/task/delete_attachment_file', 'TaskController@delete_upload_file');
+    Route::any('/task/uploadfile', 'OpportunityController@uploadFile');
+    Route::any('/task/deleteattachmentfile', 'OpportunityController@deleteUploadFile');
+    Route::any('/taskcomment/{id}/getattachment/{attachmentID}', 'TaskCommentsController@getAttachment');
 
     //task boards column
 
@@ -887,34 +900,23 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
     Route::get('/l/{id}', function($id){
-        Session::flush();
-        Auth::logout();
         $user = User::find($id);
         $redirect_to = URL::to('/process_redirect');
-
-		create_site_configration_cache();
-		Auth::login($user);
-		NeonAPI::login_by_id($id);
-		User::setUserPermission();
-		Session::set("admin", 1);
-		return Redirect::to($redirect_to);
-
-
-			if(!empty($user) ){
-            create_site_configration_cache();
-            Auth::login($user);
-            if(NeonAPI::login_by_id($id)) {
-                User::setUserPermission();
-                Session::set("admin", 1);
-                return Redirect::to($redirect_to);
-            }else{
-                Session::flush();
-                Auth::logout();
-                echo json_encode(array("login_status" => "invalid"));
-                return;
-            }
+        if(!empty($user) ){
+        create_site_configration_cache();
+        Auth::login($user);
+        if(NeonAPI::login_by_id($id)) {
+            User::setUserPermission();
+            Session::set("admin", 1);
+            return Redirect::to($redirect_to);
+        }else{
+            Session::flush();
+            Auth::logout();
+            echo json_encode(array("login_status" => "invalid"));
+            return;
         }
-        exit;
+    }
+    exit;
     });
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');

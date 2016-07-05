@@ -1,18 +1,22 @@
 CREATE TABLE `tblVendorTrunk` (
-  `VendorTrunkID` int(11) NOT NULL AUTO_INCREMENT,
-  `CompanyID` int(11) NOT NULL,
-  `CodeDeckId` int(11) DEFAULT NULL,
-  `AccountID` int(11) NOT NULL,
-  `TrunkID` int(11) NOT NULL,
-  `Prefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `CompanyGatewayIDs` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Status` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `UseInBilling` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`VendorTrunkID`),
-  KEY `IX_AccountID_TrunkID_Status` (`AccountID`,`TrunkID`,`Status`),
-  KEY `IX_AccountID_TrunkID_Codedeckid` (`TrunkID`,`CodeDeckId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+	`VendorTrunkID` INT(11) NOT NULL AUTO_INCREMENT,
+	`CompanyID` INT(11) NOT NULL,
+	`CodeDeckId` INT(11) NULL DEFAULT NULL,
+	`AccountID` INT(11) NOT NULL,
+	`TrunkID` INT(11) NOT NULL,
+	`Prefix` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`Status` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+	`created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`CreatedBy` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`ModifiedBy` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`UseInBilling` TINYINT(1) NULL DEFAULT '0',
+	PRIMARY KEY (`VendorTrunkID`),
+	UNIQUE INDEX `IX_Unique_TrunkId_AccountId` (`TrunkID`, `AccountID`),
+	INDEX `IX_AccountID_TrunkID_Status` (`AccountID`, `TrunkID`, `Status`),
+	INDEX `IX_AccountID_TrunkID_Codedeckid` (`TrunkID`, `CodeDeckId`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=2237
+;

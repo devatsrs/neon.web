@@ -1,22 +1,27 @@
 CREATE TABLE `tblCustomerTrunk` (
-  `CustomerTrunkID` int(11) NOT NULL AUTO_INCREMENT,
-  `RateTableID` bigint(20) DEFAULT NULL,
-  `CompanyID` int(11) NOT NULL,
-  `CodeDeckId` int(11) DEFAULT NULL,
-  `AccountID` int(11) NOT NULL,
-  `TrunkID` int(11) NOT NULL,
-  `Prefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `IncludePrefix` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Status` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `CompanyGatewayIDs` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `RoutinePlanStatus` tinyint(3) unsigned DEFAULT NULL,
-  `RateTableAssignDate` datetime DEFAULT NULL,
-  `UseInBilling` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`CustomerTrunkID`),
-  UNIQUE KEY `IX_AccountIDTrunkID_Unique` (`AccountID`,`TrunkID`),
-  KEY `Index_AccountID_TrunkID_Status` (`TrunkID`,`AccountID`,`Status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+	`CustomerTrunkID` INT(11) NOT NULL AUTO_INCREMENT,
+	`RateTableID` BIGINT(20) NULL DEFAULT NULL,
+	`CompanyID` INT(11) NOT NULL,
+	`CodeDeckId` INT(11) NULL DEFAULT NULL,
+	`AccountID` INT(11) NOT NULL,
+	`TrunkID` INT(11) NOT NULL,
+	`Prefix` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`IncludePrefix` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+	`Status` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+	`created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`CreatedBy` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`ModifiedBy` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`RoutinePlanStatus` TINYINT(3) UNSIGNED NULL DEFAULT NULL,
+	`RateTableAssignDate` DATETIME NULL DEFAULT NULL,
+	`UseInBilling` TINYINT(1) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`CustomerTrunkID`),
+	UNIQUE INDEX `IX_AccountIDTrunkID_Unique` (`AccountID`, `TrunkID`),
+	INDEX `Index_AccountID_TrunkID_Status` (`TrunkID`, `AccountID`, `Status`),
+	INDEX `FK_tblCustomerTrunk_tblRateTable` (`RateTableID`),
+	INDEX `temp_index` (`AccountID`, `Status`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=4042
+;

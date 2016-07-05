@@ -453,8 +453,13 @@ class LeadsController extends \BaseController {
     }
 
     public function bulk_mail(){
-            $data = Input::all();
-            return bulk_mail('BLE', $data);
+        $data = Input::all();
+        if (User::is('AccountManager')) { // Account Manager
+            $criteria = json_decode($data['criteria'],true);
+            $criteria['account_owners'] = $userID = User::get_userID();
+            $data['criteria'] = json_encode($criteria);
+        }
+        return bulk_mail('BLE', $data);
     }
 
     public function bulk_tags(){

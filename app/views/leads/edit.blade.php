@@ -17,13 +17,17 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+    @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
         Add Opportunity
     </a>
+    @endif
+
      @if(User::checkCategoryPermission('Leads','Convert'))
         <a href="{{ URL::to('leads/'.$lead->AccountID.'/convert')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Convert to Account</a>
-        @endif
+     @endif
+
     <button type="button" id="leadsave"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save

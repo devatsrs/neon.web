@@ -256,6 +256,21 @@ class Account extends \Eloquent {
             return true;
         }
     }
+    public static function validate_clis($data){
+        $clisExist = [];
+        $toBeInsert = $data['CustomerCLI'];
+        $account = Account::where(array('AccountID'=>$data['AccountID']))->first();
+        if(!empty($account)) {
+            $dbClis = explode(',', $account->CustomerCLI);
+            $postIPs = $data['CustomerCLI'];
+
+            $clisExist = array_intersect($dbClis, $postIPs);
+            $toBeInsert =array_unique(array_merge($dbClis,$postIPs));
+        }
+        $status['clisExist'] = $clisExist;
+        $status['toBeInsert'] = $toBeInsert;
+        return $status;
+    }
     public static function validate_ip($ip=0){
         $status=0;
         $companyID  = User::get_companyID();

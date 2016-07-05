@@ -3,7 +3,7 @@
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
     <li><a href="{{URL::to('/rate_tables')}}">Rate Table</a></li>
-    <li class="active"><strong>View Rate Table</strong></li>
+    <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
 <h3>View Rate Table</h3>
 <div class="float-right" >

@@ -162,7 +162,7 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
-
+        unset($data['DataTables_Table_0_length']);
         if(Company::isBillingLicence()) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
@@ -219,6 +219,8 @@ class AccountsController extends \BaseController {
 	
 		public function show($id) {
 		
+		
+		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
 			
@@ -236,7 +238,7 @@ class AccountsController extends \BaseController {
 			
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
-				{ Log::info($response_timeline['status']);
+				{
 					$response_timeline =  $response_timeline['data'];
 				}else{
 					$response_timeline = array();
@@ -291,21 +293,25 @@ class AccountsController extends \BaseController {
 	        $leadOrAccount 				= 	 $accounts;
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-
-			 if (isset($response->status_code) && $response->status_code == 200) {			
-				$response = $response->data;
-			}else{				
-			 	$message	=	isset($response->message)?$response->message:$response->error;
-			 	Session::set('error_message',isset($message[0])?$message[0]:$message);
-			}
 			
+				$array = json_decode(json_encode($response), True); 
+			 if (isset($response->status) && $response->status != 'failed') {			
+				$response = $response->data;
+			}else{		
+				if(isset($response->Code) && $response->Code==400){
+					return	Redirect::to('/logout'); 	
+				}
+				else{
+					$message	    =	$response->message['error'][0]; 
+			 		Session::set('error_message',$message);
+				}
+			}			
 			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
-    
+
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
 		}
 	
 	
@@ -407,6 +413,7 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
+        unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
@@ -795,6 +802,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
+            if (User::is('AccountManager')) { // Account Manager
+                $criteria = json_decode($data['criteria'],true);
+                $criteria['account_owners'] = $userID = User::get_userID();
+                $data['criteria'] = json_encode($criteria);
+            }
             $type = $data['type'];
             if ($type == 'CD') {
                 $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
@@ -959,32 +971,32 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         return json_response_api($response,true,true,true);
     }
-	function upload_file()
-	{		
-		$data 						= 	Input::all();
-		$data['file']				=	array();
-		$emailattachment 			= 	Input::file('emailattachment');
-		$return_txt 				=	'';
-
-        if(!empty($emailattachment)){
-            $data['file'] = NeonAPI::base64byte($emailattachment);
+    //////////////////////
+    function uploadFile(){
+        $data       =  Input::all();
+        $attachment    =  Input::file('emailattachment');
+        if(!empty($attachment)) {
+            try {
+                $data['file'] = $attachment;
+                $returnArray = UploadFile::UploadFileLocal($data);
+                return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
+            } catch (Exception $ex) {
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
         }
 
-       try {
-           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $data);
-           return $return_str;
-       }catch (Exception $ex)
-       {
-           return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
-       }	
-	}
-	
-	function delete_upload_file()
-	{
-        $data 		= 	Input::all();
-        delete_file('activty_email_attachments',$data);
+    }
 
-	}
+    function deleteUploadFile(){
+        $data    =  Input::all();
+        try {
+            UploadFile::DeleteUploadFileLocal($data);
+            return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
 	
 	function Delete_task_parent()
 	{
@@ -1057,6 +1069,52 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
+
+    public function addclis($id){
+        $data = Input::all();
+        $message = '';
+        $account = Account::find($id);
+
+        if(empty($data['clis'])){
+            return Response::json(array("status" => "error", "message" => " CLI required"));
+        }
+
+        $clis = preg_split("/\\r\\n|\\r|\\n/", $data['clis']);
+        $data['AccountID'] = $id;
+        $data['CustomerCLI'] = $clis;
+
+        $status = Account::validate_clis($data);
+        if(count($status['clisExist'])>0){
+            $iPsExist = implode('<br>',$status['clisExist']);
+            $message = ' and following CLIs already exist. '.$iPsExist;
+        }
+        unset($data['clis']);
+        unset($data['AccountID']);
+        if(count($status['toBeInsert'])>0){
+            $data['CustomerCLI'] = ltrim(implode(',',$status['toBeInsert']),',');
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
+        }
+    }
+
+    public function delete_clis($id){
+        $data = Input::all();
+        $account = Account::find($id);
+        $postClis = explode(',',$data['clis']);
+        unset($data['clis']);
+        $ips = [];
+        if(!empty($account)){
+            $dbClis = explode(',', $account->CustomerCLI);
+            $clis = implode(',',array_diff($dbClis, $postClis));
+            $data['CustomerCLI'] = ltrim($clis,',');
+
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> explode(',',$clis),"message" => "Account Successfully Updated"));
+        }else{
+            return Response::json(array("status" => "error","message" => "No Ip exist."));
+        }
+    }
+
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
         return View::make('accounts.expense',compact('id','CurrencySymbol'));
