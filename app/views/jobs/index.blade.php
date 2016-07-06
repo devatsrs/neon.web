@@ -115,6 +115,16 @@
 
                                 action = '<a  onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;"   class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 
+                                Status = full[2].toLowerCase();
+                                if(Status != 'pending'){
+
+                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-green btn-sm" type="button" title="Restart" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-repeat"></i></button>';
+                                }
+                                else if(Status == 'in progress'){
+
+                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-green btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-stop"></i></button>';
+                                }
+
                                 return action;
                             }
                         },
@@ -168,6 +178,39 @@
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
         });
+
+        //Restart a job
+        $(".job_restart").click(function(el) {
+
+            result = confirm("Are you Sure?");
+            if(result){
+                id = $(this).attr('data-id');
+                submit_ajax(baseurl+'/jobs/'+id + '/restart');
+            }
+        });
+
+
+        //Terninate a job
+        $(".job_terminate").click(function(el) {
+            var JobID = $(this).attr('data-id');
+            $('#job_terminate_form').reset();
+            $('#modal-Terminate').modal('show');
+            $('#job_terminate_form').attr("action", baseurl+'/jobs/'+JobID + '/terminate');
+        });
+
+
+        $(".job_terminate_form").submit(function(el) {
+
+            url = $(this).attr("action");
+
+            var post_data = $('#job_terminate_form').serialize();
+            submit_ajax(url,post_data);
+
+            return false;
+
+
+        });
+
     });
 
 </script>
@@ -186,6 +229,44 @@
             <div class="modal-body">
                 Content is loading...
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-Terminate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="job_terminate_form" method="post" action="">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Terminate Job</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-Group">
+                            <label class="col-sm-3 control-label">Change Status To</label>
+                            <div class="col-sm-9">
+                                {{Form::select('JobStatusID',$JobStatus,'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
+                        <div class="form-Group">
+                            <label class="col-sm-3 control-label">Message</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control message" rows="4" name="message"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Terminate
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

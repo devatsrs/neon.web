@@ -205,6 +205,7 @@ class JobsController extends \BaseController {
         return Datatables::of($job)->make();
     }
 
+    // Not in use
     public function activeprocessdelete(){
 
         $data = Input::all();
@@ -235,5 +236,76 @@ class JobsController extends \BaseController {
         }else{
             return Response::json(array("status" => "failed", "message" => "Cron Job Process is not terminated"));
         }
+    }
+
+    /**
+     * Restart a Job
+     * @param $id
+     */
+    public function restart($JobID){
+
+        if(!empty($JobID)){
+
+            $Job = Job::find($JobID);
+
+            $PID = $Job->PID;
+
+            $status = terminate_process($PID);
+
+
+            //Pending
+            $JobStatusID = JobStatus::where('Code','P')->first()->pluck('JobStatusID');
+
+            $JobData = array();
+            $JobData['JobStatusID'] = $JobStatusID;
+
+            if ($status) {
+                $JobData['PID'] = '';
+                $Job->update($JobData);
+                return Response::json(array("status" => "success", "message" => "Job will restart soon."));
+            } else {
+                $Job->update($JobData);
+                return Response::json(array("status" => "failed", "message" => "Unable to terminate the process."));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "JobID not found."));
+        }
+
+    }
+
+    /**
+     * Terminate a job
+     * @param $id
+     */
+    public function terminate($JobID){
+
+        if(!empty($JobID)) {
+
+            $data = Input::all();
+            $Job = Job::find($JobID);
+
+            $PID = $Job->PID;
+            $JobData = array();
+            $JobData['JobStatusID'] = $data['JobStatusID'];
+            $JobData['JobStatusMessage'] = $Job->JobStatusMessage . ' User message:' . $data['message'];
+
+            $status = terminate_process($PID);
+
+            if ($status) {
+                $JobData['PID'] = '';
+                $Job->update($JobData);
+                return Response::json(array("status" => "success", "message" => "Job Terminated Successfully!"));
+            } else {
+                $JobData['JobStatusMessage'] .= PHP_EOL . "---  Unable to terminate the process. -- ";
+                $Job->update($JobData);
+                return Response::json(array("status" => "failed", "message" => "Unable to terminate the process."));
+            }
+
+        } else {
+
+            return Response::json(array("status" => "failed", "message" => "JobID not found."));
+        }
+
     }
 }

@@ -399,6 +399,12 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activejob', 'JobsController@activejob');// remove in future
     Route::any('/jobs/jobactive_ajax_datagrid', 'JobsController@jobactive_ajax_datagrid');
     Route::any('/jobs/activeprocessdelete/', 'JobsController@activeprocessdelete');
+
+
+	Route::any('/jobs/{id}/restart', 'JobsController@restart');
+	Route::any('/jobs/{id}/terminate', 'JobsController@terminate');
+
+
 	Route::resource('jobs', 'JobsController');
 	Route::controller('jobs', 'JobsController');
 

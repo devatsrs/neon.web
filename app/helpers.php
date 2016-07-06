@@ -1200,3 +1200,11 @@ function view_response_api($response){
     }
 
 }
+
+function terminate_process($pid){
+
+    $process = new Process();
+    $process->setPid($pid);
+    return $status = $process->stop();
+
+}
