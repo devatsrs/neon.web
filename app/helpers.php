@@ -1203,8 +1203,20 @@ function view_response_api($response){
 
 function terminate_process($pid){
 
-    $process = new Process();
+
+    /*$process = new Process();
     $process->setPid($pid);
-    return $status = $process->stop();
+    return $status = $process->stop();*/
+
+    if(getenv("APP_OS") == "Linux"){
+        $KillCommand = 'kill -9 '.$pid;
+    }else{
+        $KillCommand = 'Taskkill /PID '.$pid.' /F';
+    }
+    $ReturnStatus = false;
+    //Kill the process.
+    exec($KillCommand,$DetailOutput,$ReturnStatus);
+
+    return  $ReturnStatus;
 
 }

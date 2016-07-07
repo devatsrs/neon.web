@@ -121,7 +121,7 @@
 
                                     action += ' <button data-id="'+ id +'" class="job_terminate btn btn-red btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="entypo-stop"></i> Terminate</button>';
 
-                                }else  if(Status != 'pending'){
+                                }else  if( Status == 'failed' ){
 
                                     action += ' <button data-id="'+ id +'" class="job_restart btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Restart</button>';
                                 }

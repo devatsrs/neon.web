@@ -256,20 +256,16 @@ class JobsController extends \BaseController {
                 $status = terminate_process($PID);
             }
 
-
             //Pending
             $JobStatusID = JobStatus::where('Code','P')->first()->pluck('JobStatusID');
+            $UserName = User::get_user_full_name();
 
-            $JobData = array();
-            $JobData['JobStatusID'] = $JobStatusID;
-
-            if ($status) {
-                $JobData['PID'] = '';
-                Job::where("JobID",$JobID)->update($JobData);
+            if ($status && $PID > 0) {
+                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'', '$UserName')");
                 return Response::json(array("status" => "success", "message" => "Job will restart soon."));
             } else {
-                Job::where("JobID",$JobID)->update($JobData);
-                return Response::json(array("status" => "failed", "message" => "Unable to terminate the process."));
+                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'', '$UserName')");
+                return Response::json(array("status" => "success", "message" => "Unable to terminate the process PID:".$PID.",Process might be already terminated, Job will restart soon."));
             }
 
         }else{
@@ -291,9 +287,9 @@ class JobsController extends \BaseController {
 
             $PID = $Job->PID;
 
-            $JobData = array();
-            $JobData['JobStatusID'] = $data['JobStatusID'];
-            $JobData['JobStatusMessage'] = $Job->JobStatusMessage . PHP_EOL .  ' User message:' . $data['message'];
+            $JobStatusID = $data['JobStatusID'];
+            $JobStatusMessage = PHP_EOL . ' User message:' . $data['message'];
+            $UserName = User::get_user_full_name();
 
 
             $status = false;
@@ -302,14 +298,12 @@ class JobsController extends \BaseController {
                 $status = terminate_process($PID);
             }
 
-            if ($status) {
-                $JobData['PID'] = '';
-                Job::where("JobID",$JobID)->update($JobData);
+            if ($status && $PID > 0 ) {
+                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,$JobStatusMessage, '$UserName')");
                 return Response::json(array("status" => "success", "message" => "Job Terminated Successfully!"));
             } else {
-                $JobData['JobStatusMessage'] .= PHP_EOL . "---  Unable to terminate the process. -- ";
-                Job::where("JobID",$JobID)->update($JobData);
-                return Response::json(array("status" => "failed", "message" => "Unable to terminate the process."));
+                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
+                return Response::json(array("status" => "success", "message" => " Unable to terminate the process PID:".$PID.", Process might be already terminated."));
             }
 
         } else {
