@@ -136,7 +136,7 @@
                 },
                 "aoColumns":
                         [
-                            {  "bSortable": true,
+                            {  "bSortable": false,
 
                                 mRender: function ( Active, type, full ) {
                                     var action ='';
@@ -150,10 +150,10 @@
                                     return action;
                                 }
 
-                            },//0 Pid
+                            },//0 Active
                             {  "bSortable": true },//1 Pid
                             {  "bSortable": true },  //2   Title
-                            {  "bSortable": true,
+                            {  "bSortable": true,    // Runnince since
 
                                 mRender: function ( RunningTime, type, full ) {
                                     var PID =  full[1];
