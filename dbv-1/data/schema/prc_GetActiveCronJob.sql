@@ -46,6 +46,12 @@ BEGIN
 			END ASC,
 			CASE
 			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastRunTimeDESC') THEN tblCronJob.LastRunTime
+			END DESC,
+			CASE
+			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NextRunTimeASC') THEN tblCronJob.NextRunTime
+			END ASC,
+			CASE
+			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NextRunTimeDESC') THEN tblCronJob.NextRunTime
 			END DESC
 		
 		LIMIT p_RowspPage OFFSET v_OffSet_;
