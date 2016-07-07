@@ -186,6 +186,7 @@
             if(result){
                 id = $(this).attr('data-id');
                 submit_ajax(baseurl+'/jobs/'+id + '/restart');
+                data_table.fnFilter('', 0);
             }
         });
 
