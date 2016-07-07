@@ -178,7 +178,7 @@
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
-                                    action += '<div id="cron_set" style="display: none" >' + (full[8] !== null ? full[8] : '') + '</div>'
+                                    action += '<div id="cron_set" style="display: none" >' + (full[9] !== null ? full[9] : '') + '</div>'
                                     action += '</div>';
 
 
@@ -191,7 +191,7 @@
 
                                     var history_url = baseurl + "/cronjobs/history/" + CronJobID;
 
-                                    action += '&nbsp;<button target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></button>';
+                                    action += '&nbsp;<a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
 
                                     if(Status == 1 ) {
                                         action += '&nbsp;<button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
