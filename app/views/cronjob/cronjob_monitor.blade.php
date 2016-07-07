@@ -153,7 +153,7 @@
                             },//0 Active
                             {  "bSortable": true },//1 Pid
                             {  "bSortable": true },  //2   Title
-                            {  "bSortable": true,    // Runnince since
+                            {  "bSortable": false,    // Runnince since
 
                                 mRender: function ( RunningTime, type, full ) {
                                     var PID =  full[1];
