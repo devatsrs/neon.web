@@ -250,7 +250,11 @@ class JobsController extends \BaseController {
 
             $PID = $Job->PID;
 
-            $status = terminate_process($PID);
+            $status = false;
+            if($PID > 0) {
+
+                $status = terminate_process($PID);
+            }
 
 
             //Pending
