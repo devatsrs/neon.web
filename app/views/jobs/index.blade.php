@@ -119,11 +119,11 @@
 
                                 if(Status == 'in progress'){
 
-                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-stop"></i> Terminate</button>';
+                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-red btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="entypo-stop"></i> Terminate</button>';
 
                                 }else  if(Status != 'pending'){
 
-                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-default btn-sm" type="button" title="Restart" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"> Restart</i></button>';
+                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Restart</button>';
                                 }
 
                                 return action;
