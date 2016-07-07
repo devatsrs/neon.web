@@ -116,13 +116,14 @@
                                 action = '<a  onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;"   class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 
                                 Status = full[2].toLowerCase();
-                                if(Status != 'pending'){
 
-                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-green btn-sm" type="button" title="Restart" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-repeat"></i></button>';
-                                }
-                                else if(Status == 'in progress'){
+                                if(Status == 'in progress'){
 
-                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-green btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-stop"></i></button>';
+                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-stop"></i></button>';
+
+                                }else  if(Status != 'pending'){
+
+                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-default btn-sm" type="button" title="Restart" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-repeat"></i></button>';
                                 }
 
                                 return action;
@@ -180,8 +181,7 @@
         });
 
         //Restart a job
-        $(".job_restart").click(function(el) {
-
+        $('table tbody').on('click','.job_restart',function(ev){
             result = confirm("Are you Sure?");
             if(result){
                 id = $(this).attr('data-id');
@@ -191,24 +191,21 @@
 
 
         //Terninate a job
-        $(".job_terminate").click(function(el) {
+        $('table tbody').on('click','.job_terminate',function(ev){
             var JobID = $(this).attr('data-id');
-            $('#job_terminate_form').reset();
+            $('#job_terminate_form').trigger('reset');
             $('#modal-Terminate').modal('show');
             $('#job_terminate_form').attr("action", baseurl+'/jobs/'+JobID + '/terminate');
         });
 
 
-        $(".job_terminate_form").submit(function(el) {
-
+        $("#job_terminate_form").submit(function(e){
+            e.preventDefault();
             url = $(this).attr("action");
-
-            var post_data = $('#job_terminate_form').serialize();
-            submit_ajax(url,post_data);
+            submit_ajax(url,$(this).serialize());
+            data_table.fnFilter('', 0);
 
             return false;
-
-
         });
 
     });
@@ -242,17 +239,23 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="form-Group">
+                        <div class="col-sm-12">
+                        <div class="form-group">
                             <label class="col-sm-3 control-label">Change Status To</label>
                             <div class="col-sm-9">
-                                {{Form::select('JobStatusID',$JobStatus,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('JobStatusID',$jobstatus,'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
-                        <div class="form-Group">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                        <div class="form-group">
                             <label class="col-sm-3 control-label">Message</label>
                             <div class="col-sm-9">
                                 <textarea class="form-control message" rows="4" name="message"></textarea>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>

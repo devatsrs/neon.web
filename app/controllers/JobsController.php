@@ -261,10 +261,10 @@ class JobsController extends \BaseController {
 
             if ($status) {
                 $JobData['PID'] = '';
-                $Job->update($JobData);
+                Job::where("JobID",$JobID)->update($JobData);
                 return Response::json(array("status" => "success", "message" => "Job will restart soon."));
             } else {
-                $Job->update($JobData);
+                Job::where("JobID",$JobID)->update($JobData);
                 return Response::json(array("status" => "failed", "message" => "Unable to terminate the process."));
             }
 
@@ -286,19 +286,25 @@ class JobsController extends \BaseController {
             $Job = Job::find($JobID);
 
             $PID = $Job->PID;
+
             $JobData = array();
             $JobData['JobStatusID'] = $data['JobStatusID'];
-            $JobData['JobStatusMessage'] = $Job->JobStatusMessage . ' User message:' . $data['message'];
+            $JobData['JobStatusMessage'] = $Job->JobStatusMessage . PHP_EOL .  ' User message:' . $data['message'];
 
-            $status = terminate_process($PID);
+
+            $status = false;
+            if($PID > 0){
+
+                $status = terminate_process($PID);
+            }
 
             if ($status) {
                 $JobData['PID'] = '';
-                $Job->update($JobData);
+                Job::where("JobID",$JobID)->update($JobData);
                 return Response::json(array("status" => "success", "message" => "Job Terminated Successfully!"));
             } else {
                 $JobData['JobStatusMessage'] .= PHP_EOL . "---  Unable to terminate the process. -- ";
-                $Job->update($JobData);
+                Job::where("JobID",$JobID)->update($JobData);
                 return Response::json(array("status" => "failed", "message" => "Unable to terminate the process."));
             }
 
