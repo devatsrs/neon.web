@@ -181,8 +181,6 @@
                                     action += '<div id="cron_set" style="display: none" >' + (full[9] !== null ? full[9] : '') + '</div>'
                                     action += '</div>';
 
-
-
                                     var Status = full[7];
 
                                     <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
@@ -193,11 +191,13 @@
 
                                     action += '&nbsp;<a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
 
-                                    if(Status == 1 ) {
-                                        action += '&nbsp;<button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
-                                    }else {
-                                        action += '&nbsp;<button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Active" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
-                                    }
+                                    <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
+                                        if(Status == 1 ) {
+                                            action += '&nbsp;<button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
+                                        }else {
+                                            action += '&nbsp;<button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Active" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
+                                        }
+                                    <?php } ?>
 
                                     <?php if(User::checkCategoryPermission('CronJob','Delete')){ ?>
                                             action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-cancel"></i></button>';
