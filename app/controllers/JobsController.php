@@ -302,10 +302,10 @@ class JobsController extends \BaseController {
             }
 
             if ($status && $PID > 0 ) {
-                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
+                \Illuminate\Support\Facades\DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
                 return Response::json(array("status" => "success", "message" => "Job Terminated Successfully!"));
             } else {
-                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
+                \Illuminate\Support\Facades\DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
                 return Response::json(array("status" => "success", "message" => " Unable to terminate the process PID:".$PID.", Process might be already terminated."));
             }
 

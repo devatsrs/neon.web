@@ -54,6 +54,19 @@ class Process
         else return true;
     }
 
+    public function isrunning($pid) {
+
+        //@TODO: checkout for windows system
+        //http://lifehacker.com/362316/use-unix-commands-in-windows-built-in-command-prompt
+        $pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
+
+        if( !empty($pid) && $pid > 0 && in_array($pid, $pids_)) {
+            Log::info(" Running pids " . print_r($pids_,true));
+            return TRUE;
+        }
+        return FALSE;
+    }
+
     public function stop(){
 
         if(getenv("APP_OS") == "Linux"){
@@ -62,12 +75,21 @@ class Process
             $command = 'Taskkill /PID '.$this->pid.' /F';
         }
 
-        $DetailOutput=$return_var="";
-        exec($command,$DetailOutput,$return_var);
 
-        \Illuminate\Support\Facades\Log::info("Kill Command " . $command);
-        \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($DetailOutput,true));
-        \Illuminate\Support\Facades\Log::info("return_var " . $return_var);
+        if($this->isrunning($this->pid)){
+
+            $DetailOutput=$return_var="";
+
+            exec($command,$DetailOutput,$return_var);
+
+            \Illuminate\Support\Facades\Log::info("Kill Command " . $command);
+            \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($DetailOutput,true));
+            \Illuminate\Support\Facades\Log::info("return_var " . $return_var);
+
+        }else{
+            return false;
+        }
+
 
         if ($this->status() == false) {
             return true;
