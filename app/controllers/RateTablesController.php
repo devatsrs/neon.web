@@ -330,7 +330,7 @@ class RateTablesController extends \BaseController {
                     $updateConnectionFee = 0;
                 }
                 if(isset($error) && $error==1){
-                    return Response::json(array("status" => "failed", "message" => "Please select Cheked Filed data"));
+                    return Response::json(array("status" => "failed", "message" => "Please Select Checked Field Data"));
                 }
 
             }else{
