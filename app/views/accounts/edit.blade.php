@@ -23,7 +23,7 @@
 
 <p style="text-align: right;">
     <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="fa fa-credit-card"></i>
         Credit Control
     </a>
     @if(User::checkCategoryPermission('Opportunity','Add'))
