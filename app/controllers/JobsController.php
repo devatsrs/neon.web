@@ -289,10 +289,11 @@ class JobsController extends \BaseController {
 
             $PID = $Job->PID;
 
-            $JobStatusID = $data['JobStatusID'];
-            $JobStatusMessage = PHP_EOL . ' User message:' . $data['message'];
             $UserName = User::get_user_full_name();
+            $JobStatusID = $data['JobStatusID'];
 
+            $JobStatusTitle = JobStatus::where("JobStatusID",$JobStatusID)->pluck("Title");
+            $JobStatusMessage = PHP_EOL . $UserName . ' has changed Job Status to ' . $JobStatusTitle .'<br> User says:' . $data['message'];
 
             $status = false;
             if($PID > 0){
