@@ -7,6 +7,7 @@ BEGIN
 		ab.CreditUsed,
 		ab.BalanceThreshold,
 		ab.PermanentCredit,
+		ab.EmailToCustomer,
 		a.BillingEmail,
 		a.AccountName,
 		a.AccountID,
@@ -15,6 +16,7 @@ BEGIN
 	INNER JOIN tblAccount a ON a.AccountID = ab.AccountID
 	WHERE BalanceThreshold IS NOT NULL
 	AND  a.CompanyId = p_CompanyID
-	AND (p_AccountID = 0 OR  a.AccountID = p_AccountID);
+	AND (p_AccountID = 0 OR  a.AccountID = p_AccountID)
+	AND a.`Status` = 1;
 
 END
