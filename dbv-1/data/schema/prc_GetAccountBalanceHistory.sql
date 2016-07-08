@@ -12,7 +12,6 @@ BEGIN
          
 		SELECT
 			abh.PermanentCredit,
-			abh.TemporaryCredit,
 			abh.BalanceThreshold,
 			abh.CreatedBy,
 			abh.created_at
@@ -25,12 +24,6 @@ BEGIN
 			CASE
 			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PermanentCreditASC') THEN abh.PermanentCredit
 			END ASC,				
-			CASE
-			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TemporaryCreditDESC') THEN abh.TemporaryCredit
-			END DESC,
-			CASE
-			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TemporaryCreditASC') THEN abh.TemporaryCredit
-			END ASC,
 			CASE
 			  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ThresholdASC') THEN abh.BalanceThreshold
 			END ASC,
@@ -62,7 +55,6 @@ BEGIN
     THEN
         SELECT
 			abh.PermanentCredit,
-			abh.TemporaryCredit,
 			abh.BalanceThreshold,
 			abh.CreatedBy,
 			abh.created_at
