@@ -85,6 +85,15 @@
                             <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Email To Customer
+                        </label>
+                        <div class="desc col-sm-4 ">
+                            <p class="make-switch switch-small">
+                                <input id="EmailToCustomer" name="EmailToCustomer" type="checkbox" @if($EmailToCustomer == 1) checked @endif value="1">
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -108,6 +117,7 @@
     jQuery(document).ready(function($) {
         var acountiptable;
         $('#save_account').click(function(){
+            $("#save_account").button('loading');
             var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('account/update_credit')}}';
             submit_ajax(post_url,post_data);
