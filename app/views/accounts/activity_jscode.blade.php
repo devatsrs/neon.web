@@ -7,6 +7,7 @@ var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
 var file_count 		  =  		0;
 var current_tab       =  		'';
+Not_ask_delete_Note   = 		0;
 @if(empty($message)){
 	var allow_extensions  = 		{{$response_extensions}};
 }
@@ -16,12 +17,231 @@ var current_tab       =  		'';
 @endif;
 
 var account_id		  =			'{{$AccountID}}';
-var email_file_list	  =  		new Array();
+var emailFileList	  =  		new Array();
 var token			  =			'{{$token}}';
 var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
     jQuery(document).ready(function ($) {	
+	
+	function biuldSwicth(container,name,formID,checked){
+				var make = '<span class="make-switch switch-small">';
+				make += '<input name="'+name+'" value="{{Task::Close}}" '+checked+' type="checkbox">';
+				make +='</span>';
+	
+				var container = $(formID).find(container);
+				container.empty();
+				container.html(make);
+				container.find('.make-switch').bootstrapSwitch();
+			} 
+			
+	
+	$( document ).on("click",'.delete_task_link' ,function(e) {
+		
+	    var del_task_id  = $(this).attr('task-id');
+		var del_key_id   = $(this).attr('key_id');
+		
+		if(Not_ask_delete_Note==1 && $('#timeline-'+del_key_id).hasClass("followup_task")){
+				Not_ask_delete_Note = 0;	
+		}else{
+		  if (!confirm("Are you sure to delete?")) {
+				return false;
+			}
+		}
+     
+		
+		var url_del_task1 	= 	"<?php echo URL::to('/task/{id}/delete_task'); ?>";
+		var url_del_task	=	url_del_task1.replace( '{id}', del_task_id );
+		 $.ajax({
+			url: url_del_task,
+			type: 'POST',
+			dataType: 'json',
+			async :false,
+			data:{TaskID:del_task_id},
+			success: function(response) {
+				console.log('timeline-'+del_key_id);
+				$('#timeline-'+del_key_id).remove();
+				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_task_entry"></li>');
+				ShowToastr("success","Task Successfully Deleted"); 
+			},
+		});	
+		
+    });
+	  
+	
+	$( document ).on("click",'.edit_task_link' ,function(e) {
+	    var edit_task_id  = $(this).attr('task-id');
+		var edit_key_id   = $(this).attr('key_id');	
+        
+		if(edit_task_id!='' && edit_key_id!=''){
+			//
+			
+		var url_get_task 	= 	"<?php echo URL::to('task/GetTask'); ?>";
+		 $.ajax({
+					url: url_get_task,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:{TaskID:edit_task_id},
+					success: function(response) {
+						if(response.Priority!='Low'){							
+							biuldSwicth('.make','Priority','#edit-modal-task','checked');
+						}else{
+							biuldSwicth('.make','Priority','#edit-modal-task','');
+						}
+						
+						$('#edit-modal-task #Subject').val(response.Subject);
+						$('#edit-modal-task #Description_task').val(response.Description);
+						var date_time = response.DueDate.split(" ");
+						$('#edit-modal-task #DueDate_date').val(date_time[0]);
+						$('#edit-modal-task #DueDate_time').val(date_time[1]);
+						var status_id = 0;
+						$('#edit-task-form  [name="TaskStatus"] option').each(function(){
+						  if ($(this).text() == response.TaskStatus){
+								$(this).attr("selected","selected");
+								status_id = $(this).attr("value");
+							}
+						});
+						var account_id = 0;
+						$('#edit-task-form  [name="UsersIDs"] option').each(function(){
+						  if ($(this).text() == response.Name){
+								$(this).attr("selected","selected");
+								account_id = $(this).attr("value");
+							}
+						});
+						$('#edit-task-form  [name="TaskStatus"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(status_id);
+						$('#edit-task-form [name="UsersIDs"]').select2('val', account_id);
+						$('#edit-task-form #TaskID').val(edit_task_id);
+						$('#edit-task-form #KeyID').val(edit_key_id);
+						$('#edit-modal-task').modal('show');												
+					},
+				});	
+					
+		}
+    });
+	
+	
+		$( document ).on("click",'.delete_note_link' ,function(e) {
+			var del_note_id  = $(this).attr('note-id');
+			var del_key_id   = $(this).attr('key_id');
+			
+			var followup = parseInt(del_key_id)+1;
+			if ($('#timeline-'+followup).hasClass("followup_task"))
+			{
+					 if (!confirm("Are you sure you want delete? This note has follow up task against it."))
+					 {
+      	  				return false;
+    				 }
+			}
+			else
+			{
+					if (!confirm("Are you sure to delete?"))
+					{
+      	  				return false;
+    				}					
+			}
+			
+		var url_del_note1 	= 	"<?php echo URL::to('/accounts/{id}/delete_note'); ?>";
+		var url_del_note	=	url_del_note1.replace( '{id}', del_note_id );
+		 $.ajax({
+			url: url_del_note,
+			type: 'POST',
+			dataType: 'json',
+			async :false,
+			data:{NoteID:del_note_id},
+			success: function(response) {
+				console.log('timeline-'+del_key_id);
+				$('#timeline-'+del_key_id).remove();
+				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_note_entry"></li>');
+				//follow up delete
+				var followup = parseInt(del_key_id)+1;
+				if ($('#timeline-'+followup).hasClass("followup_task")) {
+					 if (!confirm("Delete Follow up Task?")) {
+      	  				return false;
+    				}
+					else
+					{ 
+						Not_ask_delete_Note = 1;
+						$('#timeline-'+followup+' .delete_task_link').click();
+					}
+					$('#timeline-'+del_key_id+1).remove();
+					$('#timeline-ul').append('<li id="timeline-'+del_key_id+1+'" class="count-li timeline_task_entry"></li>');
+				}
+				ShowToastr("success","Note Successfully Deleted"); 
+			},
+		});	
+		
+    });
+	
+	$( document ).on("click",'.edit_note_link' ,function(e) {
+        var edit_note_id = $(this).attr('note-id');
+		var edit_key_id  = $(this).attr('key_id');
+		///////
+		var url_get_note 	= 	"<?php echo URL::to('accounts/get_note'); ?>";
+		 $.ajax({
+					url: url_get_note,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					data:{NoteID:edit_note_id},
+					success: function(response) {
+						$('#edit-note-model #Description_edit_note').val(response.Note);
+						$('#edit-note-model #NoteID').val(parseInt(edit_note_id));
+						$('#edit-note-model #KeyID').val(parseInt(edit_key_id));
+						//
+						
+						$('#edit-note-model').modal('show'); 								
+					},
+				});	
+				
+				      $('#edit-note-model').on('shown.bs.modal', function(event){
+						  var modal = $(this);
+                        modal.find('.wysihtml5-toolbar').remove();
+						modal.find('.wysihtml5-sandbox').remove();
+                        modal.find('.editor-note').show();
+						  
+                        var modal = $('#edit-note-model');
+                        modal.find('.editor-note').wysihtml5({
+									"font-styles": true,
+									"leadoptions":false,
+									"Crm":false,
+									"emphasis": true,
+									"lists": true,
+									"html": true,
+									"link": true,
+									"image": true,
+									"color": false,
+									parser: function(html) {
+										return html;
+									}
+							});
+                    });
+
+                   	
+		/////////		
+    });
+	
+			 $('#edit-note-model').on('hidden.bs.modal', function(event){				 	
+                        var modal = $(this);
+                        modal.find('.wysihtml5-toolbar').remove();
+						modal.find('.wysihtml5-sandbox').remove();
+                        modal.find('.editor-note').show();
+              });			
+
+			$("#form_timeline_filter [name=timeline_filter]").click(function(e){
+        	var show_timeline_data = $(this).attr('show_data'); console.log(show_timeline_data);
+			if(show_timeline_data!='')
+			{
+				if(show_timeline_data=='all'){
+					$('#timeline-ul .count-li').show();
+				}else{
+					$('#timeline-ul .count-li').hide();
+					$('#timeline-ul ').find('.'+show_timeline_data).show();
+				}
+			}
+    	});
+		
+	
 	
 	@if(!empty($message))
  var status = '{{$message}}';
@@ -153,7 +373,7 @@ toastr.error(status, "Error", toastr_opts);
 							$("#timeline-ul").append(response1); 
 						}
 							$('div#last_msg_loader').empty();
-						
+							change_click_filter();
 						},
 				});	
 			
@@ -275,53 +495,70 @@ setTimeout(function() {
 				$('#filecontrole1').click();
 				
             });
-			
-			$(document).on("click",".del_attachment",function(ee){
-				var file_delete_url 	= 	baseurl + '/account/delete_actvity_attachment_file';
-			
-				
-				var del_file_name   =  $(this).attr('del_file_name');
-				$(this).parent().remove();
-				var index_file = email_file_list.indexOf(del_file_name);
-				 email_file_list.splice(index_file, 1);
-				 
-				$.ajax({
-                url: file_delete_url,
-                type: 'POST',
-                dataType: 'html',
-				data:{file:del_file_name,token_attachment:token},
-				async :false,
-                success: function(response1) {},
-				});	
-				
-			});
+
+            $(document).on("click",".del_attachment",function(ee){
+                var url  =  baseurl + '/account/delete_actvity_attachment_file';
+                var fileName   =  $(this).attr('del_file_name');
+                var attachmentsinfo = $('#info1').val();
+                if(!attachmentsinfo){
+                    return true;
+                }
+                attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
+                $(this).parent().remove();
+                var fileIndex = emailFileList.indexOf(fileName);
+                var fileinfo = attachmentsinfo[fileIndex];
+                emailFileList.splice(fileIndex, 1);
+                attachmentsinfo.splice(fileIndex, 1);
+                $('#info1').val(JSON.stringify(attachmentsinfo));
+                $('#info2').val(JSON.stringify(attachmentsinfo));
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data:{file:fileinfo},
+                    async :false,
+                    success: function(response) {
+                        if(response.status =='success'){
+
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+                });
+            });
 			
 
 
 $('#emai_attachments_form').submit(function(e) {
 	e.stopImmediatePropagation();
-    e.preventDefault();		
-    var formData_attachment = 	new FormData(this);
-	var file_upload_url 	= 	baseurl + '/account/upload_file';
-	
-		$.ajax({
-                url: file_upload_url,
-                type: 'POST',
-                dataType: 'html',
-				async :false,
-				data:formData_attachment,
-				cache: false,
-				contentType: false,
-				processData: false,
-                success: function(response) {
-                    if (isJson(response)) {
-                        var response_json  =  JSON.parse(response);
-                        ShowToastr("error",response_json.message);
-                    } else {
-                        $('.file-input-names').html(response);
-                    }
-					},
-			})
+    e.preventDefault();
+
+    var formData = new FormData(this);
+    var url = 	baseurl + '/account/upload_file';
+    $.ajax({
+        url: url,  //Server script to process data
+        type: 'POST',
+        dataType: 'json',
+        success: function (response) {
+            console.log(response);
+            if(response.status =='success'){
+                $('.file-input-names').html(response.data.text);
+                $('#info1').val(JSON.stringify(response.data.attachmentsinfo));
+                $('#info2').val(JSON.stringify(response.data.attachmentsinfo));
+
+            }else{
+                toastr.error(response.message, "Error", toastr_opts);
+            }
+        },
+        // Form data
+        data: formData,
+        //Options to tell jQuery not to process data or worry about content-type.
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+
+
 });
 
 	function bytesToSize(filesize) {
@@ -344,7 +581,7 @@ $('#emai_attachments_form').submit(function(e) {
 				if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )			
 				{         
 					var name_file = f.name;
-					var index_file = email_file_list.indexOf(f.name);
+					var index_file = emailFileList.indexOf(f.name);
 					if(index_file >-1 )
 					{
 						ShowToastr("error",f.name+" file already selected.");							
@@ -357,7 +594,7 @@ $('#emai_attachments_form').submit(function(e) {
 						
 					}else
 					{
-						//email_file_list.push(f.name);
+						//emailFileList.push(f.name);
 						local_array.push(f.name);
 					}
 				}
@@ -368,8 +605,8 @@ $('#emai_attachments_form').submit(function(e) {
 				}
         });
         		if(local_array.length>0 && file_check==1)
-				{	 email_file_list = email_file_list.concat(local_array);
-   					$('#emai_attachments_form').submit();	
+				{	 emailFileList = emailFileList.concat(local_array);
+   					$('#emai_attachments_form').submit();
 				}
 
             });
@@ -493,6 +730,7 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 
             } show_popup=0;
+			change_click_filter();
       			},
 			});
 
@@ -545,6 +783,7 @@ $('#emai_attachments_form').submit(function(e) {
 				    $("#save-task").button('reset');
 			   	    $("#save-task").removeClass('disabled');
                     //getOpportunities();
+					change_click_filter();
                 },
                 // Form data
                 data: formData,
@@ -556,6 +795,12 @@ $('#emai_attachments_form').submit(function(e) {
         
 			//////////////
         });
+		
+		function change_click_filter()
+		{
+			var current_time_line_filter =  $(".timeline_filter:checked");
+			$(current_time_line_filter).click();
+		}
 		
 		function isJson(str) {
 		try {
@@ -620,7 +865,7 @@ $('#emai_attachments_form').submit(function(e) {
 		function empty_images_inputs()
 		{
 			$('.fileUploads').val();
-			$('#emailattachment_sent').val(email_file_list);
+			$('#emailattachment_sent').val(emailFileList);
 		}
 		
         $("#email-from").submit(function (event) {
@@ -657,10 +902,12 @@ $('#emai_attachments_form').submit(function(e) {
 					
 				//reset file upload	
 				file_count = 0;
-				email_file_list = [];
+                   emailFileList = [];
 				//$('.fileUploads').remove();
+                   $('#info1').val('');
+                   $('#info2').val('');
+                   $('#emailattachment_sent').val('');
 				$('.file_upload_span').remove();
-				 
                
 					
 				///
@@ -694,7 +941,7 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				///				
 				
-            } show_popup=0;
+            } show_popup=0; change_click_filter();
       			},
 			});	
 		 });
@@ -715,3 +962,23 @@ $('#emai_attachments_form').submit(function(e) {
 	
 		
     </script> 
+    <style>
+#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
+ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
+#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
+
+/*.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px; border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";}*/
+.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{ right: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-right-color: #fff;
+    border-width: 10px;
+    top: 10px;}
+ footer.main{clear:both;} .followup_task {margin-top:-30px;}
+#form_timeline_filter .radio + .radio, .checkbox + .checkbox{margin-top:0px !important; }
+</style>

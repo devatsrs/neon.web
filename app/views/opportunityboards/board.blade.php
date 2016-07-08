@@ -1,7 +1,6 @@
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($columnsWithOpportunities)>0)
         @foreach($columnsWithOpportunities as $index=>$column )
-            <?php//$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
             <header>
                 <h5>{{$columns[$index]['Name']}} {{(!empty($column[0])?'('.count($column).')':'')}}</h5>
@@ -28,7 +27,9 @@
                         }
                         ?>
                             <li class="tile-stats sortable-item count-cards" {{$backgroundcolour}} data-name="{{$opportunity['OpportunityName']}}" data-id="{{$opportunity['OpportunityID']}}">
+                                @if(User::checkCategoryPermission('Opportunity','Edit'))
                                 <button type="button" title="Edit Opportunity" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
+                                @endif
                                 <div class="row-hidden">
                                     {{$hidden}}
                                 </div>

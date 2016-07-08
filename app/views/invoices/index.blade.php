@@ -81,11 +81,11 @@
                         </div>
                          <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                              {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                              {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
                    
             
@@ -166,13 +166,13 @@
  <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="12%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
-                <div class="pull-right">&nbsp;</div></th>
+        <th width="10%"><div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div></th>
         <th width="15%">Account Name</th>
         <th width="10%">Invoice Number</th>
         <th width="10%">Issue Date</th>
-        <th width="10%">Grand Total</th>
-        <th width="10%">Paid/OS</th>
+        <th width="13%">Invoice Period</th>
+        <th width="6%">Grand Total</th>
+        <th width="6%">Paid/OS</th>
         <th width="10%">Invoice Status</th>
         <th width="20%">Action</th>
     </tr>
@@ -196,7 +196,7 @@ var postdata;
         //show_loading_bar(40);
         var invoicestatus = {{$invoice_status_json}};
         var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
+        var list_fields  = ['InvoiceType','AccountName ','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal2','PendingAmount','InvoiceStatus','InvoiceID','Description','Attachment','AccountID','OutstandingAmount','ItemInvoice','BillingEmail','GrandTotal'];
         $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
         $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
         $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
@@ -231,7 +231,7 @@ var postdata;
                                          invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                                       }
                                       if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                        action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
+                                        action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[8]+'" name="InvoiceID[]"></div>';
                                       }
                                         action += invoiceType;
                                         return action;
@@ -243,11 +243,11 @@ var postdata;
                 mRender:function( id, type, full){
                                         var output , account_url;
                                         output = '<a href="{url}" target="_blank" >{account_name}';
-                                        if(full[13] ==''){
+                                        if(full[14] ==''){
                                         output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                                             }
                                         output+= '</a>';
-                                        account_url = baseurl + "/accounts/"+ full[10] + "/show";
+                                        account_url = baseurl + "/accounts/"+ full[11] + "/show";
                                         output = output.replace("{url}",account_url);
                                         output = output.replace("{account_name}",id);
                                         return output;
@@ -261,7 +261,7 @@ var postdata;
                                                         var output , account_url;
                     if (full[0] != '{{Invoice::INVOICE_IN}}') {
                         output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                        account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
+                        account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
                         output = output.replace("{url}", account_url);
                         output = output.replace("{account_name}", id);
                     }else{
@@ -272,18 +272,20 @@ var postdata;
 
                 },  // 2 IssueDate
                 {  "bSortable": true },  // 3 IssueDate
-                {  "bSortable": true },  // 4 GrandTotal
-                {  "bSortable": true },  // 4 PAID/OS
+                {  "bSortable": true },  //4 Invoice period
+                {  "bSortable": true },  // 5 GrandTotal
+                {  "bSortable": true },  // 6 PAID/OS
                 {  "bSortable": true,
                     mRender:function( id, type, full){
-                        return invoicestatus[full[6]];
+                        return invoicestatus[full[7]];
                     }
 
-                },  // 5 InvoiceStatus
+                },  // 7 InvoiceStatus
                 {
                    "bSortable": false,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_,view_url,edit_url,download_url,invoice_preview,invoice_log;
+                        id = full[8];
                          action = '<div class = "hiddenRowData" >';
                         if (full[0] != '{{Invoice::INVOICE_IN}}'){
                             edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}",id);
@@ -314,7 +316,7 @@ var postdata;
                             action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                            if (full[12] == '{{Invoice::ITEM_INVOICE}}'){
+                            if (full[13] == '{{Invoice::ITEM_INVOICE}}'){
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}",id) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                 }
@@ -331,7 +333,7 @@ var postdata;
                                     action += '<li><a data-id="' + id  + '" class="send-invoice icon-left"><i class="entypo-mail"></i>Send </a></li>';
                                 }
                             }
-                            if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[6] != '{{Invoice::PAID}}')){
+                            if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[7] != '{{Invoice::PAID}}')){
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                     action += '<li><a data-id="' + id  + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Paytment</a></li>';
                                 }
@@ -347,7 +349,7 @@ var postdata;
                              action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                              $.each(invoicestatus, function( index, value ) {
                                  if(index!=''){
-                                     action +='<li><a data-invoicestatus="' + index+ '" data-invoiceid="' + full[7]+ '" href="' + Invoice_Status_Url+ '" class="changestatus" >'+value+'</a></li>';
+                                     action +='<li><a data-invoicestatus="' + index+ '" data-invoiceid="' + id+ '" href="' + Invoice_Status_Url+ '" class="changestatus" >'+value+'</a></li>';
                                  }
 
                              });
@@ -484,16 +486,15 @@ var postdata;
             "iDisplayLength": '{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, 'desc']],},
+            "aaSorting": [[3, 'desc']]},
                 success: function(response1) {
 					//console.log("sum of result"+response1);
-						if(response1.total_grand!=null)
-						{ 
+						if(response1.total_grand!=null) {
 						$('.result_row').remove();
-						$('.result_row').hide();							
-				$('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+						$('.result_row').hide();
+				        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="4"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
 						}
-					},
+					}
 			});	
 		}
 		
@@ -835,7 +836,7 @@ var postdata;
                      }
                      else{
                           toastr.error("Please Enter Cancel Reason", "Error", toastr_opts);
-                         $(this).find(".cancelbutton]").button("reset");
+                         $(this).find(".cancelbutton").button("reset");
                            return false;
                      }
 
@@ -846,12 +847,12 @@ var postdata;
                 }
             }else{
             toastr.error("Please Select Invoices Status", "Error", toastr_opts);
-            $(this).find(".cancelbutton]").button("reset");
+            $(this).find(".cancelbutton").button("reset");
             return false;
             }
 
        });
-       $("#selected-invoice-status-form [name='InvoiceStatus']").change(function(e){
+       $('#selected-invoice-status-form [name="InvoiceStatus"]').change(function(e){
             e.preventDefault();
             $('#statuscancel').hide();
             var status = $(this).val();

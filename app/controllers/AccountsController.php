@@ -162,7 +162,7 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
-
+        unset($data['DataTables_Table_0_length']);
         if(Company::isBillingLicence()) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
@@ -218,6 +218,8 @@ class AccountsController extends \BaseController {
 
 	
 		public function show($id) {
+		
+		
 		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
@@ -291,21 +293,25 @@ class AccountsController extends \BaseController {
 	        $leadOrAccount 				= 	 $accounts;
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-
-			 if (isset($response->status_code) && $response->status_code == 200) {			
-				$response = $response->data;
-			}else{				
-			 	$message	=	isset($response->message)?$response->message:$response->error;
-			 	Session::set('error_message',$message);
-			}
 			
+				$array = json_decode(json_encode($response), True); 
+			 if (isset($response->status) && $response->status != 'failed') {			
+				$response = $response->data;
+			}else{		
+				if(isset($response->Code) && $response->Code==400){
+					return	Redirect::to('/logout'); 	
+				}
+				else{
+					$message	    =	$response->message['error'][0]; 
+			 		Session::set('error_message',$message);
+				}
+			}			
 			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
-    
+
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
 		}
 	
 	
@@ -407,6 +413,7 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
+        unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
@@ -515,18 +522,57 @@ class AccountsController extends \BaseController {
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
 		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));      
 	}
+	/**
+     * Get a Note
+     */
+	function get_note(){
+		$response				=	array();
+		$data 					= 	Input::all();
+		$response_note    		=   NeonAPI::request('account/get_note',array('NoteID'=>$data['NoteID']),false,true);
+		if($response_note['status']=='failed'){
+			return json_response_api($response_note,false,true);
+		}else{
+			return json_encode($response_note['data']);
+		}
+	}
+	/**
+     * Update a Note
+     */	
+	function update_note()
+	{ 
+        $data 					= 	Input::all();
+        $companyID 				= 	User::get_companyID();
+        $user_name 				= 	User::get_user_full_name();
+        $data['CompanyID'] 		= 	$companyID;
+        $data['updated_by'] 	=	$user_name;
+        $data["Note"] 			= 	nl2br($data["Note"]);
+		unset($data['KeyID']);
+ 		$response 				= 	NeonAPI::request('account/update_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			$response = $response->data;
+			$response->type = Task::Note;
+		}
+			
+		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+		return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));   
+	}
 
     /**
      * Delete a Note
      */
     public function delete_note($id) {
-
-        $result = Note::find($id)->delete();
-        if ($result) {
-            return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Note."));
-        }
+        ///$result = Note::find($id)->delete();
+		$data['NoteID']			=	$id;		 
+		$response 				= 	NeonAPI::request('account/delete_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
+		}     
     }
 
     public  function  upload($id){
@@ -756,6 +802,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
+            if (User::is('AccountManager')) { // Account Manager
+                $criteria = json_decode($data['criteria'],true);
+                $criteria['account_owners'] = $userID = User::get_userID();
+                $data['criteria'] = json_encode($criteria);
+            }
             $type = $data['type'];
             if ($type == 'CD') {
                 $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
@@ -868,33 +919,87 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
     }
-	
-	function upload_file()
-	{		
-		$data 						= 	Input::all();
-		$data['file']				=	array();
-		$emailattachment 			= 	Input::file('emailattachment');
-		$return_txt 				=	'';
-
-        if(!empty($emailattachment)){
-            $data['file'] = NeonAPI::base64byte($emailattachment);
+    public function get_credit($id){
+        $data = Input::all();
+        $account = Account::find($id);
+        $getdata['AccountID'] = $id;
+        $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $CreditUsed = $EmailToCustomer= 0;
+        if(!empty($response) && $response->status == 'success' ){
+            if(!empty($response->data->PermanentCredit)){
+                $PermanentCredit = $response->data->PermanentCredit;
+            }
+            if(!empty($response->data->TemporaryCredit)){
+                $TemporaryCredit = $response->data->TemporaryCredit;
+            }
+            if(!empty($response->data->BalanceThreshold)){
+                $BalanceThreshold = $response->data->BalanceThreshold;
+            }
+            if(!empty($response->data->BalanceAmount)){
+                $BalanceAmount = $response->data->BalanceAmount;
+            }
+            if(!empty($response->data->CreditUsed)){
+                $CreditUsed = $response->data->CreditUsed;
+            }
+            if(!empty($response->data->EmailToCustomer)){
+                $EmailToCustomer = $response->data->EmailToCustomer;
+            }
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','CreditUsed','EmailToCustomer'));
+        }else{
+            return view_response_api($response);
         }
 
-       try {
-           $return_str = check_upload_file($data['file'], 'activty_email_attachments', $data);
-           return $return_str;
-       }catch (Exception $ex)
-       {
-           return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
-       }	
-	}
-	
-	function delete_upload_file()
-	{
-        $data 		= 	Input::all();
-        delete_file('activty_email_attachments',$data);
+    }
 
-	}
+    public function update_credit(){
+        $data = Input::all();
+        $postdata= $data;
+        $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
+        return json_response_api($response);
+    }
+    public function ajax_datagrid_credit($type){
+        $getdata = Input::all();
+        $response =  NeonAPI::request('account/get_credithistorygrid',$getdata,false,false,false);
+        if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $excel_data = json_decode(json_encode($response->data),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        return json_response_api($response,true,true,true);
+    }
+    //////////////////////
+    function uploadFile(){
+        $data       =  Input::all();
+        $attachment    =  Input::file('emailattachment');
+        if(!empty($attachment)) {
+            try {
+                $data['file'] = $attachment;
+                $returnArray = UploadFile::UploadFileLocal($data);
+                return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
+            } catch (Exception $ex) {
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+        }
+
+    }
+
+    function deleteUploadFile(){
+        $data    =  Input::all();
+        try {
+            UploadFile::DeleteUploadFileLocal($data);
+            return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
 	
 	function Delete_task_parent()
 	{
@@ -967,6 +1072,120 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
+
+    public function addclis($id){
+        $data = Input::all();
+        $message = '';
+        $account = Account::find($id);
+
+        if(empty($data['clis'])){
+            return Response::json(array("status" => "error", "message" => " CLI required"));
+        }
+
+        $clis = preg_split("/\\r\\n|\\r|\\n/", $data['clis']);
+        $data['AccountID'] = $id;
+        $data['CustomerCLI'] = $clis;
+
+        $status = Account::validate_clis($data);
+        if(count($status['clisExist'])>0){
+            $iPsExist = implode('<br>',$status['clisExist']);
+            $message = ' and following CLIs already exist. '.$iPsExist;
+        }
+        unset($data['clis']);
+        unset($data['AccountID']);
+        if(count($status['toBeInsert'])>0){
+            $data['CustomerCLI'] = ltrim(implode(',',$status['toBeInsert']),',');
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
+        }
+    }
+
+    public function delete_clis($id){
+        $data = Input::all();
+        $account = Account::find($id);
+        $postClis = explode(',',$data['clis']);
+        unset($data['clis']);
+        $ips = [];
+        if(!empty($account)){
+            $dbClis = explode(',', $account->CustomerCLI);
+            $clis = implode(',',array_diff($dbClis, $postClis));
+            $data['CustomerCLI'] = ltrim($clis,',');
+
+            $account->update($data);
+            return Response::json(array("status" => "success","clis"=> explode(',',$clis),"message" => "Account Successfully Updated"));
+        }else{
+            return Response::json(array("status" => "error","message" => "No Ip exist."));
+        }
+    }
+
+    public function expense($id){
+        $CurrencySymbol = Account::getCurrency($id);
+        return View::make('accounts.expense',compact('id','CurrencySymbol'));
+    }
+    public function expense_chart(){
+        $data = Input::all();
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $companyID = User::get_companyID();
+        $query = "call prc_getAccountExpense ('". $companyID  . "',  '". $data['AccountID']  . "')";
+        $ExpenseResult = DataTableSql::of($query, 'neon_report')->getProcResult(array('Expense','CustomerExpense','VendorExpense'));
+        $Expense = $ExpenseResult['data']['Expense'];
+        $CustomerExpense = $ExpenseResult['data']['CustomerExpense'];
+        $VendorExpense = $ExpenseResult['data']['VendorExpense'];
+        $ExpenseYear = array();
+        $previousyear = '';
+        $datacount = 0;
+        $customer = $vendor = $cat = array();
+        foreach($Expense as $ExpenseRow){
+            if($previousyear != $ExpenseRow->Year){
+                $previousyear = $ExpenseRow->Year;
+                $ExpenseYear[$previousyear]['CustomerTotal'] = $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] = $ExpenseRow->VendorTotal;
+            }else{
+                $ExpenseYear[$previousyear]['CustomerTotal'] += $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] += $ExpenseRow->VendorTotal;
+            }
+            $customer[$datacount] = $ExpenseRow->CustomerTotal;
+            $vendor[$datacount] = $ExpenseRow->VendorTotal;
+            $month = $ExpenseRow->Month<10 ? '0'.$ExpenseRow->Month:$ExpenseRow->Month;
+            $cat[$datacount] = $ExpenseRow->Year.'-'.$month;
+            $datacount++;
+
+        }
+        $ExpenseYearHTML = '';
+        if(!empty($ExpenseYear)) {
+            foreach ($ExpenseYear as $year => $total) {
+                $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
+            }
+        }else{
+            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+        }
+
+        $response['customer'] =  implode(',',$customer);
+        $response['vendor'] = implode(',',$vendor);
+        $response['categories'] = implode(',',$cat);
+        $response['ExpenseYear'] = $ExpenseYearHTML;
+        $response['CustomerActivity'] = account_expense_table($CustomerExpense,'Customer');
+        $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
+
+        return $response;
+    }
+    public function unbilledreport($id){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $LastInvoiceDate = Invoice::getLastInvoiceDate($id);
+        $account = Account::find($id);
+        if(empty($LastInvoiceDate)){
+            if(!empty($account->BillingStartDate)) {
+                $LastInvoiceDate = $account->BillingStartDate;
+            }else{
+                $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
+            }
+        }
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $query = "call prc_getUnbilledReport (?,?,?,?)";
+        $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
+    }
 	
 	
 }

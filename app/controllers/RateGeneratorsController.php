@@ -4,12 +4,15 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
+        $data = Input::all();
+        $where = ["tblRateGenerator.CompanyID" => $companyID];
+        if($data['Active']!=''){
+            $where['tblRateGenerator.Status'] = $data['Active'];
+        }
         $RateGenerators = RateGenerator::
         join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
-        ->where([
-                    "tblRateGenerator.CompanyID" => $companyID
-                ])->select(array(
+        ->where($where)->select(array(
             'tblRateGenerator.RateGeneratorName',
             'tblTrunk.Trunk',
             'tblCurrency.Code',
@@ -116,10 +119,10 @@ class RateGeneratorsController extends \BaseController {
                 if(count($rategenerator_rules)){
                     $array_op['disabled'] = "disabled";
                 }
-
+                    $rategenerator = RateGenerator::find($id);
 
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators','rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist'));
             }
     }
 

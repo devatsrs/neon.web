@@ -150,20 +150,42 @@ class AccountActivityController extends \BaseController {
 	
 	public function sendMailApi($AccountID)
 	{
-			
-	    $data 					= 	Input::all();
+
+        $data = Input::all();
+        $rules = array(
+            'Subject'=>'required',
+            'Message'=>'required'
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 		$data['AccountID']		=   $AccountID;
-		$emailattachments		=   $data['emailattachment_sent'];		
-		$all_files 				=	Session::get("activty_email_attachments");
-		$email_files_sent		=	array();
-		
-		//token_attachment
-		$files_array	=	Session::get("activty_email_attachments");
-		
-	   	//$data['file']			=	NeonAPI::base64byte($email_files_sent);
-		if(isset($files_array[$data['token_attachment']]))
-		{
-			$data['file']		=	$files_array[$data['token_attachment']];
+
+        $attachmentsinfo            =$data['attachmentsinfo'];
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        if(!empty($files_array) && count($files_array)>0) {
+            $FilesArray = array();
+            foreach($files_array as $key=> $array_file_data){
+                $file_name = basename($array_file_data['filepath']);
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                unlink($array_file_data['filepath']);
+            }
+            $data['file']		=	json_encode($FilesArray);
 		}
 		
 		$data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
@@ -178,8 +200,6 @@ class AccountActivityController extends \BaseController {
 				$response 		 = 	$response->data;
 				$response->type  = 	Task::Mail;			
 				$response->LogID = 	$response->AccountEmailLogID;
-				unset($files_array[$data['token_attachment']]);
-				Session::set("activty_email_attachments", $files_array); 
 		}
 			
 			$key 			= $data['scrol']!=""?$data['scrol']:0;	
@@ -205,6 +225,25 @@ class AccountActivityController extends \BaseController {
 
     public function view_email_log($AccountID,$logID){
        return AccountEmailLog::find($logID);
+    }
+
+    public function getAttachment($emailID,$attachmentID){
+        $response = NeonAPI::request('emailattachment/'.$emailID.'/getattachment/'.$attachmentID,[],true,true,true);
+
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
+        }else{
+            $Comment = json_response_api($response,true,false,false);
+
+            $FilePath =  AmazonS3::preSignedUrl($Comment['filepath']);
+
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
+            exit;
+        }
     }
 
 }

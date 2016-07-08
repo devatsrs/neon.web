@@ -204,10 +204,14 @@
         <li> <a href="{{URL::to('/cronjobs')}}">  <span>Cron Jobs</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>
+        <!--<li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>-->
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
+    	@endif
+        
+         @if( User::checkCategoryPermission('serverinfo','View'))
+        <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
         
         @if(User::checkCategoryPermission('Jobs','view')) 

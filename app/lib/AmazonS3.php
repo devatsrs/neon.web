@@ -22,6 +22,7 @@ class AmazonS3 {
         'INVOICE_UPLOAD' =>  'Invoices',
 		'ESTIMATE_UPLOAD' =>  'estimates',
         'CUSTOMER_PROFILE_IMAGE' =>  'CustomerProfileImage',
+        'USER_PROFILE_IMAGE' =>  'UserProfileImage',
         'BULK_LEAD_MAIL_ATTACHEMENT' => 'bulkleadmailattachment',
         'TEMPLATE_FILE' => 'TemplateFile',
         'CDR_UPLOAD'=>'CDRUPload',
@@ -34,11 +35,13 @@ class AmazonS3 {
         'OPPORTUNITY_ATTACHMENT'=>'OpportunityAttachment',
 		'THEMES_IMAGES'=>'ThemeImages',
 		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
+        'TASK_ATTACHMENT'=>'TaskAttachment',
+        'EMAIL_ATTACHMENT'=>'EmailAttachment',
         'DIALSTRING_UPLOAD'=>'DialString'
     );
 
     // Instantiate an S3 client
-    private static function getS3Client(){
+    public static function getS3Client(){
 
         $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
         $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");

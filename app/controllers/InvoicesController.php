@@ -63,7 +63,7 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
-        $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
+        $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
@@ -122,8 +122,10 @@ class InvoicesController extends \BaseController {
         foreach($InvoiceNo as $Invoicerow){
             $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
         }
-        $invoice = implode(',',$InvoiceNoarray);
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID'));
+        $invoice 						= 	implode(',',$InvoiceNoarray);
+		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data'));
 
     }
 

@@ -141,5 +141,16 @@ class BillingSubscriptionController extends \BaseController {
             }
         }
     }
+	
+	function getSubscriptionData_ajax($id){		
+       $BillingSubscription = BillingSubscription::find($id);
+	   Log::info($BillingSubscription);
+		if(empty($BillingSubscription)){
+			return Response::json(array("status" => "failed", "message" => "Subscription Not found." ));
+		}else{
+			return Response::json($BillingSubscription);
+		}
+	
+	}
 
 }

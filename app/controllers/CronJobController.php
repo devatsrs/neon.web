@@ -7,7 +7,8 @@ class CronJobController extends \BaseController {
         $companyID = User::get_companyID();
         $columns = array('JobTitle','Title','Status');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetCronJob (".$companyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $data['Active'] = $data['Active']==''?2:$data['Active'];
+        $query = "call prc_GetCronJob (".$companyID.",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -132,20 +133,21 @@ class CronJobController extends \BaseController {
     public function delete($id)
     {
         if( intval($id) > 0){
-            if(!CronJob::checkForeignKeyById($id)) {
+           /* if(!CronJob::checkForeignKeyById($id)) {*/
                 try {
                     $result = CronJob::find($id)->delete();
-                    if ($result) {
+					CronJobLog::where("CronJobID",$id)->delete();
+                   	 if ($result) {
                         return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted"));
-                    } else {
+                   	 } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Cron Job."));
-                    }
-                } catch (Exception $ex) {
+                    	}
+                	} catch (Exception $ex) {
                     return Response::json(array("status" => "failed", "message" => "Cron Job is in Use, You cant delete this Cron Job."));
-                }
-            }else{
+                	}
+           /* }else{
                 return Response::json(array("status" => "failed", "message" => "Cron Job is in Use, You cant delete this Cron Job."));
-            }
+            }*/
         }else{
             return Response::json(array("status" => "failed", "message" => "Cron Job is in Use, You cant delete this Cron Job."));
         }
@@ -187,6 +189,8 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'autoinvoicereminder'){
                 $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
                 $accounts = Account::getAccountIDList();
+            }else if($CronJobCommand->Command == 'accountbalanceprocess'){
+                $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
             }
 
 
@@ -238,10 +242,21 @@ class CronJobController extends \BaseController {
     public function activecronjob_ajax_datagrid(){
         $data = Input::all();
         $data['iDisplayStart'] +=1;
+
+        $data['Active'] = -1; // all cronjobs running or not running
+        if(isset($data['Status']) ){
+
+            if($data['Status']=="running"){
+                $data['Status'] = -1;
+                $data['Active'] = 1;
+            } else if($data['Status']==""){
+                $data['Status'] = -1;
+            }
+        }
         $companyID = User::get_companyID();
-        $columns = array('JobTitle','PID','LastRunTime');
+        $columns = array('Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetActiveCronJob (".$companyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         return DataTableSql::of($query)->make();
     }
 
@@ -274,9 +289,87 @@ class CronJobController extends \BaseController {
         }
     }
 
+    /**
+     * Cron Job monitor to show all running cron jobs
+     * @return mixed
+     */
     public function cronjob_monitor(){
 
-        return View::make('cronjob.cronjob_monitor', compact(''));
+        $commands = CronJobCommand::getCommands();
 
+        return View::make('cronjob.cronjob_monitor', compact('commands'));
+
+    }
+
+    /**
+     * Start any cron job
+     * @param $CronJobID
+     */
+    public function trigger($CronJobID){
+
+        //@TODO: what if cron job is running on another server.
+
+        $CompanyID = User::get_companyID();
+        $pr_name = 'call prc_getActiveCronJobCommand (';
+        $query = $pr_name . $CompanyID . "," . $CronJobID . ")";
+        $CronJob = DB::connection('sqlsrv')->select($query);
+        $CronJob = json_decode(json_encode($CronJob), true);
+        $success = false;
+        $CronJob = array_pop($CronJob);
+        if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
+            $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            if (getenv('APP_OS') == 'Linux') {
+                pclose(popen( $command . " &", "r"));
+                $success=true;
+            } else {
+                pclose(popen("start /B " . $command, "r"));
+                $success=true;
+            }
+        }
+        if($success){
+            return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
+        }
+
+    }
+
+    /**
+     * Terminate the running cronjob
+     * @param $CronJobID
+     * @return mixed
+     */
+    public function terminate($CronJobID) {
+
+        $status = CronJob::ActiveCronJobEmailSend($CronJobID);
+
+        if(is_null($status)) {
+            return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
+        } else if($status == FALSE) {
+            return Response::json(array("status" => "failed", "message" => "Cron Job Terminated but Unable to send email." ));
+        } else {
+            return Response::json(array("status" => "success", "message" => "Cron Job Terminated successfully and email sent." ));
+        }
+
+    }
+
+    /** Disable the cronjob
+     * @param $CronJobID
+     * @return mixed
+     */
+    public function change_status($CronJobID,$Status=0){
+
+        if($Status == 0 ){
+            $Status_to = "Cron Job Disabled";
+        }else {
+            $Status_to = "Cron Job Enabled";
+        }
+        if(empty($CronJobID)){
+            return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
+        } else if(CronJob::find($CronJobID)->update(["Status"=>$Status])){
+            return Response::json(array("status" => "success", "message" => $Status_to ));
+        }else {
+            return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));
+        }
     }
 }
