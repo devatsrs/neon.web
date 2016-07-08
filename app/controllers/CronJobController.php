@@ -327,7 +327,7 @@ class CronJobController extends \BaseController {
             }
         }
         if($success){
-            return Response::json(array("status" => "success", "message" => "Cron Job is running triggered." ));
+            return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
         }

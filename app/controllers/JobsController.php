@@ -59,7 +59,9 @@ class JobsController extends \BaseController {
             $jobstatus = JobStatus::getJobStatusIDList();
             $creatdby = User::getUserIDList();
             $account = Account::getAccountIDList();
-            return View::make('jobs.index', compact('jobtype','jobstatus','creatdby','account'));
+            $jobstatus_for_terminate = JobStatus::getJobStatusPendingFailed();//@TODO: to show only Pending and Failed Status
+
+        return View::make('jobs.index', compact('jobtype','jobstatus','creatdby','account','jobstatus_for_terminate'));
         //}
     }
 

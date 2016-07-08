@@ -62,7 +62,12 @@ class Process
             $command = 'Taskkill /PID '.$this->pid.' /F';
         }
 
-        exec($command);
+        $DetailOutput=$return_var="";
+        exec($command,$DetailOutput,$return_var);
+
+        \Illuminate\Support\Facades\Log::info("Kill Command " . $command);
+        \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($DetailOutput,true));
+        \Illuminate\Support\Facades\Log::info("return_var " . $return_var);
 
         if ($this->status() == false) {
             return true;
