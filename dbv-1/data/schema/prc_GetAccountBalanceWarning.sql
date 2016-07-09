@@ -14,9 +14,10 @@ BEGIN
 		a.Owner 
 	FROM tblAccountBalance ab 
 	INNER JOIN tblAccount a ON a.AccountID = ab.AccountID
-	WHERE BalanceThreshold IS NOT NULL
-	AND  a.CompanyId = p_CompanyID
+	WHERE a.CompanyId = p_CompanyID
 	AND (p_AccountID = 0 OR  a.AccountID = p_AccountID)
+	AND ab.PermanentCredit IS NOT NULL
+	AND ab.BalanceThreshold IS NOT NULL
 	AND a.`Status` = 1;
 
 END
