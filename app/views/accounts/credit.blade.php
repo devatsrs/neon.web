@@ -86,7 +86,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Email To Customer
+                        <label for="field-1" class="col-sm-2 control-label">Low Balance Reminder to Customer
                         </label>
                         <div class="desc col-sm-4 ">
                             <p class="make-switch switch-small">
