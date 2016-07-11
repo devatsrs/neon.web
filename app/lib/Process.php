@@ -30,7 +30,7 @@ class Process
 
         $op = RemoteSSH::run([$command]);
         //exec($command ,$op);
-        $this->pid = (int)$op[0];
+        $this->pid = (int)$op;
     }
 
     public function setPid($pid){
@@ -46,11 +46,11 @@ class Process
         //exec($command,$op);
         $op = RemoteSSH::run([$command]);
 
-        if (!isset($op[1])){
-            return false;
+        if ($op > 0){
+            return true ;
         }
         else {
-            return true;
+            return false;
         }
     }
 
@@ -78,12 +78,7 @@ class Process
 
     public function stop(){
 
-        if(getenv("APP_OS") == "Linux"){
-            $command = 'kill -9 '.$this->pid;
-        }else{
-            $command = 'Taskkill /PID '.$this->pid.' /F';
-        }
-
+        $command = 'kill -9 '.$this->pid;
 
         if($this->isrunning($this->pid)){
 

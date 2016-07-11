@@ -3,6 +3,8 @@
 class RemoteSSH{
     private static $config = array();
     public static $uploadPath = '';
+    private static $lines = array();
+
 
     public static function setConfig(){
 
@@ -19,11 +21,12 @@ class RemoteSSH{
     public static function run($commands = array()){
 
         self::setConfig();
+        \Illuminate\Support\Facades\Log::info($commands);
         $op = \Illuminate\Support\Facades\SSH::run($commands, function($line) {
-            return $line;
+            self::$lines = $line.PHP_EOL;
         });
 
-        return $op;
+        return self::$lines;
 
 
     }
