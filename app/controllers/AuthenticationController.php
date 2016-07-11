@@ -38,7 +38,7 @@ class AuthenticationController extends \BaseController
         }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'Other' && empty($data['VendorAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Vendor Other Value required"));
         }
-        if(!empty($data['CustomerAuthRule']) && ($data['CustomerAuthRule'] != 'IP' || $data['VendorAuthRule']!='Other')){
+        if(!empty($data['CustomerAuthRule']) && ($data['CustomerAuthRule'] != 'IP' || $data['CustomerAuthRule']!='Other')){
             $data['CustomerAuthValue']='';
         }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'Other' && empty($data['CustomerAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Customer Other Value required"));
