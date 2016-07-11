@@ -932,7 +932,61 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
     }
+    public function get_credit($id){
+        $data = Input::all();
+        $account = Account::find($id);
+        $getdata['AccountID'] = $id;
+        $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $CreditUsed = $EmailToCustomer= 0;
+        if(!empty($response) && $response->status == 'success' ){
+            if(!empty($response->data->PermanentCredit)){
+                $PermanentCredit = $response->data->PermanentCredit;
+            }
+            if(!empty($response->data->TemporaryCredit)){
+                $TemporaryCredit = $response->data->TemporaryCredit;
+            }
+            if(!empty($response->data->BalanceThreshold)){
+                $BalanceThreshold = $response->data->BalanceThreshold;
+            }
+            if(!empty($response->data->BalanceAmount)){
+                $BalanceAmount = $response->data->BalanceAmount;
+            }
+            if(!empty($response->data->CreditUsed)){
+                $CreditUsed = $response->data->CreditUsed;
+            }
+            if(!empty($response->data->EmailToCustomer)){
+                $EmailToCustomer = $response->data->EmailToCustomer;
+            }
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','CreditUsed','EmailToCustomer'));
+        }else{
+            return view_response_api($response);
+        }
 
+    }
+
+    public function update_credit(){
+        $data = Input::all();
+        $postdata= $data;
+        $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
+        return json_response_api($response);
+    }
+    public function ajax_datagrid_credit($type){
+        $getdata = Input::all();
+        $response =  NeonAPI::request('account/get_credithistorygrid',$getdata,false,false,false);
+        if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $excel_data = json_decode(json_encode($response->data),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        return json_response_api($response,true,true,true);
+    }
     //////////////////////
     function uploadFile(){
         $data       =  Input::all();
@@ -1128,5 +1182,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         return $response;
     }
-
+    public function unbilledreport($id){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $LastInvoiceDate = Invoice::getLastInvoiceDate($id);
+        $account = Account::find($id);
+        if(empty($LastInvoiceDate)){
+            if(!empty($account->BillingStartDate)) {
+                $LastInvoiceDate = $account->BillingStartDate;
+            }else{
+                $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
+            }
+        }
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $query = "call prc_getUnbilledReport (?,?,?,?)";
+        $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
+    }
+	
+	
 }

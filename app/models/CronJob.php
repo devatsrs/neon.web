@@ -134,11 +134,13 @@ class CronJob extends \Eloquent {
                 $data['Setting']['CompanyGatewayID'] = $data['CompanyGatewayID'];
                 unset($data['CompanyGatewayID']);
             }
+            if(isset($data['AccountID'])){
+                $data['Setting']['AccountID'] = $data['AccountID'];
+                unset($data['AccountID']);
+            }
             if(isset($data['TemplateID'])){
                 $data['Setting']['TemplateID'] = $data['TemplateID'];
-                $data['Setting']['AccountID'] = $data['AccountID'];
                 unset($data['TemplateID']);
-                unset($data['AccountID']);
             }
             $data['Settings'] = json_encode($data['Setting']);
         }
@@ -192,7 +194,7 @@ class CronJob extends \Eloquent {
         $emaildata['EmailTo'] = $ActiveCronJobEmailTo;
         $emaildata['EmailToName'] = '';
         $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
-        $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/activejob');
+        $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/cronjob_monitor');
 
         $emailstatus = Helper::sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
         return $emailstatus;

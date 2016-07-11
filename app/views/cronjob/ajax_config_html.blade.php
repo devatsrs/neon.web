@@ -11,7 +11,8 @@
                 </div>
             </div>
         @endif
-        @if (isset($emailTemplates) && count($emailTemplates) > 0)
+
+        @if (isset($emailTemplates) && count($emailTemplates) > 0 && isset($accounts) && count($accounts) > 0)
             <div class="col-md-6">
                 <div class="form-group">
                 <label class="control-label ">Email Template</label>
@@ -22,6 +23,13 @@
                 <div class="form-group">
                 <label class="control-label ">Account</label>
                     {{Form::select('AccountID', $accounts, (isset($commandconfigval->AccountID)?$commandconfigval->AccountID:'') ,array("class"=>"selectboxit form-control"))}}
+                </div>
+            </div>
+        @elseif(isset($emailTemplates) && count($emailTemplates) > 0)
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label ">Email Template</label>
+                    {{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
                 </div>
             </div>
         @endif
@@ -58,7 +66,6 @@
             <label for="field-5" class="control-label @if(isset($configtitle['timepicker'])) starttime2 @endif">{{$configtitle['title']}}
             @if($configtitle['name'] == 'ThresholdTime') <span data-original-title="Insert" data-content="Threshold Time is maximum time of running time.if time is more than threshold time, Email send to Error Email" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="Insert" data-content="It is interval time of email send. when any cron job's running's time is more than it's threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
-            @if($configtitle['name'] == 'CdrBehindDuration') <span data-original-title="Insert" data-content="CDR Behind Duration is maximum time of behind time by currently running time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             </label>
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')
             {{Form::select('Setting['.$configtitle['name'].'][]',$configtitle['value'],$selectd_val, array( "class"=>"select2",'multiple',"data-placeholder"=>$configtitle['placeholder']))}}

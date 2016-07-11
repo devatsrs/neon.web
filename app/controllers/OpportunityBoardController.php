@@ -73,6 +73,7 @@ class OpportunityBoardController extends \BaseController {
     public function create(){
 
         $data = Input::all();
+        unset($data["BoardID"]);
         $response = NeonAPI::request('opportunityboard/add_board',$data);
         return json_response_api($response);
     }

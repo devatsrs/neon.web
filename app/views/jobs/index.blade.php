@@ -115,6 +115,17 @@
 
                                 action = '<a  onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;"   class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
 
+                                Status = full[2].toLowerCase();
+
+                                if(Status == 'in progress'){
+
+                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-red btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="entypo-stop"></i> Terminate</button>';
+
+                                }else  if( Status == 'failed' ){
+
+                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Restart</button>';
+                                }
+
                                 return action;
                             }
                         },
@@ -168,6 +179,39 @@
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
         });
+
+        //Restart a job
+        $('table tbody').on('click','.job_restart',function(ev){
+            result = confirm("Are you Sure?");
+            if(result){
+                id = $(this).attr('data-id');
+                submit_ajax(baseurl+'/jobs/'+id + '/restart');
+                data_table.fnFilter('', 0);
+            }
+        });
+
+
+        //Terninate a job
+        $('table tbody').on('click','.job_terminate',function(ev){
+            var JobID = $(this).attr('data-id');
+
+            $('#job_terminate_form').trigger('reset');
+            $("#job_terminate_form [name='JobStatusID']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+
+            $('#modal-Terminate').modal('show');
+            $('#job_terminate_form').attr("action", baseurl+'/jobs/'+JobID + '/terminate');
+        });
+
+
+        $("#job_terminate_form").submit(function(e){
+            e.preventDefault();
+            url = $(this).attr("action");
+            submit_ajax(url,$(this).serialize());
+            data_table.fnFilter('', 0);
+
+            return false;
+        });
+
     });
 
 </script>
@@ -186,6 +230,50 @@
             <div class="modal-body">
                 Content is loading...
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-Terminate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="job_terminate_form" method="post" action="">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Terminate Job</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Change Status To</label>
+                            <div class="col-sm-9">
+                                {{Form::select('JobStatusID',$jobstatus_for_terminate,'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Message</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control message" rows="4" name="message"></textarea>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Terminate
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

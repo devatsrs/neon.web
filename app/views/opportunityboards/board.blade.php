@@ -9,7 +9,6 @@
 <ul class="board-inner no-select" id="deals-dashboard">
     @if(count($columnsWithOpportunities)>0)
         @foreach($columnsWithOpportunities as $index=>$column )
-            <?php//$style=(empty($columns[$index]['Hieght'])&&empty($columns[$index]['Width']))?'':'style="'.(empty($columns[$index]['Height'])?'':'Height:'.$columns[$index]['Height'].';').(empty($columns[$index]['Width'])?'':'Width:'.$columns[$index]['Width'].';').'"'; ?>
         <li data-id="{{$index}}" class="board-column count-li">
             <header>
                 <h5>{{$columns[$index]['Name']}} {{(!empty($column[0])?'('.count($column).')':'')}}</h5>

@@ -215,7 +215,6 @@ function setMailConfig($CompanyID){
     $mail->SMTPAuth = true;                               // Enable SMTP authentication
     $mail->Username = $username;                 // SMTP username
 
-
     $mail->Password = $password;                           // SMTP password
     $mail->SMTPSecure = $encryption;                            // Enable TLS encryption, `ssl` also accepted
 
@@ -826,8 +825,16 @@ function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
 }
-
-
+function parse_reponse($response){
+    $response = json_decode($response);
+    if($response->status_code == 200){
+        return $response;
+    }elseif($response->status_code == 401 && $response->message == 'Token has expired'){
+        Session::flush();
+        Auth::logout();
+        return Redirect::to('/login')->with('message', 'Your are now logged out!');
+    }
+}
 function getUploadedFileRealPath($files)
 {
     $realPaths = [];
@@ -968,8 +975,8 @@ function check_uri($parent_link=''){
 
     if(count($path_array)>0)
     {
-         $controller = $path_array[0]; 
-   		if(in_array($controller,$array_billing) && $parent_link =='Billing')
+         $controller = $path_array[0];
+	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
 			if(Request::segment(1)!='monitor'){
             	return 'opened';
@@ -1063,7 +1070,8 @@ function get_uploaded_files($session,$data){
     return $files;
 }
 
-function get_max_file_size(){
+function get_max_file_size()
+{
     $max_file_env   = getenv('MAX_UPLOAD_FILE_SIZE');
     $max_file_size   = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
     return $max_file_size;
@@ -1111,9 +1119,7 @@ function get_round_decimal_places($AccountID = 0) {
 
     return $RoundChargesAmount;
 }
-/*
-* Validate Smtp settings
-*/
+
 
 function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
     $mail 				= 	new PHPMailer;
@@ -1170,5 +1176,35 @@ function account_expense_table($Expense,$customer_vendor){
     }
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
+}
+function view_response_api($response){
+    $message = '';
+    $isArray = false;
+    if(is_array($response)){
+        $isArray = true;
+    }
+    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+        $Code = $isArray?$response['Code']:$response->Code;
+        $validator = $isArray?$response['message']:(array)$response->message;
+        if (count($validator) > 0) {
+            foreach ($validator as $index => $error) {
+                if(is_array($error)){
+                    $message .= array_pop($error) . "<br>";
+                }
+            }
+        }
+        Log::info($message);
+        if($Code > 0) {
+            return App::abort($Code, $message);
+        }
+    }
+
+}
+
+function terminate_process($pid){
+
+    $process = new Process();
+    $process->setPid($pid);
+    return $status = $process->stop();
 
 }

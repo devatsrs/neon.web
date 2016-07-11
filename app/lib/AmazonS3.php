@@ -41,7 +41,7 @@ class AmazonS3 {
     );
 
     // Instantiate an S3 client
-    private static function getS3Client(){
+    public static function getS3Client(){
 
         $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
         $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
