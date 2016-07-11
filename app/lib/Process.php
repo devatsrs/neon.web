@@ -26,7 +26,9 @@ class Process
     }
     private function runCom(){
         $command = 'nohup '.$this->command.' > /dev/null 2>&1 & echo $!';
-        exec($command ,$op);
+
+        $op = \App\RemoteSSH::run([$command]);
+        //exec($command ,$op);
         $this->pid = (int)$op[0];
     }
 
@@ -40,7 +42,9 @@ class Process
 
     public function status(){
         $command = 'ps -p '.$this->pid;
-        exec($command,$op);
+        //exec($command,$op);
+        $op = \App\RemoteSSH::run([$command]);
+
         if (!isset($op[1])){
             return false;
         }
@@ -58,7 +62,11 @@ class Process
 
         //@TODO: checkout for windows system
         //http://lifehacker.com/362316/use-unix-commands-in-windows-built-in-command-prompt
-        $pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
+
+        $command ="ps -e | grep php | awk '{print $1}'";
+            //$pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
+        $op = \App\RemoteSSH::run([$command]);
+        $pids_ = explode(PHP_EOL,$op);
 
         if( !empty($pid) && $pid > 0 && in_array($pid, $pids_)) {
             Log::info(" Running pids " . print_r($pids_,true));
@@ -74,6 +82,7 @@ class Process
         }else{
             $command = 'Taskkill /PID '.$this->pid.' /F';
         }
+        $op = \App\RemoteSSH::run([$command]);
 
 
         if($this->isrunning($this->pid)){
