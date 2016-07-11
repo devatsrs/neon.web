@@ -32,16 +32,14 @@ class AuthenticationController extends \BaseController
         if(isset($data['CustomerAuthValue'])){
             $data['CustomerAuthValue'] = implode(',', array_unique(explode(',', $data['CustomerAuthValue'])));
         }
-        if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'IP' && empty($data['VendorAuthValue'])){
-            unset($data['VendorAuthRule']);
-            unset($data['VendorAuthValue']);
+        if(!empty($data['VendorAuthRule']) && ($data['VendorAuthRule'] != 'IP' || $data['VendorAuthRule']!='Other')){
+            $data['VendorAuthValue']='';
 
         }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'Other' && empty($data['VendorAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Vendor Other Value required"));
         }
-        if(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'IP' && empty($data['CustomerAuthValue'])){
-            unset($data['CustomerAuthRule']);
-            unset($data['CustomerAuthValue']);
+        if(!empty($data['CustomerAuthRule']) && ($data['CustomerAuthRule'] != 'IP' || $data['VendorAuthRule']!='Other')){
+            $data['CustomerAuthValue']='';
         }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'Other' && empty($data['CustomerAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Customer Other Value required"));
         }
@@ -91,13 +89,13 @@ class AuthenticationController extends \BaseController
 
            if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
-               return Response::json(array("status" => "success","ips"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
            }else{
                $AccountAuthenticate = array();
                $AccountAuthenticate=$data;
                AccountAuthenticate::insert($AccountAuthenticate);
-               return Response::json(array("status" => "success","ips"=> $status['toBeInsert'], "message" => "Account Successfully Updated".$message));
            }
+           $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
+           return Response::json(array("status" => "success","ips"=> $status['toBeInsert'],"totalips"=>$object, "message" => "Account Successfully Updated".$message));
        }
    }
 
@@ -123,7 +121,8 @@ class AuthenticationController extends \BaseController
                 $data['VendorAuthValue'] = ltrim($ips,',');
             }
             AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
-            return Response::json(array("status" => "success","ips"=> explode(',',$ips),"message" => "Account Successfully Updated"));
+            $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
+            return Response::json(array("status" => "success","ips"=> explode(',',$ips),"totalips"=>$object,"message" => "Account Successfully Updated"));
         }else{
             return Response::json(array("status" => "error","message" => "No Ip exist."));
         }

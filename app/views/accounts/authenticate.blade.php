@@ -237,11 +237,11 @@
         }});
         $('#save_account').click(function(){
             $(this).button('loading');
-            if($('[name="CustomerAuthRule"]')=='IP'){
-                $("#customer_detail [name='CustomerAuthValue']").val('');
+            if($('#customer_detail select[name="CustomerAuthRule"]').val()!='IP'){
+                $('.customeriptable').DataTable().fnClearTable();
             }
-            if($('[name="VendorAuthRule"]')=='IP'){
-                $("#vendor_detail [name='VendorAuthValue']").val('');
+            if($('#vendor_detail select[name="VendorAuthRule"]').val()!='IP'){
+                $('.vendoriptable').DataTable().fnClearTable();
             }
             var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
@@ -408,6 +408,14 @@
                         minimumResultsForSearch: -1
                     });
                 }});
+            }
+
+            if(response.totalips){
+                if(acountiptable == 'customeriptable'){
+                    $('#customer_detail [name="CustomerAuthValue"]').val(response.totalips.CustomerAuthValue);
+                }else if(acountiptable == 'vendoriptable'){
+                    $('#vendor_detail [name="VendorAuthValue"]').val(response.totalips.VendorAuthValue);
+                }
             }
         }
 
