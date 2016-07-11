@@ -396,7 +396,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/jobs/reset', 'JobsController@resetJobsAlert');
 	Route::any('/jobs/{id}/jobRead', 'JobsController@jobRead');
 	Route::any('/jobs/{id}/downloaoutputfile', 'JobsController@downloaOutputFile');
-    Route::any('/activejob', 'JobsController@activejob');// remove in future
+    Route::any('/activejob', 'JobsController@activejob');// removed
     Route::any('/jobs/jobactive_ajax_datagrid', 'JobsController@jobactive_ajax_datagrid');
     Route::any('/jobs/activeprocessdelete/', 'JobsController@activeprocessdelete');
 
@@ -502,8 +502,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/summaryreport/daily_ajax_datagrid', 'SummaryController@daily_ajax_datagrid');
 
 	//cronjobs
-	Route::any('/cronjobs', 'CronJobController@index');
-	Route::any('/cronjobs/ajax_datagrid/{type}', 'CronJobController@ajax_datagrid');
+	Route::any('/cronjobs', 'CronJobController@index'); // replaced by cronjob monitor
+	Route::any('/cronjobs/ajax_datagrid/{type}', 'CronJobController@ajax_datagrid'); // replaced by cronjob monitor
+
 	Route::any('/cronjobs/create', 'CronJobController@create');
 	Route::any('/cronjobs/update/{id}', 'CronJobController@update');
 	Route::any('/cronjobs/delete/{id}', 'CronJobController@delete');

@@ -200,30 +200,20 @@
         @if(User::checkCategoryPermission('AccountChecklist','View'))
         <li> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('CronJob','View'))
-        <li> <a href="{{URL::to('/cronjobs')}}">  <span>Cron Jobs</span> </a> </li>
-        @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
         <!--<li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>-->
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
     	@endif
-        
          @if( User::checkCategoryPermission('serverinfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
-        
-        @if(User::checkCategoryPermission('Jobs','view')) 
-        <!-- <li>
-                            <a href="{URL::to('/activejob')}">
-                                <i class="entypo-pencil"></i>
-                                <span>Active Jobs</span>
-                            </a>
-                        </li>--> 
-        @endif
       </ul>
     </li>
+    @if(User::checkCategoryPermission('CronJob','View'))
+      <li> <a href="{{URL::to('/cronjob_monitor')}}">  <span>Cron Jobs</span> </a> </li>
+    @endif
     @endif
     @if( User::checkCategoryPermission('Jobs','View'))
     <li> <a href="{{Url::to('jobs')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Jobs</span> </a> </li>
