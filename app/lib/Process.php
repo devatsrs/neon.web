@@ -28,7 +28,7 @@ class Process
         //@TODO: need to fix for Window
         $command = 'nohup '.$this->command.' > /dev/null 2>&1 & echo $!';
 
-        $op = \App\RemoteSSH::run([$command]);
+        $op = RemoteSSH::run([$command]);
         //exec($command ,$op);
         $this->pid = (int)$op[0];
     }
@@ -44,7 +44,7 @@ class Process
     public function status(){
         $command = 'ps -p '.$this->pid;
         //exec($command,$op);
-        $op = \App\RemoteSSH::run([$command]);
+        $op = RemoteSSH::run([$command]);
 
         if (!isset($op[1])){
             return false;
@@ -66,7 +66,7 @@ class Process
 
         $command ="ps -e | grep php | awk '{print $1}'";
             //$pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
-        $op = \App\RemoteSSH::run([$command]);
+        $op = RemoteSSH::run([$command]);
         $pids_ = explode(PHP_EOL,$op);
 
         if( !empty($pid) && $pid > 0 && in_array($pid, $pids_)) {
@@ -83,17 +83,17 @@ class Process
         }else{
             $command = 'Taskkill /PID '.$this->pid.' /F';
         }
-        $op = \App\RemoteSSH::run([$command]);
 
 
         if($this->isrunning($this->pid)){
 
             $DetailOutput=$return_var="";
 
-            exec($command,$DetailOutput,$return_var);
+            $op = RemoteSSH::run([$command]);
+            //exec($command,$DetailOutput,$return_var);
 
             \Illuminate\Support\Facades\Log::info("Kill Command " . $command);
-            \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($DetailOutput,true));
+            \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($op,true));
             \Illuminate\Support\Facades\Log::info("return_var " . $return_var);
 
         }else{

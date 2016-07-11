@@ -1,14 +1,7 @@
 <?php
-namespace Api\Model;
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Log;
 
 class CompanyConfiguration extends \Eloquent {
 
-    //protected $connection = 'sqlsrv';
     protected $fillable = [];
     protected $guarded = array('CompanyConfigurationID');
     protected $table = 'tblCompanyConfiguration';
