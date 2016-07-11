@@ -212,7 +212,7 @@
       </ul>
     </li>
     @if(User::checkCategoryPermission('CronJob','View'))
-      <li> <a href="{{URL::to('/cronjob_monitor')}}">  <span>Cron Jobs</span> </a> </li>
+      <li> <a href="{{URL::to('/cronjob_monitor')}}"> <i class="entypo-hourglass"></i>  <span>Cron Jobs</span> </a> </li>
     @endif
     @endif
     @if( User::checkCategoryPermission('Jobs','View'))
