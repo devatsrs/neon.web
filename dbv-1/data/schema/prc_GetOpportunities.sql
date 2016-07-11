@@ -4,8 +4,6 @@ BEGIN
 SELECT 
 		bc.BoardColumnID,
 		bc.BoardColumnName,
-		bc.Height,
-		bc.Width,
 		o.OpportunityID,
 		o.OpportunityName,
 		o.BackGroundColour,
@@ -22,7 +20,7 @@ SELECT
 		o.AccountID,
 		o.Tags,
 		o.Rating,
-		o.TaggedUsers,
+		o.TaggedUser,
 		o.`Status`
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
@@ -30,13 +28,12 @@ INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 LEFT JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
-			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
+			AND (p_Tags = '' OR o.Tags = p_Tags)
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
-			AND ac.AccountType = 0
 			AND ac.`Status` = 1
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
 LEFT JOIN tblUser u on u.UserID = o.UserID

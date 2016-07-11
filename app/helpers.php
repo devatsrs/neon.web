@@ -825,8 +825,16 @@ function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
 }
-
-
+function parse_reponse($response){
+    $response = json_decode($response);
+    if($response->status_code == 200){
+        return $response;
+    }elseif($response->status_code == 401 && $response->message == 'Token has expired'){
+        Session::flush();
+        Auth::logout();
+        return Redirect::to('/login')->with('message', 'Your are now logged out!');
+    }
+}
 function getUploadedFileRealPath($files)
 {
     $realPaths = [];
@@ -1168,4 +1176,35 @@ function account_expense_table($Expense,$customer_vendor){
     }
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
+}
+function view_response_api($response){
+    $message = '';
+    $isArray = false;
+    if(is_array($response)){
+        $isArray = true;
+    }
+    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+        $Code = $isArray?$response['Code']:$response->Code;
+        $validator = $isArray?$response['message']:(array)$response->message;
+        if (count($validator) > 0) {
+            foreach ($validator as $index => $error) {
+                if(is_array($error)){
+                    $message .= array_pop($error) . "<br>";
+                }
+            }
+        }
+        Log::info($message);
+        if($Code > 0) {
+            return App::abort($Code, $message);
+        }
+    }
+
+}
+
+function terminate_process($pid){
+
+    $process = new Process();
+    $process->setPid($pid);
+    return $status = $process->stop();
+
 }

@@ -59,7 +59,9 @@ class JobsController extends \BaseController {
             $jobstatus = JobStatus::getJobStatusIDList();
             $creatdby = User::getUserIDList();
             $account = Account::getAccountIDList();
-            return View::make('jobs.index', compact('jobtype','jobstatus','creatdby','account'));
+            $jobstatus_for_terminate = JobStatus::getJobStatusPendingFailed();//@TODO: to show only Pending and Failed Status
+
+        return View::make('jobs.index', compact('jobtype','jobstatus','creatdby','account','jobstatus_for_terminate'));
         //}
     }
 
@@ -205,6 +207,7 @@ class JobsController extends \BaseController {
         return Datatables::of($job)->make();
     }
 
+    // Not in use
     public function activeprocessdelete(){
 
         $data = Input::all();
@@ -235,5 +238,81 @@ class JobsController extends \BaseController {
         }else{
             return Response::json(array("status" => "failed", "message" => "Cron Job Process is not terminated"));
         }
+    }
+
+    /**
+     * Restart a Job
+     * @param $id
+     */
+    public function restart($JobID){
+
+        if(!empty($JobID)){
+
+            $Job = Job::find($JobID);
+
+            $PID = $Job->PID;
+
+            $status = false;
+            if($PID > 0) {
+
+                $status = terminate_process($PID);
+            }
+
+            //Pending
+            $JobStatusID = JobStatus::where('Code','P')->first()->pluck('JobStatusID');
+            $UserName = User::get_user_full_name();
+
+            if ($status && $PID > 0) {
+                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'', '$UserName')");
+                return Response::json(array("status" => "success", "message" => "Job will restart soon."));
+            } else {
+                DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'', '$UserName')");
+                return Response::json(array("status" => "success", "message" => "Unable to terminate the process PID:".$PID.",Process might be already terminated, Job will restart soon."));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "JobID not found."));
+        }
+
+    }
+
+    /**
+     * Terminate a job
+     * @param $id
+     */
+    public function terminate($JobID){
+
+        if(!empty($JobID)) {
+
+            $data = Input::all();
+            $Job = Job::find($JobID);
+
+            $PID = $Job->PID;
+
+            $UserName = User::get_user_full_name();
+            $JobStatusID = $data['JobStatusID'];
+
+            $JobStatusTitle = JobStatus::where("JobStatusID",$JobStatusID)->pluck("Title");
+            $JobStatusMessage = PHP_EOL . $UserName . ' has changed Job Status to ' . $JobStatusTitle .'<br> User says:' . $data['message'];
+
+            $status = false;
+            if($PID > 0){
+
+                $status = terminate_process($PID);
+            }
+
+            if ($status && $PID > 0 ) {
+                \Illuminate\Support\Facades\DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
+                return Response::json(array("status" => "success", "message" => "Job Terminated Successfully!"));
+            } else {
+                \Illuminate\Support\Facades\DB::connection('sqlsrv')->select("CALL prc_UpdateJobStatus($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
+                return Response::json(array("status" => "success", "message" => " Unable to terminate the process PID:".$PID.", Process might be already terminated."));
+            }
+
+        } else {
+
+            return Response::json(array("status" => "failed", "message" => "JobID not found."));
+        }
+
     }
 }

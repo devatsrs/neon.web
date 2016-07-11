@@ -20,11 +20,19 @@
         </li>
     </ol>
     <h3>Cron Job Monitor</h3>
+    <p style="text-align: right;">
+        @if( User::checkCategoryPermission('CronJob','Add') )
+            <a href="#" id="add-new-config" class="btn btn-primary ">
+                <i class="entypo-plus"></i>
+                Add Cron Job
+            </a>
+        @endif
+    </p>
 
 
     <div class="row">
         <div class="col-md-12">
-            <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+            <form id="cronjob_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -38,14 +46,20 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-1 control-label">Search</label>
                             <div class="col-sm-2">
-                                <input class="form-control" name="search"  type="text" >
+                                <input class="form-control" name="Title"  type="text" />
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Status</label>
                             <div class="col-sm-2">
 
-                                 {{ Form::select('Active', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                                 {{ Form::select('Status', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
 
+                            </div>
+                            <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>
+                            <div class="col-sm-2">
 
+                                <p class="make-switch switch-small">
+                                    <input id="" name="AutoRefresh" type="checkbox" checked value="1">
+                                </p>
                             </div>
 
                         </div>
@@ -64,16 +78,18 @@
 
 
 
-    <div class="clear-fix clear"><br><br></div>
+    <div class="clear-fix clear"></div>
 
 
     <table class="table table-bordered datatable" id="cronjobs">
         <thead>
         <tr>
-            <th width="20%"></th>
-            <th width="20%">PID</th>
+            <th width="5%"></th>
+            <th width="5%">PID</th>
             <th width="20%">Title</th>
-            <th width="20%"></th>
+            <th width="20%">Running Since</th>
+            <th width="15%">Last Run Time</th>
+            <th width="15%">Next Run Time</th>
             <th width="20%"></th>
         </tr>
         </thead>
@@ -88,8 +104,11 @@
         var auto_refresh=true;
         jQuery(document).ready(function ($) {
             public_vars.$body = $("body");
-            var list_fields  = ['Active','PID','JobTitle','RunningTime','CronJobID','LastRunTime','Status',"CronJobCommandID"];
+            var list_fields  = ['Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime','CronJobID','Status',"CronJobCommandID"] /* Settings, CronJobStatus */;
             var $searchFilter = {};
+            $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
+            $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
+            $searchFilter.AutoRefresh = $('#cronjob_filter [name="AutoRefresh"]').val();
 
             data_table = $("#cronjobs").dataTable({
                 "bDestroy": true,
@@ -101,39 +120,54 @@
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"Export","value":1});
+                    //aoData.length = 0;
+                    aoData.push({"name": "Status", "value": $searchFilter.Status},{"name": "Title", "value": $searchFilter.Title},{"name": "Export", "value": 1});
                 },
                 "aaSorting": [[0, 'desc']],
+                "fnRowCallback": function( nRow, data, iDisplayIndex, iDisplayIndexFull ) {
+
+                    if(typeof data[10] != 'undefined' && data[10] == 0  ){ // Last failed CronJob 'CronJobStatus'
+                        $(nRow).css('background-color', '#c50606');
+                    }
+                    if(typeof data[7] != 'undefined' && data[7] == 0  ){ // 'Status'  InActive CronJob Gray color
+                        $(nRow).css('background-color', '#eaeaea');
+                    }
+
+                },
                 "aoColumns":
                         [
-                            {  "bSortable": true,
+                            {  "bSortable": false,
 
                                 mRender: function ( Active, type, full ) {
                                     var action ='';
-                                    var CronJobID = full[4];
+                                    var CronJobID = full[6];
                                     if(Active==0){
                                         action += ' <button data-id="'+ CronJobID +'" class="cronjob_trigger btn btn-green btn-sm" type="button" title="Manually Execute" data-placement="top" data-toggle="tooltip"><i class="entypo-play"></i></button>';
                                     } else {
-                                        action += ' <button data-id="'+ CronJobID +'" class="cronjob_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-pause" ></i></button>';
+                                        action += ' <button data-id="'+ CronJobID +'" class="cronjob_terminate btn btn-red btn-sm" type="button" title="Terminate" data-placement="top" data-toggle="tooltip"><i class="entypo-stop" ></i></button>';
                                     }
+
                                     return action;
                                 }
 
-                            },//0 Pid
+                            },//0 Active
                             {  "bSortable": true },//1 Pid
                             {  "bSortable": true },  //2   Title
-                            {  "bSortable": true,
+                            {  "bSortable": false,    // Runnince since
 
                                 mRender: function ( RunningTime, type, full ) {
                                     var PID =  full[1];
                                     if(PID > 0){
+                                        RunningTime = RunningTime.replace("0 Hours, ", "")
+                                        RunningTime = RunningTime.replace("0 Minutes, ", "");
                                         return RunningTime;
                                     }
 
                                 }
 
                             },  //3   Running Hour
+                            {  "bSortable": true,},  //3   Last Run Time
+                            {  "bSortable": true,},  //3   Next Run Time
                             {                       //4
                                 "bSortable": false,
                                 mRender: function ( CronJobID, type, full ) {
@@ -144,26 +178,31 @@
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
-                                    action += '<div id="cron_set" style="display: none" >' + (full[7] !== null ? full[7] : '') + '</div>'
+                                    action += '<div id="cron_set" style="display: none" >' + (full[9] !== null ? full[9] : '') + '</div>'
                                     action += '</div>';
 
-
-
-                                    var Status = full[6];
-
-                                    if(Status==1) {
-                                        action += ' <button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="Stop" data-placement="left" data-toggle="tooltip"><i class="entypo-stop" ></i></button>';
-                                    }else {
-                                        action += ' <button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Enable" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
-                                    }
+                                    var Status = full[7];
 
                                     <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
-                                            action += ' <a data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                            action += '&nbsp;<button   data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm" title="Edit" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></button>';
                                     <?php } ?>
 
                                     var history_url = baseurl + "/cronjobs/history/" + CronJobID;
 
-                                    action += ' <a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
+                                    action += '&nbsp;<a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
+
+                                    <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
+                                        if(Status == 1 ) {
+                                            action += '&nbsp;<button data-id="'+ CronJobID +'" data-status="'+Status+'" class="cronjob_change_status btn btn-red btn-sm" type="button" title="InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
+                                        }else {
+                                            action += '&nbsp;<button data-id="' + CronJobID + '" data-status="'+Status+'" class="cronjob_change_status btn btn-green btn-sm" type="button" title="Active" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
+                                        }
+                                    <?php } ?>
+
+                                    <?php if(User::checkCategoryPermission('CronJob','Delete')){ ?>
+                                            action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-cancel"></i></button>';
+                                    <?php } ?>
+
 
                                     return action;
                                 }
@@ -180,7 +219,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    auto_refresh = true;
+
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -228,10 +267,19 @@
 
             });
 
-            setInterval(function() {
-                if(auto_refresh == true){
+            $("#cronjob_filter").submit(function(e) {
+                e.preventDefault();
 
-                    auto_refresh = false;
+                $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
+                $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
+
+                data_table.fnFilter('', 0);
+                return false;
+            });
+
+            setInterval(function() {
+
+                if($("#cronjob_filter [name='AutoRefresh']").prop("checked")){
                     data_table.fnFilter('', 0);
                 }
             }, 1000 * 5); // where X is your every X minutes

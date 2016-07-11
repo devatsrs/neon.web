@@ -295,10 +295,11 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <input type="hidden" name="CronJobID" value="">
                         <button type="submit" id="config-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
-                            <input type="hidden" name="CronJobID" value="">
+
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
