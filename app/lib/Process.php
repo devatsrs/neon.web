@@ -25,6 +25,7 @@ class Process
         }
     }
     private function runCom(){
+        //@TODO: need to fix for Window
         $command = 'nohup '.$this->command.' > /dev/null 2>&1 & echo $!';
 
         $op = \App\RemoteSSH::run([$command]);

@@ -318,13 +318,7 @@ class CronJobController extends \BaseController {
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
             $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
-            if (getenv('APP_OS') == 'Linux') {
-                pclose(popen( $command . " &", "r"));
-                $success=true;
-            } else {
-                pclose(popen("start /B " . $command, "r"));
-                $success=true;
-            }
+            $success = run_process($command);
         }
         if($success){
             return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));

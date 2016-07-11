@@ -1208,3 +1208,8 @@ function terminate_process($pid){
     return $status = $process->stop();
 
 }
+function run_process($command) {
+
+    $process = new Process($command);
+    return $status = $process->status();
+}
