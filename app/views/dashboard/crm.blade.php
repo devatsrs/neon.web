@@ -157,7 +157,7 @@
 	padding:0px !important;
 	margin:0px !important;
 }
-.small-input{width: 18%; margin-right: 5px;}
+.small-input{width: 15%; margin-right: 5px;}
 #submit_forecast{margin-left:5px;}
 #crm_dashboard_forecast .first{margin-left:5px;}
 #crm_dashboard_forecast .status{width:7%;}
