@@ -203,7 +203,8 @@ class CronJobController extends \BaseController {
     }
 
     public function history($id){
-        return View::make('cronjob.history', compact('id'));
+        $JobTitle = CronJob::where("CronJobID",$id)->pluck("JobTitle");
+        return View::make('cronjob.history', compact('id','JobTitle'));
     }
     public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
