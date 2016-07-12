@@ -921,10 +921,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function get_credit($id){
         $data = Input::all();
+        $CompanyID = User::get_companyID();
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $CreditUsed = $EmailToCustomer= 0;
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $EmailToCustomer= 0;
         if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
@@ -935,16 +936,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($response->data->BalanceThreshold)){
                 $BalanceThreshold = $response->data->BalanceThreshold;
             }
-            if(!empty($response->data->BalanceAmount)){
-                $BalanceAmount = $response->data->BalanceAmount;
+            $BalanceAmount = AccountBalance::getAccountSOA($CompanyID, $id);
+            if(!empty($response->data->UnbilledAmount)){
+                $UnbilledAmount = $response->data->UnbilledAmount;
             }
-            if(!empty($response->data->CreditUsed)){
-                $CreditUsed = $response->data->CreditUsed;
-            }
+            $BalanceAmount +=$UnbilledAmount;
             if(!empty($response->data->EmailToCustomer)){
                 $EmailToCustomer = $response->data->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','CreditUsed','EmailToCustomer'));
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer'));
         }else{
             return view_response_api($response);
         }

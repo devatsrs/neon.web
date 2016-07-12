@@ -1,10 +1,15 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccountBalanceWarning`(IN `p_CompanyID` INT, IN `p_AccountID` INT)
 BEGIN
 
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	CALL NeonBillingDev.prc_updateSOAOffSet(p_CompanyID);
+	
+	
 	SELECT
 		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.PermanentCredit ELSE ab.BalanceThreshold END) < ab.BalanceAmount ,1,0) as BalanceWarning,
 		ab.BalanceAmount,
-		ab.CreditUsed,
+		ab.UnbilledAmount,
 		ab.BalanceThreshold,
 		ab.PermanentCredit,
 		ab.EmailToCustomer,
@@ -19,5 +24,7 @@ BEGIN
 	AND ab.PermanentCredit IS NOT NULL
 	AND ab.BalanceThreshold IS NOT NULL
 	AND a.`Status` = 1;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END
