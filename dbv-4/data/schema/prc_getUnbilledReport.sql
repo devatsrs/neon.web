@@ -21,37 +21,42 @@ BEGIN
 	IF p_Detail = 1
 	THEN
 	
-	SELECT 
-	dd.date,
-	ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
-	ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
-	FROM tmp_tblUsageSummary_ us
-	INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-	GROUP BY us.DateID;
+		SELECT 
+			dd.date,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		GROUP BY us.DateID;
 	
 	END IF;
 	
 	IF p_Detail = 2
 	THEN
 	
-	SELECT 
-	dd.date,
-	dt.fulltime,
-	ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
-	ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
-	FROM tmp_tblUsageSummary_ us
-	INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-	INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
-	GROUP BY us.DateID,us.TimeID;
+		SELECT 
+			dd.date,
+			dt.fulltime,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
+		GROUP BY us.DateID,us.TimeID;
 	
 	END IF;
 	
 	IF p_Detail = 3
 	THEN
 	
-	SELECT 
-	ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as FinalAmount
-	FROM tmp_tblUsageSummary_ us;
+		DROP TEMPORARY TABLE IF EXISTS tmp_FinalAmount_;
+		CREATE TEMPORARY TABLE tmp_FinalAmount_  (
+			FinalAmount DOUBLE
+		);
+		INSERT INTO tmp_FinalAmount_
+		SELECT 
+		ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		FROM tmp_tblUsageSummary_ us;
 	
 	END IF;
  
