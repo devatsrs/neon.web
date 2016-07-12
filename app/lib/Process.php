@@ -26,8 +26,7 @@ class Process
     }
     private function runCom(){
         //@TODO: need to fix for Window
-        $command = 'nohup '.$this->command.' > /dev/null 2>&1 & echo $!';
-
+        $command = 'nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
         $op = RemoteSSH::run([$command]);
         //exec($command ,$op);
         $this->pid = (int)$op;
@@ -55,8 +54,13 @@ class Process
     }
 
     public function start(){
-        if ($this->command != '')$this->runCom();
-        else return true;
+
+        if ($this->command != ''){
+            $this->runCom();
+        }
+        else {
+            return true;
+        }
     }
 
     public function isrunning($pid) {
@@ -66,8 +70,8 @@ class Process
 
         $command ="ps -e | grep php | awk '{print $1}'";
             //$pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
-        $op = RemoteSSH::run([$command]);
-        $pids_ = explode(PHP_EOL,$op);
+        $pids_ = RemoteSSH::run([$command]);
+        //$pids_ = explode(PHP_EOL,$op);
 
         if( !empty($pid) && $pid > 0 && in_array($pid, $pids_)) {
             Log::info(" Running pids " . print_r($pids_,true));
@@ -82,17 +86,8 @@ class Process
 
         if($this->isrunning($this->pid)){
 
-            $DetailOutput=$return_var="";
+            RemoteSSH::run([$command]);
 
-            $op = RemoteSSH::run([$command]);
-            //exec($command,$DetailOutput,$return_var);
-
-            \Illuminate\Support\Facades\Log::info("Kill Command " . $command);
-            \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($op,true));
-            \Illuminate\Support\Facades\Log::info("return_var " . $return_var);
-
-        }else{
-            return false;
         }
 
 

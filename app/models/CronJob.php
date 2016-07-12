@@ -172,16 +172,14 @@ class CronJob extends \Eloquent {
         $cronsetting = json_decode($CronJob->Settings,true);
         $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
 
-        $DetailOutput = array();
-        $KillCommand = 'kill -9 '.$PID;
-        $ReturnStatus = run_process($KillCommand);
+        $ReturnStatus = terminate_process($PID);
 
         //Kill the process.
         CronJob::find($CronJobID)->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
 
-        $emaildata['KillCommand'] = $KillCommand;
+        $emaildata['KillCommand'] = "";
         $emaildata['ReturnStatus'] = $ReturnStatus;
-        $emaildata['DetailOutput'] = $DetailOutput;
+        $emaildata['DetailOutput'] = array();
 
         $emaildata['CompanyID'] = $CompanyID;
         $emaildata['Minute'] = $minute;

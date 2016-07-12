@@ -3,8 +3,6 @@
 class RemoteSSH{
     private static $config = array();
     public static $uploadPath = '';
-    private static $lines = array();
-
 
     public static function setConfig(){
 
@@ -18,16 +16,54 @@ class RemoteSSH{
         }
     }
 
+    /** Execute command and return PID
+     * @param array $commands
+     * @return array
+     */
     public static function run($commands = array()){
 
         self::setConfig();
+
         \Illuminate\Support\Facades\Log::info($commands);
-        $op = \Illuminate\Support\Facades\SSH::run($commands, function($line) {
-            self::$lines = $line.PHP_EOL;
+
+        $output = array();
+        \Illuminate\Support\Facades\SSH::run($commands, function($line) use(&$lines) {
+            $output =  explode(PHP_EOL,$line);
         });
 
-        return self::$lines;
+        /*
+        [0] => Array
+        (
+            [0] => 105901
+        )
+         */
 
+        /*
+         *    [0] => Array
+        (
+            [0] => 6258
+            [1] => 102887
+            [2] => 104458
+            [3] => 104765
+            [4] => 104783
+            [5] => 105178
+            [6] => 105346
+            [7] => 105497
+            [8] => 105819
+            [9] => 105847
+            [10] => 105901
+            [11] =>
+        )
+
+         */
+        if( count($output) == 1 && is_numeric($output[0])){
+            // PID
+            return $output[0];
+        }
+        else{
+            // Other OUTPUT
+            return $output;
+        }
 
     }
 }
