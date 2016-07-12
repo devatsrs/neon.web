@@ -43,7 +43,7 @@
             <strong>{{$Board->BoardName}}</strong>
         </li>
     </ol>
-    <h3>Tasks</h3>
+    <h3>Opportunity</h3>
         <div class="row">
             <div class="col-md-12 clearfix">
             </div>
@@ -107,17 +107,32 @@
             </div>
         </div>
 
-        <p style="text-align: right;">
+        <p id="tools">
+            <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
             @if(User::checkCategoryPermission('Opportunity','Add'))
-            <a href="javascript:void(0)" class="btn btn-primary opportunity">
-                <i class="entypo-plus"></i>
-                Add New Opportunity
-            </a>
+                <a href="javascript:void(0)" class="btn btn-primary pull-right opportunity">
+                    <i class="entypo-plus"></i>
+                    Add New Opportunity
+                </a>
             @endif
         </p>
 
         <section class="deals-board" >
-
+            <table class="table table-bordered datatable" id="opportunityGrid">
+                <thead>
+                <tr>
+                    <th width="25%" >Name</th>
+                    <th width="15%" >Status</th>
+                    <th width="20%">Assigned To</th>
+                    <th width="20%">Related To</th>
+                    <th width="10%" >Rating</th>
+                    <th width="10%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
                 <div id="board-start" class="board" style="height: 600px;" >
                 </div>
 
@@ -131,6 +146,7 @@
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function ($) {
+            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
             var opportunity = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -178,12 +194,98 @@
                 board.perfectScrollbar('update');
             });
 
+            data_table = $("#opportunityGrid").dataTable({
+                "bDestroy": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": baseurl + "/opportunity/"+BoardID+"/ajax_opportunity_grid",
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                            {"name": "opportunityName", "value": $searchFilter.opportunityName},
+                            {"name": "AccountOwner","value": $searchFilter.AccountOwner},
+                            {"name": "AccountID","value": $searchFilter.AccountID},
+                            {"name": "Tags","value": $searchFilter.Tags},
+                            {"name": "Status","value": $searchFilter.Status}
+                    );
+                },
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[1, 'desc']],
+                "aoColumns": [
+                    {
+                        "bSortable": true, //Opportunity Name
+                        mRender: function (id, type, full) {
+                            return full[5];
+                            //return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[5]+'</div>';
+                        }
+                    },
+                    {
+                        "bSortable": true, //Status
+                        mRender: function (id, type, full) {
+                            return opportunitystatus[full[21]];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Assign To
+                        mRender: function (id, type, full) {
+                            return full[12];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Related To
+                        mRender: function (id, type, full) {
+                            return full[8];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Rating
+                        mRender: function (id, type, full) {
+                            return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[19]+'" />';
+                        }
+                    },
+                    {
+                        "bSortable": false, //action
+                        mRender: function (id, type, full) {
+                            action = '<div class = "hiddenRowData" >';
+                            for(var i = 0 ; i< opportunity.length; i++){
+                                action += '<input type = "hidden"  name = "' + opportunity[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                            }
+                            action += '</div>';
+                            @if(User::checkCategoryPermission('Task','Edit'))
+                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            @endif
+                            return action;
+                        }
+                    }
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                    ]
+                },
+                "fnDrawCallback": function () {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                    $(this)
+                    if($('#tools .active').hasClass('grid')){
+                        $('#opportunityGrid_wrapper').addClass('hidden');
+                        $('#opportunityGrid').addClass('hidden');
+                    }else{
+                        $('#opportunityGrid_wrapper').removeClass('hidden');
+                        $('#opportunityGrid').removeClass('hidden');
+                    }
+                    $('.knob').knob();
+                }
 
-            getOpportunities();
+            });
+
+
+            getRecord();
 
             $('#search-opportunity-filter').submit(function(e){
                 e.preventDefault();
-                getOpportunities();
+                getRecord();
             });
 
 
@@ -223,8 +325,20 @@
                 $('#edit-modal-opportunity h4').text('Edit Opportunity');
                 $('#edit-modal-opportunity').modal('show');
             });
-
             @endif
+            $('#tools .toggle').click(function(){
+                        if($(this).hasClass('list')){
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').addClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').removeClass('hidden');
+                        }else{
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').removeClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').addClass('hidden');
+                        }
+                    });
             @if(User::checkCategoryPermission('OpportunityComment','View'))
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
@@ -523,6 +637,17 @@
                 container.empty();
                 container.html(make);
                 container.find('.make-switch').bootstrapSwitch();
+            }
+
+            function getRecord(){
+                $searchFilter.opportunityName = $("#search-opportunity-filter [name='opportunityName']").val();
+                $searchFilter.AccountOwner = $("#search-opportunity-filter [name='account_owners']").val();
+                $searchFilter.AccountID = $("#search-opportunity-filter [name='AccountID']").val();
+                $searchFilter.Tags = $("#search-opportunity-filter [name='Tags']").val();
+                $searchFilter.Status = $("#search-opportunity-filter [name='Status[]']").val();
+                console.log($searchFilter);
+                getOpportunities();
+                data_table.fnFilter('',0);
             }
 
             function getOpportunities(){

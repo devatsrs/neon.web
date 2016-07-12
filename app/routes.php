@@ -732,6 +732,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/getlead', 'OpportunityController@getLead');
     Route::any('/opportunity/{id}/getDropdownLeadAccount', 'OpportunityController@getDropdownLeadAccount');
     Route::any('/opportunity/{id}/getopportunity', 'OpportunityController@getopportunity');
+    Route::any('/opportunity/{id}/ajax_opportunity_grid', 'OpportunityController@ajax_grid');
     Route::any('/opportunity/{id}/update', 'OpportunityController@update');
     Route::any('/opportunity/{id}/deleteattachment/{attachmentid}', 'OpportunityController@deleteAttachment');
     Route::any('/opportunity/{id}/updateColumnOrder', 'OpportunityController@updateColumnOrder');

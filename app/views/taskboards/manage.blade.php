@@ -135,9 +135,9 @@
             <table class="table table-bordered datatable" id="taskGrid">
                 <thead>
                 <tr>
-                    <th width="15%" >Subject</th>
-                    <th width="20%" >Due Date</th>
-                    <th width="15%" >Status</th>
+                    <th width="30%" >Subject</th>
+                    <th width="10%" >Due Date</th>
+                    <th width="10%" >Status</th>
                     <th width="20%">Assigned To</th>
                     <th width="20%">Related To</th>
                     <th width="10%">Action</th>
