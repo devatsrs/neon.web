@@ -1205,7 +1205,8 @@ function terminate_process($pid){
 
     $process = new Process();
     $process->setPid($pid);
-    return $status = $process->stop();
+    $status = $process->stop();
+    return $status;
 
 }
 function run_process($command) {
