@@ -169,7 +169,9 @@ class DashboardController extends BaseController {
 		$UserID 			= 	User::get_userID();
 		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
 		$users			 	= 	User::getUserIDList();	
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users'));	
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('Y-m-d');
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault'));	
 	}
 	
 	public function GetUsersTasks(){
@@ -177,12 +179,15 @@ class DashboardController extends BaseController {
 	    $data 					= 	Input::all();		
 		$companyID			 	= 	User::get_companyID();
 		$SearchDate				=	'';
-		if(isset($data['UsersID']) && $data['UsersID']!=''){
-			$where['UsersIDs']		=	$data['UsersID'];
-		}
+		
 		$where['taskClosed']	=	0;
 		$task 					= 	Task::where($where)->select(['tblTask.Subject','tblTask.DueDate','tblCRMBoardColumn.BoardColumnName as Status','tblAccount.AccountName as Company','tblTask.Priority']);
 		
+		
+		$UserID			=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
+		if(!empty($UserID)){
+			$task->whereRaw('find_in_set(tblTask.UsersIDs,"'.$UserID.'")');
+		}		
 
 		if(isset($data['TaskTypeData']) && $data['TaskTypeData']!=''){
 		 if($data['TaskTypeData'] == 'duetoday'){
@@ -214,21 +219,13 @@ class DashboardController extends BaseController {
         $userID 			= 	'';
         $isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
         $data 				= 	Input::all();
-		$UserID 			=	(isset($data['UsersID']) && !empty($data['UsersID']))?$data['UsersID']:0;
+		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
 		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
 		$array_return 		= 	array("TotalOpportunites"=>0,"TotalWorth"=>0);
 		$array_status 		= 	array();
-		
-	/*	if($isAdmin){		
-			$result1		=	Opportunity::where(['CompanyID'=>$companyID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
-		}else
-		{		
-			$result1		=	Opportunity::where(['CompanyID'=>$companyID,'UserID'=>$UserID])->where('Status','!=',Opportunity::Close)->select([DB::RAW('sum(Worth) as Totalworth'),'Status'])->groupby(['Status'])->get();
-		}*/
-		
-		 $statusarray = implode(",", array(Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned));
-		 $query  = "call prc_GetCrmDashboardPipeLine (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."')";
-		 $result = DB::select($query);
+		$statusarray 		=	implode(",", array(Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned));
+		$query  			= 	"call prc_GetCrmDashboardPipeLine (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."')";
+		$result 			= 	DB::select($query);
 		
 			foreach($result as $result_data){
 				$array_status[$result_data->Status] = array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites);
@@ -242,6 +239,43 @@ class DashboardController extends BaseController {
 			}
 		
 		
+		return json_encode($array_return);
+	}
+	
+	public function GetForecastData(){ //crm dashboard
+			
+        $companyID 			= 	User::get_companyID();
+        $userID 			= 	'';
+        $isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+        $data 				= 	Input::all();		
+		$rules = array(
+            'DateStart' =>      'required',
+            'DateEnd' =>  'required',           
+        );
+		$message	 = array("DateStart.required"=> "Start Date field is required.","DateEnd.required"=> "End Date field is required.");
+        $validator   = Validator::make($data, $rules,$message);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }		
+		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
+		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
+		$array_return 		= 	array();
+		$StartDate			=	$data['DateStart']." 00:00:00";
+		$EndDate			=	$data['DateEnd']." 23:59:59";		
+		$statusarray		=	(isset($data['Status']) && is_array($data['Status']))?implode(",",($data['Status'])):'';
+		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
+		$result 			= 	DB::select($query);
+		$TotalWorth			=	0;
+		
+		foreach($result as $result_data){
+				$array_return['data'][]    = 		array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites,"ClosingDate"=>$result_data->ClosingDate);
+				$TotalWorth 			   = 		$TotalWorth+(isset($result_data->TotalWorth)?$result_data->TotalWorth:0);
+		}
+		if(count($array_return)>0){
+			$array_return['CurrencyCode'] 	   = 		isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';			
+			$array_return['status'] 	   	   = 		'success';
+		}
+		$array_return['TotalWorth'] 	   = 		$TotalWorth;
 		return json_encode($array_return);
 	}
 

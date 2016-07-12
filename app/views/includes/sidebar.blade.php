@@ -81,6 +81,9 @@
     @endif
     <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
+         @if(User::checkCategoryPermission('CrmDashboard','View'))
+                <li><a href="{{URL::to('/crmdashboard')}}"><span>Dashboard</span></a></li>
+            @endif 
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
                 <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
             @endif

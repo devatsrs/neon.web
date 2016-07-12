@@ -51,7 +51,7 @@ function getPipleLineData(chart_type,submitdata){
     });
 }
 function set_search_parameter(submit_form){
-	$searchFilter.UsersID = $(submit_form).find("[name='UsersID']").val();
+	$searchFilter.UsersID = $(submit_form).find("[name='UsersID[]']").val();
     $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
 }
 function getForecast(chart_type,submit_data){
@@ -142,6 +142,8 @@ function reloadCrmCharts(pageSize,$searchFilter){
     /* get data by time in bar chart*/
     //getForecast($searchFilter.chart_type,$searchFilter);
 	 GetUsersTasks();
+	 
+	  GetForecastData();
   
 }
 
@@ -155,6 +157,18 @@ $(function() {
 	  $("#TaskType").change(function(){
         GetUsersTasks();
     });
+	
+	$('#crm_dashboard_forecast').submit(function(e) {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+        GetForecastData();         
+    });
+	$('#dateendid').change(function(e) {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+     	//GetForecastData();
+	 });
+	
 });
 
 
@@ -181,21 +195,81 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 	if(id=='Pipeline'){
         getPipleLineData('',$searchFilter);
     }
+	
+	if(id=='Forecast'){
+        GetForecastData();
+    }	
 });
+
+
+function GetForecastData(){
+	loadingUnload(".crmdforecast",1);	
+	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
+	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
+	var DateStart   = $("#crm_dashboard_forecast [name='DateStart']").val();
+	var DateEnd   	= $("#crm_dashboard_forecast [name='DateEnd']").val();	
+	var Status   	= $("#crm_dashboard_forecast [name='Status[]']").val(); 
+	
+	
+    $.ajax({
+        type: 'POST',
+        url: baseurl+'/dashboard/getforecastdata',
+        dataType: 'html',
+        data:{CurrencyID:CurrencyID,UsersID:UsersID,DateStart:DateStart,DateEnd:DateEnd,Status:Status},
+        aysync: true,
+        success: function(data11) {
+			$('#crmdforecast1').html('');
+            loadingUnload(".crmdforecast",0);
+			var dataObj = JSON.parse(data11);
+			 if(dataObj.status!='failed') {	
+            if(dataObj.TotalWorth>0) {				
+			var line_chart_demo_2 = $(".crmdforecast");
+            var crmdforecastdata =  [];
+			console.log(dataObj);
+			for(var s=0;s<dataObj.data.length;s++)			
+			{
+	              crmdforecastdata[s] =
+					{
+					 'ClosingDate': dataObj.data[s].ClosingDate,
+					 'Worth': dataObj.data[s].Worth			
+					 }
+			}
+			Morris.Bar({
+			  element: 'crmdforecast1',
+			  data: crmdforecastdata,
+			  xkey: 'ClosingDate',
+			  ykeys: ['Worth'],
+			  barColors: ['#3399FF', '#333399'],
+			  labels: ['']
+			});	
+			
+			$('.forecastResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Forecast"+"</h3>");
+	           	}else{
+                	$('.crmdforecast').html('<br><h3>NO DATA!!</h3>');
+					$('.forecastResult').html('');
+            	}
+			 }else
+			 {
+					toastr.error(dataObj.message, "Error", toastr_opts);
+			}
+		}
+    });
+}
+
 function GetUsersTasks(){
     var table = $('#UsersTasksTable');
     loadingUnload(table,1);
     var url = baseurl+'/dashboard/GetUsersTasks';
 	var Tasktype = $('#TaskType').val();
-	var UsersID  = $("#crm_dashboard [name='UsersID']").val();
+	var UsersID  = $("#crm_dashboard [name='UsersID[]']").val();
     $.ajax({
         url: url,  //Server script to process data
         type: 'POST',
         dataType: 'json',
 		data:{TaskTypeData:Tasktype,UsersID:UsersID}, 
         success: function (response) {
-            var accounts = response.UserTasks;
-            html = '';
+            var accounts 	= 	response.UserTasks;
+            html 			= 	'';
             table.parents('.panel-primary').find('.panel-title h3').html('My Active Tasks ('+accounts.length+')');
             table.find('tbody').html('');
             if(accounts.length > 0){
@@ -207,14 +281,13 @@ function GetUsersTasks(){
 						html +='      <td><div class="normal inlinetable">&nbsp;</div> <div class="inlinetable">'+accounts[i]["Subject"]+'</div></td>';
 					}
 					
-					if(accounts[i]["DueDate"]=='0000-00-00 00:00:00')
-					{
+					if(accounts[i]["DueDate"]=='0000-00-00 00:00:00'){
 						accounts[i]["DueDate"] = '';
 					}
                     
-					html +='      <td>'+accounts[i]["Status"]+'</td>';
-					html +='      <td>'+accounts[i]["DueDate"]+'</td>';
-					html +='      <td>'+accounts[i]["Company"]+'</td>';
+					html +='<td>'+accounts[i]["Status"]+'</td>';
+					html +='<td>'+accounts[i]["DueDate"]+'</td>';
+					html +='<td>'+accounts[i]["Company"]+'</td>';
                     html +='</tr>';
                 }
             }else{

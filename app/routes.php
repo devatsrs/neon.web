@@ -165,6 +165,10 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
 	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
+	Route::post('/dashboard/getforecastdata', "DashboardController@GetForecastData");		
+	
+	
+	
 	Route::any('/monitor', "DashboardController@monitor_dashboard");
 	Route::any('/crmdashboard', "DashboardController@CrmDashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
