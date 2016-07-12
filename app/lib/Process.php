@@ -102,8 +102,9 @@ class Process
     public function check_crontab_status(){
         $command = 'service crond status';
         $output = RemoteSSH::run([$command]);
-        Log::info(" check_crontab_status " . print_r($output,true));
-        return true;
-
+        if(isset($output[0]) && strstr($output[0],"is running...") != FALSE ){
+            return true;
+        }
+        return false;
     }
 }

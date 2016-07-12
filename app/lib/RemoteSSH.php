@@ -27,7 +27,7 @@ class RemoteSSH{
         \Illuminate\Support\Facades\Log::info($commands);
 
         $output = array();
-        \Illuminate\Support\Facades\SSH::run($commands, function($line) use(&$lines) {
+        \Illuminate\Support\Facades\SSH::run($commands, function($line) use(&$output) {
             $output =  explode(PHP_EOL,$line);
         });
 
