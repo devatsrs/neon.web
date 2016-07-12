@@ -32,13 +32,12 @@ class AuthenticationController extends \BaseController
         if(isset($data['CustomerAuthValue'])){
             $data['CustomerAuthValue'] = implode(',', array_unique(explode(',', $data['CustomerAuthValue'])));
         }
-        if(empty($data['VendorAuthRule']) || $data['VendorAuthRule'] != 'IP' || $data['VendorAuthRule']!='Other'){
+        if(empty($data['VendorAuthRule']) || ($data['VendorAuthRule'] != 'IP' && $data['VendorAuthRule']!='Other')){
             $data['VendorAuthValue']='';
-
         }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'Other' && empty($data['VendorAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Vendor Other Value required"));
         }
-        if(empty($data['CustomerAuthRule']) || $data['CustomerAuthRule'] != 'IP' || $data['CustomerAuthRule']!='Other'){
+        if(empty($data['CustomerAuthRule']) || ($data['CustomerAuthRule'] != 'IP' && $data['CustomerAuthRule']!='Other')){
             $data['CustomerAuthValue']='';
         }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'Other' && empty($data['CustomerAuthValue'])){
             return Response::json(array("status" => "error", "message" => "Customer Other Value required"));
@@ -90,9 +89,7 @@ class AuthenticationController extends \BaseController
            if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
            }else{
-               $AccountAuthenticate = array();
-               $AccountAuthenticate=$data;
-               AccountAuthenticate::insert($AccountAuthenticate);
+               AccountAuthenticate::insert($data);
            }
            $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
            return Response::json(array("status" => "success","ips"=> $status['toBeInsert'],"totalips"=>$object, "message" => "Account Successfully Updated".$message));

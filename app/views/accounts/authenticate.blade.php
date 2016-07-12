@@ -375,6 +375,7 @@
                         success: function(response) {
                             if (response.status == 'success') {
                                 createTable(response);
+                                $('.selectall').prop("checked", false);
                                 toastr.success(response.message,'Success', toastr_opts);
                             }else{
                                 toastr.error(response.message, "Error", toastr_opts);
