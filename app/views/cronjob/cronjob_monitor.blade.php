@@ -61,6 +61,14 @@
                                     <input id="" name="AutoRefresh" type="checkbox" checked value="1">
                                 </p>
                             </div>
+                            <label for="field-1" class="col-sm-1 control-label">Cron Job Status</label>
+                            <div class="col-sm-2">
+                                    @if($crontab_status)
+                                        <button class="btn btn-green btn-sm" type="button" title="CronJob is running..." data-placement="top" data-toggle="tooltip"><i class="entypo-record"></i></button>
+                                    @else
+                                        <button class="btn btn-red btn-sm" type="button" title="CronJob is not running" data-placement="top" data-toggle="tooltip"><i class="entypo-record" ></i></button>
+                                    @endif
+                            </div>
 
                         </div>
 
