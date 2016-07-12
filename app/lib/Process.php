@@ -99,4 +99,11 @@ class Process
         }
     }
 
+    public function check_crontab_status(){
+        $command = 'service crond status';
+        $output = RemoteSSH::run([$command]);
+        Log::info(" check_crontab_status " . print_r($output,true));
+        return true;
+
+    }
 }

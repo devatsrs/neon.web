@@ -62,40 +62,7 @@ class CronJobController extends \BaseController {
         }
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 * POST /cronjob
-	 *
-	 * @return Response
-	 */
-	public function store()
-	{
-		//
-	}
 
-	/**
-	 * Display the specified resource.
-	 * GET /cronjob/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 * GET /cronjob/{id}/edit
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
 
 	/**
 	 * Update the specified resource in storage.
@@ -297,8 +264,9 @@ class CronJobController extends \BaseController {
     public function cronjob_monitor(){
 
         $commands = CronJobCommand::getCommands();
-
-        return View::make('cronjob.cronjob_monitor', compact('commands'));
+        $Process = new Process();
+        $crontab_status = $Process->check_crontab_status();
+        return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status'));
 
     }
 
