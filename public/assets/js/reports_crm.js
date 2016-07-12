@@ -30,7 +30,8 @@ function getPipleLineData(chart_type,submitdata){
 	              crmpipelinedata[s] =
 					{
 					 'status': dataObj.data[s+1].status,
-					 'Worth': dataObj.data[s+1].Worth			
+					 'Worth': dataObj.data[s+1].Worth,
+					 'CurrencyCode':dataObj.data[s+1].CurrencyCode		
 					 }
 			}
 			Morris.Bar({
@@ -39,7 +40,10 @@ function getPipleLineData(chart_type,submitdata){
 			  xkey: 'status',
 			  ykeys: ['Worth'],
 			  barColors: ['#3399FF', '#333399'],
-			  labels: ['']
+			  labels: [''],
+				hoverCallback:function (index, options, content, row) {
+					return '<div class="morris-hover-row-label">'+row.CurrencyCode+row.Worth+'</div>'
+				}
 			});	
 			
 			$('.PipeLineResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + " Opportunities </h3>");
@@ -53,85 +57,6 @@ function getPipleLineData(chart_type,submitdata){
 function set_search_parameter(submit_form){
 	$searchFilter.UsersID = $(submit_form).find("[name='UsersID[]']").val();
     $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
-}
-function getForecast(chart_type,submit_data){
-    loading(".bar_chart_"+chart_type,1);
-    $.ajax({
-        type: 'GET',
-        url: baseurl+'/analysis/getAnalysisBarData',
-        dataType: 'json',
-        data:submit_data,
-        aysync: true,
-        success: function(data) {
-            loading(".bar_chart_"+chart_type,0);
-            if(data.categories != '' && data.categories.split(',').length > 0) {
-                $('.bar_chart_'+chart_type).highcharts({
-                    chart: {
-                        type: 'column'
-                    },
-                    title: {
-                        text: data.Title
-                    },
-                    xAxis: {
-                        categories: data.categories.split(','),
-                        title: {
-                            text: null
-                        }
-                    },
-                    yAxis: {
-                        min: 0,
-                        title: {
-                            text: 'Calls',
-                            align: 'high'
-                        },
-                        labels: {
-                            overflow: 'justify'
-                        }
-                    },
-                    tooltip: {
-                        valueSuffix: ''
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: true
-                            }
-                        },
-                        column: {
-                            pointPadding: 0.2,
-                            borderWidth: 0
-                        }
-                    },
-                    legend: {
-                        layout: 'vertical',
-                        align: 'right',
-                        verticalAlign: 'top',
-                        x: -40,
-                        y: 80,
-                        floating: true,
-                        borderWidth: 1,
-                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                        shadow: true
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    series: [{
-                        name: 'Call Count',
-                        data: data.CallCount.split(',').map(parseFloat)
-                    }, {
-                        name: 'Call Cost',
-                        data: data.CallCost.split(',').map(parseFloat)
-                    }, {
-                        name: 'Call Minutes',
-                        data: data.CallMinutes.split(',').map(parseFloat)
-                    }]
-                });
-            }else{
-                $('.bar_chart_'+chart_type).html('NO DATA!!');
-            }
-        }
-    });
 }
 
 function reloadCrmCharts(pageSize,$searchFilter){
@@ -225,13 +150,13 @@ function GetForecastData(){
             if(dataObj.TotalWorth>0) {				
 			var line_chart_demo_2 = $(".crmdforecast");
             var crmdforecastdata =  [];
-			console.log(dataObj);
 			for(var s=0;s<dataObj.data.length;s++)			
 			{
 	              crmdforecastdata[s] =
 					{
 					 'ClosingDate': dataObj.data[s].ClosingDate,
-					 'Worth': dataObj.data[s].Worth			
+					 'Worth': dataObj.data[s].Worth,	
+					 'CurrencyCode':dataObj.data[s].CurrencyCode		
 					 }
 			}
 			Morris.Bar({
@@ -240,7 +165,10 @@ function GetForecastData(){
 			  xkey: 'ClosingDate',
 			  ykeys: ['Worth'],
 			  barColors: ['#3399FF', '#333399'],
-			  labels: ['']
+			  labels: [''],
+				hoverCallback:function (index, options, content, row) {
+					return '<div class="morris-hover-row-label">'+row.CurrencyCode+row.Worth+'</div>'
+				}
 			});	
 			
 			$('.forecastResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Forecast"+"</h3>");

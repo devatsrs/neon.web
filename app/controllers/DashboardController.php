@@ -230,11 +230,12 @@ class DashboardController extends BaseController {
 			foreach($result as $result_data){
 				$array_status[$result_data->Status] = array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites);
 			}
-			foreach(Opportunity::$status as $index => $status_text){				
-				$array_return['data'][$index] = isset($array_status[$index])?array("status"=>$status_text,"Worth"=>$array_status[$index]["Worth"],"Opportunites"=>$array_status[$index]["Opportunites"]): array("status"=>$status_text,"Worth"=>0,"Opportunites"=>0);
+			foreach(Opportunity::$status as $index => $status_text){		
+				$array_return['CurrencyCode'] 	= 	isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';		
+				$array_return['data'][$index] = isset($array_status[$index])?array("status"=>$status_text,"Worth"=>$array_status[$index]["Worth"],"Opportunites"=>$array_status[$index]["Opportunites"],"CurrencyCode"=>$array_return['CurrencyCode']): array("status"=>$status_text,"Worth"=>0,"Opportunites"=>0,"CurrencyCode"=>$array_return['CurrencyCode']);
 				
 				$array_return['TotalOpportunites'] 			=   $array_return['TotalOpportunites']+(isset($array_status[$index]["Opportunites"])?$array_status[$index]["Opportunites"]:0);
-				$array_return['CurrencyCode'] 	= 	isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';
+				
 				$array_return['TotalWorth'] 	= 	$array_return['TotalWorth']+(isset($array_status[$index]['Worth'])?$array_status[$index]['Worth']:0);	
 			}
 		
@@ -268,7 +269,8 @@ class DashboardController extends BaseController {
 		$TotalWorth			=	0;
 		
 		foreach($result as $result_data){
-				$array_return['data'][]    = 		array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites,"ClosingDate"=>$result_data->ClosingDate);
+				$CurrencySign 			   = 	    isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';	
+				$array_return['data'][]    = 		array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign);
 				$TotalWorth 			   = 		$TotalWorth+(isset($result_data->TotalWorth)?$result_data->TotalWorth:0);
 		}
 		if(count($array_return)>0){
