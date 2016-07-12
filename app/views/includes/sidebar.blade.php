@@ -211,14 +211,14 @@
     	@endif
       </ul>
     </li>
-    @if(User::checkCategoryPermission('CronJob','View'))
-      <li> <a href="{{URL::to('/cronjob_monitor')}}"> <i class="entypo-hourglass"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
     @endif
+    @if( User::checkCategoryPermission('CronJob','View'))
+    <li> <a href="{{Url::to('cronjob_monitor')}}"> <i class="fa fa-hourglass-2"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Jobs','View'))
     <li> <a href="{{Url::to('jobs')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Jobs</span> </a> </li>
     @endif
-    
+
     @if( User::checkCategoryPermission('Company','View'))
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
     @endif
