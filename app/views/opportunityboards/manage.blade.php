@@ -216,32 +216,32 @@
                     {
                         "bSortable": true, //Opportunity Name
                         mRender: function (id, type, full) {
-                            return full[5];
+                            return full[3];
                             //return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[5]+'</div>';
                         }
                     },
                     {
                         "bSortable": true, //Status
                         mRender: function (id, type, full) {
-                            return opportunitystatus[full[21]];
+                            return opportunitystatus[full[19]];
                         }
                     },
                     {
                         "bSortable": true, //Assign To
                         mRender: function (id, type, full) {
-                            return full[12];
+                            return full[10];
                         }
                     },
                     {
                         "bSortable": true, //Related To
                         mRender: function (id, type, full) {
-                            return full[8];
+                            return full[6];
                         }
                     },
                     {
                         "bSortable": true, //Rating
                         mRender: function (id, type, full) {
-                            return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[19]+'" />';
+                            return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[17]+'" />';
                         }
                     },
                     {
@@ -290,9 +290,13 @@
 
 
             @if(User::checkCategoryPermission('Opportunity','Edit'))
-            $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
                 e.stopPropagation();
-                var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                if($(this).is('a')){
+                    var rowHidden = $(this).prev('div.hiddenRowData');
+                }else {
+                    var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                }
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
