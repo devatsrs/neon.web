@@ -1,19 +1,6 @@
--- --------------------------------------------------------
--- Host:                         188.227.186.98
--- Server version:               5.7.11 - MySQL Community Server (GPL)
--- Server OS:                    Linux
--- HeidiSQL Version:             9.3.0.5098
--- --------------------------------------------------------
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-
--- Dumping structure for procedure NeonRMDev.prc_GetOpportunityGrid
 DELIMITER //
-CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_GetOpportunityGrid`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
@@ -119,7 +106,7 @@ ORDER BY
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND b.BoardID = p_BoardID
-LEFT JOIN tblOpportunity o on o.BoardID = b.BoardID
+INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
 			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
