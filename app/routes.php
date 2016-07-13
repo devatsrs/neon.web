@@ -521,6 +521,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cronjob/{id}/trigger', 'CronJobController@trigger');
 	Route::any('/cronjob/{id}/terminate', 'CronJobController@terminate');
 	Route::any('/cronjob/{id}/change_status/{id2}', 'CronJobController@change_status');
+	Route::any('/cronjob/change_crontab_status/{id}', 'CronJobController@change_crontab_status');
 
 	//Company
 	Route::any('/company', 'CompaniesController@edit');

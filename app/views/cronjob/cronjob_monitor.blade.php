@@ -65,9 +65,9 @@
                             <div class="col-sm-2">
 
                                     @if($crontab_status)
-                                        <button data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
+                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
                                     @else
-                                        <button data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-red btn-sm popover-primary">&nbsp;</button>
+                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="start_crontab btn btn-red btn-sm popover-primary">&nbsp;</button>
                                     @endif
 
 
@@ -76,7 +76,7 @@
                         </div>
 
                         <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-search"></i>
                                 Search
                             </button>
@@ -285,6 +285,7 @@
                 $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
 
                 data_table.fnFilter('', 0);
+                $(".btn").button('reset');
                 return false;
             });
 
@@ -326,6 +327,43 @@
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
                     submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger'  );
+                }
+            });
+
+            $('.start_crontab').click(function(ev){
+                result = confirm("Are you Sure to Start Cron Tab?");
+                if(result){
+
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/1','',function(response){
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout(function(){
+                                location.reload();
+                            },200);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    });
+                }
+            });
+            $('.stop_crontab').click(function(ev){
+                result = confirm("Are you Sure to Stop Cron Tab?");
+                if(result){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/0','',function(response){
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout(function(){
+                                location.reload();
+                            },200);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    });
+
                 }
             });
 

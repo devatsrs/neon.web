@@ -335,4 +335,25 @@ class CronJobController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));
         }
     }
+
+    /** Change Crontab Status
+     * @param $CronJobID
+     * @return mixed
+     */
+    public function change_crontab_status($Status=1){
+
+        if($Status == 0 ){
+            $Status_to = "Cron Tab Stopped";
+        }else {
+            $Status_to = "Cron Tab Started";
+        }
+        $Process = new Process();
+        $response = $Process->change_crontab_status($Status);
+
+        if($response){
+            return Response::json(array("status" => "success", "message" => $Status_to ));
+        }else {
+            return Response::json(array("status" => "failed", "message" => "Fail to change status of Cron Tab." ));
+        }
+    }
 }
