@@ -25,9 +25,11 @@ class Process
         }
     }
     private function runCom(){
-        $command = 'nohup '.$this->command.' > /dev/null 2>&1 & echo $!';
-        exec($command ,$op);
-        $this->pid = (int)$op[0];
+        //@TODO: need to fix for Window
+        $command = 'nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
+        $op = RemoteSSH::run([$command]);
+        //exec($command ,$op);
+        $this->pid = (int)$op;
     }
 
     public function setPid($pid){
@@ -40,25 +42,36 @@ class Process
 
     public function status(){
         $command = 'ps -p '.$this->pid;
-        exec($command,$op);
-        if (!isset($op[1])){
+        //exec($command,$op);
+        $op = RemoteSSH::run([$command]);
+
+        if ($op > 0){
+            return true ;
+        }
+        else {
             return false;
+        }
+    }
+
+    public function start(){
+
+        if ($this->command != ''){
+            $this->runCom();
         }
         else {
             return true;
         }
     }
 
-    public function start(){
-        if ($this->command != '')$this->runCom();
-        else return true;
-    }
-
     public function isrunning($pid) {
 
         //@TODO: checkout for windows system
         //http://lifehacker.com/362316/use-unix-commands-in-windows-built-in-command-prompt
-        $pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
+
+        $command ="ps -e | grep php | awk '{print $1}'";
+            //$pids_ = explode(PHP_EOL, `ps -e | grep php | awk '{print $1}'`);
+        $pids_ = RemoteSSH::run([$command]);
+        //$pids_ = explode(PHP_EOL,$op);
 
         if( !empty($pid) && $pid > 0 && in_array($pid, $pids_)) {
             Log::info(" Running pids " . print_r($pids_,true));
@@ -69,25 +82,12 @@ class Process
 
     public function stop(){
 
-        if(getenv("APP_OS") == "Linux"){
-            $command = 'kill -9 '.$this->pid;
-        }else{
-            $command = 'Taskkill /PID '.$this->pid.' /F';
-        }
-
+        $command = 'kill -9 '.$this->pid;
 
         if($this->isrunning($this->pid)){
 
-            $DetailOutput=$return_var="";
+            RemoteSSH::run([$command]);
 
-            exec($command,$DetailOutput,$return_var);
-
-            \Illuminate\Support\Facades\Log::info("Kill Command " . $command);
-            \Illuminate\Support\Facades\Log::info("DetailOutput " . print_r($DetailOutput,true));
-            \Illuminate\Support\Facades\Log::info("return_var " . $return_var);
-
-        }else{
-            return false;
         }
 
 
@@ -99,4 +99,12 @@ class Process
         }
     }
 
+    public function check_crontab_status(){
+        $command = 'service crond status';
+        $output = RemoteSSH::run([$command]);
+        if(isset($output[0]) && strstr($output[0],"is running...") != FALSE ){
+            return true;
+        }
+        return false;
+    }
 }

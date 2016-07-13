@@ -124,6 +124,9 @@
                                 }else  if( Status == 'failed' ){
 
                                     action += ' <button data-id="'+ id +'" class="job_restart btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Restart</button>';
+                                } else  if( Status == 'pending' ){
+
+                                    action += ' <button data-id="'+ id +'" class="job_cancel btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Cancel</button>';
                                 }
 
                                 return action;
@@ -186,6 +189,16 @@
             if(result){
                 id = $(this).attr('data-id');
                 submit_ajax(baseurl+'/jobs/'+id + '/restart');
+                data_table.fnFilter('', 0);
+            }
+        });
+
+       //Cancel a job
+        $('table tbody').on('click','.job_cancel',function(ev){
+            result = confirm("Are you Sure?");
+            if(result){
+                id = $(this).attr('data-id');
+                submit_ajax(baseurl+'/jobs/'+id + '/cancel');
                 data_table.fnFilter('', 0);
             }
         });

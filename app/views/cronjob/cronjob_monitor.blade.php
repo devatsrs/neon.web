@@ -16,10 +16,10 @@
             <a href="{{URL::to('cronjobs')}}">Cron Job</a>
         </li>
         <li class="active">
-            <strong>Cron Job Monitor</strong>
+            <strong>Cron Job</strong>
         </li>
     </ol>
-    <h3>Cron Job Monitor</h3>
+    <h3>Cron Job</h3>
     <p style="text-align: right;">
         @if( User::checkCategoryPermission('CronJob','Add') )
             <a href="#" id="add-new-config" class="btn btn-primary ">
@@ -60,6 +60,17 @@
                                 <p class="make-switch switch-small">
                                     <input id="" name="AutoRefresh" type="checkbox" checked value="1">
                                 </p>
+                            </div>
+                            <label for="field-1" class="col-sm-1 control-label">Cron Tab Status</label>
+                            <div class="col-sm-2">
+
+                                    @if($crontab_status)
+                                        <button data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
+                                    @else
+                                        <button data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-red btn-sm popover-primary">&nbsp;</button>
+                                    @endif
+
+
                             </div>
 
                         </div>

@@ -64,8 +64,8 @@
      <div class="col-md-6">
         <div class="form-group">
             <label for="field-5" class="control-label @if(isset($configtitle['timepicker'])) starttime2 @endif">{{$configtitle['title']}}
-            @if($configtitle['name'] == 'ThresholdTime') <span data-original-title="Insert" data-content="Threshold Time is maximum time of running time.if time is more than threshold time, Email send to Error Email" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
-            @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="Insert" data-content="It is interval time of email send. when any cron job's running's time is more than it's threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
+            @if($configtitle['name'] == 'ThresholdTime') <span data-original-title="What is Threshold Time?" data-content="Threshold Time is maximum running time. if time is more than threshold time then email will be sent to Error Email" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
+            @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="What is Alert Active Email Time?" data-content="It is interval time to send Email If any cron job is running out of its threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             </label>
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')
             {{Form::select('Setting['.$configtitle['name'].'][]',$configtitle['value'],$selectd_val, array( "class"=>"select2",'multiple',"data-placeholder"=>$configtitle['placeholder']))}}
