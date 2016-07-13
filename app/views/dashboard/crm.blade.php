@@ -62,7 +62,7 @@
         <div id="Forecast" class="panel-options">
           <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_forecast">
           <div class="pull-left small-input first">
-           <label class="control-label" >Closing Date</label>
+           <label class="control-label" >Close Date</label>
           </div>
             <div class="pull-left small-input"> {{ Form::text('DateStart',$StartDateDefault, array("placeholder"=>"From", "id"=>"datestartid", "class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd"))}} </div>
             
