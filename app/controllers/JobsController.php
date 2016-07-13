@@ -258,6 +258,26 @@ class JobsController extends \BaseController {
 
     }
 
+  /**
+     * Cancel a Job
+     * @param $id
+     */
+    public function cancel($JobID){
+
+        if(!empty($JobID)){
+
+            $userName = User::get_user_full_name();
+            DB::connection('sqlsrv')->select("CALL prc_UpdatePendingJobToCanceled($JobID,'$userName')");
+            return Response::json(array("status" => "success", "message" => "Job is canceled."));
+
+        } else {
+
+            return Response::json(array("status" => "failed", "message" => "JobID not found."));
+
+        }
+
+    }
+
     /**
      * Terminate a job
      * @param $id

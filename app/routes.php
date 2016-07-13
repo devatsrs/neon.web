@@ -403,6 +403,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/jobs/{id}/restart', 'JobsController@restart');
 	Route::any('/jobs/{id}/terminate', 'JobsController@terminate');
+	Route::any('/jobs/{id}/cancel', 'JobsController@cancel');
 
 
 	Route::resource('jobs', 'JobsController');
