@@ -16,10 +16,10 @@
             <a href="{{URL::to('cronjobs')}}">Cron Job</a>
         </li>
         <li class="active">
-            <strong>Cron Job Monitor</strong>
+            <strong>Cron Job</strong>
         </li>
     </ol>
-    <h3>Cron Job Monitor</h3>
+    <h3>Cron Job</h3>
     <p style="text-align: right;">
         @if( User::checkCategoryPermission('CronJob','Add') )
             <a href="#" id="add-new-config" class="btn btn-primary ">
@@ -61,19 +61,22 @@
                                     <input id="" name="AutoRefresh" type="checkbox" checked value="1">
                                 </p>
                             </div>
-                            <label for="field-1" class="col-sm-1 control-label">Cron Job Status</label>
+                            <label for="field-1" class="col-sm-1 control-label">Cron Tab Status</label>
                             <div class="col-sm-2">
+
                                     @if($crontab_status)
-                                        <button class="btn btn-green btn-sm" type="button" title="CronJob is running..." data-placement="top" data-toggle="tooltip"><i class="entypo-record"></i></button>
+                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
                                     @else
-                                        <button class="btn btn-red btn-sm" type="button" title="CronJob is not running" data-placement="top" data-toggle="tooltip"><i class="entypo-record" ></i></button>
+                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="start_crontab btn btn-red btn-sm popover-primary">&nbsp;</button>
                                     @endif
+
+
                             </div>
 
                         </div>
 
                         <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-search"></i>
                                 Search
                             </button>
@@ -282,6 +285,7 @@
                 $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
 
                 data_table.fnFilter('', 0);
+                $(".btn").button('reset');
                 return false;
             });
 
@@ -323,6 +327,43 @@
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
                     submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger'  );
+                }
+            });
+
+            $('.start_crontab').click(function(ev){
+                result = confirm("Are you Sure to Start Cron Tab?");
+                if(result){
+
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/1','',function(response){
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout(function(){
+                                location.reload();
+                            },200);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    });
+                }
+            });
+            $('.stop_crontab').click(function(ev){
+                result = confirm("Are you Sure to Stop Cron Tab?");
+                if(result){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/0','',function(response){
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout(function(){
+                                location.reload();
+                            },200);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    });
+
                 }
             });
 
