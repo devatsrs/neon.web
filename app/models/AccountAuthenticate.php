@@ -29,4 +29,23 @@ class AccountAuthenticate extends \Eloquent {
         $status['toBeInsert'] = $toBeInsert;
         return $status;
     }
+
+    public static function validate_clis($data){
+        $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
+
+        if (isset($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'CLI') {
+            $dbCLIs = explode(',', $accountAuthenticate->CustomerAuthValue);
+            $postCLIs = $data['CustomerAuthValue'];
+        } elseif (isset($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'CLI') {
+            $dbCLIs = explode(',', $accountAuthenticate->VendorAuthValue);
+            $postCLIs = $data['VendorAuthValue'];
+        }
+
+        $CLIsExist = array_intersect($dbCLIs, $postCLIs);
+        $toBeInsert =array_unique(array_merge($dbCLIs,$postCLIs));
+
+        $status['CLIExist'] = $CLIsExist;
+        $status['toBeInsert'] = $toBeInsert;
+        return $status;
+    }
 }
