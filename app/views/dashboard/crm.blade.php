@@ -77,22 +77,22 @@
                   <div class="pull-left small-input status">
                     <label class="control-label" >Status</label>
                   </div>
-                  <div class="radio radio-replace color-green pull-left">
-                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-1" name="Status_{{Opportunity::$status[Opportunity::Won]}}" value="{{Opportunity::Won}}" checked>
-                    <label for="minimal-radio-1">{{Opportunity::$status[Opportunity::Won]}}</label>
-                    &nbsp;&nbsp;</div>
-                  <div class="radio radio-replace color-gold pull-left">
-                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-2" name="Status_{{Opportunity::$status[Opportunity::Open]}}" value="{{Opportunity::Open}}">
-                    <label for="minimal-radio-2">{{Opportunity::$status[Opportunity::Open]}}</label>
-                    &nbsp;&nbsp;</div>
-                  <div class="radio radio-replace color-red pull-left">
-                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-3" name="Status_{{Opportunity::$status[Opportunity::Lost]}}" value="{{Opportunity::Lost}}">
-                    <label for="minimal-radio-3">{{Opportunity::$status[Opportunity::Lost]}}</label>
-                    &nbsp;&nbsp;</div>
                   <div class="radio radio-replace color-primary pull-left">
                     <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-4" name="Status_{{Opportunity::$status[Opportunity::Abandoned]}}" value="{{Opportunity::Abandoned}}">
                     <label for="minimal-radio-4">{{Opportunity::$status[Opportunity::Abandoned]}}</label>
                   </div>
+                    <div class="radio radio-replace color-red pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-3" name="Status_{{Opportunity::$status[Opportunity::Lost]}}" value="{{Opportunity::Lost}}">
+                    <label for="minimal-radio-3">{{Opportunity::$status[Opportunity::Lost]}}</label>
+                    &nbsp;&nbsp;</div>
+                    <div class="radio radio-replace color-gold pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-2" name="Status_{{Opportunity::$status[Opportunity::Open]}}" value="{{Opportunity::Open}}">
+                    <label for="minimal-radio-2">{{Opportunity::$status[Opportunity::Open]}}</label>
+                    &nbsp;&nbsp;</div>
+                  <div class="radio radio-replace color-green pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-1" name="Status_{{Opportunity::$status[Opportunity::Won]}}" value="{{Opportunity::Won}}" checked>
+                    <label for="minimal-radio-1">{{Opportunity::$status[Opportunity::Won]}}</label>
+                    &nbsp;&nbsp;</div>
                 </li>
               </ul>
               <div class="pull-left">
@@ -178,5 +178,6 @@
 .forecase_title{padding:10px 15px !important;}
 .form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
 .form-group-padding-none{padding-top:6px !important;}
+.radio-replace{margin-right:3px;}
 </style>
 @stop

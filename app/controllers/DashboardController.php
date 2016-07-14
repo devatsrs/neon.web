@@ -267,31 +267,45 @@ class DashboardController extends BaseController {
 		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
 		$result 			= 	DB::select($query);
 		$TotalWorth			=	0;
-	
-		foreach($result as $result_data){			
+		Log::info($query);
+		foreach($result as $result_data){
 				$CurrencySign 			   = 	    isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';	
-				
 				if(isset($array_return['data'][$result_data->ClosingDate]))
 				{
 					$CcurrentDataWorth 			=	 $array_return['data'][$result_data->ClosingDate]['TotalWorth'];
 					$CcurrentDataOpportunites 	=	 $array_return['data'][$result_data->ClosingDate]['Opportunites'];
 					$CcurrentDataStatusStr 		=	 $array_return['data'][$result_data->ClosingDate]['StatusStr'];
-					$CcurrentDataStatusStr[]	=	array("Status"=>Opportunity::$status[Opportunity::$defaultSelectedStatus[$result_data->StatusSum]],"worth"=>$result_data->TotalWorth);	
 					
+					if(isset($CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]])){ 	
+					
+					 	$currentStatusdata = 	$CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]];
+						$CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]] = array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$currentStatusdata['worth']+$result_data->TotalWorth);						
+					}else{
+						$CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]]	=	array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$result_data->TotalWorth);	
+					}
 					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$CcurrentDataWorth+$result_data->TotalWorth,"Opportunites"=>$CcurrentDataOpportunites+1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$CcurrentDataStatusStr );
 				}
 				else
-				{ 		$StatusArray[0]  = array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$result_data->TotalWorth);
-					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$result_data->TotalWorth,"Opportunites"=>1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$StatusArray);				
+				{ 	$StatusArray = array();
+					$StatusArray[Opportunity::$status[$result_data->StatusSum]]  = array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$result_data->TotalWorth);
+					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$result_data->TotalWorth,"Opportunites"=>1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$StatusArray);			
 				}				
-				$TotalWorth 			   = 		$TotalWorth+(isset($result_data->TotalWorth)?$result_data->TotalWorth:0);
+				$TotalWorth 			   = 		$TotalWorth+$result_data->TotalWorth;
 		}
+		//Log::info($array_return);
 		$array_final = array();
-		foreach($array_return['data'] as $key => $array_return_data)
-		{
-			$array_final['data'][] = $array_return_data;
+		if(isset($array_return['data'])){ 
+			foreach($array_return['data'] as $key => $array_return_data){
+				$ArrStatus			= 	$array_return_data['StatusStr'];
+				$ArrChild			= 	array();
+				foreach($ArrStatus as $ArrStatusData){
+					$ArrChild[]	 = $ArrStatusData;
+				}
+				$array_return_data['StatusStr'] = 	$ArrChild;
+				$array_final['data'][] 			= 	$array_return_data;
+			}
 		}
-
+		
 		if(count($array_final)>0){					
 			$array_final['status'] 	   	   	   = 		'success';
 			$array_final['CurrencyCode'] 	   = 		isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';

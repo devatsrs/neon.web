@@ -18,8 +18,12 @@ class Opportunity extends \Eloquent {
 	
 	public static $defaultStatusCrmDashboard = [Opportunity::Won=>'Won'];
 
-    public static $status = [Opportunity::Open=>'Open',Opportunity::Won=>'Won',Opportunity::Lost=>'Lost',
-        Opportunity::Abandoned=>'Abandoned'];
+    public static $status = [
+	Opportunity::Won=>'Won',
+	Opportunity::Open=>'Open',
+	Opportunity::Lost=>'Lost',
+	Opportunity::Abandoned=>'Abandoned'
+	];
 
     public static function getOpportunityList($select=1){
         $companyID = User::get_companyID();
