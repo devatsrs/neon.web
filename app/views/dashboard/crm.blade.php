@@ -54,46 +54,58 @@
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
-      <div class="pull-right panel-box panel-options">     <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
-        <div class="panel-title">
+        <div id="Forecast" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+        <div class="panel-title forecase_title">
           <h1>Forecast</h1>
           <div class="forecastResult"></div>
         </div>
-        <div id="Forecast" class="panel-options">
+        <div id="Forecast" class="clear clearfix">
+          <div class="form_forecast">
           <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_forecast">
-          <div class="pull-left small-input first">
-           <label class="control-label" >Close Date</label>
-          </div>
-            <div class="pull-left small-input"> {{ Form::text('DateStart',$StartDateDefault, array("placeholder"=>"From", "id"=>"datestartid", "class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd"))}} </div>
+            <div class="form-group">
+              <div class="pull-left small-input first">
+                <label class="control-label" >Close Date</label>
+              </div>
+              <div class="pull-left small-input"> {{ Form::text('DateStart',$StartDateDefault, array("placeholder"=>"From", "id"=>"datestartid", "class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd"))}} </div>
+              <div class="pull-left small-input dash"> <label class="control-label" >&ndash;</label> </div>
+              <div class="pull-left small-input">{{ Form::text('DateEnd',$DateEndDefault, array( "placeholder"=>"To", "id"=>"dateendid","class"=>"form-control datepicker ","data-date-format"=>"yyyy-mm-dd"))}}</div>
+            </div>
+            <!-- -->
+            <div class="form-group">
+              <ul class="icheck-list">
+                <li>
+                  <div class="pull-left small-input status">
+                    <label class="control-label" >Status</label>
+                  </div>
+                  <div class="radio radio-replace color-primary pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-1" name="Status_{{Opportunity::$status[Opportunity::Won]}}" value="{{Opportunity::Won}}" checked>
+                    <label for="minimal-radio-1">{{Opportunity::$status[Opportunity::Won]}}</label>
+                    &nbsp;&nbsp;</div>
+                  <div class="radio radio-replace color-green pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-2" name="Status_{{Opportunity::$status[Opportunity::Open]}}" value="{{Opportunity::Open}}">
+                    <label for="minimal-radio-2">{{Opportunity::$status[Opportunity::Open]}}</label>
+                    &nbsp;&nbsp;</div>
+                  <div class="radio radio-replace color-blue pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-3" name="Status_{{Opportunity::$status[Opportunity::Lost]}}" value="{{Opportunity::Lost}}">
+                    <label for="minimal-radio-3">{{Opportunity::$status[Opportunity::Lost]}}</label>
+                    &nbsp;&nbsp;</div>
+                  <div class="radio radio-replace color-gold pull-left">
+                    <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-4" name="Status_{{Opportunity::$status[Opportunity::Abandoned]}}" value="{{Opportunity::Abandoned}}">
+                    <label for="minimal-radio-4">{{Opportunity::$status[Opportunity::Abandoned]}}</label>
+                  </div>
+                </li>
+              </ul>
+              <div class="pull-left">
+                <button type="submit" id="submit_forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+              </div>
+            </div>
+            <!-- -->
             
-            <div class="pull-left small-input dash">-</div>
-            
-            <div class="pull-left small-input">{{ Form::text('DateEnd',$DateEndDefault, array( "placeholder"=>"To", "id"=>"dateendid","class"=>"form-control datepicker ","data-date-format"=>"yyyy-mm-dd"))}}</div>
-             <div class="pull-left small-input status">
-           <label class="control-label" >Status</label>
-          </div>
-            <div class="pull-left"> {{Form::select('Status[]', Opportunity::$defaultStatusCrmDashboard, Opportunity::Won ,array("class"=>"select2","multiple"=>"multiple"))}}</div>
-            <div class="pull-left">
-              <button type="submit" id="submit_forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
             </div>
           </form>
+        </div>
       </div>
-      </div>
-      <div class="panel-body forecast-body"> 
-        <!--<form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_forecast">
-        <div class="clear clearfix margin-bottom"></div>
-          <div class="form-group">
-            <label  class="col-sm-2 control-label">Date</label>
-            <div class="col-sm-3"> {{ Form::text('DateStart',$StartDateDefault, array("placeholder"=>"From", "id"=>"datestartid", "class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd"))}}</div>
-            <label  class="col-sm-2 control-label">To</label>
-            <div class="col-sm-3"> {{ Form::text('DateEnd',$DateEndDefault, array( "placeholder"=>"To", "id"=>"dateendid","class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd"))}}</div>           
-            </div>
-          <div class="form-group">
-           <label  class="col-sm-2 control-label">Status</label>
-            <div class="col-sm-6">{{Form::select('Status[]', Opportunity::$status, Opportunity::Won ,array("class"=>"select2","multiple"=>"multiple"))}}</div>
-             <div class="col-sm-2"> <button id="submit_forecast" class="btn btn-primary" type="submit"> Submit </button></div>
-           </div>
-        </form>-->
+      <div class="panel-body forecast-body">
         <div class="text-center">
           <div id="crmdforecast1" class="crmdforecast"></div>
         </div>
@@ -157,10 +169,12 @@
 	padding:0px !important;
 	margin:0px !important;
 }
-.small-input{width: 15%; margin-right: 5px;}
+.small-input{ margin-right: 5px;}
 #submit_forecast{margin-left:5px;}
 #crm_dashboard_forecast .first{margin-left:5px;}
 #crm_dashboard_forecast .status{width:7%;}
-#crm_dashboard_forecast .dash{width:2%; margin-left:2px;}
+#crm_dashboard_forecast .dash{width:2%; margin-left:2px; margin-top:2px;}
+.form_forecast{ margin-left:30px;}
+.forecase_title{padding:10px 15px !important;}
 </style>
 @stop

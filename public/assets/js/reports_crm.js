@@ -128,14 +128,13 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 
 
 function GetForecastData(){
-	loadingUnload(".crmdforecast",1);	
+	loadingUnload(".crmdforecast",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var DateStart   = $("#crm_dashboard_forecast [name='DateStart']").val();
 	var DateEnd   	= $("#crm_dashboard_forecast [name='DateEnd']").val();	
-	var Status   	= $("#crm_dashboard_forecast [name='Status[]']").val(); 
-	
-	
+	var Status   	= $("#crm_dashboard_forecast input.statusCheckbox:checked").map(function() {  return this.value; }).get().join();
+
     $.ajax({
         type: 'POST',
         url: baseurl+'/dashboard/getforecastdata',

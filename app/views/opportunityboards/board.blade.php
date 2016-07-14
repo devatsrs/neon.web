@@ -1,9 +1,10 @@
 <div class="row">
-	<div class="col-sm-2">
+	<div class="col-sm-2 pull-left">
 		<div class="oppertunityworth">
-			<h4><strong> Worth: <?php echo $WorthTotal; ?></strong></h4>
+			<h4><strong>Worth: <?php echo !empty($WorthTotal)?$WorthTotal:0; ?></strong></h4>
 		</div>
 	</div>
+    <div class="col-sm-1 pull-right">@if(User::checkCategoryPermission('Opportunity','Add')) <a href="javascript:void(0)" class="btn btn-primary opportunity"> <i class="entypo-plus"></i> Add</a> @endif </div>
 </div>
 
 <ul class="board-inner no-select" id="deals-dashboard">

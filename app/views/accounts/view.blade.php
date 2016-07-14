@@ -2,7 +2,7 @@
 @extends('layout.main')
 @section('content')
 <div  style="min-height: 1050px;">
-  <ol class="breadcrumb bc-3">
+  <ol class="breadcrumb bc-3"> 
   @if($leadOrAccountCheck=='account')
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
     <li> <a href="{{URL::to('accounts')}}">Accounts</a> </li>
@@ -321,6 +321,25 @@
       <!-- -->
         <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
         <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
+                <div class="row" style="padding:9px 7px 0;">
+          <div class="col-sm-12">
+            <ul class="icheck-list">
+              <li><form id="form_timeline_filter">
+             <div class="pull-left">  <label >Show</label> &nbsp;&nbsp;&nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-primary pull-left">
+ <input class="icheck-11 timeline_filter" show_data="all" type="radio" id="minimal-radio-1" name="timeline_filter" checked>
+                <label for="minimal-radio-1">All</label> &nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-green pull-left"><input class="icheck-11 timeline_filter" show_data="timeline_note_entry" type="radio" id="minimal-radio-2" name="timeline_filter">
+                <label for="minimal-radio-2">Notes</label>&nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-blue pull-left"><input class="icheck-11 timeline_filter" show_data="timeline_task_entry" type="radio" id="minimal-radio-3" name="timeline_filter">
+                <label for="minimal-radio-3">Tasks</label>&nbsp;&nbsp;</div>
+                <div class="radio radio-replace color-gold pull-left"><input class="icheck-11 timeline_filter" show_data="timeline_mail_entry" type="radio" id="minimal-radio-4" name="timeline_filter">
+                <label for="minimal-radio-4">Emails</label></div>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
           @if(count($response_timeline)>0 && $message=='')
            <ul class="cbp_tmtimeline" id="timeline-ul">
           <li></li>
@@ -328,7 +347,7 @@
 			 // $rows = json_decode(json_encode($rows), True); //convert std array to simple array
 			   ?>
             @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Mail)
-            <li id="timeline-{{$key}}" class="count-li">
+            <li id="timeline-{{$key}}" class="count-li timeline_mail_entry">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>
@@ -381,7 +400,7 @@
               </div>
             </li>
             @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Tasks)
-            <li id="timeline-{{$key}}" class="count-li @if($rows['followup_task']) followup_task @endif">
+            <li id="timeline-{{$key}}" class="count-li timeline_task_entry @if($rows['followup_task']) followup_task @endif">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>
@@ -416,7 +435,7 @@
               </div>
             </li>
             @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Note)
-            <li id="timeline-{{$key}}" class="count-li">
+            <li id="timeline-{{$key}}" class="count-li timeline_note_entry">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
                 <span>Now</span>

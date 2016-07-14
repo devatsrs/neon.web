@@ -91,7 +91,7 @@
       </form>
     </div>
   </div>
-  <p style="text-align: right;"> @if(User::checkCategoryPermission('Opportunity','Add')) <a href="javascript:void(0)" class="btn btn-primary opportunity"> <i class="entypo-plus"></i> Add</a> @endif </p>
+  
   <section class="deals-board" >
     <div id="board-start" class="board" style="height: 600px;" > </div>
     <form id="cardorder" method="POST" />

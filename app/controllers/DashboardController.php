@@ -263,7 +263,7 @@ class DashboardController extends BaseController {
 		$array_return 		= 	array();
 		$StartDate			=	$data['DateStart']." 00:00:00";
 		$EndDate			=	$data['DateEnd']." 23:59:59";		
-		$statusarray		=	(isset($data['Status']) && is_array($data['Status']))?implode(",",($data['Status'])):'';
+		$statusarray		=	(isset($data['Status']))?$data['Status']:'';
 		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
 		$result 			= 	DB::select($query);
 		$TotalWorth			=	0;
