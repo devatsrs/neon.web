@@ -154,8 +154,10 @@ function GetForecastData(){
 	              crmdforecastdata[s] =
 					{
 					 'ClosingDate': dataObj.data[s].ClosingDate,
-					 'Worth': dataObj.data[s].Worth,	
-					 'CurrencyCode':dataObj.data[s].CurrencyCode		
+					 'Worth': dataObj.data[s].TotalWorth,	
+					 'CurrencyCode':dataObj.data[s].CurrencyCode,
+					 'Opportunites':dataObj.data[s].Opportunites,
+					 'StatusStr':dataObj.data[s].StatusStr
 					 }
 			}
 			Morris.Bar({
@@ -166,7 +168,15 @@ function GetForecastData(){
 			  barColors: ['#3399FF', '#333399'],
 			  labels: [''],
 				hoverCallback:function (index, options, content, row) {
-					return '<div class="morris-hover-row-label">'+row.CurrencyCode+row.Worth+'</div>'
+					var ReturnStr = '<div class="morris-hover-row-label"><div class="morris-hover-row-label">Opportunites : '+row.Opportunites+'</div><div class="morris-hover-row-label">Total Worth : '+row.Worth+'</div>';
+					if(row.StatusStr.length>0){
+						for(var loop=0;loop<row.StatusStr.length;loop++){							
+							ReturnStr += '<div class="crm_dashboard_'+row.StatusStr[loop].Status+' morris-hover-point">'+row.StatusStr[loop].Status +' : '+row.StatusStr[loop].worth+'</div>';							
+						}
+					}
+					
+					ReturnStr +='</div>';				
+					return ReturnStr;
 				}
 			});	
 			

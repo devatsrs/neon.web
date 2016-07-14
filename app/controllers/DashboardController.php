@@ -267,18 +267,37 @@ class DashboardController extends BaseController {
 		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
 		$result 			= 	DB::select($query);
 		$TotalWorth			=	0;
-		
-		foreach($result as $result_data){
+	
+		foreach($result as $result_data){			
 				$CurrencySign 			   = 	    isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';	
-				$array_return['data'][]    = 		array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign);
+				
+				if(isset($array_return['data'][$result_data->ClosingDate]))
+				{
+					$CcurrentDataWorth 			=	 $array_return['data'][$result_data->ClosingDate]['TotalWorth'];
+					$CcurrentDataOpportunites 	=	 $array_return['data'][$result_data->ClosingDate]['Opportunites'];
+					$CcurrentDataStatusStr 		=	 $array_return['data'][$result_data->ClosingDate]['StatusStr'];
+					$CcurrentDataStatusStr[]	=	array("Status"=>Opportunity::$status[Opportunity::$defaultSelectedStatus[$result_data->StatusSum]],"worth"=>$result_data->TotalWorth);	
+					
+					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$CcurrentDataWorth+$result_data->TotalWorth,"Opportunites"=>$CcurrentDataOpportunites+1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$CcurrentDataStatusStr );
+				}
+				else
+				{ 		$StatusArray[0]  = array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$result_data->TotalWorth);
+					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$result_data->TotalWorth,"Opportunites"=>1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$StatusArray);				
+				}				
 				$TotalWorth 			   = 		$TotalWorth+(isset($result_data->TotalWorth)?$result_data->TotalWorth:0);
 		}
-		if(count($array_return)>0){
-			$array_return['CurrencyCode'] 	   = 		isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';			
-			$array_return['status'] 	   	   = 		'success';
+		$array_final = array();
+		foreach($array_return['data'] as $key => $array_return_data)
+		{
+			$array_final['data'][] = $array_return_data;
 		}
-		$array_return['TotalWorth'] 	   = 		$TotalWorth;
-		return json_encode($array_return);
+
+		if(count($array_final)>0){					
+			$array_final['status'] 	   	   	   = 		'success';
+			$array_final['CurrencyCode'] 	   = 		isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';
+		}
+		$array_final['TotalWorth'] 	  		   = 		$TotalWorth;
+		return json_encode($array_final);
 	}
 
     public function ajax_get_recent_due_sheets(){

@@ -707,6 +707,7 @@ margin-left:0px;
      margin-left: 0px;
     margin-right: -10px;
     }
+	
 .deals-board {
 margin-top:10px;
 }
@@ -2076,5 +2077,18 @@ text-align:left
 }
 #main-menu li i{
 	font-size:16px !important;
+}
+
+.crm_dashboard_Open{
+	color:#fad839;
+}
+.crm_dashboard_Lost{
+	color:red;
+}
+.crm_dashboard_Won{
+	color:#00a651;	
+}
+.crm_dashboard_Abandoned{
+	color:#303641;
 }
 

@@ -62,7 +62,7 @@
         <div id="Forecast" class="clear clearfix">
           <div class="form_forecast">
           <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_forecast">
-            <div class="form-group">
+            <div class="form-group form-group-border-none">
               <div class="pull-left small-input first">
                 <label class="control-label" >Close Date</label>
               </div>
@@ -71,25 +71,25 @@
               <div class="pull-left small-input">{{ Form::text('DateEnd',$DateEndDefault, array( "placeholder"=>"To", "id"=>"dateendid","class"=>"form-control datepicker ","data-date-format"=>"yyyy-mm-dd"))}}</div>
             </div>
             <!-- -->
-            <div class="form-group">
+            <div class="form-group form-group-padding-none">
               <ul class="icheck-list">
                 <li>
                   <div class="pull-left small-input status">
                     <label class="control-label" >Status</label>
                   </div>
-                  <div class="radio radio-replace color-primary pull-left">
+                  <div class="radio radio-replace color-green pull-left">
                     <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-1" name="Status_{{Opportunity::$status[Opportunity::Won]}}" value="{{Opportunity::Won}}" checked>
                     <label for="minimal-radio-1">{{Opportunity::$status[Opportunity::Won]}}</label>
                     &nbsp;&nbsp;</div>
-                  <div class="radio radio-replace color-green pull-left">
+                  <div class="radio radio-replace color-gold pull-left">
                     <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-2" name="Status_{{Opportunity::$status[Opportunity::Open]}}" value="{{Opportunity::Open}}">
                     <label for="minimal-radio-2">{{Opportunity::$status[Opportunity::Open]}}</label>
                     &nbsp;&nbsp;</div>
-                  <div class="radio radio-replace color-blue pull-left">
+                  <div class="radio radio-replace color-red pull-left">
                     <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-3" name="Status_{{Opportunity::$status[Opportunity::Lost]}}" value="{{Opportunity::Lost}}">
                     <label for="minimal-radio-3">{{Opportunity::$status[Opportunity::Lost]}}</label>
                     &nbsp;&nbsp;</div>
-                  <div class="radio radio-replace color-gold pull-left">
+                  <div class="radio radio-replace color-primary pull-left">
                     <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-4" name="Status_{{Opportunity::$status[Opportunity::Abandoned]}}" value="{{Opportunity::Abandoned}}">
                     <label for="minimal-radio-4">{{Opportunity::$status[Opportunity::Abandoned]}}</label>
                   </div>
@@ -176,5 +176,7 @@
 #crm_dashboard_forecast .dash{width:2%; margin-left:2px; margin-top:2px;}
 .form_forecast{ margin-left:30px;}
 .forecase_title{padding:10px 15px !important;}
+.form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
+.form-group-padding-none{padding-top:6px !important;}
 </style>
 @stop
