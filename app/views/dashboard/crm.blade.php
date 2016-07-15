@@ -50,9 +50,9 @@
               <div class="pull-left small-input first">
                 <label class="control-label">Close Date</label>
               </div>
-                <div class="col-sm-8">                  
+                <div class="col-sm-4">                  
                   <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate" data-format="YYYY-MM-DD"  name="Closingdate" class="form-control">
-                </div>
+                </div> 
               </div>
               
               <!-- -->
