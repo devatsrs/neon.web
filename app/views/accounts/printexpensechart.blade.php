@@ -29,7 +29,7 @@
         <div class="col-sm-12">
             <div class="panel panel-primary panel-table loading">
                 <div class="panel-body">
-                    <div id="account_expense_bar_chart">
+                    <div id="account_expense_bar_chart" style="width: 1024px;height: 400px;">
                     </div>
                 </div>
             </div>
