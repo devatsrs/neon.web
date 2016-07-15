@@ -229,8 +229,10 @@
                                     }
 
                                     InvoiceOut_Amount = parseFloat(result[i]['InvoiceOut_Amount']).toFixed(roundplaces);
+                                    InvoiceOut_Amount = InvoiceOut_Amount > 0 ? InvoiceOut_Amount : '';
 
                                     InvoiceIn_Amount = parseFloat(result[i]['InvoiceIn_Amount']).toFixed(roundplaces);
+                                    InvoiceIn_Amount = InvoiceIn_Amount > 0 ? InvoiceIn_Amount : '';
 
                                     InvoiceIn_DisputeAmount = parseFloat(result[i]['InvoiceIn_DisputeAmount']).toFixed(roundplaces);
                                     InvoiceIn_DisputeAmount = InvoiceIn_DisputeAmount > 0 ? InvoiceIn_DisputeAmount : '';

@@ -28,14 +28,9 @@ class AccountStatementController extends \BaseController
         //4. Payment Sent
         // ----------------
 
-        $InvoiceOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $InvoiceOutWithPaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
         $result->nextRowset();
-        $PaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
-
-        $result->nextRowset();
-        $InvoiceIn = $result->fetchAll(PDO::FETCH_ASSOC);
-        $result->nextRowset();
-        $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $InvoiceInWithPaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
 
         //Totals
         $result->nextRowset();
@@ -75,9 +70,9 @@ class AccountStatementController extends \BaseController
         $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
 
 
-        $soa_result = array_map(function ($InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut) {
-            return array_merge((array)$InvoiceOut, (array)$PaymentIn, (array)$InvoiceIn, (array)$PaymentOut);
-        }, $InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut);
+        $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
+            return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
+        }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
 
         $output = [
             'result' => $soa_result,
