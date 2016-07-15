@@ -21,13 +21,15 @@ class OpportunityController extends \BaseController {
         $message = '';
         $columns = [];
         $columnsWithOpportunities = [];
+        $WorthTotal = 0;
         if($response['status']!='failed') {
             $columns = $response['data']['columns'];
             $columnsWithOpportunities = $response['data']['columnsWithOpportunities'];
+            $WorthTotal = $response['data']['WorthTotal'];
         }else{
             $message = json_response_api($response,false,false);
         }
-        return View::make('opportunityboards.board', compact('columns','columnsWithOpportunities','message'))->render();
+        return View::make('opportunityboards.board', compact('columns','columnsWithOpportunities','message','WorthTotal'))->render();
     }
 
     public function ajax_grid($id){

@@ -30,6 +30,17 @@
         cursor: pointer;
     }
 
+    .WorthBox{display:none;}
+    .oppertunityworth{
+        border-radius:5px;
+        border:2px solid #ccc;
+        background:#fff;
+        padding:0 0 0 6px;
+        margin-bottom:10px;
+        width:60%;
+        font-weight:bold;
+    }
+
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -88,6 +99,9 @@
                                     {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
 
+                                <label for="field-1" class="col-sm-1 control-label">Currency</label>
+                                <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}</div>
+
                                 <label class="col-sm-1 control-label">Close</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
@@ -113,12 +127,20 @@
             @if(User::checkCategoryPermission('Opportunity','Add'))
                 <a href="javascript:void(0)" class="btn btn-primary pull-right opportunity">
                     <i class="entypo-plus"></i>
-                    Add New Opportunity
+                    Add
                 </a>
             @endif
         </p>
 
         <section class="deals-board" >
+            <div class="row">
+                <div class="WorthBox col-sm-2 pull-left">
+                    <div class="oppertunityworth">
+                        <h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
+                    </div>
+                </div>
+            </div>
+
             <table class="table table-bordered datatable" id="opportunityGrid">
                 <thead>
                 <tr>
@@ -167,7 +189,8 @@
                 'Tags',
                 'Rating',
                 'TaggedUsers',
-                'Status'
+                'Status',
+                'Worth'
             ];
 
             @if(empty($message)){
@@ -177,7 +200,7 @@
                 toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
             }
             @endif;
-            var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
+            var readonly = ['Company','Phone','Email','Title','FirstName','LastName','Worth'];
             var BoardID = "{{$BoardID}}";
             var board = $('#board-start');
             var emailFileList     =    new Array();
@@ -206,7 +229,8 @@
                             {"name": "AccountID","value": $searchFilter.AccountID},
                             {"name": "Tags","value": $searchFilter.Tags},
                             {"name": "Status","value": $searchFilter.Status},
-                            {"name": "opportunityClosed","value": $searchFilter.opportunityClosed}
+                            {"name": "opportunityClosed","value": $searchFilter.opportunityClosed},
+                            {"name": "CurrencyID","value": $searchFilter.CurrencyID}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -651,6 +675,7 @@
                 $searchFilter.Tags = $("#search-opportunity-filter [name='Tags']").val();
                 $searchFilter.Status = $("#search-opportunity-filter [name='Status[]']").val();
                 $searchFilter.opportunityClosed = $("#search-opportunity-filter [name='opportunityClosed']").prop("checked");
+                $searchFilter.CurrencyID = $("#search-opportunity-filter select[name='CurrencyID']").val();
                 getOpportunities();
                 data_table.fnFilter('',0);
             }
@@ -664,6 +689,9 @@
                     dataType: 'html',
                     success: function (response) {
                         board.html(response);
+                        var worth_hidden = $('#Worth_hidden').val();
+                        $('.worth_add_box_ajax').html(worth_hidden);
+                        $('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();
@@ -919,6 +947,15 @@
                                     <label for="field-5" class="control-label col-sm-4">Tags</label>
                                     <div class="col-sm-8 input-group">
                                         <input class="form-control opportunitytags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Value</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" value="" name="Worth" type="number" >
                                     </div>
                                 </div>
                             </div>
