@@ -69,7 +69,7 @@
                                 @if(User::is_admin())
                                     <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
                                     <div class="col-sm-2">
-                                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                                        {{Form::select('AccountOwner',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                                     </div>
                                 @endif
                                 <label for="field-1" class="col-sm-1 control-label">Company</label>
@@ -646,7 +646,7 @@
 
             function getRecord(){
                 $searchFilter.opportunityName = $("#search-opportunity-filter [name='opportunityName']").val();
-                $searchFilter.AccountOwner = $("#search-opportunity-filter [name='account_owners']").val();
+                $searchFilter.AccountOwner = $("#search-opportunity-filter [name='AccountOwner']").val();
                 $searchFilter.AccountID = $("#search-opportunity-filter [name='AccountID']").val();
                 $searchFilter.Tags = $("#search-opportunity-filter [name='Tags']").val();
                 $searchFilter.Status = $("#search-opportunity-filter [name='Status[]']").val();
