@@ -1126,47 +1126,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $companyID = User::get_companyID();
-        $query = "call prc_getAccountExpense ('". $companyID  . "',  '". $data['AccountID']  . "')";
-        $ExpenseResult = DataTableSql::of($query, 'neon_report')->getProcResult(array('Expense','CustomerExpense','VendorExpense'));
-        $Expense = $ExpenseResult['data']['Expense'];
-        $CustomerExpense = $ExpenseResult['data']['CustomerExpense'];
-        $VendorExpense = $ExpenseResult['data']['VendorExpense'];
-        $ExpenseYear = array();
-        $previousyear = '';
-        $datacount = 0;
-        $customer = $vendor = $cat = array();
-        foreach($Expense as $ExpenseRow){
-            if($previousyear != $ExpenseRow->Year){
-                $previousyear = $ExpenseRow->Year;
-                $ExpenseYear[$previousyear]['CustomerTotal'] = $ExpenseRow->CustomerTotal;
-                $ExpenseYear[$previousyear]['VendorTotal'] = $ExpenseRow->VendorTotal;
-            }else{
-                $ExpenseYear[$previousyear]['CustomerTotal'] += $ExpenseRow->CustomerTotal;
-                $ExpenseYear[$previousyear]['VendorTotal'] += $ExpenseRow->VendorTotal;
-            }
-            $customer[$datacount] = $ExpenseRow->CustomerTotal;
-            $vendor[$datacount] = $ExpenseRow->VendorTotal;
-            $month = $ExpenseRow->Month<10 ? '0'.$ExpenseRow->Month:$ExpenseRow->Month;
-            $cat[$datacount] = $ExpenseRow->Year.'-'.$month;
-            $datacount++;
-
-        }
-        $ExpenseYearHTML = '';
-        if(!empty($ExpenseYear)) {
-            foreach ($ExpenseYear as $year => $total) {
-                $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
-            }
-        }else{
-            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
-        }
-
-        $response['customer'] =  implode(',',$customer);
-        $response['vendor'] = implode(',',$vendor);
-        $response['categories'] = implode(',',$cat);
-        $response['ExpenseYear'] = $ExpenseYearHTML;
-        $response['CustomerActivity'] = account_expense_table($CustomerExpense,'Customer');
-        $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
-
+        $response = Account::getActivityChartRepose($companyID,$data['AccountID']);
         return $response;
     }
     public function unbilledreport($id){
@@ -1185,6 +1145,41 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $query = "call prc_getUnbilledReport (?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
+    }
+
+    public function activity_pdf_download($id){
+
+        $CurrencySymbol = Account::getCurrency($id);
+        $account = Account::find($id);
+        $companyID = User::get_companyID();
+        $response = $response = Account::getActivityChartRepose($companyID,$id);
+
+        $body = View::make('accounts.printexpensechart',compact('id','CurrencySymbol','response'))->render();
+        $body = htmlspecialchars_decode($body);
+
+        $destination_dir = getenv('TEMP_PATH') . '/';
+        if (!file_exists($destination_dir)) {
+            mkdir($destination_dir, 0777, true);
+        }
+        $file_name = $account->AccountName.' Account Activity Chart '. date('d-m-Y') . '.pdf';
+        $htmlfile_name = $account->AccountName. ' Account Activity Chart ' . date('d-m-Y') . '.html';
+
+        $local_file = $destination_dir .  $file_name;
+        $local_htmlfile = $destination_dir .  $htmlfile_name;
+        file_put_contents($local_htmlfile,$body);
+
+        if(getenv('APP_OS') == 'Linux'){
+            exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --javascript-delay 5000 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+            Log::info(base_path(). '/wkhtmltox/bin/wkhtmltopdf --javascript-delay 5000"'.$local_htmlfile.'" "'.$local_file.'"',$output);
+
+        }else{
+            exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --javascript-delay 5000 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+            Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --javascript-delay 5000"'.$local_htmlfile.'" "'.$local_file.'"',$output);
+        }
+        Log::info($output);
+        @unlink($local_htmlfile);
+        $save_path = $destination_dir . $file_name;
+        return Response::download($save_path);
     }
 	
 	
