@@ -177,7 +177,6 @@ class AccountsController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            //$data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
 
             if ($account = Account::create($data)) {
                 if (trim(Input::get('Number')) == '') {
@@ -455,9 +454,7 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        //$data['AccountIP'] = implode(',',array_unique(explode(',',$data['AccountIP'])));
-        //$data['CustomerCLI'] = implode(',',array_unique(explode(',',$data['CustomerCLI'])));
-
+        
         if ($account->update($data)) {
             $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($id);
             $invoice_count = Account::getInvoiceCount($id);
