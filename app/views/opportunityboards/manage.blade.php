@@ -76,8 +76,10 @@
             </div>
             <div class="form-group">
               <label for="field-1" class="col-sm-1 control-label">Status</label>
-              <div class="col-sm-4"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-              <label class="col-sm-1 control-label">Close</label>
+              <div class="col-sm-4"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>             
+              	<label for="field-1" class="col-sm-1 control-label">Currency</label>
+              <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}</div>
+               <label class="col-sm-1 control-label">Close</label>
               <div class="col-sm-1">
                 <p class="make-switch switch-small">
                   <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
@@ -94,10 +96,6 @@
   </div>
   
   <section class="deals-board" >
-   <div class="row worth_add_box">
-  </div>
-  
-  
   <div class="row ">
 	<div class="WorthBox col-sm-2 pull-left">
 		<div class="oppertunityworth">

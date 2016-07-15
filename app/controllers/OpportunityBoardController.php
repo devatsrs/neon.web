@@ -38,8 +38,11 @@ class OpportunityBoardController extends \BaseController {
 
     public function manage($id){
         $message = '';
+        $companyID 			= 	User::get_companyID();
         $Board = CRMBoard::find($id);
         $account_owners = User::getUserIDList();
+        $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$currency 			= 	Currency::getCurrencyDropdownIDList();
         $where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -61,7 +64,7 @@ class OpportunityBoardController extends \BaseController {
         }
         $token    = get_random_number();
         $max_file_size = get_max_file_size();
-        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message'));
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message','DefaultCurrencyID','currency'));
     }
 
 	/**

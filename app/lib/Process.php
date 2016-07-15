@@ -107,4 +107,25 @@ class Process
         }
         return false;
     }
+
+    public function change_crontab_status($Status = 1){
+
+        if($Status == 0 ){
+            $command = 'service crond stop';
+        }else {
+            $command = 'service crond start';
+        }
+
+        $output = RemoteSSH::run([$command]);
+
+        $is_running = $this->check_crontab_status();
+
+        if(!$is_running &&  $Status == 0 ){
+            return true;
+        }
+        else if($is_running &&  $Status == 1 ){
+            return true;
+        }
+        return false;
+    }
 }

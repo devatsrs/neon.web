@@ -290,6 +290,7 @@ class CronJobController extends \BaseController {
             $success = run_process($command);
         }
         if($success){
+            CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => "Triggered by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
@@ -330,9 +331,31 @@ class CronJobController extends \BaseController {
         if(empty($CronJobID)){
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
         } else if(CronJob::find($CronJobID)->update(["Status"=>$Status])){
+            CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => $Status_to ));
         }else {
             return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));
+        }
+    }
+
+    /** Change Crontab Status
+     * @param $CronJobID
+     * @return mixed
+     */
+    public function change_crontab_status($Status=1){
+
+        if($Status == 0 ){
+            $Status_to = "Cron Tab Stopped";
+        }else {
+            $Status_to = "Cron Tab Started";
+        }
+        $Process = new Process();
+        $response = $Process->change_crontab_status($Status);
+
+        if($response){
+            return Response::json(array("status" => "success", "message" => $Status_to ));
+        }else {
+            return Response::json(array("status" => "failed", "message" => "Fail to change status of Cron Tab." ));
         }
     }
 }

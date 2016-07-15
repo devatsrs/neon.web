@@ -19,8 +19,10 @@ BEGIN
 		LastInvoiceDate DATE
 	);
 	
-	INSERT INTO tmp_Account_ (AccountID,LastInvoiceDate)
-	SELECT DISTINCT AccountID , fngetLastInvoiceDate(AccountID) FROM tblSummaryHeader;
+	INSERT INTO tmp_Account_ (AccountID)
+	SELECT DISTINCT tblSummaryHeader.AccountID  FROM tblSummaryHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryHeader.AccountID WHERE tblSummaryHeader.CompanyID = p_CompanyID;
+	
+	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
 	
 	SET v_pointer_ = 1;
 	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
