@@ -18,6 +18,12 @@
 </ol>
 @include('includes.errors')
 @include('includes.success')
+<p style="text-align: right;">
+    <a class="btn btn-primary print btn-sm btn-icon icon-left" type="button" href="{{URL::to('accounts/activity_pdf_download/'.$id)}}">
+        <i class="entypo-print"></i>
+        Print
+    </a>
+</p>
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-primary panel-table loading">

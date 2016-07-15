@@ -58,6 +58,20 @@ BEGIN
 	WHERE  sh.CompanyID = p_CompanyID
 	AND sh.AccountID = p_AccountID;
 	
+	INSERT INTO tmp_tblUsageSummary_
+	SELECT
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.AreaPrefix,
+		us.TotalCharges,
+		1 as Customer
+	FROM tblSummaryHeader sh
+	INNER JOIN tblUsageSummaryLive us
+		ON us.SummaryHeaderID = sh.SummaryHeaderID 
+	WHERE  sh.CompanyID = p_CompanyID
+	AND sh.AccountID = p_AccountID;
+	
 	/* insert vendor summary */
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
@@ -69,6 +83,20 @@ BEGIN
 		2 as Vendor
 	FROM tblSummaryVendorHeader sh
 	INNER JOIN tblUsageVendorSummary us
+		ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+	WHERE  sh.CompanyID = p_CompanyID
+	AND sh.AccountID = p_AccountID;
+	
+	INSERT INTO tmp_tblUsageSummary_
+	SELECT
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.AreaPrefix,
+		us.TotalCharges,
+		2 as Vendor
+	FROM tblSummaryVendorHeader sh
+	INNER JOIN tblUsageVendorSummaryLive us
 		ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
 	WHERE  sh.CompanyID = p_CompanyID
 	AND sh.AccountID = p_AccountID;

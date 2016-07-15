@@ -1,33 +1,21 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummaryLive`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
 BEGIN
 	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		-- ERROR
+		GET DIAGNOSTICS CONDITION 1
+		@p2 = MESSAGE_TEXT;
+	
+		SELECT @p2 as Message;
+		ROLLBACK;
+	END;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	CALL fnGetCountry(); 
 	CALL fnGetUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
-	/* used for success call summary
-	DROP TEMPORARY TABLE IF EXISTS tmp_UsageSummary;
-	CREATE TEMPORARY TABLE `tmp_UsageSummary` (
-		`DateID` BIGINT(20) NOT NULL,
-		`TimeID` INT(11) NOT NULL,
-		`CompanyID` INT(11) NOT NULL,
-		`CompanyGatewayID` INT(11) NOT NULL,
-		`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL,
-		`AccountID` INT(11) NOT NULL,
-		`Trunk` VARCHAR(50) NULL DEFAULT NULL ,
-		`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL ,
-		`TotalCharges` DOUBLE NULL DEFAULT NULL,
-		`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
-		`TotalDuration` INT(11) NULL DEFAULT NULL,
-		`NoOfCalls` INT(11) NULL DEFAULT '0',
-		`NoOfFailCalls` INT(11) NULL DEFAULT '0',
-		`FinalStatus` INT(11) NULL DEFAULT '0',
-		`CountryID` INT(11) NULL DEFAULT NULL,
-		INDEX `tblUsageSummary_dim_date` (`DateID`),
-		INDEX `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
-		INDEX `Unique_key` (`DateID`, `CompanyID`, `AccountID`, `GatewayAccountID`, `CompanyGatewayID`, `Trunk`, `AreaPrefix`)
-		
-	);*/
+	 
  	/* insert into success summary*/
  	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_UsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
@@ -56,6 +44,8 @@ BEGIN
 	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
 	SET tmp_UsageSummaryLive.CountryID =tblCountry.CountryID;
 	
+	START TRANSACTION;
+	
 	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_UsageSummaryLive us
@@ -69,6 +59,7 @@ BEGIN
 	AND us.AreaPrefix = sh.AreaPrefix
 	WHERE sh.SummaryHeaderID IS NULL
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
+	
 	
 	DELETE us FROM tblUsageSummaryLive us 
 	INNER JOIN tblSummaryHeader sh ON us.SummaryHeaderID = sh.SummaryHeaderID
@@ -104,4 +95,7 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix;
+	
+	COMMIT;
+	
 END
