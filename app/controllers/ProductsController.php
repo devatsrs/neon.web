@@ -90,16 +90,19 @@ class ProductsController extends \BaseController {
             $data = Input::all();
             $Product = Product::findOrFail($id);
             $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
+            if($roundplaces == 'Invalid Key'){
+                $roundplaces = 2;
+            }
 
             $companyID = User::get_companyID();
             $data["CompanyID"] = $companyID;
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data["ModifiedBy"] = User::get_user_full_name();
-            $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
 
             if($error = Product::validate($data)){
                 return $error;
             }
+            $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
             if ($Product->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Product Successfully Updated"));
             } else {

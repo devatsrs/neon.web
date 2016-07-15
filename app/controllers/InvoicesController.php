@@ -981,7 +981,9 @@ class InvoicesController extends \BaseController {
                 $status['status'] = 'failure';
             }else{
                 $status['status'] = "success";
-                $Invoice->update(['InvoiceStatus' => Invoice::SEND ]);
+                if($Invoice->InvoiceStatus != Invoice::PAID && $Invoice->InvoiceStatus != Invoice::PARTIALLY_PAID && $Invoice->InvoiceStatus != Invoice::CANCEL){
+                    $Invoice->update(['InvoiceStatus' => Invoice::SEND ]);
+                }
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Sent By '.$CreatedBy;
