@@ -48,7 +48,7 @@ function getPipleLineData(chart_type,submitdata){
 			
 			$('.PipeLineResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + " Oppurtunities </h3>");
            }else{
-                $('.crmdpipeline').html('NO DATA!!');
+                $('.crmdpipeline').html('No Data');
             }
 			
 		}
@@ -181,7 +181,7 @@ function GetForecastData(){
 			
 			$('.forecastResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Forecast"+"</h3>");
 	           	}else{
-                	$('.crmdforecast').html('<br><h3>NO DATA!!</h3>');
+                	$('.crmdforecast').html('<br><h4>No Data</h4>');
 					$('.forecastResult').html('');
             	}
 			 }else
