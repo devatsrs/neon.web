@@ -21,7 +21,7 @@ class AccountBalance extends \Eloquent {
 
     public static function getAccountSOA($CompanyID,$AccountID){
         $query = "call prc_getSOA (" . $CompanyID . "," . $AccountID . ",'','',0)";
-        $result = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('InvoiceOut','PaymentIn','InvoiceIn','PaymentOut','InvoiceOutAmountTotal','InvoiceOutDisputeAmountTotal','PaymentInAmountTotal','InvoiceInAmountTotal','InvoiceInDisputeAmountTotal','PaymentOutAmountTotal'));
+        $result = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('InvoiceOutWithPaymentIn','InvoiceInWithPaymentOut','InvoiceOutAmountTotal','InvoiceOutDisputeAmountTotal','PaymentInAmountTotal','InvoiceInAmountTotal','InvoiceInDisputeAmountTotal','PaymentOutAmountTotal'));
 
         $InvoiceOutAmountTotal = $result['data']['InvoiceOutAmountTotal'];
         $PaymentInAmountTotal = $result['data']['PaymentInAmountTotal'];
