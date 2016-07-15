@@ -163,21 +163,6 @@
                             {{Form::select('VerificationStatus', Account::$doc_status,Account::NOT_VERIFIED,array("class"=>"selectboxit",'disabled'=>'disabled'))}}
                              <input type="hidden" class="form-control"  name="VerificationStatus" value="{{Account::NOT_VERIFIED}}">
                         </div>
-                         <label for="field-1" class="col-sm-2 control-label">Authentication Rule</label>
-                        <div class="col-sm-4">
-                        <table class="table table-bordered datatable dataTable acountiptable ">
-                                                <thead>
-                                                <tr>
-
-                                                <th>IP</th><th>Action</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                                </table>
-                                                <a class="btn btn-primary  btn-sm btn-icon icon-left add-ip"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
-                            <input type="hidden" class="form-control"  name="AccountIP" id="field-1" placeholder="" value="" />
-                        </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Reseller</label>

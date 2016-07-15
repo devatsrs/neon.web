@@ -162,23 +162,10 @@
                     <div class="col-sm-4">
                         <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$account->Email}}" />
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">Secondary Email</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="SecondaryEmail" id="field-1" placeholder="" value="{{$account->SecondaryEmail}}" />
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Email</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{$account->BillingEmail}}" />
                     </div>
-
-                    <!--<label for="field-1" class="col-sm-2 control-label">Rate Email</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control" name="RateEmail" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{$account->RateEmail}" />
-                    </div>-->
-
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Active</label>
