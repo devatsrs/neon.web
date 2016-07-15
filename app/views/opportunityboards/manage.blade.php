@@ -146,7 +146,7 @@
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function ($) {
-            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
+            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status+[Opportunity::Close=>'Closed'])}}');
             var opportunity = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -205,7 +205,8 @@
                             {"name": "AccountOwner","value": $searchFilter.AccountOwner},
                             {"name": "AccountID","value": $searchFilter.AccountID},
                             {"name": "Tags","value": $searchFilter.Tags},
-                            {"name": "Status","value": $searchFilter.Status}
+                            {"name": "Status","value": $searchFilter.Status},
+                            {"name": "opportunityClosed","value": $searchFilter.opportunityClosed}
                     );
                 },
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -649,7 +650,7 @@
                 $searchFilter.AccountID = $("#search-opportunity-filter [name='AccountID']").val();
                 $searchFilter.Tags = $("#search-opportunity-filter [name='Tags']").val();
                 $searchFilter.Status = $("#search-opportunity-filter [name='Status[]']").val();
-                console.log($searchFilter);
+                $searchFilter.opportunityClosed = $("#search-opportunity-filter [name='opportunityClosed']").prop("checked");
                 getOpportunities();
                 data_table.fnFilter('',0);
             }
