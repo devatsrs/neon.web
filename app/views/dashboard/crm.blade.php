@@ -67,7 +67,8 @@
                 <label class="control-label">Close Date</label>
               </div>
                 <div class="col-sm-4">                  
-                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate" data-format="YYYY-MM-DD"  name="Closingdate" class="form-control">
+                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">                  
+                  
                 </div> 
               </div>
               
@@ -75,7 +76,7 @@
               <div class="form-group form-group-padding-none">
                 <ul class="icheck-list">
                   <li>
-                    <div class="pull-left small-input status">
+                    <div class="pull-left small-input first status">
                       <label class="control-label" >Status</label>
                     </div>
                     <div class="radio radio-replace color-blue pull-left">
@@ -86,7 +87,7 @@
                       <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-3" name="Status_{{Opportunity::$status[Opportunity::Lost]}}" value="{{Opportunity::Lost}}">
                       <label for="minimal-radio-3">{{Opportunity::$status[Opportunity::Lost]}}</label>
                       &nbsp;&nbsp;</div>
-                    <div class="radio radio-replace color-gold pull-left">
+                    <div class="radio radio-replace color-purple pull-left">
                       <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-2" name="Status_{{Opportunity::$status[Opportunity::Open]}}" value="{{Opportunity::Open}}">
                       <label for="minimal-radio-2">{{Opportunity::$status[Opportunity::Open]}}</label>
                       &nbsp;&nbsp;</div>
@@ -166,14 +167,7 @@
             Highcharts.setOptions(Highcharts.theme);
             reloadCrmCharts('{{Config::get('app.pageSize')}}',$searchFilter);
         });
-		
-		$('#Closingdate').daterangepicker({   
-		locale: {
-             format: 'YYYY-MM-DD'
-           }
-}, function(start, end, label) {
-});
-    </script>
+	 </script>
 <style>
 .padding-none{
 	padding:0px !important;

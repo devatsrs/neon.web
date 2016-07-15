@@ -2080,7 +2080,7 @@ text-align:left
 }
 
 .crm_dashboard_Open{
-	color:#fad839;
+	color:#AC33FF;
 }
 .crm_dashboard_Lost{
 	color:red;
@@ -2092,3 +2092,9 @@ text-align:left
 	color:#0072bc;
 }
 
+.checkbox-replace.color-purple .cb-wrapper .checked, .radio-replace.color-purple .cb-wrapper .checked{
+background:#AC33FF none repeat scroll 0 0;
+}
+.checkbox-replace.color-purple .cb-wrapper, .radio-replace.color-purple .cb-wrapper{
+border:1px solid #AC33FF;
+}

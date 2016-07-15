@@ -1,11 +1,12 @@
 @extends('layout.main')
 @section('content')
 <style>
+	.WorthBox{display:none;}
 	.oppertunityworth{
 		border-radius:5px;
 		border:2px solid #ccc;
 		background:#fff;
-		padding:5px;
+		padding:0 0 0 6px;
 		margin-bottom:10px;
 		width:60%;
 		font-weight:bold;
@@ -93,6 +94,20 @@
   </div>
   
   <section class="deals-board" >
+   <div class="row worth_add_box">
+  </div>
+  
+  
+  <div class="row ">
+	<div class="WorthBox col-sm-2 pull-left">
+		<div class="oppertunityworth">
+			<h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
+		</div>
+	</div>
+    <div class="col-sm-1 pull-right">@if(User::checkCategoryPermission('Opportunity','Add')) <a href="javascript:void(0)" class="btn btn-primary opportunity"> <i class="entypo-plus"></i> Add</a> @endif </div>
+</div>
+  
+  
     <div id="board-start" class="board" style="height: 600px;" > </div>
     <form id="cardorder" method="POST" />
     
@@ -509,6 +524,9 @@
                     dataType: 'html',
                     success: function (response) {						
                         board.html(response);
+						var worth_hidden = $('#Worth_hidden').val();
+						$('.worth_add_box_ajax').html(worth_hidden);
+						$('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();

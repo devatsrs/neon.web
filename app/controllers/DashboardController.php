@@ -169,81 +169,43 @@ class DashboardController extends BaseController {
 		$UserID 			= 	User::get_userID();
 		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
 		$users			 	= 	User::getUserIDList();
-		$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
-		$DateEndDefault  	= 	date('m/d/Y');
+		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
+		//$DateEndDefault  	= 	date('m/d/Y');
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('Y-m-d');
 		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault'));	
 	}
 	
-	public function GetUsersTasks(){
-		
-	    $data 					= 	Input::all();		
-		$companyID			 	= 	User::get_companyID();
-		$SearchDate				=	'';
-		
-		$where['taskClosed']	=	0;
-		$task 					= 	Task::where($where)->select(['tblTask.Subject','tblTask.DueDate','tblCRMBoardColumn.BoardColumnName as Status','tblAccount.AccountName as Company','tblTask.Priority']);
-		
-		
-		$UserID			=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
-		if(!empty($UserID)){
-			$task->whereRaw('find_in_set(tblTask.UsersIDs,"'.$UserID.'")');
-		}		
-
-		if(isset($data['TaskTypeData']) && $data['TaskTypeData']!=''){
-		 if($data['TaskTypeData'] == 'duetoday'){
-			 $task->where("tblTask.DueDate","=",DB::raw(''.date('Y-m-d')).'');
-		 }
-		 else if($data['TaskTypeData'] == 'duesoon'){
-			 $task->whereBetween('tblTask.DueDate',array(date("Y-m-d"),date("Y-m-d",strtotime(''.date('Y-m-d').' +1 months'))));						
-		 }
-		 else if($data['TaskTypeData'] == 'overdue'){
-			$task->where("tblTask.DueDate","<",DB::raw(''.date('Y-m-d')).'');			
-		 }
-		 if($data['TaskTypeData'] != 'All'){
-			$task->where("tblTask.DueDate","!=",DB::raw("'0000-00-00 00:00:00'")); 			 
-		 }		 
+	public function GetUsersTasks(){		
+	     $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetUsersTasks',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
 		}
-				
-		$task->join('tblCRMBoardColumn', 'tblTask.BoardColumnID', '=', 'tblCRMBoardColumn.BoardColumnID');
-		
-		$task->join('tblAccount', 'tblTask.AccountIDs', '=', 'tblAccount.AccountID');
-		
-        $UserTasks 		 	 	= 	$task->orderBy('tblTask.DueDate', 'desc')->get();
-		
-        $jsondata['UserTasks']	=	$UserTasks;
-		return json_encode($jsondata);
 	}
 	
 	function GetPipleLineData(){
-        $companyID 			= 	User::get_companyID();
-        $userID 			= 	'';
-        $isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
-        $data 				= 	Input::all();
-		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
-		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
-		$array_return 		= 	array("TotalOpportunites"=>0,"TotalWorth"=>0);
-		$array_status 		= 	array();
-		$statusarray 		=	implode(",", array(Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned));
-		$query  			= 	"call prc_GetCrmDashboardPipeLine (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."')";
-		$result 			= 	DB::select($query);
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetPipleLineData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
 		
-			foreach($result as $result_data){
-				$array_status[$result_data->Status] = array("Worth"=>$result_data->TotalWorth,"Opportunites"=>$result_data->TotalOpportunites);
-			}
-			foreach(Opportunity::$status as $index => $status_text){		
-				$array_return['CurrencyCode'] 	= 	isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';		
-				$array_return['data'][$index] = isset($array_status[$index])?array("status"=>$status_text,"Worth"=>$array_status[$index]["Worth"],"Opportunites"=>$array_status[$index]["Opportunites"],"CurrencyCode"=>$array_return['CurrencyCode']): array("status"=>$status_text,"Worth"=>0,"Opportunites"=>0,"CurrencyCode"=>$array_return['CurrencyCode']);
-				
-				$array_return['TotalOpportunites'] 			=   $array_return['TotalOpportunites']+(isset($array_status[$index]["Opportunites"])?$array_status[$index]["Opportunites"]:0);
-				
-				$array_return['TotalWorth'] 	= 	$array_return['TotalWorth']+(isset($array_status[$index]['Worth'])?$array_status[$index]['Worth']:0);	
-			}
-		
-		
-		return json_encode($array_return);
-	}
+     }
 	
 	public function GetForecastData(){ //crm dashboard
+	
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetForecastData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
 			
         $companyID 			= 	User::get_companyID();
         $userID 			= 	'';

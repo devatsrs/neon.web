@@ -167,7 +167,7 @@ function GetForecastData(){
 			  barColors: ['#3399FF', '#333399'],
 			  labels: [''],
 				hoverCallback:function (index, options, content, row) {
-					var ReturnStr = '<div class="morris-hover-row-label"><div class="morris-hover-row-label">Opportunities(s) : '+row.Opportunites+'</div><div class="morris-hover-row-label">Total Worth : '+row.Worth+'</div>';
+					var ReturnStr = '<div class="morris-hover-row-label"><div class="morris-hover-row-label">Opportunities : '+row.Opportunites+'</div><div class="morris-hover-row-label">Total Worth : '+row.CurrencyCode+row.Worth+'</div>';
 					if(row.StatusStr.length>0){
 						for(var loop=0;loop<row.StatusStr.length;loop++){							
 							ReturnStr += '<div class="crm_dashboard_'+row.StatusStr[loop].Status+' morris-hover-point">'+row.StatusStr[loop].Status +' : '+row.CurrencyCode+row.StatusStr[loop].worth+'</div>';							
