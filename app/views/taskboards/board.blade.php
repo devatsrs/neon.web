@@ -19,7 +19,7 @@
                         $date = '';
                         $badgeClass = '';
                         $seconds = '';
-                        if($task['DueDate']!='0000-00-00'){
+                        if($task['DueDate']!='0000-00-00' && !empty($task['DueDate'])){
                             $dateyear=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate']))->year;
                             $datediff=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffInDays();
                             $datediffhuman=\Carbon\Carbon::createFromTimeStamp(strtotime($task['DueDate'].' '.$task['StartTime']))->diffForHumans();
