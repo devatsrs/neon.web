@@ -46,7 +46,7 @@ function getPipleLineData(chart_type,submitdata){
 				}
 			});	
 			
-			$('.PipeLineResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + " Opportunities </h3>");
+			$('.PipeLineResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + " Oppurtunities </h3>");
            }else{
                 $('.crmdpipeline').html('NO DATA!!');
             }
@@ -131,15 +131,14 @@ function GetForecastData(){
 	loadingUnload(".crmdforecast",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
-	var DateStart   = $("#crm_dashboard_forecast [name='DateStart']").val();
-	var DateEnd   	= $("#crm_dashboard_forecast [name='DateEnd']").val();	
+	var Closingdate   = $("#crm_dashboard_forecast [name='Closingdate']").val();
 	var Status   	= $("#crm_dashboard_forecast input.statusCheckbox:checked").map(function() {  return this.value; }).get().join();
 
     $.ajax({
         type: 'POST',
         url: baseurl+'/dashboard/getforecastdata',
         dataType: 'html',
-        data:{CurrencyID:CurrencyID,UsersID:UsersID,DateStart:DateStart,DateEnd:DateEnd,Status:Status},
+        data:{CurrencyID:CurrencyID,UsersID:UsersID,Closingdate:Closingdate,Status:Status},
         aysync: true,
         success: function(data11) {
 			$('#crmdforecast1').html('');
@@ -168,10 +167,10 @@ function GetForecastData(){
 			  barColors: ['#3399FF', '#333399'],
 			  labels: [''],
 				hoverCallback:function (index, options, content, row) {
-					var ReturnStr = '<div class="morris-hover-row-label"><div class="morris-hover-row-label">Opportunite(s) : '+row.Opportunites+'</div><div class="morris-hover-row-label">Total Worth : '+row.Worth+'</div>';
+					var ReturnStr = '<div class="morris-hover-row-label"><div class="morris-hover-row-label">Opportunities(s) : '+row.Opportunites+'</div><div class="morris-hover-row-label">Total Worth : '+row.Worth+'</div>';
 					if(row.StatusStr.length>0){
 						for(var loop=0;loop<row.StatusStr.length;loop++){							
-							ReturnStr += '<div class="crm_dashboard_'+row.StatusStr[loop].Status+' morris-hover-point">'+row.StatusStr[loop].Status +' : '+row.StatusStr[loop].worth+'</div>';							
+							ReturnStr += '<div class="crm_dashboard_'+row.StatusStr[loop].Status+' morris-hover-point">'+row.StatusStr[loop].Status +' : '+row.CurrencyCode+row.StatusStr[loop].worth+'</div>';							
 						}
 					}
 					
@@ -207,7 +206,7 @@ function GetUsersTasks(){
         success: function (response) {
             var accounts 	= 	response.UserTasks;
             html 			= 	'';
-            table.parents('.panel-primary').find('.panel-title h3').html('My Active Tasks ('+accounts.length+')');
+            table.parents('.panel-primary').find('.panel-title h3').html('Active Tasks ('+accounts.length+')');
             table.find('tbody').html('');
             if(accounts.length > 0){
                 for (i = 0; i < accounts.length; i++) {

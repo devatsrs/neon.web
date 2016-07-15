@@ -168,9 +168,9 @@ class DashboardController extends BaseController {
 		$currency 			= 	Currency::getCurrencyDropdownIDList();
 		$UserID 			= 	User::get_userID();
 		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
-		$users			 	= 	User::getUserIDList();	
-		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
-		$DateEndDefault  	= 	date('Y-m-d');
+		$users			 	= 	User::getUserIDList();
+		$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('m/d/Y');
 		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault'));	
 	}
 	
@@ -250,10 +250,9 @@ class DashboardController extends BaseController {
         $isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
         $data 				= 	Input::all();		
 		$rules = array(
-            'DateStart' =>      'required',
-            'DateEnd' =>  'required',           
+            'Closingdate' =>      'required',                 
         );
-		$message	 = array("DateStart.required"=> "Start Date field is required.","DateEnd.required"=> "End Date field is required.");
+		$message	 = array("Closingdate.required"=> "Close Date field is required.");
         $validator   = Validator::make($data, $rules,$message);
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -261,8 +260,9 @@ class DashboardController extends BaseController {
 		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
 		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
 		$array_return 		= 	array();
-		$StartDate			=	$data['DateStart']." 00:00:00";
-		$EndDate			=	$data['DateEnd']." 23:59:59";		
+		$Closingdate		=	explode(' - ',$data['Closingdate']);
+		$StartDate			=   date("Y-m-d",strtotime($Closingdate[0]))." 00:00:00";
+		$EndDate			=	date("Y-m-d",strtotime($Closingdate[1]))." 23:59:59";		
 		$statusarray		=	(isset($data['Status']))?$data['Status']:'';
 		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
 		$result 			= 	DB::select($query);
