@@ -267,7 +267,6 @@ class DashboardController extends BaseController {
 		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
 		$result 			= 	DB::select($query);
 		$TotalWorth			=	0;
-		Log::info($query);
 		foreach($result as $result_data){
 				$CurrencySign 			   = 	    isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';	
 				if(isset($array_return['data'][$result_data->ClosingDate]))
