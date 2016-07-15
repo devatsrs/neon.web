@@ -35,7 +35,7 @@
 </form>
 @endif
 <div class="row">
-<div class="col-md-6">
+<div class="col-md-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div id="Forecast" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
@@ -96,7 +96,7 @@
     </div>
     <div class="panel-body forecast-body"> </div>
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div class="panel-title">
