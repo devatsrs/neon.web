@@ -60,15 +60,18 @@ class ProductsController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
+        if($roundplaces == 'Invalid Key'){
+            $roundplaces = 2;
+        }
         $data ["CompanyID"] = $companyID;
         $data['Active'] = isset($data['Active']) ? 1 : 0;
         $data["CreatedBy"] = User::get_user_full_name();
-        $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
 
         unset($data['ProductID']);
         if($error = Product::validate($data)){
             return $error;
         }
+        $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
         if (Product::create($data)) {
             return Response::json(array("status" => "success", "message" => "Payment Successfully Created"));
         } else {
