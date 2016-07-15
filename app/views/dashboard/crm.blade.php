@@ -35,6 +35,22 @@
 </form>
 @endif
 <div class="row">
+<div class="col-sm-12">
+    <div class="panel panel-primary panel-table">
+      <div class="panel-heading">
+        <div class="panel-title">
+          <h1>Pipeline Summary</h1>
+          <div class="PipeLineResult"></div>
+        </div>
+        <div id="Pipeline" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
+      </div>
+      <div class="panel-body">
+        <div class="text-center">
+          <div id="crmdpipeline1" class="crmdpipeline"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 <div class="col-md-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
@@ -95,22 +111,6 @@
       </div>
     </div>
     <div class="panel-body forecast-body"> </div>
-  </div>
-  <div class="col-sm-12">
-    <div class="panel panel-primary panel-table">
-      <div class="panel-heading">
-        <div class="panel-title">
-          <h1>Pipeline Summary</h1>
-          <div class="PipeLineResult"></div>
-        </div>
-        <div id="Pipeline" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
-      </div>
-      <div class="panel-body">
-        <div class="text-center">
-          <div id="crmdpipeline1" class="crmdpipeline"></div>
-        </div>
-      </div>
-    </div>
   </div>
   
 </div>
