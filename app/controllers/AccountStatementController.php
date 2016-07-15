@@ -74,6 +74,41 @@ class AccountStatementController extends \BaseController
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
         }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
 
+        /**
+         * Cleanup duplicate Invoice against multiple payments against single Invoice
+         */
+        $InvoiceOut_InvoiceNo = array();
+        foreach($soa_result  as  $index => $soa_result_row){
+
+            if(!empty($soa_result[$index]["InvoiceOut_InvoiceNo"]) ){
+
+                if(!in_array($soa_result[$index]["InvoiceOut_InvoiceNo"] ,$InvoiceOut_InvoiceNo)){
+                    $InvoiceOut_InvoiceNo[] = $soa_result[$index]["InvoiceOut_InvoiceNo"];
+
+                }else{
+                    $soa_result[$index]["InvoiceOut_InvoiceNo"] = "";
+                    $soa_result[$index]["InvoiceOut_PeriodCover"] = "";
+                    $soa_result[$index]["InvoiceOut_Amount"] = "";
+                }
+            }
+        }
+        $InvoiceIn_InvoiceNo = array();
+        foreach($soa_result  as  $index => $soa_result_row){
+
+            if(!empty($soa_result[$index]["InvoiceIn_InvoiceNo"]) ){
+
+                if(!in_array($soa_result[$index]["InvoiceIn_InvoiceNo"] ,$InvoiceIn_InvoiceNo)){
+                    $InvoiceIn_InvoiceNo[] = $soa_result[$index]["InvoiceIn_InvoiceNo"];
+
+                }else{
+                    $soa_result[$index]["InvoiceIn_InvoiceNo"] = "";
+                    $soa_result[$index]["InvoiceIn_PeriodCover"] = "";
+                    $soa_result[$index]["InvoiceIn_Amount"] = "";
+                }
+            }
+        }
+
+
         $output = [
             'result' => $soa_result,
             'InvoiceOutAmountTotal' => number_format($InvoiceOutAmountTotal, $roundplaces),
