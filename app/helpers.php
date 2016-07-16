@@ -19,7 +19,7 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
         $isArray = true;
     }
 
-    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+    if(($isArray && $response['status'] =='failed') || (!$isArray && $response->status=='failed')) {
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
             foreach ($validator as $index => $error) {
@@ -44,7 +44,8 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
     }
 
     if($isBrowser){
-        if($isArray && isset($response['Code']) && $response['Code'] ==401 || !$isArray && isset($response->Code) && $response->Code == 401){
+        if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
+
             return  Response::json(array("status" => $status, "message" => $message),401);
         }else {
             return Response::json(array("status" => $status, "message" => $message));
