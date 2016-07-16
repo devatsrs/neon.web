@@ -64,9 +64,9 @@ INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
+			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND ac.`Status` = 1
-			AND (p_CurrencyID = 0 OR ac.CurrencyId = p_CurrencyID)
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
 LEFT JOIN tblUser u on u.UserID = o.UserID
 ORDER BY
