@@ -168,7 +168,7 @@
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function ($) {
-            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status+[Opportunity::Close=>'Closed'])}}');
+            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
             var opportunity = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -190,7 +190,8 @@
                 'Rating',
                 'TaggedUsers',
                 'Status',
-                'Worth'
+                'Worth',
+                'OpportunityClosed'
             ];
 
             @if(empty($message)){
@@ -333,11 +334,6 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
-                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
-                                biuldSwicth('.make','#edit-opportunity-form','checked');
-                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
-                                biuldSwicth('.make','#edit-opportunity-form','');
-                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -348,6 +344,12 @@
                             elem.val(val).trigger('change');
                         }else if(opportunity[i]=='Tags'){
                             elem.val(val).trigger("change");
+                        }else if(opportunity[i]=='OpportunityClosed'){
+                            if(val==1){
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else{
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
                         }
                     }
                 }
