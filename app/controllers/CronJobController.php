@@ -62,40 +62,7 @@ class CronJobController extends \BaseController {
         }
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 * POST /cronjob
-	 *
-	 * @return Response
-	 */
-	public function store()
-	{
-		//
-	}
 
-	/**
-	 * Display the specified resource.
-	 * GET /cronjob/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 * GET /cronjob/{id}/edit
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
 
 	/**
 	 * Update the specified resource in storage.
@@ -203,7 +170,8 @@ class CronJobController extends \BaseController {
     }
 
     public function history($id){
-        return View::make('cronjob.history', compact('id'));
+        $JobTitle = CronJob::where("CronJobID",$id)->pluck("JobTitle");
+        return View::make('cronjob.history', compact('id','JobTitle'));
     }
     public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
@@ -254,7 +222,7 @@ class CronJobController extends \BaseController {
             }
         }
         $companyID = User::get_companyID();
-        $columns = array('PID','JobTitle','RunningTime','CronJobID','LastRunTime');
+        $columns = array('Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         return DataTableSql::of($query)->make();
@@ -296,8 +264,9 @@ class CronJobController extends \BaseController {
     public function cronjob_monitor(){
 
         $commands = CronJobCommand::getCommands();
-
-        return View::make('cronjob.cronjob_monitor', compact('commands'));
+        $Process = new Process();
+        $crontab_status = $Process->check_crontab_status();
+        return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status'));
 
     }
 
@@ -318,16 +287,11 @@ class CronJobController extends \BaseController {
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
             $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
-            if (getenv('APP_OS') == 'Linux') {
-                pclose(popen( $command . " &", "r"));
-                $success=true;
-            } else {
-                pclose(popen("start /B " . $command, "r"));
-                $success=true;
-            }
+            $success = run_process($command);
         }
         if($success){
-            return Response::json(array("status" => "success", "message" => "Cron Job is running triggered." ));
+            CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => "Triggered by " . User::get_user_full_name()]);
+            return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
         }
@@ -367,9 +331,31 @@ class CronJobController extends \BaseController {
         if(empty($CronJobID)){
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
         } else if(CronJob::find($CronJobID)->update(["Status"=>$Status])){
+            CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => $Status_to ));
         }else {
             return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));
+        }
+    }
+
+    /** Change Crontab Status
+     * @param $CronJobID
+     * @return mixed
+     */
+    public function change_crontab_status($Status=1){
+
+        if($Status == 0 ){
+            $Status_to = "Cron Tab Stopped";
+        }else {
+            $Status_to = "Cron Tab Started";
+        }
+        $Process = new Process();
+        $response = $Process->change_crontab_status($Status);
+
+        if($response){
+            return Response::json(array("status" => "success", "message" => $Status_to ));
+        }else {
+            return Response::json(array("status" => "failed", "message" => "Fail to change status of Cron Tab." ));
         }
     }
 }

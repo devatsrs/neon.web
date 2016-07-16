@@ -125,13 +125,13 @@
             @elseif(isset($job->JobStatusID) && $job->EmailSentStatus == 1 && $job->EmailSentStatusMessage == '')
                 Email sent successfully
             @else
-                {{$job->EmailSentStatusMessage}}
+                {{nl2br($job->EmailSentStatusMessage)}}
             @endif
             </div>
         </div>
         <div class="form-group">
             <label for="field-1" class="control-label col-sm-12 bold">Job Status Message</label>
-            <div class="col-sm-12" style="max-height: 200px; overflow-y: auto; overflow-x: hidden;">{{str_replace('\n\r','<br>',$job->JobStatusMessage)}}</div>
+            <div class="col-sm-12" style="max-height: 200px; overflow-y: auto; overflow-x: hidden;">{{str_replace('\n\r','<br>',nl2br($job->JobStatusMessage))}}</div>
         </div>
         @if($job->Type == 'Vendor Rate Upload')
             @if(isset($job_file->Options))

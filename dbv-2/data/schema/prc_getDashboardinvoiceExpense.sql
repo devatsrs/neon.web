@@ -1,8 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT)
 BEGIN
 	DECLARE v_Round_ int;
-
-
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_MonthlyTotalDue_;
@@ -22,7 +20,7 @@ BEGIN
 		CurrencyID int
 	);
 	SELECT cs.Value INTO v_Round_ 
-	FROM Ratemanagement3.tblCompanySetting cs 
+	FROM LocalRatemanagement.tblCompanySetting cs 
 	WHERE cs.`Key` = 'RoundChargesAmount' 
 		AND cs.CompanyID = p_CompanyID;
 
@@ -67,7 +65,7 @@ BEGIN
 		p.Amount,
 		ac.CurrencyId
 	FROM tblPayment p 
-	INNER JOIN Ratemanagement3.tblAccount ac 
+	INNER JOIN LocalRatemanagement.tblAccount ac 
 		ON ac.AccountID = p.AccountID
 	LEFT JOIN tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
 	LEFT JOIN tblInvoice inv on REPLACE(p.InvoiceNo,'-','') = CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber))) 
