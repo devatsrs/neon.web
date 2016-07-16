@@ -10,6 +10,7 @@ CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardF
 
 
 
+
 )
 BEGIN
 	DECLARE v_CurrencyCode_ VARCHAR(50);
@@ -34,6 +35,7 @@ Inner JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND (p_CurrencyID = '' OR ( p_CurrencyID != ''  and ac.CurrencyId = p_CurrencyID))
 where
 			 o.CompanyID = p_CompanyID
+			AND o.OpportunityClosed=1
 			AND (p_OwnerID = '' OR find_in_set(o.`UserID`,p_OwnerID))
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 			AND (ClosingDate between p_Start and p_End);
