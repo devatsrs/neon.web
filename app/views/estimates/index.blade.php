@@ -80,7 +80,7 @@
       <th width="10%">Estimate Number</th>
       <th width="15%">Issue Date</th>
       <th width="10%">Grand Total</th>
-      <th width="10%">Status</th>
+      <th width="10%">Estimate Status</th>
       <th width="20%">Action</th>
     </tr>
   </thead>

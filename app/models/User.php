@@ -28,8 +28,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      *
      * @var array
      */
-    protected $hidden = array('password','ResellerPassword');
-	
+    protected $hidden = array('password');
+
     public static function user_login($data = array()){
         if(!empty($data) && isset($data["email"]) && isset($data["password"]) ){
             Config::set('auth.model', 'Customer');
@@ -48,27 +48,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
         }
         return false;
-    }
-	
-	public static function reseller_login($data = array()){
-        if(!empty($data) && isset($data["ResellerEmail"]) && isset($data["ResellerPassword"]) ){		
-		    Config::set('auth.model', 'Reseller');
-            Config::set('auth.table', 'tblAccount');
-            $auth = Auth::createEloquentDriver();
-            Auth::setProvider($auth->getProvider());		
-			$Reseller_user 	= 	Reseller::where(array('ResellerEmail'=>$data['ResellerEmail'],'Status'=> 1,"IsReseller"=>1 ,"VerificationStatus"=> Account::VERIFIED))->first();			
-			if($Reseller_user){
-				if (Hash::check($data['ResellerPassword'], $Reseller_user->ResellerPassword)){
-					Auth::login($Reseller_user);
-					Session::set("reseller", 1 );
-					return true;
-				}
-			}			
-        }
-        return false;
 
     }
-	
+
 
     public static function checkPermission($resource, $abort = true) {
 
@@ -121,7 +103,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     public function getAuthPassword() {
         return $this->password;
     }
-	
+
     /**
      * Get the e-mail address where password reminders are sent.
      *
@@ -175,10 +157,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if($customer==1){
             return Customer::get_companyID();
         }
-		$reseller=Session::get('reseller');
-        if($reseller==1){
-            return Reseller::get_companyID();
-        }	
         return Auth::user()->CompanyID;
     }
 
@@ -187,10 +165,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if($customer==1){
             return Customer::get_accountID();
         }
-		$reseller=Session::get('reseller');
-        if($reseller==1){
-            return Reseller::get_accountID();
-        }	
         return Auth::user()->UserID;
     }
 
@@ -199,10 +173,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if($customer==1){
             return Customer::get_user_full_name();
         }
-		$reseller=Session::get('reseller');
-        if($reseller==1){
-            return Reseller::get_user_full_name();
-        }	
         return Auth::user()->FirstName.' '. Auth::user()->LastName;
 
     }
@@ -279,10 +249,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if($customer==1){
             return Customer::get_Email();
         }
-		$reseller=Session::get('reseller');
-        if($reseller==1){
-            return Reseller::get_Email();
-        }	
         return Auth::user()->EmailAddress;
     }
 
@@ -367,10 +333,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if($customer==1){
             return Customer::get_currentUser();
         }
-		$reseller=Session::get('reseller');
-        if($reseller==1){
-            return Reseller::get_currentUser();
-        }	
         return Auth::user();
     }
 
@@ -394,7 +356,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function checkCategoryPermission($resourcecontroller,$action)
-    { //print_r(Session::get('user_category_permission')); exit;
+    {
         if(user::is_admin()){
             return true;
         }elseif(Session::has('user_category_permission')) {

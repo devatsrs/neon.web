@@ -198,7 +198,6 @@ class DashboardController extends BaseController {
      }
 	
 	public function GetForecastData(){ //crm dashboard
-	
 		 $data 			= 	 Input::all();			
 		 $response 		= 	 NeonAPI::request('dashboard/GetForecastData',$data,true);
 		  if($response->status=='failed'){
@@ -206,73 +205,6 @@ class DashboardController extends BaseController {
 		}else{
 			return $response->data;
 		}
-			
-        $companyID 			= 	User::get_companyID();
-        $userID 			= 	'';
-        $isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
-        $data 				= 	Input::all();		
-		$rules = array(
-            'Closingdate' =>      'required',                 
-        );
-		$message	 = array("Closingdate.required"=> "Close Date field is required.");
-        $validator   = Validator::make($data, $rules,$message);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }		
-		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):'';
-		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
-		$array_return 		= 	array();
-		$Closingdate		=	explode(' - ',$data['Closingdate']);
-		$StartDate			=   date("Y-m-d",strtotime($Closingdate[0]))." 00:00:00";
-		$EndDate			=	date("Y-m-d",strtotime($Closingdate[1]))." 23:59:59";		
-		$statusarray		=	(isset($data['Status']))?$data['Status']:'';
-		$query  			= 	"call prc_GetCrmDashboardForecast (".$companyID.",'".$UserID."', '".$statusarray."','".$CurrencyID."','".$StartDate."','".$EndDate."')";
-		$result 			= 	DB::select($query);
-		$TotalWorth			=	0;
-		foreach($result as $result_data){
-				$CurrencySign 			   = 	    isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';	
-				if(isset($array_return['data'][$result_data->ClosingDate]))
-				{
-					$CcurrentDataWorth 			=	 $array_return['data'][$result_data->ClosingDate]['TotalWorth'];
-					$CcurrentDataOpportunites 	=	 $array_return['data'][$result_data->ClosingDate]['Opportunites'];
-					$CcurrentDataStatusStr 		=	 $array_return['data'][$result_data->ClosingDate]['StatusStr'];
-					
-					if(isset($CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]])){ 	
-					
-					 	$currentStatusdata = 	$CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]];
-						$CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]] = array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$currentStatusdata['worth']+$result_data->TotalWorth);						
-					}else{
-						$CcurrentDataStatusStr[Opportunity::$status[$result_data->StatusSum]]	=	array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$result_data->TotalWorth);	
-					}
-					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$CcurrentDataWorth+$result_data->TotalWorth,"Opportunites"=>$CcurrentDataOpportunites+1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$CcurrentDataStatusStr );
-				}
-				else
-				{ 	$StatusArray = array();
-					$StatusArray[Opportunity::$status[$result_data->StatusSum]]  = array("Status"=>Opportunity::$status[$result_data->StatusSum],"worth"=>$result_data->TotalWorth);
-					$array_return['data'][$result_data->ClosingDate]    = 		array("TotalWorth"=>$result_data->TotalWorth,"Opportunites"=>1,"ClosingDate"=>$result_data->ClosingDate,"CurrencyCode"=>$CurrencySign,'StatusStr'=>$StatusArray);			
-				}				
-				$TotalWorth 			   = 		$TotalWorth+$result_data->TotalWorth;
-		}
-		//Log::info($array_return);
-		$array_final = array();
-		if(isset($array_return['data'])){ 
-			foreach($array_return['data'] as $key => $array_return_data){
-				$ArrStatus			= 	$array_return_data['StatusStr'];
-				$ArrChild			= 	array();
-				foreach($ArrStatus as $ArrStatusData){
-					$ArrChild[]	 = $ArrStatusData;
-				}
-				$array_return_data['StatusStr'] = 	$ArrChild;
-				$array_final['data'][] 			= 	$array_return_data;
-			}
-		}
-		
-		if(count($array_final)>0){					
-			$array_final['status'] 	   	   	   = 		'success';
-			$array_final['CurrencyCode'] 	   = 		isset($result_data->v_CurrencyCode_)?$result_data->v_CurrencyCode_:'';
-		}
-		$array_final['TotalWorth'] 	  		   = 		$TotalWorth;
-		return json_encode($array_final);
 	}
 
     public function ajax_get_recent_due_sheets(){

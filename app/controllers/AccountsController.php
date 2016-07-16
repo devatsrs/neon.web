@@ -147,7 +147,6 @@ class AccountsController extends \BaseController {
             $data['AccountType'] = 1;
             $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
             $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
-			$data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
@@ -178,7 +177,6 @@ class AccountsController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            //$data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
 
             if ($account = Account::create($data)) {
                 if (trim(Input::get('Number')) == '') {
@@ -218,8 +216,7 @@ class AccountsController extends \BaseController {
     }
 
 	
-		public function show($id){
-		
+		public function show($id) {
 		
 		
 		
@@ -313,7 +310,7 @@ class AccountsController extends \BaseController {
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 
-          return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
 		}
 	
 	
@@ -397,12 +394,11 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $account = Account::find($id);
         Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
-        $message = $password = ""; $ResellerPassword = "";
+        $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
-		$data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
 
@@ -438,16 +434,6 @@ class AccountsController extends \BaseController {
                 $data['password']       = Hash::make($password);
             }
         }
-		
-		  if(empty($data['ResellerPassword'])){ /* if empty, dont update password */
-            unset($data['ResellerPassword']);
-        }else{
-            if($account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
-                /* Send mail to Customer */
-                $ResellerPassword      			= $data['ResellerPassword'];
-                $data['ResellerPassword']       = Hash::make($ResellerPassword);
-            }
-        }
         $data['Number'] = trim($data['Number']);
 
         if(Company::isBillingLicence()) {
@@ -468,9 +454,7 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        //$data['AccountIP'] = implode(',',array_unique(explode(',',$data['AccountIP'])));
-        $data['CustomerCLI'] = implode(',',array_unique(explode(',',$data['CustomerCLI'])));
-		
+        
         if ($account->update($data)) {
             $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($id);
             $invoice_count = Account::getInvoiceCount($id);
@@ -1085,51 +1069,6 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 		
 	}
-
-    public function addclis($id){
-        $data = Input::all();
-        $message = '';
-        $account = Account::find($id);
-
-        if(empty($data['clis'])){
-            return Response::json(array("status" => "error", "message" => " CLI required"));
-        }
-
-        $clis = preg_split("/\\r\\n|\\r|\\n/", $data['clis']);
-        $data['AccountID'] = $id;
-        $data['CustomerCLI'] = $clis;
-
-        $status = Account::validate_clis($data);
-        if(count($status['clisExist'])>0){
-            $iPsExist = implode('<br>',$status['clisExist']);
-            $message = ' and following CLIs already exist. '.$iPsExist;
-        }
-        unset($data['clis']);
-        unset($data['AccountID']);
-        if(count($status['toBeInsert'])>0){
-            $data['CustomerCLI'] = ltrim(implode(',',$status['toBeInsert']),',');
-            $account->update($data);
-            return Response::json(array("status" => "success","clis"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
-        }
-    }
-
-    public function delete_clis($id){
-        $data = Input::all();
-        $account = Account::find($id);
-        $postClis = explode(',',$data['clis']);
-        unset($data['clis']);
-        $ips = [];
-        if(!empty($account)){
-            $dbClis = explode(',', $account->CustomerCLI);
-            $clis = implode(',',array_diff($dbClis, $postClis));
-            $data['CustomerCLI'] = ltrim($clis,',');
-
-            $account->update($data);
-            return Response::json(array("status" => "success","clis"=> explode(',',$clis),"message" => "Account Successfully Updated"));
-        }else{
-            return Response::json(array("status" => "error","message" => "No Ip exist."));
-        }
-    }
 
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);

@@ -485,7 +485,6 @@ class PaymentsController extends \BaseController {
         $JobFileID = JobFile::insertGetId($jobfiledata);
         $UserID = User::get_userID();
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
-		Log::info("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
         $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
         $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
         $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';

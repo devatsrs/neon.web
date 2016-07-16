@@ -17,7 +17,7 @@ BEGIN
 	
 	SET v_BillingTime_ = IFNULL(v_BillingTime_,1);
 	
-  CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,p_UserID,p_isAdmin,v_BillingTime_,'','','',0,0); 
+  CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,p_UserID,p_isAdmin,v_BillingTime_,'','','',0); 
 
     IF p_isExport = 0
     THEN

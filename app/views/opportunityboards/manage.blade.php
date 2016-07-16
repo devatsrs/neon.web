@@ -1,16 +1,8 @@
 @extends('layout.main')
+
 @section('content')
 <style>
-	.WorthBox{display:none;}
-	.oppertunityworth{
-		border-radius:5px;
-		border:2px solid #ccc;
-		background:#fff;
-		padding:0 0 0 6px;
-		margin-bottom:10px;
-		width:60%;
-		font-weight:bold;
-	}
+
     .file-input-wrapper{
         height: 26px;
     }
@@ -38,86 +30,145 @@
         cursor: pointer;
     }
 
+    .WorthBox{display:none;}
+    .oppertunityworth{
+        border-radius:5px;
+        border:2px solid #ccc;
+        background:#fff;
+        padding:0 0 0 6px;
+        margin-bottom:10px;
+        width:60%;
+        font-weight:bold;
+    }
+
 </style>
 <div id="content">
-  <ol class="breadcrumb bc-3">
-    <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-    <li> <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a> </li>
-    <li class="active"> <strong>{{$Board->BoardName}}</strong> </li>
-  </ol>
-  <h3>Tasks</h3>
-  <div class="row">
-    <div class="col-md-12 clearfix"> </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
-        <div class="panel panel-primary" data-collapsed="0">
-          <div class="panel-heading">
-            <div class="panel-title"> Filter </div>
-            <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-          </div>
-          <div class="panel-body">
-            <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label">Name</label>
-              <div class="col-sm-2">
-                <input class="form-control" name="opportunityName"  type="text" >
-              </div>
-              @if(User::is_admin())
-              <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
-              <div class="col-sm-2"> {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}} </div>
-              @endif
-              <label for="field-1" class="col-sm-1 control-label">Company</label>
-              <div class="col-sm-2"> {{Form::select('AccountID',$leadOrAccount,Input::get('AccountID'),array("class"=>"select2"))}} </div>
-              <label for="field-1" class="col-sm-1 control-label">Tags</label>
-              <div class="col-sm-2">
-                <input class="form-control opportunitytags" name="Tags" type="text" >
-              </div>
+    <ol class="breadcrumb bc-3">
+        <li>
+            <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+        </li>
+        <li>
+            <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
+        </li>
+        <li class="active">
+            <strong>{{$Board->BoardName}}</strong>
+        </li>
+    </ol>
+    <h3>Opportunity</h3>
+        <div class="row">
+            <div class="col-md-12 clearfix">
             </div>
-            <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label">Status</label>
-              <div class="col-sm-4"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>             
-              	<label for="field-1" class="col-sm-1 control-label">Currency</label>
-              <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}</div>
-               <label class="col-sm-1 control-label">Close</label>
-              <div class="col-sm-1">
-                <p class="make-switch switch-small">
-                  <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
-                </p>
-              </div>
-            </div>
-            <p style="text-align: right;">
-              <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-            </p>
-          </div>
         </div>
-      </form>
-    </div>
-  </div>
-  
-  <section class="deals-board" >
-  <div class="row ">
-	<div class="WorthBox col-sm-2 pull-left">
-		<div class="oppertunityworth">
-			<h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
-		</div>
-	</div>
-    <div class="col-sm-1 pull-right">@if(User::checkCategoryPermission('Opportunity','Add')) <a href="javascript:void(0)" class="btn btn-primary opportunity"> <i class="entypo-plus"></i> Add</a> @endif </div>
-</div>
-  
-  
-    <div id="board-start" class="board" style="height: 600px;" > </div>
-    <form id="cardorder" method="POST" />
-    
-    <input type="hidden" name="cardorder" />
-    <input type="hidden" name="BoardColumnID" />
-    </form>
-  </section>
-  <script>
+        <div class="row">
+            <div class="col-md-12">
+                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                    <div class="panel panel-primary" data-collapsed="0">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Filter
+                            </div>
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Name</label>
+                                <div class="col-sm-2">
+                                    <input class="form-control" name="opportunityName"  type="text" >
+                                </div>
+                                @if(User::is_admin())
+                                    <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
+                                    <div class="col-sm-2">
+                                        {{Form::select('AccountOwner',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                                    </div>
+                                @endif
+                                <label for="field-1" class="col-sm-1 control-label">Company</label>
+                                <div class="col-sm-2">
+                                    {{Form::select('AccountID',$leadOrAccount,Input::get('AccountID'),array("class"=>"select2"))}}
+                                </div>
+                                <label for="field-1" class="col-sm-1 control-label">Tags</label>
+                                <div class="col-sm-2">
+                                    <input class="form-control opportunitytags" name="Tags" type="text" >
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-1 control-label">Status</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
+                                </div>
+
+                                <label for="field-1" class="col-sm-1 control-label">Currency</label>
+                                <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}</div>
+
+                                <label class="col-sm-1 control-label">Close</label>
+                                <div class="col-sm-1">
+                                    <p class="make-switch switch-small">
+                                        <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                    </p>
+                                </div>
+                            </div>
+                            <p style="text-align: right;">
+                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                    <i class="entypo-search"></i>
+                                    Search
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <p id="tools">
+            <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
+            @if(User::checkCategoryPermission('Opportunity','Add'))
+                <a href="javascript:void(0)" class="btn btn-primary pull-right opportunity">
+                    <i class="entypo-plus"></i>
+                    Add
+                </a>
+            @endif
+        </p>
+
+        <section class="deals-board" >
+            <div class="row">
+                <div class="WorthBox col-sm-2 pull-left">
+                    <div class="oppertunityworth">
+                        <h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-bordered datatable" id="opportunityGrid">
+                <thead>
+                <tr>
+                    <th width="25%" >Name</th>
+                    <th width="15%" >Status</th>
+                    <th width="20%">Assigned To</th>
+                    <th width="20%">Related To</th>
+                    <th width="10%" >Rating</th>
+                    <th width="10%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+                <div id="board-start" class="board" style="height: 600px;" >
+                </div>
+
+            <form id="cardorder" method="POST" />
+                <input type="hidden" name="cardorder" />
+                <input type="hidden" name="BoardColumnID" />
+            </form>
+        </section>
+    <script>
         var $searchFilter = {};
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function ($) {
+            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status+[Opportunity::Close=>'Closed'])}}');
             var opportunity = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -139,7 +190,7 @@
                 'Rating',
                 'TaggedUsers',
                 'Status',
-				'Worth' 
+                'Worth'
             ];
 
             @if(empty($message)){
@@ -166,19 +217,111 @@
                 board.perfectScrollbar('update');
             });
 
+            data_table = $("#opportunityGrid").dataTable({
+                "bDestroy": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": baseurl + "/opportunity/"+BoardID+"/ajax_opportunity_grid",
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                            {"name": "opportunityName", "value": $searchFilter.opportunityName},
+                            {"name": "AccountOwner","value": $searchFilter.AccountOwner},
+                            {"name": "AccountID","value": $searchFilter.AccountID},
+                            {"name": "Tags","value": $searchFilter.Tags},
+                            {"name": "Status","value": $searchFilter.Status},
+                            {"name": "opportunityClosed","value": $searchFilter.opportunityClosed},
+                            {"name": "CurrencyID","value": $searchFilter.CurrencyID}
+                    );
+                },
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[1, 'desc']],
+                "aoColumns": [
+                    {
+                        "bSortable": true, //Opportunity Name
+                        mRender: function (id, type, full) {
+                            return full[3];
+                            //return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[5]+'</div>';
+                        }
+                    },
+                    {
+                        "bSortable": true, //Status
+                        mRender: function (id, type, full) {
+                            return opportunitystatus[full[19]];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Assign To
+                        mRender: function (id, type, full) {
+                            return full[10];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Related To
+                        mRender: function (id, type, full) {
+                            return full[6];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Rating
+                        mRender: function (id, type, full) {
+                            return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[17]+'" />';
+                        }
+                    },
+                    {
+                        "bSortable": false, //action
+                        mRender: function (id, type, full) {
+                            action = '<div class = "hiddenRowData" >';
+                            for(var i = 0 ; i< opportunity.length; i++){
+                                action += '<input type = "hidden"  name = "' + opportunity[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                            }
+                            action += '</div>';
+                            @if(User::checkCategoryPermission('Task','Edit'))
+                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            @endif
+                            return action;
+                        }
+                    }
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                    ]
+                },
+                "fnDrawCallback": function () {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                    $(this)
+                    if($('#tools .active').hasClass('grid')){
+                        $('#opportunityGrid_wrapper').addClass('hidden');
+                        $('#opportunityGrid').addClass('hidden');
+                    }else{
+                        $('#opportunityGrid_wrapper').removeClass('hidden');
+                        $('#opportunityGrid').removeClass('hidden');
+                    }
+                    $('.knob').knob();
+                }
 
-            getOpportunities();
+            });
+
+
+            getRecord();
 
             $('#search-opportunity-filter').submit(function(e){
                 e.preventDefault();
-                getOpportunities();
+                getRecord();
             });
 
 
             @if(User::checkCategoryPermission('Opportunity','Edit'))
-            $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
                 e.stopPropagation();
-                var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                if($(this).is('a')){
+                    var rowHidden = $(this).prev('div.hiddenRowData');
+                }else {
+                    var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                }
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 for(var i = 0 ; i< opportunity.length; i++){
@@ -211,8 +354,20 @@
                 $('#edit-modal-opportunity h4').text('Edit Opportunity');
                 $('#edit-modal-opportunity').modal('show');
             });
-
             @endif
+            $('#tools .toggle').click(function(){
+                        if($(this).hasClass('list')){
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').addClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').removeClass('hidden');
+                        }else{
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').removeClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').addClass('hidden');
+                        }
+                    });
             @if(User::checkCategoryPermission('OpportunityComment','View'))
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
@@ -513,6 +668,18 @@
                 container.find('.make-switch').bootstrapSwitch();
             }
 
+            function getRecord(){
+                $searchFilter.opportunityName = $("#search-opportunity-filter [name='opportunityName']").val();
+                $searchFilter.AccountOwner = $("#search-opportunity-filter [name='AccountOwner']").val();
+                $searchFilter.AccountID = $("#search-opportunity-filter [name='AccountID']").val();
+                $searchFilter.Tags = $("#search-opportunity-filter [name='Tags']").val();
+                $searchFilter.Status = $("#search-opportunity-filter [name='Status[]']").val();
+                $searchFilter.opportunityClosed = $("#search-opportunity-filter [name='opportunityClosed']").prop("checked");
+                $searchFilter.CurrencyID = $("#search-opportunity-filter select[name='CurrencyID']").val();
+                getOpportunities();
+                data_table.fnFilter('',0);
+            }
+
             function getOpportunities(){
                 var formData = new FormData($('#search-opportunity-filter')[0]);
                 var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
@@ -520,11 +687,11 @@
                     url: url,  //Server script to process data
                     type: 'POST',
                     dataType: 'html',
-                    success: function (response) {						
+                    success: function (response) {
                         board.html(response);
-						var worth_hidden = $('#Worth_hidden').val();
-						$('.worth_add_box_ajax').html(worth_hidden);
-						$('.WorthBox').show();
+                        var worth_hidden = $('#Worth_hidden').val();
+                        $('.worth_add_box_ajax').html(worth_hidden);
+                        $('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();
@@ -656,135 +823,155 @@
                 {return 1;}else{return 0;}
             }
         });
-    </script> 
+    </script>
 </div>
 @include('opportunityboards.opportunitymodal')
 @stop
 @section('footer_ext')
     @parent
-<div class="modal fade" id="edit-modal-opportunity">
-  <div class="modal-dialog" style="width: 70%;">
-    <div class="modal-content">
-      <form id="edit-opportunity-form" method="post">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add New Opportunity</h4>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12 text-left">
-              <label for="field-5" class="control-label col-sm-2">Tag User</label>
-              <div class="col-sm-10">
-                <?php unset($account_owners['']); ?>
-                {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}} </div>
-            </div>
-            <div class="col-md-6 margin-top pull-left">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Account Owner *</label>
-                <div class="col-sm-8"> {{Form::select('UserID',$account_owners,'',array("class"=>"select2"))}} </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-right">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Opportunity Name *</label>
-                <div class="col-sm-8">
-                  <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-right">
-              <div class="form-group">
-                <label for="input-1" class="control-label col-sm-4">Rate This</label>
-                <div class="col-sm-8">
-                  <input type="text" class="knob" data-min="0" data-max="5" data-width="85" data-height="85" name="Rating" value="0" />
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top-group pull-left">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">First Name*</label>
-                <div class="col-sm-8">
-                  <div class="input-group" style="width: 100%;">
-                    <div class="input-group-addon" style="padding: 0px; width: 85px;">
-                      <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                      {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}} </div>
-                    <input type="text" name="FirstName" class="form-control" id="field-5">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-right">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Last Name*</label>
-                <div class="col-sm-8">
-                  <input type="text" name="LastName" class="form-control" id="field-5">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-left">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Company*</label>
-                <div class="col-sm-8">
-                  <input type="text" name="Company" class="form-control" id="field-5">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-right">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Phone Number</label>
-                <div class="col-sm-8">
-                  <input type="text" name="Phone" class="form-control" id="field-5">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-left">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Email Address*</label>
-                <div class="col-sm-8">
-                  <input type="text" name="Email" class="form-control" id="field-5">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top-group pull-right">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Status</label>
-                <div class="col-sm-8 input-group"> {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}} </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-left">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Select Board*</label>
-                <div class="col-sm-8"> {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}} </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top pull-right">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Tags</label>
-                <div class="col-sm-8 input-group">
-                  <input class="form-control opportunitytags" name="Tags" type="text" >
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top-group pull-left">
-              <div class="form-group">
-                <label for="field-5" class="control-label col-sm-4">Value</label>
-                <div class="col-sm-8">
-                  <input class="form-control" value="" name="Worth" type="number" >
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 margin-top-group pull-right">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">Close</label>
-                <div class="col-sm-8 make">
-                  <p class="make-switch switch-small">
-                    <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <!--<div class="col-md-6 margin-top-group pull-left">
+    <div class="modal fade" id="edit-modal-opportunity">
+        <div class="modal-dialog" style="width: 70%;">
+            <div class="modal-content">
+                <form id="edit-opportunity-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New Opportunity</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-md-12 text-left">
+                                <label for="field-5" class="control-label col-sm-2">Tag User</label>
+                                <div class="col-sm-10">
+                                    <?php unset($account_owners['']); ?>
+                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Account Owner *</label>
+                                    <div class="col-sm-8">
+                                        {{Form::select('UserID',$account_owners,'',array("class"=>"select2"))}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Opportunity Name *</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="OpportunityName" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="input-1" class="control-label col-sm-4">Rate This</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="knob" data-min="0" data-max="5" data-width="85" data-height="85" name="Rating" value="0" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">First Name*</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group" style="width: 100%;">
+                                            <div class="input-group-addon" style="padding: 0px; width: 85px;">
+                                                <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                            </div>
+                                            <input type="text" name="FirstName" class="form-control" id="field-5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Last Name*</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="LastName" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Company*</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Company" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Phone Number</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Phone" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Email Address*</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Email" class="form-control" id="field-5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Status</label>
+                                    <div class="col-sm-8 input-group">
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Select Board*</label>
+                                    <div class="col-sm-8">
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Tags</label>
+                                    <div class="col-sm-8 input-group">
+                                        <input class="form-control opportunitytags" name="Tags" type="text" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Value</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" value="" name="Worth" type="number" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Close</label>
+                                    <div class="col-sm-8 make">
+                                        <p class="make-switch switch-small">
+                                            <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Background</label>
                                     <div class="col-sm-7 input-group paddingright-0">
@@ -799,9 +986,9 @@
                                         </a>
                                     </div>
                                 </div>
-                            </div>--> 
-            
-            <!--<div class="col-md-6 margin-top-group pull-left">
+                            </div>-->
+
+                            <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Text Color</label>
                                     <div class="col-sm-7 input-group paddingright-0">
@@ -816,75 +1003,99 @@
                                         </a>
                                     </div>
                                 </div>
-                            </div>--> 
-          </div>
+                            </div>-->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="OpportunityID">
+                        <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="modal-footer">
-          <input type="hidden" name="OpportunityID">
-          <button type="submit" id="opportunity-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+    </div>
+
+    <div class="modal fade" id="add-view-modal-opportunity-comments" data-backdrop="static">
+        <div id="card-features-details" class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Opportunity Name</h4>
+                    </div>
+                    <div class="modal-body">
+                        @if(User::checkCategoryPermission('OpportunityComment','Add'))
+                        <form id="add-opportunity-comments-form" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <div class="col-md-12 text-left">
+                                    <h4>Add Comment</h4>
+                                </div>
+                                <div class="col-md-12">
+                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                </div>
+                                <div class="col-md-11">
+                                </div>
+                                <div class="col-md-1">
+                                    <p class="comment-box-options">
+                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
+                                            <i class="entypo-attach"></i>
+                                        </a>
+                                    </p>
+                                </div>
+                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
+                                    <label for="field-5" class="control-label">Send Mail To Customer:</label>
+                                    <span id="label-switch" class="make-switch switch-small">
+                                        <input name="PrivateComment" value="1" type="checkbox">
+                                    </span>
+                                </div>
+                                <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
+                                    <input type="hidden" name="OpportunityID" >
+                                    <input type="hidden" name="AccountID" >
+                                    <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
+                                        <i class="entypo-floppy"></i>
+                                        Add Comment
+                                    </button>
+                                    <br>
+                                    <div class="file_attachment">
+                                        <div class="file-input-names"></div>
+                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input  type="hidden" name="token_attachment" value="{{$token}}" />
+                                        <input type="hidden" name="attachmentsinfo" >
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        @endif
+                        <br>
+                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
+                        <div id="allComments" class="form-group">
+
+                        </div>
+                        <div id="attachments" class="form-group">
+                        </div>
+                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
+                        <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
+                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                <input type="hidden" name="OpportunityID" >
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+            </div>
         </div>
-      </form>
     </div>
-  </div>
-</div>
-<div class="modal fade" id="add-view-modal-opportunity-comments" data-backdrop="static">
-  <div id="card-features-details" class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Opportunity Name</h4>
-      </div>
-      <div class="modal-body"> @if(User::checkCategoryPermission('OpportunityComment','Add'))
-        <form id="add-opportunity-comments-form" method="post" enctype="multipart/form-data">
-          <div class="form-group">
-            <div class="col-md-12 text-left">
-              <h4>Add Comment</h4>
-            </div>
-            <div class="col-md-12">
-              <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
-            </div>
-            <div class="col-md-11"> </div>
-            <div class="col-md-1">
-              <p class="comment-box-options"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
-            </div>
-            <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
-              <label for="field-5" class="control-label">Send Mail To Customer:</label>
-              <span id="label-switch" class="make-switch switch-small">
-              <input name="PrivateComment" value="1" type="checkbox">
-              </span> </div>
-            <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
-              <input type="hidden" name="OpportunityID" >
-              <input type="hidden" name="AccountID" >
-              <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;"> <i class="entypo-floppy"></i> Add Comment </button>
-              <br>
-              <div class="file_attachment">
-                <div class="file-input-names"></div>
-                <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />
-                &nbsp;
-                <input  type="hidden" name="token_attachment" value="{{$token}}" />
-                <input type="hidden" name="attachmentsinfo" >
-              </div>
-            </div>
-          </div>
-        </form>
-        @endif <br>
-        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
-        <div id="allComments" class="form-group"> </div>
-        <div id="attachments" class="form-group"> </div>
-        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
-        <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
-          <div class="col-md-8"></div>
-          <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-            <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
-            <input type="hidden" name="OpportunityID" >
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-      </div>
-    </div>
-  </div>
-</div>
+
 @stop

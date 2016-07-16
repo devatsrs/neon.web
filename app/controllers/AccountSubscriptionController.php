@@ -135,7 +135,5 @@ class AccountSubscriptionController extends \BaseController {
             }
         }
 	}
-	
-	
 
 }

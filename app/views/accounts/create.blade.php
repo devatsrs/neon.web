@@ -163,43 +163,11 @@
                             {{Form::select('VerificationStatus', Account::$doc_status,Account::NOT_VERIFIED,array("class"=>"selectboxit",'disabled'=>'disabled'))}}
                              <input type="hidden" class="form-control"  name="VerificationStatus" value="{{Account::NOT_VERIFIED}}">
                         </div>
-                         <label for="field-1" class="col-sm-2 control-label">Authentication Rule</label>
+                        <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                         <div class="col-sm-4">
-                        <table class="table table-bordered datatable dataTable acountiptable ">
-                                                <thead>
-                                                <tr>
-
-                                                <th>IP</th><th>Action</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                                </table>
-                                                <a class="btn btn-primary  btn-sm btn-icon icon-left add-ip"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
-                            <input type="hidden" class="form-control"  name="AccountIP" id="field-1" placeholder="" value="" />
+                            <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Reseller</label>
-                        <div class="col-sm-4">
-                            <div class="make-switch switch-small">
-                                <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
-                            </div>
-                        </div>
-                    
-                    <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
-                    </div>
-                    </div>
-                   <div class="form-group">                       
-                        <label for="field-1" class="col-sm-2 control-label">Reseller Email</label>
-                        <div class="col-sm-4">
-                          <input type="text" class="form-control"  name="ResellerEmail" id="field-1" placeholder="" value="{{Input::old('ResellerEmail')}}" />
-                        </div>
-
-                    </div>
-                    
                     <div class="panel-title desc clear">
                         Description
                     </div>
