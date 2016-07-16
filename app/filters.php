@@ -18,6 +18,12 @@ App::before(function($request)
         Config::set('auth.model', 'Customer');
         Config::set('auth.table', 'tblAccount');
     }
+	
+	$reseller = Session::get('reseller');
+    if($reseller==1) {
+        Config::set('auth.model', 'Reseller');
+        Config::set('auth.table', 'tblAccount');
+    }
 });
 
 
@@ -50,6 +56,8 @@ Route::filter('auth', function()
             if ( !Request::ajax() && !Request::is('/') && !Request::is('login') && !Request::is('forgot_password') ) {
                 if (Request::is('customer/*')){
                     return Redirect::to('/customer/login?redirect_to=' . Request::url() );
+                }else  if (Request::is('reseller/*')){
+                    return Redirect::to('/reseller/login?redirect_to=' . Request::url() );
                 }else{
                     return Redirect::to('/login?redirect_to=' . Request::url() );
                 }
@@ -63,6 +71,7 @@ Route::filter('auth', function()
          */
         $admin = Session::get('admin');
         $customer = Session::get('customer');
+		$reseller = Session::get('reseller');
 
 
         $LicenceApiResponse = Company::getLicenceResponse();
@@ -80,7 +89,7 @@ Route::filter('auth', function()
                  * When licence is not valid.
                  */
 
-                if($customer==1){
+                if($customer==1 || $reseller==1){
                     echo $LicenceApiResponse['Message'];
                     exit;
                 }else{
@@ -91,16 +100,18 @@ Route::filter('auth', function()
 
                 //Licence is valid
 
-                if(Request::is('customer/*')){
+                if(Request::is('customer/*') || Request::is('reseller/*')){
                     if($admin==1){
                         return Redirect::to('/process_redirect');
                     }
                     //return Redirect::to('customer/profile');
-
                 }
                 else{
                     if($customer==1){
                         return Redirect::to('customer/profile');
+                    }
+					if($reseller==1){
+                        return Redirect::to('reseller/profile');
                     }
                 }
             }

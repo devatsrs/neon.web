@@ -16,30 +16,20 @@ class OpportunityController extends \BaseController {
         if(User::is('AccountManager')){
             $data['account_owners'] = User::get_userID();
         }
-        $data['fetchType'] = 'Board';
         $response = NeonAPI::request('opportunity/'.$id.'/get_opportunities',$data,true,true);
         $message = '';
         $columns = [];
+		$WorthTotal = 0;
         $columnsWithOpportunities = [];
-        $WorthTotal = 0;
         if($response['status']!='failed') {
             $columns = $response['data']['columns'];
             $columnsWithOpportunities = $response['data']['columnsWithOpportunities'];
-            $WorthTotal = $response['data']['WorthTotal'];
+			$WorthTotal = $response['data']['WorthTotal'];
         }else{
             $message = json_response_api($response,false,false);
-        }
+        }	
+		
         return View::make('opportunityboards.board', compact('columns','columnsWithOpportunities','message','WorthTotal'))->render();
-    }
-
-    public function ajax_grid($id){
-        $data = Input::all();
-        $data['iDisplayStart'] +=1;
-        if(User::is('AccountManager')){
-            $data['AccountOwner'] = User::get_userID();
-        }
-        $response = NeonAPI::request('opportunity/'.$id.'/get_opportunities',$data,true);
-        return json_response_api($response,true,true,true);
     }
 
     public function ajax_getattachments($id){
@@ -118,7 +108,7 @@ class OpportunityController extends \BaseController {
 	 */
     //@clarification:will not update attribute against leads
     public function update($id)
-    {
+    {	
         if( $id > 0 ) {
             $data = Input::all();
 			$data['TaskBoardUrl']	=	$_SERVER['HTTP_REFERER'];	

@@ -247,6 +247,7 @@ class CDRController extends BaseController {
          $query .=',0)';
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
+
     public function delete_customer_cdr(){
         $data = Input::all();
         if(!empty($data['criteria'])){

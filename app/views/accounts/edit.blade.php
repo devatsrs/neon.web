@@ -110,7 +110,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Number</label>
                     <div class="col-sm-4">
-                        <input type="text" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{$account->Number}}" />
+                        <input type="text" id="Number" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{$account->Number}}" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">Website</label>
@@ -239,7 +239,8 @@
                             <div class="form-group">            
                     <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
                     <div class="col-sm-4">
-        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
+        <input type="password" class="form-control CustomerPassword_hide"   autocomplete="off" placeholder="Enter Password" value="" />
+        <input type="password" class="form-control CustomerPassword_hide"   autocomplete="off" placeholder="Enter Password" value="" />
                             <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
                     </div>  
                     </div>
@@ -812,8 +813,17 @@
     </div>
 </div>
 <script>
-setTimeout(function(){
-	$('#CustomerPassword_hide').hide();
-	},1000);
+$(window).on("scroll", function() {
+  var scrollPosition = scrollY || pageYOffset;
+
+  if (scrollPosition > $("#Number").position().top - $(window).height()) {
+    $('.CustomerPassword_hide').hide();
+	console.log("page moved");
+  }
+});
+
+/*setTimeout(function(){
+	$('.CustomerPassword_hide').hide();
+	},2000);*/
 </script>
 @stop

@@ -54,7 +54,6 @@
               <div class="col-sm-2  small-date-input">
                 <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
               </div>
-
               <div class="col-sm-2  small-date-input">
                 <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
               </div>
@@ -357,9 +356,9 @@
                                     var recall_ = "{{ URL::to('payments/{id}/recall')}}";
                                     Approve_Payment = Approve_Payment.replace('{id}', full[0]);
                                     Reject_Payment = Reject_Payment.replace('{id}', full[0]);
-                                    recall_  = recall_ .replace( '{id}', full[0]);
+                                    recall_  = recall_ .replace( '{id}', full[0]);									
                                     action = '<div class = "hiddenRowData" >';
-                                    for(var i = 0 ; i< list_fields.length; i++){
+                                    for(var i = 0 ; i< list_fields.length; i++){										
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';

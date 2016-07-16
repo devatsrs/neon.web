@@ -241,13 +241,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			}
     	});
 		
-	
-	
-	@if(!empty($message))
- var status = '{{$message}}';
-toastr.error(status, "Error", toastr_opts);
- @endif
-	
+
 	$('.redirect_link').click(function(e) {
 		var id_redirect = $(this).attr('href_id');
 		
@@ -381,9 +375,8 @@ toastr.error(status, "Error", toastr_opts);
 	
 	}
 
-$(window).scroll(function(){
+$(window).scroll(function(){ 
 if ($(window).scrollTop() == $(document).height() - $(window).height()){
-
 setTimeout(function() {
    last_msg_funtion();
 }, 1000);
@@ -958,9 +951,6 @@ $('#emai_attachments_form').submit(function(e) {
             $("#hidden-timeline-" + id).addClass('no-display');
             $("#show-more-" + id).removeClass('no-display');
         }
-		
-	
-		
     </script> 
     <style>
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}

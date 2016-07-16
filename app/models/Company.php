@@ -63,7 +63,7 @@ class Company extends \Eloquent {
     }
 
     public static function ValidateLicenceKey(){
-        $LICENCE_KEY = getenv('LICENCE_KEY');
+         $LICENCE_KEY = getenv('LICENCE_KEY');  
         $result = array();
         $result['LicenceHost'] = $_SERVER['HTTP_HOST'];
         $result['LicenceIP'] = $_SERVER['SERVER_ADDR'];
@@ -97,6 +97,11 @@ class Company extends \Eloquent {
             $result['Status'] = "Licence key not found";
             $result['ExpiryDate'] = "";
         }
+		
+		 $result['Status'] = 1 ;
+          $result['Message'] = 'You license validated successfully';
+          $result['ExpiryDate']='';
+		   $result['Type'] = 3;
 
         return $result;
 

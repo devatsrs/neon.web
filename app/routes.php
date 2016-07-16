@@ -1,7 +1,73 @@
 <?php
 
 Route::group(array('before' => 'auth'), function () {
+	
+	
+	/**Reseller**/
+    Route::any('reseller/dashboard', array("as" => "dashboardReseller", "uses" => "DashboardResellerController@home"));
+	Route::any('reseller/monitor', array("as" => "monitorReseller", "uses" => "DashboardResellerController@monitor_dashboard"));
+	Route::any('reseller/analysis', "AnalysisController@reseller_index");
+	Route::any('reseller/vendor_analysis', "AnalysisController@vendor_index");
+    Route::any('reseller/invoice_expense_chart', 'DashboardResellerController@invoice_expense_chart');
+    Route::any('reseller/invoice_expense_total', 'DashboardResellerController@invoice_expense_total');
+	Route::any('reseller/subscriptions', 'DashboardResellerController@subscriptions');	
+	Route::any('resellers/subscription/ajax_datagrid', 'DashboardResellerController@subscriptions_ajax_datagrid');	
+	
+    Route::any('reseller/getoutstandingamount', 'ResellerProfileController@get_outstanding_amount');	
+    //Invoice
+    Route::any('reseller/invoice', 'InvoicesResellerController@index');
+    Route::any('reseller/invoice/ajax_datagrid/{type}', 'InvoicesResellerController@ajax_datagrid');    
+    Route::any('reseller/invoice/pay_now', 'InvoicesResellerController@pay_now');
+    Route::any('reseller/invoice/download_invoice_file/{id}', 'InvoicesResellerController@download_invoice_file');
+	Route::any('reseller/invoice/ajax_datagrid_total', 'InvoicesResellerController@ajax_datagrid_total');
+	Route::any('reseller/invoice/getInvoiceDetail', 'InvoicesResellerController@getInvoiceDetail');
 
+    //payment
+    Route::any('reseller/payments', 'PaymentsResellerController@index');
+    Route::any('reseller/payments/create', 'PaymentsResellerController@create');
+    Route::any('reseller/payments/ajax_datagrid/{type}', 'PaymentsResellerController@ajax_datagrid');
+    Route::any('reseller/payments/ajax_datagrid_total', 'PaymentsResellerController@ajax_datagrid_total');
+
+
+	//serverinfo
+	Route::any('serverinfo', 'ServerController@index');	
+
+    //Account Statement
+    Route::any('reseller/account_statement', 'AccountStatementResellerController@index');
+    Route::any('reseller/account_statement/payment', 'AccountStatementResellerController@getPayment');
+    Route::any('reseller/account_statement/ajax_datagrid', 'AccountStatementResellerController@ajax_datagrid');
+    Route::any('reseller/account_statement/exports/{type}', 'AccountStatementResellerController@exports');
+
+    //credit card
+    Route::any('reseller/PaymentMethodProfiles/paynow', 'PaymentProfileResellerController@paynow');
+    Route::any('/reseller/PaymentMethodProfiles', 'PaymentProfileResellerController@index');
+    Route::any('/reseller/PaymentMethodProfiles/create', 'PaymentProfileResellerController@create');
+    Route::any('/reseller/PaymentMethodProfiles/{id}/delete', 'PaymentProfileResellerController@delete');
+    Route::any('/reseller/PaymentMethodProfiles/update', 'PaymentProfileResellerController@update');
+    Route::any('/reseller/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileResellerController@ajax_datagrid');
+    Route::any('/reseller/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileResellerController@set_default');
+    Route::any('/reseller/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileResellerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
+
+	//cdr
+
+	Route::any('reseller/cdr', 'CDRResellerController@index');
+	Route::any('reseller/cdr/ajax_datagrid/{type}', 'CDRResellerController@ajax_datagrid');
+	Route::any('reseller/cdr/ajax_datagrid_total', 'CDRResellerController@ajax_datagrid_total');
+
+	//commercial
+
+	Route::any('reseller/resellers_rates', 'RateResellerController@settings');
+	Route::any('reseller/resellers_rates/{id}/search_ajax_datagrid/{type}', 'RateResellerController@search_ajax_datagrid');
+	Route::any('reseller/resellers_rates/rate', 'RateResellerController@index');
+	Route::any('reseller/resellers_rates/inboundrate', 'RateResellerController@inboundrate');
+	Route::any('reseller/resellers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateResellerController@search_inbound_ajax_datagrid');
+	
+	//Profile
+	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ProfileController@show'));
+    Route::any('reseller/profile/edit', array('as' => 'profile_edit', 'uses' => 'ProfileController@edit'));
+    Route::any('reseller/profile/update', array('as' => 'profile_update', 'uses' => 'ProfileController@update'));
+	
+	/**Customer**/
     Route::any('customer/dashboard', array("as" => "dashboardCustomer", "uses" => "DashboardCustomerController@home"));
 	Route::any('customer/monitor', array("as" => "monitorCustomer", "uses" => "DashboardCustomerController@monitor_dashboard"));
 	Route::any('customer/analysis', "AnalysisController@customer_index");
@@ -79,6 +145,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/profile', array('as' => 'profile_show', 'uses' => 'ProfileController@show'));
     Route::any('customer/profile/edit', array('as' => 'profile_edit', 'uses' => 'ProfileController@edit'));
     Route::any('customer/profile/update', array('as' => 'profile_update', 'uses' => 'ProfileController@update'));
+	
 	//User
 	Route::any('users', array("as" => "users", "uses" => "UsersController@index"));
 	Route::any('/users/add', "UsersController@add");
@@ -96,7 +163,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
+	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
+	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
+	Route::post('/dashboard/getforecastdata', "DashboardController@GetForecastData");		
+	
+	
+	
 	Route::any('/monitor', "DashboardController@monitor_dashboard");
+	Route::any('/crmdashboard', "DashboardController@CrmDashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
     Route::any('/dashboard/ajax_get_jobs', "DashboardController@ajax_get_jobs");
@@ -159,6 +233,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
+	
 	
 	
 
@@ -899,7 +974,11 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/customer', array("as" => "home", "uses" => "HomeCustomerController@home"));
     Route::get('customer/login', array("as" => "customerhome", "uses" => "HomeCustomerController@home"));
     Route::any('customer/dologin', 'HomeCustomerController@dologin');
-    Route::get('customer/logout', array("as" => "logoutCustomer", "uses" => "HomeCustomerController@dologout"));
+    Route::get('customer/logout', array("as" => "logoutCustomer", "uses" => "HomeCustomerController@dologout"));	
+	Route::get('/reseller', array("as" => "home", "uses" => "HomeResellerController@home"));
+    Route::get('reseller/login', array("as" => "resellerhome", "uses" => "HomeResellerController@home"));
+    Route::any('reseller/dologin', 'HomeResellerController@dologin');
+    Route::get('reseller/logout', array("as" => "logoutReseller", "uses" => "HomeResellerController@dologout"));	
     Route::get('/login', array("as" => "home", "uses" => "HomeController@home"));
     Route::any('dologin', 'HomeController@dologin');
     Route::get('/forgot_password', array("as" => "home", "uses" => "HomeController@forgot_password"));

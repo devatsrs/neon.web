@@ -83,7 +83,6 @@ class CDRCustomerController extends BaseController {
             $currency = '';
         }
 
-
         $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('DataGrid','SumData'));
         $result4  = array(

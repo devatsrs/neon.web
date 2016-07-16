@@ -216,7 +216,8 @@ class AccountsController extends \BaseController {
     }
 
 	
-		public function show($id) {
+		public function show($id){
+		
 		
 		
 		
@@ -310,7 +311,7 @@ class AccountsController extends \BaseController {
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
+          return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
 		}
 	
 	
@@ -394,7 +395,7 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $account = Account::find($id);
         Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
-        $message = $password = "";
+        $message = $password = ""; 
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
@@ -454,7 +455,6 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        
         if ($account->update($data)) {
             $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($id);
             $invoice_count = Account::getInvoiceCount($id);
