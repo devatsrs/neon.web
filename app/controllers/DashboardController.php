@@ -159,6 +159,53 @@ class DashboardController extends BaseController {
         return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
 
     }
+	
+	public function CrmDashboard(){ 
+        $companyID 			= 	User::get_companyID();
+        $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$Country 			= 	Country::getCountryDropdownIDList();
+        $account 			= 	Account::getAccountIDList();
+		$currency 			= 	Currency::getCurrencyDropdownIDList();
+		$UserID 			= 	User::get_userID();
+		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		$users			 	= 	User::getUserIDList();
+		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
+		//$DateEndDefault  	= 	date('m/d/Y');
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('Y-m-d');
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault'));	
+	}
+	
+	public function GetUsersTasks(){		
+	     $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetUsersTasks',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	function GetPipleLineData(){
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetPipleLineData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+		
+     }
+	
+	public function GetForecastData(){ //crm dashboard
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetForecastData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
 
     public function ajax_get_recent_due_sheets(){
         $companyID = User::get_companyID();
