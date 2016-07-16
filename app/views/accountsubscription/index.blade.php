@@ -201,7 +201,7 @@
                         $('#subscription-form').attr("action",edit_url);
                         $('#modal-subscription h4').html('Edit Subscription');
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){							
+                        for(var i = 0 ; i< list_fields.length; i++){
                             $("#subscription-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'SubscriptionID'){
                                 $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());

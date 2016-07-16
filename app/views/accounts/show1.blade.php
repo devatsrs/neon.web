@@ -1,4 +1,4 @@
-<?php //$BoardID = $Boards->BoardID;  ?>
+<?php $BoardID = $Board[0]->BoardID;  ?>
 @extends('layout.main')
 @section('content')
 <div  style="min-height: 1050px;">
@@ -37,21 +37,21 @@
             <li>
               <div class="box clearfix ">
                 <div class="col-sm-12 header padding-left-1"> <span class="head">
-                @if(strlen($Account_card->AccountName)>22) {{substr($Account_card->AccountName,0,22)."..."}} @else {{$Account_card->AccountName}} @endif</span><br>
-                  <span class="meta complete_name">@if(strlen($Account_card->Ownername)>40) {{substr($Account_card->Ownername,0,40)."..."}} @else {{$Account_card->Ownername}} @endif </span></div>
+                @if(strlen($Account_card[0]->AccountName)>22) {{substr($Account_card[0]->AccountName,0,22)."..."}} @else {{$Account_card[0]->AccountName}} @endif</span><br>
+                  <span class="meta complete_name">@if(strlen($Account_card[0]->Ownername)>40) {{substr($Account_card[0]->Ownername,0,40)."..."}} @else {{$Account_card[0]->Ownername}} @endif </span></div>
                 <div class="col-sm-6 padding-0">
                   <div class="block">
                     <div class="meta">Email</div>
-                    <div><a class="sendemail" href="javascript:void(0)">{{$Account_card->Email}}</a></div>
+                    <div><a class="sendemail" href="javascript:void(0)">{{$Account_card[0]->Email}}</a></div>
                   </div>
                   <div class="cellNo">
                     <div class="meta">Phone</div>
-                    <div><a href="tel:{{$Account_card->Phone}}">{{$Account_card->Phone}}</a></div>
+                    <div><a href="tel:{{$Account_card[0]->Phone}}">{{$Account_card[0]->Phone}}</a></div>
                   </div>
                   @if($leadOrAccountCheck=='account')
                   <div class="block blockSmall">
                     <div class="meta">Outstanding</div>
-                    <div>{{$Account_card->OutStandingAmount}}</div>
+                    <div>{{$Account_card[0]->OutStandingAmount}}</div>
                   </div>
                   @endif
                 </div>
@@ -59,12 +59,12 @@
                   <div class="block">
                     <div class="meta">Address</div>
                     <div class="address account-address">
-                      <?php  if(!empty($Account_card->Address1)){ echo $Account_card->Address1."<br>";} ?>                      
-                      <?php  if(!empty($Account_card->Address2)){ echo $Account_card->Address2."<br>";} ?>
-                      <?php  if(!empty($Account_card->Address3)){ echo $Account_card->Address3."<br>";} ?>
-                      <?php  if(!empty($Account_card->City)){ echo $Account_card->City."<br>";} ?>
-                      <?php  if(!empty($Account_card->PostCode)){ echo $Account_card->PostCode."<br>";} ?>
-                      <?php  if(!empty($Account_card->Country)){ echo $Account_card->Country."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->Address1)){ echo $Account_card[0]->Address1."<br>";} ?>                      
+                      <?php  if(!empty($Account_card[0]->Address2)){ echo $Account_card[0]->Address2."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->Address3)){ echo $Account_card[0]->Address3."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->City)){ echo $Account_card[0]->City."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->PostCode)){ echo $Account_card[0]->PostCode."<br>";} ?>
+                      <?php  if(!empty($Account_card[0]->Country)){ echo $Account_card[0]->Country."<br>";} ?>
                     </div>
                   </div>
                 </div>
@@ -124,7 +124,7 @@
                         <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
                       </div>
                       <div class="cellNo cellNoSmall">
-                        <div class="meta">Phone: <a href="tel:{{$Account_card->Phone}}">{{$contacts_row['Phone']}}</a></div>
+                        <div class="meta">Phone: <a href="tel:{{$Account_card[0]->Phone}}">{{$contacts_row['Phone']}}</a></div>
                       </div>
                       <div class="cellNo cellNoSmall">
                         <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
@@ -160,7 +160,7 @@
             <form role="form" id="notes-from" action="{{URL::to('accounts/'.$account->AccountID.'/store_note/')}}" method="post">
               <div class="form-group ">
              
-                  <textarea name="Note" id="note-content" class="form-control autogrow editor-note"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+                  <textarea name="Note" id="note-content" class="form-control autogrow editor-note"  placeholder="I will grow as you type new lines." style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
              
 
 
@@ -168,9 +168,8 @@
               </div>
               <div class="form-group end-buttons-timeline"> 
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
-                 @if(count($boards)>0)
+                
                  <button style="margin-right:10px;" value="save_follow" id="save-note-follow" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save and Create follow up task</button>
-                 @endif
               </div>
             </form>
           </div>
@@ -180,17 +179,17 @@
             <div class="mail-compose">
               <form method="post" id="email-from" role="form" enctype="multipart/form-data">
                 <div class="form-group">
-                  <label for="to">To *</label>
+                  <label for="to">To:</label>
                   <!--{{ Form::select('email-to', USer::getUserIDList(), '', array("class"=>"select2","id"=>"email-to","tabindex"=>"1")) }}-->
                   <input type="text" class="form-control" value="{{$account->Email}}" id="email-to" name="email-to" tabindex="1"  />
                   <div class="field-options"> <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </div>
                 </div>
                 <div class="form-group hidden">
-                  <label for="cc">CC</label>
+                  <label for="cc">CC:</label>
                   <input type="text" name="cc"  class="form-control tags"  id="cc" />
                   </div>
                 <div class="form-group hidden">
-                  <label for="bcc">BCC</label>
+                  <label for="bcc">BCC:</label>
                   <input type="text" name="bcc"  class="form-control tags"  id="bcc" />
                   </div>
                    
@@ -200,30 +199,28 @@
                 </div>
                         
                 <div class="form-group">
-                  <label for="subject">Subject *</label>
+                  <label for="subject">Subject:</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
                   <input  hidden="" name="token_attachment" value="{{$random_token}}" />
                 </div>
                 <div class="form-group">  
-                <label for="subject">Email *</label>                            
+                <label for="subject">Email:</label>                            
                  <textarea id="Message" class="form-control message"    name="Message"></textarea>
                 </div>
-
+                <div class="form-group no_margin_bt">
                 <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
-
+                </div>
                 <div class="form-group email_attachment">
                 <input type="hidden" value="1" name="email_send" id="email_send"  />
                <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
                
                <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
-                    <input id="info2" type="hidden" name="attachmentsinfo" />
                     
                   <span class="file-input-names"></span>
                 </div>
                 <div class="form-group end-buttons-timeline">                 
                                  <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>                
-                  @if(count($boards)>0)
-                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and Create follow up task</button> @endif
+                 <button name="mail_submit" value="save_mail_follow" id="save-email-follow" style="margin-right:10px;" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send and Create follow up task</button>
                 </div>
               </form>
             </div>
@@ -233,26 +230,21 @@
           <div class="col-md-12">
             <form id="save-task-form" role="form" method="post">
             <div class="row">
-            
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="to">Task Status *</label>
-                  @if(count($boards)>0)
-                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2"))}}
-                    @endif
-                   </div>
+                  <label for="to">Task Status:</label>
+                  {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2"))}} </div>
               </div>
-            
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="to">Task Assign to *</label>
+                  <label for="to">Task Assign to:</label>
                   {{Form::select('UsersIDs',$account_owners,User::get_userID(),array("class"=>"select2"))}} </div>
               </div>
              </div> 
               <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="control-label col-sm-12" for="to">Priority</label>
+                  <label class="control-label col-sm-12" for="to">Priority:</label>
                    <p class="make-switch switch-small">
                                         <input name="Priority" type="checkbox" value="1" >
                                     </p>
@@ -260,7 +252,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label class="control-label col-sm-12 " for="to">Due Date</label>
+                  <label class="control-label col-sm-12 " for="to">Due Date:</label>
                   <div class="col-sm-8">
                   <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                   </div>
@@ -274,7 +266,7 @@
             <div class="row">              
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="to">Task Subject *</label>
+                  <label for="to">Task Subject:</label>
                   <input type="text" id="Subject" name="Subject" class="form-control"  tabindex="1" />
                 </div>
               </div>
@@ -282,7 +274,7 @@
              <div class="row"> 
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="to">Description</label>
+                  <label for="to">Description:</label>
                   <textarea class="form-control autogrow" id="Description" name="Description" placeholder="I will grow as you type new lines." style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 48px;"></textarea>
                 </div>
               </div>
@@ -290,10 +282,8 @@
               <div class="row">
               <div class="col-md-12">
                 <div class="form-group end-buttons-timeline">
-                   @if(count($boards)>0)
                   <button id="save-task" class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
-                  
-                   <input type="hidden" value="{{$boards->BoardID}}" name="BoardID"> @endif
+                  <input type="hidden" value="{{$BoardID}}" name="BoardID">
                   <input type="hidden" value="{{$account->AccountID}}" name="AccountIDs[]">
                 </div>
               </div>
@@ -317,17 +307,23 @@
           </div>
         </div>
       </div>
+      
+  <!--  </section>
+    <section>-->
+    
+     
       <!-- -->
+            
       <!-- -->
         <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
         <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> 
-          @if(count($response_timeline)>0 && $message=='')
+          @if(count($response)>0 && $message=='')
            <ul class="cbp_tmtimeline" id="timeline-ul">
           <li></li>
-            <?php  foreach($response_timeline as $key => $rows){
-			 // $rows = json_decode(json_encode($rows), True); //convert std array to simple array
+            <?php  foreach($response as $key => $rows){
+			  $rows = json_decode(json_encode($rows), True); //convert std array to simple array
 			   ?>
-            @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Mail)
+            @if(isset($rows['Timeline_type']) && $rows['Timeline_type']==2)
             <li id="timeline-{{$key}}" class="count-li">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -339,7 +335,7 @@
                 <?php } ?>
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"> <i class="entypo-mail"></i> </div>
-              <div class="cbp_tmlabel normal_tag">  
+              <div class="cbp_tmlabel normal">  
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
@@ -363,8 +359,8 @@
 					else
 					{
 						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
-					}
-                    $Attachmenturl = URL::to('emails/'.$rows['AccountEmailLogID'].'/getattachment/'.$key_acttachment);
+					}	
+							
 					if($key_acttachment==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
 					}else{
@@ -380,7 +376,7 @@
                 </div>
               </div>
             </li>
-            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Tasks)
+            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==1)
             <li id="timeline-{{$key}}" class="count-li @if($rows['followup_task']) followup_task @endif">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -393,7 +389,7 @@
               </time>
               
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-              <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif ">  
+              <div class="cbp_tmlabel @if(!$rows['followup_task']) normal @endif ">  
                 
            <h2 class="toggle_open" id_toggle="{{$key}}"> 
          @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
@@ -415,7 +411,7 @@
                 </div>
               </div>
             </li>
-            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Note)
+            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==3)
             <li id="timeline-{{$key}}" class="count-li">
               <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
                 <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
@@ -427,7 +423,7 @@
                 <?php } ?>
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-              <div class="cbp_tmlabel normal_tag">  
+              <div class="cbp_tmlabel normal">  
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   <p>{{$rows['Note']}}</p>
@@ -436,7 +432,7 @@
             </li>
             @endif
             <?php  }
-			if(count($response_timeline)<10)
+			if(count($response)<10)
 			{
 			?>
             <li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>
@@ -444,7 +440,7 @@
 			}
 			 ?>
             </ul>
-            @if(count($response_timeline)>($data['iDisplayLength'])-1)
+            @if(count($response)>($data['iDisplayLength'])-1)
           <div id="last_msg_loader"></div>
 			@endif
             @else
@@ -467,7 +463,6 @@
 </span>
 <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
 <input  hidden="" name="token_attachment" value="{{$random_token}}" />
-    <input id="info1" type="hidden" name="attachmentsinfo" />
 
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
@@ -500,8 +495,10 @@
 <style>
 #last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
 ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
+.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px;border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
+
 </style>
+
 @stop

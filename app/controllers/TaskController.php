@@ -217,7 +217,7 @@ class TaskController extends \BaseController {
 		
 		if($response_note['status']=='failed'){
 			return json_response_api($response_note,false,true);
-		}else{
+		}else{ Log::info($response_note['data']);
 			return json_encode($response_note['data']);
 		}
 	}

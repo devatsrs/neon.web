@@ -249,7 +249,7 @@ class LeadsController extends \BaseController {
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			
             return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
-   }
+    	}
 
     /**
      * Show the form for editing the specified resource.

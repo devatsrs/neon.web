@@ -164,13 +164,6 @@ a.bg-primary:hover {
 a.bg-success:hover {
   background-color: #95e294;
 }
-.bg-gold {
-  background-color: #fad839;
-}
-a.bg-gold:hover {
-  background-color: #f7d839;
-}
-
 .bg-info {
   background-color: #c5e8f7;
 }

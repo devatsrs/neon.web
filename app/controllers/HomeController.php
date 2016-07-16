@@ -1,6 +1,7 @@
 <?php
 
 class HomeController extends BaseController {
+
     var $dashboard_url = 'process_redirect';
 
     public function __construct() {
