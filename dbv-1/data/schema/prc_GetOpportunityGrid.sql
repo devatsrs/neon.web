@@ -1,3 +1,4 @@
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
@@ -7,24 +8,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_AccountID` INT,
 	IN `p_Status` VARCHAR(50),
 	IN `p_CurrencyID` INT,
+	IN `p_OpportunityClosed` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(50)
-
-
-
-
-
-
-
-
 )
-LANGUAGE SQL
-NOT DETERMINISTIC
-CONTAINS SQL
-SQL SECURITY DEFINER
-COMMENT ''
 BEGIN
 	DECLARE v_OffSet_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -52,13 +41,15 @@ SELECT
 		o.Rating,
 		o.TaggedUsers,
 		o.`Status`,
- 	   o.Worth
+ 	   o.Worth,
+ 	   o.OpportunityClosed
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND b.BoardID = p_BoardID
 INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
+			AND (o.OpportunityClosed = p_OpportunityClosed)
 			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
@@ -116,14 +107,17 @@ INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
+			AND (o.OpportunityClosed = p_OpportunityClosed)
 			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
+			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND ac.`Status` = 1
 			AND (p_CurrencyID = 0 OR ac.CurrencyId = p_CurrencyID)
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
 LEFT JOIN tblUser u on u.UserID = o.UserID;
-END
+END//
+DELIMITER ;

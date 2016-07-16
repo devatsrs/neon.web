@@ -1,3 +1,4 @@
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
@@ -6,16 +7,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 	IN `p_OwnerID` INT,
 	IN `p_AccountID` INT,
 	IN `p_Status` VARCHAR(50),
-	IN `p_CurrencyID` INT
-
-
-
+	IN `p_CurrencyID` INT,
+	IN `p_OpportunityClosed` INT
 )
-LANGUAGE SQL
-NOT DETERMINISTIC
-CONTAINS SQL
-SQL SECURITY DEFINER
-COMMENT ''
 BEGIN
 		
 	DECLARE WorthTotal int;	
@@ -45,7 +39,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
 		Rating int,
 		TaggedUsers varchar(100),
 		`Status` int,
- 	   Worth int	
+ 	   Worth int,
+		OpportunityClosed int	
 );
   
 		insert into tmp_Oppertunites_
@@ -72,13 +67,15 @@ SELECT
 		o.Rating,
 		o.TaggedUsers,
 		o.`Status`,
- 	   o.Worth
+ 	   o.Worth,
+ 	   o.OpportunityClosed
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND b.BoardID = p_BoardID
 LEFT JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
+			AND (o.OpportunityClosed = p_OpportunityClosed)
 			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
 			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
@@ -98,4 +95,5 @@ SELECT sum(Worth) as TotalWorth INTO WorthTotal from tmp_Oppertunites_;
 			WorthTotal
         FROM tmp_Oppertunites_ ;
 
-END
+END//
+DELIMITER ;
