@@ -147,7 +147,7 @@ class UsersController extends BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $data['Status'] = 0;
-        if (isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == '') { // by Default Status 1
+        if (isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == 1) { // by Default Status 1
             $data['Status'] = 1;
         }
         $columns = ['Status','FirstName', 'LastName', 'EmailAddress', 'Role'];
