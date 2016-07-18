@@ -138,7 +138,7 @@
                 "fnRowCallback": function( nRow, data, iDisplayIndex, iDisplayIndexFull ) {
 
                     if(typeof data[10] != 'undefined' && data[10] == "{{CronJob::CRON_FAIL}}"  ){ // Last failed CronJob 'CronJobStatus'
-                        $(nRow).css('background-color', '#c50606');
+                        $(nRow).css('background-color', '#f88379');
                     }
                     if(typeof data[7] != 'undefined' && data[7] == 0  ){ // 'Status'  InActive CronJob Gray color
                         $(nRow).css('background-color', '#eaeaea');
