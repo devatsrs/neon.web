@@ -76,7 +76,7 @@
                         </div>
 
                         <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                 <i class="entypo-search"></i>
                                 Search
                             </button>
@@ -285,7 +285,7 @@
                 $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
 
                 data_table.fnFilter('', 0);
-                $(".btn").button('reset');
+
                 return false;
             });
 
