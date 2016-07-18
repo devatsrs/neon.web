@@ -86,7 +86,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');
-	Route::any('users/ajax_datagrid', 'UsersController@ajax_datagrid');
+	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
 
