@@ -19,7 +19,6 @@ class Invoice extends \Eloquent {
     //public static $invoice_status;
     public static $invoice_type = array(''=>'Select an Invoice Type' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
     public static $invoice_type_customer = array(''=>'Select an Invoice Type' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
-    public static $defaultSelectedStatus = [Invoice::DRAFT,Invoice::SEND,Invoice::AWAITING,Invoice::RECEIVED,Invoice::PAID,Invoice::PARTIALLY_PAID];
 
     public static function getInvoiceEmailTemplate($data){
 
