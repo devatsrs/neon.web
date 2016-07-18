@@ -134,6 +134,7 @@
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
+                                {  "bSortable": true },
                                 {  "bSortable": true },  // 0 Subscription Name
                         {  "bSortable": true },  // 1 InvoiceDescription
                         {  "bSortable": true },  // 2 Qty
