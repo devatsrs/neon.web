@@ -5,7 +5,7 @@ class RateTablesController extends \BaseController {
     public function ajax_datagrid() {
         $CompanyID = User::get_companyID();
         $rate_tables = RateTable::
-        leftJoin('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+        Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
             ->select(['tblRateTable.RateTableName','tblCurrency.Code','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId'])
             ->where("tblRateTable.CompanyId",$CompanyID);
@@ -93,7 +93,8 @@ class RateTablesController extends \BaseController {
             'CompanyID' => 'required',
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
             'RateGeneratorId'=>'required',
-            'TrunkID'=>'required'
+            'TrunkID'=>'required',
+            'CurrencyID'=>'required'
 
         );
         $validator = Validator::make($data, $rules);
