@@ -64,7 +64,7 @@
 
                         <label for="field-1" class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):Invoice::$defaultSelectedStatus), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                         </div>
             <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
                         <div class="col-sm-2">
