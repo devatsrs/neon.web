@@ -362,7 +362,7 @@
             }
             var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
-            submit_ajax(post_url,post_data);
+            submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
         /*$('body').on('click', '.customer-add-ip,.customer-add-cli', function(e) {
             $('#form-addipcli-modal').find("[name='AccountIPCLI']").val('');
