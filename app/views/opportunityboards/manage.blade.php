@@ -237,7 +237,7 @@
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[1, 'desc']],
+                "aaSorting": [[0, 'desc']],
                 "aoColumns": [
                     {
                         "bSortable": true, //Opportunity Name
@@ -301,7 +301,7 @@
                         $('#opportunityGrid_wrapper').removeClass('hidden');
                         $('#opportunityGrid').removeClass('hidden');
                     }
-                    $('.knob').knob();
+                    $('#opportunityGrid .knob').knob({"readOnly":true});
                 }
 
             });
