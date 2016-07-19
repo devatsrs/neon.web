@@ -13,12 +13,16 @@ class AccountAuthenticate extends \Eloquent {
 
     public static function validate_ips($data){
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-
+        $dbIPs = [];
         if (isset($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'IP') {
-            $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);
+            if(!empty($accountAuthenticate)) {
+                $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);
+            }
             $postIPs = $data['CustomerAuthValue'];
         } elseif (isset($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'IP') {
-            $dbIPs = explode(',', $accountAuthenticate->VendorAuthValue);
+            if(!empty($accountAuthenticate)) {
+                $dbIPs = explode(',', $accountAuthenticate->VendorAuthValue);
+            }
             $postIPs = $data['VendorAuthValue'];
         }
 
@@ -32,12 +36,16 @@ class AccountAuthenticate extends \Eloquent {
 
     public static function validate_clis($data){
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-
+        $dbIPs = [];
         if (isset($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'CLI') {
-            $dbCLIs = explode(',', $accountAuthenticate->CustomerAuthValue);
+            if(!empty($accountAuthenticate)) {
+                $dbCLIs = explode(',', $accountAuthenticate->CustomerAuthValue);
+            }
             $postCLIs = $data['CustomerAuthValue'];
         } elseif (isset($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'CLI') {
-            $dbCLIs = explode(',', $accountAuthenticate->VendorAuthValue);
+            if(!empty($accountAuthenticate)) {
+                $dbCLIs = explode(',', $accountAuthenticate->VendorAuthValue);
+            }
             $postCLIs = $data['VendorAuthValue'];
         }
 
