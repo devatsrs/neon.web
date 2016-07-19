@@ -166,10 +166,7 @@
         });
 	 </script>
 <style>
-.padding-none{
-	padding:0px !important;
-	margin:0px !important;
-}
+.padding-none{padding:0px !important;margin:0px !important;}
 .small-input{ margin-right: 5px;}
 #submit_forecast{margin-left:5px;}
 #crm_dashboard_forecast .first{margin-left:5px;}

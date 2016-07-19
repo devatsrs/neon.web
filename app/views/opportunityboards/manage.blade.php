@@ -168,7 +168,7 @@
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function ($) {
-            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status+[Opportunity::Close=>'Closed'])}}');
+            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
             var opportunity = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -190,7 +190,8 @@
                 'Rating',
                 'TaggedUsers',
                 'Status',
-                'Worth'
+                'Worth',
+                'OpportunityClosed'
             ];
 
             @if(empty($message)){
@@ -236,7 +237,7 @@
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[1, 'desc']],
+                "aaSorting": [[0, 'desc']],
                 "aoColumns": [
                     {
                         "bSortable": true, //Opportunity Name
@@ -300,7 +301,7 @@
                         $('#opportunityGrid_wrapper').removeClass('hidden');
                         $('#opportunityGrid').removeClass('hidden');
                     }
-                    $('.knob').knob();
+                    $('#opportunityGrid .knob').knob({"readOnly":true});
                 }
 
             });
@@ -333,11 +334,6 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
-                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
-                                biuldSwicth('.make','#edit-opportunity-form','checked');
-                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
-                                biuldSwicth('.make','#edit-opportunity-form','');
-                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -348,6 +344,12 @@
                             elem.val(val).trigger('change');
                         }else if(opportunity[i]=='Tags'){
                             elem.val(val).trigger("change");
+                        }else if(opportunity[i]=='OpportunityClosed'){
+                            if(val==1){
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else{
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
                         }
                     }
                 }
