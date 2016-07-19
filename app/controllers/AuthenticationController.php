@@ -125,61 +125,31 @@ class AuthenticationController extends \BaseController
        }
    }
 
-    public function addclis($id){
+    public function addipclis($id){
         $data = Input::all();
         $data['AccountID'] = $id;
         $data['CompanyID'] = $CompanyID = User::get_companyID();
         $message = '';
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
 
-        if(empty($data['ipclis'])){
-            return Response::json(array("status" => "error", "message" => $isCustomerOrVendor." CLI required"));
+        $status = AccountAuthenticate::validate_ipclis($data);
+        $save = $status['data'];
+        if($status['status']==0){
+            return Response::json(array("status" => "error", "message" => $status['message']));
         }
 
-        $cli = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
-        $checkstr = implode(',',$cli);
-        $count = AccountAuthenticate::where(['CompanyID'=>$CompanyID])->where(function($query)use($checkstr){
-            $query->whereRaw('find_in_set(CustomerAuthValue,"'.$checkstr.'")');
-            $query->orwhereRaw('find_in_set(VendorAuthValue,"'.$checkstr.'")');
-        })->count();
-        if($count>0){
-            return Response::json(array("status" => "error", "message" => "CLI already taken"));
-        }
-
-        $rule = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-        unset($data['ipclis']);
-        unset($data['isCustomerOrVendor']);
-        if($isCustomerOrVendor=='Customer'){
-            $data['CustomerAuthRule'] = 'CLI';
-            $data['CustomerAuthValue'] = $cli;
-            if(!empty($rule) && $rule->CustomerAuthRule!=$data['CustomerAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update(['CustomerAuthValue'=>'']);
-            }
-        }else{
-            $data['VendorAuthRule'] = 'CLI';
-            $data['VendorAuthValue'] = $cli;
-            if(!empty($rule) && $rule->VendorAuthRule!=$data['VendorAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update(['VendorAuthValue'=>'']);
-            }
-        }
-        $status = AccountAuthenticate::validate_clis($data);
-        if(count($status['CLIExist'])>0){
-            $CLIExist = implode('<br>',$status['CLIExist']);
-            $message = ' and following CLIs already exist. '.$CLIExist;
-        }
-        if(count($status['toBeInsert'])>0){
+        if(!empty($save['CustomerAuthValue']) || !empty($save['VendorAuthValue'])){
             if($isCustomerOrVendor=='Customer') {
-                $data['CustomerAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
+                 $status['toBeInsert']=explode(',',$save['CustomerAuthValue']);
             }else{
-                $data['VendorAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
+                $status['toBeInsert']=explode(',',$save['VendorAuthValue']);
             }
-
-            if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()>0){
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
+            if(AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->count()>0){
+                AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->update($save);
             }else{
-                AccountAuthenticate::insert($data);
+                AccountAuthenticate::insert($save);
             }
-            $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
+            $object = AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->first();
             return Response::json(array("status" => "success","ipclis"=> $status['toBeInsert'],"object"=>$object, "message" => "Account Successfully Updated".$message));
         }
     }

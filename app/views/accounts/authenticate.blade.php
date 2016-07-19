@@ -73,8 +73,8 @@
                             }
 
                         ?>
-                            <label for="field-1" class="col-sm-1 customer_accountip control-label">Account IP</label>
-                        <div class="desc col-sm-5 customer_accountip table_{{count($AccountIPList)}}" >
+                            <label for="field-1" class="col-sm-1 customer_accountip control-label hidden">Account IP</label>
+                        <div class="desc col-sm-5 customer_accountip hidden table_{{count($AccountIPList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
@@ -173,8 +173,8 @@
                             </table>
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label customer_value_other">Value</label>
-                        <div class="desc col-sm-4 customer_value_other">
+                        <label for="field-1" class="col-sm-2 control-label hidden customer_value_other">Value</label>
+                        <div class="desc col-sm-4 hidden customer_value_other">
                             <input type="text" class="form-control"  name="CustomerAuthValueText" value="{{$CustomerAuthValue}}" id="CustomerAuthValueText">
                         </div>
                         <input type="hidden" class="form-control"  name="CustomerAuthValue" id="field-1" placeholder="" value="{{$CustomerAuthValue}}" />
@@ -220,8 +220,8 @@
                         }
                         ?>
 
-                            <label for="field-1" class="col-sm-1 vendor_accountip control-label">Account IP</label>
-                        <div class="desc col-sm-5 vendor_accountip table_{{count($AccountIPList)}}" >
+                            <label for="field-1" class="col-sm-1 vendor_accountip hidden control-label">Account IP</label>
+                        <div class="desc col-sm-5 vendor_accountip hidden table_{{count($AccountIPList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
@@ -321,8 +321,8 @@
                             </table>
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label vendor_value_other">Value</label>
-                        <div class="desc col-sm-4 vendor_value_other">
+                        <label for="field-1" class="col-sm-2 control-label hidden vendor_value_other">Value</label>
+                        <div class="desc col-sm-4 hidden vendor_value_other">
                             <input type="text" class="form-control"  name="VendorAuthRuleText" id="VendorAuthRuleText" value="{{$VendorAuthValue}}">
                         </div>
                         <input type="hidden" class="form-control"  name="VendorAuthValue" id="field-1" placeholder="" value="{{$VendorAuthValue}}" />
@@ -343,6 +343,17 @@
         attachchangeevent('customeriptable');
         attachchangeevent('vendorclitable');
         attachchangeevent('customerclitable');
+
+        if($('#customer_detail select[name="CustomerAuthRule"]').val()=='IP'){
+            $('.customer_accountip').removeClass('hidden');
+        }else if($('#customer_detail select[name="CustomerAuthRule"]').val()=='CLI'){
+            $('.customer_accountcli').removeClass('hidden');
+        }
+        if($('#vendor_detail select[name="VendorAuthRule"]').val()=='IP'){
+            $('.vendor_accountip').removeClass('hidden');
+        }else if($('#vendor_detail select[name="VendorAuthRule"]').val()=='CLI'){
+            $('.vendor_accountcli').removeClass('hidden');
+        }
         $('.vendoriptable,.customeriptable,.vendorclitable,.customerclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
@@ -413,41 +424,29 @@
         $('#CustomerAuthValueText').keyup(function () {
             $('#customer_detail').find('[name="CustomerAuthValue"]').val($(this).val());
         });
-        @if('{{$AccountAuthenticate->CustomerAuthRule}}' == 'IP')
-            $('.customer_accountip').show();
-        @endif
-        @if('{{$AccountAuthenticate->CustomerAuthRule}}' == 'CLI')
-            $('.customer_accountcli').show();
-        @endif
-        @if('{{$AccountAuthenticate->VendorAuthRule}}' == 'IP')
-            $('.vendor_accountip').show();
-        @endif
-        @if('{{$AccountAuthenticate->VendorAuthRule}}' == 'CLI')
-        $('.vendor_accountcli').show();
-        @endif
 
         $('[name="CustomerAuthRule"]').change(function(){
-            $('.customer_accountip').hide();
-            $('.customer_accountcli').hide();
-            $('.customer_value_other').hide();
+            $('.customer_accountip').addClass('hidden');
+            $('.customer_accountcli').addClass('hidden');
+            $('.customer_value_other').addClass('hidden');
             if($(this).val() == 'Other'){
-                $('.customer_value_other').show();
+                $('.customer_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
-                $('.customer_accountip').show();
+                $('.customer_accountip').removeClass('hidden');
             }else if($(this).val() == 'CLI'){
-                $('.customer_accountcli').show();
+                $('.customer_accountcli').removeClass('hidden');
             }
         });
         $('[name="VendorAuthRule"]').change(function(){
-            $('.vendor_accountip').hide();
-            $('.vendor_accountcli').hide();
-            $('.vendor_value_other').hide();
+            $('.vendor_accountip').addClass('hidden');
+            $('.vendor_accountcli').addClass('hidden');
+            $('.vendor_value_other').addClass('hidden');
             if($(this).val() == 'Other'){
-                $('.vendor_value_other').show();
+                $('.vendor_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
-                $('.vendor_accountip').show();
+                $('.vendor_accountip').removeClass('hidden');
             }else if($(this).val() == 'CLI'){
-                $('.vendor_accountcli').show();
+                $('.vendor_accountcli').removeClass('hidden');
             }
         });
         $("#form-addipcli-modal").submit(function(e){
@@ -461,7 +460,7 @@
             $.ajax({
                 url: url,
                 type:'POST',
-                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor},
+                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,type:type},
                 datatype:'json',
                 success: function(response) {
                     if (response.status == 'success') {
@@ -475,12 +474,12 @@
                 }
             });
         });
-        $('.customer_accountip').hide();
-        $('.customer_accountcli').hide();
-        $('.customer_value_other').hide();
-        $('.vendor_value_other').hide();
-        $('.vendor_accountip').hide();
-        $('.vendor_accountcli').hide();
+        $('.customer_accountip').addClass('hidden');
+        $('.customer_accountcli').addClass('hidden');
+        $('.customer_value_other').addClass('hidden');
+        $('.vendor_value_other').addClass('hidden');
+        $('.vendor_accountip').addClass('hidden');
+        $('.vendor_accountcli').addClass('hidden');
         $('[name="CustomerAuthRule"]').trigger('change');
         $('[name="VendorAuthRule"]').trigger('change');
 
