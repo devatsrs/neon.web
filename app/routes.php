@@ -96,7 +96,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
+	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
+	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
+	Route::post('/dashboard/getforecastdata', "DashboardController@GetForecastData");		
+	
+	
+	
 	Route::any('/monitor', "DashboardController@monitor_dashboard");
+	Route::any('/crmdashboard', "DashboardController@CrmDashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
     Route::any('/dashboard/ajax_get_jobs', "DashboardController@ajax_get_jobs");
@@ -191,8 +198,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account/ajax_datagrid_credit/{type}', 'AccountsController@ajax_datagrid_credit');
     Route::any('accounts/{id}/addips', 'AuthenticationController@addIps');
     Route::any('accounts/{id}/deleteips', 'AuthenticationController@deleteips');
-    Route::any('accounts/{id}/addclis', 'AccountsController@addclis');
-    Route::any('accounts/{id}/deleteclis', 'AccountsController@delete_clis');
+    Route::any('accounts/{id}/addclis', 'AuthenticationController@addclis');
+    Route::any('accounts/{id}/deleteclis', 'AuthenticationController@deleteclis');
 	Route::any('accounts/activity/{id}', 'AccountsController@expense');
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
@@ -735,6 +742,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/getlead', 'OpportunityController@getLead');
     Route::any('/opportunity/{id}/getDropdownLeadAccount', 'OpportunityController@getDropdownLeadAccount');
     Route::any('/opportunity/{id}/getopportunity', 'OpportunityController@getopportunity');
+    Route::any('/opportunity/{id}/ajax_opportunity_grid', 'OpportunityController@ajax_grid');
     Route::any('/opportunity/{id}/update', 'OpportunityController@update');
     Route::any('/opportunity/{id}/deleteattachment/{attachmentid}', 'OpportunityController@deleteAttachment');
     Route::any('/opportunity/{id}/updateColumnOrder', 'OpportunityController@updateColumnOrder');

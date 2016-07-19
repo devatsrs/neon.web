@@ -59,18 +59,21 @@
                         <div class="desc col-sm-4">
                             {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-1 customer_accountip control-label">Account IP</label>
                         <?php
                             $AccountIPList = array();
+                            $AccountCLIList = array();
                             $CustomerAuthValue = '';
                             if(!empty($AccountAuthenticate->CustomerAuthRule) && $AccountAuthenticate->CustomerAuthRule == 'IP'){
                                 $AccountIPList = array_filter(explode(',',$AccountAuthenticate->CustomerAuthValue));
+                            }elseif(!empty($AccountAuthenticate->CustomerAuthRule) && $AccountAuthenticate->CustomerAuthRule == 'CLI'){
+                                $AccountCLIList = array_filter(explode(',',$AccountAuthenticate->CustomerAuthValue));
                             }
                             if(!empty($AccountAuthenticate->CustomerAuthValue)){
                                 $CustomerAuthValue = $AccountAuthenticate->CustomerAuthValue;
                             }
 
                         ?>
+                            <label for="field-1" class="col-sm-1 customer_accountip control-label">Account IP</label>
                         <div class="desc col-sm-5 customer_accountip table_{{count($AccountIPList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
@@ -119,6 +122,57 @@
                                 </tbody>
                             </table>
                         </div>
+
+                            <label for="field-1" class="col-sm-1 customer_accountcli control-label">Account CLI</label>
+                        <div class="desc col-sm-5 customer_accountcli table_{{count($AccountCLIList)}}" >
+                            <div class="row dropdown">
+                                <div  class="col-md-12">
+                                    <div class="input-group-btn pull-right" style="width:70px;">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                            <li class="li_active">
+                                                <a class="customer-add-cli" type_ad="active" href="javascript:void(0);" >
+                                                    <i class="entypo-plus"></i>
+                                                    <span>Add</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" class="customer-delete-cli" >
+                                                    <i class="entypo-cancel"></i>
+                                                    <span>Delete</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div>
+                                <div class="clear"></div>
+                            </div>
+                            <br>
+                            <div id="customerclitableprocessing" class="dataTables_processing hidden">Processing...</div>
+                            <table id="customerclitable" class="table table-bordered datatable dataTable customerclitable ">
+                                <thead>
+                                <tr>
+                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th><th>CLI</th><th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @if(count($AccountCLIList))
+                                    @foreach($AccountCLIList as $index=>$row2)
+                                        <tr>
+                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
+                                            <td>
+                                                {{$row2}}
+                                            </td>
+                                            <td>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs customer-delete-cli"> <i class="entypo-cancel"></i> </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                                </tbody>
+                            </table>
+                        </div>
+
                         <label for="field-1" class="col-sm-2 control-label customer_value_other">Value</label>
                         <div class="desc col-sm-4 customer_value_other">
                             <input type="text" class="form-control"  name="CustomerAuthValueText" value="{{$CustomerAuthValue}}" id="CustomerAuthValueText">
@@ -152,17 +206,21 @@
                         <div class="desc col-sm-4">
                             {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-1 vendor_accountip control-label">Account IP</label>
                         <?php
                         $AccountIPList = array();
+                        $AccountCLIList = array();
                         $VendorAuthValue = '';
                         if(!empty($AccountAuthenticate->VendorAuthRule) && $AccountAuthenticate->VendorAuthRule == 'IP'){
                             $AccountIPList = array_filter(explode(',',$AccountAuthenticate->VendorAuthValue));
+                        }elseif(!empty($AccountAuthenticate->VendorAuthRule) && $AccountAuthenticate->VendorAuthRule == 'CLI'){
+                            $AccountCLIList = array_filter(explode(',',$AccountAuthenticate->VendorAuthValue));
                         }
                         if(!empty($AccountAuthenticate->VendorAuthValue)){
                             $VendorAuthValue = $AccountAuthenticate->VendorAuthValue;
                         }
                         ?>
+
+                            <label for="field-1" class="col-sm-1 vendor_accountip control-label">Account IP</label>
                         <div class="desc col-sm-5 vendor_accountip table_{{count($AccountIPList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
@@ -211,6 +269,58 @@
                                 </tbody>
                             </table>
                         </div>
+
+
+                            <label for="field-1" class="col-sm-1 vendor_accountcli control-label">Account CLI</label>
+                        <div class="desc col-sm-5 vendor_accountcli table_{{count($AccountCLIList)}}" >
+                            <div class="row dropdown">
+                                <div  class="col-md-12">
+                                    <div class="input-group-btn pull-right" style="width:70px;">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                            <li class="li_active">
+                                                <a class="vendor-add-cli" type_ad="active" href="javascript:void(0);" >
+                                                    <i class="entypo-plus"></i>
+                                                    <span>Add</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" class="vendor-delete-cli" >
+                                                    <i class="entypo-cancel"></i>
+                                                    <span>Delete</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div>
+                                <div class="clear"></div>
+                            </div>
+                            <br>
+                            <div id="vendorclitableprocessing" class="dataTables_processing hidden">Processing...</div>
+                            <table id="vendorclitable" class="table  table-bordered datatable dataTable vendorclitable ">
+                                <thead>
+                                <tr>
+                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th><th>CLI</th><th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @if(count($AccountCLIList))
+                                    @foreach($AccountCLIList as $index=>$row2)
+                                        <tr>
+                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
+                                            <td>
+                                                {{$row2}}
+                                            </td>
+                                            <td>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-cancel"></i> </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                                </tbody>
+                            </table>
+                        </div>
+
                         <label for="field-1" class="col-sm-2 control-label vendor_value_other">Value</label>
                         <div class="desc col-sm-4 vendor_value_other">
                             <input type="text" class="form-control"  name="VendorAuthRuleText" id="VendorAuthRuleText" value="{{$VendorAuthValue}}">
@@ -225,41 +335,77 @@
 @endif
 <script type="text/javascript">
     jQuery(document).ready(function($) {
-        var acountiptable;
+        var acountipclitable;
+        var type = 0;
         var isCustomerOrVendor=0;
         var accountID = {{$account->AccountID}};
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
-        $('.vendoriptable,.customeriptable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
+        attachchangeevent('vendorclitable');
+        attachchangeevent('customerclitable');
+        $('.vendoriptable,.customeriptable,.vendorclitable,.customerclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
         }});
         $('#save_account').click(function(){
             $(this).button('loading');
-            if($('[name="CustomerAuthRule"]')=='IP'){
-                $("#customer_detail [name='CustomerAuthValue']").val('');
+            if($('#customer_detail select[name="CustomerAuthRule"]').val()!='IP'){
+                $('.customeriptable').DataTable().fnClearTable();
+            }else if($('#customer_detail select[name="CustomerAuthRule"]').val()!='CLI'){
+                $('.customerclitable').DataTable().fnClearTable();
             }
-            if($('[name="VendorAuthRule"]')=='IP'){
-                $("#vendor_detail [name='VendorAuthValue']").val('');
+            if($('#vendor_detail select[name="VendorAuthRule"]').val()!='IP'){
+                $('.vendoriptable').DataTable().fnClearTable();
+            }else if($('#vendor_detail select[name="VendorAuthRule"]').val()!='CLI'){
+                $('.vendorclitable').DataTable().fnClearTable();
             }
             var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
-            submit_ajax(post_url,post_data);
+            submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
-        $('body').on('click', '.customer-add-ip', function(e) {
-            $('#form-addip-modal').find("[name='AccountIP']").val('');
+        /*$('body').on('click', '.customer-add-ip,.customer-add-cli', function(e) {
+            $('#form-addipcli-modal').find("[name='AccountIPCLI']").val('');
             $('.autogrow').trigger('autosize.resize');
-            $("#addip-modal").modal('show');
-            acountiptable = 'customeriptable';
+            $("#addipcli-modal").modal('show');
+            if($(this).hasClass('customer-add-ip')) {
+                acountipclitable = 'customeriptable';
+                type = 0; //0 for ip
+            }else if($(this).hasClass('customer-add-cli')){
+                acountipclitable = 'customerclitable';
+                type = 1; //1 for cli
+            }
             isCustomerOrVendor = 1; //1 for customer
-        });
-        $('body').on('click', '.vendor-add-ip', function(e) {
-            $('#form-addip-modal').find("[name='AccountIP']").val('');
+        });*/
+        $('body').on('click', '.vendor-add-ip,.vendor-add-cli,.customer-add-ip,.customer-add-cli', function(e) {
+            $('#form-addipcli-modal').find("[name='AccountIPCLI']").val('');
             $('.autogrow').trigger('autosize.resize');
-            $("#addip-modal").modal('show');
-            acountiptable = 'vendoriptable';
-            isCustomerOrVendor = 2; //2 for vendor
+            if($(this).hasClass('vendor-add-ip')) {
+                acountipclitable = 'vendoriptable';
+                type = 0; //0 for ip
+                isCustomerOrVendor = 2; //2 for vendor
+                $("#addipcli-modal").find('.modal-title').text('Add IP');
+                $("#addipcli-modal").find('.control-label').text('Add IP');
+            }else if($(this).hasClass('vendor-add-cli')){
+                acountipclitable = 'vendorclitable';
+                type = 1; //1 for cli
+                isCustomerOrVendor = 2; //2 for vendor
+                $("#addipcli-modal").find('.modal-title').text('Add CLI');
+                $("#addipcli-modal").find('.control-label').text('Add CLI');
+            }else if($(this).hasClass('customer-add-ip')){
+                acountipclitable = 'customeriptable';
+                type = 0; //0 for ip
+                isCustomerOrVendor = 1; //1 for customer
+                $("#addipcli-modal").find('.modal-title').text('Add IP');
+                $("#addipcli-modal").find('.control-label').text('Add IP');
+            }else if($(this).hasClass('customer-add-cli')){
+                acountipclitable = 'customerclitable';
+                type = 1; //1 for cli
+                isCustomerOrVendor = 1; //1 for customer
+                $("#addipcli-modal").find('.modal-title').text('Add CLI');
+                $("#addipcli-modal").find('.control-label').text('Add CLI');
+            }
+            $("#addipcli-modal").modal('show');
         });
         $('#VendorAuthRuleText').keyup(function () {
             $('#vendor_detail').find('[name="VendorAuthValue"]').val($(this).val());
@@ -270,40 +416,57 @@
         @if('{{$AccountAuthenticate->CustomerAuthRule}}' == 'IP')
             $('.customer_accountip').show();
         @endif
+        @if('{{$AccountAuthenticate->CustomerAuthRule}}' == 'CLI')
+            $('.customer_accountcli').show();
+        @endif
         @if('{{$AccountAuthenticate->VendorAuthRule}}' == 'IP')
             $('.vendor_accountip').show();
+        @endif
+        @if('{{$AccountAuthenticate->VendorAuthRule}}' == 'CLI')
+        $('.vendor_accountcli').show();
         @endif
 
         $('[name="CustomerAuthRule"]').change(function(){
             $('.customer_accountip').hide();
+            $('.customer_accountcli').hide();
             $('.customer_value_other').hide();
             if($(this).val() == 'Other'){
                 $('.customer_value_other').show();
             }else if($(this).val() == 'IP'){
                 $('.customer_accountip').show();
+            }else if($(this).val() == 'CLI'){
+                $('.customer_accountcli').show();
             }
         });
         $('[name="VendorAuthRule"]').change(function(){
             $('.vendor_accountip').hide();
+            $('.vendor_accountcli').hide();
             $('.vendor_value_other').hide();
             if($(this).val() == 'Other'){
                 $('.vendor_value_other').show();
             }else if($(this).val() == 'IP'){
                 $('.vendor_accountip').show();
+            }else if($(this).val() == 'CLI'){
+                $('.vendor_accountcli').show();
             }
         });
-        $("#form-addip-modal").submit(function(e){
+        $("#form-addipcli-modal").submit(function(e){
             e.preventDefault();
-            var ips=$(this).find("[name='AccountIP']").val().trim();
+            var ipclis=$(this).find("[name='AccountIPCLI']").val().trim();
+            if(type==0) {
+                var url = baseurl + '/accounts/' + accountID + '/addips';
+            }else if(type==1){
+                var url = baseurl + '/accounts/' + accountID + '/addclis';
+            }
             $.ajax({
-                url: baseurl + '/accounts/'+accountID+'/addips',
+                url: url,
                 type:'POST',
-                data:{ips:ips,isCustomerOrVendor:isCustomerOrVendor},
+                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor},
                 datatype:'json',
                 success: function(response) {
                     if (response.status == 'success') {
                         createTable(response);
-                        $("#addip-modal").modal('hide');
+                        $("#addipcli-modal").modal('hide');
                         toastr.success(response.message,'Success', toastr_opts);
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
@@ -313,9 +476,11 @@
             });
         });
         $('.customer_accountip').hide();
+        $('.customer_accountcli').hide();
         $('.customer_value_other').hide();
         $('.vendor_value_other').hide();
         $('.vendor_accountip').hide();
+        $('.vendor_accountcli').hide();
         $('[name="CustomerAuthRule"]').trigger('change');
         $('[name="VendorAuthRule"]').trigger('change');
 
@@ -348,33 +513,56 @@
             }
         });
 
-        $(document).on('click','.vendor-delete-ip,.customer-delete-ip',function(e){
+        $(document).on('click','.vendor-delete-ip,.vendor-delete-cli,.customer-delete-ip,.customer-delete-cli',function(e){
             e.preventDefault();
             if($(this).hasClass('icon-left')){
                var tr = $(this).parents('tr');
                 tr.addClass('selected');
                 tr.find('.rowcheckbox').prop("checked", true);
             }
-            acountiptable = $(this).hasClass('vendor-delete-ip')?'vendoriptable':'customeriptable';
-            isCustomerOrVendor = $(this).hasClass('vendor-delete-ip')?0:1;
-            var processing = $(this).hasClass('vendor-delete-ip')?'vendoriptableprocessing':'customeriptableprocessing';
-            var SelectedIDs = getselectedIDs(acountiptable);
+            if($(this).hasClass('vendor-delete-ip')){
+                acountipclitable = 'vendoriptable';
+                isCustomerOrVendor = 0;
+                var processing = 'vendoriptableprocessing';
+                var selection = 'IP Address';
+            }else if($(this).hasClass('vendor-delete-cli')){
+                acountipclitable = 'vendorclitable';
+                isCustomerOrVendor = 0;
+                var processing = 'vendorclitableprocessing';
+                var selection = 'CLI';
+            }else if($(this).hasClass('customer-delete-ip')){
+                acountipclitable = 'customeriptable';
+                isCustomerOrVendor = 1;
+                var processing = 'customeriptableprocessing';
+                var selection = 'IP Address';
+            }else if($(this).hasClass('customer-delete-cli')){
+                acountipclitable = 'customerclitable';
+                isCustomerOrVendor = 1;
+                var processing = 'customerclitableprocessing';
+                var selection = 'CLI';
+            }
+            var SelectedIDs = getselectedIDs(acountipclitable);
             if (SelectedIDs.length == 0) {
-                toastr.error('Please select at least one IP Address.', "Error", toastr_opts);
+                toastr.error('Please select at least one '+selection+'.', "Error", toastr_opts);
                 return false;
             }else{
-                if(confirm('Are you sure you want to delete selected IP Addresses?')){
+                if(confirm('Are you sure you want to delete selected '+selection+'?')){
                     $('#'+processing).removeClass('hidden');
-                    var url = baseurl + "/accounts/"+accountID+"/deleteips";
-                    var ips = SelectedIDs.join(",");
+                    if(type == 0){
+                        var url = baseurl + "/accounts/"+accountID+"/deleteips";
+                    }else{
+                        var url = baseurl + "/accounts/"+accountID+"/deleteclis";
+                    }
+                    var ipclis = SelectedIDs.join(",");
                     $.ajax({
                         url: url,
                         type:'POST',
-                        data:{ips:ips,isCustomerOrVendor:isCustomerOrVendor},
+                        data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor},
                         datatype:'json',
                         success: function(response) {
                             if (response.status == 'success') {
                                 createTable(response);
+                                $('.selectall').prop("checked", false);
                                 toastr.success(response.message,'Success', toastr_opts);
                             }else{
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -388,26 +576,38 @@
         });
 
         function createTable(response){
-            var class_deletip = '';
-            if(acountiptable == 'customeriptable'){
-                class_deletip = 'customer-delete-ip';
-            }else if(acountiptable == 'vendoriptable'){
-                class_deletip = 'vendor-delete-ip';
+            var class_deletipcli = '';
+            if(acountipclitable == 'customeriptable'){
+                class_deletipcli = 'customer-delete-ip';
+            }else if(acountipclitable == 'customerclitable'){
+                class_deletipcli = 'customer-delete-cli';
+            }else if(acountipclitable == 'vendoriptable'){
+                class_deletipcli = 'vendor-delete-ip';
+            }else if(acountipclitable == 'vendorclitable'){
+                class_deletipcli = 'vendor-delete-cli';
             }
-            $('.' + acountiptable).dataTable().fnDestroy();
-            var accoutiphtml = '';
-            if(response.ips) {
-                $.each(response.ips, function (index, item) {
+            $('.' + acountipclitable).dataTable().fnDestroy();
+            var accoutipclihtml = '';
+            if(response.ipclis) {
+                $.each(response.ipclis, function (index, item) {
 					if(item){
-                    accoutiphtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletip +'"> <i class="entypo-cancel"></i> </button></td></tr>';
+                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-cancel"></i> </button></td></tr>';
 					}
                 });
-                $('.' + acountiptable).children('tbody').html(accoutiphtml);
-                $('.' + acountiptable).DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
+                $('.' + acountipclitable).children('tbody').html(accoutipclihtml);
+                $('.' + acountipclitable).DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
                 }});
+            }
+
+            if(response.object){
+                if(acountipclitable == 'customeriptable' || acountipclitable == 'customerclitable'){
+                    $('#customer_detail [name="CustomerAuthValue"]').val(response.object.CustomerAuthValue);
+                }else if(acountipclitable == 'vendoriptable' || acountipclitable == 'vendorclitable'){
+                    $('#vendor_detail [name="VendorAuthValue"]').val(response.object.VendorAuthValue);
+                }
             }
         }
 
@@ -438,10 +638,10 @@
 @stop
 @section('footer_ext')
 @parent
-<div class="modal fade" id="addip-modal" >
+<div class="modal fade" id="addipcli-modal" >
     <div class="modal-dialog" style="width: 30%;">
         <div class="modal-content">
-            <form role="form" id="form-addip-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+            <form role="form" id="form-addipcli-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Add IP</h4>
@@ -450,8 +650,8 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Account IP</label>
                         <div class="col-sm-9">
-                            <textarea name="AccountIP" class="form-control autogrow"></textarea>
-                            *Adding multiple IPS ,Add one IP in each line.
+                            <textarea name="AccountIPCLI" class="form-control autogrow"></textarea>
+                            *Adding multiple IPS or CLIs ,Add one IP or CLI in each line.
                         </div>
                     </div>
                 </div>

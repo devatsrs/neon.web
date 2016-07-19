@@ -51,7 +51,7 @@
                             <label for="field-1" class="col-sm-1 control-label">Status</label>
                             <div class="col-sm-2">
 
-                                 {{ Form::select('Status', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
 
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>
@@ -76,7 +76,7 @@
                         </div>
 
                         <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                 <i class="entypo-search"></i>
                                 Search
                             </button>
@@ -137,12 +137,16 @@
                 "aaSorting": [[0, 'desc']],
                 "fnRowCallback": function( nRow, data, iDisplayIndex, iDisplayIndexFull ) {
 
-                    if(typeof data[10] != 'undefined' && data[10] == 0  ){ // Last failed CronJob 'CronJobStatus'
-                        $(nRow).css('background-color', '#c50606');
+                    if(typeof data[10] != 'undefined' && data[10] == "{{CronJob::CRON_FAIL}}"  ){ // Last failed CronJob 'CronJobStatus'
+                        $(nRow).css('background-color', '#f88379');
+                        $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is failing..." data-placement="top" class="badge badge-danger" data-toggle="tooltip">i</span>');
                     }
                     if(typeof data[7] != 'undefined' && data[7] == 0  ){ // 'Status'  InActive CronJob Gray color
                         $(nRow).css('background-color', '#eaeaea');
+                        $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is Disabled" data-placement="top" class="badge badge-warning" data-toggle="tooltip">i</span>');
                     }
+
+
 
                 },
                 "aoColumns":
@@ -285,7 +289,7 @@
                 $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
 
                 data_table.fnFilter('', 0);
-                $(".btn").button('reset');
+
                 return false;
             });
 
