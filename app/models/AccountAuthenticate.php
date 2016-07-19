@@ -61,12 +61,14 @@ class AccountAuthenticate extends \Eloquent {
             $data['CustomerAuthValue'] = $ipclis;
             if(!empty($rule) && $rule->CustomerAuthRule!=$data['CustomerAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
                 AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->update(['CustomerAuthValue'=>'']);
+                $rule->CustomerAuthValue = '';
             }
         }else{
             $data['VendorAuthRule'] = $type;
             $data['VendorAuthValue'] = $ipclis;
             if(!empty($rule) && $rule->VendorAuthRule!=$data['VendorAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
                 AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->update(['VendorAuthValue'=>'']);
+                $rule->VendorAuthValue = '';
             }
         }
         if (isset($data['CustomerAuthRule'])) {
