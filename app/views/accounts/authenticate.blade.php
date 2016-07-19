@@ -173,8 +173,8 @@
                             </table>
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label customer_value_other">Value</label>
-                        <div class="desc col-sm-4 customer_value_other">
+                        <label for="field-1" class="col-sm-2 control-label hidden customer_value_other">Value</label>
+                        <div class="desc col-sm-4 hidden customer_value_other">
                             <input type="text" class="form-control"  name="CustomerAuthValueText" value="{{$CustomerAuthValue}}" id="CustomerAuthValueText">
                         </div>
                         <input type="hidden" class="form-control"  name="CustomerAuthValue" id="field-1" placeholder="" value="{{$CustomerAuthValue}}" />
@@ -321,8 +321,8 @@
                             </table>
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label vendor_value_other">Value</label>
-                        <div class="desc col-sm-4 vendor_value_other">
+                        <label for="field-1" class="col-sm-2 control-label hidden vendor_value_other">Value</label>
+                        <div class="desc col-sm-4 hidden vendor_value_other">
                             <input type="text" class="form-control"  name="VendorAuthRuleText" id="VendorAuthRuleText" value="{{$VendorAuthValue}}">
                         </div>
                         <input type="hidden" class="form-control"  name="VendorAuthValue" id="field-1" placeholder="" value="{{$VendorAuthValue}}" />
@@ -430,7 +430,7 @@
             $('.customer_accountcli').addClass('hidden');
             $('.customer_value_other').addClass('hidden');
             if($(this).val() == 'Other'){
-                $('.customer_value_other').show();
+                $('.customer_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.customer_accountip').removeClass('hidden');
             }else if($(this).val() == 'CLI'){
@@ -442,7 +442,7 @@
             $('.vendor_accountcli').addClass('hidden');
             $('.vendor_value_other').addClass('hidden');
             if($(this).val() == 'Other'){
-                $('.vendor_value_other').show();
+                $('.vendor_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.vendor_accountip').removeClass('hidden');
             }else if($(this).val() == 'CLI'){
