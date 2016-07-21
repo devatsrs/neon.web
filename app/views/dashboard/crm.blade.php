@@ -33,23 +33,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-sm-6">
-    <div class="panel panel-primary panel-table">
-      <div class="panel-heading">
-        <div class="panel-title">
-          <h3>Pipeline Summary</h3>
-          <div class="PipeLineResult"></div>
-        </div>
-        <div id="Pipeline" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
-      </div>
-      <div class="panel-body">
-        <div class="text-center">
-          <div id="crmdpipeline1" class="crmdpipeline"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6">
+<div class="col-md-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
@@ -110,6 +94,23 @@
     </div>
     <div class="panel-body Sales-body"> </div>
   </div>
+  <div class="col-sm-6">
+    <div class="panel panel-primary panel-table">
+      <div class="panel-heading">
+        <div class="panel-title">
+          <h3>Pipeline Summary</h3>
+          <div class="PipeLineResult"></div>
+        </div>
+        <div id="Pipeline" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
+      </div>
+      <div class="panel-body">
+        <div class="text-center">
+          <div id="crmdpipeline1" class="crmdpipeline"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 </div>
 
 <div class="row">  
@@ -130,6 +131,12 @@
                 </div>
                 <div class="col-sm-6">
                   <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
+                </div>
+              </div>
+              
+              <div class="form-group form-group-padding-none">
+                <div class="pull-left">
+                  <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
                 </div>
               </div>
               
