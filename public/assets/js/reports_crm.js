@@ -189,7 +189,7 @@
                             }
                             action += '</div>';
                            if(task_edit==1){
-                            action += ' <button type="button" data-id="' + full[2] + '" class="edit-deal btn btn-default"><i class="entypo-pencil"></i>Edit </button>'; }
+                            action += ' <button type="button" data-id="' + full[2] + '" class="edit-deal btn btn-default"><i class="entypo-pencil"></i></button>'; }
                             return action;
                         }
                     }
