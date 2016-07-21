@@ -874,6 +874,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
 	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
 
+	//Retention
+	Route::any('/retention', "RetentionController@index");
+	Route::any('/retention/create', "RetentionController@create");
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
