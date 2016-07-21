@@ -168,23 +168,36 @@ class DashboardController extends BaseController {
 		$currency 			= 	Currency::getCurrencyDropdownIDList();
 		$UserID 			= 	User::get_userID();
 		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
-		$users			 	= 	User::getUserIDList();
+		$users			 	= 	User::getUserIDListAll(0);
 		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
 		//$DateEndDefault  	= 	date('m/d/Y');
 		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
 		$DateEndDefault  	= 	date('Y-m-d');
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault'));	
+	    $account_owners 	= 	User::getUserIDList();
+        $boards 			= 	CRMBoard::getBoards();
+		$TaskBoard			= 	CRMBoard::getTaskBoard();
+        $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
+		$where['Status']=1;
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+		$leadOrAccount 		= 	Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+		  if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
+        }
+        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount'));	
 	}
 	
-	public function GetUsersTasks(){		
-	     $data 			= 	 Input::all();			
-		 $response 		= 	 NeonAPI::request('dashboard/GetUsersTasks',$data,true);
-		  if($response->status=='failed'){
-			return json_response_api($response,false,true);
-		}else{
-			return $response->data;
-		}
-	}
+	public function GetUsersTasks(){
+       $data = Input::all();
+        $data['iDisplayStart'] +=1;
+		if(User::is('AccountManager')){
+            $data['AccountOwner'] = User::get_userID();
+        }
+        $response = NeonAPI::request('dashboard/GetUsersTasks',$data,true);
+        return json_response_api($response,true,true,true);
+    }
 	
 	function GetPipleLineData(){
 		 $data 			= 	 Input::all();			
@@ -197,6 +210,16 @@ class DashboardController extends BaseController {
 		
      }
 	
+	public function getSalesdata(){ //crm dashboard
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetSalesdata',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
 	public function GetForecastData(){ //crm dashboard
 		 $data 			= 	 Input::all();			
 		 $response 		= 	 NeonAPI::request('dashboard/GetForecastData',$data,true);
@@ -206,6 +229,19 @@ class DashboardController extends BaseController {
 			return $response->data;
 		}
 	}
+	
+	
+	
+	 public function GetOpportunites(){
+        $data = Input::all();  
+        $data['iDisplayStart'] +=1;
+        if(User::is('AccountManager')){
+            $data['AccountOwner'] = User::get_userID();
+        }
+        $response = NeonAPI::request('dashboard/get_opportunities_grid',$data,true);
+        return json_response_api($response,true,true,true);
+    }
+	
 
     public function ajax_get_recent_due_sheets(){
         $companyID = User::get_companyID();

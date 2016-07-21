@@ -61,7 +61,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
                     <div class="panel panel-primary" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -1066,7 +1066,7 @@
                                     <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
-                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
                                         <input type="hidden" name="attachmentsinfo" >
                                     </div>
@@ -1085,7 +1085,7 @@
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-8"></div>
                             <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="OpportunityID" >
                             </div>
                         </form>
