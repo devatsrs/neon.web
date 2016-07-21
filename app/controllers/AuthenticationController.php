@@ -82,10 +82,10 @@ class AuthenticationController extends \BaseController
             return Response::json(array("status" => "error", "message" => $status['message']));
         }
 
-        if((isset($save['CustomerAuthValue']) && !empty($save['CustomerAuthValue'])) || (isset($save['CustomerAuthValue']) && !empty($save['VendorAuthValue']))){
-            if($isCustomerOrVendor=='Customer') {
+        if((isset($save['CustomerAuthValue'])) || (isset($save['VendorAuthValue']))){
+            if($isCustomerOrVendor=='Customer' && !empty($save['CustomerAuthValue'])) {
                  $status['toBeInsert']=explode(',',$save['CustomerAuthValue']);
-            }else{
+            }elseif($isCustomerOrVendor=='Vendor' && !empty($save['VendorAuthValue'])){
                 $status['toBeInsert']=explode(',',$save['VendorAuthValue']);
             }
             if(AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->count()>0){
@@ -94,7 +94,7 @@ class AuthenticationController extends \BaseController
                 AccountAuthenticate::insert($save);
             }
             $object = AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->first();
-            return Response::json(array("status" => "success","ipclis"=> $status['toBeInsert'],"object"=>$object, "message" => $status['message']));
+            return Response::json(array("status" => "success","object"=>$object, "message" => $status['message']));
         }
     }
 

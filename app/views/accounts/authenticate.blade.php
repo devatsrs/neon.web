@@ -587,8 +587,16 @@
             }
             $('.' + acountipclitable).dataTable().fnDestroy();
             var accoutipclihtml = '';
-            if(response.ipclis) {
-                $.each(response.ipclis, function (index, item) {
+            var authValue = [];
+            if(response.object) {
+                if(acountipclitable == 'customeriptable' || acountipclitable == 'customerclitable'){
+                    $('#customer_detail [name="CustomerAuthValue"]').val(response.object.CustomerAuthValue);
+                    authValue = response.object.CustomerAuthValue.split(',');
+                }else if(acountipclitable == 'vendoriptable' || acountipclitable == 'vendorclitable'){
+                    $('#vendor_detail [name="VendorAuthValue"]').val(response.object.VendorAuthValue);
+                    authValue = response.object.VendorAuthValue.split(',');
+                }
+                $.each(authValue, function (index, item) {
 					if(item){
                     accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-cancel"></i> </button></td></tr>';
 					}
@@ -599,14 +607,6 @@
                         minimumResultsForSearch: -1
                     });
                 }});
-            }
-
-            if(response.object){
-                if(acountipclitable == 'customeriptable' || acountipclitable == 'customerclitable'){
-                    $('#customer_detail [name="CustomerAuthValue"]').val(response.object.CustomerAuthValue);
-                }else if(acountipclitable == 'vendoriptable' || acountipclitable == 'vendorclitable'){
-                    $('#vendor_detail [name="VendorAuthValue"]').val(response.object.VendorAuthValue);
-                }
             }
         }
 
