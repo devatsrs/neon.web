@@ -4,7 +4,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
 	IN `p_Tags` VARCHAR(50),
-	IN `p_OwnerID` INT,
+	IN `p_OwnerID` VARCHAR(100),
 	IN `p_AccountID` INT,
 	IN `p_Status` VARCHAR(50),
 	IN `p_CurrencyID` INT,
@@ -40,7 +40,10 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
 		TaggedUsers varchar(100),
 		`Status` int,
  	   Worth int,
-		OpportunityClosed int	
+		OpportunityClosed int,
+		ClosingDate varchar(15),
+		ExpectedClosing varchar(15),
+		StartTime varchar(15)
 );
   
 		insert into tmp_Oppertunites_
@@ -68,7 +71,10 @@ SELECT
 		o.TaggedUsers,
 		o.`Status`,
  	   o.Worth,
- 	   o.OpportunityClosed
+ 	   o.OpportunityClosed,
+ 	   Date(o.ClosingDate) as ClosingDate,
+ 	   Date(o.ExpectedClosing) as ExpectedClosing,
+		Time(o.ExpectedClosing) as StartTime
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND b.BoardID = p_BoardID
