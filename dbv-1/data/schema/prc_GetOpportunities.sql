@@ -12,7 +12,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 )
 BEGIN
 		
-	DECLARE WorthTotal int;	
+	DECLARE v_WorthTotal DECIMAL(18,8);
+	DECLARE v_Round_ int;
+	
+	SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;	
 		
  DROP TEMPORARY TABLE IF EXISTS tmp_Oppertunites_;
 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
@@ -39,7 +42,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
 		Rating int,
 		TaggedUsers varchar(100),
 		`Status` int,
- 	   Worth int,
+ 	   Worth DECIMAL(18,8),
 		OpportunityClosed int,
 		ClosingDate varchar(15),
 		ExpectedClosing varchar(15),
@@ -95,10 +98,10 @@ LEFT JOIN tblUser u on u.UserID = o.UserID
 ORDER BY bc.`Order`,o.`Order`;
 
 
-SELECT sum(Worth) as TotalWorth INTO WorthTotal from tmp_Oppertunites_;
+SELECT sum(Worth) as TotalWorth INTO v_WorthTotal from tmp_Oppertunites_;
 
  SELECT		*,	           
-			WorthTotal
+			ROUND(v_WorthTotal,v_Round_) as WorthTotal
         FROM tmp_Oppertunites_ ;
 
 END//

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `tblOpportunity` (
   `AttachmentPaths` longtext COLLATE utf8_unicode_ci,
   `TaggedUsers` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Status` int(11) DEFAULT NULL,
-  `Worth` int(11) DEFAULT '0',
+  `Worth` decimal(18,8) DEFAULT '0.00000000',
   `OpportunityClosed` tinyint(4) DEFAULT '0',
   `ClosingDate` datetime DEFAULT NULL,
   `ExpectedClosing` datetime DEFAULT NULL,
@@ -30,4 +30,4 @@ CREATE TABLE IF NOT EXISTS `tblOpportunity` (
   `updated_at` datetime(3) DEFAULT NULL,
   `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`OpportunityID`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

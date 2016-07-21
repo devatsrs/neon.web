@@ -145,10 +145,11 @@
                 <thead>
                 <tr>
                     <th width="25%" >Name</th>
-                    <th width="10%" >Status</th>
+                    <th width="5%" >Status</th>
                     <th width="20%">Assigned To</th>
                     <th width="20%">Related To</th>
                     <th width="10%" >Expected Close Date</th>
+                    <th width="5%" >Value</th>
                     <th width="5%" >Rating</th>
                     <th width="10%">Action</th>
                 </tr>
@@ -271,6 +272,12 @@
                         "bSortable": true, //Expected Closing
                         mRender: function (id, type, full) {
                             return full[23];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Value
+                        mRender: function (id, type, full) {
+                            return full[20];
                         }
                     },
                     {
@@ -980,7 +987,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Value</label>
                                     <div class="col-sm-8">
-                                        <input class="form-control" value="" name="Worth" type="number" >
+                                        <input class="form-control" value="0" name="Worth" type="number" step="any" min=”0″>
                                     </div>
                                 </div>
                             </div>

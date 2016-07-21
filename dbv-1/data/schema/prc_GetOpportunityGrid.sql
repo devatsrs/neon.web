@@ -16,10 +16,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 )
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET SESSION group_concat_max_len = 1024;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 SELECT 
 		bc.BoardColumnID,
 		bc.BoardColumnName,
@@ -41,7 +44,7 @@ SELECT
 		o.Rating,
 		o.TaggedUsers,
 		o.`Status`,
- 	   o.Worth,
+ 	   ROUND(o.Worth,v_Round_) as Worth,
  	   o.OpportunityClosed,
  	   Date(o.ClosingDate) as ClosingDate,
  	   Date(o.ExpectedClosing) as ExpectedClosing,
@@ -92,13 +95,19 @@ ORDER BY
 		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RelatedToDESC') THEN o.Company
 		 END DESC,
 		 CASE
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RelatedToASC') THEN o.Company
+		 END ASC,
+		 CASE
 		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ExpectedClosingASC') THEN o.ExpectedClosing
 		 END ASC,
 		 CASE
 		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ExpectedClosingDESC') THEN o.ExpectedClosing
 		 END DESC,
 		 CASE
-		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RatingASC') THEN o.Rating
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ValueDESC') THEN o.Worth
+		 END DESC,
+		 CASE
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ValueASC') THEN o.Worth
 		 END ASC,
 		 CASE
 		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RatingDESC') THEN o.Rating

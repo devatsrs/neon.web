@@ -456,7 +456,7 @@
                                     <label for="field-5" class="control-label col-sm-4">Value</label>
 
                                     <div class="col-sm-8">
-                                        <input class="form-control" value="0" name="Worth" type="number">
+                                        <input class="form-control" value="0" name="Worth" type="number" step="any" min=”0″>
                                     </div>
                                 </div>
                             </div>
