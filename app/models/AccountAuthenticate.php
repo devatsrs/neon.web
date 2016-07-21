@@ -20,7 +20,6 @@ class AccountAuthenticate extends \Eloquent {
             $status['message'] = $isCustomerOrVendor." ".$type." required";
             return $status;
         }
-
         $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
         $select = ['tblAccount.AccountName',DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue) as authValue")];
         $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID']])->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')->select($select)->lists('authValue','AccountName');

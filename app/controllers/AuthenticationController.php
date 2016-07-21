@@ -82,7 +82,7 @@ class AuthenticationController extends \BaseController
             return Response::json(array("status" => "error", "message" => $status['message']));
         }
 
-        if(!empty($save['CustomerAuthValue']) || !empty($save['VendorAuthValue'])){
+        if((isset($save['CustomerAuthValue']) && !empty($save['CustomerAuthValue'])) || (isset($save['CustomerAuthValue']) && !empty($save['VendorAuthValue']))){
             if($isCustomerOrVendor=='Customer') {
                  $status['toBeInsert']=explode(',',$save['CustomerAuthValue']);
             }else{
