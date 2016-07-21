@@ -132,13 +132,11 @@
                 <div class="col-sm-6">
                   <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
                 </div>
+                   <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+
               </div>
               
-              <div class="form-group form-group-padding-none">
-                <div class="pull-left">
-                  <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
-                </div>
-              </div>
+              
               
               
               <div class="text-center">
