@@ -86,7 +86,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');
-	Route::any('users/ajax_datagrid', 'UsersController@ajax_datagrid');
+	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
 
@@ -160,8 +160,10 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/task/GetTask', 'TaskController@GetTask');
 	Route::any('/task/{id}/delete_task', 'TaskController@delete_task');
+	Route::any('/account/upload_file', 'AccountsController@upload_file');
 	Route::any('/accounts/get_note', 'AccountsController@get_note');
 	Route::any('/account/note/update', 'AccountsController@update_note');	
+	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
 	

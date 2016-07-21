@@ -45,7 +45,9 @@
             'Tags',
             'Rating',
             'TaggedUsers',
-            'Status'
+            'Status',
+            'Worth',
+            'ExpectedClosing'
         ];
         var readonly = ['Company', 'Phone', 'Email', 'Title', 'FirstName', 'LastName'];
         var ajax_complete = false;
@@ -93,6 +95,8 @@
                     elem.val('');
                     if (opportunity[i] == 'Tags') {
                         elem.val('').trigger("change");
+                    }else if(opportunity[i] == 'Worth') {
+                        elem.val(0).trigger("change");
                     }
                 }
             }
@@ -447,12 +451,21 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 margin-top pull-left">
+                            <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Value</label>
 
                                     <div class="col-sm-8">
-                                        <input class="form-control" value="0" name="Worth" type="number">
+                                        <input class="form-control" value="0" name="Worth" type="number" step="any" min=”0″>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-right">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Expected Close Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" type="text" name="ExpectedClosing" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
                                 </div>
                             </div>

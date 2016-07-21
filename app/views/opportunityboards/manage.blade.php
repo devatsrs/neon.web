@@ -30,15 +30,15 @@
         cursor: pointer;
     }
 
-    .WorthBox{display:none;}
+    .WorthBox{display:none;  max-width: 100%; padding-left:15px;}
     .oppertunityworth{
         border-radius:5px;
         border:2px solid #ccc;
         background:#fff;
-        padding:0 0 0 6px;
+        padding:0 6px;
         margin-bottom:10px;
-        width:60%;
         font-weight:bold;
+        width:100%;
     }
 
 </style>
@@ -134,7 +134,7 @@
 
         <section class="deals-board" >
             <div class="row">
-                <div class="WorthBox col-sm-2 pull-left">
+                <div class="WorthBox pull-left">
                     <div class="oppertunityworth">
                         <h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
                     </div>
@@ -145,10 +145,12 @@
                 <thead>
                 <tr>
                     <th width="25%" >Name</th>
-                    <th width="15%" >Status</th>
+                    <th width="5%" >Status</th>
                     <th width="20%">Assigned To</th>
                     <th width="20%">Related To</th>
-                    <th width="10%" >Rating</th>
+                    <th width="10%" >Expected Close Date</th>
+                    <th width="5%" >Value</th>
+                    <th width="5%" >Rating</th>
                     <th width="10%">Action</th>
                 </tr>
                 </thead>
@@ -191,7 +193,9 @@
                 'TaggedUsers',
                 'Status',
                 'Worth',
-                'OpportunityClosed'
+                'OpportunityClosed',
+                'ClosingDate',
+                'ExpectedClosing'
             ];
 
             @if(empty($message)){
@@ -265,6 +269,18 @@
                         }
                     },
                     {
+                        "bSortable": true, //Expected Closing
+                        mRender: function (id, type, full) {
+                            return full[23];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Value
+                        mRender: function (id, type, full) {
+                            return full[20];
+                        }
+                    },
+                    {
                         "bSortable": true, //Rating
                         mRender: function (id, type, full) {
                             return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[17]+'" />';
@@ -325,6 +341,9 @@
                 }
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
+                var OpportunityClosed = 0;
+                $('.closedDate').addClass('hidden');
+                $('#closedDate').text('');
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
@@ -346,9 +365,20 @@
                             elem.val(val).trigger("change");
                         }else if(opportunity[i]=='OpportunityClosed'){
                             if(val==1){
+                                OpportunityClosed = 1;
                                 biuldSwicth('.make','#edit-opportunity-form','checked');
                             }else{
                                 biuldSwicth('.make','#edit-opportunity-form','');
+                            }
+                        }else if(opportunity[i]=='ClosingDate'){
+                            if(OpportunityClosed==1){
+                                $('.closedDate').removeClass('hidden');
+                                $('#closedDate').text(val);
+                            }
+                        }
+                        else if(opportunity[i]=='ExpectedClosing'){
+                            if(val=='0000-00-00'){
+                                elem.val('');
                             }
                         }
                     }
@@ -957,7 +987,16 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Value</label>
                                     <div class="col-sm-8">
-                                        <input class="form-control" value="" name="Worth" type="number" >
+                                        <input class="form-control" value="0" name="Worth" type="number" step="any" min=”0″>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Expected Close Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" type="text" name="ExpectedClosing" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
                                 </div>
                             </div>
@@ -965,10 +1004,14 @@
                             <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Close</label>
-                                    <div class="col-sm-8 make">
+                                    <div class="col-sm-3 make">
                                         <p class="make-switch switch-small">
                                             <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
                                         </p>
+                                    </div>
+                                    <label class="col-sm-2 control-label closedDate hidden">Closed Date</label>
+                                    <div class="col-sm-3">
+                                        <span id="closedDate"></span>
                                     </div>
                                 </div>
                             </div>
