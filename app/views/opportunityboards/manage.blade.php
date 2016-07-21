@@ -30,15 +30,15 @@
         cursor: pointer;
     }
 
-    .WorthBox{display:none;}
+    .WorthBox{display:none;  max-width: 100%; padding-left:15px;}
     .oppertunityworth{
         border-radius:5px;
         border:2px solid #ccc;
         background:#fff;
-        padding:0 0 0 6px;
+        padding:0 6px;
         margin-bottom:10px;
-        width:60%;
         font-weight:bold;
+        width:100%;
     }
 
 </style>
@@ -134,7 +134,7 @@
 
         <section class="deals-board" >
             <div class="row">
-                <div class="WorthBox col-sm-2 pull-left">
+                <div class="WorthBox pull-left">
                     <div class="oppertunityworth">
                         <h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
                     </div>
