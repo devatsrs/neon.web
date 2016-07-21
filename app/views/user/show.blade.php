@@ -95,7 +95,7 @@
             }
 
         });
-
+        data_table.fnFilter(1, 0);
 
         $('#UserStatus').change(function() {
             if ($(this).is(":checked")) {
