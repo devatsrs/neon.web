@@ -565,7 +565,7 @@ function GetSalesData(){
                     xAxis: {
                         categories: dataObj.dates.split(','),
                         title: {
-                            text: "Dates"
+                            text: ""
                         }
                     },
                     yAxis: {
