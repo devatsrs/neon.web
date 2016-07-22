@@ -171,6 +171,7 @@ class DashboardController extends BaseController {
 		$users			 	= 	User::getUserIDListAll(0);
 		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
 		//$DateEndDefault  	= 	date('m/d/Y');
+		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +3 months'));
 		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
 		$DateEndDefault  	= 	date('Y-m-d');
 	    $account_owners 	= 	User::getUserIDList();
@@ -186,7 +187,7 @@ class DashboardController extends BaseController {
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount'));	
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast'));	
 	}
 	
 	public function GetUsersTasks(){
