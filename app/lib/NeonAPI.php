@@ -64,7 +64,7 @@ class NeonAPI{
         return $api_token;
     }
     public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
-        self::$api_url = 'http://localhost/girish/neon/api/api.girish/public/api/';
+        self::$api_url = getenv('Neon_API_URL');
         $token = self::getToken();
         $curl = new Curl\Curl();
 
