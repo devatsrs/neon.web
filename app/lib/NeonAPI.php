@@ -64,7 +64,7 @@ class NeonAPI{
         return $api_token;
     }
     public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
-        self::$api_url = getenv('Neon_API_URL');
+        self::$api_url = 'http://localhost/girish/neon/api/api.girish/public/api/';
         $token = self::getToken();
         $curl = new Curl\Curl();
 
@@ -77,7 +77,11 @@ class NeonAPI{
         }
         $post_data['LicenceKey'] = getenv('LICENCE_KEY');
         $post_data['CompanyName']= getenv('COMPANY_NAME');
-        if($post) {
+        if($post === 'delete') {
+            $curl->delete(self::$api_url . $call_method, $post_data);
+        }else if($post === 'put') {
+            $curl->put(self::$api_url . $call_method, $post_data);
+        }else if($post) {
             $curl->post(self::$api_url . $call_method, $post_data);
         }else{
             $curl->get(self::$api_url.$call_method,$post_data);

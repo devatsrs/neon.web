@@ -2097,3 +2097,16 @@ background:#AC33FF none repeat scroll 0 0;
 .checkbox-replace.color-purple .cb-wrapper, .radio-replace.color-purple .cb-wrapper{
 border:1px solid #AC33FF;
 }
+.discount_progress{
+    height: 25px;
+    position: relative;
+    background-color: #008d4c;
+}
+.discount_progress .progress-bar-success{
+    background-color: #ffa812;
+}
+.discount_progress span{
+    position: absolute;
+    margin-top: 5px;
+
+}

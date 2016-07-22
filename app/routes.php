@@ -886,6 +886,39 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
 	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
 
+	//Destination Group Set
+	Route::any('/destination_group_set','DestinationGroupController@index');
+	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupController@ajax_datagrid');
+	Route::any('/destination_group_set/store','DestinationGroupController@store');
+	Route::any('/destination_group_set/update/{id}','DestinationGroupController@update');
+	Route::any('/destination_group_set/delete/{id}','DestinationGroupController@delete');
+	Route::any('/destination_group_set/show/{id}','DestinationGroupController@show');
+
+	//Destination Group
+	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
+	Route::any('/destination_group/store','DestinationGroupController@group_store');
+	Route::any('/destination_group/update/{id}','DestinationGroupController@group_update');
+	Route::any('/destination_group/delete/{id}','DestinationGroupController@group_delete');
+	Route::any('/destination_group/show/{id}','DestinationGroupController@group_show');
+	Route::any('/destination_group_code/ajax_datagrid','DestinationGroupController@code_ajax_datagrid');
+
+	//Discount Plan
+	Route::any('/discount_plan','DiscountController@index');
+	Route::any('/discount_plan/ajax_datagrid','DiscountController@ajax_datagrid');
+	Route::any('/discount_plan/store','DiscountController@store');
+	Route::any('/discount_plan/update/{id}','DiscountController@update');
+	Route::any('/discount_plan/delete/{id}','DiscountController@delete');
+
+	//Discounts
+	Route::any('/discount_plan/show/{id}','DiscountController@show');
+	Route::any('/discount/ajax_datagrid','DiscountController@discount_ajax_datagrid');
+	Route::any('/discount/store','DiscountController@discount_store');
+	Route::any('/discount/update/{id}','DiscountController@discount_update');
+	Route::any('/discount/delete/{id}','DiscountController@discount_delete');
+
+	//Account Discount Plan
+	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {

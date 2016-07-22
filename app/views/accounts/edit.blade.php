@@ -503,6 +503,16 @@
                                     {{$BillingStartDate}}
                                 @endif
                         </div>
+                     <label for="field-1" class="col-sm-2 control-label">
+                         <button id="minutes_report" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                             <i class="fa fa-eye"></i>View Detail
+                         </button>
+                         Discount Plan
+                     </label>
+                     <div class="col-sm-4">
+
+                         {{Form::select('DiscountPlanID',$DiscountPlan, $DiscountPlanID,array('class'=>'form-control select2'))}}
+                     </div>
                 </div>
             </div>
         </div>
@@ -747,6 +757,7 @@
 @stop
 @section('footer_ext')
 @parent
+@include('accountdiscountplan.discountplanmodal')
 <div class="modal fade" id="upload-modal-account" >
     <div class="modal-dialog">
         <div class="modal-content">

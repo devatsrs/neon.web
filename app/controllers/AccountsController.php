@@ -380,7 +380,10 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate'));
+        $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
+        $DiscountPlanID = AccountDiscountPlan::where('AccountID',$id)->pluck('DiscountPlanID');
+
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate','DiscountPlan','DiscountPlanID'));
     }
 
     /**
@@ -394,6 +397,7 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $account = Account::find($id);
         Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        AccountDiscountPlan::addUpdateDiscountPlan($id,$data['DiscountPlanID']);
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -412,6 +416,7 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
+        unset($data['DiscountPlanID']);
         unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
