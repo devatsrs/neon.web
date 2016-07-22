@@ -4,7 +4,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
 	IN `p_Tags` VARCHAR(50),
-	IN `p_OwnerID` INT,
+	IN `p_OwnerID` VARCHAR(100),
 	IN `p_AccountID` INT,
 	IN `p_Status` VARCHAR(50),
 	IN `p_CurrencyID` INT,
@@ -12,7 +12,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 )
 BEGIN
 		
-	DECLARE WorthTotal int;	
+	DECLARE v_WorthTotal DECIMAL(18,8);
+	DECLARE v_Round_ int;
+	
+	SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;	
 		
  DROP TEMPORARY TABLE IF EXISTS tmp_Oppertunites_;
 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
@@ -39,8 +42,11 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
 		Rating int,
 		TaggedUsers varchar(100),
 		`Status` int,
- 	   Worth int,
-		OpportunityClosed int	
+ 	   Worth DECIMAL(18,8),
+		OpportunityClosed int,
+		ClosingDate varchar(15),
+		ExpectedClosing varchar(15),
+		StartTime varchar(15)
 );
   
 		insert into tmp_Oppertunites_
@@ -68,7 +74,10 @@ SELECT
 		o.TaggedUsers,
 		o.`Status`,
  	   o.Worth,
- 	   o.OpportunityClosed
+ 	   o.OpportunityClosed,
+ 	   Date(o.ClosingDate) as ClosingDate,
+ 	   Date(o.ExpectedClosing) as ExpectedClosing,
+		Time(o.ExpectedClosing) as StartTime
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND b.BoardID = p_BoardID
@@ -89,10 +98,10 @@ LEFT JOIN tblUser u on u.UserID = o.UserID
 ORDER BY bc.`Order`,o.`Order`;
 
 
-SELECT sum(Worth) as TotalWorth INTO WorthTotal from tmp_Oppertunites_;
+SELECT sum(Worth) as TotalWorth INTO v_WorthTotal from tmp_Oppertunites_;
 
  SELECT		*,	           
-			WorthTotal
+			ROUND(v_WorthTotal,v_Round_) as WorthTotal
         FROM tmp_Oppertunites_ ;
 
 END//

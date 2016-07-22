@@ -4,7 +4,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
 	IN `p_Tags` VARCHAR(50),
-	IN `p_OwnerID` INT,
+	IN `p_OwnerID` VARCHAR(100),
 	IN `p_AccountID` INT,
 	IN `p_Status` VARCHAR(50),
 	IN `p_CurrencyID` INT,
@@ -16,10 +16,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 )
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET SESSION group_concat_max_len = 1024;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 SELECT 
 		bc.BoardColumnID,
 		bc.BoardColumnName,
@@ -41,18 +44,21 @@ SELECT
 		o.Rating,
 		o.TaggedUsers,
 		o.`Status`,
- 	   o.Worth,
- 	   o.OpportunityClosed
+ 	   ROUND(o.Worth,v_Round_) as Worth,
+ 	   o.OpportunityClosed,
+ 	   Date(o.ClosingDate) as ClosingDate,
+ 	   Date(o.ExpectedClosing) as ExpectedClosing,
+		Time(o.ExpectedClosing) as StartTime
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
-			AND b.BoardID = p_BoardID
+			AND (p_BoardID = 0 OR b.BoardID = p_BoardID)
 INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
 			AND (o.OpportunityClosed = p_OpportunityClosed)
 			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
-			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
+			AND (p_OwnerID = '' OR find_in_set(o.`UserID`,p_OwnerID))
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
@@ -92,6 +98,18 @@ ORDER BY
 		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RelatedToASC') THEN o.Company
 		 END ASC,
 		 CASE
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ExpectedClosingASC') THEN o.ExpectedClosing
+		 END ASC,
+		 CASE
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ExpectedClosingDESC') THEN o.ExpectedClosing
+		 END DESC,
+		 CASE
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ValueDESC') THEN o.Worth
+		 END DESC,
+		 CASE
+		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ValueASC') THEN o.Worth
+		 END ASC,
+		 CASE
 		     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RatingDESC') THEN o.Rating
 		 END DESC,
 		 CASE
@@ -103,14 +121,14 @@ ORDER BY
 		count(*) as totalcount
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
-			AND b.BoardID = p_BoardID
+		AND (p_BoardID = 0 OR b.BoardID = p_BoardID)
 INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND o.BoardColumnID = bc.BoardColumnID
 			AND o.CompanyID = p_CompanyID
 			AND (o.OpportunityClosed = p_OpportunityClosed)
 			AND (p_Tags = '' OR find_in_set(o.Tags,p_Tags))
 			AND (p_OpportunityName = '' OR o.OpportunityName LIKE Concat('%',p_OpportunityName,'%'))
-			AND (p_OwnerID = 0 OR o.UserID = p_OwnerID)
+			AND (p_OwnerID = '' OR find_in_set(o.`UserID`,p_OwnerID))
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
