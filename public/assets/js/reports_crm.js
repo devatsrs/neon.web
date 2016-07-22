@@ -281,8 +281,7 @@ function loading(table,bit){
     }
 }
 function getPipleLineData(chart_type,submitdata){
-
-	loadingUnload(".crmdpipeline",1);
+		loadingUnload(".crmdpipeline",1);
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
     $.ajax({
@@ -333,8 +332,7 @@ function getPipleLineData(chart_type,submitdata){
 			
 		}
     });
-	
-}
+	}
 function reloadCrmCharts(pageSize,$searchFilter){
     /* get destination data for today and display in pie three chart*/
         getPipleLineData($searchFilter.chart_type,$searchFilter);
@@ -448,6 +446,7 @@ function GetForecastData(){
 			{
 	             	 crmdForecastdata[s] =
 					{
+					showInLegend: false, 
 					 'name': dataObj.data[s].user,
 					 'data': dataObj.data[s].worth.split(',').map(parseFloat) 
 					 };
@@ -458,18 +457,18 @@ function GetForecastData(){
                         type: 'column'
                     },
                     title: {
-                        text: 'Forecast Data'
+                        text: ''
                     },
                     xAxis: {
                         categories: dataObj.dates.split(','),
                         title: {
-                            text: "Dates"
+                            text: ""
                         }
                     },
                     yAxis: {
                         min: 0,
                         title: {
-                            text: 'Worth',
+                            text: '',
                             align: 'high'
                         },
                         labels: {
@@ -545,12 +544,12 @@ function GetSalesData(){
             if(dataObj.count>0) {				
 			var line_chart_demo_2 = $(".crmdSales");
            
-			$('.salestable_div').html(dataObj.table);
 			 var crmdSalesdata =  [];
 			for(var s=0;s<dataObj.data.length;s++)			
 			{
 	             	 crmdSalesdata[s] =
 					{
+						showInLegend: false, 
 					 'name': dataObj.data[s].user,
 					 'data': dataObj.data[s].worth.split(',').map(parseFloat) 
 					 };
@@ -572,7 +571,7 @@ function GetSalesData(){
                     yAxis: {
                         min: 0,
                         title: {
-                            text: 'Worth',
+                            text: '',
                             align: 'high'
                         },
                         labels: {
@@ -599,10 +598,10 @@ function GetSalesData(){
                         verticalAlign: 'top',
                         x: -40,
                         y: 80,
-                        floating: true,
+                        floating: false,
                         borderWidth: 1,
                         backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                        shadow: true
+                        shadow: false
                     },
                     credits: {
                         enabled: false
@@ -611,7 +610,7 @@ function GetSalesData(){
                     series: crmdSalesdata
                 });
 			
-			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales"+"</div>");
+			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunites</div>");
 	           	}else{
                 	$('.crmdSales').html('<br><h4>No Data</h4>');
 					$('.SalesResult').html('');

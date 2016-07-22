@@ -32,6 +32,35 @@
     </div>
   </div>
 </div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="panel panel-primary panel-table">
+      <div class="panel-heading">
+        <div class="panel-title">
+          <h3>Active Tasks</h3>
+        </div>
+        <div id="UsersTasks" class="panel-options"> {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'All', array('id'=>'DueDateFilter','class'=>'select_gray')) }} <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
+      </div>
+      <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+        <table class="table table-bordered datatable" id="taskGrid">
+          <thead>
+            <tr>
+              <th width="30%" >Subject</th>
+              <th width="10%" >Due Date</th>
+              <th width="10%" >Status</th>
+              <th width="20%">Assigned To</th>
+              <th width="20%">Related To</th>
+              <th width="10%">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
@@ -50,9 +79,11 @@
                   <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
                 </div>
               </div>
-              <div class="form-group">
+              <div class="form-group form-group-padding-none">
                 <label for="field-1" class="col-sm-2 control-label">Status</label>
-                <div class="col-sm-8"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+                <div class="col-sm-8"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}                
+                 </div>
+                <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button> 
               </div>
               <div class="text-center">
                 <div id="crmdSales1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSales"></div>
@@ -62,7 +93,7 @@
         </div>
       </div>
     </div>
-    <div class="panel-body Sales-body"> </div>
+    
   </div>
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
@@ -75,7 +106,7 @@
       </div>
       <div class="panel-body">
         <div class="text-center">
-          <div id="crmdpipeline1" class="crmdpipeline"></div>
+          <div id="crmdpipeline1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdpipeline"></div>
         </div>
       </div>
     </div>
@@ -110,38 +141,10 @@
         </div>
       </div>
     </div>
-    <div class="panel-body Forecast-body"> </div>
   </div>
 </div>
 
-<div class="row" style="margin-bottom: 30px;">
-  <div class="col-sm-12">
-    <div class="panel panel-primary panel-table">
-      <div class="panel-heading">
-        <div class="panel-title">
-          <h3>Active Tasks</h3>
-        </div>
-        <div id="UsersTasks" class="panel-options"> {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'All', array('id'=>'DueDateFilter','class'=>'select_gray')) }} <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
-      </div>
-      <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
-        <table class="table table-bordered datatable" id="taskGrid">
-          <thead>
-            <tr>
-              <th width="30%" >Subject</th>
-              <th width="10%" >Due Date</th>
-              <th width="10%" >Status</th>
-              <th width="20%">Assigned To</th>
-              <th width="20%">Related To</th>
-              <th width="10%">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -438,8 +441,9 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 #crm_dashboard_Sales .dash, #crm_dashboard_Forecast .dash {width:2%; margin-left:2px; margin-top:2px;}
 .form_Sales, .form_Forecast{ margin-left:30px;}
 /*.forecase_title{padding:10px 15px !important;}*/
+.forecase_title{padding-bottom:10px !important;}
 .form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
-.form-group-padding-none{padding-top:6px !important;}
+.form-group-padding-none{padding-top:6px !important; padding-bottom:6px !important;}
 .radio-replace{margin-right:3px;}
     .file-input-wrapper{
         height: 26px;

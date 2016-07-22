@@ -40,7 +40,9 @@
         font-weight:bold;
         width:100%;
     }
-
+.currency_worth,.odometer{font-size:21px;}
+.currency_worth{ margin-left:7px; vertical-align:middle;}
+.worth_add_box_ajax{margin-left:-2px;}
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -130,7 +132,7 @@
                     Add
                 </a>
             @endif
-            <a><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></a>
+            <a><strong><span class="currency_worth"></span>  <span class="odometer worth_add_box_ajax">0</span></strong></a>
         </p>
 
         <section class="deals-board" >
@@ -167,6 +169,9 @@
             </form>
         </section>
     <script>
+	window.odometerOptions = {
+  format: '(ddd).dd'
+};
         var $searchFilter = {};
         var currentDrageable = '';
         var fixedHeader = false;
@@ -723,8 +728,13 @@
                     success: function (response) {
                         board.html(response);
                         var worth_hidden = $('#Worth_hidden').val();
-                        $('.worth_add_box_ajax').html(worth_hidden);
-                        //$('.WorthBox').show();
+						var Currency_hidden = $('#Currency_hidden').val();
+                        $('.odometer').html(0);
+						$('.currency_worth').html('');
+						$('.odometer').html(worth_hidden);
+						$('.currency_worth').html(Currency_hidden);
+						
+						//$('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();

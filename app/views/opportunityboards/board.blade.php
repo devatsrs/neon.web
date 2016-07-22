@@ -55,7 +55,8 @@
         @endforeach
     @endif
 </ul> 
-<input type="hidden" name="Worth_hidden" id="Worth_hidden" value="<?php echo $currency;  echo !empty($WorthTotal)?$WorthTotal:0; ?>" />
+<input type="hidden" name="Worth_hidden" id="Worth_hidden" value="<?php   echo !empty($WorthTotal)?$WorthTotal:0; ?>" />
+<input type="hidden" name="Currency_hidden" id="Currency_hidden" value="<?php  echo $currency; ?>" />
 <script>
     @if(!empty($message))
         toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);

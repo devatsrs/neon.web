@@ -38,7 +38,9 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/js/selectboxit/jquery.selectBoxIt.css",
         "assets/bootstrap3-editable/css/bootstrap-editable.css",
         "assets/js/icheck/skins/minimal/_all.css",
-		"assets/js/perfectScroll/css/perfect-scrollbar.css"
+		"assets/js/perfectScroll/css/perfect-scrollbar.css",
+		"assets/js/odometer/themes/odometer-theme-default.css",		
+		
 
 
     ];
