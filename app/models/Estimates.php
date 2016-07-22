@@ -49,6 +49,7 @@ class Estimate extends \Eloquent {
 			{
                 $as3url = (AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key));
             }
+            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
 			
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
