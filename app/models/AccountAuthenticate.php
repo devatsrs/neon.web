@@ -11,49 +11,76 @@ class AccountAuthenticate extends \Eloquent {
         'AccountID' =>      'required',
     );
 
-    public static function validate_ips($data){
-        $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-        $dbIPs = [];
-        if (isset($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'IP') {
-            if(!empty($accountAuthenticate)) {
-                $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);
+    public static function validate_ipclis($data){
+        $dbValue = [];
+        $status = ['status'=>0,'message'=>'','data'=>[]];
+        $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        $type = $data['type']==1?'CLI':'IP';
+        if(empty($data['ipclis'])){
+            $status['message'] = $isCustomerOrVendor." ".$type." required";
+            return $status;
+        }
+        $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
+        $select = ['tblAccount.AccountName',DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue) as authValue")];
+        $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID']])->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')->select($select)->lists('authValue','AccountName');
+        $validation = '';
+        if(!empty($found)) {
+            $status['message'] = 'Account Successfully Updated.';
+            foreach ($ipclis as $obj) {
+                $input = preg_quote($obj, '~'); // don't forget to quote input string!
+                $result = preg_filter('~' . $input . '~', null, $found);
+                if (!empty($result)) {
+                    unset($ipclis[array_search($obj,$ipclis)]);
+                    foreach($result as $index=>$value) {
+                        $validation .= $obj . ' ' . $type . ' already exist against '.$index.'.<br>';
+                    }
+                }
             }
-            $postIPs = $data['CustomerAuthValue'];
-        } elseif (isset($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'IP') {
-            if(!empty($accountAuthenticate)) {
-                $dbIPs = explode(',', $accountAuthenticate->VendorAuthValue);
-            }
-            $postIPs = $data['VendorAuthValue'];
         }
 
-        $iPsExist = array_intersect($dbIPs, $postIPs);
-        $toBeInsert =array_unique(array_merge($dbIPs,$postIPs));
-
-        $status['iPsExist'] = $iPsExist;
-        $status['toBeInsert'] = $toBeInsert;
-        return $status;
-    }
-
-    public static function validate_clis($data){
-        $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-        $dbIPs = [];
-        if (isset($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'CLI') {
-            if(!empty($accountAuthenticate)) {
-                $dbCLIs = explode(',', $accountAuthenticate->CustomerAuthValue);
-            }
-            $postCLIs = $data['CustomerAuthValue'];
-        } elseif (isset($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'CLI') {
-            if(!empty($accountAuthenticate)) {
-                $dbCLIs = explode(',', $accountAuthenticate->VendorAuthValue);
-            }
-            $postCLIs = $data['VendorAuthValue'];
+        if(!empty($validation)){
+            $status['message'] .= '<br>following '.$type.' skipped.<br>'.$validation;
         }
 
-        $CLIsExist = array_intersect($dbCLIs, $postCLIs);
-        $toBeInsert =array_unique(array_merge($dbCLIs,$postCLIs));
-
-        $status['CLIExist'] = $CLIsExist;
-        $status['toBeInsert'] = $toBeInsert;
+        $rule = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->first();
+        if($data['isCustomerOrVendor'] == 1){
+            $data['CustomerAuthRule'] = $type;
+            $data['CustomerAuthValue'] = $ipclis;
+            if(!empty($rule) && $rule->CustomerAuthRule!=$data['CustomerAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
+                AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->update(['CustomerAuthValue'=>'']);
+                $rule->CustomerAuthValue = '';
+            }
+        }else{
+            $data['VendorAuthRule'] = $type;
+            $data['VendorAuthValue'] = $ipclis;
+            if(!empty($rule) && $rule->VendorAuthRule!=$data['VendorAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
+                AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->update(['VendorAuthValue'=>'']);
+                $rule->VendorAuthValue = '';
+            }
+        }
+        if (isset($data['CustomerAuthRule'])) {
+            if(!empty($rule)) {
+                $dbValue = explode(',', $rule->CustomerAuthValue);
+            }
+            $postValue = $data['CustomerAuthValue'];
+            $toBeInsert =array_unique(array_merge($dbValue,$postValue));
+            $data['CustomerAuthValue']= $toBeInsert;
+            $data['CustomerAuthValue'] = implode(',',$toBeInsert);
+            $data['CustomerAuthValue'] = ltrim($data['CustomerAuthValue'],',');
+        } elseif (isset($data['VendorAuthRule'])) {
+            if(!empty($rule)) {
+                $dbValue = explode(',', $rule->VendorAuthValue);
+            }
+            $postValue = $data['VendorAuthValue'];
+            $toBeInsert =array_unique(array_merge($dbValue,$postValue));
+            $data['VendorAuthValue'] = implode(',',$toBeInsert);
+            $data['VendorAuthValue'] = ltrim($data['VendorAuthValue'],',');
+        }
+        $status['status'] = 1;
+        unset($data['ipclis']);
+        unset($data['isCustomerOrVendor']);
+        unset($data['type']);
+        $status['data'] = $data;
         return $status;
     }
 }

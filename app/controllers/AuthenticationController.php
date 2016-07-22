@@ -69,118 +69,32 @@ class AuthenticationController extends \BaseController
         return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
     }
 
-   public function addIps($id){
-       $data = Input::all();
-       $data['AccountID'] = $id;
-       $message = '';
-       $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-       $data['CompanyID'] = $CompanyID = User::get_companyID();
-       if(empty($data['ipclis'])){
-           return Response::json(array("status" => "error", "message" => $isCustomerOrVendor." IP required"));
-       }
-       $ips = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
-       $checkstr = implode(',',$ips);
-       $count = AccountAuthenticate::where(['CompanyID'=>$CompanyID])->where(function($query)use($checkstr){
-           $query->whereRaw('find_in_set(CustomerAuthValue,"'.$checkstr.'")');
-           $query->orwhereRaw('find_in_set(VendorAuthValue,"'.$checkstr.'")');
-       })->count();
-       if($count>0){
-           return Response::json(array("status" => "error", "message" => "IP already taken"));
-       }
-       $rule = AccountAuthenticate::where(['CompanyID'=>$CompanyID,'AccountID'=>$data['AccountID']])->first();
-       unset($data['ipclis']);
-       unset($data['isCustomerOrVendor']);
-       if($isCustomerOrVendor=='Customer'){
-           $data['CustomerAuthRule'] = 'IP';
-           $data['CustomerAuthValue'] = $ips;
-           if(!empty($rule) && $rule->CustomerAuthRule!=$data['CustomerAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
-               AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update(['CustomerAuthValue'=>'']);
-           }
-       }else{
-           $data['VendorAuthRule'] = 'IP';
-           $data['VendorAuthValue'] = $ips;
-           if(!empty($rule) && $rule->VendorAuthRule!=$data['VendorAuthRule']){    //if saving new rule discard existing VendorAuthValue.
-               AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update(['VendorAuthValue'=>'']);
-           }
-       }
-       $status = AccountAuthenticate::validate_ips($data);
-       if(count($status['iPsExist'])>0){
-           $iPsExist = implode('<br>',$status['iPsExist']);
-           $message = ' and following IPs already exist. '.$iPsExist;
-       }
-       if(count($status['toBeInsert'])>0){
-           if($isCustomerOrVendor=='Customer') {
-               $data['CustomerAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
-           }else{
-               $data['VendorAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
-           }
-
-           if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count() >0){
-               AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
-           }else{
-               AccountAuthenticate::insert($data);
-           }
-           $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-           return Response::json(array("status" => "success","ipclis"=> $status['toBeInsert'],"object"=>$object, "message" => "Account Successfully Updated".$message));
-       }
-   }
-
-    public function addclis($id){
+    public function addipclis($id){
         $data = Input::all();
         $data['AccountID'] = $id;
         $data['CompanyID'] = $CompanyID = User::get_companyID();
         $message = '';
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
 
-        if(empty($data['ipclis'])){
-            return Response::json(array("status" => "error", "message" => $isCustomerOrVendor." CLI required"));
+        $status = AccountAuthenticate::validate_ipclis($data);
+        $save = $status['data'];
+        if($status['status']==0){
+            return Response::json(array("status" => "error", "message" => $status['message']));
         }
 
-        $cli = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
-        $checkstr = implode(',',$cli);
-        $count = AccountAuthenticate::where(['CompanyID'=>$CompanyID])->where(function($query)use($checkstr){
-            $query->whereRaw('find_in_set(CustomerAuthValue,"'.$checkstr.'")');
-            $query->orwhereRaw('find_in_set(VendorAuthValue,"'.$checkstr.'")');
-        })->count();
-        if($count>0){
-            return Response::json(array("status" => "error", "message" => "CLI already taken"));
-        }
-
-        $rule = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-        unset($data['ipclis']);
-        unset($data['isCustomerOrVendor']);
-        if($isCustomerOrVendor=='Customer'){
-            $data['CustomerAuthRule'] = 'CLI';
-            $data['CustomerAuthValue'] = $cli;
-            if(!empty($rule) && $rule->CustomerAuthRule!=$data['CustomerAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update(['CustomerAuthValue'=>'']);
+        if((isset($save['CustomerAuthValue'])) || (isset($save['VendorAuthValue']))){
+            if($isCustomerOrVendor=='Customer' && !empty($save['CustomerAuthValue'])) {
+                 $status['toBeInsert']=explode(',',$save['CustomerAuthValue']);
+            }elseif($isCustomerOrVendor=='Vendor' && !empty($save['VendorAuthValue'])){
+                $status['toBeInsert']=explode(',',$save['VendorAuthValue']);
             }
-        }else{
-            $data['VendorAuthRule'] = 'CLI';
-            $data['VendorAuthValue'] = $cli;
-            if(!empty($rule) && $rule->VendorAuthRule!=$data['VendorAuthRule']){ //if saving new rule discard existing CustomerAuthValue.
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update(['VendorAuthValue'=>'']);
-            }
-        }
-        $status = AccountAuthenticate::validate_clis($data);
-        if(count($status['CLIExist'])>0){
-            $CLIExist = implode('<br>',$status['CLIExist']);
-            $message = ' and following CLIs already exist. '.$CLIExist;
-        }
-        if(count($status['toBeInsert'])>0){
-            if($isCustomerOrVendor=='Customer') {
-                $data['CustomerAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
+            if(AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->count()>0){
+                AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->update($save);
             }else{
-                $data['VendorAuthValue'] = ltrim(implode(',',$status['toBeInsert']),',');
+                AccountAuthenticate::insert($save);
             }
-
-            if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()>0){
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
-            }else{
-                AccountAuthenticate::insert($data);
-            }
-            $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
-            return Response::json(array("status" => "success","ipclis"=> $status['toBeInsert'],"object"=>$object, "message" => "Account Successfully Updated".$message));
+            $object = AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->first();
+            return Response::json(array("status" => "success","object"=>$object, "message" => $status['message']));
         }
     }
 

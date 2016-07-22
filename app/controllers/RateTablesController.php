@@ -97,7 +97,7 @@ class RateTablesController extends \BaseController {
             'CurrencyID'=>'required'
 
         );
-        $message = ['CurrencyID.required'=>'Currency filed is required'];
+        $message = ['CurrencyID.required'=>'Currency field is required'];
         $validator = Validator::make($data, $rules, $message);
         if ($validator->fails()) {
             return json_validator_response($validator);

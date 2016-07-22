@@ -1184,7 +1184,9 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
-    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+    if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
+        return Redirect::to('/logout');
+    }else if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
         $Code = $isArray?$response['Code']:$response->Code;
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {

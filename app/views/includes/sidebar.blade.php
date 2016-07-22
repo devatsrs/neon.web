@@ -85,7 +85,7 @@
                 <li><a href="{{URL::to('/crmdashboard')}}"><span>Dashboard</span></a></li>
             @endif 
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
-                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunity Board</span></a></li>
+                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunities</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
                 <li><a href="{{URL::to('/task')}}"><span>Tasks</span></a></li>
