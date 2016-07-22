@@ -129,7 +129,7 @@
                   <label class="col-sm-6" class="control-label">Close Date</label>
                 </div>
                 <div class="col-sm-4">
-                  <input value="{{$StartDateDefaultforcast}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
+                  <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
                 </div>
                 <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
               </div>
