@@ -14,7 +14,7 @@
                 <?php
                 $UsedPercent = 100;
                     if(!$AccountDiscountPlanRow->Unlimited){
-                        $UsedPercent = number_format($AccountDiscountPlanRow->MinutesUsed/$AccountDiscountPlanRow->Threshold,2)*100;
+                        $UsedPercent = number_format(($AccountDiscountPlanRow->MinutesUsed/$AccountDiscountPlanRow->Threshold)*100,2);
                     }
                 ?>
                 <tr>
