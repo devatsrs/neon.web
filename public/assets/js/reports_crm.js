@@ -1,5 +1,39 @@
         var chart_type = '#destination';
         jQuery(document).ready(function ($) {
+			$(document).on( "click","#taskGrid  tbody tr", function() {
+				  $(this).find('.edit-deal').click();
+				});
+				
+				$(document).on( "click","#opportunityGrid  tbody tr", function() {
+				  $(this).find('.edit-deal').click();
+				});
+			
+			        var opportunity = [
+                'BoardColumnID',
+                'BoardColumnName',
+                'OpportunityID',
+                'OpportunityName',
+                'BackGroundColour',
+                'TextColour',
+                'Company',
+                'Title',
+                'FirstName',
+                'LastName',
+                'Owner',
+                'UserID',
+                'Phone',
+                'Email',
+                'BoardID',
+                'AccountID',
+                'Tags',
+                'Rating',
+                'TaggedUsers',
+                'Status',
+                'Worth',
+                'OpportunityClosed',
+                'ClosingDate',
+                'ExpectedClosing'
+            ];
 			      var task = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -38,7 +72,7 @@
 			console.log($searchFilter);
 			//opportunites grid start
         data_table = $("#opportunityGrid").dataTable({
-                "bDestroy": true,
+		        "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/crmdashboard/ajax_opportunity_grid",
@@ -50,8 +84,6 @@
                             {"name": "AccountOwner","value": $searchFilter.AccountOwner},
                             {"name": "CurrencyID","value": $searchFilter.CurrencyID}
                     );
-					
-					console.log($searchFilter);
                 },
                 "iDisplayLength": pageSize,
                 "sPaginationType": "bootstrap",
@@ -84,6 +116,18 @@
                         }
                     },
                     {
+                        "bSortable": true, //Expected Closing
+                        mRender: function (id, type, full) {
+                            return full[23];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Value
+                        mRender: function (id, type, full) {
+                            return full[20];
+                        }
+                    },
+                    {
                         "bSortable": true, //Rating
                         mRender: function (id, type, full) {
                             return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[17]+'" />';
@@ -110,11 +154,9 @@
                     ]
                 },
                 "fnDrawCallback": function () {
-
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    $(this)
                     if($('#tools .active').hasClass('grid')){
                         $('#opportunityGrid_wrapper').addClass('hidden');
                         $('#opportunityGrid').addClass('hidden');
@@ -123,10 +165,8 @@
                         $('#opportunityGrid').removeClass('hidden');
                     }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
-					
                 }
-
-            });
+		});
 			//opportunites grid end
 			
 			///task grid start
@@ -286,7 +326,7 @@ function getPipleLineData(chart_type,submitdata){
 			{
 				$('.crmdpipeline').html('No Data');
 			}
-			$('.PipeLineResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + " Oppurtunities </h3>");
+			$('.PipeLineResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
            }else{
                 $('.crmdpipeline').html('No Data');
             }
@@ -468,7 +508,7 @@ function GetForecastData(){
                     series: crmdForecastdata
                 });
 			
-			$('.ForecastResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value"+"</h3>");
+			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value"+"</div>");
 	           	}else{
                 	$('.crmdForecast').html('<br><h4>No Data</h4>');
 					$('.ForecastResult').html('');
@@ -488,7 +528,8 @@ function GetSalesData(){
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var Closingdate   = $("#crm_dashboard_Sales [name='Closingdate']").val();
-	var Status   	= $("#crm_dashboard_Sales input.statusCheckbox:checked").map(function() {  return this.value; }).get().join();
+	//var Status   	= $("#crm_dashboard_Sales input.statusCheckbox:checked").map(function() {  return this.value; }).get().join();
+	var Status   	= $("#crm_dashboard_Sales select[name='Status[]']").val();
 
     $.ajax({
         type: 'POST',
@@ -520,7 +561,7 @@ function GetSalesData(){
                         type: 'column'
                     },
                     title: {
-                        text: 'Sales Data'
+                        text: ''
                     },
                     xAxis: {
                         categories: dataObj.dates.split(','),
@@ -570,7 +611,7 @@ function GetSalesData(){
                     series: crmdSalesdata
                 });
 			
-			$('.SalesResult').html('<h3>'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales"+"</h3>");
+			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales"+"</div>");
 	           	}else{
                 	$('.crmdSales').html('<br><h4>No Data</h4>');
 					$('.SalesResult').html('');
@@ -591,7 +632,7 @@ function GetUsersTasks(){
 //opportunity edit start
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
 				 if(Opportunity_edit==1){
-                e.stopPropagation();
+	            e.stopPropagation();
                 if($(this).is('button')){
                     var rowHidden = $(this).prev('div.hiddenRowData');
                 }else {
@@ -599,6 +640,9 @@ function GetUsersTasks(){
                 }
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
+                var OpportunityClosed = 0;
+                $('.closedDate').addClass('hidden');
+                $('#closedDate').text('');
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
@@ -606,9 +650,7 @@ function GetUsersTasks(){
                     if(select.indexOf(opportunity[i])!=-1){
                         if(opportunity[i]=='TaggedUsers'){
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
-							if(taggedUsers!=''){
-                            	$('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
-							}
+                            $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
@@ -621,16 +663,27 @@ function GetUsersTasks(){
                             elem.val(val).trigger("change");
                         }else if(opportunity[i]=='OpportunityClosed'){
                             if(val==1){
+                                OpportunityClosed = 1;
                                 biuldSwicth('.make','#edit-opportunity-form','checked');
                             }else{
                                 biuldSwicth('.make','#edit-opportunity-form','');
+                            }
+                        }else if(opportunity[i]=='ClosingDate'){
+                            if(OpportunityClosed==1){
+                                $('.closedDate').removeClass('hidden');
+                                $('#closedDate').text(val);
+                            }
+                        }
+                        else if(opportunity[i]=='ExpectedClosing'){
+                            if(val=='0000-00-00'){
+                                elem.val('');
                             }
                         }
                     }
                 }
                 $('#edit-modal-opportunity h4').text('Edit Opportunity');
                 $('#edit-modal-opportunity').modal('show');
-				 }
+             }
             });
           
 /// opportunity edit end

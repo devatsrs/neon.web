@@ -33,7 +33,7 @@
   </div>
 </div>
 <div class="row">
-<div class="col-md-6">
+  <div class="col-md-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
@@ -45,45 +45,15 @@
           <div class="form_Sales">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales">
               <div class="form-group form-group-border-none">
-                <div class="pull-left small-input first">
-                  <label class="control-label">Close Date</label>
-                </div>
+                <label for="field-1" class="col-sm-2 control-label">Close Date</label>
                 <div class="col-sm-6">
                   <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
                 </div>
               </div>
-              
-              <!-- -->
-              <div class="form-group form-group-padding-none">
-                <ul class="icheck-list">
-                  <li>
-                    <div class="pull-left small-input first status">
-                      <label class="control-label" >Status</label>
-                    </div>
-                    <div class="radio radio-replace color-blue pull-left">
-                      <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-4" name="Status_{{Opportunity::$status[Opportunity::Abandoned]}}" value="{{Opportunity::Abandoned}}">
-                      <label for="minimal-radio-4">{{Opportunity::$status[Opportunity::Abandoned]}}</label>
-                    </div>
-                    <div class="radio radio-replace color-red pull-left">
-                      <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-3" name="Status_{{Opportunity::$status[Opportunity::Lost]}}" value="{{Opportunity::Lost}}">
-                      <label for="minimal-radio-3">{{Opportunity::$status[Opportunity::Lost]}}</label>
-                      &nbsp;&nbsp;</div>
-                    <div class="radio radio-replace color-purple pull-left">
-                      <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-2" name="Status_{{Opportunity::$status[Opportunity::Open]}}" value="{{Opportunity::Open}}">
-                      <label for="minimal-radio-2">{{Opportunity::$status[Opportunity::Open]}}</label>
-                      &nbsp;&nbsp;</div>
-                    <div class="radio radio-replace color-green pull-left">
-                      <input class="icheck-11 statusCheckbox" type="checkbox" id="minimal-radio-1" name="Status_{{Opportunity::$status[Opportunity::Won]}}" value="{{Opportunity::Won}}" checked>
-                      <label for="minimal-radio-1">{{Opportunity::$status[Opportunity::Won]}}</label>
-                      &nbsp;&nbsp;</div>
-                  </li>
-                </ul>
-                <div class="pull-left">
-                  <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
-                </div>
+              <div class="form-group">
+                <label for="field-1" class="col-sm-2 control-label">Status</label>
+                <div class="col-sm-8"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
               </div>
-              <!-- -->
-              
               <div class="text-center">
                 <div id="crmdSales1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSales"></div>
               </div>
@@ -110,10 +80,8 @@
       </div>
     </div>
   </div>
-  
 </div>
-
-<div class="row">  
+<div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
@@ -127,18 +95,13 @@
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <div class="pull-left small-input first">
-                  <label class="control-label">Close Date</label>
+                  <label class="col-sm-6" class="control-label">Close Date</label>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                   <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
                 </div>
-                   <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
-
+                <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
               </div>
-              
-              
-              
-              
               <div class="text-center">
                 <div id="crmdForecast1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdForecast"></div>
               </div>
@@ -151,35 +114,30 @@
   </div>
 </div>
 
-
-<div class="clear clearfix margin-bottom"></div>
-<div class="row">
+<div class="row" style="margin-bottom: 30px;">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div class="panel-title">
           <h3>Active Tasks</h3>
         </div>
-        <div id="UsersTasks" class="panel-options">
-        {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'duetoday', array('id'=>'DueDateFilter','class'=>'select_gray')) }}
-   
-          <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
+        <div id="UsersTasks" class="panel-options"> {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'All', array('id'=>'DueDateFilter','class'=>'select_gray')) }} <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
       <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
         <table class="table table-bordered datatable" id="taskGrid">
-                <thead>
-                <tr>
-                    <th width="30%" >Subject</th>
-                    <th width="10%" >Due Date</th>
-                    <th width="10%" >Status</th>
-                    <th width="20%">Assigned To</th>
-                    <th width="20%">Related To</th>
-                    <th width="10%">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+          <thead>
+            <tr>
+              <th width="30%" >Subject</th>
+              <th width="10%" >Due Date</th>
+              <th width="10%" >Status</th>
+              <th width="20%">Assigned To</th>
+              <th width="20%">Related To</th>
+              <th width="10%">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -198,10 +156,12 @@
           <thead>
             <tr>
               <th width="25%" >Name</th>
-              <th width="15%" >Status</th>
+              <th width="5%" >Status</th>
               <th width="20%">Assigned To</th>
               <th width="20%">Related To</th>
-              <th width="10%" >Rating</th>
+              <th width="10%" >Expected Close Date</th>
+              <th width="5%" >Value</th>
+              <th width="5%" >Rating</th>
               <th width="10%">Action</th>
             </tr>
           </thead>
@@ -321,18 +281,28 @@
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Value</label>
                 <div class="col-sm-8">
-                  <input class="form-control" value="" name="Worth" type="number" >
+                  <input class="form-control" value="0" name="Worth" type="number" step="any" min=”0″>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 margin-top pull-left">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-4">Expected Close Date</label>
+                <div class="col-sm-8">
+                  <input autocomplete="off" type="text" name="ExpectedClosing" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                 </div>
               </div>
             </div>
             <div class="col-md-6 margin-top-group pull-left">
               <div class="form-group">
                 <label class="col-sm-4 control-label">Close</label>
-                <div class="col-sm-8 make">
+                <div class="col-sm-3 make">
                   <p class="make-switch switch-small">
                     <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
                   </p>
                 </div>
+                <label class="col-sm-2 control-label closedDate hidden">Closed Date</label>
+                <div class="col-sm-3"> <span id="closedDate"></span> </div>
               </div>
             </div>
           </div>
@@ -346,120 +316,93 @@
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="edit-modal-task">
-        <div class="modal-dialog" style="width: 100%;">
-            <div class="modal-content">
-                <form id="edit-task-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Task</h4>
-                    </div>
-                    <div class="modal-body">
-
-                        <div class="row">
-
-                            <div class="col-md-12 text-left">
-                                <label for="field-5" class="control-label col-sm-2">Tag User</label>
-                                <div class="col-sm-10" style="padding: 0px 10px;">
-                                    <?php unset($account_owners['']); ?>
-                                    {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}}
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Assign To*</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('UsersIDs',$account_owners,'',array("class"=>"select2"))}}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Task Subject *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Subject" class="form-control" id="field-5" placeholder="">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Due Date</label>
-                                    <div class="col-sm-5">
-                                        <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Company</label>
-                                    <div class="col-sm-8">
-                                        {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 margin-top pull-right">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Priority</label>
-                                    <div class="col-sm-3 make">
-                                        <span class="make-switch switch-small">
-                                            <input name="Priority" value="1" type="checkbox">
-                                        </span>
-                                    </div>
-                                    <label class="col-sm-2 control-label">Close</label>
-                                    <div class="col-sm-3 taskClosed">
-                                        <p class="make-switch switch-small">
-                                            <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 margin-top pull-left">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-2">Description</label>
-                                    <div class="col-sm-10">
-                                        <textarea name="Description" class="form-control textarea autogrow resizevertical"> </textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="hidden" name="TaskID">
-                        <button type="submit" id="task-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+  <div class="modal-dialog" style="width: 100%;">
+    <div class="modal-content">
+      <form id="edit-task-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add New Task</h4>
         </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 text-left">
+              <label for="field-5" class="control-label col-sm-2">Tag User</label>
+              <div class="col-sm-10" style="padding: 0px 10px;">
+                <?php unset($account_owners['']); ?>
+                {{Form::select('TaggedUsers[]',$account_owners,[],array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            </div>
+            <div class="col-md-6 margin-top pull-left">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-4">Task Status *</label>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}} </div>
+              </div>
+            </div>
+            <div class="col-md-6 margin-top pull-right">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-4">Assign To*</label>
+                <div class="col-sm-8"> {{Form::select('UsersIDs',$account_owners,'',array("class"=>"select2"))}} </div>
+              </div>
+            </div>
+            <div class="col-md-6 margin-top pull-left">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-4">Task Subject *</label>
+                <div class="col-sm-8">
+                  <input type="text" name="Subject" class="form-control" id="field-5" placeholder="">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 margin-top pull-right">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-4">Due Date</label>
+                <div class="col-sm-5">
+                  <input autocomplete="off" type="text" name="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                </div>
+                <div class="col-sm-3">
+                  <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 margin-top pull-left">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-4">Company</label>
+                <div class="col-sm-8"> {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}} </div>
+              </div>
+            </div>
+            <div class="col-md-6 margin-top pull-right">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Priority</label>
+                <div class="col-sm-3 make"> <span class="make-switch switch-small">
+                  <input name="Priority" value="1" type="checkbox">
+                  </span> </div>
+                <label class="col-sm-2 control-label">Close</label>
+                <div class="col-sm-3 taskClosed">
+                  <p class="make-switch switch-small">
+                    <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12 margin-top pull-left">
+              <div class="form-group">
+                <label for="field-5" class="control-label col-sm-2">Description</label>
+                <div class="col-sm-10">
+                  <textarea name="Description" class="form-control textarea autogrow resizevertical"> </textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="TaskID">
+          <button type="submit" id="task-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
     </div>
-    <div class="salestable_div">
-    
-    </div>
+  </div>
+</div>
+<div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
 @if(User::checkCategoryPermission('Task','Edit')) 
@@ -476,17 +419,17 @@ var Opportunity_edit = 0;
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
- var opportunity = ['BoardColumnID','BoardColumnName','OpportunityID','OpportunityName','BackGroundColour','TextColour','Company','Title','FirstName','LastName','Owner','UserID','Phone','Email','BoardID','AccountID','Tags','Rating','TaggedUsers','Status','Worth','OpportunityClosed'];
-
 </script> 
-
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/data.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script> 
+<script src="https://code.highcharts.com/modules/data.js"></script> 
+<script src="https://code.highcharts.com/modules/exporting.js"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
 <script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script> 
 <script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>
 <style>
+#taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
+#taskGrid > thead >tr > th:last-child,#opportunityGrid > thead >tr > th:last-child{display:none;}
+#taskGrid > tbody >tr > td:last-child,#opportunityGrid > tbody >tr > td:last-child{display:none;}
 .padding-none{padding:0px !important;margin:0px !important;}
 .small-input{ margin-right: 5px;}
 #submit_Sales,#submit_Forecast{margin-left:5px;}
@@ -494,7 +437,7 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 #crm_dashboard_Sales .status, #crm_dashboard_Forecast .status{width:7%;}
 #crm_dashboard_Sales .dash, #crm_dashboard_Forecast .dash {width:2%; margin-left:2px; margin-top:2px;}
 .form_Sales, .form_Forecast{ margin-left:30px;}
-.forecase_title{padding:10px 15px !important;}
+/*.forecase_title{padding:10px 15px !important;}*/
 .form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
 .form-group-padding-none{padding-top:6px !important;}
 .radio-replace{margin-right:3px;}

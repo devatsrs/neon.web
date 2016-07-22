@@ -1,4 +1,5 @@
 <ul class="board-inner no-select" id="deals-dashboard">
+<?php $currency = ''; ?>
     @if(count($columnsWithOpportunities)>0)
         @foreach($columnsWithOpportunities as $index=>$column )
         <li data-id="{{$index}}" class="board-column count-li">
@@ -46,15 +47,15 @@
                                     @endif
                                     <span class="badge badge-success badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
                                 </div>
-                            </li>
+                            </li> <?php  $currency = $opportunity['CurrencyCode']; ?>
                         @endif
                     @endforeach
             </ul>
         </li>
         @endforeach
     @endif
-</ul>
-<input type="hidden" name="Worth_hidden" id="Worth_hidden" value="<?php echo !empty($WorthTotal)?$WorthTotal:0; ?>" />
+</ul> 
+<input type="hidden" name="Worth_hidden" id="Worth_hidden" value="<?php echo $currency;  echo !empty($WorthTotal)?$WorthTotal:0; ?>" />
 <script>
     @if(!empty($message))
         toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);

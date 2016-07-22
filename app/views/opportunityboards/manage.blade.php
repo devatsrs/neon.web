@@ -130,6 +130,7 @@
                     Add
                 </a>
             @endif
+            <a><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></a>
         </p>
 
         <section class="deals-board" >
@@ -723,7 +724,7 @@
                         board.html(response);
                         var worth_hidden = $('#Worth_hidden').val();
                         $('.worth_add_box_ajax').html(worth_hidden);
-                        $('.WorthBox').show();
+                        //$('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();
