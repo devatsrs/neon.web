@@ -57,6 +57,7 @@
         <table id="table-subscription" class="table table-bordered datatable">
             <thead>
             <tr>
+                <th width="5%">No</th>
                 <th width="5%">Subscription</th>
                 <th width="20%">Invoice Description</th>
                 <th width="5%">Qty</th>
@@ -64,7 +65,7 @@
                 <th width="10%">EndDate</th>
                 <th width="5%">ActivationFee</th>
                 <th width="5%">DailyFee</th>
-                <th width="10%">WeeklyFee</th>
+                <th width="5%">WeeklyFee</th>
                 <th width="10%">MonthlyFee</th>
                 <th width="20%">Action</th>
             </tr>
@@ -97,7 +98,7 @@
         $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));
 });
 				
-                var list_fields  = ["Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+                var list_fields  = ["SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
@@ -133,16 +134,17 @@
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                                {  "bSortable": true },  // 0 Subscription Name
-                        {  "bSortable": true },  // 1 InvoiceDescription
-                        {  "bSortable": true },  // 2 Qty
-                        {  "bSortable": true },  // 3 StartDate
-                        {  "bSortable": true },  // 4 EndDate
-                        {  "bSortable": true },  // 5 ActivationFee
-                        {  "bSortable": true },  // 6 DailyFee
-                        {  "bSortable": true },  // 7 WeeklyFee
-                        {  "bSortable": true },  // 8 MonthlyFee
-                                {                        // 9 Action
+                                {  "bSortable": true },  // 0 Sequence NO
+                                {  "bSortable": true },  // 1 Subscription Name
+                        {  "bSortable": true },  // 2 InvoiceDescription
+                        {  "bSortable": true },  // 3 Qty
+                        {  "bSortable": true },  // 4 StartDate
+                        {  "bSortable": true },  // 5 EndDate
+                        {  "bSortable": true },  // 6 ActivationFee
+                        {  "bSortable": true },  // 7 DailyFee
+                        {  "bSortable": true },  // 8 WeeklyFee
+                        {  "bSortable": true },  // 9 MonthlyFee
+                                {                        // 10 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                  action = '<div class = "hiddenRowData" >';
@@ -300,6 +302,12 @@
                         <div class="form-group">
                             <label for="field-5" class="control-label">Invoice Description</label>
                             <input type="text" name="InvoiceDescription" class="form-control" value="" />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">No</label>
+                            <input type="text" name="SequenceNo" class="form-control" value=""  />
                         </div>
                     </div>
                     <div class="col-md-12">
