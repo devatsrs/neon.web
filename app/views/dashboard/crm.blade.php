@@ -481,12 +481,12 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 	.ClosingdateLabel{
 		padding-left:0;
 		padding-right:0;
-		width:12%;
+		width:14%;
 	}
 	.ClosingdateLabel1{
 		padding-left:0;
 		padding-right:0;
-		width:7%;
+		width:9%;
 	}
 	
 	.StatusLabel{

@@ -586,7 +586,7 @@ function GetForecastData(){
                     series: crmdForecastdata
                 });
 			
-			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunites</div>");
+			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdForecast').html('<br><h4>No Data</h4>');
 					$('.ForecastResult').html('');
@@ -689,7 +689,7 @@ function GetSalesData(){
                     series: crmdSalesdata
                 });
 			
-			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunites</div>");
+			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdSales').html('<br><h4>No Data</h4>');
 					$('.SalesResult').html('');
