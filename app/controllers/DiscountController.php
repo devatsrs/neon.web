@@ -13,7 +13,7 @@ class DiscountController extends \BaseController {
         $getdata = Input::all();
         $response =  NeonAPI::request('discountplan/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
-            $excel_data = $response->data->result;
+            $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
             Excel::create('Discount Plan', function ($excel) use ($excel_data) {
                 $excel->sheet('Discount Plan', function ($sheet) use ($excel_data) {
@@ -52,7 +52,7 @@ class DiscountController extends \BaseController {
         $getdata = Input::all();
         $response =  NeonAPI::request('discount/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
-            $excel_data = $response->data->result;
+            $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
             Excel::create('Discount Plan', function ($excel) use ($excel_data) {
                 $excel->sheet('Discount Plan', function ($sheet) use ($excel_data) {
