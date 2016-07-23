@@ -125,7 +125,7 @@
           <div class="form_Forecast">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
-                <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel ">Close Date</label>
+                <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
                 <div class="col-sm-2">                 
                   <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="ClosingdateFortcast"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange small-date-input">
                 </div>
@@ -485,6 +485,12 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 		padding-right:0;
 		width:12%;
 	}
+	.ClosingdateLabel1{
+		padding-left:0;
+		padding-right:0;
+		width:7%;
+	}
+	
 	.StatusLabel{
 		padding-left:0;
 		padding-right:0;
