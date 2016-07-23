@@ -1,5 +1,15 @@
         var chart_type = '#destination';
         jQuery(document).ready(function ($) {
+			$(document).on( "click",".available", function() {
+				if($(this).hasClass('prev'))	{
+					return false;
+				}
+				if($(this).hasClass('next'))	{
+					return false;
+				}
+				console.log(this);
+				$('.applyBtn').click();
+				});
 			$(document).on( "click","#taskGrid  tbody tr", function() {
 				  $(this).find('.edit-deal').click();
 				});
@@ -309,7 +319,76 @@ function getPipleLineData(chart_type,submitdata){
 					 'User':dataObj.data[s].User					 
 					 }
 			}
-			Morris.Bar({
+			
+			//////////////////////////////
+			 var crmdSalesdata =  [];
+			
+			
+			 $('#crmdpipeline1').highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: ''
+                    },
+                    xAxis: {
+                        categories:dataObj.users.split(','),
+                        title: {
+                            text: ""
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '',
+                            align: 'high'
+                        },
+                        labels: {
+                            overflow: 'justify'
+                        }
+                    },
+					tooltip: {
+						headerFormat: '<span style="color:{series.color};">&#9679;</span>&nbsp;<span style="padding:0">{point.key}:{point.y}</span>',
+						pointFormat: '',
+						footerFormat: '',
+						shared: true,
+						useHTML: true
+					},
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: false,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+					series: [{
+						showInLegend: false, 
+						name:dataObj.users.split(','),
+						data: dataObj.worth.split(',').map(parseFloat) 
+			
+					} ]
+                });
+			
+			////////////////////////////////
+			/*Morris.Bar({
 			  element: 'crmdpipeline1',
 			  data: crmpipelinedata,
 			  xkey: 'User',
@@ -320,7 +399,7 @@ function getPipleLineData(chart_type,submitdata){
 					if(row.CurrencyCode==null){	row.CurrencyCode = '';	} 
 					return '<div class="morris-hover-row-label">'+row.CurrencyCode+row.Worth+'</div>'
 				}
-			});	
+			});	*/
 			}else
 			{
 				$('.crmdpipeline').html('No Data');
@@ -507,7 +586,7 @@ function GetForecastData(){
                     series: crmdForecastdata
                 });
 			
-			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value"+"</div>");
+			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunites</div>");
 	           	}else{
                 	$('.crmdForecast').html('<br><h4>No Data</h4>');
 					$('.ForecastResult').html('');

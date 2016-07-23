@@ -74,14 +74,14 @@
           <div class="form_Sales">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales">
               <div class="form-group form-group-border-none">
-                <label for="field-1" class="col-sm-2 control-label">Close Date</label>
+                <label for="Closingdate" class="col-sm-2 control-label ClosingdateLabel ">Close Date</label>
                 <div class="col-sm-6">
-                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
+                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class="small-date-input daterange">
                 </div>
               </div>
               <div class="form-group form-group-padding-none">
-                <label for="field-1" class="col-sm-2 control-label">Status</label>
-                <div class="col-sm-8"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}                
+                <label for="field-1" class="col-sm-2 control-label StatusLabel">Status</label>
+                <div class="col-sm-8 Statusdiv"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}                
                  </div>
                 <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button> 
               </div>
@@ -125,11 +125,9 @@
           <div class="form_Forecast">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
-                <div class="pull-left small-input first">
-                  <label class="col-sm-6" class="control-label">Close Date</label>
-                </div>
-                <div class="col-sm-4">
-                  <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange form-control">
+                <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel ">Close Date</label>
+                <div class="col-sm-2">                 
+                  <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="ClosingdateFortcast"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange small-date-input">
                 </div>
                 <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
               </div>
@@ -482,5 +480,22 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
         width:60%;
         font-weight:bold;
     }
+	.ClosingdateLabel{
+		padding-left:0;
+		padding-right:0;
+		width:12%;
+	}
+	.StatusLabel{
+		padding-left:0;
+		padding-right:0;
+		width:7%;
+	}
+	.Statusdiv{
+	margin-left:25px;
+	}
+	.small-date-input
+	{
+		width:150px;
+	}
 </style>
 @stop
