@@ -52,9 +52,12 @@
         <li>
             <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
         </li>
-        <li class="active">
+         <li>
+        {{opportunites_dropbox($id)}}
+    </li>
+        <!--<li class="active">
             <strong>{{$Board->BoardName}}</strong>
-        </li>
+        </li>-->
     </ol>
     <h3>Opportunity</h3>
         <div class="row">

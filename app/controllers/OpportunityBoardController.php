@@ -64,7 +64,7 @@ class OpportunityBoardController extends \BaseController {
         }
         $token    = get_random_number();
         $max_file_size = get_max_file_size();
-        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message','DefaultCurrencyID','currency'));
+        return View::make('opportunityboards.manage', compact('BoardID','Board','account_owners','leadOrAccount','boards','opportunitytags','response_extensions','token','max_file_size','message','DefaultCurrencyID','currency','id'));
     }
 
 	/**
