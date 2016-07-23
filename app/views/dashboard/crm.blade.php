@@ -104,7 +104,7 @@
         </div>
         <div id="Pipeline" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body">
+      <div class="panel-body white-bg">
         <div class="text-center">
           <div id="crmdpipeline1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdpipeline"></div>
         </div>
@@ -481,12 +481,12 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 	.ClosingdateLabel{
 		padding-left:0;
 		padding-right:0;
-		width:14%;
+		width:12%;
 	}
 	.ClosingdateLabel1{
 		padding-left:0;
 		padding-right:0;
-		width:9%;
+		width:7%;
 	}
 	
 	.StatusLabel{
@@ -501,5 +501,6 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 	{
 		width:150px;
 	}
+	.white-bg{background:#fff none repeat scroll 0 0 !important; }
 </style>
 @stop
