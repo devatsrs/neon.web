@@ -172,7 +172,7 @@ class DashboardController extends BaseController {
 		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
 		//$DateEndDefault  	= 	date('m/d/Y');
 		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +3 months'));
-		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'));
 		$DateEndDefault  	= 	date('Y-m-d');
 	    $account_owners 	= 	User::getUserIDList();
         $boards 			= 	CRMBoard::getBoards();

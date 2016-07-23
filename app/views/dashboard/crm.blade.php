@@ -141,14 +141,12 @@
     </div>
   </div>
 </div>
-
-
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div class="panel-title">
-          <h3>Opportunities</h3>
+          <h3>Open Opportunities</h3>
         </div>
         <div id="UsersOpportunities" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
