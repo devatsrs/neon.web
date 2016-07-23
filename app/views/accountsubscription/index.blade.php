@@ -57,18 +57,16 @@
         <table id="table-subscription" class="table table-bordered datatable">
             <thead>
             <tr>
-                <th width="5%">No</th>
                 <th width="5%">Subscription</th>
-                <th width="15%">Invoice Description</th>
+                <th width="20%">Invoice Description</th>
                 <th width="5%">Qty</th>
                 <th width="10%">StartDate</th>
                 <th width="10%">EndDate</th>
                 <th width="5%">ActivationFee</th>
-                <th width="5%">Discount</th>
                 <th width="5%">DailyFee</th>
                 <th width="10%">WeeklyFee</th>
                 <th width="10%">MonthlyFee</th>
-                <th width="15%">Action</th>
+                <th width="20%">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -87,20 +85,19 @@
             var postdata;
 
             jQuery(document).ready(function ($) {
-                $("#subscription-form [name=MonthlyFee],#subscription-form [name=Discount]").change(function(){
-                var monthly = $("#subscription-form [name=MonthlyFee]").val();
-                var Discount = $("#subscription-form [name=Discount]").val();
-
-                monthly = monthly-Discount;
-                weekly =  parseFloat(monthly / 30 * 7);
-                daily = parseFloat(monthly / 30);
-                decimal_places = 2;
-
-                $("#subscription-form [name=WeeklyFee]").val(weekly.toFixed(decimal_places));
-                $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));
-            });
 				
-                var list_fields  = ["AccountSubscriptionID","Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","Discount","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee","SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+				$("#subscription-form [name=MonthlyFee]").change(function(){
+        var monthly = $(this).val();
+        weekly =  parseFloat(monthly / 30 * 7);
+        daily = parseFloat(monthly / 30);
+
+        decimal_places = 2;
+
+        $("#subscription-form [name=WeeklyFee]").val(weekly.toFixed(decimal_places));
+        $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));
+});
+				
+                var list_fields  = ["Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
@@ -136,21 +133,18 @@
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                                {  "bSortable": true },  // 0 AccountSubscriptionID
-                                {  "bSortable": true },  // 1 Subscription Name
-                                {  "bSortable": true },  // 2 InvoiceDescription
-                                {  "bSortable": true },  // 3 Qty
-                                {  "bSortable": true },  // 4 StartDate
-                                {  "bSortable": true },  // 5 EndDate
-                                {  "bSortable": true },  // 6 ActivationFee
-                                {  "bSortable": true },  // 7 Discount
-                                {  "bSortable": true },  // 8 DailyFee
-                                {  "bSortable": true },  // 9 WeeklyFee
-                                {  "bSortable": true },  // 10 MonthlyFee
-                                {                        // 11 Action
+                                {  "bSortable": true },  // 0 Subscription Name
+                        {  "bSortable": true },  // 1 InvoiceDescription
+                        {  "bSortable": true },  // 2 Qty
+                        {  "bSortable": true },  // 3 StartDate
+                        {  "bSortable": true },  // 4 EndDate
+                        {  "bSortable": true },  // 5 ActivationFee
+                        {  "bSortable": true },  // 6 DailyFee
+                        {  "bSortable": true },  // 7 WeeklyFee
+                        {  "bSortable": true },  // 8 MonthlyFee
+                                {                        // 9 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
-                                id = full[0];
                                  action = '<div class = "hiddenRowData" >';
                                  for(var i = 0 ; i< list_fields.length; i++){									 
 									list_fields[i] =  list_fields[i].replace("tblBillingSubscription.",'');
@@ -315,12 +309,6 @@
                         </div>
                     </div>
                     <!-- -->
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="Discount" class="control-label">Discount</label>
-                            <input type="text" name="Discount" class="form-control"   maxlength="10" id="discount" placeholder="" value="" />
-                        </div>
-                    </div>
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="MonthlyFee" class="control-label">Monthly Fee</label>
