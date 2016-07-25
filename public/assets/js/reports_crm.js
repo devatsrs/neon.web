@@ -7,7 +7,7 @@
 				if($(this).hasClass('next'))	{
 					return false;
 				}
-				console.log(this);
+
 				$('.applyBtn').click();
 				});
 			$(document).on( "click","#taskGrid  tbody tr", function() {
