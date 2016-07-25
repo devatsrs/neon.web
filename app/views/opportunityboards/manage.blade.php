@@ -135,7 +135,7 @@
                     Add
                 </a>
             @endif
-            <a><strong><span class="currency_worth"></span>  <span class="odometer worth_add_box_ajax">0</span></strong></a>
+            <a><strong><span class="currency_worth"></span>  <span class="odometer worth_add_box_ajax">0.00</span></strong></a>
         </p>
 
         <section class="deals-board" >
@@ -735,7 +735,7 @@
                         board.html(response);
                         var worth_hidden = $('#Worth_hidden').val();
 						var Currency_hidden = $('#Currency_hidden').val();
-                        $('.odometer').html(0);
+                        $('.odometer').html(0.00);
 						$('.currency_worth').html('');
 						$('.odometer').html(worth_hidden);
 						$('.currency_worth').html(Currency_hidden);
