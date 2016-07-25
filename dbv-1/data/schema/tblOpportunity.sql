@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `tblOpportunity` (
+CREATE TABLE `tblOpportunity` (
   `OpportunityID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL,
   `UserID` int(11) NOT NULL,
@@ -30,4 +30,4 @@ CREATE TABLE IF NOT EXISTS `tblOpportunity` (
   `updated_at` datetime(3) DEFAULT NULL,
   `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`OpportunityID`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

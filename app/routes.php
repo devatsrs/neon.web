@@ -98,7 +98,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
 	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
-	Route::post('/dashboard/getforecastdata', "DashboardController@GetForecastData");		
+	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
+	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");		
+	
 	
 	
 	
@@ -110,6 +112,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/dashboard/ajax_get_processed_files', "DashboardController@ajax_get_processed_files");
     Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
     Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
+	Route::any('/crmdashboard/ajax_opportunity_grid', 'DashboardController@GetOpportunites');
+	
+	Route::any('/crmdashboard/ajax_task_grid', 'DashboardController@GetUsersTasks');
 
 	//new Dashboards ajax
 	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
@@ -155,7 +160,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 
-	Route::any('/account/upload_file', 'AccountsController@uploadFile');
+	Route::post('/account/upload_file', 'AccountsController@uploadFile');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
 
 	Route::any('/task/GetTask', 'TaskController@GetTask');
@@ -927,7 +932,7 @@ Route::group(array('before' => 'guest'), function () {
             User::setUserPermission();
             Session::set("admin", 1);
             return Redirect::to($redirect_to);
-        }else{
+        }else{			
             Session::flush();
             Auth::logout();
             echo json_encode(array("login_status" => "invalid"));
