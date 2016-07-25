@@ -410,7 +410,7 @@ var OpportunityClose =  '{{Opportunity::Close}}';
             
             <div class="col-md-6 margin-top pull-left">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label col-sm-4">Actual Closing Date</label>
+                                    <label for="field-5" class="control-label col-sm-4">Actual Close Date</label>
                                     <div class="col-sm-8">
                                         <input autocomplete="off" id="ClosingDate" type="text" name="ClosingDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>

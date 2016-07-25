@@ -1,5 +1,4 @@
 <ul class="board-inner no-select" id="deals-dashboard">
-<?php $currency = ''; ?>
     @if(count($columnsWithOpportunities)>0)
         @foreach($columnsWithOpportunities as $index=>$column )
         <li data-id="{{$index}}" class="board-column count-li">
@@ -9,7 +8,7 @@
             <ul class="sortable-list board-column-list list-unstyled ui-sortable" data-name="closedwon">
                     @foreach($column as $opportunity)
                         @if(!empty($opportunity))
-                            <?php
+                            <?php 
                         $taggedUsers = $opportunity['TaggedUsers'];
                         $opportunity = $opportunity['opportunity'];
                         $backgroundcolour = '';//$opportunity['BackGroundColour']==''?'':'style="background-color:'.$opportunity['BackGroundColour'].';"';
@@ -47,7 +46,7 @@
                                     @endif
                                     <span class="badge badge-success badge-roundless tooltip-primary" data-toggle="tooltip" data-placement="top" data-original-title="{{$opportunity['FirstName'].' '.$opportunity['LastName']}}">{{strtoupper(substr($opportunity['FirstName'],0,1)).strtoupper(substr($opportunity['LastName'],0,1))}}</span>
                                 </div>
-                            </li> <?php  $currency = $opportunity['CurrencyCode']; ?>
+                            </li> 
                         @endif
                     @endforeach
             </ul>
@@ -56,7 +55,7 @@
     @endif
 </ul> 
 <input type="hidden" name="Worth_hidden" id="Worth_hidden" value="<?php   echo !empty($WorthTotal)?$WorthTotal:0; ?>" />
-<input type="hidden" name="Currency_hidden" id="Currency_hidden" value="<?php  echo $currency; ?>" />
+<input type="hidden" name="Currency_hidden" id="Currency_hidden" value="<?php  echo $Currency; ?>" />
 <script>
     @if(!empty($message))
         toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
