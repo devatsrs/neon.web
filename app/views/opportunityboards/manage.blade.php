@@ -139,13 +139,7 @@
         </p>
 
         <section class="deals-board" >
-            <div class="row">
-                <div class="WorthBox pull-left">
-                    <div class="oppertunityworth">
-                        <h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
-                    </div>
-                </div>
-            </div>
+            
 
             <table class="table table-bordered datatable" id="opportunityGrid">
                 <thead>
@@ -735,9 +729,9 @@
                         board.html(response);
                         var worth_hidden = $('#Worth_hidden').val();
 						var Currency_hidden = $('#Currency_hidden').val();
-                        $('.odometer').html(0.00);
+                        $('.odometer').html(0);
 						$('.currency_worth').html('');
-						$('.odometer').html(worth_hidden);
+						$('.worth_add_box_ajax').html(worth_hidden); 
 						$('.currency_worth').html(Currency_hidden);
 						
 						//$('.WorthBox').show();
