@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoiceUsage`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_ShowZeroCall` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getInvoiceUsage`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_ShowZeroCall` INT)
 BEGIN
     
 	DECLARE v_InvoiceCount_ INT; 
@@ -9,7 +9,7 @@ BEGIN
 
 	
 	SELECT BillingTime INTO v_BillingTime_
-	FROM LocalRatemanagement.tblCompanyGateway cg
+	FROM NeonRMDev.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE AccountID = p_AccountID AND (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
 	LIMIT 1;
@@ -18,7 +18,7 @@ BEGIN
 	
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
 
-	Select CDRType  INTO v_CDRType_ from  LocalRatemanagement.tblAccount where AccountID = p_AccountID;
+	Select CDRType  INTO v_CDRType_ from  NeonRMDev.tblAccount where AccountID = p_AccountID;
 
 
             
@@ -29,16 +29,16 @@ BEGIN
 
         SELECT
             area_prefix AS AreaPrefix,
-            max(Trunk) as Trunk,
+            Trunk,
             (SELECT 
                 Country
-            FROM LocalRatemanagement.tblRate r
-            INNER JOIN LocalRatemanagement.tblCountry c
+            FROM NeonRMDev.tblRate r
+            INNER JOIN NeonRMDev.tblCountry c
                 ON c.CountryID = r.CountryID
             WHERE  r.Code = ud.area_prefix limit 1)
             AS Country,
             (SELECT Description
-            FROM LocalRatemanagement.tblRate r
+            FROM NeonRMDev.tblRate r
             WHERE  r.Code = ud.area_prefix limit 1 )
             AS Description,
             COUNT(UsageDetailID) AS NoOfCalls,
@@ -49,8 +49,7 @@ BEGIN
             SUM(billed_duration ) as BillDurationInSec
 
         FROM tmp_tblUsageDetails_ ud
-        GROUP BY ud.area_prefix,
-                 ud.AccountID;
+        GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID;
 
          
     ELSE
@@ -59,8 +58,8 @@ BEGIN
             select
             trunk,
             area_prefix,
-            concat("'",cli,"'") as cli,
-            concat("'",cld,"'") as cld,
+            concat("'",cli) as cli,
+            concat("'",cld) as cld,
             connect_time,
             disconnect_time,
             billed_duration,
