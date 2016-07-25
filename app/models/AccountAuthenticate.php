@@ -22,7 +22,7 @@ class AccountAuthenticate extends \Eloquent {
         }
         $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
         $select = ['tblAccount.AccountName',DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue) as authValue")];
-        $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID']])->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')->select($select)->lists('authValue','AccountName');
+        $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID'],'CustomerAuthRule'=>$type,'VendorAuthRule'=>$type])->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')->select($select)->lists('authValue','AccountName');
         $validation = '';
         if(!empty($found)) {
             $status['message'] = 'Account Successfully Updated.';

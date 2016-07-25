@@ -27,33 +27,46 @@ class AuthenticationController extends \BaseController
         if(isset($data['CustomerAuthValueText'])) {
             unset($data['CustomerAuthValueText']);
         }
+
+        if(empty($data['CustomerAuthRule']) || ($data['CustomerAuthRule'] != 'IP' && $data['CustomerAuthRule'] != 'CLI' && $data['CustomerAuthRule']!='Other')){
+            $data['CustomerAuthValue']='';  //if rule other then ip,cli and other, reset the value.
+        }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'Other' && empty($data['CustomerAuthValue'])){
+            return Response::json(array("status" => "error", "message" => "Customer Other Value required"));
+        }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'IP' && empty($data['CustomerAuthValue'])){
+            return Response::json(array("status" => "error", "message" => "Customer IP is required"));
+        }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'CLI' && empty($data['CustomerAuthValue'])){
+            return Response::json(array("status" => "error", "message" => "Customer CLI is required"));
+        }
+
+        if(empty($data['VendorAuthRule']) || ($data['VendorAuthRule'] != 'IP'&& $data['VendorAuthRule'] != 'CLI' && $data['VendorAuthRule']!='Other')){
+            $data['VendorAuthValue']=''; //if rule other then ip,cli and other, reset the value.
+        }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'Other' && empty($data['VendorAuthValue'])){
+            return Response::json(array("status" => "error", "message" => "Vendor Other Value required"));
+        }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'IP' && empty($data['VendorAuthValue'])){
+            return Response::json(array("status" => "error", "message" => "Vendor IP is required"));
+        }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'CLI' && empty($data['VendorAuthValue'])){
+            return Response::json(array("status" => "error", "message" => "Vendor CLI is required"));
+        }
+
         if(isset($data['VendorAuthValue'])){
             if(!empty($data['VendorAuthRule'])){ //if rule changes and value not changed, reset the values.
-                if($rule->VendorAuthRule!=$data['VendorAuthRule'] && $rule->VendorAuthValue==$data['VendorAuthValue']){
-                    $data['VendorAuthValue'] = '';
-                }else{
-                    $data['VendorAuthValue'] = implode(',', array_unique(explode(',', $data['VendorAuthValue'])));
+                $data['VendorAuthValue'] = implode(',', array_unique(explode(',', $data['VendorAuthValue'])));
+                if(!empty($rule)) {
+                    if ($rule->VendorAuthRule != $data['VendorAuthRule'] && $rule->VendorAuthValue == $data['VendorAuthValue']) {
+                        $data['VendorAuthValue'] = '';
+                    }
                 }
             }
         }
         if(isset($data['CustomerAuthValue'])){  //if rule changed and value not changed, reset the values.
             if(!empty($data['CustomerAuthRule'])){
-                if($rule->CustomerAuthRule!=$data['CustomerAuthRule'] && $rule->CustomerAuthValue==$data['CustomerAuthValue']){
-                    $data['CustomerAuthValue'] = '';
-                }else{
-                    $data['CustomerAuthValue'] = implode(',', array_unique(explode(',', $data['CustomerAuthValue'])));
+                $data['CustomerAuthValue'] = implode(',', array_unique(explode(',', $data['CustomerAuthValue'])));
+                if(!empty($rule)) {
+                    if ($rule->CustomerAuthRule != $data['CustomerAuthRule'] && $rule->CustomerAuthValue == $data['CustomerAuthValue']) {
+                        $data['CustomerAuthValue'] = '';
+                    }
                 }
             }
-        }
-        if(empty($data['VendorAuthRule']) || ($data['VendorAuthRule'] != 'IP'&& $data['VendorAuthRule'] != 'CLI' && $data['VendorAuthRule']!='Other')){
-            $data['VendorAuthValue']=''; //if rule other then ip,cli and other, reset the value.
-        }else if(!empty($data['VendorAuthRule']) && $data['VendorAuthRule'] == 'Other' && empty($data['VendorAuthValue'])){
-            return Response::json(array("status" => "error", "message" => "Vendor Other Value required"));
-        }
-        if(empty($data['CustomerAuthRule']) || ($data['CustomerAuthRule'] != 'IP' && $data['CustomerAuthRule'] != 'CLI' && $data['CustomerAuthRule']!='Other')){
-            $data['CustomerAuthValue']='';  //if rule other then ip,cli and other, reset the value.
-        }elseif(!empty($data['CustomerAuthRule']) && $data['CustomerAuthRule'] == 'Other' && empty($data['CustomerAuthValue'])){
-            return Response::json(array("status" => "error", "message" => "Customer Other Value required"));
         }
         unset($data['vendoriptable_length']);
         unset($data['vendorclitable_length']);
