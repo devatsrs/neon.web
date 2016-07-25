@@ -32,7 +32,6 @@
     </div>
   </div>
 </div>
-
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -81,9 +80,8 @@
               </div>
               <div class="form-group form-group-padding-none">
                 <label for="field-1" class="col-sm-2 control-label StatusLabel">Status</label>
-                <div class="col-sm-8 Statusdiv"> {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}                
-                 </div>
-                <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button> 
+                <div class="col-sm-8 Statusdiv"> {{Form::select('Status[]', Opportunity::$status, Opportunity::Won ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+                <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
               </div>
               <div class="text-center">
                 <div id="crmdSales1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSales"></div>
@@ -93,7 +91,6 @@
         </div>
       </div>
     </div>
-    
   </div>
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
@@ -126,7 +123,7 @@
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
-                <div class="col-sm-2">                 
+                <div class="col-sm-2">
                   <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="ClosingdateFortcast"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange small-date-input">
                 </div>
                 <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
@@ -173,8 +170,114 @@
   </div>
 </div>
 </div>
+<div class="salestable_div"> </div>
+<script>
+var pageSize = '{{Config::get('app.pageSize')}}';
+@if(User::checkCategoryPermission('Task','Edit')) 
+var task_edit = 1;
+@else 
+var task_edit = 0;
+@endif;
+
+@if(User::checkCategoryPermission('Opportunity','Edit')) 
+var Opportunity_edit = 1;
+@else 
+var Opportunity_edit = 0;
+@endif;
+var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
+
+var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
+var OpportunityClose =  '{{Opportunity::Close}}';
+</script> 
+<script src="https://code.highcharts.com/highcharts.js"></script> 
+<script src="https://code.highcharts.com/modules/data.js"></script> 
+<script src="https://code.highcharts.com/modules/exporting.js"></script> 
+<script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
+<script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script> 
+<script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>
+<style>
+#taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
+#taskGrid > thead >tr > th:last-child,#opportunityGrid > thead >tr > th:last-child{display:none;}
+#taskGrid > tbody >tr > td:last-child,#opportunityGrid > tbody >tr > td:last-child{display:none;}
+.padding-none{padding:0px !important;margin:0px !important;}
+.small-input{ margin-right: 5px;}
+#submit_Sales,#submit_Forecast{margin-left:5px;}
+#crm_dashboard_Sales .first,#crm_dashboard_Forecast .first{margin-left:5px;}
+#crm_dashboard_Sales .status, #crm_dashboard_Forecast .status{width:7%;}
+#crm_dashboard_Sales .dash, #crm_dashboard_Forecast .dash {width:2%; margin-left:2px; margin-top:2px;}
+.form_Sales, .form_Forecast{ margin-left:30px;}
+/*.forecase_title{padding:10px 15px !important;}*/
+.forecase_title{padding-bottom:10px !important;}
+.form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
+.form-group-padding-none{padding-top:6px !important; padding-bottom:6px !important;}
+.radio-replace{margin-right:3px;}
+    .file-input-wrapper{
+        height: 26px;
+    }
+
+    .margin-top{
+        margin-top:10px;
+    }
+    .margin-top-group{
+        margin-top:15px;
+    }
+    .paddingleft-0{
+        padding-left: 3px;
+    }
+    .paddingright-0{
+        padding-right: 0px;
+    }
+    #add-modal-opportunity .btn-xs{
+        padding:0px;
+    }
+    .resizevertical{
+        resize:vertical;
+    }
+
+    .file-input-names span{
+        cursor: pointer;
+    }
+
+    .WorthBox{display:none;}
+    .oppertunityworth{
+        border-radius:5px;
+        border:2px solid #ccc;
+        background:#fff;
+        padding:0 0 0 6px;
+        margin-bottom:10px;
+        width:60%;
+        font-weight:bold;
+    }
+	.ClosingdateLabel{
+		padding-left:0;
+		padding-right:0;
+		width:14%;
+	}
+	.ClosingdateLabel1{
+		padding-left:0;
+		padding-right:0;
+		width:7%;
+	}
+	
+	.StatusLabel{
+		padding-left:0;
+		padding-right:0;
+		width:9%;
+	}
+	.Statusdiv{
+	margin-left:25px;
+	}
+	.small-date-input
+	{
+		width:150px;
+	}
+	.white-bg{background:#fff none repeat scroll 0 0 !important; }
+</style>
+@stop
+@section('footer_ext')
+@parent
 <div class="modal fade" id="edit-modal-opportunity">
-  <div class="modal-dialog" style="width: 100%;">
+  <div class="modal-dialog" style="width: 70%;">
     <div class="modal-content">
       <form id="edit-opportunity-form" method="post">
         <div class="modal-header">
@@ -297,13 +400,23 @@
                 <label class="col-sm-4 control-label">Close</label>
                 <div class="col-sm-3 make">
                   <p class="make-switch switch-small">
-                    <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
                   </p>
+                    <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
                 </div>
                 <label class="col-sm-2 control-label closedDate hidden">Closed Date</label>
                 <div class="col-sm-3"> <span id="closedDate"></span> </div>
               </div>
             </div>
+            
+            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Actual Closing Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" id="ClosingDate" type="text" name="ClosingDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                                    </div>
+                                </div>
+                            </div>
+            
           </div>
         </div>
         <div class="modal-footer">
@@ -316,7 +429,7 @@
   </div>
 </div>
 <div class="modal fade" id="edit-modal-task">
-  <div class="modal-dialog" style="width: 100%;">
+  <div class="modal-dialog" style="width: 70%;">
     <div class="modal-content">
       <form id="edit-task-form" method="post">
         <div class="modal-header">
@@ -401,106 +514,4 @@
     </div>
   </div>
 </div>
-<div class="salestable_div"> </div>
-<script>
-var pageSize = '{{Config::get('app.pageSize')}}';
-@if(User::checkCategoryPermission('Task','Edit')) 
-var task_edit = 1;
-@else 
-var task_edit = 0;
-@endif;
-
-@if(User::checkCategoryPermission('Opportunity','Edit')) 
-var Opportunity_edit = 1;
-@else 
-var Opportunity_edit = 0;
-@endif;
-var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
-
-var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
-</script> 
-<script src="https://code.highcharts.com/highcharts.js"></script> 
-<script src="https://code.highcharts.com/modules/data.js"></script> 
-<script src="https://code.highcharts.com/modules/exporting.js"></script> 
-<script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
-<script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script> 
-<script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>
-<style>
-#taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
-#taskGrid > thead >tr > th:last-child,#opportunityGrid > thead >tr > th:last-child{display:none;}
-#taskGrid > tbody >tr > td:last-child,#opportunityGrid > tbody >tr > td:last-child{display:none;}
-.padding-none{padding:0px !important;margin:0px !important;}
-.small-input{ margin-right: 5px;}
-#submit_Sales,#submit_Forecast{margin-left:5px;}
-#crm_dashboard_Sales .first,#crm_dashboard_Forecast .first{margin-left:5px;}
-#crm_dashboard_Sales .status, #crm_dashboard_Forecast .status{width:7%;}
-#crm_dashboard_Sales .dash, #crm_dashboard_Forecast .dash {width:2%; margin-left:2px; margin-top:2px;}
-.form_Sales, .form_Forecast{ margin-left:30px;}
-/*.forecase_title{padding:10px 15px !important;}*/
-.forecase_title{padding-bottom:10px !important;}
-.form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
-.form-group-padding-none{padding-top:6px !important; padding-bottom:6px !important;}
-.radio-replace{margin-right:3px;}
-    .file-input-wrapper{
-        height: 26px;
-    }
-
-    .margin-top{
-        margin-top:10px;
-    }
-    .margin-top-group{
-        margin-top:15px;
-    }
-    .paddingleft-0{
-        padding-left: 3px;
-    }
-    .paddingright-0{
-        padding-right: 0px;
-    }
-    #add-modal-opportunity .btn-xs{
-        padding:0px;
-    }
-    .resizevertical{
-        resize:vertical;
-    }
-
-    .file-input-names span{
-        cursor: pointer;
-    }
-
-    .WorthBox{display:none;}
-    .oppertunityworth{
-        border-radius:5px;
-        border:2px solid #ccc;
-        background:#fff;
-        padding:0 0 0 6px;
-        margin-bottom:10px;
-        width:60%;
-        font-weight:bold;
-    }
-	.ClosingdateLabel{
-		padding-left:0;
-		padding-right:0;
-		width:12%;
-	}
-	.ClosingdateLabel1{
-		padding-left:0;
-		padding-right:0;
-		width:7%;
-	}
-	
-	.StatusLabel{
-		padding-left:0;
-		padding-right:0;
-		width:7%;
-	}
-	.Statusdiv{
-	margin-left:25px;
-	}
-	.small-date-input
-	{
-		width:150px;
-	}
-	.white-bg{background:#fff none repeat scroll 0 0 !important; }
-</style>
 @stop

@@ -171,13 +171,14 @@ class DashboardController extends BaseController {
 		$users			 	= 	User::getUserIDListAll(0);
 		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
 		//$DateEndDefault  	= 	date('m/d/Y');
-		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +3 months'));
+		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +1 months'));
 		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'));
 		$DateEndDefault  	= 	date('Y-m-d');
 	    $account_owners 	= 	User::getUserIDList();
         $boards 			= 	CRMBoard::getBoards();
 		$TaskBoard			= 	CRMBoard::getTaskBoard();
         $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
+		$CloseStatus		=	Opportunity::Close;
 		$where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -187,7 +188,7 @@ class DashboardController extends BaseController {
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
         $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast'));	
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
 	}
 	
 	public function GetUsersTasks(){

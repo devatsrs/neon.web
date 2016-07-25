@@ -342,6 +342,7 @@
 
             @if(User::checkCategoryPermission('Opportunity','Edit'))
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
+				
                 e.stopPropagation();
                 if($(this).is('a')){
                     var rowHidden = $(this).prev('div.hiddenRowData');
@@ -351,10 +352,11 @@
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 var OpportunityClosed = 0;
-                $('.closedDate').addClass('hidden');
-                $('#closedDate').text('');
+                //$('.closedDate').addClass('hidden');
+                //$('#closedDate').text('');
+				$('#ClosingDate').val('');
                 for(var i = 0 ; i< opportunity.length; i++){
-                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
+                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();					
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
                     //console.log(opportunity[i]+' '+val);
                     if(select.indexOf(opportunity[i])!=-1){
@@ -381,8 +383,9 @@
                             }
                         }else if(opportunity[i]=='ClosingDate'){
                             if(OpportunityClosed==1){
-                                $('.closedDate').removeClass('hidden');
-                                $('#closedDate').text(val);
+                                //$('.closedDate').removeClass('hidden');
+                                //$('#closedDate').text(val);
+								$('#ClosingDate').val(val);
                             }
                         }
                         else if(opportunity[i]=='ExpectedClosing'){
@@ -1026,6 +1029,15 @@
                                     <label class="col-sm-2 control-label closedDate hidden">Closed Date</label>
                                     <div class="col-sm-3">
                                         <span id="closedDate"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Actual Closing Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" id="ClosingDate" type="text" name="ClosingDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
                                 </div>
                             </div>

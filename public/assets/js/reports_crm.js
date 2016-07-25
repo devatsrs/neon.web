@@ -719,8 +719,9 @@ function GetUsersTasks(){
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 var OpportunityClosed = 0;
-                $('.closedDate').addClass('hidden');
-                $('#closedDate').text('');
+               // $('.closedDate').addClass('hidden');
+               // $('#closedDate').text('');
+			   $('#ClosingDate').val('');
                 for(var i = 0 ; i< opportunity.length; i++){
                     var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
@@ -748,8 +749,9 @@ function GetUsersTasks(){
                             }
                         }else if(opportunity[i]=='ClosingDate'){
                             if(OpportunityClosed==1){
-                                $('.closedDate').removeClass('hidden');
-                                $('#closedDate').text(val);
+                                //$('.closedDate').removeClass('hidden');
+                                //$('#closedDate').text(val);
+								$('#ClosingDate').val(val);
                             }
                         }
                         else if(opportunity[i]=='ExpectedClosing'){
@@ -895,7 +897,7 @@ function GetUsersTasks(){
 
    			function biuldSwicth(container,formID,checked){
                 var make = '<span class="make-switch switch-small">';
-                make += '<input name="opportunityClosed" value="{{Opportunity::Close}}" '+checked+' type="checkbox">';
+                make += '<input name="opportunityClosed" value="'+OpportunityClose+'" '+checked+' type="checkbox">';
                 make +='</span>';
 
                 var container = $(formID).find(container);
