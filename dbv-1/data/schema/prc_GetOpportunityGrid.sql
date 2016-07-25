@@ -1,5 +1,4 @@
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
+CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
@@ -13,14 +12,36 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(50)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
+	DECLARE v_CurrencyCode_ VARCHAR(50);
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET SESSION group_concat_max_len = 1024;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	SELECT cr.Symbol INTO v_CurrencyCode_ from tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 
 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 SELECT 
@@ -48,7 +69,8 @@ SELECT
  	   o.OpportunityClosed,
  	   Date(o.ClosingDate) as ClosingDate,
  	   Date(o.ExpectedClosing) as ExpectedClosing,
-		Time(o.ExpectedClosing) as StartTime
+		Time(o.ExpectedClosing) as StartTime,
+		v_CurrencyCode_ as CurrencyCode
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND (p_BoardID = 0 OR b.BoardID = p_BoardID)
@@ -137,5 +159,4 @@ LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND (p_CurrencyID = 0 OR ac.CurrencyId = p_CurrencyID)
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
 LEFT JOIN tblUser u on u.UserID = o.UserID;
-END//
-DELIMITER ;
+END
