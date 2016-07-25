@@ -40,7 +40,9 @@
         font-weight:bold;
         width:100%;
     }
-
+.currency_worth,.odometer{font-size:21px;}
+.currency_worth{ margin-left:7px; vertical-align:middle;}
+.worth_add_box_ajax{margin-left:-2px;}
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -50,9 +52,12 @@
         <li>
             <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
         </li>
-        <li class="active">
+         <li>
+        {{opportunites_dropbox($id)}}
+    </li>
+        <!--<li class="active">
             <strong>{{$Board->BoardName}}</strong>
-        </li>
+        </li>-->
     </ol>
     <h3>Opportunity</h3>
         <div class="row">
@@ -61,7 +66,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
                     <div class="panel panel-primary" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -130,16 +135,11 @@
                     Add
                 </a>
             @endif
+            <a><strong><span class="currency_worth"></span>  <span class="odometer worth_add_box_ajax">0.00</span></strong></a>
         </p>
 
         <section class="deals-board" >
-            <div class="row">
-                <div class="WorthBox pull-left">
-                    <div class="oppertunityworth">
-                        <h4><strong>Worth: <span class="worth_add_box_ajax">0</span></strong></h4>
-                    </div>
-                </div>
-            </div>
+            
 
             <table class="table table-bordered datatable" id="opportunityGrid">
                 <thead>
@@ -166,6 +166,9 @@
             </form>
         </section>
     <script>
+	window.odometerOptions = {
+  format: '(ddd).dd'
+};
         var $searchFilter = {};
         var currentDrageable = '';
         var fixedHeader = false;
@@ -333,6 +336,7 @@
 
             @if(User::checkCategoryPermission('Opportunity','Edit'))
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
+				
                 e.stopPropagation();
                 if($(this).is('a')){
                     var rowHidden = $(this).prev('div.hiddenRowData');
@@ -342,10 +346,11 @@
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
                 var OpportunityClosed = 0;
-                $('.closedDate').addClass('hidden');
-                $('#closedDate').text('');
+                //$('.closedDate').addClass('hidden');
+                //$('#closedDate').text('');
+				$('#ClosingDate').val('');
                 for(var i = 0 ; i< opportunity.length; i++){
-                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
+                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();					
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
                     //console.log(opportunity[i]+' '+val);
                     if(select.indexOf(opportunity[i])!=-1){
@@ -372,8 +377,9 @@
                             }
                         }else if(opportunity[i]=='ClosingDate'){
                             if(OpportunityClosed==1){
-                                $('.closedDate').removeClass('hidden');
-                                $('#closedDate').text(val);
+                                //$('.closedDate').removeClass('hidden');
+                                //$('#closedDate').text(val);
+								$('#ClosingDate').val(val);
                             }
                         }
                         else if(opportunity[i]=='ExpectedClosing'){
@@ -722,8 +728,13 @@
                     success: function (response) {
                         board.html(response);
                         var worth_hidden = $('#Worth_hidden').val();
-                        $('.worth_add_box_ajax').html(worth_hidden);
-                        $('.WorthBox').show();
+						var Currency_hidden = $('#Currency_hidden').val();
+                        $('.odometer').html(0);
+						$('.currency_worth').html('');
+						$('.worth_add_box_ajax').html(worth_hidden); 
+						$('.currency_worth').html(Currency_hidden);
+						
+						//$('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();
@@ -1015,6 +1026,15 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Actual Close Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" id="ClosingDate" type="text" name="ClosingDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                                    </div>
+                                </div>
+                            </div>
 
                             <!--<div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
@@ -1109,7 +1129,7 @@
                                     <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
-                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
                                         <input type="hidden" name="attachmentsinfo" >
                                     </div>
@@ -1128,7 +1148,7 @@
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-8"></div>
                             <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="OpportunityID" >
                             </div>
                         </form>
