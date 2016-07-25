@@ -127,7 +127,7 @@ function customer_dropbox($id=0,$data=array()){
 }
 
 function opportunites_dropbox($id=0,$data=array()){
-    $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
+    $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
     return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
