@@ -193,8 +193,6 @@ var OpportunityClose =  '{{Opportunity::Close}}';
 <script src="https://code.highcharts.com/modules/data.js"></script> 
 <script src="https://code.highcharts.com/modules/exporting.js"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
-<script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script> 
-<script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>
 <style>
 #taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
 #taskGrid > thead >tr > th:last-child,#opportunityGrid > thead >tr > th:last-child{display:none;}
