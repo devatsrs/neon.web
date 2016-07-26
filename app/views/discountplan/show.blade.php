@@ -5,7 +5,7 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('discount_plan')}}">Discount Plan</a>
+            <a href="{{URL::to('discount_plan')}}">Discount Plan ({{$name}})</a>
         </li>
         <li class="active">
             <strong>Discount</strong>

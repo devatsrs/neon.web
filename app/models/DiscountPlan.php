@@ -23,5 +23,8 @@ class DiscountPlan extends \Eloquent
         $DropdownIDList = array('' => "Select a Discount Plan") + $DropdownIDList;
         return $DropdownIDList;
     }
+    public static function getName($DiscountPlanID){
+        return DiscountPlan::where("DiscountPlanID",$DiscountPlanID)->pluck('Name');
+    }
 
 }

@@ -39,7 +39,8 @@ class DestinationGroupController extends \BaseController {
     public function show($id) {
         $countries  = Country::getCountryDropdownIDList();
         $DestinationGroupSetID = $id;
-        return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries'));
+        $name = DestinationGroupSet::getName($id);
+        return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name'));
     }
 
     public function group_ajax_datagrid(){

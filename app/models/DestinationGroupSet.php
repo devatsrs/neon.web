@@ -25,6 +25,9 @@ class DestinationGroupSet extends \Eloquent
 
         return $DropdownIDList;
     }
+    public static function getName($DestinationGroupSetID){
+        return DestinationGroupSet::where("DestinationGroupSetID",$DestinationGroupSetID)->pluck('Name');
+    }
 
 
 }

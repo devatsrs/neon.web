@@ -45,7 +45,8 @@ class DiscountController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $DestinationGroupSetID = DiscountPlan::where(array('DiscountPlanID'=>$id))->pluck('DestinationGroupSetID');
         $DestinationGroup = DestinationGroup::getDropdownIDList($DestinationGroupSetID);
-        return View::make('discountplan.show', compact('currencies','DestinationGroup','id'));
+        $name = DiscountPlan::getName($id);
+        return View::make('discountplan.show', compact('currencies','DestinationGroup','id','name'));
     }
 
     public function discount_ajax_datagrid(){
