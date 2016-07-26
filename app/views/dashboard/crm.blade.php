@@ -190,8 +190,6 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 var OpportunityClose =  '{{Opportunity::Close}}';
 </script> 
 <script src="https://code.highcharts.com/highcharts.js"></script> 
-<script src="https://code.highcharts.com/modules/data.js"></script> 
-<script src="https://code.highcharts.com/modules/exporting.js"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
 <style>
 #taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
