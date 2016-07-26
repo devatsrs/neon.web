@@ -463,13 +463,15 @@ var postdata;
             });
         });
         $('#table-4 tbody').on('click', 'tr', function() {
-            if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
-            $(this).toggleClass('selected');
-            if ($(this).hasClass('selected')) {
-                $(this).find('.rowcheckbox').prop("checked", true);
-            } else {
-                $(this).find('.rowcheckbox').prop("checked", false);
-            }
+            if (checked =='') {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
             }
         });
 		
