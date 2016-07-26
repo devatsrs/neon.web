@@ -69,12 +69,19 @@ class AccountStatementController extends \BaseController
         //Balance after offset
         $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
 
+        $InvoiceOutWithPaymentIn = $this->format_records($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT,$roundplaces); // format records to display without using any condition
+        $InvoiceInWithPaymentOut = $this->format_records($InvoiceInWithPaymentOut,Invoice::INVOICE_IN,$roundplaces); // format records to display without using any condition
+
+        $InvoiceOutWithPaymentIn = $this->merge_single_invoice_payments($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT);
+        $InvoiceInWithPaymentOut = $this->merge_single_invoice_payments($InvoiceInWithPaymentOut,Invoice::INVOICE_IN);
+
 
         $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
         }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
 
-        $soa_result = $this->cleanup_duplicate_records($soa_result);
+        //$soa_result = $this->cleanup_duplicate_records($soa_result);
+
 
         $output = [
             'result' => $soa_result,
@@ -183,11 +190,15 @@ class AccountStatementController extends \BaseController
         $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
 
 
+        $InvoiceOutWithPaymentIn = $this->format_records($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT,$roundplaces); // format records to display without using any condition
+        $InvoiceInWithPaymentOut = $this->format_records($InvoiceInWithPaymentOut,Invoice::INVOICE_IN,$roundplaces); // format records to display without using any condition
+
         $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
         }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
 
-        $soa_result = $this->cleanup_duplicate_records($soa_result);
+        //$soa_result = $this->cleanup_duplicate_records($soa_result);
+
 
         $output = [
             'result' => $soa_result,
@@ -206,11 +217,6 @@ class AccountStatementController extends \BaseController
             'CompanyName' => Company::getName(),
         ];
 
-        /*$account_statement['inInvoices'] = $inInvoices;
-        $account_statement['outInvoices'] = $outInvoices;
-        $account_statement['firstCompany'] = Company::getName();
-        $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
-        //$account_statement['roundplaces'] = $roundplaces;*/
         AccountStatementController::generateExcel($output, $type);
     }
 
@@ -222,6 +228,9 @@ class AccountStatementController extends \BaseController
                 //$sheet->getCell('B4')->setValue('Wavetel Ltd INVOICE');
 
 
+                /**
+                 * Not used as formula will replace this value.
+
                 $InvoiceOutAmountTotal = $account_statement['InvoiceOutAmountTotal'];
                 $PaymentInAmountTotal = $account_statement['PaymentInAmountTotal'];
                 $InvoiceInAmountTotal = $account_statement['InvoiceInAmountTotal'];
@@ -231,9 +240,10 @@ class AccountStatementController extends \BaseController
                 $CompanyBalance = $account_statement['CompanyBalance'];
                 $AccountBalance = $account_statement['AccountBalance'];
                 $OffsetBalance = $account_statement['OffsetBalance'];
+                */
 
-                $CurencySymbol = $account_statement['CurencySymbol'];
-                $roundplaces = $account_statement['roundplaces'];
+                //$CurencySymbol = $account_statement['CurencySymbol'];
+                //$roundplaces = $account_statement['roundplaces'];
 
 
                 $Alpha = range('A', 'R');
@@ -364,23 +374,17 @@ class AccountStatementController extends \BaseController
                             $rowData['PaymentOut_Amount'] = 0;
                         }
 
-                        $InvoiceOut_Amount = number_format($rowData['InvoiceOut_Amount'], $roundplaces,'.','');
-                        $InvoiceOut_Amount = $InvoiceOut_Amount != 0 ? $InvoiceOut_Amount : '';
+                        $InvoiceOut_Amount = $rowData['InvoiceOut_Amount'];
 
-                        $InvoiceIn_Amount = number_format($rowData['InvoiceIn_Amount'], $roundplaces,'.','');
-                        $InvoiceIn_Amount = $InvoiceIn_Amount != 0 ? $InvoiceIn_Amount : '';
+                        $InvoiceIn_Amount = $rowData['InvoiceIn_Amount'];
 
-                        $InvoiceIn_DisputeAmount = number_format($rowData['InvoiceIn_DisputeAmount'], $roundplaces,'.','');
-                        $InvoiceIn_DisputeAmount = $InvoiceIn_DisputeAmount != 0 ? $InvoiceIn_DisputeAmount : '';
+                        $InvoiceIn_DisputeAmount = $rowData['InvoiceIn_DisputeAmount'];
 
-                        $InvoiceOut_DisputeAmount = number_format($rowData['InvoiceOut_DisputeAmount'], $roundplaces,'.','');
-                        $InvoiceOut_DisputeAmount = $InvoiceOut_DisputeAmount != 0 ? $InvoiceOut_DisputeAmount : '';
+                        $InvoiceOut_DisputeAmount = $rowData['InvoiceOut_DisputeAmount'];
 
-                        $PaymentIn_Amount = number_format($rowData['PaymentIn_Amount'], $roundplaces,'.','');
-                        $PaymentIn_Amount = $PaymentIn_Amount != 0 ? $PaymentIn_Amount : '';
+                        $PaymentIn_Amount = $rowData['PaymentIn_Amount'];
 
-                        $PaymentOut_Amount = number_format($rowData['PaymentOut_Amount'], $roundplaces,'.','');
-                        $PaymentOut_Amount = $PaymentOut_Amount != 0 ? $PaymentOut_Amount : '';
+                        $PaymentOut_Amount = $rowData['PaymentOut_Amount'];
 
 
                         $columnIndex = 0;
@@ -544,7 +548,7 @@ class AccountStatementController extends \BaseController
                         $InvoiceOut_InvoiceNo[] = $soa_result[$index]["InvoiceOut_InvoiceNo"];
 
                     } else {
-                        $soa_result[$index]["InvoiceOut_InvoiceNo"] = "";
+                        //$soa_result[$index]["InvoiceOut_InvoiceNo"] = "";
                         $soa_result[$index]["InvoiceOut_PeriodCover"] = "";
                         $soa_result[$index]["InvoiceOut_Amount"] = "0";
                     }
@@ -559,7 +563,7 @@ class AccountStatementController extends \BaseController
                         $InvoiceIn_InvoiceNo[] = $soa_result[$index]["InvoiceIn_InvoiceNo"];
 
                     } else {
-                        $soa_result[$index]["InvoiceIn_InvoiceNo"] = "";
+                        //$soa_result[$index]["InvoiceIn_InvoiceNo"] = "";
                         $soa_result[$index]["InvoiceIn_PeriodCover"] = "";
                         $soa_result[$index]["InvoiceIn_Amount"] = "0";
                     }
@@ -567,5 +571,154 @@ class AccountStatementController extends \BaseController
             }
         }
         return $soa_result;
+    }
+
+    /**
+     * Format Records tobe display and export
+     * @param $soa_records
+     * @param int $roundplaces
+     * @return mixed
+     */
+    public function format_records($invoice_records,$type,$roundplaces=2)
+    {
+        if (count($invoice_records) > 0) {
+
+            // Loop through result
+            foreach ($invoice_records as $key => $rowData) {
+
+                if($type == Invoice::INVOICE_OUT) {
+
+                    if (!isset($rowData['InvoiceOut_InvoiceNo'])) {
+                        $rowData['InvoiceOut_InvoiceNo'] = '';
+                    }
+                    if (!isset($rowData['InvoiceOut_PeriodCover'])) {
+                        $rowData['InvoiceOut_PeriodCover'] = '';
+                    }
+                    if (!isset($rowData['InvoiceOut_Amount'])) {
+                        $rowData['InvoiceOut_Amount'] = 0;
+                    }
+                    if (!isset($rowData['InvoiceOut_DisputeAmount'])) {
+                        $rowData['InvoiceOut_DisputeAmount'] = 0;
+                    }
+                    //Payment In
+                    if (!isset($rowData['PaymentIn_PeriodCover'])) {
+                        $rowData['PaymentIn_PeriodCover'] = '';
+                    }
+                    if (!isset($rowData['PaymentIn_PaymentID'])) {
+                        $rowData['PaymentIn_PaymentID'] = '';
+                    }
+                    if (!isset($rowData['PaymentIn_Amount'])) {
+                        $rowData['PaymentIn_Amount'] = 0;
+                    }
+
+                    $InvoiceOut_Amount = number_format($rowData['InvoiceOut_Amount'], $roundplaces, '.', '');
+                    $rowData['InvoiceOut_Amount'] = $InvoiceOut_Amount != 0 ? $InvoiceOut_Amount : '';
+
+                    $PaymentIn_Amount = number_format($rowData['PaymentIn_Amount'], $roundplaces, '.', '');
+                    $rowData['PaymentIn_Amount'] = $PaymentIn_Amount != 0 ? $PaymentIn_Amount : '';
+
+                    $InvoiceOut_DisputeAmount = number_format($rowData['InvoiceOut_DisputeAmount'], $roundplaces, '.', '');
+                    $rowData['InvoiceOut_DisputeAmount'] = $InvoiceOut_DisputeAmount != 0 ? $InvoiceOut_DisputeAmount : '';
+
+                }
+                else if($type == Invoice::INVOICE_IN) {
+
+                    //Invoice In
+                    if (!isset($rowData['InvoiceIn_InvoiceNo'])) {
+                        $rowData['InvoiceIn_InvoiceNo'] = '';
+                    }
+                    if (!isset($rowData['InvoiceIn_PeriodCover'])) {
+                        $rowData['InvoiceIn_PeriodCover'] = '';
+                    }
+                    if (!isset($rowData['InvoiceIn_Amount'])) {
+                        $rowData['InvoiceIn_Amount'] = 0;
+                    }
+                    if (!isset($rowData['InvoiceIn_DisputeAmount'])) {
+                        $rowData['InvoiceIn_DisputeAmount'] = 0;
+                    }
+                    //Payment Out
+                    if (!isset($rowData['PaymentOut_PeriodCover'])) {
+                        $rowData['PaymentOut_PeriodCover'] = '';
+                    }
+                    if (!isset($rowData['PaymentOut_PaymentID'])) {
+                        $rowData['PaymentOut_PaymentID'] = '';
+                    }
+                    if (!isset($rowData['PaymentOut_Amount'])) {
+                        $rowData['PaymentOut_Amount'] = 0;
+                    }
+
+                    $InvoiceIn_Amount = number_format($rowData['InvoiceIn_Amount'], $roundplaces, '.', '');
+                    $rowData['InvoiceIn_Amount'] = $InvoiceIn_Amount != 0 ? $InvoiceIn_Amount : '';
+
+                    $InvoiceIn_DisputeAmount = number_format($rowData['InvoiceIn_DisputeAmount'], $roundplaces, '.', '');
+                    $rowData['InvoiceIn_DisputeAmount'] = $InvoiceIn_DisputeAmount != 0 ? $InvoiceIn_DisputeAmount : '';
+
+                    $PaymentOut_Amount = number_format($rowData['PaymentOut_Amount'], $roundplaces, '.', '');
+                    $rowData['PaymentOut_Amount'] = $PaymentOut_Amount != 0 ? $PaymentOut_Amount : '';
+
+                }
+
+
+
+                $invoice_records[$key] = $rowData;
+            }
+        }
+        return $invoice_records;
+    }
+
+    /** Merge all payments against single Invoice.
+     * @param $soa_records
+     * @return mixed
+     */
+    public function merge_single_invoice_payments($invoice_records,$type) {
+
+        if (count($invoice_records) > 0) {
+
+            // Loop through result
+            foreach ($invoice_records as $key => $rowData) {
+
+                if($type == Invoice::INVOICE_OUT ) {
+                    // check if same Invoice no.
+                    while (!empty($invoice_records[$key]['InvoiceOut_InvoiceNo']) && isset($invoice_records[$key+1]['InvoiceOut_InvoiceNo'])
+                        && $invoice_records[$key]['InvoiceOut_InvoiceNo'] == $invoice_records[$key+1]['InvoiceOut_InvoiceNo']
+                    ) {
+                        //$invoice_records[$key]['InvoiceOut_InvoiceNo'] = "";
+
+                        $invoice_records[$key]['PaymentIn_PeriodCover'] .= '<br>' . $invoice_records[$key+1]['PaymentIn_PeriodCover'];
+                        if(!empty($invoice_records[$key+1]['PaymentIn_Amount'])){
+
+                            $invoice_records[$key]['PaymentIn_Amount'] .= ',' .$invoice_records[$key+1]['PaymentIn_Amount'] ;
+                            $invoice_records[$key]['PaymentIn_PaymentID'] .= ',' . $invoice_records[$key+1]['PaymentIn_PaymentID'] ;
+                        }
+
+                        unset($invoice_records[$key+1]);
+                        //print_r($invoice_records[$key]);
+                        //exit;
+                    }
+                } else if ($type == Invoice::INVOICE_IN ) {
+
+                    // check if same Invoice no.
+                    while (!empty($invoice_records[$key]['InvoiceIn_InvoiceNo']) && isset($invoice_records[$key + 1]['InvoiceIn_InvoiceNo'])
+                        && $invoice_records[$key]['InvoiceIn_InvoiceNo'] == $invoice_records[$key + 1]['InvoiceIn_InvoiceNo']
+                    ) {
+                        //$invoice_records[$key]['InvoiceIn_InvoiceNo'] = "";
+
+                        $invoice_records[$key]['PaymentOut_PeriodCover'] .= '<br>' . $invoice_records[$key + 1]['PaymentOut_PeriodCover'];
+                        if(!empty($invoice_records[$key+1]['PaymentOut_Amount'])){
+
+                            $invoice_records[$key]['PaymentOut_Amount'] .= ',' . $invoice_records[$key+1]['PaymentOut_Amount']  ;
+                            $invoice_records[$key]['PaymentOut_PaymentID'] .=  ',' . $invoice_records[$key+1]['PaymentOut_PaymentID'] ;
+                        }
+
+                        unset($invoice_records[$key+1]);
+                        //print_r($invoice_records[$key]);
+                        //exit;
+                    }
+                }
+
+                //$invoice_records[$key] = $rowData;
+            }
+        }
+        return $invoice_records;
     }
 }
