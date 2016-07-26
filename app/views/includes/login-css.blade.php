@@ -39,7 +39,8 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/bootstrap3-editable/css/bootstrap-editable.css",
         "assets/js/icheck/skins/minimal/_all.css",
 		"assets/js/perfectScroll/css/perfect-scrollbar.css",
-		"assets/js/odometer/themes/odometer-theme-default.css",		
+		"assets/js/odometer/themes/odometer-theme-default.css",	
+		"assets/js/daterangepicker/daterangepicker-bs3.css"	
 		
 
 
