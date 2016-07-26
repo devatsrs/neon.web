@@ -1,19 +1,10 @@
-CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSales`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCrmDashboardSales`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_Status` VARCHAR(50),
 	IN `p_CurrencyID` INT,
 	IN `p_Start` DATE,
 	IN `p_End` DATE
-
-
-
-
-
-
-
-
-
 )
 BEGIN
 	DECLARE v_CurrencyCode_ VARCHAR(50);

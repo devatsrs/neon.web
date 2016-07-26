@@ -14,9 +14,13 @@ class CRMBoard extends \Eloquent {
     const Active = 1;
     const All = 2;
 
-    public static function getBoards($BoardType=CRMBoard::OpportunityBoard){
+    public static function getBoards($BoardType=CRMBoard::OpportunityBoard,$isActive = 1){
         $compantID = User::get_companyID();
-        $opportunity = CRMBoard::select(['BoardID','BoardName'])->where(['CompanyID'=>$compantID,'BoardType'=>$BoardType])->lists('BoardName','BoardID');
+        $where = ['CompanyID'=>$compantID,'BoardType'=>$BoardType];
+        if($isActive>=0){
+            $where['Status'] =$isActive;
+        }
+        $opportunity = CRMBoard::select(['BoardID','BoardName'])->where($where)->orderBy('BoardName', 'asc')->lists('BoardName','BoardID');
         if(!empty($opportunity)){
             $opportunity = [''=>'Select'] + $opportunity;
         }

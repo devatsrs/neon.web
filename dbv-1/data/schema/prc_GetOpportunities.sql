@@ -6,23 +6,8 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetOpportunities`(
 	IN `p_OwnerID` VARCHAR(100),
 	IN `p_AccountID` INT,
 	IN `p_Status` VARCHAR(50),
-	IN `p_CurrencyID` INT
-
-
-
-,
+	IN `p_CurrencyID` INT,
 	IN `p_OpportunityClosed` INT
-
-
-
-
-
-
-
-
-
-
-
 )
 BEGIN
 		
