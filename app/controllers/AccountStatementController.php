@@ -121,7 +121,13 @@ class AccountStatementController extends \BaseController
     {
         $data = Input::all();
 
-        $result = Payment::where(["PaymentID" => $data['id']])->first();
+        $result = Payment::where(["PaymentID" => $data['id']])->first()->toArray();
+
+        if(isset($result["CurrencyID"]) && $result["CurrencyID"] > 0 ){
+
+            $CurrencyCode = Currency::find($result["CurrencyID"])->pluck("Code");
+            $result["Currency"] = $CurrencyCode;
+        }
         echo json_encode($result);
     }
 
