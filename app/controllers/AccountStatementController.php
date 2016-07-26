@@ -76,11 +76,12 @@ class AccountStatementController extends \BaseController
         $InvoiceInWithPaymentOut = $this->merge_single_invoice_payments($InvoiceInWithPaymentOut,Invoice::INVOICE_IN);
 
 
+
         $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
         }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
 
-        //$soa_result = $this->cleanup_duplicate_records($soa_result);
+        $soa_result = $this->cleanup_duplicate_records($soa_result);
 
 
         $output = [
@@ -197,7 +198,7 @@ class AccountStatementController extends \BaseController
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
         }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
 
-        //$soa_result = $this->cleanup_duplicate_records($soa_result);
+        $soa_result = $this->cleanup_duplicate_records($soa_result);
 
 
         $output = [
@@ -548,9 +549,9 @@ class AccountStatementController extends \BaseController
                         $InvoiceOut_InvoiceNo[] = $soa_result[$index]["InvoiceOut_InvoiceNo"];
 
                     } else {
-                        //$soa_result[$index]["InvoiceOut_InvoiceNo"] = "";
+                        $soa_result[$index]["InvoiceOut_InvoiceNo"] = "";
                         $soa_result[$index]["InvoiceOut_PeriodCover"] = "";
-                        $soa_result[$index]["InvoiceOut_Amount"] = "0";
+                        $soa_result[$index]["InvoiceOut_Amount"] = "";
                     }
                 }
             }
@@ -563,7 +564,7 @@ class AccountStatementController extends \BaseController
                         $InvoiceIn_InvoiceNo[] = $soa_result[$index]["InvoiceIn_InvoiceNo"];
 
                     } else {
-                        //$soa_result[$index]["InvoiceIn_InvoiceNo"] = "";
+                        $soa_result[$index]["InvoiceIn_InvoiceNo"] = "";
                         $soa_result[$index]["InvoiceIn_PeriodCover"] = "";
                         $soa_result[$index]["InvoiceIn_Amount"] = "0";
                     }
@@ -675,44 +676,45 @@ class AccountStatementController extends \BaseController
         if (count($invoice_records) > 0) {
 
             // Loop through result
-            foreach ($invoice_records as $key => $rowData) {
+            for ($key = 0 ; $key < count($invoice_records); $key++ ) {
+
+                $next  = $key + 1 ;
 
                 if($type == Invoice::INVOICE_OUT ) {
                     // check if same Invoice no.
-                    while (!empty($invoice_records[$key]['InvoiceOut_InvoiceNo']) && isset($invoice_records[$key+1]['InvoiceOut_InvoiceNo'])
-                        && $invoice_records[$key]['InvoiceOut_InvoiceNo'] == $invoice_records[$key+1]['InvoiceOut_InvoiceNo']
+                    while (!empty($invoice_records[$key]['InvoiceOut_InvoiceNo']) && isset($invoice_records[$next]['InvoiceOut_InvoiceNo'])
+                        && $invoice_records[$key]['InvoiceOut_InvoiceNo'] == $invoice_records[$next]['InvoiceOut_InvoiceNo']
                     ) {
                         //$invoice_records[$key]['InvoiceOut_InvoiceNo'] = "";
 
-                        $invoice_records[$key]['PaymentIn_PeriodCover'] .= '<br>' . $invoice_records[$key+1]['PaymentIn_PeriodCover'];
-                        if(!empty($invoice_records[$key+1]['PaymentIn_Amount'])){
+                        $invoice_records[$key]['PaymentIn_PeriodCover'] .= '<br>' . $invoice_records[$next]['PaymentIn_PeriodCover'];
 
-                            $invoice_records[$key]['PaymentIn_Amount'] .= ',' .$invoice_records[$key+1]['PaymentIn_Amount'] ;
-                            $invoice_records[$key]['PaymentIn_PaymentID'] .= ',' . $invoice_records[$key+1]['PaymentIn_PaymentID'] ;
+                        if(!empty($invoice_records[$next]['PaymentIn_Amount'])){
+
+                            $invoice_records[$key]['PaymentIn_Amount'] .= ',' .$invoice_records[$next]['PaymentIn_Amount'] ;
+                            $invoice_records[$key]['PaymentIn_PaymentID'] .= ',' . $invoice_records[$next]['PaymentIn_PaymentID'] ;
+                            unset($invoice_records[$next]);
                         }
-
-                        unset($invoice_records[$key+1]);
-                        //print_r($invoice_records[$key]);
-                        //exit;
-                    }
+                        $next++;
+                     }
                 } else if ($type == Invoice::INVOICE_IN ) {
 
                     // check if same Invoice no.
-                    while (!empty($invoice_records[$key]['InvoiceIn_InvoiceNo']) && isset($invoice_records[$key + 1]['InvoiceIn_InvoiceNo'])
-                        && $invoice_records[$key]['InvoiceIn_InvoiceNo'] == $invoice_records[$key + 1]['InvoiceIn_InvoiceNo']
+                    while (!empty($invoice_records[$key]['InvoiceIn_InvoiceNo']) && isset($invoice_records[$next]['InvoiceIn_InvoiceNo'])
+                        && $invoice_records[$key]['InvoiceIn_InvoiceNo'] == $invoice_records[$next]['InvoiceIn_InvoiceNo']
                     ) {
                         //$invoice_records[$key]['InvoiceIn_InvoiceNo'] = "";
 
-                        $invoice_records[$key]['PaymentOut_PeriodCover'] .= '<br>' . $invoice_records[$key + 1]['PaymentOut_PeriodCover'];
-                        if(!empty($invoice_records[$key+1]['PaymentOut_Amount'])){
+                        $invoice_records[$key]['PaymentOut_PeriodCover'] .= '<br>' . $invoice_records[$next]['PaymentOut_PeriodCover'];
+                        if(!empty($invoice_records[$next]['PaymentOut_Amount'])){
 
-                            $invoice_records[$key]['PaymentOut_Amount'] .= ',' . $invoice_records[$key+1]['PaymentOut_Amount']  ;
-                            $invoice_records[$key]['PaymentOut_PaymentID'] .=  ',' . $invoice_records[$key+1]['PaymentOut_PaymentID'] ;
+                            $invoice_records[$key]['PaymentOut_Amount'] .= ',' . $invoice_records[$next]['PaymentOut_Amount']  ;
+                            $invoice_records[$key]['PaymentOut_PaymentID'] .=  ',' . $invoice_records[$next]['PaymentOut_PaymentID'] ;
+                            unset($invoice_records[$next]);
                         }
+                        
+                        $next++;
 
-                        unset($invoice_records[$key+1]);
-                        //print_r($invoice_records[$key]);
-                        //exit;
                     }
                 }
 
