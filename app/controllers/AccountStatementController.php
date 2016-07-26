@@ -355,7 +355,7 @@ class AccountStatementController extends \BaseController
                             $rowData['PaymentIn_PaymentID'] = '';
                         }
                         if (!isset($rowData['PaymentIn_Amount'])) {
-                            $rowData['PaymentIn_Amount'] = 0;
+                            $rowData['PaymentIn_Amount'] = '';
                         }
                         //Invoice In
                         if (!isset($rowData['InvoiceIn_InvoiceNo'])) {
@@ -365,10 +365,10 @@ class AccountStatementController extends \BaseController
                             $rowData['InvoiceIn_PeriodCover'] = '';
                         }
                         if (!isset($rowData['InvoiceIn_Amount'])) {
-                            $rowData['InvoiceIn_Amount'] = 0;
+                            $rowData['InvoiceIn_Amount'] = '';
                         }
                         if (!isset($rowData['InvoiceIn_DisputeAmount'])) {
-                            $rowData['InvoiceIn_DisputeAmount'] = 0;
+                            $rowData['InvoiceIn_DisputeAmount'] = '';
                         }
                         //Payment Out
                         if (!isset($rowData['PaymentOut_PeriodCover'])) {
@@ -378,7 +378,7 @@ class AccountStatementController extends \BaseController
                             $rowData['PaymentOut_PaymentID'] = '';
                         }
                         if (!isset($rowData['PaymentOut_Amount'])) {
-                            $rowData['PaymentOut_Amount'] = 0;
+                            $rowData['PaymentOut_Amount'] = '';
                         }
 
                         $InvoiceOut_Amount = $rowData['InvoiceOut_Amount'];
