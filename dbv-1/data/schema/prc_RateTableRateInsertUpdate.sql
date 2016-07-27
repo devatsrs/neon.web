@@ -1,42 +1,73 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RateTableRateInsertUpdate`(IN `p_RateTableRateID` LONGTEXT
-, IN `p_RateTableId` int 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RateTableRateInsertUpdate`(IN `p_CompanyID` INT, IN `p_RateTableRateID` LONGTEXT
+, IN `p_RateTableId` INT 
 , IN `p_Rate` DECIMAL(18, 6) 
 , IN `p_EffectiveDate` DATETIME
 , IN `p_ModifiedBy` VARCHAR(50)
-, IN `p_Interval1` int
-, IN `p_IntervalN` int
+, IN `p_Interval1` INT
+, IN `p_IntervalN` INT
 , IN `p_ConnectionFee` DECIMAL(18, 6)
-, IN `p_companyid` INT, IN `p_trunkID` INT, IN `p_contryID` INT, IN `p_code` VARCHAR(50), IN `p_description` VARCHAR(50), IN `p_effective` VARCHAR(50), IN `p_action` INT)
+, IN `p_Critearea` INT
+, IN `p_Critearea_TrunkID` INT
+, IN `p_Critearea_CountryID` INT
+, IN `p_Critearea_Code` VARCHAR(50)
+, IN `p_Critearea_Description` VARCHAR(50)
+, IN `p_Critearea_Effective` VARCHAR(50)
+, IN `p_Update_EffectiveDate` INT
+, IN `p_Update_Rate` INT
+, IN `p_Update_Interval1` INT
+, IN `p_Update_IntervalN` INT
+, IN `p_Update_ConnectionFee` INT
+, IN `p_Action` INT
+)
 BEGIN
               
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-    DROP TEMPORARY TABLE IF EXISTS tmp_updaterateid_;
-    CREATE TEMPORARY TABLE tmp_updaterateid_ (
-      RateID INT
+    DROP TEMPORARY TABLE IF EXISTS tmp_Update_RateTable_;
+    CREATE TEMPORARY TABLE tmp_Update_RateTable_ (
+      RateID INT,
+      EffectiveDate DATE,
+      RateTableRateID INT
     ); 
     
-    DROP TEMPORARY TABLE IF EXISTS tmp_insertrateid_;
-    CREATE TEMPORARY TABLE tmp_insertrateid_ (
-      RateID INT
+    DROP TEMPORARY TABLE IF EXISTS tmp_Insert_RateTable_;
+    CREATE TEMPORARY TABLE tmp_Insert_RateTable_ (
+      RateID INT,
+      EffectiveDate DATE,
+      RateTableRateID INT
     );
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_all_RateId_;
+    CREATE TEMPORARY TABLE tmp_all_RateId_ (
+      RateID INT,
+      EffectiveDate DATE,
+      RateTableRateID INT
+	  );
 	 
-	 DROP TEMPORARY TABLE IF EXISTS tmp_criteria_;
-    CREATE TEMPORARY TABLE tmp_criteria_ (
-      RateTableRateID INT,
-      INDEX tmp_criteria_RateTableRateID (`RateTableRateID`)
-    );
-	 	if(p_action=1 or p_action=2)
-	THEN
-	
-		DROP TEMPORARY TABLE IF EXISTS tmp_RateTable_;
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_RateTable_;
       CREATE TEMPORARY TABLE tmp_RateTable_ (
-         RateId INT,
+         RateID INT,
          EffectiveDate DATE,
          RateTableRateID INT,
 			INDEX tmp_RateTable_RateId (`RateId`)  
      );
-		INSERT INTO tmp_RateTable_
+    
+   IF p_Critearea = 0
+	THEN
+ 		INSERT INTO tmp_RateTable_
+			  SELECT RateID,EffectiveDate,RateTableRateID
+			   FROM tblRateTableRate
+					WHERE (FIND_IN_SET(RateTableRateID,p_RateTableRateID) != 0 );
+	
+	END IF;
+	
+	
+	IF p_Critearea = 1
+	THEN
+		
+		
+		 INSERT INTO tmp_RateTable_
 				SELECT
 					 tblRateTableRate.RateID,
                 IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
@@ -47,81 +78,176 @@ BEGIN
                 AND tblRateTableRate.RateTableId = p_RateTableId
             INNER JOIN tblRateTable
                 ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
-            WHERE		(tblRate.CompanyID = p_companyid)
-					AND (p_contryID = '' OR CountryID = p_contryID)
-					AND (p_code = '' OR Code LIKE REPLACE(p_code, '*', '%'))
-					AND (p_description = '' OR Description LIKE REPLACE(p_description, '*', '%'))
-					AND TrunkID = p_trunkID
+            WHERE		(tblRate.CompanyID = p_CompanyID)
+					AND (p_Critearea_CountryID = 0 OR CountryID = p_Critearea_CountryID)
+					AND (p_Critearea_Code IS NULL OR Code LIKE REPLACE(p_Critearea_Code, '*', '%'))
+					AND (p_Critearea_Description IS NULL OR Description LIKE REPLACE(p_Critearea_Description, '*', '%'))
+					AND TrunkID = p_Critearea_TrunkID
 					AND (			
-							p_effective = 'All' 
-						OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
-						OR (p_effective = 'Future' AND EffectiveDate > NOW())
+							p_Critearea_Effective = 'All' 
+						OR (p_Critearea_Effective = 'Now' AND EffectiveDate <= NOW() )
+						OR (p_Critearea_Effective = 'Future' AND EffectiveDate > NOW())
 						);
 		 
-		  IF p_effective = 'Now'
+		  IF p_Critearea_Effective = 'Now'
 		  THEN 
 			 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTable4_ as (select * from tmp_RateTable_);	        
           DELETE n1 FROM tmp_RateTable_ n1, tmp_RateTable4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
 	 	   AND  n1.RateId = n2.RateId;
 		  
 		  END IF;
-		  
-		  INSERT INTO tmp_criteria_
-		  SELECT RateTableRateID FROM tmp_RateTable_;
-		  
-		  
-		   
-	END IF;                  
-     
-                    
-    INSERT INTO tmp_updaterateid_
-    SELECT r.RateID
-    from
-    (SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId   
-		AND (p_RateTableRateID='' or  FIND_IN_SET(RateTableRateID,p_RateTableRateID) != 0 )
-		AND (p_action=0 or RateTableRateID IN ( SELECT RateTableRateID FROM tmp_criteria_)) 
-	 		
-	 ) r
-    LEFT OUTER JOIN (
-		SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId  AND EffectiveDate = p_EffectiveDate 
-    ) cr on r.RateID = cr.RateID WHERE cr.RateID IS NOT NULL;
-
+		  		  
+	END IF;
 	
-    
-    UPDATE tblRateTableRate tr
-    LEFT JOIN tmp_updaterateid_ r ON  r.RateID = tr.RateID
-    SET Rate = p_Rate ,updated_at = NOW(),ModifiedBy =   p_ModifiedBy,Interval1 = p_Interval1,IntervalN = p_IntervalN,ConnectionFee= p_ConnectionFee
-    WHERE  RateTableId = p_RateTableId  AND EffectiveDate = p_EffectiveDate
-    and r.RateID is NOT NULL;
-
-    INSERT INTO tmp_insertrateid_
-    SELECT r.RateID
-    
-    from
-    (SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId AND FIND_IN_SET(RateTableRateID,p_RateTableRateID) != 0 ) r 
-    
-    LEFT OUTER JOIN (
-     SELECT RateID FROM tblRateTableRate WHERE RateTableId = p_RateTableId AND ( Rate = p_Rate OR Rate != p_Rate) AND EffectiveDate = p_EffectiveDate 
-    ) cr on r.RateID = cr.RateID WHERE cr.RateID IS NULL;
-    
-    
-    
-    
-    INSERT INTO tblRateTableRate (RateID,RateTableId,Rate,EffectiveDate,created_at,CreatedBy,Interval1,IntervalN,ConnectionFee)
-    SELECT DISTINCT  tr.RateID,RateTableId,p_Rate,p_EffectiveDate,NOW(),p_ModifiedBy,p_Interval1,p_IntervalN,p_ConnectionFee FROM tblRateTableRate tr
-    LEFT JOIN tmp_insertrateid_ r ON  r.RateID = tr.RateID
-    WHERE  RateTableId = p_RateTableId
-    and r.RateID is NOT NULL;
-      
-   CALL prc_ArchiveOldRateTableRate(p_RateTableId);
-   
-   if(p_action=2)
+	IF p_action = 1
 	THEN
-		DELETE tblRateTableRate FROM tblRateTableRate
-		INNER JOIN tmp_criteria_ ON tblRateTableRate.RateTableRateID = tmp_criteria_.RateTableRateID;
+	
+	IF p_Update_EffectiveDate = 0
+	THEN
+	
+	INSERT INTO tmp_Update_RateTable_
+		SELECT RateID,EffectiveDate,RateTableRateID
+			 FROM tmp_RateTable_ ;	
+				
+	END IF;			
+	
+	IF p_Update_EffectiveDate = 1
+	THEN
+	
+
+		INSERT INTO tmp_Update_RateTable_
+		SELECT tblRateTableRate.RateID,
+				p_EffectiveDate,
+				tblRateTableRate.RateTableRateID
+			 FROM tblRateTableRate 
+			 	INNER JOIN tmp_RateTable_ r on tblRateTableRate.RateID = r.RateID
+			 	 WHERE RateTableId = p_RateTableId   
+					AND tblRateTableRate.EffectiveDate = p_EffectiveDate;
+	
+		INSERT INTO tmp_all_RateId_
+		SELECT  tblRateTableRate.RateID,
+					tblRateTableRate.EffectiveDate,
+					tblRateTableRate.RateTableRateID
+				 FROM tblRateTableRate
+				 	 INNER JOIN tmp_RateTable_ r on tblRateTableRate.RateID = r.RateID
+					 	 WHERE tblRateTableRate.RateTableId = p_RateTableId
+						  GROUP BY tblRateTableRate.RateID;
+	
+		INSERT INTO tmp_Insert_RateTable_
+		SELECT r.RateID,p_EffectiveDate,r.RateTableRateID
+			 FROM tmp_all_RateId_ r
+			 	 LEFT JOIN tmp_Update_RateTable_ ur
+					 ON r.RateID=ur.RateID
+			   WHERE ur.RateID is null ;
+				
+		
+		INSERT INTO tblRateTableRate (
+			RateID,
+			RateTableId,
+			Rate,
+			EffectiveDate,
+			created_at,
+			CreatedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee
+		)
+	    SELECT DISTINCT  tr.RateID,
+		 						RateTableId,
+		 						CASE WHEN p_Update_Rate = 1
+									THEN    
+										p_Rate									
+									ELSE
+										tr.Rate
+									END
+								AS Rate,
+								p_EffectiveDate as EffectiveDate,
+								NOW() as created_at,
+								p_ModifiedBy as CreatedBy,
+								CASE WHEN p_Update_Interval1 = 1
+									THEN    
+										p_Interval1									
+									ELSE
+										tr.Interval1
+									END
+								AS Interval1,
+								CASE WHEN p_Update_IntervalN = 1
+									THEN    
+										p_IntervalN									
+									ELSE
+										tr.IntervalN
+									END
+								AS IntervalN,
+								CASE WHEN p_Update_ConnectionFee = 1
+									THEN    
+										p_ConnectionFee									
+									ELSE
+										tr.ConnectionFee
+									END
+								AS ConnectionFee	
+			 FROM tblRateTableRate tr
+		   	 INNER JOIN tmp_Insert_RateTable_ r
+			 		 ON  r.RateID = tr.RateID
+			 		 	AND r.RateTableRateID = tr.RateTableRateID
+	   		 		AND  RateTableId = p_RateTableId; 
+	
+	END IF; 
+	
+	
+	-- bulk update
+	SET @stm = '';		
+	
+	IF p_Update_Rate = 1
+	THEN
+		SET @stm = CONCAT(@stm,',Rate = ',p_Rate);		
+	END IF;	
+	
+	IF p_Update_Interval1 = 1
+	THEN
+		SET @stm = CONCAT(@stm,',Interval1 = ',p_Interval1);		
+	END IF;	
+	
+	IF p_Update_IntervalN = 1
+	THEN
+		SET @stm = CONCAT(@stm,',IntervalN = ',p_IntervalN);		
+	END IF;	
+	
+	IF p_Update_ConnectionFee = 1
+	THEN
+		SET @stm = CONCAT(@stm,',ConnectionFee = ',p_ConnectionFee);		
+	END IF;	
+	
+	IF @stm != ''
+	THEN					
+			SET @stm = CONCAT('
+							UPDATE tblRateTableRate tr
+						    INNER JOIN tmp_Update_RateTable_ r
+							 	 ON  r.RateID = tr.RateID 
+							 	 	AND r.RateTableRateID = tr.RateTableRateID  
+										SET updated_at=NOW(),ModifiedBy="',p_ModifiedBy,'"',@stm,'
+								    WHERE  RateTableId = ',p_RateTableId,';
+						');
+						
+			PREPARE stmt FROM @stm;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+							
+	END IF;						
+		
+	CALL prc_ArchiveOldRateTableRate(p_RateTableId); 
+	
+	END IF;
+	
+	IF p_action = 2
+	THEN
+		DELETE tblRateTableRate
+			 FROM tblRateTableRate
+				INNER JOIN tmp_RateTable_ 
+					ON tblRateTableRate.RateTableRateID = tmp_RateTable_.RateTableRateID;
 		
 		
 	END IF;
+	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	 

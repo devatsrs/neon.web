@@ -1,12 +1,15 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getEstimate`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT)
 BEGIN
     
-        DECLARE v_OffSet_ INT;
-    DECLARE v_Round_ INT;
+    DECLARE v_OffSet_ INT;
+    DECLARE v_Round_ INT;    
+	DECLARE v_CurrencyCode_ VARCHAR(50);
+ 	 SET sql_mode = 'ALLOW_INVALID_DATES';
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	        
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	 SELECT cs.Value INTO v_Round_ FROM LocalRatemanagement.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	 SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
     IF p_isExport = 0
     THEN
         SELECT 
@@ -63,7 +66,7 @@ BEGIN
         
         
         SELECT
-            COUNT(*) AS totalcount,  ROUND(SUM(inv.GrandTotal),v_Round_) AS total_grand
+            COUNT(*) AS totalcount,  ROUND(SUM(inv.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
         FROM
         tblEstimate inv
         INNER JOIN LocalRatemanagement.tblAccount ac ON ac.AccountID = inv.AccountID

@@ -13,6 +13,9 @@ class FileUploadTemplate extends \Eloquent {
     protected $primaryKey = "FileUploadTemplateID";
     const TEMPLATE_CDR = 1;
     const TEMPLATE_VENDORCDR = 2;
+    const TEMPLATE_Account = 3;
+    const TEMPLATE_Leads = 4;
+    const TEMPLATE_DIALSTRING = 5;
 
     public static function getTemplateIDList($Type){
         $row = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>$Type])->orderBy('Title')->lists('Title', 'FileUploadTemplateID');

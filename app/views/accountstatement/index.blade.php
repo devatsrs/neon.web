@@ -1,7 +1,16 @@
 @extends('layout.main')
 
 @section('content')
-
+<style>
+    table th {
+        background-color: #fff !important;
+        font-weight: bold;
+        color: #333 !important;
+    }
+    table td {
+        background-color: #fff !important;
+     }
+</style>
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -30,16 +39,16 @@
 
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Account Name</label>
+                                    <label for="field-1" class="col-sm-1 control-label">Account</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                                        {{ Form::select('AccountID', $accounts, '', array("class"=>"select2")) }}
                                     </div>
-                                    <label class="col-sm-1 control-label">Start Date</label>
+                                    <label class="col-sm-1 control-label">Date From</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="StartDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d",strtotime("-7 days"))}}" >
                                     </div>
 
-                                    <label class="col-sm-1 control-label">End Date</label>
+                                    <label class="col-sm-1 control-label">Date To</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="EndDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d")}}">
                                     </div>
@@ -59,50 +68,46 @@
             <div class="clear"></div>
 
             <div class="row">
-                <div class="col-md-12">
-                    <div style="width:80px;" class="input-group-btn pull-right">
-                        <div class="export-data">
-                            <div class="DTTT btn-group">
-                                <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_0">
-                                    <undefined>EXCEL</undefined>
-                                </a>
-                            </div>
-                        </div>
-                    </div><!-- /btn-group -->
+                <div class="col-md-12 text-right">
+                    <a class="btn btn-white save-collection" style="display: none;" id="ToolTables_table-4_0">
+                        <undefined>EXCEL</undefined>
+                    </a>
                 </div>
                 <div class="clear"></div>
                 <div id="table-4_processing" class="dataTables_processing" style="display: none;">Processing...</div>
             </div>
+            <div style="width: 100%; overflow-x:auto ">
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th colspan="3" style="text-align: center;">{{$CompanyName}} INVOICE</th>
-                    <th colspan="5"></th>
-                    <th colspan="4" style="text-align: center;">INVOICE</th>
-                    <th colspan="3"></th>
+                    <th colspan="4" style="text-align: center;">{{$CompanyName}} INVOICE</th>
+                    <th colspan="4" style="text-align: center;">PAYMENT</th>
+                    <th colspan="5" style="text-align: center;">INVOICE</th>
+                    <th colspan="2" style="text-align: center;">{{$CompanyName}} PAYMENT</th>
                 </tr>
-                <tr>
-                    <th width="6%">INVOICE NO</th>
-                    <th width="14%">PERIOD COVERED</th>
-                    <th width="6%">AMOUNT</th>
-                    <th width="2%"></th>
-                    <th width="9%">Payment Date</th>
-                    <th width="6%">PAYMENT</th>
-                    <th width="6%">BALANCE</th>
-                    <th width="2%"></th>
-                    <th width="6%">INVOICE NO</th>
-                    <th width="14%">PERIOD COVERED</th>
-                    <th width="6%">AMOUNT</th>
-                    <th width="2%"></th>
-                    <th width="9%">Payment Date</th>
-                    <th width="6%">{{$CompanyName}} PAYMENT</th>
-                    <th width="6%">BALANCE</th>
+                <tr >
+                    <th style="text-align: center;" width="5%">NO</th>
+                    <th style="text-align: center;" width="8%" >PERIOD</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
+                    <th style="text-align: center;" width="6%">PENDING DISPUTE</th>
+                    <th style="text-align: center;" width="1%"></th>
+                    <th style="text-align: center;" width="8%">DATE</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
+                    <th style="text-align: center;" width="1%"></th>
+                    <th style="text-align: center;" width="6%">NO</th>
+                    <th style="text-align: center;" width="8%">PERIOD</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
+                    <th style="text-align: center;" width="6%">PENDING DISPUTE</th>
+                    <th style="text-align: center;" width="1%"></th>
+                    <th style="text-align: center;" width="9%">DATE</th>
+                    <th style="text-align: center;" width="6%">AMOUNT</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr></tr>
                 </tbody>
             </table>
+            </div>
             <iframe id="RemotingIFrame" name="RemotingIFrame" style="border: 0px none; width: 0px; height: 0px;">
                 <html>
                 <head></head>
@@ -144,121 +149,174 @@
                             },
                             dataType: 'json',
                             success: function(data) {
-								if(data.length<1){
+
+                                var InvoiceOutAmountTotal  = data.InvoiceOutAmountTotal;
+                                var PaymentInAmountTotal  = data.PaymentInAmountTotal;
+                                var InvoiceInAmountTotal  = data.InvoiceInAmountTotal;
+                                var PaymentOutAmountTotal  = data.PaymentOutAmountTotal;
+                                var InvoiceOutDisputeAmountTotal  = data.InvoiceOutDisputeAmountTotal;
+                                var InvoiceInDisputeAmountTotal  = data.InvoiceInDisputeAmountTotal;
+                                var CompanyBalance = data.CompanyBalance;
+                                var AccountBalance = data.AccountBalance;
+                                var OffsetBalance = data.OffsetBalance;
+
+                                var CurencySymbol  = data.CurencySymbol;
+                                var roundplaces  = data.roundplaces;
+
+                                var result = data.result;
+
+
+								if(result.length<1){
 									$('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
 									 $('#table-4_processing').hide();
 									return false;
 								}
+                                $('#table-4 > thead > tr:nth-child(1) > th:nth-child(2)').html(AccountName + " PAYMENT");
                                 $('#table-4 > thead > tr:nth-child(1) > th:nth-child(3)').html(AccountName + " INVOICE");
-                                $('#table-4 > thead > tr:nth-child(2) > th:nth-child(6)').html(AccountName + " PAYMENT");
+
                                 $('#table-4 > tbody > tr').remove();
                                 $('#table-4 > tbody').append('<tr></tr>');
-                                for (i = 0; i < data.length; i++) {
-                                    var InvoiceAmount=0;
-                                    var payment=0;
-                                    var ballence=0;
-                                    var InvoiceAmounts=0;
-                                    var payments=0;
-                                    var ballences=0;
-                                    var PaymentDate='';
-                                    var PaymentDates='';
-                                    var roundplaces = data[i]['roundplaces'];
-                                    var CurencySymbol = data[i]['CurencySymbol'];
-                                    if(data[i]['InvoiceAmount']!= null){
-                                        InvoiceAmount = parseFloat(Math.round(data[i]['InvoiceAmount'] * 100) / 100).toFixed(roundplaces);
+
+                                for (i = 0; i < result.length; i++) {
+
+                                    //console.log(result[i]);
+                                    //Invoice Out
+                                    if( typeof result[i]['InvoiceOut_InvoiceNo'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_InvoiceNo'] = '';
                                     }
-                                    if(data[i]['payment']!= null){
-                                        if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                            payment = parseFloat(Math.round(data[i]['payment'] * 100) / 100).toFixed(roundplaces);
-                                        }
+                                    if( typeof result[i]['InvoiceOut_PeriodCover'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_PeriodCover'] = '';
                                     }
-                                    if(data[i]['ballence']!= null){
-                                        ballence = parseFloat(Math.round(data[i]['ballence'] * 100) / 100).toFixed(roundplaces);
+                                    if( typeof result[i]['InvoiceOut_Amount'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_Amount'] = '';
                                     }
-                                    if(data[i]['InvoiceAmounts']!= null){
-                                        InvoiceAmounts = parseFloat(Math.round(data[i]['InvoiceAmounts'] * 100) / 100).toFixed(roundplaces);
+                                    if( typeof result[i]['InvoiceOut_DisputeAmount'] == 'undefined' ) {
+                                        result[i]['InvoiceOut_DisputeAmount'] = '';
                                     }
-                                    if(data[i]['payments']!= null){
-                                        if((check2 != data[i]['InvoiceNos']) ||(data[i]['InvoiceNos']=='')) {
-                                            payments = parseFloat(Math.round(data[i]['payments'] * 100) / 100).toFixed(roundplaces);
-                                        }
+                                    //Payment In
+                                    if( typeof result[i]['PaymentIn_PeriodCover'] == 'undefined' ) {
+                                        result[i]['PaymentIn_PeriodCover'] = '';
                                     }
-                                    if(data[i]['ballences']!= null){
-                                        ballences = parseFloat(Math.round(data[i]['ballences'] * 100) / 100).toFixed(roundplaces);
+                                    if( typeof result[i]['PaymentIn_PaymentID'] == 'undefined' ) {
+                                        result[i]['PaymentIn_PaymentID'] = '';
                                     }
-                                    if(data[i]['PaymentDate']!= null){
-                                        if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                            PaymentDate = data[i]['PaymentDate'];
-                                        }
+                                    if( typeof result[i]['PaymentIn_Amount'] == 'undefined' ) {
+                                        result[i]['PaymentIn_Amount'] = '';
                                     }
-                                    if(data[i]['PaymentDates']!= null){
-                                        if((check2 != data[i]['InvoiceNos']) ||(data[i]['InvoiceNos']=='')) {
-                                            PaymentDates = data[i]['PaymentDates'];
-                                        }
+                                    //Invoice In
+                                    if( typeof result[i]['InvoiceIn_InvoiceNo'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_InvoiceNo'] = '';
                                     }
-                                    var hyperlink1 = '';
-                                    var hyperlink2 = '';
-                                    if(data[i]['PaymentID']!= null || data[i]['PaymentID']!=''){
-                                        hyperlink1 = '<a class="paymentsModel" id="'+data[i]['PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+payment+'</a>';
-                                    }else{
-                                        hyperlink1 = payment;
+                                    if( typeof result[i]['InvoiceIn_PeriodCover'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_PeriodCover'] = '';
                                     }
-                                    if(data[i]['PaymentIDs']!= null || data[i]['PaymentIDs']!=''){
-                                        hyperlink2 = '<a class="paymentsModel" id="'+data[i]['PaymentIDs']+'" href="javascript:;" onClick="paymentsModel(this);">'+payments+'</a>';
-                                    }else{
-                                        hyperlink2 = payments;
+                                    if( typeof result[i]['InvoiceIn_Amount'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_Amount'] = '';
                                     }
+                                    if( typeof result[i]['InvoiceIn_DisputeAmount'] == 'undefined' ) {
+                                        result[i]['InvoiceIn_DisputeAmount'] = '';
+                                    }
+                                    //Payment Out
+                                    if( typeof result[i]['PaymentOut_PeriodCover'] == 'undefined' ) {
+                                        result[i]['PaymentOut_PeriodCover'] = '';
+                                    }
+                                    if( typeof result[i]['PaymentOut_PaymentID'] == 'undefined' ) {
+                                        result[i]['PaymentOut_PaymentID'] = '';
+                                    }
+                                    if( typeof result[i]['PaymentOut_Amount'] == 'undefined' ) {
+                                        result[i]['PaymentOut_Amount'] = '';
+                                    }
+
+
+
+
+                                    /**
+                                     * Combine same invoice payment
+                                     */
+
+
+
+                                    if( result[i]['PaymentIn_PaymentID'] !='' ) {
+
+                                        result[i]['PaymentIn_PaymentID'] = generate_payment_amount_link(result[i]['PaymentIn_Amount'] , result[i]['PaymentIn_PaymentID'] ) ;
+
+                                    } else {
+                                        result[i]['PaymentIn_PaymentID'] = '';
+                                    }
+                                    if( result[i]['PaymentOut_PaymentID'] !='' ) {
+                                        result[i]['PaymentOut_PaymentID'] = generate_payment_amount_link(result[i]['PaymentOut_Amount'] , result[i]['PaymentOut_PaymentID'] ) ;
+                                    } else {
+                                        result[i]['PaymentOut_PaymentID'] = '';
+                                    }
+
+
+                                    if( result[i]['InvoiceIn_DisputeID'] !='' ) {
+                                        result[i]['InvoiceIn_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceIn_DisputeAmount']+'</a>';
+                                    } else {
+                                        result[i]['InvoiceIn_DisputeID'] = '';
+                                    }
+                                    if( result[i]['InvoiceOut_DisputeID'] !='' ) {
+                                        result[i]['InvoiceOut_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceOut_DisputeAmount']+'</a>';
+                                    } else {
+                                        result[i]['InvoiceOut_DisputeID'] = '';
+                                    }
+
+
                                     newRow = "<tr>" +
-                                    "<td>"+data[i]['InvoiceNo']+"</td>" +
-                                    "<td>"+data[i]['PeriodCover']+"</td>" +
-                                    "<td>"+InvoiceAmount+"</td>" +
-                                    "<td>"+data[i]['spacer']+"</td>" +
-                                    "<td>"+PaymentDate+"</td>" +
-                                    "<td>"+hyperlink1+"</td>" +
-                                    "<td>"+ballence+"</td>" +
-                                    "<td>"+data[i]['spacer']+"</td>" +
-                                    "<td>"+data[i]['InvoiceNos']+"</td>" +
-                                    "<td>"+data[i]['PeriodCovers']+"</td>" +
-                                    "<td>"+InvoiceAmounts+"</td>" +
-                                    "<td>"+data[i]['spacer']+"</td>" +
-                                    "<td>"+PaymentDates+"</td>" +
-                                    "<td>"+hyperlink2+"</td>" +
-                                    "<td>"+ballences+"</td>" +
-                                    "</tr>";
-                                    InvoiceInAmount = parseFloat(InvoiceInAmount) + parseFloat(InvoiceAmounts);
-                                    InvoiceOutAmount = parseFloat(InvoiceOutAmount) + parseFloat(InvoiceAmount);
-                                    if((check1 != data[i]['InvoiceNo']) ||(data[i]['InvoiceNo']=='')) {
-                                        PaymentsInAmount = parseFloat(PaymentsInAmount) + parseFloat(payment);
-                                    }
-                                    if(check2 != data[i]['InvoiceNos'] ||(data[i]['InvoiceNos']=='')) {
-                                        PaymentsOutAmount = parseFloat(PaymentsOutAmount) + parseFloat(payments);
-                                    }
+                                                // Invoice Out
+                                            "<td align='center'>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
+                                            "<td align='center'>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
+                                            "<td align='right'>"+ result[i]['InvoiceOut_Amount'] +"</td>" +
+                                            "<td align='right'>"+ result[i]['InvoiceOut_DisputeID'] +"</td>" +
+                                            "<td> </td>" +
+
+                                                // Payment In
+                                            "<td align='center'>"+result[i]['PaymentIn_PeriodCover']+"</td>" +
+                                            "<td align='right'>"+result[i]['PaymentIn_PaymentID']+"</td>" +
+                                            "<td> </td>" +
+
+                                                // Invoice In
+                                            "<td align='center'>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
+                                            "<td align='center'>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
+                                            "<td align='right'>"+ result[i]['InvoiceIn_Amount'] +"</td>" +
+                                            "<td align='right' >"+ result[i]['InvoiceIn_DisputeID'] +"</td>" +
+
+                                            "<td> </td>" +
+
+                                                //Payment Out
+                                            "<td align='center'>"+ result[i]['PaymentOut_PeriodCover'] +"</td>" +
+                                            "<td align='right'>"+ result[i]['PaymentOut_PaymentID'] +"</td>" +
+                                            "</tr>";
+
+
                                     $('#table-4 > tbody > tr:last').after(newRow);
-                                    check1 = data[i]['InvoiceNo'];
-                                    check2 = data[i]['InvoiceNos'];
+
                                 }
-                                var Ballance1 = parseFloat(InvoiceOutAmount-PaymentsInAmount).toFixed(roundplaces);
-                                var Ballance2 = parseFloat(InvoiceInAmount-PaymentsOutAmount).toFixed(roundplaces);
-                                var TotalBallance = (parseFloat((InvoiceOutAmount-PaymentsInAmount)-(InvoiceInAmount-PaymentsOutAmount))).toFixed(2);
-                                newRow = '<tr>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+CurencySymbol+Ballance1+'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(InvoiceInAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td></td>' +
-                                '<td></td>' +
-                                '<td>'+ CurencySymbol+parseFloat(Math.round(PaymentsOutAmount * 100) / 100).toFixed(roundplaces)+'</td>' +
-                                '<td>'+ CurencySymbol+Ballance2+'</td>' +
-                                '</tr>'+
-                                '<tr><td colspan="15"></td></tr>'+
-                                '<tr><td colspan="2">BALANCE AFTER OFFSET:</td><td colspan="13">'+CurencySymbol+TotalBallance+'</td></tr>';
+
+                                newRow =
+                                        '<tr>' +
+                                        '<th>TOTAL</th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol+ PaymentInAmountTotal+'</th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol + InvoiceInAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceInDisputeAmountTotal +'</th>' +
+                                        '<th></th>' +
+                                        '<th></th>' +
+                                        '<th style="text-align: right;">'+ CurencySymbol + PaymentOutAmountTotal +'</th>' +
+                                        '</tr>'+
+
+                                        '<tr><th colspan="15"></th></tr>'+
+
+                                        '<tr><th colspan="2" style="text-align: right;">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th  style="color:#cc2424;text-align: right;font-weight: bold"></th><th colspan="7" ></th><th style="text-align: right;color:#cc2424;font-weight: bold"></th><th colspan="5"></th>' +
+                                        '</tr>' ;
+
                                 $('#table-4 > tbody > tr:last').after(newRow);
                                 $('#table-4_processing').hide();
                                 $('#ToolTables_table-4_0').show();
@@ -305,6 +363,40 @@
                         type: 'GET'
                     });
 
+                }
+
+                function disputesModel(self){
+
+                    var DisputeID = $(self).attr("ID");
+                    showAjaxModal("/disputes/"+DisputeID+"/view", "view-modal-dispute");
+                }
+
+                function generate_payment_amount_link(payment_amounts , payment_ids ){
+
+                    var is_multiple = payment_amounts.indexOf(",");
+                    if(is_multiple > 0){
+
+                        var payment_amounts_array = payment_amounts.split(',');
+                        var payment_ids_array = payment_ids.split(',');
+                        var output = new Array();
+                        for(var i = 0; i < payment_amounts_array.length; i++) {
+
+                            var link = get_payment_link(payment_amounts_array[i] , payment_ids_array[i]);
+                            output[i] = link;
+
+                        }
+
+                        return output.join("<br>");
+
+                    }else {
+
+                        return get_payment_link(payment_amounts , payment_ids );
+                    }
+
+                }
+
+                function get_payment_link(payment_amount,payment_id){
+                    return '<a class="paymentsModel" id="' + payment_id + '" href="javascript:;" onClick="paymentsModel(this);">'+ payment_amount +'</a>';
                 }
             </script>
             <style>
@@ -384,6 +476,25 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="view-modal-dispute">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Dispute</h4>
+                    </div>
+                    <div class="modal-body">
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    </div>
+
             </div>
         </div>
     </div>

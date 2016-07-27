@@ -4,12 +4,15 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
+        $data = Input::all();
+        $where = ["tblRateGenerator.CompanyID" => $companyID];
+        if($data['Active']!=''){
+            $where['tblRateGenerator.Status'] = $data['Active'];
+        }
         $RateGenerators = RateGenerator::
         join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
-        ->where([
-                    "tblRateGenerator.CompanyID" => $companyID
-                ])->select(array(
+        ->where($where)->select(array(
             'tblRateGenerator.RateGeneratorName',
             'tblTrunk.Trunk',
             'tblCurrency.Code',
@@ -68,6 +71,7 @@ class RateGeneratorsController extends \BaseController {
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
+            'Policy' => 'required',
         );
 
         $validator = Validator::make($data, $rules);
@@ -115,10 +119,10 @@ class RateGeneratorsController extends \BaseController {
                 if(count($rategenerator_rules)){
                     $array_op['disabled'] = "disabled";
                 }
-
+                    $rategenerator = RateGenerator::find($id);
 
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators','rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist'));
             }
     }
 
@@ -145,6 +149,7 @@ class RateGeneratorsController extends \BaseController {
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
+            'Policy' => 'required',
         );
 
 
@@ -495,6 +500,7 @@ class RateGeneratorsController extends \BaseController {
                 if($action == 'create'){
                     $RateTableName = Input::get('RateTableName');
                     $data["rate_table_name"] = $RateTableName;
+                    $data['ratetablename'] = $RateTableName;
                     $rules = array(
                         'rate_table_name' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].',RateGeneratorID,'.$id,
                         'EffectiveDate'=>'required'
@@ -502,6 +508,7 @@ class RateGeneratorsController extends \BaseController {
                 }else if($action == 'update'){
                     $RateTableID = Input::get('RateTableID');
                     $data["RateTableId"] = $RateTableID;
+                    $data['ratetablename'] = RateTable::where(["RateTableId" => $RateTableID])->pluck('RateTableName');
                     $rules = array(
                         'RateTableId' => 'required',
                         'EffectiveDate'=>'required'
@@ -525,6 +532,7 @@ class RateGeneratorsController extends \BaseController {
                         $data["RateTableID"] = $RateTableID;
                     }
                 }*/
+
                 $result = Job::logJob("GRT", $data);
                 if ($result ['status'] != "success") {
                     DB::rollback();

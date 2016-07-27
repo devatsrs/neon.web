@@ -192,19 +192,6 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for="field-1" class="col-sm-2 control-label">Connect Date</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[connect_date]', array(),'',array("class"=>"selectboxit"))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-2 control-label">Connect Time</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[connect_time]', array(),'',array("class"=>"selectboxit"))}}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <br />
-                            <br />
                             <label for="field-1" class="col-sm-2 control-label">Billed Duration</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[billed_duration]', array(),'',array("class"=>"selectboxit"))}}
@@ -225,6 +212,18 @@
                             <label for="field-1" class="col-sm-2 control-label">CLD</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[cld]', array(),'',array("class"=>"selectboxit"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label for=" field-1" class="col-sm-2 control-label">CLI Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLI Translation Rule">?</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="selection[CLITranslationRule]" value="" />
+                            </div>
+                            <label for=" field-1" class="col-sm-2 control-label">CLD Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLD Translation Rule">?</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="selection[CLDTranslationRule]" value="" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -255,25 +254,13 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for=" field-1" class="col-sm-2 control-label">ID</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[ID]',array() ,'',array("class"=>"selectboxit"))}}
-                            </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then cdrs will be uploaded as outbound" data-original-title="Inbound/Outbound">?</span></label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <br />
-                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">Extension</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[extension]',array() ,'',array("class"=>"selectboxit"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Pincode</label>
+                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then cdrs will be uploaded as outbound" data-original-title="Inbound/Outbound">?</span></label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[pincode]',array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                         <div class="form-group">

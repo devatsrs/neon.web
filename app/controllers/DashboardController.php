@@ -1,5 +1,5 @@
 <?php
-
+use Jenssegers\Agent\Agent;
 class DashboardController extends BaseController {
 
     
@@ -136,9 +136,114 @@ class DashboardController extends BaseController {
        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate'));
+        $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));
 
     }
+    public function monitor_dashboard(){
+
+        $companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        $isAdmin = User::is_admin();
+        $where['Status'] = 1;
+        $where['VerificationStatus'] = Account::VERIFIED;
+        $where['CompanyID']=User::get_companyID();
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+        $agent = new Agent();
+        $isDesktop = $agent->isDesktop();
+        $newAccountCount = Account::where($where)->where('created_at','>=',$original_startdate)->count();
+        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
+
+    }
+	
+	public function CrmDashboard(){ 
+        $companyID 			= 	User::get_companyID();
+        $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$Country 			= 	Country::getCountryDropdownIDList();
+        $account 			= 	Account::getAccountIDList();
+		$currency 			= 	Currency::getCurrencyDropdownIDList();
+		$UserID 			= 	User::get_userID();
+		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		$users			 	= 	User::getUserIDListAll(0);
+		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
+		//$DateEndDefault  	= 	date('m/d/Y');
+		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +6 months'));
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('Y-m-d');
+	    $account_owners 	= 	User::getUserIDList();
+        $boards 			= 	CRMBoard::getBoards();
+		$TaskBoard			= 	CRMBoard::getTaskBoard();
+        $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
+		$CloseStatus		=	Opportunity::Close;
+		$where['Status']=1;
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+		$leadOrAccount 		= 	Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+		  if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
+        }
+        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+	}
+	
+	public function GetUsersTasks(){
+       $data = Input::all();
+        $data['iDisplayStart'] +=1;
+		if(User::is('AccountManager')){
+            $data['AccountOwner'] = User::get_userID();
+        }
+        $response = NeonAPI::request('dashboard/GetUsersTasks',$data,true);
+        return json_response_api($response,true,true,true);
+    }
+	
+	function GetPipleLineData(){
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetPipleLineData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+		
+     }
+	
+	public function getSalesdata(){ //crm dashboard
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetSalesdata',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	public function GetForecastData(){ //crm dashboard
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetForecastData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	
+	
+	 public function GetOpportunites(){
+        $data = Input::all();  
+        $data['iDisplayStart'] +=1;
+        if(User::is('AccountManager')){
+            $data['AccountOwner'] = User::get_userID();
+        }
+        $response = NeonAPI::request('dashboard/get_opportunities_grid',$data,true);
+        return json_response_api($response,true,true,true);
+    }
+	
 
     public function ajax_get_recent_due_sheets(){
         $companyID = User::get_companyID();
@@ -215,7 +320,11 @@ class DashboardController extends BaseController {
     public function ajax_get_recent_accounts(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.")";
+        $AccountManager = 0;
+        if (User::is('AccountManager')) { // Account Manager
+            $AccountManager = 1;
+        }
+        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.','.$AccountManager.")";
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';
@@ -235,7 +344,7 @@ class DashboardController extends BaseController {
 
     public function ajax_get_missing_accounts(){
         $companyID = User::get_companyID();
-        $query = "call prc_getMissingAccounts (".$companyID.")";
+        $query = "call prc_getMissingAccounts (".$companyID.",".intval(Input::get('CompanyGatewayID')).")";
         $missingAccounts = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('getMissingAccounts'));
         $jsondata['missingAccounts']=$missingAccounts['data']['getMissingAccounts'];
         return json_encode($jsondata);

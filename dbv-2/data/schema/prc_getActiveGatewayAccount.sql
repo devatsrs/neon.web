@@ -150,10 +150,28 @@ BEGIN
 					 AND ( FIND_IN_SET(ga.AccountName,aa.CustomerAuthValue) != 0 OR FIND_IN_SET(ga.AccountName,aa.VendorAuthValue) != 0 );
         END IF;
  
- 
+ IF v_NameFormat_ = 'CLI'
+        THEN
+            INSERT INTO tmp_ActiveAccount
+                SELECT DISTINCT
+                    GatewayAccountID,
+                    a.AccountID,
+                    a.AccountName,
+                    a.CDRType
+                FROM NeonRMDev.tblAccount  a
+                INNER JOIN NeonRMDev.tblAccountAuthenticate aa ON
+                	a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'CLI' OR aa.VendorAuthRule ='CLI')
+                INNER JOIN tblGatewayAccount ga
+                    ON   a.Status = 1
+                WHERE GatewayAccountID IS NOT NULL
+                AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+                AND a.CompanyId = p_company_id
+                AND ga.CompanyGatewayID = p_gatewayid
+					 AND ( FIND_IN_SET(ga.AccountName,aa.CustomerAuthValue) != 0 OR FIND_IN_SET(ga.AccountName,aa.VendorAuthValue) != 0 );
+        END IF;
 
 
-      	IF v_NameFormat_ = 'CLI'
+      	/*IF v_NameFormat_ = 'CLI'
         THEN
             INSERT INTO tmp_ActiveAccount
                 SELECT DISTINCT
@@ -169,7 +187,7 @@ BEGIN
                 AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
                 AND a.CompanyId = p_company_id
                 AND ga.CompanyGatewayID = p_gatewayid;
-        END IF;
+        END IF;*/
 
 
     IF v_NameFormat_ = ''
@@ -196,9 +214,10 @@ BEGIN
      SET v_pointer_ = v_pointer_ + 1;
      END WHILE;
    
-    SELECT DISTINCT
+    /*SELECT DISTINCT
         GatewayAccountID,AccountID,AccountName,CDRType
     FROM tmp_ActiveAccount;
+    */
 
 
     UPDATE tblGatewayAccount

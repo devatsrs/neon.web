@@ -45,7 +45,7 @@
                                                 </span>
                                             </span>
                                             <span class="task <?php echo $HasReadClass;?>">
-                                                     <span class="desc">By {{$job->CreatedBy}}</span>
+                                                     <span class="desc">{{$job->JobType}}</span>
                                                      <span class="percent">{{\Carbon\Carbon::createFromTimeStamp(strtotime($job->created_at))->diffForHumans() }}</span>
 
                                              </span>

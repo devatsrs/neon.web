@@ -71,8 +71,7 @@ class InvoiceTemplate extends \Eloquent {
     public static function getNextEstimateNumber($InvoiceTemplateid)
 	{
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
-        //$NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->LastEstimateNumber);
-        $NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->EstimateStartNumber); //change by umer
+        $NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->EstimateStartNumber);
         $CompanyID = User::get_companyID();
         
 		while(Estimate::where(["EstimateNumber"=> $NewEstimateNumber,'CompanyID'=>$CompanyID])->count()>0)

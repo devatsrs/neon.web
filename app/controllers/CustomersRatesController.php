@@ -45,7 +45,6 @@ class CustomersRatesController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
-        //echo $query;exit;
         return DataTableSql::of($query)->make();
     }
     public  function search_customer_grid($id){
@@ -100,10 +99,7 @@ class CustomersRatesController extends \BaseController {
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
-            //echo '<pre>';print_r($rate_tables);exit;
 
-            // Debugbar::addMessage($customer_trunks);
-            //print_r($customer_trunks);
 
             return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
     }
@@ -177,13 +173,6 @@ class CustomersRatesController extends \BaseController {
                     if ($validator->fails()) {
                         return Redirect::back()->withInput(Input::all())->withErrors($validator);
                         //return json_validator_response($validator);
-                    }
-
-                    if( isset($data['CompanyGatewayID']) && is_array($data['CompanyGatewayID'])){
-                        $data['CompanyGatewayIDs'] = implode(',', $data['CompanyGatewayID']);
-                        unset($data['CompanyGatewayID']);
-                    }else{
-                        $data['CompanyGatewayIDs'] = '';
                     }
 
                     if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {

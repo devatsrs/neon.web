@@ -71,7 +71,7 @@ class GatewayController extends \BaseController {
         if($data['GatewayID'] == 'other'){
             unset($data['GatewayID']);
         }
-        if(isset($datainput['password'])){
+        if(isset($datainput['password']) && !empty($datainput['password'])){
             $datainput['password'] = Crypt::encrypt($datainput['password']);
         }
         $today = date('Y-m-d');
@@ -157,8 +157,13 @@ class GatewayController extends \BaseController {
             $today = date('Y-m-d');
             $data['CreatedBy'] = User::get_user_full_name();
             $data['created_at'] =  $today;
-            if(isset($datainput['password'])){
+            if(isset($datainput['password']) && !empty($datainput['password'])){
                 $datainput['password'] = Crypt::encrypt($datainput['password']);
+            }else {
+                $settings = json_decode($CompanyGateway->Settings,true);
+                if(isset($settings["password"])&& !empty($settings["password"])){
+                    $datainput['password'] = Crypt::decrypt($settings["password"]);
+                }
             }
             unset($datainput['CompanyGatewayID']);
             unset($datainput['Title']);

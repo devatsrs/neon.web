@@ -8,7 +8,7 @@
         <a href="{{URL::to('cronjobs')}}">Cron Job</a>
     </li>
     <li class="active">
-        <strong>Cron Job History</strong>
+        <strong>{{$JobTitle}}</strong>
     </li>
 </ol>
 <h3>Cron Job History</h3>
@@ -16,7 +16,7 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
         <tr>
-            <th>Title</th>
+            <th style="display: none;">Title</th>
             <th>Status</th>
             <th>Message</th>
             <th>Created Date</th>
@@ -44,7 +44,10 @@
             "aaSorting": [[3, 'desc']],
             "aoColumns":
                     [
-                        {}, //0 tblJob.Title
+                        {
+                            "bVisible": false
+
+                        }, //0 tblJob.Title
                         {
                             mRender: function(status, type, full) {
                                                if (status == '{{CronJob::CRON_SUCCESS}}')

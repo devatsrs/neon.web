@@ -37,9 +37,12 @@ class CompaniesController extends \BaseController {
         $InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail')== 'Invalid Key'?'':CompanySetting::getKeyVal('InvoiceGenerationEmail');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
         $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget')=='Invalid Key'?'':CompanySetting::getKeyVal('PincodeWidget');
+        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget'));
+        $taxrates = TaxRate::getTaxRateDropdownIDList();//Default TaxRate functionality Added by Abubakar
+        if(isset($taxrates[""])){unset($taxrates[""]);}
+        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
 
     }
 
@@ -62,7 +65,7 @@ class CompaniesController extends \BaseController {
             'CompanyName' => 'required|min:3|unique:tblCompany,CompanyName,'.$companyID.',CompanyID',
             //'Port' => 'required|numeric',
             'BillingTimezone' => 'required',
-            'CurrencyId' => 'required',
+            'CurrencyId' => 'required'
         );
 
         $validator = Validator::make($data, $rules);
@@ -98,6 +101,13 @@ class CompaniesController extends \BaseController {
         unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
         unset($data['PincodeWidget']);
+        if(!isset($data['DefaultTextRate'])) {
+            $data['DefaultTextRate'] = '';
+        }
+		if(isset($data['DefaultTextRate']) && is_array($data['DefaultTextRate'])){
+			CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
+		}
+		unset($data['DefaultTextRate']);
 
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
@@ -113,7 +123,7 @@ class CompaniesController extends \BaseController {
             if(count($CurrencyConversion)>0){
                 $cval = $CurrencyConversion->Value;
                 if($cval!='1.000000'){
-                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyID']))->update($CurrencyCon);
+                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
                 }
             }else{
                 CurrencyConversion::create($CurrencyCon);
@@ -127,6 +137,34 @@ class CompaniesController extends \BaseController {
         }
 
     }
+	
+	function ValidateSmtp(){
+		$data 				= 		Input::all();
+        $companyID 			= 		User::get_companyID();
+        $company 			=		Company::find($companyID);
+		
+		 $rules = array(
+            'SMTPServer' => 'required',
+            'Port' => 'required|numeric',
+            'EmailFrom' => 'required',
+            'SMTPUsername' => 'required',
+			'SMTPPassword' => 'required',
+			'IsSSL' => 'required',
+			"SampleEmail" =>'required', 
+        );
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+		
+		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
+		
+		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
+		return json_encode($ResponseArray);
+		
+	}
 
 
 }

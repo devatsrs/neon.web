@@ -131,13 +131,13 @@
     </a>
     <a class="btn btn-primary btn-sm btn-icon icon-left" id="changeSelectedVendorRates" href="javascript:;">
         <i class="entypo-floppy"></i>
-        Change Selected Rates
+        Change Selected
     </a>
     @endif
     @if(User::checkCategoryPermission('VendorRates','Delete'))
     <button class="btn btn-danger btn-sm btn-icon icon-left" id="clear-bulk-rate" type="submit">
         <i class="entypo-cancel"></i>
-        Delete Selected Rates
+        Delete Selected
     </button>
     @endif
     <form id="clear-bulk-rate-form" >
@@ -363,11 +363,13 @@ jQuery(document).ready(function($) {
     });
 
                $('#table-4 tbody').on('click', 'tr', function() {
-                   $(this).toggleClass('selected');
-                   if ($(this).hasClass('selected')) {
-                       $(this).find('.rowcheckbox').prop("checked", true);
-                   } else {
-                       $(this).find('.rowcheckbox').prop("checked", false);
+                   if (checked =='') {
+                       $(this).toggleClass('selected');
+                       if ($(this).hasClass('selected')) {
+                           $(this).find('.rowcheckbox').prop("checked", true);
+                       } else {
+                           $(this).find('.rowcheckbox').prop("checked", false);
+                       }
                    }
                });
 

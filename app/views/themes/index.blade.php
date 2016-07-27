@@ -60,7 +60,7 @@
       <th width="5%"><div class="pull-left">
           <input type="checkbox" id="selectall" name="checkbox[]" class="" />
         </div></th>
-      <th width="20%">Server Name Regex</th>
+      <th width="20%">Domain</th>
       <th width="15%">Title</th>
       <th width="10%">Favicon</th>
       <th width="15%">Logo</th>
@@ -340,13 +340,15 @@ var postdata;
             });
         });
         $('#table-4 tbody').on('click', 'tr', function() {
-            if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
-            $(this).toggleClass('selected');
-            if ($(this).hasClass('selected')) {
-                $(this).find('.rowcheckbox').prop("checked", true);
-            } else {
-                $(this).find('.rowcheckbox').prop("checked", false);
-            }
+            if (checked =='') {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
             }
         });
 		

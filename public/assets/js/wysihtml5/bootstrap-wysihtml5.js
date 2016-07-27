@@ -24,10 +24,13 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{GrandTotal}}'>" + locale.leadoptions.GrandTotal + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStanding}}'>" + locale.leadoptions.OutStanding + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TotalOutStanding}}'>" + locale.leadoptions.TotalOutStanding + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceAmount}}'>" + locale.leadoptions.BalanceAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.leadoptions.BalanceThreshold + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
                 "</ul>" +
                 "</li>";
         },
+		
         "font-styles": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
@@ -45,7 +48,27 @@
               "</ul>" +
             "</li>";
         },
-
+		  "Crm": function(locale, options) {
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown'>" +
+              "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.Crm.FirstName + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+              "<ul class='dropdown-menu'>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.Crm.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.Crm.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.Crm.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.Crm.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.Crm.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.Crm.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.Crm.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.Crm.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Crm.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Crm.Country + "</a></li>" +  
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Crm.Signature + "</a></li>" +
+              "</ul>" +
+            "</li>";
+        },
         "emphasis": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li>" +
@@ -534,13 +557,14 @@
 
     var defaultOptions = $.fn.wysihtml5.defaultOptions = {
         "leadoptions":true ,
+		"Crm":true,
         "font-styles": true,
         "color": false,
         "emphasis": true,
         "lists": true,
         "html": true,
         "link": true,
-        "image": true,
+        "image": true,		
         events: {},
         parserRules: {
             classes: {
@@ -1043,9 +1067,23 @@
                 GrandTotal:"GrandTotal",
                 OutStanding:"OutStanding",
                 TotalOutStanding:"TotalOutStanding",
-                Signature:"Signature"
-            }
-            ,
+                Signature:"Signature",
+                BalanceAmount:"BalanceAmount",
+                BalanceThreshold:"BalanceThreshold"
+            },
+			Crm:{				
+                FirstName:"FirstName",
+                LastName:"LastName",
+                Email:"Email",
+                Address1:"Address1",
+                Address2:"Address2",
+                Address3:"Address3",
+                City:"City",
+                State:"State",
+                PostCode:"PostCode",
+                Country:"Country",
+                Signature:"Signature"				
+				},
             font_styles: {
                 normal: "Normal text",
                 h1: "Heading 1",

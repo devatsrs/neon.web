@@ -2,12 +2,49 @@
 @section('content')
 <br />
 <div class="row">
+    <div class="col-sm-12">
+        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
+            <div data-collapsed="0" class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Filter
+                    </div>
+                    <div class="panel-options">
+                        <a data-rel="collapse" href="#">
+                            <i class="entypo-down-open"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label" for="Startdate">Start date</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="Startdate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_startdate}}" data-enddate="{{date('Y-m-d')}}" />
+                        </div>
+                        <label class="col-sm-1 control-label" for="field-1">End Date</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="Enddate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_enddate}}" data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}" />
+                        </div>
+
+                    </div>
+                    <p style="text-align: right;">
+                        <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
+                            <i class="entypo-search"></i>Search
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+<div class="row">
     <div class="col-sm-3">
                 <div class="invoice_expsense panel panel-primary panel-table">
                     <div class="panel-heading">
                         <div class="panel-title">
                             <h3>Total Outstanding</h3>
-                            <span>Total Outstanding</span>
+
                         </div>
 
                         <div class="panel-options">
@@ -26,7 +63,7 @@
                 <div class="panel-heading">
                     <div class="panel-title">
                         <h3>Invoices & Expenses</h3>
-                        <span>Invoices & Expenses</span>
+
                     </div>
 
                     <div class="panel-options">
@@ -58,6 +95,7 @@
                             {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
                             {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
                             <input name="AccountID" type="hidden" value="{{Customer::get_accountID()}}">
+                            <input name="CurrencyID" type="hidden" value="{{$account->CurrencyId}}">
                         </form>
 
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -181,7 +219,7 @@ $(function() {
         pin_report();
     });
 })
-function dataGrid(Pincode,Startdate,Enddate,PinExt){
+function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
     $("#pin_grid_main").removeClass('hidden');
     if(PinExt == 'pincode'){
         $('.pin_expsense_report').find('h3').html('Pincode '+Pincode+' Detail Report');
@@ -200,7 +238,8 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt){
                     {"name": "Pincode", "value": Pincode},
                     {"name": "Startdate", "value": Startdate},
                     {"name": "Enddate", "value": Enddate},
-                    {"name": "PinExt", "value": PinExt}
+                    {"name": "PinExt", "value": PinExt},
+                    {"name": "CurrencyID", "value": CurrencyID}
             );
 
             data_table_extra_params.length = 0;
@@ -209,6 +248,7 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt){
                     {"name": "Startdate", "value": Startdate},
                     {"name": "Enddate", "value": Enddate},
                     {"name": "PinExt", "value": PinExt},
+                    {"name": "CurrencyID", "value": CurrencyID},
                     {"name":"Export","value":1}
             );
 

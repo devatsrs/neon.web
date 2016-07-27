@@ -30,7 +30,25 @@ class Account extends \Eloquent {
 
     public static $messages = array('CurrencyId.required' =>'The currency field is required');
 
+    public static $importrules = array(
+        'selection.AccountName' => 'required'
+    );
 
+    public static $importleadrules = array(
+            'selection.AccountName' => 'required',
+            'selection.FirstName'=>'required',
+            'selection.LastName'=>'required',
+        );
+
+    public static $importmessages = array(
+        'selection.AccountName.required' =>'The Account Name field is required'
+    );
+
+    public static $importleadmessages = array(
+        'selection.AccountName.required' =>'The Company Name field is required',
+        'selection.FirstName.required' =>'The First Name field is required',
+        'selection.LastName.required' =>'The Last Name field is required'
+    );
 
     public static function getCompanyNameByID($id=0){
 
@@ -91,6 +109,10 @@ class Account extends \Eloquent {
         if(User::is('AccountManager')){
             $data['Owner'] = User::get_userID();
         }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
         $data['Status'] = 1;
         if(!isset($data['AccountType'])) {
             $data['AccountType'] = 1;
@@ -100,6 +122,28 @@ class Account extends \Eloquent {
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
             $row = array(""=> "Select an Account")+$row;
+        }
+        return $row;
+    }
+
+    public static function getAccountList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+        }
+        $data['CompanyID']=User::get_companyID();
+        $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        $row = array(""=> "Select an Account");
+        if(!empty($result)){
+            $row = array(""=> "Select an Account")+$result;
         }
         return $row;
     }
@@ -212,6 +256,7 @@ class Account extends \Eloquent {
             return true;
         }
     }
+
     public static function validate_ip($ip=0){
         $status=0;
         $companyID  = User::get_companyID();
@@ -244,5 +289,49 @@ class Account extends \Eloquent {
             }
         }
         return $reponse_return;
+    }
+    public static function getActivityChartRepose($companyID,$AccountID){
+        $query = "call prc_getAccountExpense ('". $companyID  . "',  '". $AccountID  . "')";
+        $ExpenseResult = DataTableSql::of($query, 'neon_report')->getProcResult(array('Expense','CustomerExpense','VendorExpense'));
+        $Expense = $ExpenseResult['data']['Expense'];
+        $CustomerExpense = $ExpenseResult['data']['CustomerExpense'];
+        $VendorExpense = $ExpenseResult['data']['VendorExpense'];
+        $ExpenseYear = array();
+        $previousyear = '';
+        $datacount = 0;
+        $customer = $vendor = $cat = array();
+        foreach($Expense as $ExpenseRow){
+            if($previousyear != $ExpenseRow->Year){
+                $previousyear = $ExpenseRow->Year;
+                $ExpenseYear[$previousyear]['CustomerTotal'] = $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] = $ExpenseRow->VendorTotal;
+            }else{
+                $ExpenseYear[$previousyear]['CustomerTotal'] += $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] += $ExpenseRow->VendorTotal;
+            }
+            $customer[$datacount] = $ExpenseRow->CustomerTotal;
+            $vendor[$datacount] = $ExpenseRow->VendorTotal;
+            $month = $ExpenseRow->Month<10 ? '0'.$ExpenseRow->Month:$ExpenseRow->Month;
+            $cat[$datacount] = $ExpenseRow->Year.'-'.$month;
+            $datacount++;
+
+        }
+        $ExpenseYearHTML = '';
+        if(!empty($ExpenseYear)) {
+            foreach ($ExpenseYear as $year => $total) {
+                $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
+            }
+        }else{
+            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+        }
+
+        $response['customer'] =  implode(',',$customer);
+        $response['vendor'] = implode(',',$vendor);
+        $response['categories'] = implode(',',$cat);
+        $response['ExpenseYear'] = $ExpenseYearHTML;
+        $response['CustomerActivity'] = account_expense_table($CustomerExpense,'Customer');
+        $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
+
+        return $response;
     }
 }

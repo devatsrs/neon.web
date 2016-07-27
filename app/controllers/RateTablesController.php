@@ -5,7 +5,7 @@ class RateTablesController extends \BaseController {
     public function ajax_datagrid() {
         $CompanyID = User::get_companyID();
         $rate_tables = RateTable::
-        join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+        Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
             ->select(['tblRateTable.RateTableName','tblCurrency.Code','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId'])
             ->where("tblRateTable.CompanyId",$CompanyID);
@@ -93,10 +93,12 @@ class RateTablesController extends \BaseController {
             'CompanyID' => 'required',
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
             'RateGeneratorId'=>'required',
-            'TrunkID'=>'required'
+            'TrunkID'=>'required',
+            'CurrencyID'=>'required'
 
         );
-        $validator = Validator::make($data, $rules);
+        $message = ['CurrencyID.required'=>'Currency field is required'];
+        $validator = Validator::make($data, $rules, $message);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
@@ -115,14 +117,15 @@ class RateTablesController extends \BaseController {
      * @return Response
      */
     public function view($id) {
-            $trunkID = RateTable::where(["RateTableId" => $id])->pluck('TrunkID');
-            $countries = Country::getCountryDropdownIDList();
-            $CodeDeckId = RateTable::getCodeDeckId($id);
-            $CompanyID = User::get_companyID();
-            $codes = CodeDeck::getCodeDropdownList($CodeDeckId,$CompanyID);
-            $isBandTable = RateTable::checkRateTableBand($id);
-            $code = RateTable::getCurrencyCode($id);
-            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code'));
+        $rateTable = RateTable::find($id);
+        $trunkID = RateTable::where(["RateTableId" => $id])->pluck('TrunkID');
+        $countries = Country::getCountryDropdownIDList();
+        $CodeDeckId = RateTable::getCodeDeckId($id);
+        $CompanyID = User::get_companyID();
+        $codes = CodeDeck::getCodeDropdownList($CodeDeckId,$CompanyID);
+        $isBandTable = RateTable::checkRateTableBand($id);
+        $code = RateTable::getCurrencyCode($id);
+        return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable'));
     }
 
 
@@ -133,13 +136,31 @@ class RateTablesController extends \BaseController {
                             ->where("tblRateTable.RateTableId", $id)->count();
             //Is RateTable assigne to RateTableRate table then dont delete
             if ($is_id_assigned == 0) {
-                if (RateTable::where(["RateTableId" => $id])->delete()) {
-                    return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
-                } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                if(RateTable::checkRateTableInCronjob($id)){
+                    if(RateTableRate::where(["RateTableId" => $id])->count()>0){
+                        if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
+                            return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                        }
+                    }else{
+                        if (RateTable::where(["RateTableId" => $id])->delete()) {
+                            return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
+                        }
+                    }
+
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to CronJob."));
                 }
+
             } else {
-                return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                if(RateTable::checkRateTableInCronjob($id)){
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate and CronJob."));
+                }
             }
         }
     }
@@ -154,6 +175,7 @@ class RateTablesController extends \BaseController {
         }
     }
 
+    // bulk rate table rate delete
     public function bulk_clear_rate_table_rate($id) {
 
         if ($id > 0) {
@@ -161,10 +183,11 @@ class RateTablesController extends \BaseController {
 
             $data["ModifiedBy"] = User::get_user_full_name();
             $data["Rate"] = 0;
+            $companyID = User::get_companyID();
 
-            $rules = array('RateTableRateID' => 'required', 'Rate' => 'required', 'ModifiedBy' => 'required');
+            $rules = array('RateTableRateID' => 'required', 'ModifiedBy' => 'required');
             if(!empty($data['criteria'])) {
-                $rules = array('Rate' => 'required', 'ModifiedBy' => 'required');
+                $rules = array('ModifiedBy' => 'required');
             }
             $validator = Validator::make($data, $rules);
 
@@ -172,34 +195,31 @@ class RateTablesController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+
             if(!empty($data['criteria'])) {
                 $criteria = json_decode($data['criteria'], true);
-                $companyID = User::get_companyID();
-                $query = "call prc_RateTableRateInsertUpdate('','" . $id . "',0,'','','','',0,'" . $companyID . "','" . $criteria['TrunkID'] . "','" . intval($criteria['Country']) . "','" . $criteria['Code'] . "','" . $criteria['Description'] . "','" . $criteria['Effective'] . "',2)";
-                DB::statement($query);
-                unset($data['RateTableRateID']);
-                return Response::json(array("status" => "success", "message" => "Rate Successfully Deleted"));
+
+                $criteria['Code'] = $criteria['Code'] != ''?"'".$criteria['Code']."'":'null';
+                $criteria['Description'] = $criteria['Description'] != ''?"'".$criteria['Description']."'":'null';
+                $criteria['Country'] = $criteria['Country'] != ''?"'".$criteria['Country']."'":0;
+
+                $query = "call prc_RateTableRateInsertUpdate (".$companyID.",'',".$id.",0,null,null,0,0,0,1,".$criteria['TrunkID'].",".intval($criteria['Country']).",".$criteria['Code'].",".$criteria['Description'].",'".$criteria['Effective']."',0,0,0,0,0,2)";
             }else{
-                $RateTableRateIDs = explode(",", $data['RateTableRateID']);
-                unset($data['RateTableRateID']);
+                $query = "call prc_RateTableRateInsertUpdate (".$companyID.",'".$data['RateTableRateID']."',".$id.",0,null,null,0,0,0,0,0,0,null,null,null,0,0,0,0,0,2)";
+            }
+            $results = DB::statement($query);
+            if ($results) {
+                return Response::json(array("status" => "success", "message" => "Rate Table Successfully Deleted"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting  Rate Table."));
             }
 
-
-
-
-            if (count($RateTableRateIDs)) {
-                foreach ($RateTableRateIDs as $RateTableRateID) {
-
-                    if ((int)$RateTableRateID > 0 && !RateTableRate::find($RateTableRateID)->delete()) { //if ((int)$RateTableRateID > 0 && !RateTableRate::find($RateTableRateID)->update($data)) {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate."));
-                    }
-                }
-                return Response::json(array("status" => "success", "message" => "Rate Successfully Deleted"));
-            }
         }
     }
 
+    // update single rate table rate
     public function update_rate_table_rate($id, $RateTableRateID = 0) {
+
         if ($id > 0 && $RateTableRateID > 0) {
 
             $data = Input::all();
@@ -215,13 +235,18 @@ class RateTablesController extends \BaseController {
             }
             $username = User::get_user_full_name();
             $companyID = User::get_companyID();
-            $results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array($RateTableRateID, $id, $data['Rate'], $data['EffectiveDate'],$username,intval($data['Interval1']),intval($data['IntervalN']),floatval($data['ConnectionFee']),$companyID,0,0,'','','',0));
+
+            $query = "call prc_RateTableRateInsertUpdate (".$companyID.",'".$data['RateTableRateID']."',".$id.",".floatval($data['Rate']).",'".$data['EffectiveDate']."','".$username."',".intval($data['Interval1']).",".intval($data['IntervalN']).",".floatval($data['ConnectionFee']).",0,0,0,null,null,null,1,1,1,1,1,1)";
+
+            $results = DB::statement($query);
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Rate Table Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating  Rate Table."));
             }
-        } else {
+        }
+        /* not in use
+        else {
 
             // Create RateTableRate
 
@@ -246,26 +271,96 @@ class RateTablesController extends \BaseController {
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating  Rate Table."));
             }
-        }
+        }*/
     }
 
+    // update bulk rate table rate
     public function bulk_update_rate_table_rate($id) {
         if ($id > 0) {
             $data = Input::all();
-            $username = User::get_user_full_name();
-            $rules = array('EffectiveDate' => 'required', 'Rate' => 'required','Interval1'=>'required','IntervalN'=>'required');
+            $updatedta = array();
+            $updateRate = 0;
+            $updateInterval1 = 0;
+            $updateIntervalN = 0;
+            $updateEffectiveDate = 0;
+            $updateConnectionFee = 0;
+            $error = 0;
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee'])){
+                if(!empty($data['updateEffectiveDate'])){
+                    if(!empty($data['EffectiveDate'])){
+                        $updateEffectiveDate = 1;
+                    }else{
+                        $error=1;
+                    }
 
-            $validator = Validator::make($data, $rules);
+                }else{
+                    $updateEffectiveDate = 0;
+                }
+                if(!empty($data['updateRate'])){
+                    if(!empty($data['Rate'])){
+                        $updateRate = 1;
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updateRate = 0;
+                }
+                if(!empty($data['updateInterval1'])){
+                    if(!empty($data['Interval1'])){
+                        $updateInterval1 = 1;
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updateInterval1 = 0;
+                }
+                if(!empty($data['updateIntervalN'])){
+                    if(!empty($data['IntervalN'])){
+                        $updateIntervalN = 1;
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updateIntervalN = 0;
+                }
+                if(!empty($data['updateConnectionFee'])){
+                    if(!empty($data['ConnectionFee'])){
+                        $updateConnectionFee = 1;
+                    }else{
+                        $error=1;
+                    }
+                }else{
+                    $updateConnectionFee = 0;
+                }
+                if(isset($error) && $error==1){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Checked Field Data"));
+                }
 
-            if ($validator->fails()) {
-                return json_validator_response($validator);
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No Rate selected to Update."));
             }
+
+            $username = User::get_user_full_name();
+
             $companyID = User::get_companyID();
+
             if(empty($data['RateTableRateID']) && !empty($data['criteria'])){
                 $criteria = json_decode($data['criteria'],true);
-                $results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array('', $id, $data['Rate'], $data['EffectiveDate'],$username,intval($data['Interval1']),intval($data['IntervalN']),floatval($data['ConnectionFee']),$companyID,intval($criteria['TrunkID']),intval($criteria['Country']),$criteria['Code'],$criteria['Description'],$criteria['Effective'],1));
+
+                $criteria['Code'] = $criteria['Code'] != ''?"'".$criteria['Code']."'":'null';
+                $criteria['Description'] = $criteria['Description'] != ''?"'".$criteria['Description']."'":'null';
+                $criteria['Country'] = $criteria['Country'] != ''?"'".$criteria['Country']."'":0;
+
+
+                $query = "call prc_RateTableRateInsertUpdate (".$companyID.",'".$data['RateTableRateID']."',".$id.",".floatval($data['Rate']).",'".$data['EffectiveDate']."','".$username."',".intval($data['Interval1']).",".intval($data['IntervalN']).",".floatval($data['ConnectionFee']).",1,".$criteria['TrunkID'].",".intval($criteria['Country']).",".$criteria['Code'].",".$criteria['Description'].",'".$criteria['Effective']."',".$updateEffectiveDate.",".$updateRate.",".$updateInterval1.",".$updateIntervalN.",".$updateConnectionFee.",1)";
+                //echo $query;exit;
+                $results = DB::statement($query);
+
             }else{
-                $results = DB::statement('call prc_RateTableRateInsertUpdate (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array($data['RateTableRateID'], $id, $data['Rate'], $data['EffectiveDate'],$username,intval($data['Interval1']),intval($data['IntervalN']),floatval($data['ConnectionFee']),$companyID,0,0,'','','',0));
+
+                $query = "call prc_RateTableRateInsertUpdate (".$companyID.",'".$data['RateTableRateID']."',".$id.",".floatval($data['Rate']).",'".$data['EffectiveDate']."','".$username."',".intval($data['Interval1']).",".intval($data['IntervalN']).",".floatval($data['ConnectionFee']).",0,0,0,null,null,null,".$updateEffectiveDate.",".$updateRate.",".$updateInterval1.",".$updateIntervalN.",".$updateConnectionFee.",1)";
+                //echo $query;exit;
+                $results = DB::statement($query);
             }
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Bulk Rate Successfully Updated"));
@@ -512,6 +607,8 @@ class RateTablesController extends \BaseController {
         $save['checkbox_replace_all'] = $data['checkbox_replace_all'];
         $save['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
         $save['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+        $save['ratetablename'] = RateTable::where(["RateTableId" => $id])->pluck('RateTableName');
+
         //Inserting Job Log
         try {
             DB::beginTransaction();

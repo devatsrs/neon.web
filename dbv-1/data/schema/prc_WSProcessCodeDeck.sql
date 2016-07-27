@@ -3,12 +3,14 @@ BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;     
     DECLARE   v_CodeDeckId_ INT;
+    DECLARE errormessage longtext;
+	 DECLARE errorheader longtext;
     
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     
 	 DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
     CREATE TEMPORARY TABLE tmp_JobLog_  ( 
-        Message VARCHAR(200)     
+        Message longtext   
     );
 
     SELECT CodeDeckId INTO v_CodeDeckId_ FROM tblTempCodeDeck WHERE ProcessId = p_processId AND CompanyId = p_companyId LIMIT 1;
@@ -54,7 +56,8 @@ BEGIN
     WHERE tblTempCodeDeck.ProcessId = p_processId;
   
     UPDATE tblTempCodeDeck t
-    INNER JOIN (
+    
+  /*  INNER JOIN (
         SELECT DISTINCT
             tblTempCodeDeck.Code,
             tblCountry.CountryID
@@ -72,12 +75,12 @@ BEGIN
             AND (tblTempCodeDeck.Code LIKE CONCAT(tblCountry.Prefix , '%') AND d.Prefix IS NULL)
                 OR (tblTempCodeDeck.Code LIKE CONCAT(tblCountry.Prefix , '%') AND d.Prefix IS NOT NULL AND 
                 (tblTempCodeDeck.Country LIKE Concat('%' , tblCountry.Country , '%') OR tblTempCodeDeck.Description LIKE Concat('%' , tblCountry.Country , '%')) )
-        WHERE tblTempCodeDeck.ProcessId = p_processId) c
-        ON t.Code = c.Code
-        AND t.ProcessId = p_processId
-    SET t.CountryId = c.CountryID;
-  		/*
-          IF ( SELECT COUNT(*)
+         */       
+            
+    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Country) 
+	  WHERE t.ProcessId = p_processId ;
+  
+       /*   IF ( SELECT COUNT(*)
                  FROM   tblTempCodeDeck
                  WHERE  tblTempCodeDeck.ProcessId = p_processId
                         AND CountryId IS NULL
@@ -119,14 +122,27 @@ BEGIN
       SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
   
   
-      INSERT INTO tmp_JobLog_ (Message)
-      SELECT CONCAT(tblRate.Code , 'FAILED TO DELETE - CODE IS IN USE')
-      FROM    tblRate
-                    INNER JOIN tblTempCodeDeck ON tblTempCodeDeck.Code = tblRate.Code
-          AND tblRate.CompanyID = p_companyId AND tblRate.CodeDeckId = v_CodeDeckId_
-            WHERE   tblTempCodeDeck.Action = 'D'
-          AND tblTempCodeDeck.ProcessId = p_processId
-          AND tblTempCodeDeck.CompanyID = p_companyId AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_;
+  		SELECT GROUP_CONCAT(Code) into errormessage FROM(
+	      SELECT distinct tblRate.Code as Code,1 as a
+	      FROM    tblRate
+	                    INNER JOIN tblTempCodeDeck ON tblTempCodeDeck.Code = tblRate.Code
+	      	    AND tblRate.CompanyID = p_companyId AND tblRate.CodeDeckId = v_CodeDeckId_
+	          WHERE   tblTempCodeDeck.Action = 'D'
+	          AND tblTempCodeDeck.ProcessId = p_processId
+	          AND tblTempCodeDeck.CompanyID = p_companyId AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_)as tbl GROUP BY a;
+	          
+	   IF errormessage IS NOT NULL
+          THEN
+                    INSERT INTO tmp_JobLog_ (Message)                    
+                    SELECT distinct 
+						  CONCAT(tblRate.Code , ' FAILED TO DELETE - CODE IS IN USE')
+					      FROM   tblRate
+					              INNER JOIN tblTempCodeDeck ON tblTempCodeDeck.Code = tblRate.Code
+					      	    AND tblRate.CompanyID = p_companyId AND tblRate.CodeDeckId = v_CodeDeckId_
+					          WHERE   tblTempCodeDeck.Action = 'D'
+					          AND tblTempCodeDeck.ProcessId = p_processId
+					          AND tblTempCodeDeck.CompanyID = p_companyId AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_;
+	 	END IF;
       
       UPDATE  tblRate
       JOIN tblTempCodeDeck ON tblRate.Code = tblTempCodeDeck.Code
@@ -172,8 +188,8 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
     DELETE  FROM tblTempCodeDeck WHERE   tblTempCodeDeck.ProcessId = p_processId;
- 	 SELECT * from tmp_JobLog_ limit 0 , 20;
+ 	 SELECT * from tmp_JobLog_;
 	      
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
+    SELECT * from tmp_JobLog_ limit 0 , 20;
 END

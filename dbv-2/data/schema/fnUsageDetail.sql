@@ -5,7 +5,8 @@ BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
 			AccountID int,
-			AccountName varchar(50),
+			AccountName varchar(100),
+			GatewayAccountID varchar(100),
 			trunk varchar(50),
 			area_prefix varchar(50),
 			pincode VARCHAR(50),
@@ -13,13 +14,14 @@ BEGIN
 			UsageDetailID int,
 			duration int,
 			billed_duration int,
+			billed_second int,
 			cli varchar(100),
 			cld varchar(100),
 			cost decimal(18,6),
 			connect_time datetime,
 			disconnect_time datetime,
 			is_inbound tinyint(1) default 0,
-			ID int
+			ID INT
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -27,6 +29,7 @@ BEGIN
 	FROM (SELECT
 		uh.AccountID,
 		a.AccountName,
+		uh.GatewayAccountID,
 		trunk,
 		area_prefix,
 		pincode,
@@ -34,6 +37,7 @@ BEGIN
 		UsageDetailID,
 		duration,
 		billed_duration,
+		billed_second,
 		cli,
 		cld,
 		cost,

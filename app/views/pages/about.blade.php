@@ -13,13 +13,85 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.02</h1>
+    <h1>NEON - 4.04</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.02</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.04</strong></div>
 </p>
+</div>
+
+
+<h2>
+    <span class="label label-success">4.04</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>29-06-2016</h4>
+                    1. Added Active filter on Rate Generator and Cron job Page<br>
+                    2. Added an option to Recall Multiple Payments<br>
+                    3. Added an option to Delete CDR<br>
+                    4. Added an option to setup charge code to prefix mapping (Dial String)<br>
+                    5. Resolved Concurrent Jobs Problem<br>
+                    6. Added grid totals on Analysis page<br>
+                    7. Added an option to overwrite subscription charges at account level<br>
+                    8. Added an option to Delete Cron job<br>
+                    9. Added an option to add multiple CLIs and IPs against account<br>
+                    10. Added Invoice Period in the grid on Invoice page<br>
+                    11. Added Server Monitor page under Admin<br>
+                    12. Revised CDR process logic to make it faster<br>
+                    13. Changed Generate New Invoice button on invoice page to generate all pending invoices against accounts<br>
+                    14. Added 'Test' mail settings button under Company to test smtp settings<br>
+                    15. Made phone no optional against Opportunity<br>
+                    16. Added an option to delete/edit tasks and notes in activity timeline against account and lead<br>
+                    17. Added an option to send email to user on Task Assignment or when tagged in Opportunity or Task<br>
+                    18. Added back 'Convert to Account' button under lead<br>
+                    19. Added default issue date filters on invoice page to show last 1 month invoices<br>
+                    20. Added Account Activity chart against account<br>
+                    21. Exclude Cancel invoices when re-generating invoices<br>
+                    22. Added CLI and CLD translation rule under CDR upload<br>
+                    23. Recalculate Billed Duration when re-rating cdrs depending on rates assigned<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<h2>
+    <span class="label label-success">4.03</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>06-06-2016</h4>
+                    1.  Added an option to create Disputes<br>
+                    2.  Added an option to Import Accounts from Mirta/Porta/CSV/Excel<br>
+                    3.  Added an option to import Leads<br>
+                    4.  Added LCR policy (LCR/LCR+Prefix) option against Rate Generator and LCR<br>
+                    5.  Added CRM module (Opportunities and Tasks)<br>
+                    6.  Added Monitor Dashboard<br>
+                    7.  Added Customer/Vendor Analysis by Destination,Prefix,Trunk and Gateway<br>
+                    8.  Added Forbidden and Preference options under Vendor Rate Upload<br>
+                    9.  Added an option to activate/deactivate multiple accounts<br>
+                    10. Added grid totals on Payments and CDR pages<br>
+                    11. Fixed issue with xls file import<br>
+                    12. Improved Account/Lead view section<br>
+                    13. improved menu icons<br>
+                    14. Added following menu options to Customer Panel: Monitor Dashboard,Commercials and CDR<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 <h2>

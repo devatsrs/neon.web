@@ -5,7 +5,7 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
-#table-4_wrapper{padding-left:15px; padding-right:15px;}
+.small-date-input{width:11%;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -13,8 +13,6 @@
 </ol>
 <h3>Payments</h3>
 <p style="text-align: right;"> <a href="javascript:;" id="upload-payments" class="btn upload btn-primary "> <i class="entypo-upload"></i> Upload </a> </p>
-<div class="tab-content">
-  <div class="tab-pane active" id="customer_rate_tab_content">
     <div class="row">
       <div class="col-md-12">
         <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -25,16 +23,16 @@
           </div>
           <div class="panel-body">
             <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label small_label">Account Name</label>
+              <label for="field-1" class="col-sm-1 control-label small_label">Account</label>
               <div class="col-sm-2 col-sm-e2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
               <label class="col-sm-1 control-label small_label">Invoice No</label>
               <div class="col-sm-2 col-sm-e2">
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, 'Pending Approval', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Action</label>
-              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, '', array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
                      <label class="col-sm-1 control-label">Recalled</label>
               <div class="col-sm-1">
                 <p class="make-switch switch-small">
@@ -45,30 +43,35 @@
  
             <!--payment date start -->
             <div class="form-group">
-              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
-              <div class="col-sm-2 col-sm-e2">
-                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Date From</label>
+              <div class="col-sm-2 small-date-input" >
+                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
               </div>
-              <div class="col-sm-2 col-sm-e2">
+              <div class="col-sm-2  small-date-input">
                 <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
               </div>
               <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
-              <div class="col-sm-2 col-sm-e2">
-                <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+              <div class="col-sm-2  small-date-input">
+                <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
               </div>
-              <div class="col-sm-2 col-sm-e2">
+
+              <div class="col-sm-2  small-date-input">
                 <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
               </div>
            
             <!--payment date end -->
                        
-              <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
+              <label for="field-1" class="col-sm-1 control-label" style="width: 6%;">Payment Method</label>
               <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              
+              <label for="field-1" class="col-sm-2 control-label" style="width: 7%;">Currency</label>
+            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}} </div>
        
             </div> 
             <p style="text-align: right;">
               <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
             </p>
+          </div>
           </div>
         </form>
       </div>
@@ -186,30 +189,57 @@
       </div>
     </div>
     <br>
-    @if(User::can('Payments','Add'))
-    <p style="text-align: right;"> <a href="#" id="add-new-payment" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Payment Request </a> </p>
+    @if(User::can('Payments','Recall') || User::can('Payments','Add'))
+      <div class="row dropdown">
+          <div  class="col-md-12">
+              <div class="input-group-btn pull-right" style="width:70px;">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                      @if(User::can('Payments','Add'))
+                      <li class="li_active">
+                          <a id="add-new-payment" class="add-cli" type_ad="active" href="javascript:void(0);" >
+                              <i class="entypo-plus"></i>
+                              <span>Add</span>
+                          </a>
+                      </li>
+                      @endif
+                      @if(User::can('Payments','Recall'))
+                      <li class="tohidden">
+                          <a href="javascript:void(0);" class="recall" >
+                              <i class="entypo-ccw"></i>
+                              <span>Recall</span>
+                          </a>
+                      </li>
+                      @endif
+                  </ul>
+              </div><!-- /btn-group -->
+          </div>
+          <div class="clear"></div>
+      </div>
+      <br>
     @endif
     <table class="table table-bordered datatable" id="table-4">
-      <thead>
+        <thead>
         <tr>
-          <th width="10%">AccountName</th>
-          <th width="10%">Invoice No</th>
-          <th width="10%">Amount</th>
-          <th width="8%">Type</th>
-          <th width="10%">Payment Date</th>
-          <th width="10%">Status</th>
-          <th width="10%">CreatedBy</th>
-          <th width="10%">Notes</th>
-          <th width="15%">Action</th>
+            <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+            <th width="10%">Account Name</th>
+            <th width="10%">Invoice No</th>
+            <th width="9%">Amount</th>
+            <th width="8%">Type</th>
+            <th width="10%">Payment Date</th>
+            <th width="10%">Status</th>
+            <th width="10%">CreatedBy</th>
+            <th width="10%">Notes</th>
+            <th width="15%">Action</th>
         </tr>
-      </thead>
-      <tbody>
-      </tbody>
+        </thead>
+        <tbody>
+        </tbody>
     </table>
     <script type="text/javascript">
-	
+        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
 	 var currency_signs = {{$currency_ids}};
-                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy'];
+                var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -230,7 +260,8 @@
 									{"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
-									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime}
+									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
+									{"name": "CurrencyID","value": $searchFilter.CurrencyID}
 
                             );
                             data_table_extra_params.length = 0;
@@ -245,7 +276,9 @@
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
-                                    {"name":"Export","value":1});
+									{"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                                    {"name":"Export","value":1}
+                            );
 
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
@@ -253,6 +286,16 @@
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
                         "aoColumns": [
+                            {
+                                "bSortable": false, //Account
+                                mRender: function (id, type, full) {
+                                    var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                    if($('#Recall_on_off').prop("checked")){
+                                        chackbox='';
+                                    }
+                                    return chackbox;
+                                }
+                            }, //1   CurrencyDescription
                             {
                                 "bSortable": true, //Account
                                 mRender: function (id, type, full) {
@@ -268,7 +311,7 @@
                             {
                                 "bSortable": true, //Amount
                                 mRender: function (id, type, full) {
-                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
+                                    var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(toFixed);
                                     a = a.toString();
                                     return full[16]
                                 }
@@ -331,7 +374,7 @@
                                     //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                     <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
                                     if(full[13]==0 && full[7]!='Rejected' ){
-                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Recall </a>';
+                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
                                     }
                                     <?php } ?>
                                     if(full[9]!= null){
@@ -358,18 +401,36 @@
                             ]
                         },
                         "fnDrawCallback": function () {
+							get_total_grand();
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
+                            $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
+                                var $this = $(el),
+                                        $p = $this.closest('tr');
+
+                                $(el).on('change', function () {
+                                    var is_checked = $this.is(':checked');
+
+                                    $p[is_checked ? 'addClass' : 'removeClass']('selected');
+                                });
+                            });
+
+                            $('.tohidden').removeClass('hidden');
+                            $('#selectall').removeClass('hidden');
+                            if($('#Recall_on_off').prop("checked")){
+                                $('.tohidden').addClass('hidden');
+                                $('#selectall').addClass('hidden');
+                            }
                         }
 
                     });
 
 
-                        // Replace Checboxes
-                        $(".pagination a").click(function (ev) {
-                            replaceCheckboxes();
-                        });
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
 
                     $('#upload-payments').click(function(ev){
                         ev.preventDefault();
@@ -383,8 +444,8 @@
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){							
-                            if(list_fields[i] == 'Amount'){
-                                $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
+                            if(list_fields[i] == 'AmountWithSymbol'){
+                                $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
                             }else if(list_fields[i] == 'Currency'){ 							
 							var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields[i] + "']").val()];
 								if(currency_sign_show!='Select a Currency'){								
@@ -421,10 +482,15 @@
                         $('#add-edit-modal-payment').modal('show');
                     });
 
-                    $('body').on('click', '.btn.recall', function (e) {
+                    $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
                         $('#recall-payment-form').trigger("reset");
-                        $('#recall-payment-form').attr("action",$(this).attr('href'));
+                        if($(this).hasClass('btn')){
+                            $('#recall-payment-form').attr("action",$(this).attr('href'));
+                        }else{
+                            var PaymentIDs = getselectedIDs();
+                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                        }
                         $('#recall-modal-payment').modal('show');
                     });
 
@@ -472,8 +538,13 @@
                             },
                             success: function(response) {
                                 $(".btn.save").button('reset');
-                                if (response.status == 'success') {
+                                if( typeof response.ProcessID != 'undefined'){
                                     var ProcessID = response.ProcessID;
+                                }else {
+                                    toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
+                                    return;
+                                }
+                                if (response.status == 'success') {
                                     if(response.message) {
                                         $('#confirm-modal-payment h4').text('Confirm Payment');
                                         message = response.message.replace(new RegExp('\r\n', 'g'), '<br>');
@@ -489,7 +560,6 @@
 
                                     $('#confirm-modal-payment h4').text('File validation');
                                     message = '<b>Warnings</b><br/>'+ response.message.replace(new RegExp('\r\n', 'g'), '<br>');
-                                    var ProcessID = response.ProcessID;
                                     $('#add-template').find('[name="ProcessID"]').val(ProcessID);
                                     if(!response.confirmshow){
                                         $('#confirm-payments').addClass('hidden');
@@ -599,12 +669,31 @@
                     });
 
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
+
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
-                        var url = baseurl + '/payments/getcurrency/'+$("#add-edit-payment-form [name='AccountID'] option:selected").val();
-                        if($("#add-edit-payment-form [name='AccountID'] option:selected").val()>0) {
-                            $.get(url, function (Currency) {
-                                $("#currency").text('(' + Currency + ')');
+
+                        var AccountID = $("#add-edit-payment-form [name='AccountID'] option:selected").val()
+
+                        if(AccountID > 0 ) {
+                            var url = baseurl + '/payments/get_currency_invoice_numbers/'+AccountID;
+                            $.get(url, function (response) {
+
+                                console.log(response);
+                                if( typeof response.status != 'undefined' && response.status == 'success'){
+
+                                    $("#currency").text('(' + response.Currency_Symbol + ')');
+
+                                    var InvoiceNumbers = response.InvoiceNumbers;
+                                    $('input[name=InvoiceNo]').typeahead({
+                                        //source: InvoiceNumbers,
+                                        local: InvoiceNumbers
+
+                                    });
+
+                                }
+
                             });
+
                         }
                     });
 
@@ -620,6 +709,36 @@
                         $('#add-edit-modal-payment').modal('show');
                     });
 
+                    $(document).on('click', '#table-4 tbody tr', function() {
+                        $(this).toggleClass('selected');
+                        if($(this).is('tr')) {
+                            if ($(this).hasClass('selected')) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                            }
+                        }
+                    });
+
+                    $('#selectall').click(function(){
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked';
+                            $(this).prop("checked", true);
+                            $(this).parents('table').find('tbody tr').each(function (i, el) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                                $(this).addClass('selected');
+                            });
+                        }else{
+                            checked = '';
+                            $(this).prop("checked", false);
+                            $(this).parents('table').find('tbody tr').each(function (i, el) {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                                $(this).removeClass('selected');
+                            });
+                        }
+                    });
+
+
                     $('#add-edit-payment-form').submit(function(e){
                         e.preventDefault();
                         var PaymentID = $("#add-edit-payment-form [name='PaymentID']").val();
@@ -631,21 +750,6 @@
                         ajax_Add_update(update_new_url);
                     });
                     $("#payment-table-search").submit();
-                    $('#PaymentTypeAuto').change(function (ev) {
-                        if($(this).val() == 'Payment In'){
-                            //$('#InvoiceAuto').addClass('typeahead');
-                            var typeahead_opts = {
-                                name: $(this).attr('name') ? $(this).attr('name') : ($(this).attr('id') ? $(this).attr('id') : 'tt')
-                            };
-                            if ($("#InvoiceAuto").attr('data-local'))
-                            {
-                                var local = $("#InvoiceAuto").attr('data-local');
-                                local = local.replace(/\s*,\s*/g, ',').split(',');
-                                typeahead_opts['local'] = local;
-                                $('#InvoiceAuto').typeahead(typeahead_opts);
-                            }
-                        }
-                    })
 
                     $("#form-upload").submit(function (e) {
                         e.preventDefault();
@@ -760,6 +864,45 @@
                         $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
                         $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
                     }
+					
+			function get_total_grand()
+			{
+				$('.total_ajax').remove();
+			 $.ajax({
+					url: baseurl + "/payments/ajax_datagrid_total",
+					type: 'GET',
+					dataType: 'json',
+					data:{
+				"AccountID":$("#payment-table-search select[name='AccountID']").val(),
+				"InvoiceNo":$("#payment-table-search input[name='InvoiceNo']").val(),
+				"Status":$("#payment-table-search select[name='Status']").val(),
+				"type":$("#payment-table-search select[name='type']").val(),				
+				"paymentmethod":$("#payment-table-search select[name='paymentmethod']").val(),
+				"PaymentDate_StartDate":$("#payment-table-search input[name='PaymentDate_StartDate']").val(),
+				"PaymentDate_StartTime":$("#payment-table-search input[name='PaymentDate_StartTime']").val(),
+				"PaymentDate_EndDate":$("#payment-table-search input[name='PaymentDate_EndDate']").val(),
+				"PaymentDate_EndTime":$("#payment-table-search input[name='PaymentDate_EndTime']").val(),
+				"CurrencyID":$("#payment-table-search select[name='CurrencyID']").val(),	
+				"recall_on_off":$searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked"),				
+				"bDestroy": true,
+				"bProcessing":true,
+				"bServerSide":true,
+				"sAjaxSource": baseurl + "/payments/ajax_datagrid_total",
+				"iDisplayLength": '{{Config::get('app.pageSize')}}',
+				"sPaginationType": "bootstrap",
+				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+				"aaSorting": [[4, 'desc']],},
+					success: function(response1) {
+						console.log("sum of result"+response1);
+
+                        if(response1.total_grand!=null) {
+                            $('#table-4 tbody').append('<tr class="total_ajax"><td colspan="3"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');
+                        }
+						
+	
+						}
+				});	
+		}
 
 
                 });
@@ -776,7 +919,8 @@
 					$searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
 					$searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
 					$searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
-					$searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
+					$searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();					
+					$searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
                     if($("#payment-table-search select[name='recall_on_off']")) {
                         $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
                     }else{
@@ -796,10 +940,10 @@
                         dataType: 'json',
                         beforeSend: function(){
                             /*$('.btn.upload').button('loading');
-                            show_loading_bar({
-                                pct: 50,
-                                delay: 5
-                            });*/
+                             show_loading_bar({
+                             pct: 50,
+                             delay: 5
+                             });*/
 
                         },
                         afterSend: function(){
@@ -840,6 +984,15 @@
                     replaceCheckboxes();
                 });
 
+        function getselectedIDs(){
+            var SelectedIDs = [];
+            $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                var accountIDs = $(this).val().trim();
+                SelectedIDs[i++] = accountIDs;
+            });
+            return SelectedIDs;
+        }
+
 
             </script>
     <style>
@@ -851,8 +1004,8 @@
                 }
             </style>
     @include('includes.errors')
-    @include('includes.success') </div>
-</div>
+    @include('includes.success')
+
 @stop
 @section('footer_ext')
     @parent
@@ -900,7 +1053,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice</label>
-              <input type="text" id="InvoiceAuto" data-local="{{$invoice}}" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
+              <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
             </div>
           </div>
           <div class="col-md-12">
@@ -912,11 +1065,10 @@
           </div>
           <div class="col-md-12">
             <div class="form-group">
-              <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-              <div class="col-sm-6">
+              <label for="PaymentProof" class="control-label">Upload (.pdf, .jpg, .png, .gif)</label>
+                <div class="clear clearfix"></div>
                 <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-              </div>
             </div>
           </div>
         </div>
@@ -928,7 +1080,6 @@
       </div>
     </form>
   </div>
-</div>
 </div>
 <div class="modal fade" id="view-modal-payment">
   <div class="modal-dialog">
@@ -1124,7 +1275,7 @@
 <div class="modal fade" id="recall-modal-payment">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="recall-payment-form" action="{{URL::to('payments/recall')}}" method="post">
+      <form id="recall-payment-form" action="{{URL::to('payments/0/recall')}}" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Recall Payment</h4>
@@ -1140,6 +1291,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <input type="hidden" name="PaymentIDs" />
           <button type="submit" id="payment-recall"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Recall </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

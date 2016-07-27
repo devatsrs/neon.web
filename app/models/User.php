@@ -314,7 +314,30 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         return $row;
     }
-
+	 
+	public static function getUserIDListAll($select = 1){
+        $where = array('Status'=>1,'CompanyID'=>User::get_companyID());
+        $user = User::where($where);
+        
+        $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
+        if(!empty($row) & $select==1){
+            $row = array(""=> "Select a User")+$row;
+        }
+        return $row;
+    }
+	
+	
+	 public static function getUserIDListOnly($select = 1){
+        $where = array('Status'=>1,'CompanyID'=>User::get_companyID());
+        $user = User::where($where);
+        if($select==0){
+            $user->where('AdminUser','!=',1);
+        }
+        $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"),'EmailAddress'))->orderBy('FullName')->lists('FullName', 'EmailAddress');
+        return $row;
+    }
+	
+	
 
     public static function get_currentUser(){
         $customer=Session::get('customer');

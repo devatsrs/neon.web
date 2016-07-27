@@ -68,7 +68,12 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/fileinput.js",
         "assets/js/icheck/icheck.min.js",
         "assets/js/typeahead.min.js",
-
+        "assets/js/bootstrap-colorpicker.min.js",
+        "assets/js/Knob/dist/jquery.knob.min.js",
+		"assets/js/perfectScroll/js/perfect-scrollbar.jquery.min.js",
+		"assets/js/odometer/odometer.js",
+		"assets/js/daterangepicker/moment.min.js",
+		"assets/js/daterangepicker/daterangepicker.js"
     ];
 }
 ?>

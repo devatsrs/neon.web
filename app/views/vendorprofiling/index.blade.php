@@ -441,11 +441,13 @@
 		});
 		//Select Row on click
 		$('#table-4 tbody').on('click', 'tr', function() {
-			$(this).toggleClass('selected');
-			if ($(this).hasClass("selected")) {
-				$(this).find('.rowcheckbox').prop("checked", true);
-			} else {
-				$(this).find('.rowcheckbox').prop("checked", false);
+			if (checked =='') {
+				$(this).toggleClass('selected');
+				if ($(this).hasClass("selected")) {
+					$(this).find('.rowcheckbox').prop("checked", true);
+				} else {
+					$(this).find('.rowcheckbox').prop("checked", false);
+				}
 			}
 		});
 		//Select Row on click

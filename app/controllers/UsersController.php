@@ -119,17 +119,60 @@ class UsersController extends BaseController {
         }
     }
 
-    public function ajax_datagrid() {
+    /*public function ajax_datagrid() {
         $companyID = User::get_companyID();
-        if (isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == '') {
-            $users = User::where(["CompanyID" => $companyID, "Status" => 1])->select(array('Status', 'FirstName', 'LastName', 'EmailAddress', 'AdminUser', 'UserID')); // by Default Status 1
-        } else {
-            $users = User::where(["CompanyID" => $companyID])->select(array('Status', 'FirstName', 'LastName', 'EmailAddress', 'AdminUser', 'UserID'));
+        $where = ["CompanyID" => $companyID];
+        $select = ['Status', 'FirstName', 'LastName', 'EmailAddress', 'AdminUser', 'UserID'];
+        if (isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == '') { // by Default Status 1
+            $where['Status'] = 1;
         }
-        return Datatables::of($users)->make();
+        $users = User::where($where)->select($select);
+        return Datatables::of($users)
+            ->edit_column('AdminUser',function($row){
+            $rules = '';
+            if($row->AdminUser==0){
+                $RoleName = UserRole::where(['UserID'=>$row->UserID])->join('tblRole','tblUserRole.RoleID','=','tblRole.RoleID')->select('RoleName')->lists('RoleName','RoleName');
+                if(!empty($RoleName)) {
+                    $rules = implode(',', $RoleName);
+                }
+            }else{
+                $rules = 'Admin';
+            }
+            return $rules;
+        })->make();
+    }*/
+
+    public function ajax_datagrid($type) {
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+        $data['Status'] = 0;
+        if (isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == 1) { // by Default Status 1
+            $data['Status'] = 1;
+        }
+        $columns = ['Status','FirstName', 'LastName', 'EmailAddress', 'Role'];
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getUsers (".$CompanyID.",".$data['Status'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Accounts.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query .=',0)';
+
+        return DataTableSql::of($query)->make();
     }
 
-    public function exports($type) {
+    /*public function exports($type) {
             $data = Input::all();
             $companyID = User::get_companyID();
 
@@ -156,7 +199,7 @@ class UsersController extends BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
 
-    }
+    }*/
 
     public function edit_profile($id){
         //if( User::checkPermission('User') ) {
@@ -189,18 +232,24 @@ class UsersController extends BaseController {
 
         if(Input::hasFile('Picture'))
         {
-            $file = Input::file('Picture');
-            $extension = '.'. $file->getClientOriginalExtension();
-            $destinationPath = public_path() . '/' . Config::get('app.user_profile_pictures_path');
 
-            //Create profile picture dir if not exists
-            if(!file_exists($destinationPath)){
-                mkdir($destinationPath);
+
+           /* $file = Input::file('Picture');
+            $extension = '.'. $file->getClientOriginalExtension();
+            $destinationPath = public_path() . '/' . Config::get('app.user_profile_pictures_path');*/
+
+
+
+            $file = Input::file('Picture');
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['USER_PROFILE_IMAGE']);
+            $destinationPath = public_path($amazonPath);
+            $filename 		 	= 	rename_upload_file($destinationPath,$file->getClientOriginalName());
+            $file->move($destinationPath, $filename);
+            if (!AmazonS3::upload($destinationPath . $filename, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
             }
 
-            $fileName = urlencode(str_replace(' ','',strtolower($user_data['FirstName']) .'_'. strtolower($user_data['LastName'] .'_'.str_random(4) ) .$extension));
-            $file->move($destinationPath, $fileName);
-            $picture = $fileName;
+            $user_profile_data['Picture'] = $amazonPath . "/" . $filename;
 
             //Delete old picture
             if(!empty($user_profile->Picture)){
@@ -209,7 +258,6 @@ class UsersController extends BaseController {
                     @unlink($delete_previous_file);
                 }
             }
-            $user_profile_data['Picture'] = $picture;
 
         }
 

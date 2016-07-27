@@ -2948,7 +2948,7 @@ body {
     display: table-cell;
     vertical-align: top;
     background: #303641;
-    width: 280px;
+    width: 240px;
     position: relative;
     z-index: 100;
     -webkit-box-sizing: border-box;
@@ -2965,7 +2965,7 @@ body {
         position: fixed;
         height: auto;
         bottom: 0;
-        width: 280px;
+        width: 240px;
     }
 }
 .page-container .sidebar-menu .sidebar-menu-inner {

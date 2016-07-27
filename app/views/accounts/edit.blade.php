@@ -10,6 +10,9 @@
 
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit Account</strong>
     </li>
@@ -19,12 +22,24 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-@if($account->VerificationStatus == Account::NOT_VERIFIED)
+    <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+        <i class="fa fa-credit-card"></i>
+        Credit Control
+    </a>
+    @if(User::checkCategoryPermission('Opportunity','Add'))
+    <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
+        <i class="entypo-plus"></i>
+        Add Opportunity
+    </a>
+
+    @endif
+    @if($account->VerificationStatus == Account::NOT_VERIFIED)
      <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
         <i class="entypo-check"></i>
         Verify
     </a>
     @endif
+
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Authentication Rule
@@ -147,23 +162,10 @@
                     <div class="col-sm-4">
                         <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$account->Email}}" />
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">Secondary Email</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="SecondaryEmail" id="field-1" placeholder="" value="{{$account->SecondaryEmail}}" />
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Email</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{$account->BillingEmail}}" />
                     </div>
-
-                    <!--<label for="field-1" class="col-sm-2 control-label">Rate Email</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control" name="RateEmail" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{$account->RateEmail}" />
-                    </div>-->
-
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Active</label>
@@ -172,25 +174,26 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
-                    </div>
+ 
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
+                    
+                     <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2"))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit"))}}
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2",'disabled'))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit",'disabled'))}}
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -206,7 +209,10 @@
                     <div class="col-sm-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
-
+ <label for="NominalAnalysisNominalAccountNumber" class="col-sm-2 control-label">Nominal Code</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
+                    </div>
 
                 </div>
                 <script>
@@ -215,49 +221,12 @@
                     });
                 </script>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Customer Panel Password</label>
-                    <div class="col-sm-4">
-                            <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value="" />
-                    </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">CLI</label>
-                    <?php  $CLIList = array_filter(explode(',',$account->CustomerCLI));?>
-                    <div class="desc col-sm-4 table_{{count($CLIList)}}" >
-
-                        <table class="table table-bordered datatable dataTable acountclitable ">
-                        <thead>
-                        <tr>
-
-                        <th>CLI</th><th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if(count($CLIList))
-                        @foreach($CLIList as $row2)
-                            <tr>
-                                <td>
-                                    {{$row2}}
-                                </td>
-                                <td>
-                                    <a class="btn  btn-danger btn-sm btn-icon icon-left delete-cli"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @endif
-                        </tbody>
-                        </table>
-
-
-                    <a class="btn btn-primary  btn-sm btn-icon icon-left add-cli"  href="javascript:;" ><i class="entypo-plus"></i>Add</a>
-                    </div>
-                    <input type="hidden" class="form-control"  name="CustomerCLI" id="field-1" placeholder="" value="{{$account->CustomerCLI}}" />
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
+                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
                 </div>
+                
                 <div class="panel-title desc clear">
                     Description
                 </div>
@@ -266,6 +235,14 @@
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
                 </div>
+                
+                            <div class="form-group">            
+                    <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
+                    <div class="col-sm-4">
+        <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
+                            <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
+                    </div>  
+                    </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)
@@ -404,7 +381,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                     <div class="col-sm-4">
-                        {{Form::select('TaxRateId[]', $taxrates, (isset($account->TaxRateId)? explode(',',$account->TaxRateId) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
+                        {{Form::select('TaxRateId[]', $taxrates, (isset($account->TaxRateId)? explode(',',$account->TaxRateId) : explode(',',$DefaultTextRate) ) ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
@@ -583,41 +560,48 @@
 </div>
 </div>
 <script type="text/javascript">
+    var accountID = '{{$account->AccountID}}';
+    var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		//account status start
+        $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
+        }});
 		$(".change_verification_status").click(function(e) {
-		if (!confirm('Are you sure you want to change verification status?')) {
-			return false;
-		}
-		
+            if (!confirm('Are you sure you want to change verification status?')) {
+                return false;
+            }
 
-		var id = $(this).attr("data-id");
-		varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/'+{{Account::VERIFIED}}
-		varification_url = varification_url.replace('{id}',id);
 
-		$.ajax({
-			url: varification_url,
-			type: 'POST',
-			dataType: 'json',
-			success: function(response) {
-				$(this).button('reset');
-				if (response.status == 'success') {
-					$('.toast-error').remove();
-					$('.change_verification_status').remove();
-					toastr.success(response.message, "Success", toastr_opts);					
-				} else {
-					toastr.error(response.message, "Error", toastr_opts);
-				}
-			},
+            var id = $(this).attr("data-id");
+            varification_url =  "{{ URL::to('accounts/{id}/change_verifiaction_status')}}/{{Account::VERIFIED}}";
+            varification_url = varification_url.replace('{id}',id);
 
-			// Form data
-			//data: {},
-			cache: false,
-			contentType: false,
-			processData: false
-		});
-		return false;
-	});
+            $.ajax({
+                url: varification_url,
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $(this).button('reset');
+                    if (response.status == 'success') {
+                        $('.toast-error').remove();
+                        $('.change_verification_status').remove();
+                        toastr.success(response.message, "Success", toastr_opts);
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+
+                // Form data
+                //data: {},
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            return false;
+        });
 		//account status end
 		
 		
@@ -625,7 +609,6 @@
         $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
         $("#save_account").click(function (ev) {
             ev.preventDefault();
-
             //Subscription , Additional charge filter fields should not in account save.
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
@@ -648,6 +631,7 @@
             });
                 
         });
+
         $('select[name="BillingCycleType"]').on( "change",function(e){
             var selection = $(this).val();
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");
@@ -672,151 +656,93 @@
                         break;
             }
         });
+
         $('select[name="BillingCycleType"]').trigger( "change" );
 
-
         $('.upload-doc').click(function(ev){
-                    ev.preventDefault();
+            ev.preventDefault();
 
-                    $("#form-upload [name='AccountApprovalID']").val($(this).attr('data-id'));
-                    $('#upload-modal-account h4').html('Upload '+$(this).attr('data-title')+' Document');
-                    $('#upload-modal-account').modal('show');
-                });
-                $('#form-upload').submit(function(ev){
-                ev.preventDefault();
-                 var formData = new FormData($('#form-upload')[0]);
-                    $.ajax({
-                        url: baseurl + '/accounts/upload/{{$account->AccountID}}',  //Server script to process data
-                        type: 'POST',
-                        dataType: 'json',
-                        beforeSend: function(){
-                            $('.btn.upload').button('loading');
-                        },
-                        afterSend: function(){
-                            console.log("Afer Send");
-                        },
-                        success: function (response) {
-                            if(response.status =='success'){
-                                toastr.success(response.message, "Success", toastr_opts);
-                                $('#upload-modal-account').modal('hide');
-                                var url3 = baseurl+'/accounts/download_doc/'+response.LastID;
-                                var delete_doc_url = baseurl+'/accounts/delete_doc/'+response.LastID;
-                                var filename = response.Filename;
+            $("#form-upload [name='AccountApprovalID']").val($(this).attr('data-id'));
+            $('#upload-modal-account h4').html('Upload '+$(this).attr('data-title')+' Document');
+            $('#upload-modal-account').modal('show');
+        });
 
-                                if($('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html().trim() === ''){
-                                    $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>File Name</th><th>Action</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
-                                }
-                                var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
-                                $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html(down_html);
-                                if(response.refresh){
-                                    setTimeout(function(){window.location.reload()},1000);
-                                }
+        $('#form-upload').submit(function(ev){
+            ev.preventDefault();
+             var formData = new FormData($('#form-upload')[0]);
+            $.ajax({
+                url: baseurl + '/accounts/upload/{{$account->AccountID}}',  //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function(){
+                    $('.btn.upload').button('loading');
+                },
+                afterSend: function(){
+                    console.log("Afer Send");
+                },
+                success: function (response) {
+                    if(response.status =='success'){
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('#upload-modal-account').modal('hide');
+                        var url3 = baseurl+'/accounts/download_doc/'+response.LastID;
+                        var delete_doc_url = baseurl+'/accounts/delete_doc/'+response.LastID;
+                        var filename = response.Filename;
 
-                            }else{
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                            $('.btn.upload').button('reset');
-                        },
-                        // Form data
-                        data: formData,
-                        //Options to tell jQuery not to process data or worry about content-type.
-                        cache: false,
-                        contentType: false,
-                        processData: false
-                    });
-                });
-                @if($account->Status != Account::VERIFIED)
-                $(document).ajaxSuccess(function( event, jqXHR, ajaxSettings, ResponseData ) {
-                    //Reload only when success message.
-                    if (ResponseData.status != undefined &&  ResponseData.status == 'success' && ResponseData.refresh) {
-                        setTimeout(function(){window.location.reload()},1000);
-                    }
-                });
-                @endif
-
-            $('body').on('click', '.delete-doc', function(e) {
-                e.preventDefault();
-                result = confirm("Are you Sure?");
-                if(result){
-                    submit_ajax($(this).attr('href'),'AccountID=AccountID')
-                    $(this).parent().parent('tr').remove();
-                }
-            });
-
-            $('body').on('click', '.delete-cli', function(e) {
-                e.preventDefault();
-                result = confirm("Are you Sure?");
-                if(result){
-                    $(this).parent().parent('tr').remove();
-                    var nameIDs = $('table.acountclitable tr td:first-child').map(function () {
-                                                                          return this.innerHTML.trim();
-                                                                      }).get().join(',');
-                    $("#account-from [name='CustomerCLI']").val(nameIDs);
-                }
-            });
-
-            $('body').on('click', '.add-cli', function(e) {
-                $("#form-addcli-modal")[0].reset();
-                $("#addcli-modal").modal('show');
-            });
-
-            $("#form-addcli-modal").submit(function(e){
-                e.preventDefault();
-                var cli=$(this).find("[name='CustomerCLI']").val();
-                var val_cli=0
-                $('table.acountclitable tr td:first-child').each(function(){
-
-                    if(this.innerHTML.trim()==cli){
-                      toastr.error("Already Cli exits.", "Error", toastr_opts);
-                        val_cli=1;
-                    }
-                });
-                if(val_cli==0){
-                $.ajax({
-                    url: baseurl + '/accounts/validate_cli',
-                    type:'POST',
-                    data:{cli:cli},
-                    dataType: 'json',
-                    success: function(response) {
-
-                    if (response.status == 'success') {
-                            var accoutiphtml = '<tr><td>'+cli+'</td><td><a class="btn  btn-danger btn-sm btn-icon icon-left delete-cli"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
-                                            $('.acountclitable').children('tbody').append(accoutiphtml);
-
-                                            var nameIDs = $('table.acountclitable tr td:first-child').map(function () {
-                                                              return this.innerHTML.trim();
-                                                          }).get().join(',');
-                                            $("#account-from [name='CustomerCLI']").val(nameIDs);
-                                            $('.acountclitable').children('tbody').children('tr').children('td');
-
-                                            $("#addcli-modal").modal('hide');
-                        }else{
-                             toastr.error(response.message, "Error", toastr_opts);
+                        if($('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html().trim() === ''){
+                            $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>File Name</th><th>Action</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
+                        }
+                        var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
+                        $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html(down_html);
+                        if(response.refresh){
+                            setTimeout(function(){window.location.reload()},1000);
                         }
 
-                     }
-
-                });
-                }
-
+                    }else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                    $('.btn.upload').button('reset');
+                },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
             });
-            setTimeout(function(){
-                $('select[name="CDRType"]').trigger( "change" );
-            },500)
+        });
 
-            @if ($account->VerificationStatus == Account::NOT_VERIFIED)
-                $(".btn-toolbar .btn").first().button("toggle");
-            @elseif ($account->VerificationStatus == Account::VERIFIED)
-                $(".btn-toolbar .btn").last().button("toggle");
-            @endif
+        @if($account->Status != Account::VERIFIED)
+        $(document).ajaxSuccess(function( event, jqXHR, ajaxSettings, ResponseData ) {
+            //Reload only when success message.
+            if (ResponseData.status != undefined &&  ResponseData.status == 'success' && ResponseData.refresh) {
+                setTimeout(function(){window.location.reload()},1000);
+            }
+        });
+        @endif
 
-            $("#tags").select2({
-                tags:{{$tags}}
-             });
+        $('body').on('click', '.delete-doc', function(e) {
+            e.preventDefault();
+            result = confirm("Are you Sure?");
+            if(result){
+                submit_ajax($(this).attr('href'),'AccountID=AccountID')
+                $(this).parent().parent('tr').remove();
+            }
+        });
+
+        setTimeout(function(){
+            $('select[name="CDRType"]').trigger( "change" );
+        },500)
+
+        @if ($account->VerificationStatus == Account::NOT_VERIFIED)
+        $(".btn-toolbar .btn").first().button("toggle");
+        @elseif ($account->VerificationStatus == Account::VERIFIED)
+        $(".btn-toolbar .btn").last().button("toggle");
+        @endif
     });
 </script>
 
 <!--@include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('accounts/update/'.$account->AccountID)))-->
+    @include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
 
 @stop
 @section('footer_ext')
@@ -855,7 +781,7 @@
 </div>
 
 <div class="modal fade" id="addcli-modal" >
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 30%;">
         <div class="modal-content">
         <form role="form" id="form-addcli-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
             <div class="modal-header">
@@ -865,8 +791,9 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">CLI</label>
-                    <div class="col-sm-5">
-                        <input name="CustomerCLI" type="text" class="form-control">
+                    <div class="col-sm-9">
+                        <textarea name="CustomerCLI" class="form-control autogrow"></textarea>
+                        *Adding multiple CLIs ,Add one CLI in each line.
                     </div>
                 </div>
             </div>
@@ -884,4 +811,9 @@
         </div>
     </div>
 </div>
+<script>
+setTimeout(function(){
+	$('#CustomerPassword_hide').hide();
+	},1000);
+</script>
 @stop

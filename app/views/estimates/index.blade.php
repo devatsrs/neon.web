@@ -26,7 +26,7 @@
           <div class="form-group">
             <label for="field-1" class="col-sm-2 control-label">Account</label>
             <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-            <label for="field-1" class="col-sm-2 control-label">Estimate Status</label>
+            <label for="field-1" class="col-sm-2 control-label">Status</label>
             <div class="col-sm-2"> {{ Form::select('EstimateStatus', Estimate::get_estimate_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
             <label for="field-1" class="col-sm-2 control-label">Currency</label>
             <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} </div>
@@ -413,21 +413,10 @@ var postdata;
             "aaSorting": [[3, 'desc']],},
                 success: function(response1) {
 					console.log("sum of result"+response1);
-					
-					if(response1.total_grand!=null)
+					 if(response1.total_grand!=null)
 					{ 
-						var selected_currency = $("#estimate_filter [name='CurrencyID']").val();
-						var concat_currency   = '';
-						if(selected_currency!='')
-						{	
-							var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
-							var concat_currency = currency_txt.substr(0,1);
-							//concat_currency  =    $("#estimate_filter [name='CurrencyID'] option:selected").text()+' ';		
-						}
-						$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+concat_currency+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');	
+						$('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');	
 					}
-					
-
 					},
 			});	
 		}
@@ -474,13 +463,15 @@ var postdata;
             });
         });
         $('#table-4 tbody').on('click', 'tr', function() {
-            if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
-            $(this).toggleClass('selected');
-            if ($(this).hasClass('selected')) {
-                $(this).find('.rowcheckbox').prop("checked", true);
-            } else {
-                $(this).find('.rowcheckbox').prop("checked", false);
-            }
+            if (checked =='') {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
             }
         });
 		
