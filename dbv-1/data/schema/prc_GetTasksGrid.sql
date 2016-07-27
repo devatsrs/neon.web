@@ -1,4 +1,20 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetTasksGrid`(IN `p_CompanyID` INT, IN `p_BoardID` INT, IN `p_TaskName` VARCHAR(50), IN `p_UserIDs` VARCHAR(50), IN `p_AccountIDs` INT, IN `p_Periority` INT, IN `p_DueDateFrom` VARCHAR(50), IN `p_DueDateTo` VARCHAR(50), IN `p_Status` INT, IN `p_Closed` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetTasksGrid`(
+	IN `p_CompanyID` INT,
+	IN `p_BoardID` INT,
+	IN `p_TaskName` VARCHAR(50),
+	IN `p_UserIDs` VARCHAR(50),
+	IN `p_AccountIDs` INT,
+	IN `p_Periority` INT,
+	IN `p_DueDateFrom` VARCHAR(50),
+	IN `p_DueDateTo` VARCHAR(50),
+	IN `p_Status` INT,
+	IN `p_Closed` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(50)
+
+)
 BEGIN 
 	DECLARE v_OffSet_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -27,8 +43,8 @@ BEGIN
 		END as PriorityText,				
 		ts.TaggedUsers,
 		ts.BoardID,
-		concat( u.FirstName,' ',u.LastName) as userName,
-		ts.taskClosed
+      concat( u.FirstName,' ',u.LastName) as userName,
+      ts.taskClosed
 		FROM tblCRMBoards b
 		INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 				AND b.BoardID = p_BoardID
@@ -46,6 +62,7 @@ BEGIN
 				OR (p_DueDateFrom=2 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate >= NOW() AND ts.DueDate <= DATE(DATE_ADD(NOW(), INTERVAL +3 DAY)))) 
 				OR ((p_DueDateFrom!='' OR p_DueDateTo!='') AND ts.DueDate BETWEEN STR_TO_DATE(p_DueDateFrom,'%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(p_DueDateTo,'%Y-%m-%d %H:%i:%s'))
 			)
+		AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs))
 		LEFT JOIN tblUser u on u.UserID = ts.UsersIDs
 		ORDER BY
 		CASE
@@ -96,7 +113,8 @@ BEGIN
 				OR (p_DueDateFrom=1 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate < NOW() AND bc.SetCompleted=0))
 				OR (p_DueDateFrom=2 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate >= NOW() AND ts.DueDate <= DATE(DATE_ADD(NOW(), INTERVAL +2 DAY)))) 
 				OR ((p_DueDateFrom!='' OR p_DueDateTo!='') AND ts.DueDate BETWEEN STR_TO_DATE(p_DueDateFrom,'%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(p_DueDateTo,'%Y-%m-%d %H:%i:%s'))
-			);
+			)
+		AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs));
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

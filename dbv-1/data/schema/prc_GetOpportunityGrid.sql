@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_GetOpportunityGrid`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
@@ -16,12 +16,12 @@ CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_GetOpportuni
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
-	DECLARE v_CurrencyCode_ VARCHAR(50);
+	
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET SESSION group_concat_max_len = 1024;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cr.Symbol INTO v_CurrencyCode_ from tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+
 
 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 SELECT 
@@ -49,8 +49,7 @@ SELECT
  	   o.OpportunityClosed,
  	   Date(o.ClosingDate) as ClosingDate,
  	   Date(o.ExpectedClosing) as ExpectedClosing,
-		Time(o.ExpectedClosing) as StartTime,
-		v_CurrencyCode_ as CurrencyCode
+		Time(o.ExpectedClosing) as StartTime
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND (p_BoardID = 0 OR b.BoardID = p_BoardID)
@@ -64,6 +63,8 @@ INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
+			AND (1 in (Select `Status` FROM tblAccount Where tblAccount.AccountID = o.AccountID))
+			AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = o.UserID))
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND ac.`Status` = 1
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
@@ -134,6 +135,8 @@ INNER JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
+			AND (1 in (Select `Status` FROM tblAccount Where tblAccount.AccountID = o.AccountID))
+			AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = o.UserID))
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND ac.`Status` = 1
 			AND (p_CurrencyID = 0 OR ac.CurrencyId = p_CurrencyID)

@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetOpportunities`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
@@ -91,6 +91,8 @@ LEFT JOIN tblOpportunity o on o.BoardID = b.BoardID
 			AND (p_AccountID = 0 OR o.AccountID = p_AccountID)
 			AND (p_Status = '' OR find_in_set(o.`Status`,p_Status))
 			AND (p_CurrencyID = 0 OR p_CurrencyID in (Select CurrencyId FROM tblAccount Where tblAccount.AccountID = o.AccountID))
+			AND (1 in (Select `Status` FROM tblAccount Where tblAccount.AccountID = o.AccountID))
+			AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = o.UserID))
 LEFT JOIN tblAccount ac on ac.AccountID = o.AccountID
 			AND ac.`Status` = 1
 LEFT JOIN tblContact con on con.Owner = ac.AccountID
