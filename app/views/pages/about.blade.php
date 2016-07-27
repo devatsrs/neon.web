@@ -32,18 +32,18 @@
                 <div class="notes full-width ">
                     <h3>ChangeLog</h3>
                     <h4>27-07-2016</h4>
-                    1. Added an option to bulk edit Rate Table.
-                    2. Status of paid and partially paid invoices won't be changed to send when click on Send.
-                    3. Added credit control option against account.
-                    4. Improved Cron Job monitoring.
-                    5. Added an option to restart failed jobs and terminate In Progress jobs.
-                    6. Added new CRM Dashboard.
-                    7. Added System Allow to create rate table without currency.
-                    8. Fixed issue with cancel invoices, they will be excluded from total now.
-                    9. Reviced Acitivity Reminder Job.
-                    10. Moved Account CLI to Authentication Rule.
-                    11. Added an option to reset and change Authentication Rule.
-                    12. Regenerate invoice will ignore cancel invoices.
+                    1. Added an option to bulk edit Rate Table.<br>
+                    2. Status of paid and partially paid invoices won't be changed to send when click on Send.<br>
+                    3. Added credit control option against account.<br>
+                    4. Improved Cron Job monitoring.<br>
+                    5. Added an option to restart failed jobs and terminate In Progress jobs.<br>
+                    6. Added new CRM Dashboard.<br>
+                    7. Added System Allow to create rate table without currency.<br>
+                    8. Fixed issue with cancel invoices, they will be excluded from total now.<br>
+                    9. Reviced Acitivity Reminder Job.<br>
+                    10. Moved Account CLI to Authentication Rule.<br>
+                    11. Added an option to reset and change Authentication Rule.<br>
+                    12. Regenerate invoice will ignore cancel invoices.<br>
                 </div>
             </li>
         </ul>
