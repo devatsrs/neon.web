@@ -100,7 +100,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
 	
-	Route::post('/dashboard/getSalesdataManager', "DashboardController@GetSalesDataManager");		
+	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
 	
 	
 	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");		

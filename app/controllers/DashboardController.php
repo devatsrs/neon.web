@@ -252,7 +252,14 @@ class DashboardController extends BaseController {
 		}
 	}
 	
-	function GetSalesDataManager(){
+	function CrmDashboardSalesRevenue(){		
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/CrmDashboardSalesRevenue',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
 		 //crm dashboard
 			
         $companyID 			= 	User::get_companyID();

@@ -699,12 +699,12 @@ function GetSalesData(){
 	loadingUnload(".crmdSalesManager1",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
-	var Closingdate   = $("#crm_dashboard_Sales_Manager [name='Closingdate']").val();
+	var Duedate     = $("#crm_dashboard_Sales_Manager [name='Duedate']").val();
     $.ajax({
         type: 'POST',
-        url: baseurl+'/dashboard/getSalesdataManager',
+        url: baseurl+'/dashboard/CrmDashboardSalesRevenue',
         dataType: 'html',
-        data:{CurrencyID:CurrencyID,UsersID:UsersID,Closingdate:Closingdate},
+        data:{CurrencyID:CurrencyID,UsersID:UsersID,Duedate:Duedate},
         aysync: true,
         success: function(data11) {
 			$('#crmdSalesManager1').html('');

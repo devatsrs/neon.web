@@ -66,7 +66,7 @@
       <div class="panel-heading">
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
-          <h3>Sales</h3>
+          <h3>Sales by Opportunity</h3>
           <div class="SalesResult"></div>
         </div>
         <div  class="clear clearfix">
@@ -138,13 +138,14 @@
     </div>
   </div>
 </div>
+ @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
 <div class="row">
 <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
         <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
-          <h3>Sales Chart</h3>
+          <h3>Sales By Revenue</h3>
           <div class="SalesResultManager"></div>
         </div>
         <div  class="clear clearfix">
@@ -153,7 +154,7 @@
               <div class="form-group form-group-border-none">
                 <label for="Closingdate" class="col-sm-2 control-label managerLabel ">Date</label>
                 <div class="col-sm-6">
-                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class="small-date-input daterange"> 
+                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange"> 
                   <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
                 </div>
               </div>
@@ -167,6 +168,7 @@
     </div>
     </div>
 </div>
+@endif 
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
