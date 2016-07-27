@@ -134,11 +134,13 @@ class CronJob extends \Eloquent {
                 $data['Setting']['CompanyGatewayID'] = $data['CompanyGatewayID'];
                 unset($data['CompanyGatewayID']);
             }
+            if(isset($data['AccountID'])){
+                $data['Setting']['AccountID'] = $data['AccountID'];
+                unset($data['AccountID']);
+            }
             if(isset($data['TemplateID'])){
                 $data['Setting']['TemplateID'] = $data['TemplateID'];
-                $data['Setting']['AccountID'] = $data['AccountID'];
                 unset($data['TemplateID']);
-                unset($data['AccountID']);
             }
             $data['Settings'] = json_encode($data['Setting']);
         }
@@ -170,19 +172,16 @@ class CronJob extends \Eloquent {
         $cronsetting = json_decode($CronJob->Settings,true);
         $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
 
+        $ReturnStatus = terminate_process($PID);
 
-        if(getenv("APP_OS") == "Linux"){
-            $KillCommand = 'kill -9 '.$PID;
-        }else{
-            $KillCommand = 'Taskkill /PID '.$PID.' /F';
-        }
         //Kill the process.
-        $ReturnStatus = exec($KillCommand,$DetailOutput);
-        CronJob::find($CronJobID)->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
+        $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
 
-        $emaildata['KillCommand'] = $KillCommand;
+        CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_FAIL, "Message"=> "Terminated by " . User::get_user_full_name()]);
+
+        $emaildata['KillCommand'] = "";
         $emaildata['ReturnStatus'] = $ReturnStatus;
-        $emaildata['DetailOutput'] = $DetailOutput;
+        $emaildata['DetailOutput'] = array();
 
         $emaildata['CompanyID'] = $CompanyID;
         $emaildata['Minute'] = $minute;
@@ -192,7 +191,7 @@ class CronJob extends \Eloquent {
         $emaildata['EmailTo'] = $ActiveCronJobEmailTo;
         $emaildata['EmailToName'] = '';
         $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
-        $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/activejob');
+        $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/cronjob_monitor');
 
         $emailstatus = Helper::sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
         return $emailstatus;

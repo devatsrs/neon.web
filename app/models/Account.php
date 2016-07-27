@@ -256,21 +256,7 @@ class Account extends \Eloquent {
             return true;
         }
     }
-    public static function validate_clis($data){
-        $clisExist = [];
-        $toBeInsert = $data['CustomerCLI'];
-        $account = Account::where(array('AccountID'=>$data['AccountID']))->first();
-        if(!empty($account)) {
-            $dbClis = explode(',', $account->CustomerCLI);
-            $postIPs = $data['CustomerCLI'];
 
-            $clisExist = array_intersect($dbClis, $postIPs);
-            $toBeInsert =array_unique(array_merge($dbClis,$postIPs));
-        }
-        $status['clisExist'] = $clisExist;
-        $status['toBeInsert'] = $toBeInsert;
-        return $status;
-    }
     public static function validate_ip($ip=0){
         $status=0;
         $companyID  = User::get_companyID();
@@ -303,5 +289,49 @@ class Account extends \Eloquent {
             }
         }
         return $reponse_return;
+    }
+    public static function getActivityChartRepose($companyID,$AccountID){
+        $query = "call prc_getAccountExpense ('". $companyID  . "',  '". $AccountID  . "')";
+        $ExpenseResult = DataTableSql::of($query, 'neon_report')->getProcResult(array('Expense','CustomerExpense','VendorExpense'));
+        $Expense = $ExpenseResult['data']['Expense'];
+        $CustomerExpense = $ExpenseResult['data']['CustomerExpense'];
+        $VendorExpense = $ExpenseResult['data']['VendorExpense'];
+        $ExpenseYear = array();
+        $previousyear = '';
+        $datacount = 0;
+        $customer = $vendor = $cat = array();
+        foreach($Expense as $ExpenseRow){
+            if($previousyear != $ExpenseRow->Year){
+                $previousyear = $ExpenseRow->Year;
+                $ExpenseYear[$previousyear]['CustomerTotal'] = $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] = $ExpenseRow->VendorTotal;
+            }else{
+                $ExpenseYear[$previousyear]['CustomerTotal'] += $ExpenseRow->CustomerTotal;
+                $ExpenseYear[$previousyear]['VendorTotal'] += $ExpenseRow->VendorTotal;
+            }
+            $customer[$datacount] = $ExpenseRow->CustomerTotal;
+            $vendor[$datacount] = $ExpenseRow->VendorTotal;
+            $month = $ExpenseRow->Month<10 ? '0'.$ExpenseRow->Month:$ExpenseRow->Month;
+            $cat[$datacount] = $ExpenseRow->Year.'-'.$month;
+            $datacount++;
+
+        }
+        $ExpenseYearHTML = '';
+        if(!empty($ExpenseYear)) {
+            foreach ($ExpenseYear as $year => $total) {
+                $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
+            }
+        }else{
+            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+        }
+
+        $response['customer'] =  implode(',',$customer);
+        $response['vendor'] = implode(',',$vendor);
+        $response['categories'] = implode(',',$cat);
+        $response['ExpenseYear'] = $ExpenseYearHTML;
+        $response['CustomerActivity'] = account_expense_table($CustomerExpense,'Customer');
+        $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
+
+        return $response;
     }
 }

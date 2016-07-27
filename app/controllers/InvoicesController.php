@@ -660,6 +660,7 @@ class InvoicesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
+            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
             $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
@@ -981,7 +982,9 @@ class InvoicesController extends \BaseController {
                 $status['status'] = 'failure';
             }else{
                 $status['status'] = "success";
-                $Invoice->update(['InvoiceStatus' => Invoice::SEND ]);
+                if($Invoice->InvoiceStatus != Invoice::PAID && $Invoice->InvoiceStatus != Invoice::PARTIALLY_PAID && $Invoice->InvoiceStatus != Invoice::CANCEL){
+                    $Invoice->update(['InvoiceStatus' => Invoice::SEND ]);
+                }
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Sent By '.$CreatedBy;

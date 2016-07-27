@@ -30,6 +30,19 @@
         cursor: pointer;
     }
 
+    .WorthBox{display:none;  max-width: 100%; padding-left:15px;}
+    .oppertunityworth{
+        border-radius:5px;
+        border:2px solid #ccc;
+        background:#fff;
+        padding:0 6px;
+        margin-bottom:10px;
+        font-weight:bold;
+        width:100%;
+    }
+.currency_worth,.odometer{font-size:21px;}
+.currency_worth{ margin-left:7px; vertical-align:middle;}
+.worth_add_box_ajax{margin-left:-2px;}
 </style>
 <div id="content">
     <ol class="breadcrumb bc-3">
@@ -39,18 +52,21 @@
         <li>
             <a href="{{URL::to('opportunityboards')}}">Opportunity Board</a>
         </li>
-        <li class="active">
+         <li>
+        {{opportunites_dropbox($id)}}
+    </li>
+        <!--<li class="active">
             <strong>{{$Board->BoardName}}</strong>
-        </li>
+        </li>-->
     </ol>
-    <h3>Tasks</h3>
+    <h3>Opportunity</h3>
         <div class="row">
             <div class="col-md-12 clearfix">
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <form id="search-opportunity-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
                     <div class="panel panel-primary" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -69,7 +85,7 @@
                                 @if(User::is_admin())
                                     <label for="field-1" class="col-sm-1 control-label">Account Owner</label>
                                     <div class="col-sm-2">
-                                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                                        {{Form::select('AccountOwner',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                                     </div>
                                 @endif
                                 <label for="field-1" class="col-sm-1 control-label">Company</label>
@@ -87,6 +103,9 @@
                                 <div class="col-sm-4">
                                     {{Form::select('Status[]', Opportunity::$status, Opportunity::$defaultSelectedStatus ,array("class"=>"select2","multiple"=>"multiple"))}}
                                 </div>
+
+                                <label for="field-1" class="col-sm-1 control-label">Currency</label>
+                                <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}</div>
 
                                 <label class="col-sm-1 control-label">Close</label>
                                 <div class="col-sm-1">
@@ -107,17 +126,37 @@
             </div>
         </div>
 
-        <p style="text-align: right;">
+        <p id="tools">
+            <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
+            <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
             @if(User::checkCategoryPermission('Opportunity','Add'))
-            <a href="javascript:void(0)" class="btn btn-primary opportunity">
-                <i class="entypo-plus"></i>
-                Add New Opportunity
-            </a>
+                <a href="javascript:void(0)" class="btn btn-primary pull-right opportunity">
+                    <i class="entypo-plus"></i>
+                    Add
+                </a>
             @endif
+            <a><strong><span class="currency_worth"></span>  <span class="odometer worth_add_box_ajax">0.00</span></strong></a>
         </p>
 
         <section class="deals-board" >
+            
 
+            <table class="table table-bordered datatable" id="opportunityGrid">
+                <thead>
+                <tr>
+                    <th width="25%" >Name</th>
+                    <th width="5%" >Status</th>
+                    <th width="20%">Assigned To</th>
+                    <th width="20%">Related To</th>
+                    <th width="10%" >Expected Close Date</th>
+                    <th width="5%" >Value</th>
+                    <th width="5%" >Rating</th>
+                    <th width="10%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
                 <div id="board-start" class="board" style="height: 600px;" >
                 </div>
 
@@ -127,10 +166,14 @@
             </form>
         </section>
     <script>
+	window.odometerOptions = {
+  format: '(ddd).dd'
+};
         var $searchFilter = {};
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function ($) {
+            var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
             var opportunity = [
                 'BoardColumnID',
                 'BoardColumnName',
@@ -151,7 +194,11 @@
                 'Tags',
                 'Rating',
                 'TaggedUsers',
-                'Status'
+                'Status',
+                'Worth',
+                'OpportunityClosed',
+                'ClosingDate',
+                'ExpectedClosing'
             ];
 
             @if(empty($message)){
@@ -161,7 +208,7 @@
                 toastr.error({{'"'.$message.'"'}}, "Error", toastr_opts);
             }
             @endif;
-            var readonly = ['Company','Phone','Email','Title','FirstName','LastName'];
+            var readonly = ['Company','Phone','Email','Title','FirstName','LastName','Worth'];
             var BoardID = "{{$BoardID}}";
             var board = $('#board-start');
             var emailFileList     =    new Array();
@@ -178,23 +225,132 @@
                 board.perfectScrollbar('update');
             });
 
+            data_table = $("#opportunityGrid").dataTable({
+                "bDestroy": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": baseurl + "/opportunity/"+BoardID+"/ajax_opportunity_grid",
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                            {"name": "opportunityName", "value": $searchFilter.opportunityName},
+                            {"name": "AccountOwner","value": $searchFilter.AccountOwner},
+                            {"name": "AccountID","value": $searchFilter.AccountID},
+                            {"name": "Tags","value": $searchFilter.Tags},
+                            {"name": "Status","value": $searchFilter.Status},
+                            {"name": "opportunityClosed","value": $searchFilter.opportunityClosed},
+                            {"name": "CurrencyID","value": $searchFilter.CurrencyID}
+                    );
+                },
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[0, 'desc']],
+                "aoColumns": [
+                    {
+                        "bSortable": true, //Opportunity Name
+                        mRender: function (id, type, full) {
+                            return full[3];
+                            //return '<div class="'+(full[13] == "1"?'priority':'normal')+' inlinetable">&nbsp;</div>'+'<div class="inlinetable">'+full[5]+'</div>';
+                        }
+                    },
+                    {
+                        "bSortable": true, //Status
+                        mRender: function (id, type, full) {
+                            return opportunitystatus[full[19]];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Assign To
+                        mRender: function (id, type, full) {
+                            return full[10];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Related To
+                        mRender: function (id, type, full) {
+                            return full[6];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Expected Closing
+                        mRender: function (id, type, full) {
+                            return full[23];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Value
+                        mRender: function (id, type, full) {
+                            return full[20];
+                        }
+                    },
+                    {
+                        "bSortable": true, //Rating
+                        mRender: function (id, type, full) {
+                            return '<input type="text" class="knob" data-min="0" data-max="5" data-width="40" data-height="40" name="Rating" value="'+full[17]+'" />';
+                        }
+                    },
+                    {
+                        "bSortable": false, //action
+                        mRender: function (id, type, full) {
+                            action = '<div class = "hiddenRowData" >';
+                            for(var i = 0 ; i< opportunity.length; i++){
+                                action += '<input type = "hidden"  name = "' + opportunity[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                            }
+                            action += '</div>';
+                            @if(User::checkCategoryPermission('Task','Edit'))
+                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            @endif
+                            return action;
+                        }
+                    }
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                    ]
+                },
+                "fnDrawCallback": function () {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                    $(this)
+                    if($('#tools .active').hasClass('grid')){
+                        $('#opportunityGrid_wrapper').addClass('hidden');
+                        $('#opportunityGrid').addClass('hidden');
+                    }else{
+                        $('#opportunityGrid_wrapper').removeClass('hidden');
+                        $('#opportunityGrid').removeClass('hidden');
+                    }
+                    $('#opportunityGrid .knob').knob({"readOnly":true});
+                }
 
-            getOpportunities();
+            });
+
+
+            getRecord();
 
             $('#search-opportunity-filter').submit(function(e){
                 e.preventDefault();
-                getOpportunities();
+                getRecord();
             });
 
 
             @if(User::checkCategoryPermission('Opportunity','Edit'))
-            $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
+            $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
+				
                 e.stopPropagation();
-                var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                if($(this).is('a')){
+                    var rowHidden = $(this).prev('div.hiddenRowData');
+                }else {
+                    var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                }
                 var select = ['UserID','BoardID','TaggedUsers','Title','Status'];
                 var color = ['BackGroundColour','TextColour'];
+                var OpportunityClosed = 0;
+                //$('.closedDate').addClass('hidden');
+                //$('#closedDate').text('');
+				$('#ClosingDate').val('');
                 for(var i = 0 ; i< opportunity.length; i++){
-                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();
+                    var val = rowHidden.find('input[name="'+opportunity[i]+'"]').val();					
                     var elem = $('#edit-opportunity-form [name="'+opportunity[i]+'"]');
                     //console.log(opportunity[i]+' '+val);
                     if(select.indexOf(opportunity[i])!=-1){
@@ -202,11 +358,6 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
-                            if(opportunity[i]=='Status' && val=='{{Opportunity::Close}}'){
-                                biuldSwicth('.make','#edit-opportunity-form','checked');
-                            }else if(opportunity[i]=='Status' && val!='{{Opportunity::Close}}'){
-                                biuldSwicth('.make','#edit-opportunity-form','');
-                            }
                             elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
                         }
                     } else{
@@ -217,14 +368,44 @@
                             elem.val(val).trigger('change');
                         }else if(opportunity[i]=='Tags'){
                             elem.val(val).trigger("change");
+                        }else if(opportunity[i]=='OpportunityClosed'){
+                            if(val==1){
+                                OpportunityClosed = 1;
+                                biuldSwicth('.make','#edit-opportunity-form','checked');
+                            }else{
+                                biuldSwicth('.make','#edit-opportunity-form','');
+                            }
+                        }else if(opportunity[i]=='ClosingDate'){
+                            if(OpportunityClosed==1){
+                                //$('.closedDate').removeClass('hidden');
+                                //$('#closedDate').text(val);
+								$('#ClosingDate').val(val);
+                            }
+                        }
+                        else if(opportunity[i]=='ExpectedClosing'){
+                            if(val=='0000-00-00'){
+                                elem.val('');
+                            }
                         }
                     }
                 }
                 $('#edit-modal-opportunity h4').text('Edit Opportunity');
                 $('#edit-modal-opportunity').modal('show');
             });
-
             @endif
+            $('#tools .toggle').click(function(){
+                        if($(this).hasClass('list')){
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').addClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').removeClass('hidden');
+                        }else{
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').removeClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').addClass('hidden');
+                        }
+                    });
             @if(User::checkCategoryPermission('OpportunityComment','View'))
             $(document).on('click','#board-start ul.sortable-list li',function(){
                 $('#add-opportunity-comments-form').trigger("reset");
@@ -525,6 +706,18 @@
                 container.find('.make-switch').bootstrapSwitch();
             }
 
+            function getRecord(){
+                $searchFilter.opportunityName = $("#search-opportunity-filter [name='opportunityName']").val();
+                $searchFilter.AccountOwner = $("#search-opportunity-filter [name='AccountOwner']").val();
+                $searchFilter.AccountID = $("#search-opportunity-filter [name='AccountID']").val();
+                $searchFilter.Tags = $("#search-opportunity-filter [name='Tags']").val();
+                $searchFilter.Status = $("#search-opportunity-filter [name='Status[]']").val();
+                $searchFilter.opportunityClosed = $("#search-opportunity-filter [name='opportunityClosed']").prop("checked");
+                $searchFilter.CurrencyID = $("#search-opportunity-filter select[name='CurrencyID']").val();
+                getOpportunities();
+                data_table.fnFilter('',0);
+            }
+
             function getOpportunities(){
                 var formData = new FormData($('#search-opportunity-filter')[0]);
                 var url = baseurl + '/opportunity/'+BoardID+'/ajax_opportunity';
@@ -534,6 +727,14 @@
                     dataType: 'html',
                     success: function (response) {
                         board.html(response);
+                        var worth_hidden = $('#Worth_hidden').val();
+						var Currency_hidden = $('#Currency_hidden').val();
+                        $('.odometer').html(0);
+						$('.currency_worth').html('');
+						$('.worth_add_box_ajax').html(worth_hidden); 
+						$('.currency_worth').html(Currency_hidden);
+						
+						//$('.WorthBox').show();
                         initEnhancement();
                         initSortable();
                         initToolTip();
@@ -795,11 +996,42 @@
 
                             <div class="col-md-6 margin-top-group pull-left">
                                 <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Value</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" value="0" name="Worth" type="number" step="any" min=”0″>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Expected Close Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" type="text" name="ExpectedClosing" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 margin-top-group pull-left">
+                                <div class="form-group">
                                     <label class="col-sm-4 control-label">Close</label>
-                                    <div class="col-sm-8 make">
+                                    <div class="col-sm-3 make">
                                         <p class="make-switch switch-small">
                                             <input name="opportunityClosed" type="checkbox" value="{{Opportunity::Close}}">
                                         </p>
+                                    </div>
+                                    <label class="col-sm-2 control-label closedDate hidden">Closed Date</label>
+                                    <div class="col-sm-3">
+                                        <span id="closedDate"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 margin-top pull-left">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label col-sm-4">Actual Close Date</label>
+                                    <div class="col-sm-8">
+                                        <input autocomplete="off" id="ClosingDate" type="text" name="ClosingDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" />
                                     </div>
                                 </div>
                             </div>
@@ -897,7 +1129,7 @@
                                     <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
-                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple="1" data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
+                                        <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
                                         <input  type="hidden" name="token_attachment" value="{{$token}}" />
                                         <input type="hidden" name="attachmentsinfo" >
                                     </div>
@@ -916,7 +1148,7 @@
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-8"></div>
                             <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple="1" data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
                                 <input type="hidden" name="OpportunityID" >
                             </div>
                         </form>

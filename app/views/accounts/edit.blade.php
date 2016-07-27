@@ -10,6 +10,9 @@
 
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit Account</strong>
     </li>
@@ -19,7 +22,10 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-
+    <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+        <i class="fa fa-credit-card"></i>
+        Credit Control
+    </a>
     @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
@@ -27,7 +33,7 @@
     </a>
 
     @endif
-@if($account->VerificationStatus == Account::NOT_VERIFIED)
+    @if($account->VerificationStatus == Account::NOT_VERIFIED)
      <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
         <i class="entypo-check"></i>
         Verify
@@ -156,23 +162,10 @@
                     <div class="col-sm-4">
                         <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$account->Email}}" />
                     </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">Secondary Email</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control"  name="SecondaryEmail" id="field-1" placeholder="" value="{{$account->SecondaryEmail}}" />
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Email</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{$account->BillingEmail}}" />
                     </div>
-
-                    <!--<label for="field-1" class="col-sm-2 control-label">Rate Email</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control" name="RateEmail" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{$account->RateEmail}" />
-                    </div>-->
-
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Active</label>
@@ -232,58 +225,6 @@
                     <div class="col-sm-4">
                         <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
-
-                    <label for="field-1" class="col-sm-1 control-label">CLI</label>
-                    <?php  $CLIList = array_filter(explode(',',$account->CustomerCLI));?>
-                    <div class="desc col-sm-5 table_{{count($CLIList)}}" >
-                        <div class="row dropdown">
-                            <div  class="col-md-12">
-                                <div class="input-group-btn pull-right" style="width:70px;">
-                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                                        <li class="li_active">
-                                            <a class="add-cli" type_ad="active" href="javascript:void(0);" >
-                                                <i class="entypo-plus"></i>
-                                                <span>Add</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:void(0);" class="delete-cli" >
-                                                <i class="entypo-cancel"></i>
-                                                <span>Delete</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div><!-- /btn-group -->
-                            </div>
-                            <div class="clear"></div>
-                        </div>
-                        <br>
-                        <table class="table table-bordered datatable dataTable acountclitable ">
-                        <thead>
-                        <tr>
-                            <th><input type="checkbox" name="checkbox[]" class="selectall" /></th>
-                            <th>CLI</th><th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if(count($CLIList))
-                        @foreach($CLIList as $index=>$row2)
-                            <tr>
-                                <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
-                                <td>
-                                    {{$row2}}
-                                </td>
-                                <td>
-                                    <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs delete-cli"> <i class="entypo-cancel"></i> </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @endif
-                        </tbody>
-                        </table>
-                    </div>
-                    <input type="hidden" class="form-control"  name="CustomerCLI" id="field-1" placeholder="" value="{{$account->CustomerCLI}}" />
                 </div>
                 
                 <div class="panel-title desc clear">
@@ -623,7 +564,6 @@
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		//account status start
-        attachchangeevent('acountclitable');
         $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
@@ -798,146 +738,6 @@
         @elseif ($account->VerificationStatus == Account::VERIFIED)
         $(".btn-toolbar .btn").last().button("toggle");
         @endif
-
-        //CLI Code Start
-        $('body').on('click', '.add-cli', function(e) {
-            $("#form-addcli-modal")[0].reset();
-            $('.autogrow').trigger('autosize.resize');
-            $("#addcli-modal").modal('show');
-        });
-
-
-        $("#form-addcli-modal").submit(function(e){
-            e.preventDefault();
-            var clis=$(this).find("[name='CustomerCLI']").val().trim();
-            $.ajax({
-                url: baseurl + '/accounts/'+accountID+'/addclis',
-                type:'POST',
-                data:{clis:clis},
-                datatype:'json',
-                success: function(response) {
-                    if (response.status == 'success') {
-                        createTable(response);
-                        $("#addcli-modal").modal('hide');
-                        toastr.success(response.message,'Success', toastr_opts);
-                    }else{
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                    $('.btn').button('reset');
-                }
-            });
-        });
-
-        $("#tags").select2({
-            tags:{{$tags}}
-         });
-
-
-        $('.selectall').click(function(){
-            if($(this).is(':checked')){
-                checked = 'checked=checked';
-                $(this).prop("checked", true);
-                $(this).parents('table').find('tbody tr').each(function (i, el) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                    $(this).addClass('selected');
-                });
-            }else{
-                checked = '';
-                $(this).prop("checked", false);
-                $(this).parents('table').find('tbody tr').each(function (i, el) {
-                    $(this).find('.rowcheckbox').prop("checked", false);
-                    $(this).removeClass('selected');
-                });
-            }
-        });
-
-        $(document).on('click', '.dataTable tbody tr', function() {
-            $(this).toggleClass('selected');
-            if($(this).is('tr')) {
-                if ($(this).hasClass('selected')) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                } else {
-                    $(this).find('.rowcheckbox').prop("checked", false);
-                }
-            }
-        });
-
-        $(document).on('click','.delete-cli',function(e){
-            e.preventDefault();
-            if($(this).hasClass('icon-left')){
-                var tr = $(this).parents('tr');
-                tr.addClass('selected');
-                tr.find('.rowcheckbox').prop("checked", true);
-            }
-
-            var SelectedIDs = getselectedIDs('acountclitable');
-            if (SelectedIDs.length == 0) {
-                toastr.error('Please select at least one IP Address.', "Error", toastr_opts);
-                return false;
-            }else{
-                if(confirm('Are you sure you want to delete selected CLIs?')){
-                    var url = baseurl + "/accounts/"+accountID+"/deleteclis";
-                    var clis = SelectedIDs.join(",");
-                    $.ajax({
-                        url: url,
-                        type:'POST',
-                        data:{clis:clis},
-                        datatype:'json',
-                        success: function(response) {
-                            if (response.status == 'success') {
-                                createTable(response);
-                                toastr.success(response.message,'Success', toastr_opts);
-                            }else{
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        }
-
-                    });
-                }
-            }
-        });
-
-        var createTable = function createTable(response){
-            var accoutclihtml = '';
-            $(".acountclitable").dataTable().fnDestroy();
-            if(response.clis) {
-                $.each(response.clis, function (index, item) {
-                    if(item) {
-                        accoutclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="Delete CLI" class="btn btn-danger btn-xs icon-left delete-cli"> <i class="entypo-cancel"></i> </button></td></tr>';
-                    }
-                });
-                $('.acountclitable').children('tbody').html(accoutclihtml);
-                $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
-                    });
-                }});
-            }
-        }
-
-        function attachchangeevent(table){
-            $("."+table+" tbody input[type=checkbox]").each(function (i, el) {
-                var $this = $(el),
-                        $p = $this.closest('tr');
-
-                $(el).on('change', function () {
-                    var is_checked = $this.is(':checked');
-
-                    $p[is_checked ? 'addClass' : 'removeClass']('selected');
-                });
-            });
-        }
-
-        function getselectedIDs(table){
-            var SelectedIDs = [];
-            $('.'+table+' tr .rowcheckbox:checked').each(function (i, el) {
-                var ipAddress = $(this).parents('td').next().text().trim();
-                SelectedIDs[i++] = ipAddress;
-            });
-            return SelectedIDs;
-        }
-
-        //CLI Code End
     });
 </script>
 

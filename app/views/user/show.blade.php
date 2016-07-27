@@ -50,7 +50,7 @@
         data_table = $("#table-4").dataTable({
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/users/ajax_datagrid",
+            "sAjaxSource": baseurl + "/users/ajax_datagrid/type",
             "iDisplayLength": {{Config::get('app.pageSize')}},
             "sPaginationType": "bootstrap",
             //"sDom": 'T<"clear">lfrtip',
@@ -58,21 +58,11 @@
             "aaSorting": [[1, 'asc']],
             "aoColumns":
                     [
-                        {"bVisible": false, "bSortable": true, },
-                        {"bSortable": true, },
-                        {"bSortable": true, },
-                        {"bSortable": true, },
-                        {
-                            "bSortable": true, 
-                            mRender: function(id, type, full) {
-                                var action, edit_, show_;
-                                if(id>0){
-                                    action='Admin';
-                                }                                
-                                return action;
-                            }
-                        
-                        },
+                        {"bVisible": false, "bSortable": false },
+                        {"bSortable": true },
+                        {"bSortable": true },
+                        {"bSortable": true },
+                        {"bSortable": true },
                         {
                             "bSortable": true,
                             mRender: function(id, type, full) {
@@ -92,20 +82,20 @@
                     {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/users/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        "sUrl": baseurl + "/users/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/users/exports/csv", //baseurl + "/generate_csv.php",
+                        "sUrl": baseurl + "/users/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
             }
 
         });
-
+        data_table.fnFilter(1, 0);
 
         $('#UserStatus').change(function() {
             if ($(this).is(":checked")) {

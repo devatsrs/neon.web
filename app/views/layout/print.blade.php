@@ -6,7 +6,7 @@
         @if(Session::get('user_site_configrations.FavIcon')!='')<link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">@endif         
          @if(isset($print_type) && $print_type!='')
          <title>{{$print_type}}</title>
-         @endif;
+         @endif
         <style>
         .row{
         margin: 0;padding: 0;
