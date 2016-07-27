@@ -385,18 +385,6 @@ function getPipleLineData(){
                 });
 			
 			////////////////////////////////
-			/*Morris.Bar({
-			  element: 'crmdpipeline1',
-			  data: crmpipelinedata,
-			  xkey: 'User',
-			  ykeys: ['Worth'],
-			  barColors: ['#3399FF', '#333399'],
-			  labels: [''],
-				hoverCallback:function (index, options, content, row) {
-					if(row.CurrencyCode==null){	row.CurrencyCode = '';	} 
-					return '<div class="morris-hover-row-label">'+row.CurrencyCode+row.Worth+'</div>'
-				}
-			});	*/
 			}else
 			{
 				$('.crmdpipeline').html('No Data');
@@ -732,8 +720,7 @@ function GetSalesData(){
 			for(var s=0;s<dataObj.data.length;s++)			
 			{
 	             	 crmdSalesdata[s] =
-					{
-						showInLegend: false, 
+					{					
 					 'name': dataObj.data[s].user,
 					 'data': dataObj.data[s].worth.split(',').map(parseFloat) 
 					 };

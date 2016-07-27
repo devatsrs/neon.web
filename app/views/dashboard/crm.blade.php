@@ -144,7 +144,7 @@
       <div class="panel-heading">
         <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
-          <h3>LeaderShip Chart</h3>
+          <h3>Sales Chart</h3>
           <div class="SalesResultManager"></div>
         </div>
         <div  class="clear clearfix">
