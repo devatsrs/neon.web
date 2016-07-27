@@ -2097,3 +2097,19 @@ background:#AC33FF none repeat scroll 0 0;
 .checkbox-replace.color-purple .cb-wrapper, .radio-replace.color-purple .cb-wrapper{
 border:1px solid #AC33FF;
 }
+.filter .panel-title{
+    padding: 5px 15px;
+}
+.filter .panel-options > a{
+    margin-top:5px;
+}
+.filter .panel-body{
+    padding: 10px;
+}
+.filter .form-group{
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+.filter p{
+    margin-bottom: 0px;
+}

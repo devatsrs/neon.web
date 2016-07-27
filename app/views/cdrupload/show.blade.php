@@ -64,7 +64,7 @@
         <div class="row">
             <div class="col-md-12">
                 <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-                    <div data-collapsed="0" class="panel panel-primary">
+                    <div data-collapsed="0" class="panel panel-primary filter">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Filter
