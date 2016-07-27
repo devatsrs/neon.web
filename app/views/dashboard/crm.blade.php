@@ -123,7 +123,7 @@
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
-                <div class="col-sm-2">
+                <div class="col-sm-2" style="width:180px;">
                   <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="ClosingdateFortcast"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange small-date-input">
                 </div>
                 <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
@@ -137,6 +137,35 @@
       </div>
     </div>
   </div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+    <div class="panel panel-primary panel-table">
+      <div class="panel-heading">
+        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+        <div class="panel-title forecase_title">
+          <h3>LeaderShip Chart</h3>
+          <div class="SalesResultManager"></div>
+        </div>
+        <div  class="clear clearfix">
+          <div class="form_Sales">
+            <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales_Manager">
+              <div class="form-group form-group-border-none">
+                <label for="Closingdate" class="col-sm-2 control-label managerLabel ">Date</label>
+                <div class="col-sm-6">
+                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"  data-format="YYYY-MM-DD"  name="Closingdate" class="small-date-input daterange"> 
+                  <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                </div>
+              </div>
+              <div class="text-center">
+                <div id="crmdSalesManager1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSalesManager1"></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
 </div>
 <div class="row">
   <div class="col-sm-12">
@@ -164,7 +193,7 @@
           <tbody>
           </tbody>
         </table>
-        <div class="loaderopportunites" style="z-index: 1000; border: medium none; margin: 0px; padding: 0px; width: 100%; height: 100%; top: 0px; left: 0px; background-color: rgb(255, 255, 255); cursor: wait; position: absolute; opacity: 0.3;" class="blockUI blockOverlay">
+        <div class="blockUI blockOverlay loaderopportunites" style="z-index: 1000; border: medium none; margin: 0px; padding: 0px; width: 100%; height: 100%; top: 0px; left: 0px; background-color: rgb(255, 255, 255); cursor: wait; position: absolute; opacity: 0.3;">
       </div>
     </div>
   </div>
@@ -247,12 +276,12 @@ var OpportunityClose =  '{{Opportunity::Close}}';
 	.ClosingdateLabel{
 		padding-left:0;
 		padding-right:0;
-		width:14%;
+		width:72px;
 	}
 	.ClosingdateLabel1{
 		padding-left:0;
 		padding-right:0;
-		width:7%;
+		width:72px;
 	}
 	
 	.StatusLabel{
@@ -268,6 +297,11 @@ var OpportunityClose =  '{{Opportunity::Close}}';
 		width:150px;
 	}
 	.white-bg{background:#fff none repeat scroll 0 0 !important; }
+	.managerLabel{
+		padding-left:0;
+		padding-right:0;
+		width:38px;
+	}
 </style>
 @stop
 @section('footer_ext')

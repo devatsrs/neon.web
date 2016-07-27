@@ -7,7 +7,6 @@ class DashboardController extends BaseController {
 
     }
 
-
     public function home() {
 
         if(Company::isBillingLicence(1)){
@@ -191,6 +190,37 @@ class DashboardController extends BaseController {
 		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
 	}
 	
+	public function CrmDashboard2(){ 
+        $companyID 			= 	User::get_companyID();
+        $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$Country 			= 	Country::getCountryDropdownIDList();
+        $account 			= 	Account::getAccountIDList();
+		$currency 			= 	Currency::getCurrencyDropdownIDList();
+		$UserID 			= 	User::get_userID();
+		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		$users			 	= 	User::getUserIDListAll(0);
+		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
+		//$DateEndDefault  	= 	date('m/d/Y');
+		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +6 months'));
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('Y-m-d');
+	    $account_owners 	= 	User::getUserIDList();
+        $boards 			= 	CRMBoard::getBoards();
+		$TaskBoard			= 	CRMBoard::getTaskBoard();
+        $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
+		$CloseStatus		=	Opportunity::Close;
+		$where['Status']=1;
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+		$leadOrAccount 		= 	Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+		  if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
+        }
+        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		 return View::make('dashboard.crm2', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+	}
+	
 	public function GetUsersTasks(){
        $data = Input::all();
         $data['iDisplayStart'] +=1;
@@ -221,6 +251,88 @@ class DashboardController extends BaseController {
 			return $response->data;
 		}
 	}
+	
+	function GetSalesDataManager(){
+		 //crm dashboard
+			
+        $companyID 			= 	User::get_companyID();
+        $userID 			= 	'';
+        $data 				= 	Input::all();		
+		$rules = array(
+            'Closingdate' =>      'required',                 
+        );
+		$message	 = array("Closingdate.required"=> "Close Date field is required.");
+        $validator   = Validator::make($data, $rules,$message);
+		if ($validator->fails()) {
+            return generateResponse($validator->errors(),true);
+        }
+		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):$data['UsersID'];
+		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
+		$array_return 		= 	array();
+		$array_return1 		= 	array();
+		$array_date			=	array();
+		$worth				=	0;
+		$array_dates		=	array();	
+		$array_users		=	array();
+		$array_worth		=	array();				
+		$total_opp			=	0;
+		$array_final 		= 	array("count"=>0,"status"=>"success");
+		$Closingdate		=	explode(' - ',$data['Closingdate']);
+		$StartDate			=   $Closingdate[0]." 00:00:00";
+		$EndDate			=	$Closingdate[1]." 23:59:59";		
+		$query  			= 	"CALL `prc_GetCrmDashboardSalesManager`(".$companyID.",'".$UserID."','".$CurrencyID."','".$StartDate."','".$EndDate."') ";  	
+		
+		$result 			= 	DB::connection('sqlsrv2')->select($query);
+		$TotalWorth			=	0;
+		
+				foreach($result as $result_data){
+			if(!in_array($result_data->AssignedUserText,$array_users)){			
+				$array_users[]   = $result_data->AssignedUserText;
+			}
+			$array_worth[] = $result_data->Revenue;
+		}
+		
+		foreach($result as $result_data){			
+			if(!in_array($result_data->MonthName,$array_dates)){			
+				$array_dates[]   = $result_data->MonthName;
+			}
+		}
+		
+		foreach($result as $result_data){
+			if(isset($array_date[$result_data->MonthName][$result_data->AssignedUserText])){
+				$current_data = $array_date[$result_data->MonthName][$result_data->AssignedUserText];	
+				$array_date[$result_data->MonthName][$result_data->AssignedUserText] 	 = 	$result_dataRevenue+$current_data;
+			}else{
+				$array_date[$result_data->MonthName][$result_data->AssignedUserText] 	 = 	$result_data->Revenue;
+			}			
+			$worth = $worth+$result_data->Revenue;
+		}
+		
+		$array_data = array();
+		
+		foreach($array_users as $array_users_data){
+			foreach($array_dates as $array_dates_data){
+				if(isset($array_date[$array_dates_data][$array_users_data])){
+					$array_data[$array_users_data][] = $array_date[$array_dates_data][$array_users_data];
+				}else{
+					$array_data[$array_users_data][] = 0;
+				}
+			}
+		}
+
+		
+		foreach($array_data as $key => $array_data_loop){
+			$array_return1[] = array("user"=>$key,"worth"=>implode(",",$array_data_loop));			
+		}
+		
+		if(count($array_users)>0){
+			$worth = number_format($worth,$result_data->round_number);
+			$array_final = array("data"=>$array_return1,"dates"=>implode(",",$array_dates),'TotalWorth'=>$worth,"count"=>count($array_users),"CurrencyCode"=>$result_data->v_CurrencyCode_,"worth"=>implode(",",$array_worth),"users"=>implode(",",$array_users),"status"=>"success");
+		}
+		
+		return json_encode($array_final);	
+	}
+	
 	
 	public function GetForecastData(){ //crm dashboard
 		 $data 			= 	 Input::all();			
