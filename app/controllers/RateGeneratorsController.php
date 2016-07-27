@@ -474,17 +474,9 @@ class RateGeneratorsController extends \BaseController {
     public function delete($id) {
         if ($id) {
             if (RateGenerator::find($id)->delete()) {
-                // return Redirect::back()->with('success_message', "RateGenerator Rule Successfully Deleted");
-                return json_encode([
-                    "status" => "success",
-                    "message" => "RateGenerator Rule Successfully Deleted"
-                        ]);
+                return Response::json(array("status" => "success", "message" => "RateGenerator Successfully deleted"));
             } else {
-                return json_encode([
-                    "status" => "failed",
-                    "message" => "Problem Deleting RateGenerator Rule"
-                        ]);
-                // return Redirect::back()->with('error_message', "Problem Deleting RateGenerator Rule.");
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting RateGenerator"));
             }
         }
     }
@@ -596,5 +588,31 @@ class RateGeneratorsController extends \BaseController {
             return View::make('rategenerators.ajax_rate_table_dropdown', compact('rate_table'));
         }
         return '';
+    }
+
+    public function ajax_existing_ratetable_cronjob($id){
+        $companyID = User::get_companyID();
+        $tag = '"rateGeneratorID":"'.$id.'"';
+        $cronJobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->select(['JobTitle','Status','created_by','CronJobID'])->get()->toArray();
+        return View::make('rategenerators.ajax_rategenerator_cronjobs', compact('cronJobs'));
+    }
+
+    public function deleteCronJob($id){
+        $data = Input::all();
+        try{
+            $cronjobs = explode(',',$data['cronjobs']);
+            foreach($cronjobs as $cronjobID){
+                $cronjob = CronJob::find($cronjobID);
+                if($cronjob->Active){
+                    $Process = new Process();
+                    $Process->change_crontab_status(0);
+                }
+                $cronjob->delete();
+            }
+            $table = $this->ajax_existing_ratetable_cronjob($id);
+            return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted","table"=>$table));
+        }catch (Exception $ex){
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
     }
 }
