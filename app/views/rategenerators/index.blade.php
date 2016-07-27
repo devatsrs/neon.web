@@ -171,6 +171,7 @@
                         var id = $(this).attr('data-id');
                         var url = baseurl + '/rategenerators/'+id+'/ajax_existing_ratetable_cronjob';
                         $('#delete-rate-table-form [name="RateGeneratorID"]').val(id);
+                        $('#modal-delete-ratetables .container').html('');
                         $.ajax({
                             url: url,
                             type: 'POST',
