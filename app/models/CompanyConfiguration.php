@@ -13,7 +13,8 @@ class CompanyConfiguration extends \Eloquent {
         $data = Input::all();
         $LicenceKey = getenv('LicenceKey');
         $CompanyName = getenv('CompanyName');
-        $time = empty(getenv('CACHE_EXPIRE'))?60:getenv('CACHE_EXPIRE');
+		$CACHE_EXPIRE = getenv('CACHE_EXPIRE');
+        $time = empty($CACHE_EXPIRE)?60:$CACHE_EXPIRE;
         $minutes = \Carbon\Carbon::now()->addMinutes($time);
         $CompanyConfiguration = 'CompanyConfiguration' . $LicenceKey.$CompanyName;
 
