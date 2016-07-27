@@ -123,7 +123,7 @@
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
-                <div class="col-sm-2">
+                <div class="col-sm-2" style="width:180px;">
                   <input value="{{$DateEndDefault}} - {{$StartDateDefaultforcast}}" type="text" id="ClosingdateFortcast"  data-format="YYYY-MM-DD"  name="Closingdate" class=" daterange small-date-input">
                 </div>
                 <button type="submit" id="submit_Forecast" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
@@ -164,7 +164,7 @@
           <tbody>
           </tbody>
         </table>
-        <div class="loaderopportunites" style="z-index: 1000; border: medium none; margin: 0px; padding: 0px; width: 100%; height: 100%; top: 0px; left: 0px; background-color: rgb(255, 255, 255); cursor: wait; position: absolute; opacity: 0.3;" class="blockUI blockOverlay">
+        <div class="blockUI blockOverlay loaderopportunites" style="z-index: 1000; border: medium none; margin: 0px; padding: 0px; width: 100%; height: 100%; top: 0px; left: 0px; background-color: rgb(255, 255, 255); cursor: wait; position: absolute; opacity: 0.3;">
       </div>
     </div>
   </div>
@@ -249,12 +249,12 @@ var OpportunityClose =  '{{Opportunity::Close}}';
 	.ClosingdateLabel{
 		padding-left:0;
 		padding-right:0;
-		width:14%;
+		width:72px;
 	}
 	.ClosingdateLabel1{
 		padding-left:0;
 		padding-right:0;
-		width:7%;
+		width:72px;
 	}
 	
 	.StatusLabel{
