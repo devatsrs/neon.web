@@ -38,12 +38,8 @@
                     4. Improved Cron Job monitoring.<br>
                     5. Added an option to restart failed jobs and terminate In Progress jobs.<br>
                     6. Added new CRM Dashboard.<br>
-                    7. Added System Allow to create rate table without currency.<br>
-                    8. Fixed issue with cancel invoices, they will be excluded from total now.<br>
-                    9. Reviced Acitivity Reminder Job.<br>
-                    10. Moved Account CLI to Authentication Rule.<br>
-                    11. Added an option to reset and change Authentication Rule.<br>
-                    12. Regenerate invoice will ignore cancel invoices.<br>
+                    7. Fixed issue with cancel invoices, they will be excluded from total now.<br>
+                    8. Regenerate invoice will ignore cancel invoices.<br>
                 </div>
             </li>
         </ul>
