@@ -119,9 +119,9 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
-                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
+                                action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
                                 return action;
                             }
                         },  // 0 Created

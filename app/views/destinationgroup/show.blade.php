@@ -5,10 +5,10 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('destination_group_set')}}">Destination Group Set ({{$name}})</a>
+            <a href="{{URL::to('destination_group_set')}}">Destination Group Set </a>
         </li>
         <li class="active">
-            <strong>Destination Group </strong>
+            <strong>Destination Group ({{$name}})</strong>
         </li>
     </ol>
     <h3>Destination Group</h3>
@@ -51,101 +51,16 @@
     <table id="table-list" class="table table-bordered datatable">
         <thead>
         <tr>
-            <th width="25%">Name</th>
-            <th width="25%">Code</th>
-            <th width="25%">Created By</th>
-            <th width="25%">Created</th>
-            <th width="25%">Action</th>
+            <th width="20%">Name</th>
+            <th width="40%">Code</th>
+            <th width="10%">Created By</th>
+            <th width="10%">Created</th>
+            <th width="20%">Action</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
-    <div class="row hidden" id="modal-list">
-        <div class="col-md-12">
-            <form id="modal-form" method="post">
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-
-                        </div>
-
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-2 control-label">Name:</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" name="Name" value="" />
-                            </div>
-                        </div>
-                        <br>
-                        <br>
-
-
-                        <div class="panel panel-primary" data-collapsed="0">
-
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for=" field-1" class="col-sm-1 control-label">
-                                        Country
-                                    </label>
-                                    <div class="col-sm-2">
-                                        {{Form::select('CountryID', $countries,'',array("class"=>"form-control select2"))}}
-                                    </div>
-                                    <label class="col-sm-1 control-label">Code</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" class="form-control" name="FilterCode">
-                                    </div>
-                                    <label class="col-sm-1 control-label">Description</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" class="form-control" name="FilterDescription">
-                                    </div>
-                                </div>
-                                <p style="text-align: right;">
-                                    <button type="submit" id="search_code" class="btn btn-primary btn-sm btn-icon icon-left" style="visibility: visible;">
-                                        <i class="entypo-search"></i>
-                                        Search
-                                    </button>
-                                </p>
-                                <div>
-                                    <table id="table-extra" class="table table-bordered datatable">
-                                        <thead>
-                                        <th width="10%">
-                                            <div class="checkbox">
-                                                <input type="checkbox" name="RateID[]" class="selectall" id="selectall">
-                                            </div>
-                                        </th>
-                                        <th width="45%">Code</th>
-                                        <th width="45%">Description</th>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <input type="hidden" name="DestinationGroupID" >
-                        <input type="hidden" name="DestinationGroupSetID" value="{{$DestinationGroupSetID}}">
-                        <p style="text-align: right;">
-
-                            <button  type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                <i class="entypo-floppy"></i>
-                                Save
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <style>
-    #selectcodecheckbox{
-    padding: 15px 10px;
-    }
-    </style>
     <script type="text/javascript">
         /**
          * JQuery Plugin for dataTable
@@ -154,11 +69,10 @@
         var update_new_url;
         var postdata;
         var add_url = baseurl + "/destination_group/store";
-        var edit_url = baseurl + "/destination_group/update/{id}";
+        var edit_url = baseurl + "/destination_group/update_name/{id}";
         var view_url = baseurl + "/destination_group/show/{id}";
         var delete_url = baseurl + "/destination_group/delete/{id}";
         var datagrid_url = baseurl + "/destination_group/ajax_datagrid";
-        var datagrid_extra_url = baseurl + "/destination_group_code/ajax_datagrid";
         var checked='';
 
         jQuery(document).ready(function ($) {
@@ -206,8 +120,9 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
+                                action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
                                 return action;
                             }
                         },  // 0 Created
@@ -243,16 +158,10 @@
                 $('#modal-form').trigger("reset");
                 $('#modal-list .panel-title').html('Add Destination Group');
                 $("#modal-form [name=DestinationGroupID]").val("");
-
+                $("#modal-form [name=DestinationGroupSetID]").val("{{$DestinationGroupSetID}}");
                 $('#modal-form').attr("action",add_url);
-                $('#modal-list').show();
-                $('#modal-list').removeClass('hidden');
-                code_table(datagrid_extra_url);
-            });
+                $('#modal-list').modal('show');
 
-            $('#search_code').click(function(ev){
-                ev.preventDefault();
-                code_table(datagrid_extra_url,$("#modal-form [name=DestinationGroupID]").val(),$("[name=FilterCode]").val(),$("[name=FilterDescription]").val(),$("[name=CountryID]").val());
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
                 ev.preventDefault();
@@ -265,10 +174,7 @@
                     $("#modal-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
 
                 }
-                $('#modal-list').show();
-                $('#modal-list').removeClass('hidden');
-
-                code_table(datagrid_extra_url,$("#modal-form [name=DestinationGroupID]").val());
+                $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.delete-button', function (ev) {
                 ev.preventDefault();
@@ -285,126 +191,44 @@
                 var _url  = $(this).attr("action");
                 submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
             });
-            $("#selectall").click(function(ev) {
-                var is_checked = $(this).is(':checked');
-                $('#table-extra tbody tr').each(function(i, el) {
-                    if (is_checked) {
-                        $(this).find('.rowcheckbox').prop("checked", true);
-                        $(this).addClass('selected');
-                    } else {
-                        $(this).find('.rowcheckbox').prop("checked", false);
-                        $(this).removeClass('selected');
-                    }
-                });
-            });
-            //select all records
-            $('#table-extra tbody').on('click', 'tr', function() {
-                if (checked =='') {
-                    $(this).toggleClass('selected');
-                    if ($(this).hasClass('selected')) {
-                        $(this).find('.rowcheckbox').prop("checked", true);
-                    } else {
-                        $(this).find('.rowcheckbox').prop("checked", false);
-                    }
-                }
-            });
-
-
 
         });
-        function code_table(datagrid_extra_url,DestinationGroupID,Code,Description,CountryID){
-            data_table_extra = $("#table-extra").dataTable({
-                "bDestroy": true, // Destroy when resubmit form
-                "bProcessing":true,
-                "bServerSide": true,
-                "iDisplayLength": '10',
-                "fnServerParams": function(aoData) {
-                    aoData.push(
-                            {"name": "DestinationGroupSetID", "value": '{{$DestinationGroupSetID}}'},
-                            {"name": "DestinationGroupID", "value":DestinationGroupID},
-                            {"name": "Code", "value":Code},
-                            {"name": "Description", "value":Description},
-                            {"name": "CountryID", "value":CountryID}
-
-                    );
-                },
-                "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcodecheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "sAjaxSource": datagrid_extra_url,
-                "oTableTools": {
-                    "aButtons": [
-
-                    ]
-                },
-                "aoColumns": [
-                    {"bSearchable":false,"bSortable": false, //RateID
-                        mRender: function(id, type, full) {
-                            if(full[3] > 0) {
-                                return '<div class="checkbox "><input checked type="checkbox" name="RateID[]" value="' + id + '" class="rowcheckbox" ></div>';
-                            }else{
-                                return '<div class="checkbox "><input type="checkbox" name="RateID[]" value="' + id + '" class="rowcheckbox" ></div>';
-                            }
-                        }
-                    },
-                    {  "bSearchable":true,"bSortable": false },  // 0 Code
-                    {  "bSearchable":true,"bSortable": false },  // 0 description
-                ],
-
-                "fnDrawCallback": function() {
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
-                    });
-                    add_selected();
-
-                    $('#table-extra tbody tr').each(function(i, el) {
-
-                        if (checked!='') {
-                            $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                            $(this).addClass('selected');
-                            $('#selectallbutton').prop("checked", true);
-                        } else if(!$(this).hasClass('donotremove')){
-                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);;
-                            $(this).removeClass('selected');
-                        }
-                    });
-
-                    $('#selectallbutton').click(function(ev) {
-                        if($(this).is(':checked')){
-                            checked = 'checked=checked disabled';
-                            $("#selectall").prop("checked", true).prop('disabled', true);
-                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
-                                $('#table-extra tbody tr').each(function(i, el) {
-                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                    $(this).addClass('selected');
-                                });
-                            }
-                        }else{
-                            checked = '';
-                            $("#selectall").prop("checked", false).prop('disabled', false);
-                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
-                                $('#table-extra tbody tr').each(function(i, el) {
-                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                    $(this).removeClass('selected');
-                                });
-                            }
-                        }
-                    });
-                }
-
-            });
-            $("#selectcodecheckbox").append('<input type="checkbox" id="selectallbutton" name="selectallcodes[]" class="" title="Select All Found Records" />');
-        }
-        function add_selected(){
-            $('#table-extra tbody tr').each(function(i, el) {
-                if ($(this).find('.rowcheckbox').prop("checked")) {
-                    $(this).addClass('selected donotremove');
-                } else {
-                    $(this).removeClass('selected');
-                }
-            });
-        }
-
     </script>
 
 
+@stop
+@section('footer_ext')
+    @parent
+    <div class="modal fade in" id="modal-list">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="modal-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add Destination Group</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Destination Group Name</label>
+                                <input type="text" name="Name" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="DestinationGroupID">
+                    <input type="hidden" name="DestinationGroupSetID">
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop

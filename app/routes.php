@@ -898,6 +898,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
 	Route::any('/destination_group/store','DestinationGroupController@group_store');
 	Route::any('/destination_group/update/{id}','DestinationGroupController@group_update');
+	Route::any('/destination_group/update_name/{id}','DestinationGroupController@update_name');
 	Route::any('/destination_group/delete/{id}','DestinationGroupController@group_delete');
 	Route::any('/destination_group/show/{id}','DestinationGroupController@group_show');
 	Route::any('/destination_group_code/ajax_datagrid','DestinationGroupController@code_ajax_datagrid');

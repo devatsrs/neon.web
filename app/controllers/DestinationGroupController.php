@@ -37,10 +37,17 @@ class DestinationGroupController extends \BaseController {
         return json_response_api($response);
     }
     public function show($id) {
-        $countries  = Country::getCountryDropdownIDList();
         $DestinationGroupSetID = $id;
         $name = DestinationGroupSet::getName($id);
         return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name'));
+    }
+    public function group_show($id) {
+        $countries  = Country::getCountryDropdownIDList();
+        $DestinationGroupID = $id;
+        $DestinationGroupSetID = DestinationGroup::where("DestinationGroupID",$DestinationGroupID)->pluck('DestinationGroupSetID');
+        $groupname = DestinationGroupSet::getName($DestinationGroupSetID);
+        $name = DestinationGroup::getName($id);
+        return View::make('destinationgroup.groupshow', compact('DestinationGroupSetID','DestinationGroupID','countries','name','groupname'));
     }
 
     public function group_ajax_datagrid(){
@@ -101,6 +108,11 @@ class DestinationGroupController extends \BaseController {
             $postdata['Description'] = $postdata['FilterDescription'];
         }
         $response =  NeonAPI::request('destinationgroup/update/'.$id,$postdata,'put',false,false);
+        return json_response_api($response);
+    }
+    public function update_name($id){
+        $postdata = Input::all();
+        $response =  NeonAPI::request('destinationgroup/update_name/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
     }
 }
