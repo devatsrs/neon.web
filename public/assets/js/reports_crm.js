@@ -389,7 +389,12 @@ function getPipleLineData(){
 			{
 				$('.crmdpipeline').html('No Data');
 			}
-			$('.PipeLineResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
+				var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.PipeLineResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
            }else{
                 $('.crmdpipeline').html('No Data');
             }
@@ -579,7 +584,12 @@ function GetForecastData(){
                     series: crmdForecastdata
                 });
 			
-			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
+					var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.ForecastResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdForecast').html('<br><h4>No Data</h4>');
 					$('.ForecastResult').html('');
@@ -681,8 +691,12 @@ function GetSalesData(){
 					
                     series: crmdSalesdata
                 });
-			
-			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
+				var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.SalesResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdSales').html('<br><h4>No Data</h4>');
 					$('.SalesResult').html('');
@@ -780,8 +794,14 @@ function GetSalesData(){
 					
                     series: crmdSalesdata
                 });
+				
+					var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
 			
-	$('.SalesResultManager').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales</div>");
+	$('.SalesResultManager').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Sales</div>");
 	           	}else{
                 	$('.crmdSalesManager1').html('<br><h4>No Data</h4>');
 					$('.SalesResultManager').html('');
