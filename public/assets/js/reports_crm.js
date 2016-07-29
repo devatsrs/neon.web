@@ -389,7 +389,12 @@ function getPipleLineData(){
 			{
 				$('.crmdpipeline').html('No Data');
 			}
-			$('.PipeLineResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
+				var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.PipeLineResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
            }else{
                 $('.crmdpipeline').html('No Data');
             }
@@ -781,8 +786,14 @@ function GetSalesData(){
 					
                     series: crmdSalesdata
                 });
+				
+					var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
 			
-	$('.SalesResultManager').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales</div>");
+	$('.SalesResultManager').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Sales</div>");
 	           	}else{
                 	$('.crmdSalesManager1').html('<br><h4>No Data</h4>');
 					$('.SalesResultManager').html('');
