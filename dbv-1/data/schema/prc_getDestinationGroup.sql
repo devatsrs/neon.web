@@ -15,13 +15,13 @@ BEGIN
 			dg.DestinationGroupID,
 			dg.DestinationGroupSetID
 		FROM tblDestinationGroup dg
-		INNER JOIN tblDestinationGroupCode dgc
+		LEFT JOIN tblDestinationGroupCode dgc
 		ON dg.DestinationGroupID =  dgc.DestinationGroupID
-		INNER JOIN tblRate r 
+		LEFT JOIN tblRate r 
 			ON r.RateID = dgc.RateID
 		WHERE dg.DestinationGroupSetID = p_DestinationGroupSetID
 			AND (p_Name ='' OR dg.Name like  CONCAT('%',p_Name,'%'))
-		GROUP BY dgc.DestinationGroupID
+		GROUP BY dg.DestinationGroupID
 		ORDER BY
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN dg.Name
@@ -44,11 +44,11 @@ BEGIN
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
-			COUNT(dg.DestinationGroupID) AS totalcount
+			COUNT(DISTINCT dg.DestinationGroupID) AS totalcount
 		FROM tblDestinationGroup dg
-		INNER JOIN tblDestinationGroupCode dgc
+		LEFT JOIN tblDestinationGroupCode dgc
 		ON dg.DestinationGroupID =  dgc.DestinationGroupID
-		INNER JOIN tblRate r 
+		LEFT JOIN tblRate r 
 			ON r.RateID = dgc.RateID
 		WHERE dg.DestinationGroupSetID = p_DestinationGroupSetID
 			AND (p_Name ='' OR dg.Name like  CONCAT('%',p_Name,'%'));
@@ -63,13 +63,13 @@ BEGIN
 			dg.CreatedBy,
 			dg.created_at
 		FROM tblDestinationGroup dg
-		INNER JOIN tblDestinationGroupCode dgc
+		LEFT JOIN tblDestinationGroupCode dgc
 			ON dg.DestinationGroupID =  dgc.DestinationGroupID
-		INNER JOIN tblRate r 
+		LEFT JOIN tblRate r 
 			ON r.RateID = dgc.RateID
 		WHERE dg.DestinationGroupSetID = p_DestinationGroupSetID
 			AND (p_Name ='' OR dg.Name like  CONCAT('%',p_Name,'%'))
-		GROUP BY dgc.DestinationGroupID;
+		GROUP BY dg.DestinationGroupID;
 
 	END IF;
 

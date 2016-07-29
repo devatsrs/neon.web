@@ -39,7 +39,8 @@ class DestinationGroupController extends \BaseController {
     public function show($id) {
         $DestinationGroupSetID = $id;
         $name = DestinationGroupSet::getName($id);
-        return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name'));
+        $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$id,0);
+        return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name','discountplanapplied'));
     }
     public function group_show($id) {
         $countries  = Country::getCountryDropdownIDList();

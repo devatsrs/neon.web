@@ -1,7 +1,6 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_applyAccountDiscountPlan`(IN `p_AccountID` INT, IN `p_tbltempusagedetail_name` VARCHAR(200), IN `p_processId` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_applyAccountDiscountPlan`(IN `p_AccountID` INT, IN `p_tbltempusagedetail_name` VARCHAR(200), IN `p_processId` INT, IN `p_inbound` INT)
 BEGIN
 	
-	DECLARE v_MinutesRemaining_ INT;
 	DECLARE v_DiscountPlanID_ INT;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -15,11 +14,23 @@ BEGIN
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_discountsecons_;
 	CREATE TEMPORARY TABLE tmp_discountsecons_ (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		TempUsageDetailID INT,
-		TotalMinutes INT,
+		TotalSecond INT,
 		DiscountID INT,
-		MinutesRemaining INT,
-		Discount INT
+		RemainingSecond INT,
+		Discount INT,
+		ThresholdReached INT DEFAULT 0
+	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_discountsecons2_;
+	CREATE TEMPORARY TABLE tmp_discountsecons2_ (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		TempUsageDetailID INT,
+		TotalSecond INT,
+		DiscountID INT,
+		RemainingSecond INT,
+		Discount INT,
+		ThresholdReached INT DEFAULT 0
 	);
 	
 	/* get discount plan id*/
@@ -39,15 +50,15 @@ BEGIN
 	
 	/* get minutes total in cdr table by disconnect time*/
 	SET @stm = CONCAT('
-	INSERT INTO tmp_discountsecons_ (TempUsageDetailID,TotalMinutes,DiscountID)
+	INSERT INTO tmp_discountsecons_ (TempUsageDetailID,TotalSecond,DiscountID)
 	SELECT 
 		d.TempUsageDetailID,
-		@t := IF(@pre_DiscountID = d.DiscountID, @t + TotalMinutes,TotalMinutes) as TotalMinutes,
+		@t := IF(@pre_DiscountID = d.DiscountID, @t + TotalSecond,TotalSecond) as TotalSecond,
 		@pre_DiscountID := d.DiscountID
 	FROM
 	(
 		SELECT 
-			CEIL(billed_duration/60) as TotalMinutes,
+			billed_duration as TotalSecond,
 			TempUsageDetailID,
 			area_prefix,
 			DiscountID,
@@ -55,7 +66,7 @@ BEGIN
 		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
 		INNER JOIN tmp_codes_ c
 			ON ud.ProcessID = ' , p_processId , '
-			AND ud.is_inbound = 0 
+			AND ud.is_inbound = ',p_inbound,' 
 			AND ud.AccountID = ' , p_AccountID , '
 			AND area_prefix =  c.Code 
 		ORDER BY c.DiscountID asc , disconnect_time asc
@@ -75,10 +86,13 @@ BEGIN
 	INNER JOIN tblAccountDiscountScheme adc 
 		ON adc.AccountDiscountPlanID =  adp.AccountDiscountPlanID 
 		AND adc.DiscountID = d.DiscountID
-	SET d.MinutesRemaining = (adc.Threshold - adc.MinutesUsed),d.Discount=adc.Discount;
+	SET d.RemainingSecond = (adc.Threshold - adc.SecondsUsed),d.Discount=adc.Discount;
 	
 	/* remove call which cross the threshold */
-	DELETE FROM tmp_discountsecons_ WHERE TotalMinutes > MinutesRemaining;
+	UPDATE  tmp_discountsecons_ SET ThresholdReached=1   WHERE TotalSecond > RemainingSecond;
+	
+	INSERT INTO tmp_discountsecons2_
+	SELECT * FROM tmp_discountsecons_;
 	
 	/* update call cost which are under threshold */
 	SET @stm = CONCAT('
@@ -97,15 +111,38 @@ BEGIN
 		ON adc.AccountDiscountPlanID =  adp.AccountDiscountPlanID 
 	INNER JOIN(
 		SELECT 
-			MAX(TotalMinutes) as MinutesUsed,
+			MAX(TotalSecond) as SecondsUsed,
 			DiscountID 
 		FROM tmp_discountsecons_
+		WHERE ThresholdReached = 0
 		GROUP BY DiscountID
 	)d 
 	ON adc.DiscountID = d.DiscountID
-	SET adc.MinutesUsed = adc.MinutesUsed+d.MinutesUsed
+	SET adc.SecondsUsed = adc.SecondsUsed+d.SecondsUsed
 	WHERE adp.AccountID = p_AccountID;
+	
 
+	/* update call cost which reach threshold and update seconds also*/
+	SET @stm =CONCAT('
+	UPDATE tmp_discountsecons_ d
+	INNER JOIN( 
+		SELECT MIN(RowID) as RowID  FROM tmp_discountsecons2_ WHERE ThresholdReached = 1
+	GROUP BY DiscountID
+	) tbl ON tbl.RowID = d.RowID
+	INNER JOIN NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
+		ON ud.TempUsageDetailID = d.TempUsageDetailID
+	INNER JOIN tblAccountDiscountPlan adp 
+	 		ON adp.AccountID = ',p_AccountID,'
+	INNER JOIN tblAccountDiscountScheme adc 
+			ON adc.AccountDiscountPlanID =  adp.AccountDiscountPlanID 
+			AND adc.DiscountID = d.DiscountID
+	SET ud.cost = cost*(TotalSecond - RemainingSecond)/billed_duration,adc.SecondsUsed = adc.SecondsUsed + billed_duration - (TotalSecond - RemainingSecond);
+	');
+	
+	PREPARE stmt FROM @stm;
+ 	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END

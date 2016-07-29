@@ -46,6 +46,8 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
+            <th width="15%">DestinationGroupSet</th>
+            <th width="15%">Currency</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -64,7 +66,7 @@
         var DestinationGroupID;
 
         jQuery(document).ready(function ($) {
-            var list_fields  = ["Name","UpdatedBy","updated_at","DiscountPlanID","DestinationGroupSetID","CurrencyID","Description"];
+            var list_fields  = ["Name","DestinationGroupSet","Currency","UpdatedBy","updated_at","DiscountPlanID","DestinationGroupSetID","CurrencyID","Description","Applied"];
             //public_vars.$body = $("body");
             var $search = {};
             var add_url = baseurl + "/discount_plan/store";
@@ -103,6 +105,8 @@
                     },
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
+                        {  "bSortable": true },  // 0 Name
+                        {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 2 UpdatedBy
                         {  "bSortable": true },  // 2 updated_at
                         {  "bSortable": false,
@@ -114,7 +118,9 @@
                                 action += '</div>';
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" class="btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View</a>'
-                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                if(full[9]== null) {
+                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                }
                                 return action;
                             }
                         },  // 0 Created
@@ -152,6 +158,7 @@
                 $("#modal-form [name=CurrencyID]").select2().select2('val',"");
 
                 $('#modal-form').attr("action",add_url);
+                $('#modal-list .non-editable').show();
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
@@ -169,6 +176,7 @@
                         $("#modal-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
                 }
+                $('#modal-list .non-editable').hide();
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.delete-button', function (ev) {
@@ -217,14 +225,14 @@
                                 <input type="text" name="Description" class="form-control" value="" />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 non-editable">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Destination Group Set*</label>
                                 {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
 
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 non-editable">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Currency*</label>
                                 {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2"))}}

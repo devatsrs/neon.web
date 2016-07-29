@@ -4,23 +4,29 @@
         $('#minutes_report').click(function(e){
             e.preventDefault();
             $('#minutes_report').button('loading');
-			var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';
-            $.ajax({
-                url: update_new_url,  //Server script to process data
-                type: 'POST',
-                dataType: 'html',
-                success: function (response) {
-                    $('#minutes_report').button('reset');
-                    $('#minutes_report-modal').modal('show');
-                    $('#used_minutes_report').html(response);
-                },
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        });        
+            getreport("{{AccountDiscountPlan::OUTBOUND}}")
+        });
+        $('#inbound_minutes_report').click(function(e){
+            e.preventDefault();
+            $('#inbound_minutes_report').button('loading');
+            getreport("{{AccountDiscountPlan::INBOUND}}")
+        });
     });
+    function getreport(Type){
+        var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';
+        $.ajax({
+            url: update_new_url,  //Server script to process data
+            type: 'POST',
+            data:'Type='+Type,
+            dataType: 'html',
+            success: function (response) {
+                $('#minutes_report').button('reset');
+                $('#inbound_minutes_report').button('reset');
+                $('#minutes_report-modal').modal('show');
+                $('#used_minutes_report').html(response);
+            }
+        });
+    }
 </script>
 
 @section('footer_ext')@parent

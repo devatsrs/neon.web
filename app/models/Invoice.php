@@ -111,8 +111,11 @@ class Invoice extends \Eloquent {
                     $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
 
                     $newDate = strtotime($year . '-' . $month . '-' . $day);
-
-                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate ));
+                    if($day<=date("d",  $BillingStartDate)) {
+                        $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate));
+                    }else{
+                        $NextInvoiceDate = date("Y-m-d",$newDate);
+                    }
 
                     break;
                 case 'fortnightly':

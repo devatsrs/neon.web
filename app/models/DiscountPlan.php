@@ -26,5 +26,12 @@ class DiscountPlan extends \Eloquent
     public static function getName($DiscountPlanID){
         return DiscountPlan::where("DiscountPlanID",$DiscountPlanID)->pluck('Name');
     }
+    public static function isDiscountPlanApplied($Action,$DestinationGroupID,$DiscountPlanID){
+        $DiscountPlan  = DB::select('call prc_isDiscountPlanApplied(?,?,?)',array($Action,$DestinationGroupID,$DiscountPlanID));
+        if(count($DiscountPlan)){
+            return 1;
+        }
+        return 0;
+    }
 
 }

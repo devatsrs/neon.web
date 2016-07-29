@@ -9,34 +9,42 @@ BEGIN
 	THEN
 		SELECT   
 			dp.Name,
+			dgs.Name as DestinationGroupSet,
+			c.Code as Currency,
 			dp.UpdatedBy,
 			dp.updated_at,
 			dp.DiscountPlanID,
 			dp.DestinationGroupSetID,
 			dp.CurrencyID,
-			dp.Description
-
+			dp.Description,
+			adp.DiscountPlanID as Applied
 		FROM tblDiscountPlan dp
+		INNER JOIN tblDestinationGroupSet dgs
+			ON dgs.DestinationGroupSetID = dp.DestinationGroupSetID
+		INNER JOIN tblCurrency c
+			ON c.CurrencyId = dp.CurrencyID
+		LEFT JOIN tblAccountDiscountPlan adp
+			ON adp.DiscountPlanID = dp.DiscountPlanID
 		WHERE dp.CompanyID = p_CompanyID
 			AND (p_Name ='' OR dp.Name like  CONCAT('%',p_Name,'%'))
 		ORDER BY
 			CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN Name
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN dp.Name
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN Name
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN dp.Name
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByDESC') THEN CreatedBy
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByDESC') THEN dp.CreatedBy
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByASC') THEN CreatedBy
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByASC') THEN dp.CreatedBy
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN created_at
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN dp.created_at
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN created_at
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN dp.created_at
 			END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 

@@ -503,19 +503,11 @@
                                     {{$BillingStartDate}}
                                 @endif
                         </div>
-                     <label for="field-1" class="col-sm-2 control-label">
-                         <button id="minutes_report" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                             <i class="fa fa-eye"></i>View Detail
-                         </button>
-                         Discount Plan
-                     </label>
-                     <div class="col-sm-4">
 
-                         {{Form::select('DiscountPlanID',$DiscountPlan, $DiscountPlanID,array('class'=>'form-control select2'))}}
-                     </div>
                 </div>
             </div>
         </div>
+        @include('accountdiscountplan.index')
         @include('accountsubscription.index')
         @include('accountoneoffcharge.index')
         <div class="panel panel-primary" data-collapsed="0">

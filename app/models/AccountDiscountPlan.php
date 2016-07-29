@@ -8,6 +8,9 @@ class AccountDiscountPlan extends \Eloquent
 
     protected $primaryKey = "AccountDiscountPlanID";
 
+    const OUTBOUND = 1;
+    const INBOUND = 2;
+
 
     public static function checkForeignKeyById($id) {
 
@@ -16,14 +19,14 @@ class AccountDiscountPlan extends \Eloquent
         return true;
     }
 
-    public static function addUpdateDiscountPlan($AccountID,$DiscountPlanID){
-        if( AccountDiscountPlan::where(["AccountID"=> $AccountID])->count() == 0){
-            DB::select('call prc_setAccountDiscountPlan(?,?,?)',array($AccountID,$DiscountPlanID,User::get_user_full_name()));
+    public static function addUpdateDiscountPlan($AccountID,$DiscountPlanID,$Type,$billdays){
+        if( AccountDiscountPlan::where(["AccountID"=> $AccountID,'Type'=>$Type])->pluck('DiscountPlanID') != $DiscountPlanID){
+            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,User::get_user_full_name()));
         }
     }
-    public static function getDiscountPlan($AccountID){
+    public static function getDiscountPlan($AccountID,$Type){
 
-        return DB::select('call prc_getAccountDiscountPlan(?)',array($AccountID));
+        return DB::select('call prc_getAccountDiscountPlan(?,?)',array($AccountID,intval($Type)));
 
     }
 

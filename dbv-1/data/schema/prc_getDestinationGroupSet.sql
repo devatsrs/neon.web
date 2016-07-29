@@ -14,9 +14,15 @@ BEGIN
 			dgs.created_at,
 			dgs.DestinationGroupSetID,
 			dgs.CodedeckID,
-			dgs.CompanyID
+			dgs.CompanyID,
+			adp.DiscountPlanID as Applied
 		FROM tblDestinationGroupSet dgs
-		INNER JOIN tblCodeDeck cd ON cd.CodeDeckId = dgs.CodedeckID
+		INNER JOIN tblCodeDeck cd 
+			ON cd.CodeDeckId = dgs.CodedeckID
+		LEFT JOIN tblDiscountPlan dp
+			ON dp.DestinationGroupSetID = dgs.DestinationGroupSetID
+		LEFT JOIN tblAccountDiscountPlan adp
+			ON adp.DiscountPlanID = dp.DiscountPlanID
 		WHERE dgs.CompanyID = p_CompanyID
 			AND (p_Name ='' OR dgs.Name like  CONCAT('%',p_Name,'%'))
 			AND (p_CodedeckID = 0 OR dgs.CodedeckID = p_CodedeckID)
@@ -44,7 +50,8 @@ BEGIN
 		SELECT
 			COUNT(dgs.DestinationGroupSetID) AS totalcount
 		FROM tblDestinationGroupSet dgs
-		INNER JOIN tblCodeDeck cd ON cd.CodeDeckId = dgs.CodedeckID
+		INNER JOIN tblCodeDeck cd 
+			ON cd.CodeDeckId = dgs.CodedeckID
 		WHERE dgs.CompanyID = p_CompanyID
 			AND (p_Name ='' OR dgs.Name like  CONCAT('%',p_Name,'%'))
 			AND (p_CodedeckID = 0 OR dgs.CodedeckID = p_CodedeckID);
@@ -58,7 +65,8 @@ BEGIN
 			dgs.CreatedBy,
 			dgs.created_at
 		FROM tblDestinationGroupSet dgs
-		INNER JOIN tblCodeDeck cd ON cd.CodeDeckId = dgs.CodedeckID
+		INNER JOIN tblCodeDeck cd 
+			ON cd.CodeDeckId = dgs.CodedeckID
 		WHERE dgs.CompanyID = p_CompanyID
 			AND (p_Name ='' OR dgs.Name like  CONCAT('%',p_Name,'%'))
 			AND (p_CodedeckID = 0 OR dgs.CodedeckID = p_CodedeckID);

@@ -9,7 +9,7 @@ BEGIN
 	THEN
 		SELECT   
 			dg.Name,
-			ds.Threshold,
+			ROUND(ds.Threshold/60,0) as Threshold,
 			ds.Discount,
 			IF(ds.Unlimited =1 ,'Unlimited','') as UnlimitedText,
 			dp.UpdatedBy,
@@ -20,10 +20,11 @@ BEGIN
 			ds.DiscountSchemeID,
 			dp.Service,
 			ds.Unlimited
-
 		FROM tblDiscount dp
-		INNER JOIN tblDestinationGroup dg ON dg.DestinationGroupID = dp.DestinationGroupID
-		INNER JOIN tblDiscountScheme ds ON ds.DiscountID = dp.DiscountID
+		INNER JOIN tblDestinationGroup dg 
+			ON dg.DestinationGroupID = dp.DestinationGroupID
+		INNER JOIN tblDiscountScheme ds 
+			ON ds.DiscountID = dp.DiscountID
 		WHERE dp.DiscountPlanID = p_DiscountPlanID
 			AND (p_Name ='' OR dg.Name like  CONCAT('%',p_Name,'%'))
 		ORDER BY

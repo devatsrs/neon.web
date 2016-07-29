@@ -5,10 +5,10 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('discount_plan')}}">Discount Plan ({{$name}})</a>
+            <a href="{{URL::to('discount_plan')}}">Discount Plan </a>
         </li>
         <li class="active">
-            <strong>Discount</strong>
+            <strong>Discount ({{$name}})</strong>
         </li>
     </ol>
     <h3>Discount</h3>
@@ -16,7 +16,13 @@
     @include('includes.errors')
     @include('includes.success')
     <p style="text-align: right;">
+        @if($discountplanapplied == 0)
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount</a>
+        @endif
+        <a href="{{URL::to('/discount_plan')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+            <i class="entypo-cancel"></i>
+            Close
+        </a>
     </p>
 
     <div id="table_filter" method="get" action="#" >
@@ -120,8 +126,10 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
+                                @if($discountplanapplied == 0)
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
                                 action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                @endif
                                 return action;
                             }
                         },  // 0 Created

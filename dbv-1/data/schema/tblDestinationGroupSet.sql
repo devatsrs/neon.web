@@ -7,5 +7,6 @@ CREATE TABLE `tblDestinationGroupSet` (
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`DestinationGroupSetID`),
-  UNIQUE KEY `GroupName` (`CompanyID`,`Name`)
+  UNIQUE KEY `GroupName` (`CompanyID`,`Name`),
+  KEY `IX_CodedeckID` (`CodedeckID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

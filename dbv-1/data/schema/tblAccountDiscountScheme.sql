@@ -5,7 +5,7 @@ CREATE TABLE `tblAccountDiscountScheme` (
   `Threshold` int(11) NOT NULL,
   `Discount` int(11) NOT NULL,
   `Unlimited` tinyint(1) NOT NULL DEFAULT '0',
-  `MinutesUsed` int(11) DEFAULT NULL,
+  `SecondsUsed` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`AccountDiscountSchemeID`),
   KEY `FK_tblAccountDiscountScheme_tblAccountDiscountPlan` (`AccountDiscountPlanID`),
   KEY `FK_tblAccountDiscountScheme_tblDiscount` (`DiscountID`),

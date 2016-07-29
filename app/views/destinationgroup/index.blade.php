@@ -121,7 +121,9 @@
                                 action += '</div>';
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
-                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
+                                if(full[7]== null) {
+                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
+                                }
                                 return action;
                             }
                         },  // 0 Created
@@ -158,6 +160,7 @@
                 $("#modal-form [name=CodedeckID]").select2().select2('val',"");
 
                 $('#modal-form').attr("action",add_url);
+                $('#modal-list .non-editable').show();
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
@@ -173,6 +176,7 @@
                         $("#modal-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
                 }
+                $('#modal-list .non-editable').hide();
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.delete-button', function (ev) {
@@ -209,7 +213,7 @@
                         <h4 class="modal-title">Add Destination Group Set</h4>
                     </div>
                     <div class="modal-body">
-                        <div class="col-md-12">
+                        <div class="col-md-12 non-editable">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Codedeck</label>
                                 {{ Form::select('CodedeckID', $CodedeckList , '' , array("class"=>"select2")) }}
