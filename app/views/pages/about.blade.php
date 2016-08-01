@@ -13,13 +13,38 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.04</h1>
+    <h1>NEON - 4.05</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.04</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.05</strong></div>
 </p>
+</div>
+
+<h2>
+    <span class="label label-success">4.05</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>27-07-2016</h4>
+                    1. Added an option to bulk edit Rate Table.<br>
+                    2. Status of paid and partially paid invoices won't be changed to send when click on Send.<br>
+                    3. Added credit control option against account.<br>
+                    4. Improved Cron Job monitoring.<br>
+                    5. Added an option to restart failed jobs and terminate In Progress jobs.<br>
+                    6. Added new CRM Dashboard.<br>
+                    7. Fixed issue with cancel invoices, they will be excluded from total now.<br>
+                    8. Regenerate invoice will ignore cancel invoices.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 

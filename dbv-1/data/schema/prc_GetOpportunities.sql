@@ -1,5 +1,4 @@
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetOpportunities`(
 	IN `p_CompanyID` INT,
 	IN `p_BoardID` INT,
 	IN `p_OpportunityName` VARCHAR(50),
@@ -14,8 +13,9 @@ BEGIN
 		
 	DECLARE v_WorthTotal DECIMAL(18,8);
 	DECLARE v_Round_ int;
-	
+	DECLARE v_CurrencyCode_ VARCHAR(50);
 	SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;	
+	SELECT cr.Symbol INTO v_CurrencyCode_ from tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 		
  DROP TEMPORARY TABLE IF EXISTS tmp_Oppertunites_;
 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
@@ -77,7 +77,7 @@ SELECT
  	   o.OpportunityClosed,
  	   Date(o.ClosingDate) as ClosingDate,
  	   Date(o.ExpectedClosing) as ExpectedClosing,
-		Time(o.ExpectedClosing) as StartTime
+		Time(o.ExpectedClosing) as StartTime		
 FROM tblCRMBoards b
 INNER JOIN tblCRMBoardColumn bc on bc.BoardID = b.BoardID
 			AND b.BoardID = p_BoardID
@@ -100,9 +100,10 @@ ORDER BY bc.`Order`,o.`Order`;
 
 SELECT sum(Worth) as TotalWorth INTO v_WorthTotal from tmp_Oppertunites_;
 
+
  SELECT		*,	           
-			ROUND(v_WorthTotal,v_Round_) as WorthTotal
+			ROUND(IFNULL(v_WorthTotal,0.00),v_Round_) as WorthTotal,
+			v_CurrencyCode_ as CurrencyCode			
         FROM tmp_Oppertunites_ ;
 
-END//
-DELIMITER ;
+END

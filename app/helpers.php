@@ -126,6 +126,11 @@ function customer_dropbox($id=0,$data=array()){
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function opportunites_dropbox($id=0,$data=array()){
+    $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
+    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 
 function sendMail($view,$data){
     $status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
