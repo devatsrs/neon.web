@@ -213,12 +213,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 
-    //Account Notification
-    Route::any('accounts/{id}/notification/ajax_datagrid', 'AccountNotificationController@ajax_datagrid');
-    Route::any('accounts/{id}/notification/store', 'AccountNotificationController@store');
-    Route::any('accounts/{id}/notification/{notification_id}/update', 'AccountNotificationController@update')->where('notification_id', '(.[09]*)+');
-    Route::any('accounts/{id}/notification/{notification_id}/delete', 'AccountNotificationController@delete')->where('notification_id', '(.[09]*)+');
-
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
@@ -901,6 +895,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/dialstrings/{id}/ajaxfilegrid', 'DialStringController@ajaxfilegrid');
 	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
 	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
+
+    //Notifications
+    Route::any('notification', 'NotificationController@index');
+    Route::any('notification/ajax_datagrid', 'NotificationController@ajax_datagrid');
+    Route::any('notification/store', 'NotificationController@store');
+    Route::any('notification/{notification_id}/update', 'NotificationController@update')->where('notification_id', '(.[09]*)+');
+    Route::any('notification/{notification_id}/delete', 'NotificationController@delete')->where('notification_id', '(.[09]*)+');
 
 });
 

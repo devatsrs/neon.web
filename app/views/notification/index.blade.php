@@ -1,83 +1,99 @@
+
+@extends('layout.main')
+
+@section('content')
+
+
+    <ol class="breadcrumb bc-3">
+        <li>
+            <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+        </li>
+        <li class="active">
+            <strong>Notifications</strong>
+        </li>
+    </ol>
+    <h3>Notifications</h3>
+
+    @include('includes.errors')
+    @include('includes.success')
+
+    <p style="text-align: right;">
+        @if(User::checkCategoryPermission('Notification','Add'))
+            <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
+                <i class="entypo-plus"></i>
+                Add Notification
+            </a>
+        @endif
+    </p>
 <style>
 #table-notification_processing{
     position: absolute;
 }
 </style>
-<div class="panel panel-primary" data-collapsed="0">
-    <div class="panel-heading">
-        <div class="panel-title">
-            Notifications
-        </div>
-        <div class="panel-options">
-            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-        </div>
-    </div>
-    <div class="panel-body">
-         <div class="text-right">
-              <a  id="add-notification" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Notification</a>
-              <div class="clear clearfix"><br></div>
-        </div>
+<div class="row">
+    <div class="col-md-12">
         <div id="notification_filter" method="get" action="#" >
-                                <div class="panel panel-primary" data-collapsed="0">
-                                    <div class="panel-heading">
-                                        <div class="panel-title">
-                                            Filter
-                                        </div>
-                                        <div class="panel-options">
-                                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-1 control-label">Type</label>
-                                            <div class="col-sm-2">
-                                               {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 Notification_Type_dropdown"))}}
-                                            </div>
-                                        </div>
-                                        <p style="text-align: right;">
-                                            <button class="btn btn-primary btn-sm btn-icon icon-left" id="notification_submit">
-                                                <i class="entypo-search"></i>
-                                                Search
-                                            </button>
-                                        </p>
-                                    </div>
-                                </div>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Filter
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Type</label>
+                        <div class="col-sm-2">
+                            {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 Notification_Type_dropdown"))}}
+                        </div>
+                    </div>
+                    <p style="text-align: right;">
+                        <button class="btn btn-primary btn-sm btn-icon icon-left" id="notification_submit">
+                            <i class="entypo-search"></i>
+                            Search
+                        </button>
+                    </p>
+                </div>
+            </div>
         </div>
-        <table id="table-notification" class="table table-bordered table-hover responsive">
-            <thead>
-            <tr>
-                <th width="20%">Notification</th>
-                <th width="30%">Email Addresses</th>
-                <th width="10%">Created Date</th>
-                <th width="10%">Created By</th>
-                <th width="20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+        </div>
 </div>
+
+
+    <table id="table-notification" class="table table-bordered table-hover responsive">
+        <thead>
+        <tr>
+            <th width="20%">Notification</th>
+            <th width="30%">Email Addresses</th>
+            <th width="10%">Created Date</th>
+            <th width="10%">Created By</th>
+            <th width="20%">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
 <script type="text/javascript">
     /**
     * JQuery Plugin for dataTable
     * */
     //var list_fields_activity  = ['Notification_ProductID','Notification_Description'];
-    var NotificationType = JSON.parse('{{json_encode(AccountNotification::$type)}}');
+    var NotificationType = JSON.parse('{{json_encode(Notification::$type)}}');
     var data_table_char;
-    var accountID={{$account->AccountID}};
     var update_new_url;
     var postdata;
     var $search = {};
 
     jQuery(document).ready(function ($) {
        var data_table_char;
-       var list_fields  = ["NotificationType","EmailAddresses","created_at","CreatedBy","AccountNotificationID"];
-       var notification_add_url = baseurl + "/accounts/{{$account->AccountID}}/notification/store";
-       var notification_edit_url = baseurl + "/accounts/{{$account->AccountID}}/notification/{id}/update";
-       var notification_delete_url = baseurl + "/accounts/{{$account->AccountID}}/notification/{id}/delete";
-       var notification_datagrid_url = baseurl + "/accounts/{{$account->AccountID}}/notification/ajax_datagrid";
+       var list_fields  = ["NotificationType","EmailAddresses","created_at","CreatedBy","NotificationID"];
+       var notification_add_url = baseurl + "/notification/store";
+       var notification_edit_url = baseurl + "/notification/{id}/update";
+       var notification_delete_url = baseurl + "/notification/{id}/delete";
+       var notification_datagrid_url = baseurl + "/notification/ajax_datagrid";
 
         $search.NotificationType = $('#notification_filter [name="NotificationType"]').val();
 
@@ -87,12 +103,10 @@
             "bServerSide": true,
             "sAjaxSource": notification_datagrid_url,
             "fnServerParams": function (aoData) {
-                        aoData.push({"name": "accountID", "value": accountID},
-                                {"name": "NotificationType", "value": $search.NotificationType});
+                        aoData.push({"name": "NotificationType", "value": $search.NotificationType});
 
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "accountID", "value": accountID},
-                                {"name": "NotificationType", "value": $search.NotificationType});
+                        data_table_extra_params.push({"name": "NotificationType", "value": $search.NotificationType});
 
                     },
             "bPaginate": false,
@@ -196,6 +210,7 @@
        });
     });
 </script>
+@stop
 @section('footer_ext')
 @parent
 
@@ -212,7 +227,7 @@
                         <div class="form-group">
                             <label for="field-5" class="control-label">Type</label>
                             {{Form::select('NotificationType',$notificationType,'',array("class"=>"selectboxit product_dropdown"))}}
-                            <input type="hidden" name="AccountNotificationID" />
+                            <input type="hidden" name="NotificationID" />
                         </div>
                     </div>
                     <div class="col-md-12">

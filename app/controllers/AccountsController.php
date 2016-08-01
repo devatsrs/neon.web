@@ -380,8 +380,7 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $notificationType = array(""=> "Select a Type") + AccountNotification::$type;
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate','notificationType'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate'));
     }
 
     /**
