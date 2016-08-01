@@ -20,7 +20,7 @@
 
              <script src="<?php echo URL::to('/'); ?>/assets/js/jquery-1.11.0.min.js"></script>
         <script type="text/javascript">var baseurl = '<?php echo URL::to('/'); ?>';</script>
-        <link rel="stylesheet" href="{{URL::asset('assets/js/daterangepicker/daterangepicker-bs3.css')}}">
+
         @if(Session::get('user_site_configrations.CustomCss'))
         <style>		
         {{Session::get('user_site_configrations.CustomCss')}}

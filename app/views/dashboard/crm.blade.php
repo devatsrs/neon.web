@@ -1,5 +1,6 @@
 @extends('layout.main')
 @section('content')
+  <link rel="stylesheet" href="{{URL::asset('assets/js/daterangepicker/daterangepicker.css')}}">
 <div class="row">
   <div class="tab-content">
     <div class="tab-pane active" id="customer" >

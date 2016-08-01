@@ -918,10 +918,14 @@ toastr_opts = {
 
                 var $this = $(el),
                     opts = {
-                        format: attrDefault($this, 'format', 'MM/DD/YYYY'),
+                        locale:{
+                            format: attrDefault($this, 'format', 'MM/DD/YYYY'),
+                            separator: attrDefault($this, 'separator', ' - ')
+                        },
                         timePicker: attrDefault($this, 'timePicker', false),
                         timePickerIncrement: attrDefault($this, 'timePickerIncrement', false),
-                        separator: attrDefault($this, 'separator', ' - ')
+                        timePicker24Hour:attrDefault($this, 'timePicker24Hour', true),
+                        timePickerSeconds:attrDefault($this, 'timePickerSeconds', true)
                     },
                     min_date = attrDefault($this, 'minDate', ''),
                     max_date = attrDefault($this, 'maxDate', ''),

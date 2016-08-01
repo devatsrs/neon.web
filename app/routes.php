@@ -52,7 +52,6 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');
 	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
-	Route::any('customer/cdr/ajax_datagrid_total', 'CDRCustomerController@ajax_datagrid_total');
 
 	//commercial
 
@@ -618,8 +617,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Route::any('/cdr_upload/delete', 'CDRController@delete'); // Temporary hidden
 	//Route::any('/cdr_upload/delete_cdr', 'CDRController@delete_cdr');// Temporary hidden
 	Route::any('/cdr_upload/ajax_datagrid/{type}', 'CDRController@ajax_datagrid');
-	Route::any('/cdr_upload/ajax_datagrid_total/{type}', 'CDRController@ajax_datagrid_total');	
-    Route::any('/cdr_upload/check_upload', 'CDRController@check_upload');
+	Route::any('/cdr_upload/check_upload', 'CDRController@check_upload');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
     Route::any('/cdr_upload/storeTemplate', 'CDRController@storeTemplate');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');

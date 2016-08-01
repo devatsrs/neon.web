@@ -180,38 +180,12 @@ class CDRController extends BaseController {
             }
         }
 		 $accounts = Account::getAccountIDList();
-        return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr','DefaultCurrencyID','accounts'));
+        $trunks = Trunk::getTrunkDropdownList();
+        $trunks = $trunks + array('Other'=>'Other');
+        return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr','DefaultCurrencyID','accounts','trunks'));
     }
 	
-		public function ajax_datagrid_total($type)
-		{
-			
-			$data						 =   Input::all();
-			$data['iDisplayStart'] 		 =	0;
-			$data['iDisplayStart'] 		+=	1;
-			$data['iSortCol_0']			 =  0;
-			$data['sSortDir_0']			 =  strtoupper('desc');
-			$companyID 					 =	 User::get_companyID();
-			$columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld');
-			$sort_column 				 = 	 $columns[$data['iSortCol_0']];
-			$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
-			$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-	
-			
-			$query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
-	
-			$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('DataGrid','SumData'));
-			
-			$result4  = array(
-				"totalcount"=>$result['data']['SumData'][0]->totalcount,
-				"total_billed_duration"=>$result['data']['SumData'][0]->total_duration,
-				"total_cost"=>$result['data']['SumData'][0]->CurrencyCode.$result['data']['SumData'][0]->total_cost
-			);
-			
-			return json_encode($result4,JSON_NUMERIC_CHECK);
-		
-		}
-	
+
     public function ajax_datagrid($type){
         $data						 =   Input::all();
         $data['iDisplayStart'] 		+=	 1;
@@ -220,10 +194,12 @@ class CDRController extends BaseController {
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-
+        $DateRange = explode(' - ',$data['DateRange']);
+        $DateRange = array_map('trim',$DateRange);
+        $data['StartDate'] = $DateRange[0];
+        $data['EndDate'] = $DateRange[1];
 		
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-		
+       $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -252,13 +228,18 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
+            $DateRange = explode(' - ',$criteria['DateRange']);
+            $DateRange = array_map('trim',$DateRange);
+            $criteria['StartDate'] = $DateRange[0];
+            $criteria['EndDate'] = $DateRange[1];
+
             $criteria['zerovaluecost'] = $criteria['zerovaluecost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
 
             $companyID = User::get_companyID();
-            $query = "call prc_DeleteCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CDRType']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluecost']."','".(int)$criteria['CurrencyID']."')";
+            $query = "call prc_DeleteCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CDRType']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluecost']."','".(int)$criteria['CurrencyID']."','".$criteria['area_prefix']."','".$criteria['Trunk']."')";
             //echo $query;exit;
             $results = DB::connection('sqlsrv2')->statement($query);
             if ($results) {
