@@ -209,6 +209,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 
+    //Account Notification
+    Route::any('accounts/{id}/notification/ajax_datagrid', 'AccountNotificationController@ajax_datagrid');
+    Route::any('accounts/{id}/notification/store', 'AccountNotificationController@store');
+    Route::any('accounts/{id}/notification/{notification_id}/update', 'AccountNotificationController@update')->where('notification_id', '(.[09]*)+');
+    Route::any('accounts/{id}/notification/{notification_id}/delete', 'AccountNotificationController@delete')->where('notification_id', '(.[09]*)+');
+
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
