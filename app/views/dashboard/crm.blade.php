@@ -66,7 +66,7 @@
       <div class="panel-heading">
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
-          <h3>Sales</h3>
+          <h3>Sales by Opportunity</h3>
           <div class="SalesResult"></div>
         </div>
         <div  class="clear clearfix">
@@ -138,6 +138,37 @@
     </div>
   </div>
 </div>
+ @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
+<div class="row">
+<div class="col-sm-12">
+    <div class="panel panel-primary panel-table">
+      <div class="panel-heading">
+        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+        <div class="panel-title forecase_title">
+          <h3>Sales By Revenue</h3>
+          <div class="SalesResultManager"></div>
+        </div>
+        <div  class="clear clearfix">
+          <div class="form_Sales">
+            <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales_Manager">
+              <div class="form-group form-group-border-none">
+                <label for="Closingdate" class="col-sm-2 control-label managerLabel ">Date</label>
+                <div class="col-sm-6">
+                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange"> 
+                  <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                </div>
+              </div>
+              <div class="text-center">
+                <div id="crmdSalesManager1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSalesManager1"></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+</div>
+@endif 
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -190,8 +221,6 @@ var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 var OpportunityClose =  '{{Opportunity::Close}}';
 </script> 
 <script src="https://code.highcharts.com/highcharts.js"></script> 
-<script src="https://code.highcharts.com/modules/data.js"></script> 
-<script src="https://code.highcharts.com/modules/exporting.js"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
 <style>
 #taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
@@ -270,6 +299,11 @@ var OpportunityClose =  '{{Opportunity::Close}}';
 		width:150px;
 	}
 	.white-bg{background:#fff none repeat scroll 0 0 !important; }
+	.managerLabel{
+		padding-left:0;
+		padding-right:0;
+		width:38px;
+	}
 </style>
 @stop
 @section('footer_ext')

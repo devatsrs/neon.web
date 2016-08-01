@@ -69,7 +69,6 @@
                 e.preventDefault();
                 public_vars.$body = $("body");
                 //show_loading_bar(40);
-			    set_search_parameter($("#crm_dashboard"));
 				$searchFilter.UsersID = $("#crm_dashboard").find("[name='UsersID[]']").val();
     			$searchFilter.CurrencyID = $("#crm_dashboard").find("[name='CurrencyID']").val();
                 reloadCrmCharts(pageSize,$searchFilter);
@@ -79,7 +78,6 @@
         var $searchFilter = {};
 	   		$searchFilter.AccountOwner = $("#crm_dashboard select[name='UsersID[]']").val();
 			$searchFilter.CurrencyID = $("#crm_dashboard select[name='CurrencyID']").val();
-			console.log($searchFilter);
 			//opportunites grid start
         data_table = $("#opportunityGrid").dataTable({
 		        "bDestroy": true,
@@ -269,7 +267,6 @@
             });
 			///task grid end
 			
-			 set_search_parameter($("#crm_dashboard"));
             Highcharts.theme = {
                 colors: ['#3366cc', '#ff9900' ,'#dc3912' , '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
             };
@@ -290,7 +287,7 @@ function loading(table,bit){
         panel.removeClass('reloading');
     }
 }
-function getPipleLineData(chart_type,submitdata){
+function getPipleLineData(){
 		loadingUnload(".crmdpipeline",1);
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
@@ -388,23 +385,16 @@ function getPipleLineData(chart_type,submitdata){
                 });
 			
 			////////////////////////////////
-			/*Morris.Bar({
-			  element: 'crmdpipeline1',
-			  data: crmpipelinedata,
-			  xkey: 'User',
-			  ykeys: ['Worth'],
-			  barColors: ['#3399FF', '#333399'],
-			  labels: [''],
-				hoverCallback:function (index, options, content, row) {
-					if(row.CurrencyCode==null){	row.CurrencyCode = '';	} 
-					return '<div class="morris-hover-row-label">'+row.CurrencyCode+row.Worth+'</div>'
-				}
-			});	*/
 			}else
 			{
 				$('.crmdpipeline').html('No Data');
 			}
-			$('.PipeLineResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
+				var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.PipeLineResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Value  - "+dataObj.TotalOpportunites + "  Opportunities</div>");
            }else{
                 $('.crmdpipeline').html('No Data');
             }
@@ -412,14 +402,15 @@ function getPipleLineData(chart_type,submitdata){
 		}
     });
 	}
-function reloadCrmCharts(pageSize,$searchFilter){
+function reloadCrmCharts(){
     /* get destination data for today and display in pie three chart*/
-        getPipleLineData($searchFilter.chart_type,$searchFilter);
+        getPipleLineData();
   /* get data by time in bar chart*/
     //getSales($searchFilter.chart_type,$searchFilter);
 	 GetUsersTasks();
      GetSalesData();
 	 GetForecastData();
+	 GetSalesDataAccountManager();
 	 data_table.fnFilter('',0);
 }
 
@@ -445,11 +436,12 @@ $(function() {
         GetForecastData();         
     });
 	
-	$('#dateendid').change(function(e) {
+	 
+	 $('#crm_dashboard_Sales_Manager').submit(function(e) {
 		e.stopImmediatePropagation();
 		e.preventDefault();
-     	//GetSalesData();
-	 });
+        GetSalesDataAccountManager();         
+    }); 	
 	
 });
 
@@ -469,7 +461,6 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
     e.preventDefault();
     var id = $(this).parents().attr('id');
 	var submit_form = $("#crm_dashboard");
-	 set_search_parameter(submit_form);
     if(id=='UsersTasks'){
       //  GetUsersTasks();
 	  data_table1.fnFilter('',0);
@@ -490,11 +481,18 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 		return false;
     }
 	
-	if(id='UsersOpportunities'){
+	if(id=='UsersOpportunities'){
 		$('.loaderopportunites').show();
 		data_table.fnFilter('',0);
 		return false;
 	}
+	
+	if(id=='Sales_Manager'){
+		GetSalesDataAccountManager();
+		return false;
+	}
+	
+	
 	
 });
 
@@ -586,7 +584,12 @@ function GetForecastData(){
                     series: crmdForecastdata
                 });
 			
-			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
+					var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.ForecastResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdForecast').html('<br><h4>No Data</h4>');
 					$('.ForecastResult').html('');
@@ -688,8 +691,12 @@ function GetSalesData(){
 					
                     series: crmdSalesdata
                 });
-			
-			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
+				var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.SalesResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdSales').html('<br><h4>No Data</h4>');
 					$('.SalesResult').html('');
@@ -701,6 +708,113 @@ function GetSalesData(){
 		}
     });
 }
+
+ function GetSalesDataAccountManager(){
+	loadingUnload(".crmdSalesManager1",1);	 
+	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
+	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
+	var Duedate     = $("#crm_dashboard_Sales_Manager [name='Duedate']").val();
+    $.ajax({
+        type: 'POST',
+        url: baseurl+'/dashboard/CrmDashboardSalesRevenue',
+        dataType: 'html',
+        data:{CurrencyID:CurrencyID,UsersID:UsersID,Duedate:Duedate},
+        aysync: true,
+        success: function(data11) {
+			$('#crmdSalesManager1').html('');
+            loadingUnload(".crmdSalesManager1",0);				
+			
+			/////////
+			
+			var dataObj = JSON.parse(data11);
+			 if(dataObj.status!='failed') {	
+            if(dataObj.count>0) {				
+           
+			 var crmdSalesdata =  [];
+			for(var s=0;s<dataObj.data.length;s++)			
+			{
+	             	 crmdSalesdata[s] =
+					{					
+					 'name': dataObj.data[s].user,
+					 'data': dataObj.data[s].worth.split(',').map(parseFloat) 
+					 };
+			}
+			
+			 $('#crmdSalesManager1').highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: ''
+                    },
+                    xAxis: {
+                        categories: dataObj.dates.split(','),
+                        title: {
+                            text: ""
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '',
+                            align: 'high'
+                        },
+                        labels: {
+                            overflow: 'justify'
+                        }
+                    },
+                    tooltip: {
+                        valueSuffix: ''
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: false,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+					
+                    series: crmdSalesdata
+                });
+				
+					var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			
+	$('.SalesResultManager').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Sales</div>");
+	           	}else{
+                	$('.crmdSalesManager1').html('<br><h4>No Data</h4>');
+					$('.SalesResultManager').html('');
+            	}
+			 }else
+			 {
+					toastr.error(dataObj.message, "Error", toastr_opts);
+			}
+		
+			////////	
+		}
+    });
+ }
 
 function GetUsersTasks(){
 	data_table1.fnFilter('',0);
@@ -906,9 +1020,3 @@ function GetUsersTasks(){
                 container.find('.make-switch').bootstrapSwitch();
             }
 });
-
-function set_search_parameter(submit_form){
-	 var $searchFilter = {};
-	$searchFilter.UsersID = $(submit_form).find("[name='UsersID[]']").val();
-    $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
-}
