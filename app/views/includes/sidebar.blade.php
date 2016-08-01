@@ -197,6 +197,9 @@
         @if(User::is_admin())
         <li> <a href="{{Url::to('roles')}}">  <span>User Roles</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('Notification','View'))
+            <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('themes','View'))
         <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
         @endif
