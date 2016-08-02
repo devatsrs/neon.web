@@ -219,6 +219,11 @@ var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
 var OpportunityClose =  '{{Opportunity::Close}}';
+@if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View')) 
+var RevenueReport = 1;
+@else 
+var RevenueReport = 0;
+@endif;
 </script> 
 <script src="https://code.highcharts.com/highcharts.js"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
