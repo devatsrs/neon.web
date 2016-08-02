@@ -13,7 +13,13 @@
         @foreach($alldata['call_count'] as $indexcount => $call_cost)
             <tr>
                 <td>{{$indexcount+1}}</td>
-                <td>{{$call_cost}}</td>
+                <td>
+                    @if($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix')
+                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array($data['chart_type']=>$call_cost))}}">{{$call_cost}}</a>
+                    @else
+                        {{$call_cost}}
+                    @endif
+                </td>
                 <td>{{$alldata['call_count_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_asr'][$indexcount]}}</td>
@@ -38,7 +44,13 @@
         @foreach($alldata['call_cost'] as $indexcount => $call_cost)
             <tr>
                 <td>{{$indexcount+1}}</td>
-                <td>{{$call_cost}}</td>
+                <td>
+                    @if($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix')
+                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array($data['chart_type']=>$call_cost))}}">{{$call_cost}}</a>
+                    @else
+                        {{$call_cost}}
+                    @endif
+                </td>
                 <td>{{$alldata['call_cost_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_asr'][$indexcount]}}</td>
@@ -63,7 +75,13 @@
         @foreach($alldata['call_minutes'] as $indexcount => $call_cost)
             <tr>
                 <td>{{$indexcount+1}}</td>
-                <td>{{$call_cost}}</td>
+                <td>
+                    @if($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix')
+                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array($data['chart_type']=>$call_cost))}}">{{$call_cost}}</a>
+                    @else
+                        {{$call_cost}}
+                    @endif
+                </td>
                 <td>{{$alldata['call_minutes_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_asr'][$indexcount]}}</td>

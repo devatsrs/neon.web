@@ -123,11 +123,11 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Prefix</label>
                                 <div class="col-sm-2">
-                                    <input type="text" name="area_prefix" class="form-control mid_fld "  value=""  />
+                                    <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('Trunk',$trunks,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('Trunk',$trunks,Input::get('trunk'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
                             </div>
