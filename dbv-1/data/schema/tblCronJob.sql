@@ -1,7 +1,6 @@
 CREATE TABLE `tblCronJob` (
   `CronJobID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) DEFAULT NULL,
-  `UserID` int(11) DEFAULT NULL,
   `CronJobCommandID` int(11) DEFAULT NULL,
   `Settings` longtext COLLATE utf8_unicode_ci,
   `Status` tinyint(3) unsigned NOT NULL,
