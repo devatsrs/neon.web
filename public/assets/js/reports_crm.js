@@ -710,6 +710,7 @@ function GetSalesData(){
 }
 
  function GetSalesDataAccountManager(){
+	 if(RevenueReport===0){return false;} 
 	loadingUnload(".crmdSalesManager1",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
