@@ -506,7 +506,6 @@
                 </div>
             </div>
         </div>
-        @include('notification.index')
         @include('accountsubscription.index')
         @include('accountoneoffcharge.index')
         <div class="panel panel-primary" data-collapsed="0">
