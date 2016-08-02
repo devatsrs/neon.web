@@ -118,10 +118,15 @@ class CronJob extends \Eloquent {
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Template"));
             return $valid;
         }
-
         $today = date('Y-m-d');
-        $data['created_by'] = User::get_user_full_name();
-        $data['created_at'] =  $today;
+        if($id==0) {
+            $data['UserID'] = User::get_userID();
+            $data['created_by'] = User::get_user_full_name();
+            $data['created_at'] = $today;
+        }else{
+            $data['updated_by'] = User::get_user_full_name();
+            $data['updated_at'] = $today;
+        }
         if(isset($data['Setting'])) {
             if (isset($data['rateGenerators'])) {
                 $data['Setting']['rateGeneratorID'] = $data['rateGenerators'];
