@@ -12,7 +12,7 @@ DECLARE v_Round_ int;
 	WHERE cs.`Key` = 'RoundChargesAmount' 
 		AND cs.CompanyID = p_CompanyID;
 
-	SELECT SUM(IFNULL(GrandTotal,0)) INTO v_TotalInvoice_
+	SELECT IFNULL(SUM(GrandTotal),0) INTO v_TotalInvoice_
 	FROM tblInvoice 
 	WHERE 
 		CompanyID = p_CompanyID
@@ -21,7 +21,7 @@ DECLARE v_Round_ int;
 		AND InvoiceStatus NOT IN ( 'cancel' , 'draft' )
 		AND (p_AccountID = 0 or AccountID = p_AccountID);
 		
-	SELECT SUM(IFNULL(p.Amount,0)) INTO v_TotalPayment_
+	SELECT IFNULL(SUM(p.Amount),0) INTO v_TotalPayment_
 		FROM tblPayment p 
 	INNER JOIN LocalRatemanagement.tblAccount ac 
 		ON ac.AccountID = p.AccountID
