@@ -8,14 +8,12 @@ class Notification extends \Eloquent {
     protected  $primaryKey = "NotificationID";
 
     const InvoiceGeneration = 1;
-    const RateGeneration = 2;
-    const ReRate=3;
-    const WeeklyPaymentTransactionLog=4;
-    const LowBalanceReminder=5;
+    const ReRate=2;
+    const WeeklyPaymentTransactionLog=3;
+    const LowBalanceReminder=4;
 
     public static $type = [ Notification::InvoiceGeneration=>'Invoice Generation',
-                            Notification::RateGeneration=>'Rate Generation',
-                            Notification::ReRate=>'Re Rate',
+                            Notification::ReRate=>'Re Rate Log',
                             Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
                             Notification::LowBalanceReminder=>'Low Balance Reminder'];
 
