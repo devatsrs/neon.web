@@ -179,6 +179,325 @@
 </div>
 
 <script type="text/javascript">
+
+    jQuery(document).ready(function ($) {
+        var $searchFilter = {};
+        var invoicestatus = {{$invoice_status_json}};
+        $searchFilter.PaymentDate_StartDate = $('[name="Startdate"]').val();
+        $searchFilter.PaymentDate_StartTime = '';
+        $searchFilter.PaymentDate_EndDate   = $('[name="Enddate"]').val();
+        $searchFilter.PaymentDate_EndTime   = '';
+        $searchFilter.CurrencyID 			= $('[name="CurrencyID"]').val();
+        $searchFilter.Type = 1;
+        PaymentTable = $("#paymentTable").dataTable({
+            "bDestroy": true,
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                        {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
+                        {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
+                        {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                        {"name": "Type","value": $searchFilter.Type}
+                );
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push(
+                        {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
+                        {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
+                        {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                        {"name": "Type","value": $searchFilter.Type},
+                        {"name":"Export","value":1}
+                );
+
+            },
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[4, 'desc']],
+            "aoColumns": [
+                 //1   CurrencyDescription
+                {
+                    "bSortable": true, //Account
+                    mRender: function (id, type, full) {
+                        return full[1]
+                    }
+                }, //1   CurrencyDescription
+                {
+                    "bSortable": true, //Account
+                    mRender: function (id, type, full) {
+                        return full[10]
+                    }
+                }, //1   CurrencyDescription
+                {
+                    "bSortable": true, //Amount
+                    mRender: function (id, type, full) {
+                        /*var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(toFixed);
+                        a = a.toString();*/
+                        return full[16]
+                    }
+                },
+                {
+                    "bSortable": true, //Type
+                    mRender: function (id, type, full) {
+                        return full[4]
+                    }
+                },
+
+                {
+                    "bSortable": true, //paymentDate
+                    mRender: function (id, type, full) {
+                        return full[6]
+                    }
+                },
+                {
+                    "bSortable": true, //status
+                    mRender: function (id, type, full) {
+                        return full[7]
+                    }
+                },
+                {
+                    "bSortable": true, //Created by
+                    mRender: function (id, type, full) {
+                        return full[8]
+                    }
+                },
+                {
+                    "bSortable": true, //Created by
+                    mRender: function (id, type, full) {
+                        return full[12]
+                    }
+                },
+            ],
+            "oTableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection"
+                    }
+                ]
+            },
+            "fnDrawCallback": function () {
+                //get_total_grand();
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
+                $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
+                    var $this = $(el),
+                            $p = $this.closest('tr');
+
+                    $(el).on('change', function () {
+                        var is_checked = $this.is(':checked');
+
+                        $p[is_checked ? 'addClass' : 'removeClass']('selected');
+                    });
+                });
+
+                $('.tohidden').removeClass('hidden');
+                $('#selectall').removeClass('hidden');
+                if($('#Recall_on_off').prop("checked")){
+                    $('.tohidden').addClass('hidden');
+                    $('#selectall').addClass('hidden');
+                }
+            }
+
+        });
+
+
+        invoiceTable = $("#invoiceTable").dataTable({
+            "bDestroy": true,
+            "bProcessing":true,
+            "bServerSide":true,
+            "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
+            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[2, 'desc']],
+            "fnServerParams": function(aoData) {
+                aoData.push(
+                        {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
+                        {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
+                        {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                        {"name": "Type","value": $searchFilter.Type}
+                );
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push(
+                        {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
+                        {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
+                        {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                        {"name": "Type","value": $searchFilter.Type},
+                        {"name":"Export","value":1}
+                );
+            },
+            "aoColumns":
+                    [
+                          // 0 AccountName
+                        {  "bSortable": true,
+
+                            mRender:function( id, type, full){
+                                var output , account_url;
+                                output = '<a href="{url}" target="_blank" >{account_name}';
+                                if(full[14] ==''){
+                                    output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
+                                }
+                                output+= '</a>';
+                                account_url = baseurl + "/accounts/"+ full[11] + "/show";
+                                output = output.replace("{url}",account_url);
+                                output = output.replace("{account_name}",id);
+                                return output;
+                            }
+
+                        },  // 1 InvoiceNumber
+                        {  "bSortable": true,
+
+                            mRender:function( id, type, full){
+
+                                var output , account_url;
+                                if (full[0] != '{{Invoice::INVOICE_IN}}') {
+                                    output = '<a href="{url}" target="_blank"> ' + id + '</a>';
+                                    account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
+                                    output = output.replace("{url}", account_url);
+                                    output = output.replace("{account_name}", id);
+                                }else{
+                                    output = id;
+                                }
+                                return output;
+                            }
+
+                        },  // 2 IssueDate
+                        {  "bSortable": true },  // 3 IssueDate
+                        {  "bSortable": true },  //4 Invoice period
+                        {  "bSortable": true },  // 5 GrandTotal
+                        {  "bSortable": false },  // 6 PAID/OS
+                        {  "bSortable": true,
+                            mRender:function( id, type, full){
+                                return invoicestatus[full[6]];
+                            }
+
+                        },  // 6 InvoiceStatus
+                    ],
+            "oTableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_xls.php",
+                        sButtonClass: "save-collection btn-sm"
+                    }
+                ]
+            },
+            "fnDrawCallback": function() {
+                //get_total_grand(); //get result total
+                $('#table-4 tbody tr').each(function(i, el) {
+                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                        if (checked != '') {
+                            $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                            $(this).addClass('selected');
+                            $('#selectallbutton').prop("checked", true);
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                            ;
+                            $(this).removeClass('selected');
+                        }
+                    }
+                });
+                //After Delete done
+                FnDeleteInvoiceTemplateSuccess = function(response){
+
+                    if (response.status == 'success') {
+                        $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
+                        ShowToastr("success",response.message);
+                        data_table.fnFilter('', 0);
+                    }else{
+                        ShowToastr("error",response.message);
+                    }
+                }
+                //onDelete Click
+                FnDeleteInvoiceTemplate = function(e){
+                    result = confirm("Are you Sure?");
+                    if(result){
+                        var id  = $(this).attr("data-id");
+                        showAjaxScript( baseurl + "/invoice/"+id+"/delete" ,"",FnDeleteInvoiceTemplateSuccess );
+                    }
+                    return false;
+                }
+                $(".delete-invoice").click(FnDeleteInvoiceTemplate); // Delete Note
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
+                $('#selectallbutton').click(function(ev) {
+                    if($(this).is(':checked')){
+                        checked = 'checked=checked disabled';
+                        $("#selectall").prop("checked", true).prop('disabled', true);
+                        if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                            $('#table-4 tbody tr').each(function(i, el) {
+                                if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                }
+                            });
+                        }
+                    }else{
+                        checked = '';
+                        $("#selectall").prop("checked", false).prop('disabled', false);
+                        if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                            $('#table-4 tbody tr').each(function(i, el) {
+                                if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+        });
+
+
+        $(document).on('click','.paymentReceived,.totalInvoice,.totalOutstanding',function(e){
+            e.preventDefault();
+            $searchFilter.PaymentDate_StartDate = $(this).attr('data-startdate');
+            $searchFilter.PaymentDate_StartTime = '';
+            $searchFilter.PaymentDate_EndDate   = $(this).attr('data-enddate');
+            $searchFilter.PaymentDate_EndTime   = '';
+            $searchFilter.CurrencyID 			= $(this).attr('data-currency');
+            if($(this).hasClass('paymentReceived')) {
+                $searchFilter.Type = 1;
+                //PaymentTable.fnClearTable();
+                PaymentTable.fnFilter('', 0);
+                $('#modal-Payment').modal('show');
+            }else if($(this).hasClass('totalInvoice')){
+                $searchFilter.Type = 2;
+                //invoiceTable.fnClearTable();
+                invoiceTable.fnFilter('', 0);
+                $('#modal-invoice').modal('show');
+            }else if($(this).hasClass('totalOutstanding')){
+                $searchFilter.Type = 3;
+                //invoiceTable.fnClearTable();
+                invoiceTable.fnFilter('', 0);
+                $('#modal-invoice').modal('show');
+            }
+
+        });
+    });
+
 function reload_invoice_expense(){
 
      var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
@@ -375,4 +694,104 @@ function missingAccounts(){
         });
     }
 </script>
+@stop
+
+@section('footer_ext')
+    @parent
+    <div class="modal fade" id="modal-Payment">
+        <div class="modal-dialog" style="width: 80%;">
+            <div class="modal-content">
+                <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Payment Received</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered datatable" id="paymentTable">
+                            <thead>
+                            <tr>
+                                <th width="15%">Account Name</th>
+                                <th width="10%">Invoice No</th>
+                                <th width="10%">Amount</th>
+                                <th width="10%">Type</th>
+                                <th width="10%">Payment Date</th>
+                                <th width="10%">Status</th>
+                                <th width="20%">CreatedBy</th>
+                                <th width="15%">Notes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-invoice">
+        <div class="modal-dialog" style="width: 80%;">
+            <div class="modal-content">
+                <form id="TestMail-form" method="post" action="">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Total Invoices</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered datatable" id="invoiceTable">
+                            <thead>
+                            <tr>
+                                <th width="25%">Account Name</th>
+                                <th width="10%">Invoice Number</th>
+                                <th width="15%">Issue Date</th>
+                                <th width="20%">Invoice Period</th>
+                                <th width="10%">Grand Total</th>
+                                <th width="10%">Paid/OS</th>
+                                <th width="10%">Invoice Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-BulkTags">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="BulkTag-form" method="post" action="">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Bulk Account tags</h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop

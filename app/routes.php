@@ -824,6 +824,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
+    Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 
 
     //AccountPaymentProfile
