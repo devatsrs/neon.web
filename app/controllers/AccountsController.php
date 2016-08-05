@@ -217,21 +217,17 @@ class AccountsController extends \BaseController {
 
 	
 		public function show($id) {
-		
-		
-		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
-			
 			//get account contacts
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
-			
 			//get account time line data
             $data['iDisplayStart'] 	    =	 0;
             $data['iDisplayLength']     =    10;
             $data['AccountID']          =    $id;
+			$data['GUID']               =    GUID::generate();
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
-            $RowsPerPage                =    $data['iDisplayLength'];
+            $RowsPerPage                =    $data['iDisplayLength'];			
 			$message 					= 	 '';
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
 			
@@ -348,6 +344,19 @@ class AccountsController extends \BaseController {
 			$key 					= 	$data['scrol'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
+	}
+	
+	function AjaxConversations($id){ 
+		if(empty($id) || !is_numeric($id)){
+			return '<div>No conversation found.</div>';
+		}
+		 $data['id']	=	$id;
+		 $response 		= 	 NeonAPI::request('account/GetTicketConversations',$data,true,true); 
+		  if($response['status']=='failed'){
+			return json_response_api($response,false,true);
+		}else{			
+			return View::make('accounts.conversations', compact("response"));
+		}
 	}
 	 
     public function edit($id) {

@@ -12,9 +12,10 @@ class Task extends \Eloquent {
     const DueSoon = 2;
     const CustomDate = 3;
 	
-	const Note  = 3;
-	const Mail  = 2;
-	const Tasks = 1;
+	const Ticket   = 	4;
+	const Note 	   = 	3;
+	const Mail     = 	2;
+	const Tasks    = 	1;
 
     const Close = 1;
 

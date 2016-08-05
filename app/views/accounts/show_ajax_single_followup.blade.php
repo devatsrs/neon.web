@@ -6,7 +6,7 @@
               <span>Now</span>
               <?php }else{ ?>
               <span><?php echo date("h:i a",strtotime($response_data['created_at']));  ?></span> <span>
-    <?php if(date("d",strtotime($response_data['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($response_data['created_at']));} ?>
+    <?php if(date("Y-m-d",strtotime($response_data['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($response_data['created_at']));} ?>
     </span>
               <?php } ?>
             </time>
@@ -60,7 +60,7 @@
     <span>Now</span>
     <?php }else{ ?>
     <span><?php echo date("h:i a",strtotime($response_data['created_at']));  ?></span> <span>
-    <?php if(date("d",strtotime($response_data['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($response_data['created_at']));} ?>
+    <?php if(date("Y-m-d",strtotime($response_data['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($response_data['created_at']));} ?>
     </span>
     <?php } ?>
   </time>
@@ -81,7 +81,7 @@
               <span>Now</span>
               <?php }else{ ?>
               <span><?php echo date("h:i a",strtotime($response->created_at));  ?></span> <span>
-              <?php if(date("d",strtotime($response->created_at)) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($response->created_at));} ?>
+              <?php if(date("Y-m-d",strtotime($response->created_at)) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($response->created_at));} ?>
               </span>
               <?php } ?>
             </time>

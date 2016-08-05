@@ -1,7 +1,7 @@
 <?php //echo $message; exit; ?>
 <script type="text/javascript">
  
-
+var GUID			  =			'{{$data['GUID']}}';
 var show_popup		  = 	 	0;
 var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
@@ -34,8 +34,22 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				container.html(make);
 				container.find('.make-switch').bootstrapSwitch();
 			} 
-			
 	
+	$( document ).on("click",'.ticket_conversations' ,function(e) {
+		var ticket_id 		= 	$(this).attr('ticket_id');
+		var url 			= 	baseurl + '/accounts/' + ticket_id + '/ajax_conversations';
+		 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'html',
+			async :false,
+			data:{s:1},
+			success: function(response){
+				$('#ticket-conversation #allComments').html(response);
+				$('#ticket-conversation').modal('show');
+			},
+		});
+	});
 	$( document ).on("click",'.delete_task_link' ,function(e) {
 		
 	    var del_task_id  = $(this).attr('task-id');
@@ -349,6 +363,7 @@ toastr.error(status, "Error", toastr_opts);
 					type: 'POST',
 					dataType: 'html',
 					async :false,
+					data:{GUID:GUID},
 					success: function(response1) {
 							if (isJson(response1)) {
 								
