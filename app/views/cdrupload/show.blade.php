@@ -77,13 +77,16 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Date</label>
                                 <div class="col-sm-3">
-                                    <input type="text" name="DateRange" data-format="YYYY-MM-DD HH:mm:ss" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
+                                    <input type="text" name="DateRange" data-format="YYYY-MM-DD HH:mm:ss" data-start-date="{{Input::get('StartDate')?Input::get('StartDate'):date('Y-m-d')}}" data-end-date="{{Input::get('EndDate')?Input::get('EndDate').'23:59:59':date('Y-m-d').'23:59:59'}}" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}}
+                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}}
                                 </div>
-                                
+                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
+                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
                                 <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Zero Cost</label>               
                                   <div class="col-sm-1">
                             <p class="make-switch switch-small">
@@ -97,16 +100,13 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,Input::get('GatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Account</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('AccountID',$accounts,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
-                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
+
                                          
                             
                                <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
@@ -125,9 +125,15 @@
                                 <div class="col-sm-2">
                                     <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                                 </div>
+                                <?php
+                                    $trunk = Input::get('trunk');
+                                    if((int)Input::get('TrunkID') > 0){
+                                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
+                                    }
+                                ?>
                                 <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('Trunk',$trunks,Input::get('trunk'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
                             </div>

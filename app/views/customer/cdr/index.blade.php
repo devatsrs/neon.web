@@ -112,10 +112,12 @@
                         <th width="15%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
-                        <th width="10%" >Billed Duration</th>
+                        <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
+                        <th width="10%" >Prefix</th>
+                        <th width="10%" >Trunk</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -229,6 +231,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "aoColumns":
                 [
                     { "bVisible": false, "bSortable": true  }, //0Checkbox
+                    { "bSortable": true },
+                    { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },
                     { "bSortable": true },

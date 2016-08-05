@@ -14,8 +14,8 @@
             <tr>
                 <td>{{$indexcount+1}}</td>
                 <td>
-                    @if($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix')
-                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array($data['chart_type']=>$call_cost))}}">{{$call_cost}}</a>
+                    @if(((int)Session::get('customer') == 0) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
+                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
                     @else
                         {{$call_cost}}
                     @endif
@@ -45,8 +45,8 @@
             <tr>
                 <td>{{$indexcount+1}}</td>
                 <td>
-                    @if($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix')
-                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array($data['chart_type']=>$call_cost))}}">{{$call_cost}}</a>
+                    @if(((int)Session::get('customer') == 0) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
+                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
                     @else
                         {{$call_cost}}
                     @endif
@@ -76,8 +76,8 @@
             <tr>
                 <td>{{$indexcount+1}}</td>
                 <td>
-                    @if($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix')
-                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array($data['chart_type']=>$call_cost))}}">{{$call_cost}}</a>
+                    @if(((int)Session::get('customer') == 0) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
+                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
                     @else
                         {{$call_cost}}
                     @endif
