@@ -3,8 +3,6 @@ CREATE TABLE `tblCRMBoardColumn` (
   `BoardID` int(11) NOT NULL,
   `CompanyID` int(11) NOT NULL,
   `BoardColumnName` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `Height` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
-  `Width` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
   `Order` int(11) NOT NULL,
   `SetCompleted` tinyint(4) NOT NULL DEFAULT '0',
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,

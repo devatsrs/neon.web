@@ -256,27 +256,33 @@ class PaymentsController extends \BaseController {
      * @return Response
      */
     public function recall($id) {
-        if( intval($id) > 0){
-            $data = Input::all();
-            $rules['RecallReasoan'] = 'required';
-            $validator = Validator::make($data, $rules);
-            $data['RecallBy'] =  User::get_user_full_name();
-            $data['Recall'] = 1;
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            try {
-                $result = Payment::find($id)->update($data);
-                if ($result) {
-                    return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
-                } else {
+        $data = Input::all();
+        $rules['RecallReasoan'] = 'required';
+        $validator = Validator::make($data, $rules);
+        $data['RecallBy'] =  User::get_user_full_name();
+        $data['Recall'] = 1;
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        try {
+            $PaymentIDs = !empty($data['PaymentIDs'])?explode(',',$data['PaymentIDs']):'';
+            unset($data['PaymentIDs']);
+            if(is_array($PaymentIDs)){
+                $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
+            }else{
+                if($id>0) {
+                    $result = Payment::find($id)->update($data);
+                }else{
                     return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
                 }
-            } catch (Exception $ex) {
-                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
             }
-        }else{
-            return Response::json(array("status" => "failed", "message" => "Payment id is invalid."));
+            if ($result) {
+                return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
+            }
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
 
@@ -488,69 +494,6 @@ class PaymentsController extends \BaseController {
             return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }else{
             return Response::json(array("status" => "failure", "message" => "Error in Uploading Payments."));
-        }
-    }
-
-    /* not in use */
-    public function Upload($id) {
-        $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $file_name = $data['TemplateFile'];
-        $ProcessID='';
-        if( $id == 0 ) {   // After Column Mapping
-            $CompanyID = User::get_companyID();
-            $rules['selection.AccountName'] = 'required';
-            $rules['selection.PaymentDate'] = 'required';
-            $rules['selection.PaymentMethod'] = 'required';
-            $rules['selection.PaymentType'] = 'required';
-            $rules['selection.Amount'] = 'required';
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-
-            $response = Payment::prc_insertPayments($data);
-            if ( $response['status'] != 2 ) {
-                return Response::json(array("status" => "failed",'messagestatus'=> $response['status'],"message" => $response['message']));
-            }
-            $ProcessID = $response['ProcessID'];
-        }
-
-        if(empty($ProcessID)){
-            $ProcessID = $data['ProcessID'];
-        }
-        $file_name = basename($data['TemplateFile']);
-        $temp_path = getenv('TEMP_PATH').'/' ;
-        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
-
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-        copy($temp_path . $file_name, $destinationPath . $file_name);
-
-        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-            return Response::json(array("status" => "failed", "message" => "Failed to upload payments file."));
-        }
-
-        if(!empty($data['TemplateName'])){
-            $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
-            $save['created_by'] = User::get_user_full_name();
-            $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-            $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            $save['Options'] = json_encode($option);
-
-            if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
-                $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
-                $template->update($save);
-            } else {
-                $template = PaymentUploadTemplate::create($save);
-            }
-            $data['PaymentUploadTemplateID'] = $template->PaymentUploadTemplateID;
-        }
-        $UserID = User::get_userID();
-        //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
-        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
-        if($result){
-            return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }
     }
 

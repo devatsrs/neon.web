@@ -49,11 +49,12 @@ class VendorRatesController extends \BaseController
             $Account = Account::find($id);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             $trunk_keys = getDefaultTrunk($trunks);
+            $dialstring = DialString::getDialStringIDList();
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
-            return View::make('vendorrates.upload', compact('id', 'trunks', 'trunk_keys','rate_sheet_formates','Account','uploadtemplate'));
+            return View::make('vendorrates.upload', compact('id', 'trunks', 'trunk_keys','rate_sheet_formates','Account','uploadtemplate','dialstring'));
     }
     
     public function process_upload($id) {
@@ -420,12 +421,6 @@ class VendorRatesController extends \BaseController
 
                         if ($validator->fails()) {
                             return Redirect::back()->withInput(Input::all())->withErrors($validator);
-                        }
-                        if( isset($data['CompanyGatewayID']) && is_array($data['CompanyGatewayID'])){
-                            $data['CompanyGatewayIDs'] = implode(',', $data['CompanyGatewayID']);
-                            unset($data['CompanyGatewayID']);
-                        }else{
-                            $data['CompanyGatewayIDs'] = '';
                         }
 
 

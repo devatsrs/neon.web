@@ -19,7 +19,7 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
         $isArray = true;
     }
 
-    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+    if(($isArray && $response['status'] =='failed') || (!$isArray && $response->status=='failed')) {
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
             foreach ($validator as $index => $error) {
@@ -44,7 +44,8 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
     }
 
     if($isBrowser){
-        if($isArray && isset($response['Code']) && $response['Code'] ==401 || !$isArray && isset($response->Code) && $response->Code == 401){
+        if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
+
             return  Response::json(array("status" => $status, "message" => $message),401);
         }else {
             return Response::json(array("status" => $status, "message" => $message));
@@ -81,10 +82,13 @@ function download_file($file = ''){
                 '.gif'=>'image/gif',
                 '.png'=>'image/png'
             );
-            $extension = strrchr(basename($file), ".");
+            $f = new Symfony\Component\HttpFoundation\File\File($file);
+            $extension = $f->getExtension();
             $type = "application/octet-stream";
+            if (!isset($mime_types[$extension])) {
+                $mime_types[$extension] = $f->getMimeType();
+            }
             if (isset($mime_types[$extension])) {
-
                 $type = $mime_types[$extension];
                 header('Content-Description: File Transfer');
                 header('Content-disposition: attachment; filename="' . basename($file).'"');
@@ -120,6 +124,11 @@ function rename_upload_file($destinationPath,$full_name){
 function customer_dropbox($id=0,$data=array()){
     $all_customers = account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function opportunites_dropbox($id=0,$data=array()){
+    $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
+    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 
@@ -822,8 +831,16 @@ function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
 }
-
-
+function parse_reponse($response){
+    $response = json_decode($response);
+    if($response->status_code == 200){
+        return $response;
+    }elseif($response->status_code == 401 && $response->message == 'Token has expired'){
+        Session::flush();
+        Auth::logout();
+        return Redirect::to('/login')->with('message', 'Your are now logged out!');
+    }
+}
 function getUploadedFileRealPath($files)
 {
     $realPaths = [];
@@ -833,25 +850,14 @@ function getUploadedFileRealPath($files)
     return $realPaths;
 }
 
-function validfilepath($path){
-    $path = AmazonS3::unSignedImageUrl($path);
-    /*if (!is_numeric(strpos($path, "https://"))) {
-        //$path = str_replace('/', '\\', $path);
-        if (copy($path, './uploads/' . basename($path))) {
-            $path = URL::to('/') . '/uploads/' . basename($path);
-        }
-    }*/
-    return $path;
-}
-
 
 function create_site_configration_cache(){
     $domain_url 					=   $_SERVER['HTTP_HOST'];
     $result 						= 	DB::table('tblCompanyThemes')->where(["DomainUrl" => $domain_url,'ThemeStatus'=>Themes::ACTIVE])->get();
 
     if($result){  //url found
-        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':validfilepath($result[0]->Favicon);
-        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':validfilepath($result[0]->Logo);
+        $cache['FavIcon'] 			=	empty($result[0]->Favicon)?URL::to('/').'/assets/images/favicon.ico':AmazonS3::unSignedImageUrl($result[0]->Favicon);
+        $cache['Logo'] 	  			=	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':AmazonS3::unSignedImageUrl($result[0]->Logo);
         $cache['Title']				=	$result[0]->Title;
         $cache['FooterText']		=	$result[0]->FooterText;
         $cache['FooterUrl']			=	$result[0]->FooterUrl;
@@ -880,7 +886,7 @@ function addhttp($url) {
 
 function chart_reponse($alldata){
 
-    $chartColor = array('#3366cc','#dc3912','#ff9900','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
+    $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
@@ -959,47 +965,6 @@ function get_random_number(){
     return md5(uniqid(rand(), true));
 }
 
-function delete_file($session,$data)
-{
-    $files_array	=	Session::get($session);
-
-    if(isset($files_array[$data['token_attachment']])){
-
-        foreach($files_array[$data['token_attachment']] as $key=> $array_file_data)
-        {
-            if($array_file_data['fileName'] == $data['file'])
-            {
-                unset($files_array[$data['token_attachment']][$key]);
-            }
-        }
-    }
-
-    //unset($files_array[$data['token_attachment']]);
-    Session::set($session, $files_array);
-}
-
-
-function check_upload_file($files,$session,$data){
-    $files_array		        =	Session::get($session);
-    $return_txt					=	'';
-
-    if(isset($files_array[$data['token_attachment']])) {
-        $files_array[$data['token_attachment']]	=	array_merge($files_array[$data['token_attachment']],$files);
-    } else {
-        $files_array[$data['token_attachment']]	=	$files;
-    }
-
-
-    Session::set($session, $files_array);
-
-    foreach($files_array[$data['token_attachment']] as $key=> $array_file_data) {
-        $return_txt  .= '<span class="file_upload_span imgspan_filecontrole">'.$array_file_data['fileName'].'<a  del_file_name="'.$array_file_data['fileName'].'" class="del_attachment"> X </a><br></span>';
-
-    }
-
-    return $return_txt;
-}
-
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
@@ -1016,7 +981,7 @@ function check_uri($parent_link=''){
 
     if(count($path_array)>0)
     {
-         $controller = $path_array[0]; Log::info($controller."---".$parent_link); 
+         $controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
 			if(Request::segment(1)!='monitor'){
@@ -1161,6 +1126,31 @@ function get_round_decimal_places($AccountID = 0) {
     return $RoundChargesAmount;
 }
 
+
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
+    $mail 				= 	new PHPMailer;
+    $mail->isSMTP();
+    $mail->Host 		= 	$SMTPServer;
+    $mail->SMTPAuth 	= 	true;
+    $mail->Username 	= 	$SMTPUsername;
+    $mail->Password 	= 	$SMTPPassword;
+    $mail->SMTPSecure	= 	$IsSSL==1?'SSL':'TLS';
+    $mail->Port 		= 	$Port;
+    $mail->From 		= 	$address;
+    $mail->FromName 	= 	'Test Smtp server';
+    $mail->Body 		= 	"Testing Smtp mail Settings";
+    $mail->Subject 		= 	"Test Smtp Email";
+    $mail->Timeout		=    25;
+  /*if($mail->smtpConnect()){
+		$mail->smtpClose();*/
+	$mail->addAddress($ToEmail);
+   if ($mail->send()) {
+	   return "Valid mail settings.";
+	}else{
+		return "Invalid mail settings.";
+	}
+ }
+	 
 function account_expense_table($Expense,$customer_vendor){
     $datacount = $colsplan=  0;
     $tableheader = $tablebody = '';
@@ -1192,4 +1182,43 @@ function account_expense_table($Expense,$customer_vendor){
     }
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
+}
+function view_response_api($response){
+    $message = '';
+    $isArray = false;
+    if(is_array($response)){
+        $isArray = true;
+    }
+    if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
+        return Redirect::to('/logout');
+    }else if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+        $Code = $isArray?$response['Code']:$response->Code;
+        $validator = $isArray?$response['message']:(array)$response->message;
+        if (count($validator) > 0) {
+            foreach ($validator as $index => $error) {
+                if(is_array($error)){
+                    $message .= array_pop($error) . "<br>";
+                }
+            }
+        }
+        Log::info($message);
+        if($Code > 0) {
+            return App::abort($Code, $message);
+        }
+    }
+
+}
+
+function terminate_process($pid){
+
+    $process = new Process();
+    $process->setPid($pid);
+    $status = $process->stop();
+    return $status;
+
+}
+function run_process($command) {
+
+    $process = new Process($command);
+    return $status = $process->status();
 }

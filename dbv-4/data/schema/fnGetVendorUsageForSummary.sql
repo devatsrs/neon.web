@@ -2,7 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetVendorUsageForSummary`(IN `p_C
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorUsageDetailsReport_;
+	/*DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorUsageDetailsReport_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblVendorUsageDetailsReport_(
 		VendorCDRID INT,
 		AccountID int,
@@ -20,9 +20,9 @@ BEGIN
 		call_status tinyint, 
 		INDEX temp_connect_time (`connect_time`,`connect_date`)
 
-	);
-	
-	INSERT INTO tmp_tblVendorUsageDetailsReport_  
+	);*/
+	DELETE FROM tmp_tblVendorUsageDetailsReport WHERE CompanyID = p_CompanyID;
+	INSERT INTO tmp_tblVendorUsageDetailsReport  
 	SELECT
 		ud.VendorCDRID,
 		uh.AccountID,
@@ -46,7 +46,7 @@ BEGIN
 	AND uh.AccountID is not null
 	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
 
-	INSERT INTO tmp_tblVendorUsageDetailsReport_  
+	INSERT INTO tmp_tblVendorUsageDetailsReport  
 	SELECT
 		ud.VendorCDRFailedID,
 		uh.AccountID,

@@ -18,6 +18,12 @@
 </ol>
 @include('includes.errors')
 @include('includes.success')
+<p style="text-align: right;">
+    <a class="btn btn-primary print btn-sm btn-icon icon-left" type="button" href="{{URL::to('accounts/activity_pdf_download/'.$id)}}">
+        <i class="entypo-print"></i>
+        Print
+    </a>
+</p>
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-primary panel-table loading">
@@ -94,7 +100,7 @@
     var CurrencySymbol = '{{$CurrencySymbol}}';
     $(function() {
         Highcharts.theme = {
-            colors: ['#3366cc', '#dc3912', '#ff9900', '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
+            colors: ['#3366cc', '#ff9900','#dc3912', '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
         };
         // Apply the theme
         Highcharts.setOptions(Highcharts.theme);

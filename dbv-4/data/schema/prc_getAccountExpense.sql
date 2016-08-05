@@ -58,6 +58,20 @@ BEGIN
 	WHERE  sh.CompanyID = p_CompanyID
 	AND sh.AccountID = p_AccountID;
 	
+	INSERT INTO tmp_tblUsageSummary_
+	SELECT
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.AreaPrefix,
+		us.TotalCharges,
+		1 as Customer
+	FROM tblSummaryHeader sh
+	INNER JOIN tblUsageSummaryLive us
+		ON us.SummaryHeaderID = sh.SummaryHeaderID 
+	WHERE  sh.CompanyID = p_CompanyID
+	AND sh.AccountID = p_AccountID;
+	
 	/* insert vendor summary */
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
@@ -69,6 +83,20 @@ BEGIN
 		2 as Vendor
 	FROM tblSummaryVendorHeader sh
 	INNER JOIN tblUsageVendorSummary us
+		ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+	WHERE  sh.CompanyID = p_CompanyID
+	AND sh.AccountID = p_AccountID;
+	
+	INSERT INTO tmp_tblUsageSummary_
+	SELECT
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.AreaPrefix,
+		us.TotalCharges,
+		2 as Vendor
+	FROM tblSummaryVendorHeader sh
+	INNER JOIN tblUsageVendorSummaryLive us
 		ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
 	WHERE  sh.CompanyID = p_CompanyID
 	AND sh.AccountID = p_AccountID;
@@ -102,8 +130,7 @@ BEGIN
 			 us.CustomerVendor = 1 
 		AND us.AreaPrefix != 'other'
 		AND dd.DateID >= v_DateID_
-	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix
-	ORDER BY FinalTotal DESC ,dd.year,dd.month_of_year;
+	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix;
 	
 	/* convert into pivot table*/
 	
@@ -119,7 +146,7 @@ BEGIN
 							SELECT AreaPrefix , ', @sql, ' 
 							FROM tmp_tblCustomerPrefix_ 
 							GROUP BY AreaPrefix
-							ORDER BY MAX(FinalTotal) DESC
+							ORDER BY MAX(FinalTotal) desc, MAX(YearMonth)
 						');
 		
 		PREPARE stmt FROM @sql;
@@ -145,8 +172,7 @@ BEGIN
 			 us.CustomerVendor = 2 
 		AND us.AreaPrefix != 'other'
 		AND dd.DateID >= v_DateID_
-	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix
-	ORDER BY FinalTotal DESC ,dd.year,dd.month_of_year;
+	GROUP BY dd.year,dd.month_of_year,us.AreaPrefix;
 
 	/* convert into pivot table*/
 	
@@ -162,7 +188,7 @@ BEGIN
 							SELECT AreaPrefix , ', @stm, ' 
 							FROM tmp_tblVendorPrefix_ 
 							GROUP BY AreaPrefix
-							ORDER BY MAX(FinalTotal) DESC
+							ORDER BY MAX(FinalTotal) desc, MAX(YearMonth)
 						');
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;

@@ -229,7 +229,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Porta"%'
+		AND j.Options like '%"Format":"Porta"%'	
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -244,7 +244,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Porta"%'
+		AND j.Options like '%"Format":"Porta"%'	
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -294,8 +294,8 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-
-
+	
+	 
 
 	/** PendingInvoice Usage File Generation. **/
 
@@ -341,7 +341,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-
+	
 	/** Pending RatesheetGeneration **/
 	SELECT
 		TBL1.JobID,
@@ -673,7 +673,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Sippy"%'
+		AND j.Options like '%"Format":"Sippy"%'	
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -688,7 +688,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Sippy"%'
+		AND j.Options like '%"Format":"Sippy"%'	
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -734,7 +734,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Sippy"%'
+		AND j.Options like '%"Format":"Sippy"%'	
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -766,7 +766,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'
+		AND j.Options like '%"Format":"Vos 3.2"%'	
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -781,7 +781,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'
+		AND j.Options like '%"Format":"Vos 3.2"%'	
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -812,7 +812,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'
+		AND j.Options like '%"Format":"Vos 3.2"%'	
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -827,7 +827,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'
+		AND j.Options like '%"Format":"Vos 3.2"%'	
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
@@ -876,7 +876,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-
+	
 	/** Rate Table Rate Upload **/
 	SELECT
 		TBL1.JobID,
@@ -919,7 +919,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-
+	
 	/**VendorUploadCDR**/
     SELECT
 		TBL1.JobID,
@@ -962,7 +962,7 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-
+	
 	/*SELECT
 		'sippydownloadcdr' as Command,
 		tblCronJob.CronJobID
@@ -973,7 +973,7 @@ BEGIN
 	AND tblCronJob.Status = 1
 	-- AND tblCronJob.DownloadActive = 0
 	AND tblCronJobCommand.Command = 'sippyaccountusage';*/
-
+	
 		/** Import account or lead **/
 	SELECT
 		TBL1.JobID,
@@ -1016,6 +1016,49 @@ BEGIN
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
-
+	
+	/* Dial Plan Upload */
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'DPU'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'DPU'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END

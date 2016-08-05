@@ -19,6 +19,9 @@ class CronJob extends \Eloquent {
     const  CRON_SUCCESS = 1;
     const  CRON_FAIL = 2;
 
+    const ACTIVE = 1;
+    const INACTIVE = 0;
+
     public static $cron_type = array(self::MINUTE=>'Minute',self::HOUR=>'Hourly',self::DAILY=>'Daily');
 
     public static function checkForeignKeyById($id){
@@ -131,11 +134,13 @@ class CronJob extends \Eloquent {
                 $data['Setting']['CompanyGatewayID'] = $data['CompanyGatewayID'];
                 unset($data['CompanyGatewayID']);
             }
+            if(isset($data['AccountID'])){
+                $data['Setting']['AccountID'] = $data['AccountID'];
+                unset($data['AccountID']);
+            }
             if(isset($data['TemplateID'])){
                 $data['Setting']['TemplateID'] = $data['TemplateID'];
-                $data['Setting']['AccountID'] = $data['AccountID'];
                 unset($data['TemplateID']);
-                unset($data['AccountID']);
             }
             $data['Settings'] = json_encode($data['Setting']);
         }
@@ -148,5 +153,61 @@ class CronJob extends \Eloquent {
     }
 
 
+    public static function ActiveCronJobEmailSend($CronJobID){
+        $emaildata = array();
+
+        if(empty($CronJobID)){
+            return NULL;
+        }
+
+        $CronJob = CronJob::find($CronJobID);
+        $JobTitle = $CronJob->JobTitle;
+        $CompanyID = $CronJob->CompanyID;
+        $LastRunTime = $CronJob->LastRunTime;
+        $ComanyName = Company::getName($CompanyID);
+        $PID = $CronJob->PID;
+
+        $minute = CronJob::calcTimeDiff($LastRunTime);
+
+        $cronsetting = json_decode($CronJob->Settings,true);
+        $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
+
+        $ReturnStatus = terminate_process($PID);
+
+        //Kill the process.
+        $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
+
+        CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_FAIL, "Message"=> "Terminated by " . User::get_user_full_name()]);
+
+        $emaildata['KillCommand'] = "";
+        $emaildata['ReturnStatus'] = $ReturnStatus;
+        $emaildata['DetailOutput'] = array();
+
+        $emaildata['CompanyID'] = $CompanyID;
+        $emaildata['Minute'] = $minute;
+        $emaildata['JobTitle'] = $CronJob->JobTitle;
+        $emaildata['PID'] = $CronJob->PID;
+        $emaildata['CompanyName'] = $ComanyName;
+        $emaildata['EmailTo'] = $ActiveCronJobEmailTo;
+        $emaildata['EmailToName'] = '';
+        $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
+        $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/cronjob_monitor');
+
+        $emailstatus = Helper::sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
+        return $emailstatus;
+    }
+
+    public static function calcTimeDiff($LastRunTime)
+    {
+        $seconds = strtotime(date('Y-m-d H:i:s')) - strtotime($LastRunTime);
+        $minutes = floor(($seconds / 60));
+        if (isset($minutes) && $minutes != '')
+        {
+            return $minutes;
+        }else{
+            return 0;
+        }
+
+    }
 
 }

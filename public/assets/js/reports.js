@@ -268,7 +268,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
             }
         }else{
-            $(table_id).find('tfoot').html('');
+            $(table_id).find('tfoot').find('tr').html('');
         }
     }
 
@@ -291,7 +291,7 @@ function account_expense_chart(submit_data){
                 $('#expense_vendor_table').html(data.VendorActivity);
                 $('#account_expense_bar_chart').highcharts({
                     title: {
-                        text: 'Customer & Vendor Activity',
+                        text: 'Account Activity',
                         x: -20 //center
                     },
                     xAxis: {

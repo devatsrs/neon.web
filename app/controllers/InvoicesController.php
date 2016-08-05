@@ -63,7 +63,7 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
-        $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
+        $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
@@ -122,8 +122,10 @@ class InvoicesController extends \BaseController {
         foreach($InvoiceNo as $Invoicerow){
             $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
         }
-        $invoice = implode(',',$InvoiceNoarray);
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID'));
+        $invoice 						= 	implode(',',$InvoiceNoarray);
+		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data'));
 
     }
 
@@ -658,7 +660,10 @@ class InvoicesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            @mkdir($logo_path, 0777, true);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
             $usage_data = array();
@@ -979,7 +984,9 @@ class InvoicesController extends \BaseController {
                 $status['status'] = 'failure';
             }else{
                 $status['status'] = "success";
-                $Invoice->update(['InvoiceStatus' => Invoice::SEND ]);
+                if($Invoice->InvoiceStatus != Invoice::PAID && $Invoice->InvoiceStatus != Invoice::PARTIALLY_PAID && $Invoice->InvoiceStatus != Invoice::CANCEL){
+                    $Invoice->update(['InvoiceStatus' => Invoice::SEND ]);
+                }
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Sent By '.$CreatedBy;

@@ -78,13 +78,13 @@
     @if( User::checkCategoryPermission('CodeDecks','Edit'))
     <a href="javascript:;"  id="changeSelectedCodedeck" class="btn btn-primary btn-sm btn-icon icon-left" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;">
         <i class="entypo-floppy"></i>
-        Change Selected Codedeck
+        Change Selected
     </a>
     @endif
     @if( User::checkCategoryPermission('CodeDecks','Delete'))
     <button type="submit" id="delete-bulk-codedeck-selected" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
-        Delete Selected Codedeck
+        Delete Selected
     </button>
     <!--<button type="submit" id="delete-bulk-codedeck-all" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
@@ -356,11 +356,13 @@ var postdata;
         });
     });
     $('#table-4 tbody').on('click', 'tr', function() {
-        $(this).toggleClass('selected');
-        if ($(this).hasClass('selected')) {
-            $(this).find('.rowcheckbox').prop("checked", true);
-        } else {
-            $(this).find('.rowcheckbox').prop("checked", false);
+        if (checked =='') {
+            $(this).toggleClass('selected');
+            if ($(this).hasClass('selected')) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+            }
         }
     });
     $("#changeSelectedCodedeck").click(function(ev) {

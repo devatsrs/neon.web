@@ -8,8 +8,7 @@ BEGIN
 
 
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-    SET SESSION sql_mode='';
-
+     SET SESSION sql_mode='';
 
 
 	 DROP TEMPORARY TABLE IF EXISTS tmp_Invoices;
@@ -61,14 +60,18 @@ BEGIN
 			DISTINCT
          tblInvoice.InvoiceNumber,
          CASE
-         	WHEN (tblInvoice.ItemInvoice = 1 ) THEN   /* Item Invoice  */
+         	WHEN (tblInvoice.ItemInvoice = 1 ) THEN
                 DATE_FORMAT(tblInvoice.IssueDate,'%d-%m-%Y')
-		WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
-		 	  (select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d-%m-%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d-%m-%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)
+				WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
+					Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y'))
+				WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 1) THEN
+					(select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d-%m-%Y') ,'-' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d-%m-%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)
+
        END AS PeriodCover,
          tblInvoice.GrandTotal,
          tblInvoice.InvoiceType
         FROM tblInvoice
+        LEFT JOIN tblInvoiceDetail         ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID
         WHERE tblInvoice.CompanyID = p_CompanyID
         AND tblInvoice.AccountID = p_accountID
         AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
@@ -76,7 +79,6 @@ BEGIN
  		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') <= p_EndDate ) )
 		  Order by tblInvoice.IssueDate desc
 		;
-
 
 
      -- 2 Payments

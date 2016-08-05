@@ -1524,7 +1524,17 @@ toastr_opts = {
         wid = setTimeout(trigger_resizable, 200);
     });
 
-
+		 // odometer
+        if ($.isFunction($.fn.Odometer) && $(".odometer").length)
+        { 
+			window.odometerOptions = {
+			  format: '(ddd).dd'
+			};
+			 var od = new Odometer({
+			  el: $(".odometer"),
+			  value: 0
+			});
+        }
 
 })(jQuery, window);
 

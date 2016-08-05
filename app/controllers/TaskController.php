@@ -51,21 +51,49 @@ class TaskController extends \BaseController {
         }else{
             $message = json_response_api($response,false,false);
         }
-
-        return View::make('crmcomments.attachments', compact('attachementPaths','message'))->render();
+        $type = 'task';
+        return View::make('crmcomments.attachments', compact('attachementPaths','message','type','id'))->render();
     }
 
     public function saveattachment($id){
         $data = Input::all();
         $taskattachment = Input::file('taskattachment');
         if(!empty($taskattachment)) {
-            $data['file'] = NeonAPI::base64byte($taskattachment);
+            $FilesArray = array();
+            $allowed = getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+            $allowedextensions = explode(',',$allowed);
+            $allowedextensions = array_change_key_case($allowedextensions);
+            foreach ($taskattachment as $attachment) {
+                $ext = $attachment->getClientOriginalExtension();
+                if (!in_array(strtolower($ext), $allowedextensions)) {
+                    return generateResponse($ext." file type is not allowed. Allowed file types are ".$allowed,true,true);
+                }
+            }
+            foreach($taskattachment as $file){
+                $ext = $file->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TASK_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                $file_name = "TaskAttachment_". GUID::generate() . '.' . $ext;
+                $file->move($destinationPath, $file_name);
+
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file."));
+                }
+                $FilesArray[] = array("filename" => $file->getClientOriginalName(), "filepath" => $amazonPath . $file_name);
+            }
+            $data['file']		=	json_encode($FilesArray);
             $response = NeonAPI::request('task/'.$id.'/save_attachment',$data,true,false,true);
             return json_response_api($response);
         }else{
             return Response::json(array("status" => "failed", "message" => "No attachment found."));
         }
     }
+
+
 
     public function deleteAttachment($taskID,$attachmentID){
         $response = NeonAPI::request('task/'.$taskID.'/delete_attachment/'.$attachmentID,[],false);
@@ -108,8 +136,9 @@ class TaskController extends \BaseController {
 	 * @return Response
 	 */
     public function create(){
-        $data = Input::all();
-        $response = NeonAPI::request('task/add_task',$data);
+        $data 					= 	Input::all();
+		$data['TaskBoardUrl']	=	URL::to('/task');
+        $response 				= 	NeonAPI::request('task/add_task',$data);
 
         if($response->status!='failed'){
             if(isset($data['Task_view'])){
@@ -155,12 +184,56 @@ class TaskController extends \BaseController {
     public function update($id)
     {
         if( $id > 0 ) {
-            $data = Input::all();
+            $data 					= 	Input::all();
+			$required_data  		= 	0;
+			$key					= 	0;
+			$data['TaskBoardUrl']	=	URL::to('/task');	
+			if(isset($data['KeyID']) && $data['KeyID']!=''){
+				$key = $data['KeyID'];
+			}
+			unset($data['KeyID']);
             $response = NeonAPI::request('task/'.$id.'/update_task',$data);
+			if(isset($data['required_data']) && $data['required_data']!=''){
+					$required_data = 1;
+			}
+			if($required_data==1){
+				$response = $response->data;
+				$response = $response[0];
+				$response->type = Task::Tasks;
+				$current_user_title = User::get_user_full_name();				
+				return View::make('accounts.show_ajax_single_update', compact('response','key','current_user_title'));  
+			}else{
             return json_response_api($response);
+			}
         }else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Task."));
         }
+    }
+	
+	function GetTask(){
+		$response				=	array();
+		$data 					= 	Input::all();
+		$response_note    		=   NeonAPI::request('task/GetTask',array('TaskID'=>$data['TaskID']),false,true);
+		
+		if($response_note['status']=='failed'){
+			return json_response_api($response_note,false,true);
+		}else{ Log::info($response_note['data']);
+			return json_encode($response_note['data']);
+		}
+	}
+	
+	 /**
+     * Delete a Note
+     */
+    public function delete_task($id) {        
+		$data['TaskID']			=	$id;		 
+		$response 				= 	NeonAPI::request('task/deletetask',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			return Response::json(array("status" => "success", "message" => "Task Successfully Deleted", "TaskID" => $id));
+		}     
     }
 
     function updateColumnOrder($id){
@@ -169,26 +242,20 @@ class TaskController extends \BaseController {
         return json_response_api($response);
     }
 
-    //////////////////////
-    function upload_file(){
-        $data       =  Input::all();
-        $data['file']    = array();
-        $attachment    =  Input::file('commentattachment');
+    public function getAttachment($taskID,$attachmentID){
+        $response = NeonAPI::request('task/'.$taskID.'/getattachment/'.$attachmentID,[],true,true,true);
 
-        if(!empty($attachment)){
-            $data['file'] = NeonAPI::base64byte($attachment);
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
+        }else{
+            $attachment = json_response_api($response,true,false,false);
+            $FilePath =  AmazonS3::preSignedUrl($attachment['filepath']);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
+            exit;
         }
-        try {
-            $return_str = check_upload_file($data['file'], 'email_attachments', $data);
-            return $return_str;
-        }catch (Exception $ex) {
-            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
-        }
-
-    }
-
-    function delete_upload_file(){
-        $data    =  Input::all();
-        delete_file('email_attachments',$data);
     }
 }
