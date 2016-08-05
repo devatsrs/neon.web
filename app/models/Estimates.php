@@ -49,9 +49,10 @@ class Estimate extends \Eloquent {
 			{
                 $as3url = (AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key));
             }
-            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
-			
-            $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . User::get_companyID();
+            @mkdir($logo_path, 0777, true);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
 
             $EstimateTemplate->DateFormat 	= 	estimate_date_fomat($EstimateTemplate->DateFormat);
@@ -70,6 +71,7 @@ class Estimate extends \Eloquent {
 			{
                 mkdir($destination_dir, 0777, true);
             }
+            RemoteSSH::run("chmod -R 777 " . $destination_dir);
 			
             $file_name 			= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name 		= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;

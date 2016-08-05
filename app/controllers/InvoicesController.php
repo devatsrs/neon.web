@@ -660,8 +660,10 @@ class InvoicesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
-            $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            @mkdir($logo_path, 0777, true);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
             $usage_data = array();
