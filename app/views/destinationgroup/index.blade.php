@@ -12,9 +12,11 @@
 
     @include('includes.errors')
     @include('includes.success')
+    @if(User::checkCategoryPermission('DestinationGroup','Edit'))
     <p style="text-align: right;">
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Destination Group Set</a>
     </p>
+    @endif
 
 
     <div id="table_filter" method="get" action="#" >
@@ -119,11 +121,15 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
+                                @if(User::checkCategoryPermission('DestinationGroup','Edit'))
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
+                                @endif
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                @if(User::checkCategoryPermission('DestinationGroup','Delete'))
                                 if(full[7]== null) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
                                 }
+                                @endif
                                 return action;
                             }
                         },  // 0 Created

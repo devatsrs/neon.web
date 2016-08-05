@@ -13,8 +13,10 @@
     </ol>
     <h3>Destination Group</h3>
     <p style="text-align: right;">
+        @if(User::checkCategoryPermission('DestinationGroup','Edit'))
         @if($discountplanapplied ==0)
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Destination Group</a>
+        @endif
         @endif
         <a href="{{URL::to('/destination_group_set')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
@@ -122,10 +124,14 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
+                                @if(User::checkCategoryPermission('DestinationGroup','Edit'))
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
+                                @endif
                                 @if($discountplanapplied ==0)
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                @if(User::checkCategoryPermission('DestinationGroup','Delete'))
                                 action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
+                                @endif
                                 @endif
                                 return action;
                             }

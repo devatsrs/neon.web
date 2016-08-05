@@ -12,10 +12,11 @@
 
     @include('includes.errors')
     @include('includes.success')
+    @if(User::checkCategoryPermission('DiscountPlan','Edit'))
     <p style="text-align: right;">
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount Plan</a>
     </p>
-
+    @endif
     <div id="table_filter" method="get" action="#" >
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
@@ -116,11 +117,15 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
+                                @if(User::checkCategoryPermission('DiscountPlan','Edit'))
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                @endif
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" class="btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View</a>'
+                                @if(User::checkCategoryPermission('DiscountPlan','Delete'))
                                 if(full[9]== null) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
                                 }
+                                @endif
                                 return action;
                             }
                         },  // 0 Created

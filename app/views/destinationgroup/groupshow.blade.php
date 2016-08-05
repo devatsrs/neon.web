@@ -16,7 +16,9 @@
     </ol>
     <h3>Destination Group Code</h3>
     <p style="text-align: right;">
+        @if(User::checkCategoryPermission('DestinationGroup','Edit'))
         <button  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="fa fa-floppy-o"></i>Save</button>
+        @endif
         <a href="{{URL::to('/destination_group_set/show/'.$DestinationGroupSetID)}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close

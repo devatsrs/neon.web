@@ -16,8 +16,10 @@
     @include('includes.errors')
     @include('includes.success')
     <p style="text-align: right;">
+        @if(User::checkCategoryPermission('DiscountPlan','Edit'))
         @if($discountplanapplied == 0)
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount</a>
+        @endif
         @endif
         <a href="{{URL::to('/discount_plan')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
@@ -127,8 +129,12 @@
                                 }
                                 action += '</div>';
                                 @if($discountplanapplied == 0)
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    @if(User::checkCategoryPermission('DiscountPlan','Edit'))
+                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                    @endif
+                                    @if(User::checkCategoryPermission('DiscountPlan','Delete'))
+                                        action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    @endif
                                 @endif
                                 return action;
                             }
