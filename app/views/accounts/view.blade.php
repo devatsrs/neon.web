@@ -446,6 +446,7 @@
                 <p>Priority: {{$rows['TicketPriority']}}</p>
                 <p>Type: {{$rows['TicketType']}}</p>
                 <p>Group: {{$rows['TicketGroup']}}</p>
+                <p>Date Created: {{$rows['created_at']}}</p>
                 <p>Description: {{$rows['TicketDescription']}}</p>
                 <p><a ticket_id="{{$rows['TicketID']}}" class="ticket_conversations">View Ticket Conversations</a></p>
               </div>
