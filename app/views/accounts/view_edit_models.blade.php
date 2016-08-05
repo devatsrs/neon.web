@@ -276,8 +276,7 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Conversations</h4>
                     </div>
-                    <div class="modal-body">                      
-                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
+                    <div class="modal-body left-padding">                      
                         <div id="allComments" class="form-group"></div>                      
                     </div>
                     <div class="modal-footer">

@@ -10,7 +10,7 @@
         @foreach($response['data'] as $rows)
         <li class="countComments" id="comment-1">
           <div class="comment-details">
-            <p class="comment-text"> {{nl2br($rows['body'])}} </p>
+            <p class="comment-text"> {{nl2br($rows['body_text'])}} </p>
             <div class="comment-footer">
               <div class="comment-time"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($rows['created_at']))->diffForHumans()}} </div>
             </div>
