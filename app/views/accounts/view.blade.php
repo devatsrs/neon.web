@@ -66,6 +66,9 @@
                   <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="entypo-target"></i> </button>
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif 
+                    @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('AccountActivityChart','View'))
+                    <a  href="{{Url::to('accounts/activity/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Account Activity Chart" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-bar-chart"></i> </a>
+                    @endif
                   
                   <!--  <button type="button" data-id="{{$account->AccountID}}" title="View Account" class="btn btn-default btn-xs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}"> <i class="entypo-search"></i> </button> --> 
                   @if($leadOrAccountCheck=='account')
