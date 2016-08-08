@@ -126,6 +126,7 @@
               <h2 class="toggle_open" id_toggle="{{$key}}">Ticket<br><p>Subject: {{$rows['TicketSubject']}}</p></span></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>Status: {{$rows['TicketStatus']}}</p>
+                <p>Requester: {{$rows['RequestEmail']}}</p>
                 <p>Priority: {{$rows['TicketPriority']}}</p>
                 <p>Type: {{$rows['TicketType']}}</p>
                 <p>Group: {{$rows['TicketGroup']}}</p>
