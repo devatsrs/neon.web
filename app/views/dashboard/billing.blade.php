@@ -772,26 +772,4 @@ function missingAccounts(){
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="modal-BulkTags">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="BulkTag-form" method="post" action="">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Bulk Account tags</h4>
-                    </div>
-                    <div class="modal-body">
-
-                    </div>
-                    <div class="modal-footer">
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @stop
