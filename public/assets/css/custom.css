@@ -2126,3 +2126,7 @@ border:1px solid #AC33FF;
 .filter p{
     margin-bottom: 0px;
 }
+.page-body .select2-container .select2-choice {
+    height: 32px;
+    line-height: 29px;
+}

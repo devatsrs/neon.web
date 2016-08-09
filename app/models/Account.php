@@ -121,7 +121,7 @@ class Account extends \Eloquent {
         $data['CompanyID']=User::get_companyID();
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
-            $row = array(""=> "Select an Account")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -322,7 +322,7 @@ class Account extends \Eloquent {
                 $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
             }
         }else{
-            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+            $ExpenseYearHTML = '<h4>No Data</h4>';
         }
 
         $response['customer'] =  implode(',',$customer);

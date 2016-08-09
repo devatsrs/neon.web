@@ -17,7 +17,6 @@
 
 @include('includes.errors')
 @include('includes.success')
-<link rel="stylesheet" href="{{URL::asset('assets/js/daterangepicker/daterangepicker.css')}}">
 <p style="text-align: right;">
     <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary hidden">
         <i class="entypo-check"></i>
@@ -87,7 +86,7 @@
                                 <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
                                     {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Zero Cost</label>               
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
                                   <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
@@ -100,7 +99,7 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,Input::get('GatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Account</label>
                                 <div class="col-sm-2">
@@ -191,8 +190,6 @@
 </div>
 
 
-<script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script>
-<script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>
 <script type="text/javascript">
 var currency_symbol = '';
 var $searchFilter = {};

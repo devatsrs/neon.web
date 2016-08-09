@@ -30,7 +30,9 @@ class CDRCustomerController extends BaseController {
         $AccountID = User::get_userID();
         $account                     = Account::find($AccountID);
         $CurrencyID 		 = 	 empty($account->CurrencyId)?'0':$account->CurrencyId;
-        return View::make('customer.cdr.index',compact('dashboardData','account','gateway','rate_cdr','AccountID','CurrencyID'));
+        $trunks = Trunk::getTrunkDropdownList();
+        $trunks = $trunks + array('Other'=>'Other');
+        return View::make('customer.cdr.index',compact('dashboardData','account','gateway','rate_cdr','AccountID','CurrencyID','trunks'));
     }
     public function ajax_datagrid($type){
         $data						 =   Input::all();
@@ -49,7 +51,7 @@ class CDRCustomerController extends BaseController {
         $data['EndDate'] = $DateRange[1];
         $area_prefix = $Trunk = '';
 
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$CurrencyID.",'".$area_prefix."','".$Trunk."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$CurrencyID.",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');

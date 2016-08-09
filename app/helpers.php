@@ -890,7 +890,7 @@ function chart_reponse($alldata){
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
-        $response['CallCountHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallCountHtml'] = '<h4>No Data</h4>';
         $response['CallCount'] = '';
         $response['CallCountVal'] = '';
     }else{
@@ -899,7 +899,7 @@ function chart_reponse($alldata){
         $response['CallCountHtml'] =  $alldata['call_count_html'];
     }
     if(empty($alldata['call_cost'])) {
-        $response['CallCostHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallCostHtml'] = '<h4>No Data</h4>';
         $response['CallCost'] = '';
         $response['CallCostVal'] = '';
     }else{
@@ -908,7 +908,7 @@ function chart_reponse($alldata){
         $response['CallCostHtml'] = $alldata['call_cost_html'];
     }
     if(empty($alldata['call_minutes'])) {
-        $response['CallMinutesHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallMinutesHtml'] = '<h4>No Data</h4>';
         $response['CallMinutes'] = '';
         $response['CallMinutesVal'] = '';
     }else{
@@ -1178,7 +1178,7 @@ function account_expense_table($Expense,$customer_vendor){
             $datacount++;
         }
     }else{
-        $tablebody = '<tr><td>NO DATA</td></tr>';
+        $tablebody = '<tr><td>No Data</td></tr>';
     }
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";

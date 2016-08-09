@@ -10,7 +10,6 @@
 
 @include('includes.errors')
 @include('includes.success')
-    <link rel="stylesheet" href="{{URL::asset('assets/js/daterangepicker/daterangepicker.css')}}">
 <!--<p style="text-align: right;">
     <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary hidden">
         <i class="entypo-check"></i>
@@ -91,6 +90,23 @@
                                     {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label" for="field-1">Prefix</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                                </div>
+                                <?php
+                                $trunk = Input::get('trunk');
+                                if((int)Input::get('TrunkID') > 0){
+                                    $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
+                                }
+                                ?>
+                                <label class="col-sm-1 control-label" for="field-1">Trunk</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
+
+                            </div>
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
                                     <i class="entypo-search"></i>
@@ -133,8 +149,6 @@
 </div>
 
 
-    <script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>
 <script type="text/javascript">
 var $searchFilter = {};
 var update_new_url;
@@ -165,8 +179,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
             $searchFilter.CurrencyID 			= 		'{{$CurrencyID}}';
-            $searchFilter.area_prefix 			= 		'';
-            $searchFilter.Trunk 			    = 		'';
+            $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
+            $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
 
 
             if(typeof $searchFilter.DateRange  == 'undefined' || $searchFilter.DateRange.trim() == ''){

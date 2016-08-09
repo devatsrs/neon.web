@@ -66,7 +66,9 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/jquery.sparkline.min.js",
         "assets/bootstrap3-editable/js/bootstrap-editable.js",
         "assets/js/fileinput.js",
-        "assets/js/icheck/icheck.min.js"
+        "assets/js/icheck/icheck.min.js",
+            "assets/js/daterangepicker/moment.min.js",
+            "assets/js/daterangepicker/daterangepicker.js"
 
     ];
 }

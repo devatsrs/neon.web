@@ -14,8 +14,17 @@
             <tr>
                 <td>{{$indexcount+1}}</td>
                 <td>
-                    @if(((int)Session::get('customer') == 0) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
-                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                    <?php
+                    if((int)Session::get('customer') == 1){
+                        $cdr_url = (isset($customer)&& $customer ==1 ? URL::to('customer/cdr') : '');
+                    }else{
+                        $cdr_url = (isset($customer)&& $customer ==1 ? URL::to('cdr_show') : URL::to('vendorcdr_show'));
+                    }
+                    ?>
+                    @if(!empty($cdr_url) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                    @elseif($data['chart_type'] == 'gateway' && !empty($cdr_url))
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge($data,array('CompanyGatewayID'=>CompanyGateway::getCompanyGatewayIDByName($call_cost))))}}">{{$call_cost}}</a>
                     @else
                         {{$call_cost}}
                     @endif
@@ -45,8 +54,17 @@
             <tr>
                 <td>{{$indexcount+1}}</td>
                 <td>
-                    @if(((int)Session::get('customer') == 0) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
-                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                    <?php
+                    if((int)Session::get('customer') == 1){
+                        $cdr_url = (isset($customer)&& $customer ==1 ? URL::to('customer/cdr') : '');
+                    }else{
+                        $cdr_url = (isset($customer)&& $customer ==1 ? URL::to('cdr_show') : URL::to('vendorcdr_show'));
+                    }
+                    ?>
+                    @if(!empty($cdr_url) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                    @elseif($data['chart_type'] == 'gateway' && !empty($cdr_url))
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge($data,array('CompanyGatewayID'=>CompanyGateway::getCompanyGatewayIDByName($call_cost))))}}">{{$call_cost}}</a>
                     @else
                         {{$call_cost}}
                     @endif
@@ -76,8 +94,17 @@
             <tr>
                 <td>{{$indexcount+1}}</td>
                 <td>
-                    @if(((int)Session::get('customer') == 0) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
-                        <a href="{{URL::to('cdr_show').'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                    <?php
+                    if((int)Session::get('customer') == 1){
+                        $cdr_url = (isset($customer)&& $customer ==1 ? URL::to('customer/cdr') : '');
+                    }else{
+                        $cdr_url = (isset($customer)&& $customer ==1 ? URL::to('cdr_show') : URL::to('vendorcdr_show'));
+                    }
+                    ?>
+                    @if(!empty($cdr_url) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                    @elseif($data['chart_type'] == 'gateway' && !empty($cdr_url))
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge($data,array('CompanyGatewayID'=>CompanyGateway::getCompanyGatewayIDByName($call_cost))))}}">{{$call_cost}}</a>
                     @else
                         {{$call_cost}}
                     @endif
