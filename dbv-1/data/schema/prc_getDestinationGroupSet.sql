@@ -15,14 +15,10 @@ BEGIN
 			dgs.DestinationGroupSetID,
 			dgs.CodedeckID,
 			dgs.CompanyID,
-			adp.DiscountPlanID as Applied
+			(SELECT adp.DiscountPlanID FROM tblDiscountPlan dp  LEFT JOIN tblAccountDiscountPlan adp ON adp.DiscountPlanID = dp.DiscountPlanID WHERE dp.DestinationGroupSetID = dgs.DestinationGroupSetID LIMIT 1) as Applied
 		FROM tblDestinationGroupSet dgs
 		INNER JOIN tblCodeDeck cd 
 			ON cd.CodeDeckId = dgs.CodedeckID
-		LEFT JOIN tblDiscountPlan dp
-			ON dp.DestinationGroupSetID = dgs.DestinationGroupSetID
-		LEFT JOIN tblAccountDiscountPlan adp
-			ON adp.DiscountPlanID = dp.DiscountPlanID
 		WHERE dgs.CompanyID = p_CompanyID
 			AND (p_Name ='' OR dgs.Name like  CONCAT('%',p_Name,'%'))
 			AND (p_CodedeckID = 0 OR dgs.CodedeckID = p_CodedeckID)

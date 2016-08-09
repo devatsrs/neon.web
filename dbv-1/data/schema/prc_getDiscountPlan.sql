@@ -17,14 +17,13 @@ BEGIN
 			dp.DestinationGroupSetID,
 			dp.CurrencyID,
 			dp.Description,
-			adp.DiscountPlanID as Applied
+			(SELECT adp.DiscountPlanID FROM tblAccountDiscountPlan adp WHERE adp.DiscountPlanID = dp.DiscountPlanID LIMIT 1)as Applied
 		FROM tblDiscountPlan dp
 		INNER JOIN tblDestinationGroupSet dgs
 			ON dgs.DestinationGroupSetID = dp.DestinationGroupSetID
 		INNER JOIN tblCurrency c
 			ON c.CurrencyId = dp.CurrencyID
-		LEFT JOIN tblAccountDiscountPlan adp
-			ON adp.DiscountPlanID = dp.DiscountPlanID
+		
 		WHERE dp.CompanyID = p_CompanyID
 			AND (p_Name ='' OR dp.Name like  CONCAT('%',p_Name,'%'))
 		ORDER BY
