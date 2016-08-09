@@ -15,7 +15,7 @@ class NotificationController extends \BaseController {
     }
 
     public function index(){
-        $notificationType = array(""=> "Select a Type") + Notification::$type;
+        $notificationType = array(""=> "Select") + Notification::$type;
         return View::make('notification.index', compact('notificationType'));
     }
 

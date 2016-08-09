@@ -1231,6 +1231,17 @@ var postdata;
                     data_table.fnFilter('', 0);
                 },1000);
         });
+
+        $(document).on( "click",".available", function() {
+            if($(this).hasClass('prev')) {
+                return false;
+            }
+            if($(this).hasClass('next')) {
+                return false;
+            }
+
+            $('.applyBtn').click();
+        });
  
 });
 

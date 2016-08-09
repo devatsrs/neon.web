@@ -65,8 +65,8 @@
     <table id="table-notification" class="table table-bordered table-hover responsive">
         <thead>
         <tr>
-            <th width="20%">Notification</th>
-            <th width="30%">Email Addresses</th>
+            <th width="20%">Type</th>
+            <th width="30%">Email Address</th>
             <th width="10%">Created Date</th>
             <th width="10%">Created By</th>
             <th width="20%">Action</th>
@@ -170,7 +170,9 @@
             $('#notification-form').trigger("reset");
             $('#modal-notification h4').html('Add Notification');
             $("#notification-form [name='NotificationEmailAddresses']").val('');
-            $("#notification-form [name='NotificationType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            var selectBox = $("#notification-form [name='NotificationType']").data("selectBox-selectBoxIt");
+            selectBox.selectOption('');
+            selectBox.enable();
             $('.tax').removeClass('hidden');
 
             $('#notification-form').attr("action",notification_add_url);
@@ -186,7 +188,9 @@
             for(var i = 0 ; i< list_fields.length; i++){
                 $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                 if(list_fields[i] == 'NotificationType'){
-                    $("#notification-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
+                    selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    selectBox.disable();
                 }
             }
             $('#modal-notification').modal('show');
