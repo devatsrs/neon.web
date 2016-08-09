@@ -1113,7 +1113,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if (!file_exists($destination_dir)) {
             mkdir($destination_dir, 0777, true);
         }
-        RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
+        RemoteSSH::run("chmod -R 777 " . $destination_dir);
         $file_name = $account->AccountName.' Account Activity Chart '. date('d-m-Y') . '.pdf';
         $htmlfile_name = $account->AccountName. ' Account Activity Chart ' . date('d-m-Y') . '.html';
 
