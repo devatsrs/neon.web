@@ -127,7 +127,6 @@ BEGIN
 		WHERE 
 			p.CompanyID = p_CompanyID
 			AND ac.CurrencyId = p_CurrencyID
-			AND (p.PaymentDate BETWEEN p_StartDate AND p_EndDate)
 			AND (p_CustomerID=0 OR ac.AccountID = p_CustomerID)
 			AND p.Status = 'Approved'
 			AND p.Recall=0
@@ -154,7 +153,7 @@ BEGIN
 		      RecallBy,
 		      AmountWithSymbol
 			FROM tmp_Payment_
-			
+			where (PaymentDate BETWEEN p_StartDate AND p_EndDate)
 			ORDER BY
 					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
@@ -202,7 +201,8 @@ BEGIN
 			
 			
 			SELECT COUNT(PaymentID) AS totalcount,ROUND(COALESCE(SUM(Amount),0),v_Round_) as totalsum
-			FROM tmp_Payment_;
+			FROM tmp_Payment_
+			where (PaymentDate BETWEEN p_StartDate AND p_EndDate);
 		END IF;
 		
 		IF p_Export=1
@@ -221,7 +221,8 @@ BEGIN
             InvoiceNo,
             PaymentMethod,
             Notes
-				FROM tmp_Payment_; 
+				FROM tmp_Payment_
+				where (PaymentDate BETWEEN p_StartDate AND p_EndDate); 
 		END IF;
 	END IF;
 	
