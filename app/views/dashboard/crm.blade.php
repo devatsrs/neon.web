@@ -61,6 +61,7 @@
   </div>
 </div>
 <div class="row">
+@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
@@ -92,6 +93,8 @@
       </div>
     </div>
   </div>
+  @endif 
+  @if(User::checkCategoryPermission('CrmDashboardPipeline','View'))
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
@@ -108,7 +111,9 @@
       </div>
     </div>
   </div>
+@endif 
 </div>
+ @if(User::checkCategoryPermission('CrmDashboardForecast','View'))
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary panel-table">
@@ -138,6 +143,7 @@
     </div>
   </div>
 </div>
+@endif 
  @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
 <div class="row">
 <div class="col-sm-12">
@@ -151,11 +157,13 @@
         <div  class="clear clearfix">
           <div class="form_Sales">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales_Manager">
-              <div class="form-group form-group-border-none">
-                <label for="Closingdate" class="col-sm-2 control-label managerLabel ">Date</label>
-                <div class="col-sm-6">
-                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange"> 
-                  <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+              <div class="form-group form-group-border-none">               
+                <div class="col-sm-8">
+                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                 <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>                
+                  <label class="col-sm-1 control-label" for="field-1">List</label>
+                <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+               <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                 </div>
               </div>
               <div class="text-center">
@@ -169,6 +177,7 @@
     </div>
 </div>
 @endif 
+ @if(User::checkCategoryPermission('CrmDashboardOpportunities','View'))
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -201,6 +210,7 @@
   </div>
 </div>
 </div>
+@endif 
 <div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
@@ -215,6 +225,33 @@ var Opportunity_edit = 1;
 @else 
 var Opportunity_edit = 0;
 @endif;
+
+@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')) 
+var CrmDashboardSalesOpportunity = 1;
+@else 
+var CrmDashboardSalesOpportunity = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardPipeline','View')) 
+var CrmDashboardPipeline = 1;
+@else 
+var CrmDashboardPipeline = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardForecast','View')) 
+var CrmDashboardForecast = 1;
+@else 
+var CrmDashboardForecast = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardOpportunities','View')) 
+var CrmDashboardOpportunities = 1;
+@else 
+var CrmDashboardOpportunities = 0;
+@endif;
+
+
+
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');

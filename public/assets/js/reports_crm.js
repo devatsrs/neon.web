@@ -78,7 +78,10 @@
         var $searchFilter = {};
 	   		$searchFilter.AccountOwner = $("#crm_dashboard [name='UsersID[]']").val();
 			$searchFilter.CurrencyID = $("#crm_dashboard select[name='CurrencyID']").val();
+			
 			//opportunites grid start
+		function Getopportunities(){	
+		 if(CrmDashboardOpportunities===0){return false;} 
         data_table = $("#opportunityGrid").dataTable({
 		        "bDestroy": true,
                 "bProcessing": true,
@@ -175,6 +178,7 @@
                     $('#opportunityGrid .knob').knob({"readOnly":true});
                 }
 		});
+		}
 			//opportunites grid end
 			
 			///task grid start
@@ -288,7 +292,8 @@ function loading(table,bit){
     }
 }
 function getPipleLineData(){
-		loadingUnload(".crmdpipeline",1);
+	 if(CrmDashboardPipeline===0){return false;} 
+	loadingUnload(".crmdpipeline",1);
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
     $.ajax({
@@ -405,6 +410,7 @@ function getPipleLineData(){
 function reloadCrmCharts(){
     /* get destination data for today and display in pie three chart*/
         getPipleLineData();
+		Getopportunities();
   /* get data by time in bar chart*/
     //getSales($searchFilter.chart_type,$searchFilter);
 	 GetUsersTasks();
@@ -467,7 +473,7 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 	  return false;
     }
 	if(id=='Pipeline'){
-        getPipleLineData('',$searchFilter);
+        getPipleLineData();
 		return false;
     }
 	
@@ -483,7 +489,7 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 	
 	if(id=='UsersOpportunities'){
 		$('.loaderopportunites').show();
-		data_table.fnFilter('',0);
+		Getopportunities();
 		return false;
 	}
 	
@@ -499,7 +505,7 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 
 
 function GetForecastData(){
-	
+	 if(CrmDashboardForecast===0){return false;} 
 	//////////////////////////////////
 	loadingUnload(".crmdForecast",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
@@ -603,7 +609,7 @@ function GetForecastData(){
 }
 
 function GetSalesData(){
-	
+	 if(CrmDashboardSalesOpportunity===0){return false;} 
 	//////////////////////////////////
 	loadingUnload(".crmdSales",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
@@ -715,11 +721,12 @@ function GetSalesData(){
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var Duedate     = $("#crm_dashboard_Sales_Manager [name='Duedate']").val();
+	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']").val();
     $.ajax({
         type: 'POST',
         url: baseurl+'/dashboard/CrmDashboardSalesRevenue',
         dataType: 'html',
-        data:{CurrencyID:CurrencyID,UsersID:UsersID,Duedate:Duedate},
+        data:{CurrencyID:CurrencyID,UsersID:UsersID,Duedate:Duedate,ListType:ListType},
         aysync: true,
         success: function(data11) {
 			$('#crmdSalesManager1').html('');
