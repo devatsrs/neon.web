@@ -227,6 +227,9 @@ $(function() {
     $searchFilter.PaymentDate_EndTime   = '';
     $searchFilter.CurrencyID 			= $('[name="CurrencyID"]').val();
     $searchFilter.Type = 1;
+    var TotalSum=0;
+    var TotalPaymentSum = 0;
+    var TotalPendingSum = 0;
     PaymentTable = $("#paymentTable").dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -344,6 +347,30 @@ $(function() {
             if($('#Recall_on_off').prop("checked")){
                 $('.tohidden').addClass('hidden');
                 $('#selectall').addClass('hidden');
+            }
+        },
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            /* Add some extra data to the sender */
+            $.getJSON( sSource, aoData, function (json) {
+                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                TotalSum = json.Total.totalsum;
+                fnCallback(json)
+            });
+        },
+        "fnFooterCallback": function ( row, data, start, end, display ) {
+            if (end > 0) {
+                $(row).html('');
+                for (var i = 0; i < 2; i++) {
+                    var a = document.createElement('td');
+                    $(a).html('');
+                    $(row).append(a);
+                }
+                if(TotalSum) {
+                    $($(row).children().get(0)).attr('colspan',2)
+                    $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
+                }
+            }else{
+                $("#paymentTable").find('tfoot').find('tr').html('');
             }
         }
 
@@ -504,6 +531,33 @@ $(function() {
                     }
                 }
             });
+        },
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            /* Add some extra data to the sender */
+            $.getJSON( sSource, aoData, function (json) {
+                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                TotalSum = json.Total.totalsum;
+                TotalPaymentSum = json.Total.totalpaymentsum;
+                TotalPendingSum = json.Total.totalpendingsum;
+                fnCallback(json)
+            });
+        },
+        "fnFooterCallback": function ( row, data, start, end, display ) {
+            if (end > 0) {
+                $(row).html('');
+                for (var i = 0; i < 3; i++) {
+                    var a = document.createElement('td');
+                    $(a).html('');
+                    $(row).append(a);
+                }
+                if(TotalSum) {
+                    $($(row).children().get(0)).attr('colspan',4)
+                    $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
+                    $($(row).children().get(2)).html('<strong>' + TotalPaymentSum +'/' + TotalPendingSum + '</strong>');
+                }
+            }else{
+                $("#invoiceTable").find('tfoot').find('tr').html('');
+            }
         }
 
     });
@@ -631,6 +685,9 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
                             </thead>
                             <tbody>
                             </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
                         </table>
                     </div>
                     <div class="modal-footer">
@@ -669,6 +726,9 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
 
 
                             </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
                         </table>
                     </div>
                     <div class="modal-footer">
