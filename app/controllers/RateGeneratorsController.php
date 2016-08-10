@@ -388,13 +388,29 @@ class RateGeneratorsController extends \BaseController {
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $rules = array(
-                'MinRate' => 'numeric',
-                'MaxRate' => 'numeric',
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required',
                 'RateRuleId' => 'required',
                 'RateRuleMarginId' => 'required',
                 'ModifiedBy' => 'required'
             );
+
+            $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data ['MinRate'], $data ['MaxRate']))
+                ->where(['RateRuleId'=>$RateRuleId])
+                ->where('RateRuleMarginId','!=',$RateRuleMarginId)
+                ->count();
+            $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data ['MinRate'], $data ['MaxRate']))
+                ->where(['RateRuleId'=>$RateRuleId])
+                ->where('RateRuleMarginId','!=',$RateRuleMarginId)
+                ->count();
+
+            $minRate = RateRuleMargin::where('MaxRate','>=',$data['MinRate'])->where('MinRate','<=',$data['MinRate'])
+                ->where(['RateRuleId'=>$RateRuleId])
+                ->where('RateRuleMarginId','!=',$RateRuleMarginId)
+                ->count();
+
+            $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
 
             $validator = Validator::make($data, $rules);
 
@@ -402,21 +418,34 @@ class RateGeneratorsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+            if($minRateCount>0 || $maxRateCount>0 || $minRate>0){
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => "RateGenerator Rule Margin is overlapping."
+                ));
+            }
+            if($maxRate>0){
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => "MaxRate should greater then MinRate."
+                ));
+            }
+
             if ($rategenerator_rule_margin->update($data)) {
                 return Response::json(array(
-                            "status" => "success",
-                            "message" => "RateGenerator Rule Margin Successfully Updated"
-                        ));
+                    "status" => "success",
+                    "message" => "RateGenerator Rule Margin Successfully Updated"
+                ));
             } else {
                 return Response::json(array(
-                            "status" => "failed",
-                            "message" => "Problem Updating RateGenerator Rule Margin."
-                        ));
+                    "status" => "failed",
+                    "message" => "Problem Updating RateGenerator Rule Margin."
+                ));
             }
         }
     }
 
-    // Update Margin
+    // Add Margin
     public function add_rule_margin($id, $RateRuleId) {
         if ($id > 0 && $RateRuleId > 0) {
             $data = Input::all();
@@ -426,26 +455,43 @@ class RateGeneratorsController extends \BaseController {
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $rules = array(
-                'MinRate' => 'numeric',
-                'MaxRate' => 'numeric',
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required',
                 'RateRuleId' => 'required',
                 'CreatedBy' => 'required'
             );
 
+            $minRateCount = RateRuleMargin::whereBetween('MinRate', array(doubleval($data['MinRate']), doubleval($data['MaxRate'])))
+                ->where(['RateRuleId'=>$RateRuleId])
+                ->count();
+            $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array(doubleval($data['MinRate']), doubleval($data['MaxRate'])))
+                ->where(['RateRuleId'=>$RateRuleId])
+                ->count();
+
+            $minRate = RateRuleMargin::where('MaxRate','>=',$data['MinRate'])->where('MinRate','<=',$data['MinRate'])
+                ->where(['RateRuleId'=>$RateRuleId])
+                ->count();
+
+            $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
+
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
-                //return json_validator_response ( $validator );
-                return Redirect::back()->withErrors($validator)->withInput($data); // with ( 'success_message', "RateGenerator Rule Margin Successfully Inserted" );
+                return Redirect::back()->withErrors($validator)->withInput($data);
+            }
+
+            if($minRateCount>0 || $maxRateCount>0 || $minRate>0){
+                return Redirect::back()->with('error_message', "RateGenerator Rule Margin is overlapping");
+            }
+            if($maxRate>0){
+                return Redirect::back()->with('error_message', "MaxRate should greater then MinRate.");
             }
 
             if (RateRuleMargin::insert($data)) {
                 return Redirect::back()->with('success_message', "RateGenerator Rule Margin Successfully Inserted");
-                // return Response::json(array("status" => "success", "message" => "RateGenerator Rule Margin Successfully Inserted"));
             } else {
                 return Redirect::back()->with('error_message', "Problem Inserting RateGenerator Rule Margin.");
-                // return Response::json(array("status" => "failed", "message" => "Problem Inserting RateGenerator Rule Margin."));
             }
         }
     }
