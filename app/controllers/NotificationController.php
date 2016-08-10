@@ -1,7 +1,7 @@
 <?php
 
 class NotificationController extends \BaseController {
-    public function ajax_datagrid(){
+    public function ajax_datagrid($type){
         $data = Input::all();
         $companyID = User::get_companyID();
         $select = ["NotificationType", "EmailAddresses", "created_at" ,"CreatedBy","NotificationID"];
@@ -11,10 +11,25 @@ class NotificationController extends \BaseController {
         }
         $Notification->select($select);
 
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = $Notification->get();
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Notifications.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Notifications.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+
         return Datatables::of($Notification)->make();
     }
 
     public function index(){
+        asort(Notification::$type);
         $notificationType = array(""=> "Select") + Notification::$type;
         return View::make('notification.index', compact('notificationType'));
     }
@@ -56,7 +71,6 @@ class NotificationController extends \BaseController {
             $data["ModifiedBy"] = User::get_user_full_name();
 
             $rules = array(
-                'NotificationType'         =>      'required',
                 'EmailAddresses'               =>'required',
             );
             $validator = Validator::make($data, $rules);
@@ -65,6 +79,7 @@ class NotificationController extends \BaseController {
                 return json_validator_response($validator);
             }
             unset($data['NotificationID']);
+            unset($data['NotificationType']);
             if ($Notification->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Notification Successfully Updated"));
             } else {

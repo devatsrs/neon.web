@@ -900,7 +900,7 @@ Route::group(array('before' => 'auth'), function () {
 
     //Notifications
     Route::any('notification', 'NotificationController@index');
-    Route::any('notification/ajax_datagrid', 'NotificationController@ajax_datagrid');
+    Route::any('notification/ajax_datagrid/{type}', 'NotificationController@ajax_datagrid');
     Route::any('notification/store', 'NotificationController@store');
     Route::any('notification/{notification_id}/update', 'NotificationController@update')->where('notification_id', '(.[09]*)+');
     Route::any('notification/{notification_id}/delete', 'NotificationController@delete')->where('notification_id', '(.[09]*)+');
