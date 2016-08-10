@@ -86,16 +86,14 @@
                           <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
                      {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
-                    </div>                  
-                </div>
-                    <div class="form-group">
+                    </div>
                         <label for="field-1" class="col-sm-1 control-label">Overdue</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="Overdue" name="Overdue" type="checkbox">
                             </p>
                         </div>
-                    </div>
+                </div>
                   <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-search"></i>
