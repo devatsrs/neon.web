@@ -57,7 +57,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Unbilled Amount</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="CreditUsed" value="{{$CreditUsed}}" >
+                            <input type="text" class="form-control" readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
                         </div>
                         <div  class="col-sm-1">
                             <button id="unbilled_report" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
@@ -86,7 +86,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Email To Customer
+                        <label for="field-1" class="col-sm-2 control-label">Low Balance Reminder to Customer
                         </label>
                         <div class="desc col-sm-4 ">
                             <p class="make-switch switch-small">
@@ -119,7 +119,7 @@
             $("#save_account").button('loading');
             var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('account/update_credit')}}';
-            submit_ajax(post_url,post_data);
+            submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
         data_table = $("#table-4").dataTable({
             "bDestroy": true,

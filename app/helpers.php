@@ -19,7 +19,7 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
         $isArray = true;
     }
 
-    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+    if(($isArray && $response['status'] =='failed') || (!$isArray && $response->status=='failed')) {
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
             foreach ($validator as $index => $error) {
@@ -44,7 +44,8 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
     }
 
     if($isBrowser){
-        if($isArray && isset($response['Code']) && $response['Code'] ==401 || !$isArray && isset($response->Code) && $response->Code == 401){
+        if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
+
             return  Response::json(array("status" => $status, "message" => $message),401);
         }else {
             return Response::json(array("status" => $status, "message" => $message));
@@ -123,6 +124,11 @@ function rename_upload_file($destinationPath,$full_name){
 function customer_dropbox($id=0,$data=array()){
     $all_customers = account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function opportunites_dropbox($id=0,$data=array()){
+    $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
+    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 
@@ -1183,7 +1189,9 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
-    if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
+    if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
+        return Redirect::to('/logout');
+    }else if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
         $Code = $isArray?$response['Code']:$response->Code;
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
@@ -1203,20 +1211,14 @@ function view_response_api($response){
 
 function terminate_process($pid){
 
-
-    /*$process = new Process();
+    $process = new Process();
     $process->setPid($pid);
-    return $status = $process->stop();*/
+    $status = $process->stop();
+    return $status;
 
-    if(getenv("APP_OS") == "Linux"){
-        $KillCommand = 'kill -9 '.$pid;
-    }else{
-        $KillCommand = 'Taskkill /PID '.$pid.' /F';
-    }
-    $ReturnStatus = false;
-    //Kill the process.
-    exec($KillCommand,$DetailOutput,$ReturnStatus);
+}
+function run_process($command) {
 
-    return  $ReturnStatus;
-
+    $process = new Process($command);
+    return $status = $process->status();
 }

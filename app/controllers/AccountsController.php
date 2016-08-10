@@ -177,7 +177,6 @@ class AccountsController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            //$data['AccountIP'] = implode(',', array_unique(explode(',', $data['AccountIP'])));
 
             if ($account = Account::create($data)) {
                 if (trim(Input::get('Number')) == '') {
@@ -455,9 +454,7 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        //$data['AccountIP'] = implode(',',array_unique(explode(',',$data['AccountIP'])));
-        $data['CustomerCLI'] = implode(',',array_unique(explode(',',$data['CustomerCLI'])));
-
+        
         if ($account->update($data)) {
             $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($id);
             $invoice_count = Account::getInvoiceCount($id);
@@ -921,10 +918,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function get_credit($id){
         $data = Input::all();
+        $CompanyID = User::get_companyID();
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $CreditUsed = $EmailToCustomer= 0;
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $EmailToCustomer= 0;
         if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
@@ -935,16 +933,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($response->data->BalanceThreshold)){
                 $BalanceThreshold = $response->data->BalanceThreshold;
             }
-            if(!empty($response->data->BalanceAmount)){
-                $BalanceAmount = $response->data->BalanceAmount;
+            $BalanceAmount = AccountBalance::getAccountSOA($CompanyID, $id);
+            if(!empty($response->data->UnbilledAmount)){
+                $UnbilledAmount = $response->data->UnbilledAmount;
             }
-            if(!empty($response->data->CreditUsed)){
-                $CreditUsed = $response->data->CreditUsed;
-            }
+            $BalanceAmount +=$UnbilledAmount;
             if(!empty($response->data->EmailToCustomer)){
                 $EmailToCustomer = $response->data->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','CreditUsed','EmailToCustomer'));
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer'));
         }else{
             return view_response_api($response);
         }
@@ -1073,51 +1070,6 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
 	}
 
-    public function addclis($id){
-        $data = Input::all();
-        $message = '';
-        $account = Account::find($id);
-
-        if(empty($data['clis'])){
-            return Response::json(array("status" => "error", "message" => " CLI required"));
-        }
-
-        $clis = preg_split("/\\r\\n|\\r|\\n/", $data['clis']);
-        $data['AccountID'] = $id;
-        $data['CustomerCLI'] = $clis;
-
-        $status = Account::validate_clis($data);
-        if(count($status['clisExist'])>0){
-            $iPsExist = implode('<br>',$status['clisExist']);
-            $message = ' and following CLIs already exist. '.$iPsExist;
-        }
-        unset($data['clis']);
-        unset($data['AccountID']);
-        if(count($status['toBeInsert'])>0){
-            $data['CustomerCLI'] = ltrim(implode(',',$status['toBeInsert']),',');
-            $account->update($data);
-            return Response::json(array("status" => "success","clis"=> $status['toBeInsert'],"message" => "Account Successfully Updated".$message));
-        }
-    }
-
-    public function delete_clis($id){
-        $data = Input::all();
-        $account = Account::find($id);
-        $postClis = explode(',',$data['clis']);
-        unset($data['clis']);
-        $ips = [];
-        if(!empty($account)){
-            $dbClis = explode(',', $account->CustomerCLI);
-            $clis = implode(',',array_diff($dbClis, $postClis));
-            $data['CustomerCLI'] = ltrim($clis,',');
-
-            $account->update($data);
-            return Response::json(array("status" => "success","clis"=> explode(',',$clis),"message" => "Account Successfully Updated"));
-        }else{
-            return Response::json(array("status" => "error","message" => "No Ip exist."));
-        }
-    }
-
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
         return View::make('accounts.expense',compact('id','CurrencySymbol'));
@@ -1126,47 +1078,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $companyID = User::get_companyID();
-        $query = "call prc_getAccountExpense ('". $companyID  . "',  '". $data['AccountID']  . "')";
-        $ExpenseResult = DataTableSql::of($query, 'neon_report')->getProcResult(array('Expense','CustomerExpense','VendorExpense'));
-        $Expense = $ExpenseResult['data']['Expense'];
-        $CustomerExpense = $ExpenseResult['data']['CustomerExpense'];
-        $VendorExpense = $ExpenseResult['data']['VendorExpense'];
-        $ExpenseYear = array();
-        $previousyear = '';
-        $datacount = 0;
-        $customer = $vendor = $cat = array();
-        foreach($Expense as $ExpenseRow){
-            if($previousyear != $ExpenseRow->Year){
-                $previousyear = $ExpenseRow->Year;
-                $ExpenseYear[$previousyear]['CustomerTotal'] = $ExpenseRow->CustomerTotal;
-                $ExpenseYear[$previousyear]['VendorTotal'] = $ExpenseRow->VendorTotal;
-            }else{
-                $ExpenseYear[$previousyear]['CustomerTotal'] += $ExpenseRow->CustomerTotal;
-                $ExpenseYear[$previousyear]['VendorTotal'] += $ExpenseRow->VendorTotal;
-            }
-            $customer[$datacount] = $ExpenseRow->CustomerTotal;
-            $vendor[$datacount] = $ExpenseRow->VendorTotal;
-            $month = $ExpenseRow->Month<10 ? '0'.$ExpenseRow->Month:$ExpenseRow->Month;
-            $cat[$datacount] = $ExpenseRow->Year.'-'.$month;
-            $datacount++;
-
-        }
-        $ExpenseYearHTML = '';
-        if(!empty($ExpenseYear)) {
-            foreach ($ExpenseYear as $year => $total) {
-                $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
-            }
-        }else{
-            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
-        }
-
-        $response['customer'] =  implode(',',$customer);
-        $response['vendor'] = implode(',',$vendor);
-        $response['categories'] = implode(',',$cat);
-        $response['ExpenseYear'] = $ExpenseYearHTML;
-        $response['CustomerActivity'] = account_expense_table($CustomerExpense,'Customer');
-        $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
-
+        $response = Account::getActivityChartRepose($companyID,$data['AccountID']);
         return $response;
     }
     public function unbilledreport($id){
@@ -1185,6 +1097,42 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $query = "call prc_getUnbilledReport (?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
+    }
+
+    public function activity_pdf_download($id){
+
+        $CurrencySymbol = Account::getCurrency($id);
+        $account = Account::find($id);
+        $companyID = User::get_companyID();
+        $response = $response = Account::getActivityChartRepose($companyID,$id);
+
+        $body = View::make('accounts.printexpensechart',compact('id','CurrencySymbol','response'))->render();
+        $body = htmlspecialchars_decode($body);
+
+        $destination_dir = getenv('TEMP_PATH') . '/';
+        if (!file_exists($destination_dir)) {
+            mkdir($destination_dir, 0777, true);
+        }
+        RemoteSSH::run("chmod -R 777 " . $destination_dir);
+        $file_name = $account->AccountName.' Account Activity Chart '. date('d-m-Y') . '.pdf';
+        $htmlfile_name = $account->AccountName. ' Account Activity Chart ' . date('d-m-Y') . '.html';
+
+        $local_file = $destination_dir .  $file_name;
+        $local_htmlfile = $destination_dir .  $htmlfile_name;
+        file_put_contents($local_htmlfile,$body);
+
+        if(getenv('APP_OS') == 'Linux'){
+            exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --javascript-delay 5000 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+            Log::info(base_path(). '/wkhtmltox/bin/wkhtmltopdf --javascript-delay 5000"'.$local_htmlfile.'" "'.$local_file.'"',$output);
+
+        }else{
+            exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --javascript-delay 5000 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+            Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --javascript-delay 5000"'.$local_htmlfile.'" "'.$local_file.'"',$output);
+        }
+        Log::info($output);
+        @unlink($local_htmlfile);
+        $save_path = $destination_dir . $file_name;
+        return Response::download($save_path);
     }
 	
 	

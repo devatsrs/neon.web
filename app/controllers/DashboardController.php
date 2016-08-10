@@ -7,7 +7,6 @@ class DashboardController extends BaseController {
 
     }
 
-
     public function home() {
 
         if(Company::isBillingLicence(1)){
@@ -159,6 +158,102 @@ class DashboardController extends BaseController {
         return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
 
     }
+	
+	public function CrmDashboard(){ 
+        $companyID 			= 	User::get_companyID();
+        $DefaultCurrencyID 	= 	Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$Country 			= 	Country::getCountryDropdownIDList();
+        $account 			= 	Account::getAccountIDList();
+		$currency 			= 	Currency::getCurrencyDropdownIDList();
+		$UserID 			= 	User::get_userID();
+		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		$users			 	= 	User::getUserIDListAll(0);
+		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
+		//$DateEndDefault  	= 	date('m/d/Y');
+		$StartDateDefaultforcast 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' +6 months'));
+		$StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+		$DateEndDefault  	= 	date('Y-m-d');
+	    $account_owners 	= 	User::getUserIDList();
+        $boards 			= 	CRMBoard::getBoards();
+		$TaskBoard			= 	CRMBoard::getTaskBoard();
+        $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
+		$CloseStatus		=	Opportunity::Close;
+		$where['Status']=1;
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+        }
+		$leadOrAccount 		= 	Account::where($where)->select(['AccountName', 'AccountID'])->orderBy('AccountName')->lists('AccountName', 'AccountID');
+		  if(!empty($leadOrAccount)){
+            $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
+        }
+        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+	}
+	
+	public function GetUsersTasks(){
+       $data = Input::all();
+        $data['iDisplayStart'] +=1;
+		if(User::is('AccountManager')){
+            $data['AccountOwner'] = User::get_userID();
+        }
+        $response = NeonAPI::request('dashboard/GetUsersTasks',$data,true);
+        return json_response_api($response,true,true,true);
+    }
+	
+	function GetPipleLineData(){
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetPipleLineData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+		
+     }
+	
+	public function getSalesdata(){ //crm dashboard
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetSalesdata',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	function CrmDashboardSalesRevenue(){		
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/CrmDashboardSalesRevenue',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	
+	public function GetForecastData(){ //crm dashboard
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/GetForecastData',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	
+	
+	 public function GetOpportunites(){
+        $data = Input::all();  
+        $data['iDisplayStart'] +=1;
+        if(User::is('AccountManager')){
+            $data['AccountOwner'] = User::get_userID();
+        }
+        $response = NeonAPI::request('dashboard/get_opportunities_grid',$data,true);
+        return json_response_api($response,true,true,true);
+    }
+	
 
     public function ajax_get_recent_due_sheets(){
         $companyID = User::get_companyID();

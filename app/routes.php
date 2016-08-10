@@ -86,7 +86,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');
-	Route::any('users/ajax_datagrid', 'UsersController@ajax_datagrid');
+	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
 
@@ -96,13 +96,29 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
+	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
+	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
+	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
+	
+	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
+	
+	
+	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");		
+	
+	
+	
+	
 	Route::any('/monitor', "DashboardController@monitor_dashboard");
+	Route::any('/crmdashboard', "DashboardController@CrmDashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
     Route::any('/dashboard/ajax_get_jobs', "DashboardController@ajax_get_jobs");
     Route::any('/dashboard/ajax_get_processed_files', "DashboardController@ajax_get_processed_files");
     Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
     Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
+	Route::any('/crmdashboard/ajax_opportunity_grid', 'DashboardController@GetOpportunites');
+	
+	Route::any('/crmdashboard/ajax_task_grid', 'DashboardController@GetUsersTasks');
 
 	//new Dashboards ajax
 	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
@@ -148,15 +164,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 
-	Route::any('/account/upload_file', 'AccountsController@uploadFile');
+	Route::post('/account/upload_file', 'AccountsController@uploadFile');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
 
 	Route::any('/task/GetTask', 'TaskController@GetTask');
 	Route::any('/task/{id}/delete_task', 'TaskController@delete_task');
-	Route::any('/account/upload_file', 'AccountsController@upload_file');
 	Route::any('/accounts/get_note', 'AccountsController@get_note');
-	Route::any('/account/note/update', 'AccountsController@update_note');	
-	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@delete_upload_file');
+	Route::any('/account/note/update', 'AccountsController@update_note');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
 	
@@ -189,14 +203,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account/get_credit/{id}', 'AccountsController@get_credit');
 	Route::any('account/update_credit', 'AccountsController@update_credit');
 	Route::any('account/ajax_datagrid_credit/{type}', 'AccountsController@ajax_datagrid_credit');
-    Route::any('accounts/{id}/addips', 'AuthenticationController@addIps');
+    Route::any('accounts/{id}/addips', 'AuthenticationController@addipclis');
     Route::any('accounts/{id}/deleteips', 'AuthenticationController@deleteips');
-    Route::any('accounts/{id}/addclis', 'AccountsController@addclis');
-    Route::any('accounts/{id}/deleteclis', 'AccountsController@delete_clis');
+    Route::any('accounts/{id}/addclis', 'AuthenticationController@addipclis');
+    Route::any('accounts/{id}/deleteclis', 'AuthenticationController@deleteclis');
 	Route::any('accounts/activity/{id}', 'AccountsController@expense');
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
+	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 
 	//Account Subscription
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
@@ -396,13 +411,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/jobs/reset', 'JobsController@resetJobsAlert');
 	Route::any('/jobs/{id}/jobRead', 'JobsController@jobRead');
 	Route::any('/jobs/{id}/downloaoutputfile', 'JobsController@downloaOutputFile');
-    Route::any('/activejob', 'JobsController@activejob');// remove in future
+    Route::any('/activejob', 'JobsController@activejob');// removed
     Route::any('/jobs/jobactive_ajax_datagrid', 'JobsController@jobactive_ajax_datagrid');
     Route::any('/jobs/activeprocessdelete/', 'JobsController@activeprocessdelete');
 
 
 	Route::any('/jobs/{id}/restart', 'JobsController@restart');
 	Route::any('/jobs/{id}/terminate', 'JobsController@terminate');
+	Route::any('/jobs/{id}/cancel', 'JobsController@cancel');
 
 
 	Route::resource('jobs', 'JobsController');
@@ -502,8 +518,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/summaryreport/daily_ajax_datagrid', 'SummaryController@daily_ajax_datagrid');
 
 	//cronjobs
-	Route::any('/cronjobs', 'CronJobController@index');
-	Route::any('/cronjobs/ajax_datagrid/{type}', 'CronJobController@ajax_datagrid');
+	Route::any('/cronjobs', 'CronJobController@index'); // replaced by cronjob monitor
+	Route::any('/cronjobs/ajax_datagrid/{type}', 'CronJobController@ajax_datagrid'); // replaced by cronjob monitor
+
 	Route::any('/cronjobs/create', 'CronJobController@create');
 	Route::any('/cronjobs/update/{id}', 'CronJobController@update');
 	Route::any('/cronjobs/delete/{id}', 'CronJobController@delete');
@@ -519,6 +536,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cronjob/{id}/trigger', 'CronJobController@trigger');
 	Route::any('/cronjob/{id}/terminate', 'CronJobController@terminate');
 	Route::any('/cronjob/{id}/change_status/{id2}', 'CronJobController@change_status');
+	Route::any('/cronjob/change_crontab_status/{id}', 'CronJobController@change_crontab_status');
 
 	//Company
 	Route::any('/company', 'CompaniesController@edit');
@@ -731,6 +749,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/opportunity/{id}/getlead', 'OpportunityController@getLead');
     Route::any('/opportunity/{id}/getDropdownLeadAccount', 'OpportunityController@getDropdownLeadAccount');
     Route::any('/opportunity/{id}/getopportunity', 'OpportunityController@getopportunity');
+    Route::any('/opportunity/{id}/ajax_opportunity_grid', 'OpportunityController@ajax_grid');
     Route::any('/opportunity/{id}/update', 'OpportunityController@update');
     Route::any('/opportunity/{id}/deleteattachment/{attachmentid}', 'OpportunityController@deleteAttachment');
     Route::any('/opportunity/{id}/updateColumnOrder', 'OpportunityController@updateColumnOrder');
@@ -919,7 +938,7 @@ Route::group(array('before' => 'guest'), function () {
             User::setUserPermission();
             Session::set("admin", 1);
             return Redirect::to($redirect_to);
-        }else{
+        }else{			
             Session::flush();
             Auth::logout();
             echo json_encode(array("login_status" => "invalid"));

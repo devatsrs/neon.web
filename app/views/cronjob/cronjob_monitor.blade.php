@@ -16,10 +16,10 @@
             <a href="{{URL::to('cronjobs')}}">Cron Job</a>
         </li>
         <li class="active">
-            <strong>Cron Job Monitor</strong>
+            <strong>Cron Job</strong>
         </li>
     </ol>
-    <h3>Cron Job Monitor</h3>
+    <h3>Cron Job</h3>
     <p style="text-align: right;">
         @if( User::checkCategoryPermission('CronJob','Add') )
             <a href="#" id="add-new-config" class="btn btn-primary ">
@@ -51,7 +51,7 @@
                             <label for="field-1" class="col-sm-1 control-label">Status</label>
                             <div class="col-sm-2">
 
-                                 {{ Form::select('Status', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
 
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>
@@ -60,6 +60,17 @@
                                 <p class="make-switch switch-small">
                                     <input id="" name="AutoRefresh" type="checkbox" checked value="1">
                                 </p>
+                            </div>
+                            <label for="field-1" class="col-sm-1 control-label">Cron Tab Status</label>
+                            <div class="col-sm-2">
+
+                                    @if($crontab_status)
+                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
+                                    @else
+                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="start_crontab btn btn-red btn-sm popover-primary">&nbsp;</button>
+                                    @endif
+
+
                             </div>
 
                         </div>
@@ -126,12 +137,16 @@
                 "aaSorting": [[0, 'desc']],
                 "fnRowCallback": function( nRow, data, iDisplayIndex, iDisplayIndexFull ) {
 
-                    if(typeof data[10] != 'undefined' && data[10] == 0  ){ // Last failed CronJob 'CronJobStatus'
-                        $(nRow).css('background-color', '#c50606');
+                    if(typeof data[10] != 'undefined' && data[10] == "{{CronJob::CRON_FAIL}}"  ){ // Last failed CronJob 'CronJobStatus'
+                        $(nRow).css('background-color', '#f88379');
+                        $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is failing..." data-placement="top" class="badge badge-danger" data-toggle="tooltip">i</span>');
                     }
                     if(typeof data[7] != 'undefined' && data[7] == 0  ){ // 'Status'  InActive CronJob Gray color
                         $(nRow).css('background-color', '#eaeaea');
+                        $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is Disabled" data-placement="top" class="badge badge-warning" data-toggle="tooltip">i</span>');
                     }
+
+
 
                 },
                 "aoColumns":
@@ -274,6 +289,7 @@
                 $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
 
                 data_table.fnFilter('', 0);
+
                 return false;
             });
 
@@ -315,6 +331,43 @@
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
                     submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger'  );
+                }
+            });
+
+            $('.start_crontab').click(function(ev){
+                result = confirm("Are you Sure to Start Cron Tab?");
+                if(result){
+
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/1','',function(response){
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout(function(){
+                                location.reload();
+                            },200);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    });
+                }
+            });
+            $('.stop_crontab').click(function(ev){
+                result = confirm("Are you Sure to Stop Cron Tab?");
+                if(result){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/0','',function(response){
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout(function(){
+                                location.reload();
+                            },200);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+
+                    });
+
                 }
             });
 
