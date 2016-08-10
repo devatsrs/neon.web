@@ -783,7 +783,7 @@ function GetSalesData(){
 							{
 								currency_sign = dataObj.CurrencyCode ;
 							}
- return '<b>'+date_range+'</b><br/><span><a name_user="'+name_user+'" date_range="'+date_range+'" userid="'+userid+'" duedate="'+duedate+'" class="click_revenue_diagram" style="color:'+this.color+';">'+name_user+'</a> ' +this.point.y+'</span>';
+ return '<b>'+date_range+'</b><br/><span><a name_user="'+name_user+'" date_range="'+date_range+'" userid="'+userid+'" duedate="'+duedate+'" class="click_revenue_diagram" style="color:'+this.color+';">&#9679;'+name_user+'</a> ' +this.point.y+'</span>';
 						}
 					},
                     plotOptions: {
