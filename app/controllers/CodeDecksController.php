@@ -23,7 +23,7 @@ class CodeDecksController extends \BaseController {
 
 
         $data['iDisplayStart'] +=1;
-        $columns = array('RateID','Country','Code','Description','Interval1','IntervalN','RateID');
+        $columns = array('RateID','ISO2','Country','Code','Description','Interval1','IntervalN','RateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query = "call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','0')";

@@ -7,7 +7,6 @@ BEGIN
   	 DECLARE errormessage longtext;
 	 DECLARE errorheader longtext;
 
-   SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; 
 
 DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;			
 	 CREATE TEMPORARY TABLE `tmp_VendorRateDialString_` (						
@@ -24,8 +23,16 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 						`IntervalN` int,
 						`Forbidden` varchar(100) 
 					);
+		
+		-- vendor code split with ';' and insert codes in tmp_split_VendorRate_
 					
-	     DELETE n1 FROM tblTempVendorRate n1, tblTempVendorRate n2 
+		CALL prc_SplitVendorRate(p_processId);					
+
+		
+		DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_2;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_VendorRate_2 as (SELECT * FROM tmp_split_VendorRate_);
+                                             
+	     DELETE n1 FROM tmp_split_VendorRate_ n1, tmp_split_VendorRate_2 n2 
      WHERE n1.EffectiveDate < n2.EffectiveDate 
 	 	AND n1.CodeDeckId = n2.CodeDeckId
 		AND  n1.Code = n2.Code
@@ -45,8 +52,8 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 									`Interval1`,
 									`IntervalN`,
 									`Forbidden`
-						 FROM tblTempVendorRate
-						 	 WHERE tblTempVendorRate.ProcessId = p_processId;
+						 FROM tmp_split_VendorRate_
+						 	 WHERE tmp_split_VendorRate_.ProcessId = p_processId;
 			
 		
 	 	     SELECT CodeDeckId INTO v_CodeDeckId_ 
@@ -174,7 +181,7 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
          THEN
          
 				INSERT INTO tmp_JobLog_ (Message)
-				  SELECT DISTINCT CONCAT(Code , ' NO DIAL STRING FOUND')
+				  SELECT DISTINCT CONCAT(Code , ' No PREFIX FOUND')
 				  	FROM tmp_TempVendorRate_ vr
 						LEFT JOIN tmp_DialString_ ds
 							ON vr.Code = ds.ChargeCode
@@ -264,7 +271,6 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
     END IF;	-- dialstring over		
    
 END IF; -- duplicate code over 
-	 	
-	
-SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+ 	
+
 END

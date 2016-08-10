@@ -22,6 +22,30 @@ BEGIN
     CREATE TEMPORARY TABLE tmp_JobLog_ (
         Message longtext
     );
+    
+    -- create table for splite vendor rates and data insert in prc_SplitVendorRate and use in prc_checkDialstringAndDupliacteCode
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_;
+    CREATE TEMPORARY TABLE tmp_split_VendorRate_ (
+    		`TempVendorRateID` int,
+			`CodeDeckId` int ,
+			`Code` varchar(50) ,
+			`Description` varchar(200) ,
+			`Rate` decimal(18, 6) ,
+			`EffectiveDate` Datetime ,
+			`Change` varchar(100) ,
+			`ProcessId` varchar(200) ,
+			`Preference` varchar(100) ,
+			`ConnectionFee` decimal(18, 6),
+			`Interval1` int,
+			`IntervalN` int,
+			`Forbidden` varchar(100) ,
+			INDEX tmp_EffectiveDate (`EffectiveDate`),
+			INDEX tmp_Code (`Code`),
+            INDEX tmp_CC (`Code`,`Change`),
+			INDEX tmp_Change (`Change`)
+    );
+    
     DROP TEMPORARY TABLE IF EXISTS tmp_TempVendorRate_;
     CREATE TEMPORARY TABLE tmp_TempVendorRate_ (
 			`CodeDeckId` int ,
@@ -42,6 +66,24 @@ BEGIN
 			INDEX tmp_Change (`Change`)
     );
     
+    -- tmp_Delete_VendorRate use for delete vendor rates and it use in prc_InsertDiscontinuedVendorRate(procedure)
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_Delete_VendorRate;
+	CREATE TEMPORARY TABLE tmp_Delete_VendorRate (
+     	VendorRateID INT,
+      AccountId INT,
+      TrunkID INT,
+      RateId INT,
+      Code VARCHAR(50),
+      Description VARCHAR(200),
+      Rate DECIMAL(18, 6),
+      EffectiveDate DATETIME,
+		Interval1 INT,
+		IntervalN INT,
+		ConnectionFee DECIMAL(18, 6),
+		deleted_at DATETIME,
+        INDEX tmp_VendorRateDiscontinued_VendorRateID (`VendorRateID`)
+	);
 
     --  dial string mapping and code duplicate 
     		CALL  prc_checkDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately);
@@ -171,7 +213,7 @@ BEGIN
 
             END IF;
             				
-
+				/*
             DELETE tblVendorRate
                 FROM tblVendorRate
                 JOIN tblRate
@@ -181,8 +223,48 @@ BEGIN
                         ON tblRate.Code = tblTempVendorRate.Code
             WHERE tblVendorRate.AccountId = p_accountId
                 AND tblVendorRate.TrunkId = p_trunkId
-                AND tblTempVendorRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block');
-            
+                AND tblTempVendorRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block'); */
+       
+		 -- data insert and create temp table for tblVendorRateDiscontinued.
+		          
+            	INSERT INTO tmp_Delete_VendorRate(
+			 	VendorRateID,
+		      AccountId,
+		      TrunkID,
+		      RateId,
+		      Code,
+		      Description,
+		      Rate,
+		      EffectiveDate,
+				Interval1,
+				IntervalN,
+				ConnectionFee,
+				deleted_at
+			 )
+    		SELECT tblVendorRate.VendorRateID,
+    			    p_accountId AS AccountId,
+					 p_trunkId AS TrunkID,
+					 tblVendorRate.RateId,
+					 tblRate.Code,
+					 tblRate.Description,
+					 tblVendorRate.Rate,
+					 tblVendorRate.EffectiveDate,
+					 tblVendorRate.Interval1,
+					 tblVendorRate.IntervalN,
+					 tblVendorRate.ConnectionFee,
+					 now() AS deleted_at  		
+                FROM tblVendorRate
+                JOIN tblRate
+                    ON tblRate.RateID = tblVendorRate.RateId
+                    AND tblRate.CompanyID = p_companyId
+                    JOIN tmp_TempVendorRate_ as tblTempVendorRate
+                        ON tblRate.Code = tblTempVendorRate.Code
+            WHERE tblVendorRate.AccountId = p_accountId
+                AND tblVendorRate.TrunkId = p_trunkId
+                AND tblTempVendorRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block');    
+           
+           -- it is user for insert data into discontinued table before delete vendor rate
+			  	CALL prc_InsertDiscontinuedVendorRate(p_accountId,p_trunkId); 
 
             UPDATE tblVendorRate
 					INNER JOIN tblRate
@@ -398,7 +480,7 @@ BEGIN
 	 
  END IF;	 -- over if of dialstring mapping error
 	 
-	 INSERT INTO tmp_JobLog_ (Message)
+	 					 INSERT INTO tmp_JobLog_ (Message)
 	 	SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * FROM tmp_JobLog_;
