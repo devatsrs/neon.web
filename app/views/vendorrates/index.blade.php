@@ -339,8 +339,10 @@ jQuery(document).ready(function($) {
                            $("#selectall").prop("checked", true).prop('disabled', true);
                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
                                $('#table-4 tbody tr').each(function(i, el) {
-                                   $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                   $(this).addClass('selected');
+                                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                       $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                       $(this).addClass('selected');
+                                   }
                                });
                            }
                        }else{
@@ -348,8 +350,10 @@ jQuery(document).ready(function($) {
                            $("#selectall").prop("checked", false).prop('disabled', false);
                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
                                $('#table-4 tbody tr').each(function(i, el) {
-                                   $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                   $(this).removeClass('selected');
+                                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                       $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                       $(this).removeClass('selected');
+                                   }
                                });
                            }
                        }
@@ -363,12 +367,14 @@ jQuery(document).ready(function($) {
     });
 
                $('#table-4 tbody').on('click', 'tr', function() {
-                   if (checked =='') {
-                       $(this).toggleClass('selected');
-                       if ($(this).hasClass('selected')) {
-                           $(this).find('.rowcheckbox').prop("checked", true);
-                       } else {
-                           $(this).find('.rowcheckbox').prop("checked", false);
+                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                       if (checked == '') {
+                           $(this).toggleClass('selected');
+                           if ($(this).hasClass('selected')) {
+                               $(this).find('.rowcheckbox').prop("checked", true);
+                           } else {
+                               $(this).find('.rowcheckbox').prop("checked", false);
+                           }
                        }
                    }
                });
