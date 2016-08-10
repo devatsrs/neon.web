@@ -17,7 +17,8 @@
     <h3>Destination Group Code</h3>
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('DestinationGroup','Edit'))
-        <button  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="fa fa-floppy-o"></i>Save</button>
+        <button  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="fa fa-floppy-o"></i>Add</button>
+            <button  id="delete-button" class=" btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="fa fa-trash"></i>Delete</button>
         @endif
         <a href="{{URL::to('/destination_group_set/show/'.$DestinationGroupSetID)}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
@@ -54,6 +55,10 @@
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" name="FilterDescription">
                             </div>
+                            <label class="col-sm-2 control-label">Show Applied Code</label>
+                            <div class="col-sm-1">
+                                <input class="icheck" name="Selected" type="checkbox" value="1" >
+                            </div>
                         </div>
                         <input type="hidden" name="DestinationGroupID" value="{{$DestinationGroupID}}" >
                         <input type="hidden" name="DestinationGroupSetID" value="{{$DestinationGroupSetID}}">
@@ -78,8 +83,9 @@
                 <input type="checkbox" name="RateID[]" class="selectall" id="selectall">
             </div>
         </th>
-        <th width="45%">Code</th>
-        <th width="45%">Description</th>
+        <th width="30%">Code</th>
+        <th width="30%">Description</th>
+        <th width="30%">Applied</th>
         </thead>
         <tbody>
         </tbody>
@@ -111,6 +117,7 @@
             $searchFilter.Code = $("#table_filter [name='FilterCode']").val();
             $searchFilter.Description = $("#table_filter [name='FilterDescription']").val();
             $searchFilter.CountryID = $("#table_filter [name='CountryID']").val();
+            $searchFilter.Selected = $("#table_filter input[name='Selected']").prop("checked");
             $searchFilter.DestinationGroupSetID = '{{$DestinationGroupSetID}}';
             $searchFilter.DestinationGroupID = '{{$DestinationGroupID}}';
 
@@ -132,7 +139,7 @@
                 $searchFilter.Code = $("#table_filter [name='FilterCode']").val();
                 $searchFilter.Description = $("#table_filter [name='FilterDescription']").val();
                 $searchFilter.CountryID = $("#table_filter [name='CountryID']").val();
-                console.log($searchFilter)
+                $searchFilter.Selected = $("#table_filter input[name='Selected']").prop("checked");
                 data_table.fnFilter('', 0);
                 return false;
             });
@@ -145,6 +152,13 @@
             $('#add-button').click(function(ev){
                 ev.preventDefault();
                 loading_btn = $(this);
+                $searchFilter.Action = 'Insert';
+                $("#modal-form").trigger('submit');
+            });
+            $('#delete-button').click(function(ev){
+                ev.preventDefault();
+                loading_btn = $(this);
+                $searchFilter.Action = 'Delete';
                 $("#modal-form").trigger('submit');
             });
             //select all records
@@ -170,6 +184,7 @@
                             {"name": "DestinationGroupID", "value":$searchFilter.DestinationGroupID},
                             {"name": "Code", "value":$searchFilter.Code},
                             {"name": "Description", "value":$searchFilter.Description},
+                            {"name": "Selected", "value":$searchFilter.Selected},
                             {"name": "CountryID", "value":$searchFilter.CountryID}
 
                     );
@@ -185,22 +200,24 @@
                 "aoColumns": [
                     {"bSearchable":false,"bSortable": false, //RateID
                         mRender: function(id, type, full) {
-                            if(full[3] > 0) {
+                            /*if(full[3] > 0) {
                                 return '<div class="checkbox "><input checked type="checkbox" name="RateID[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }else{
                                 return '<div class="checkbox "><input type="checkbox" name="RateID[]" value="' + id + '" class="rowcheckbox" ></div>';
-                            }
+                            }*/
+                            return '<div class="checkbox "><input type="checkbox" name="RateID[]" value="' + id + '" class="rowcheckbox" ></div>';
                         }
                     },
                     {  "bSearchable":true,"bSortable": false },  // 0 Code
                     {  "bSearchable":true,"bSortable": false },  // 0 description
+                    {  "bSearchable":true,"bSortable": false },  // 0 Applied
                 ],
 
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    add_selected();
+
 
                     $('#table-extra tbody tr').each(function(i, el) {
 
@@ -240,15 +257,7 @@
             });
             $("#selectcodecheckbox").append('<input type="checkbox" id="selectallbutton" name="selectallcodes[]" class="" title="Select All Found Records" />');
         });
-        function add_selected(){
-            $('#table-extra tbody tr').each(function(i, el) {
-                if ($(this).find('.rowcheckbox').prop("checked")) {
-                    $(this).addClass('selected donotremove');
-                } else {
-                    $(this).removeClass('selected');
-                }
-            });
-        }
+
 
     </script>
 
