@@ -205,11 +205,27 @@
 
             $("#modal-form").submit(function(e){
                 e.preventDefault();
+                if($('#modal-form [name="Unlimited"]').prop("checked") == false){
+                    if($('#modal-form [name="Threshold"]').val() == 0){
+                        setTimeout(function(){
+                            $(".btn").button('reset');
+                        },10);
+                        toastr.error("Please Enter Value Greater then zero", "Error", toastr_opts);
+                        return false;
+                    }
+                }
                 var _url  = $(this).attr("action");
                 submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
             });
 
-
+            $('#modal-form [name="Unlimited"]').on( "change",function(e){
+                if($('#modal-form [name="Unlimited"]').prop("checked") == true){
+                    $('#modal-form [name="Threshold"]').val(0);
+                    $('#modal-form [name="Threshold"]').attr('readonly',true);
+                }else {
+                    $('#modal-form [name="Threshold"]').attr('readonly',false);
+                }
+            });
 
         });
     </script>
