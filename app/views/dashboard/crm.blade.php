@@ -161,15 +161,15 @@
                 <div class="col-sm-8">
                  <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
                  <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>                
-                  <label class="col-sm-1 control-label" for="field-1">List</label>
-                <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+                  <label class="col-sm-1 control-label" for="field-1">BY</label>
+                <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
                <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                 </div>
               </div>
               <div class="text-center">
                 <div id="crmdSalesManager1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSalesManager1"></div>
               </div>
-            </form>
+            </form> 
           </div>
         </div>
       </div>
@@ -345,6 +345,10 @@ var RevenueReport = 0;
 		padding-left:0;
 		padding-right:0;
 		width:38px;
+	}
+	.click_revenue_diagram{
+		cursor:pointer;
+		color:#0000a0;
 	}
 </style>
 @stop
@@ -588,4 +592,25 @@ var RevenueReport = 0;
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="UserRevenue" data-backdrop="static">
+        <div  class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">User Revenue</h4>
+                    </div>
+                    <div class="modal-body left-padding">                      
+                        <div id="UserRevenueTable" class="form-group"></div>                      
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
 @stop

@@ -231,6 +231,17 @@ class DashboardController extends BaseController {
 		}
 	}
 	
+	function GetRevenueDrillDown(){
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/CrmDashboardUserRevenue',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			$data = json_decode($response->data);
+            return View::make('dashboard.RevenueDrillDown', compact('data'));
+		}
+	}
+	
 	
 	public function GetForecastData(){ //crm dashboard
 		 $data 			= 	 Input::all();			

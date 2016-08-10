@@ -743,8 +743,9 @@ function GetSalesData(){
 			{
 	             	 crmdSalesdata[s] =
 					{					
-					 'name': dataObj.data[s].user,
-					 'data': dataObj.data[s].worth.split(',').map(parseFloat) 
+					 'name': dataObj.data[s].user,					 
+					 'data': dataObj.data[s].worth.split(',').map(parseFloat), 
+					 'id': 	 dataObj.data[s].id
 					 };
 			}
 			
@@ -771,9 +772,19 @@ function GetSalesData(){
                             overflow: 'justify'
                         }
                     },
-                    tooltip: {
-                        valueSuffix: ''
-                    },
+                    tooltip: {			
+					useHTML: true,						
+						formatter: function () {							
+							var name_user   = 	this.series.name;
+							var date_range	= 	this.key;
+							var userid		=	this.series.userOptions.id;
+							var duedate		=	$("#crm_dashboard_Sales_Manager [name='Duedate']").val();
+							
+				 return '<b>' + date_range + '</b><br/><span>'+name_user+'</span> ' +this.point.y+'<br/><a name_user="'+name_user+'" date_range="'+date_range+'" userid="'+userid+'" duedate="'+duedate+'"  class="click_revenue_diagram" >View Data</a>';
+					//	return  '<text x="'+this.x+'" style="font-size:12px;color:'+this.color+';fill:#333333;" y="20"><tspan style="font-size: 10px">14-2016</tspan><tspan style="fill:#109618" x="8" dy="15">●</tspan>	<tspan dx="0"> Mehreen Ghani: </tspan><tspan style="font-weight:bold" dx="0">9 231.79</tspan></text>';
+							///GetRevenuePopup(name_user,date_range,userid,duedate);
+						}
+					},
                     plotOptions: {
                         bar: {
                             dataLabels: {
@@ -800,7 +811,8 @@ function GetSalesData(){
                         enabled: false
                     },
 					
-                    series: crmdSalesdata
+                    series: crmdSalesdata,
+					
                 });
 				
 					var currency_sign = '';
@@ -823,6 +835,34 @@ function GetSalesData(){
 		}
     });
  }
+ 
+ $(document).on( "click",".click_revenue_diagram", function() {
+	var name_user   = 	$(this).attr('name_user');
+	var date_range	= 	$(this).attr('date_range');
+	var userid		=	$(this).attr('userid');
+	var duedate		=	$(this).attr('duedate');
+	GetRevenuePopup(name_user,date_range,userid,duedate);
+ });
+ 
+ function GetRevenuePopup(name_user,date_range,userid,duedate){
+	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']").val();	
+	var CurrencyID	 = $("#crm_dashboard").find("[name='CurrencyID']").val();
+	 $.ajax({
+        type: 'POST',
+        url: baseurl+'/dashboard/GetRevenueDrillDown',
+        dataType: 'html',
+        data:{name_user:name_user,date_range:date_range,userid:userid,duedate:duedate,ListType:ListType,CurrencyID:CurrencyID},
+        aysync: true,
+        success: function(data11) {	
+					$('#UserRevenue #UserRevenueTable').html(data11);
+					var	revenueusertext =	$('#revenueusertext').val();
+					var	revenuedate_range =	$('#revenuedate_range').val();
+					var	revenuelisttype =	$('#revenuelisttype').val();
+					$('#UserRevenue .modal-title').html(revenueusertext+' '+revenuelisttype+' ('+revenuedate_range+') Revenue');
+ 	                $('#UserRevenue').modal('show');
+		}
+    });
+	}
 
 function GetUsersTasks(){
 	data_table1.fnFilter('',0);
