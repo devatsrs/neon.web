@@ -783,9 +783,7 @@ function GetSalesData(){
 							{
 								currency_sign = dataObj.CurrencyCode ;
 							}
-				 return '<b>' + date_range + '</b><br/><span>'+name_user+'</span> ' +this.point.y+'<br/><a name_user="'+name_user+'" date_range="'+date_range+'" userid="'+userid+'" duedate="'+duedate+'"  class="click_revenue_diagram" >View Data</a>';
-					//	return  '<text x="'+this.x+'" style="font-size:12px;color:'+this.color+';fill:#333333;" y="20"><tspan style="font-size: 10px">14-2016</tspan><tspan style="fill:#109618" x="8" dy="15">●</tspan>	<tspan dx="0"> Mehreen Ghani: </tspan><tspan style="font-weight:bold" dx="0">9 231.79</tspan></text>';
-							///GetRevenuePopup(name_user,date_range,userid,duedate);
+ return '<b>'+date_range+'</b><br/><span><a name_user="'+name_user+'" date_range="'+date_range+'" userid="'+userid+'" duedate="'+duedate+'" class="click_revenue_diagram" style="color:'+this.color+';">'+name_user+'</a> ' +this.point.y+'</span>';
 						}
 					},
                     plotOptions: {

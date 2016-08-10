@@ -160,8 +160,7 @@
               <div class="form-group form-group-border-none">               
                 <div class="col-sm-8">
                  <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                 <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>                
-                  <label class="col-sm-1 control-label" for="field-1">BY</label>
+                 <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>               
                 <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
                <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                 </div>
@@ -348,7 +347,8 @@ var RevenueReport = 0;
 	}
 	.click_revenue_diagram{
 		cursor:pointer;
-		color:#0000a0;
+		text-decoration:underline;
+		font-weight:bold;
 	}
 </style>
 @stop
