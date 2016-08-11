@@ -6,13 +6,8 @@
             margin:0 0 1px -11px;
         }
         #ServerInfoTab .btn-xs{
-            font-size: 8px;
-            padding: 1px 3px;
-            margin-bottom:3px;
             margin-left:3px;
-        }
-        #ServerInfoTab li a{
-            padding-bottom: 5px;
+            cursor: pointer;
         }
         #ServerInfoTabContent .tab-pane{
             height: 1024px;
@@ -161,8 +156,8 @@
                         html += '   <a href="#tab' + item.ServerInfoID + '" role="tab" data-toggle="tab">';
                         html += '       <span class="title">' + item.ServerInfoTitle + '</span>';
                         html += '       <div class="hiddenRowData hidden"><input type="hidden" name="ServerInfoID" value="' + item.ServerInfoID + '" /> <input type="hidden" name="ServerInfoTitle" value="' + item.ServerInfoTitle + '" /> <input type="hidden" name="ServerInfoUrl" value="' + item.ServerInfoUrl + '" /> </div>';
-                        html += '       <button class="btn btn-default btn-xs edit" title="Edit Server Info" type="button"><span class="entypo-pencil"></span></button>';
-                        html += '       <button class="btn btn-danger btn-xs delete" title="Delete Server Info" type="button"><span class="entypo-trash"></span></button>';
+                        html += '       <span class="edit btn-xs" title="Edit Server"><i class="entypo-pencil"></i></span>';
+                        html += '       <span class="delete btn-xs" title="Delete Server"><i class="fa fa-trash-o"></i></span>';
                         html += '   </a>';
                         html += '</li>';
                         $('ul#ServerInfoTab').append(html);
