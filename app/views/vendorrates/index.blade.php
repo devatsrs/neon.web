@@ -272,8 +272,11 @@ jQuery(document).ready(function($) {
                                url: $(this).attr("href"),
                                type: 'POST',
                                dataType: 'json',
+                               beforeSend: function(){
+                                   $(this).button('loading');
+                               },
                                success: function(response) {
-                                   $(".btn.clear").button('reset');
+                                   $(this).button('reset');
 
                                    if (response.status == 'success') {
                                        toastr.success(response.message, "Success", toastr_opts);
@@ -485,6 +488,9 @@ jQuery(document).ready(function($) {
                     url: baseurl + '/vendor_rates/clear_all_vendorrate/{{$id}}', //Server script to process data
                     type: 'POST',
                     dataType: 'json',
+                    beforeSend: function(){
+                        $('#clear-bulk-rate').button('loading');
+                    },
                     success: function (response) {
                         $("#clear-bulk-rate").button('reset');
 
@@ -522,6 +528,9 @@ jQuery(document).ready(function($) {
                         url: baseurl + '/vendor_rates/bulk_clear_rate/{{$id}}', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
+                        beforeSend: function(){
+                            $('#clear-bulk-rate').button('loading');
+                        },
                         success: function (response) {
                             $("#clear-bulk-rate").button('reset');
 
