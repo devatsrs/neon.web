@@ -28,10 +28,6 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
     Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
 
-
-	//serverinfo
-	Route::any('serverinfo', 'ServerController@index');	
-
     //Account Statement
 
     Route::any('customer/account_statement', 'AccountStatementCustomerController@index');
@@ -904,6 +900,13 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('notification/store', 'NotificationController@store');
     Route::any('notification/{notification_id}/update', 'NotificationController@update')->where('notification_id', '(.[09]*)+');
     Route::any('notification/{notification_id}/delete', 'NotificationController@delete')->where('notification_id', '(.[09]*)+');
+
+    //Server Info
+    Route::any('serverinfo', 'ServerInfoController@index');
+    Route::any('serverinfo/ajax_getdata', 'ServerInfoController@ajax_getdata');
+    Route::any('serverinfo/store', 'ServerInfoController@store');
+    Route::any('serverinfo/{server_id}/update', 'ServerInfoController@update')->where('notification_id', '(.[09]*)+');
+    Route::any('serverinfo/{server_id}/delete', 'ServerInfoController@delete')->where('notification_id', '(.[09]*)+');
 
 });
 

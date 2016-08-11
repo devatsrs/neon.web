@@ -307,7 +307,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">No</label>
-                            <input type="text" name="SequenceNo" class="form-control" value=""  />
+                            <input type="text" name="SequenceNo" class="form-control" placeholder="AUTO" value=""  />
                         </div>
                     </div>
                     <div class="col-md-12">
