@@ -5,7 +5,7 @@ BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
     CREATE TEMPORARY TABLE tmp_VendorRate_ (
         TrunkId INT,
-	 			RateId INT,
+   	  RateId INT,
         Rate DECIMAL(18,6),
         EffectiveDate DATE,
         Interval1 INT,
@@ -36,7 +36,7 @@ BEGIN
                         
          
        
-       SELECT  tblRate.Code as `Destination`,
+       SELECT Distinct  tblRate.Code as `Destination`,
                tblRate.Description as `Description` ,
                CASE WHEN tblVendorRate.Interval1 IS NOT NULL
                    THEN tblVendorRate.Interval1
@@ -56,15 +56,16 @@ BEGIN
                        )OR
                        (blockCountry.VendorBlockingId IS NOT NULL AND
                        FIND_IN_SET(tblVendorRate.TrunkId,blockCountry.TrunkId) != 0
-                       ) THEN 1
-                   ELSE 0
+                       ) THEN 'Y'
+                   ELSE 'N'
                END AS `Forbidden`,
                CASE WHEN tblVendorRate.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
                CASE WHEN ConnectionFee > 0 THEN
 						CONCAT('SEQ=',ConnectionFee,'&int1x1@price1&intNxN@priceN')
 					ELSE
 						''
-					END as `Formula`
+					END as `Formula`,
+					'' AS `Status`
        FROM    tmp_VendorRate_ as tblVendorRate 
                JOIN tblRate on tblVendorRate.RateId =tblRate.RateID
                LEFT JOIN tblVendorBlocking as blockCode
@@ -78,7 +79,35 @@ BEGIN
 					LEFT JOIN tblVendorPreference 
 						ON tblVendorPreference.AccountId = p_AccountID
 						AND tblVendorPreference.TrunkID = tblVendorRate.TrunkID
-						AND tblVendorPreference.RateId = tblVendorRate.RateId;
-                        
+						AND tblVendorPreference.RateId = tblVendorRate.RateId
+       UNION ALL
+		                  
+		    SELECT 
+			 		vrd.Code AS `Destination`,
+			 		vrd.Description AS `Description` ,
+			 		vrd.Interval1 AS `First Interval`,
+			 		vrd.IntervalN AS `Next Interval`,
+			 		Abs(vrd.Rate) AS `First Price`,
+			 		Abs(vrd.Rate) AS `Next Price`,
+			 		vrd.EffectiveDate AS `Effective From`,
+			 		'' AS `Preference`,
+			 		'' AS `Forbidden`,
+			 		CASE WHEN vrd.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
+			 		CASE WHEN vrd.ConnectionFee > 0 THEN
+						CONCAT('SEQ=',vrd.ConnectionFee,'&int1x1@price1&intNxN@priceN')
+					ELSE
+						''
+					END as `Formula`,
+			 		'Discontinued' AS `Status`
+			  FROM tblVendorRateDiscontinued vrd
+					LEFT JOIN tblVendorRate vr
+						ON vrd.AccountId = vr.AccountId 
+							AND vrd.TrunkID = vr.TrunkID				
+							AND vrd.RateId = vr.RateId
+					WHERE FIND_IN_SET(vrd.TrunkID,p_trunks) != 0
+						AND vrd.AccountId = p_AccountID
+						AND vr.VendorRateID IS NULL ;           
+						
+						
       SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

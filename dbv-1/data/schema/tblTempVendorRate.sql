@@ -1,7 +1,7 @@
 CREATE TABLE `tblTempVendorRate` (
   `TempVendorRateID` int(11) NOT NULL AUTO_INCREMENT,
   `CodeDeckId` int(11) DEFAULT NULL,
-  `Code` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Code` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
   `Description` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
   `EffectiveDate` datetime NOT NULL,
