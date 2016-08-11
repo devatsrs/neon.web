@@ -37,7 +37,7 @@ class ServerInfoController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $rules = ['ServerInfoTitle'=>'required',
-        //            'ServerInfoUrl'=>'required|unique:tblServerInfo'
+                    'ServerInfoUrl'=>'required|unique:tblServerInfo'
         ];
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
@@ -66,7 +66,7 @@ class ServerInfoController extends \BaseController {
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
             $rules = ['ServerInfoTitle'=>'required',
-                //            'ServerInfoUrl'=>'required|unique:tblServerInfo'
+                            'ServerInfoUrl'=>'required|unique:tblServerInfo'
             ];
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {

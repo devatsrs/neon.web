@@ -1,16 +1,6 @@
-@extends('layout.main')
+@extends('layout.main_only_sidebar')
 
 @section('content')
-
-    <ol class="breadcrumb bc-3" xmlns="http://www.w3.org/1999/html">
-        <li>
-            <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
-        </li>
-        <li class="active">
-            <a href="javascript:void(0)">Server Info</a>
-        </li>
-    </ol>
-
     <style>
         #ServerInfoTab {
             margin:0 0 1px -11px;
@@ -21,8 +11,8 @@
             margin-bottom:3px;
             margin-left:3px;
         }
-        #ServerInfoTab span.title{
-            font-size: 15px;
+        #ServerInfoTab li a{
+            padding-bottom: 5px;
         }
         #ServerInfoTabContent .tab-pane{
             height: 1024px;
@@ -30,20 +20,6 @@
          iframe{border:0px;}
 
     </style>
-
-    <h3>Server Info</h3>
-    <div class="tab-content" style="height: auto;">
-        <div class="tab-pane active" id="customer_rate_tab_content">
-            <div class="clear"></div>
-            <br>
-            @if(User::checkCategoryPermission('Notification','Add'))
-                <p style="text-align: right;">
-                    <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-server">
-                        <i class="entypo-plus"></i>
-                        Add Server
-                    </a>
-                </p>
-            @endif
             <!-- Nav tabs from Bootstrap 3 -->
             <ul id="ServerInfoTab" class="nav nav-tabs" role="tablist">
                 <!--<li id="li1" class="active">
@@ -61,10 +37,11 @@
 
             <script type="text/javascript">
                 var list_fields  = ["ServerInfoID","ServerInfoTitle","ServerInfoUrl"];
+                $('.main-content').css('padding',0);
                 $(document).ready(function() {
                     $('.btn').button('reset');
                     getajaxData();
-                    $('#add-server').on('click', function (e) {
+                    $(document).on('click','#add-server', function (e) {
                         e.preventDefault();
                         $('#serverinfo-form').trigger("reset");
                         for(var i = 0 ; i< list_fields.length; i++){
@@ -129,12 +106,12 @@
                             success: function (response) {
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
+                                    $('#modal-serverinfo').modal('hide');
                                     getajaxData();
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
                                 $('.btn').button('reset');
-                                $('#modal-serverinfo').modal('hide');
                             },
                             // Form data
                             data: formData,
@@ -158,8 +135,13 @@
                                         $('#ServerInfoTabContent').empty();
                                         $.each(response.data, function (index,item) {
                                             builtItem(item);
-                                            $('ul#ServerInfoTab li a:first').click();
-                                        })
+                                        });
+                                        @if(User::checkCategoryPermission('ServerInfo','Add'))
+                                            var add='<li id="add-server"><a href="javascript:void(0)"><span class="entypo-plus"></span> Add Server</a></li>';
+                                            $('ul#ServerInfoTab').append(add);
+                                        @endif
+
+                                        $('ul#ServerInfoTab li a:first').click();
                                     }
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
@@ -179,8 +161,8 @@
                         html += '   <a href="#tab' + item.ServerInfoID + '" role="tab" data-toggle="tab">';
                         html += '       <span class="title">' + item.ServerInfoTitle + '</span>';
                         html += '       <div class="hiddenRowData hidden"><input type="hidden" name="ServerInfoID" value="' + item.ServerInfoID + '" /> <input type="hidden" name="ServerInfoTitle" value="' + item.ServerInfoTitle + '" /> <input type="hidden" name="ServerInfoUrl" value="' + item.ServerInfoUrl + '" /> </div>';
-                        html += '       <button class="btn btn-default btn-xs edit" type="button"><span class="entypo-pencil"></span></button>';
-                        html += '       <button class="btn btn-danger btn-xs delete" type="button"><span class="entypo-cancel"></span></button>';
+                        html += '       <button class="btn btn-default btn-xs edit" title="Edit Server Info" type="button"><span class="entypo-pencil"></span></button>';
+                        html += '       <button class="btn btn-danger btn-xs delete" title="Delete Server Info" type="button"><span class="entypo-trash"></span></button>';
                         html += '   </a>';
                         html += '</li>';
                         $('ul#ServerInfoTab').append(html);
@@ -192,9 +174,6 @@
 
             @include('includes.errors')
             @include('includes.success')
-
-        </div>
-    </div>
 @stop
 @section('footer_ext')
     @parent
@@ -210,14 +189,14 @@
                 <div class="modal-body">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Title</label>
+                            <label for="field-5" class="control-label">Name</label>
                             <input type="text" name="ServerInfoTitle" class="form-control" value="" />
                             <input type="hidden" name="ServerInfoID" />
                         </div>
                     </div>
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Server url</label>
+                            <label for="field-5" class="control-label">Server URL</label>
                             <textarea name="ServerInfoUrl" class="form-control" value="" /></textarea>
                         </div>
                     </div>
