@@ -11,6 +11,9 @@ CREATE DEFINER=`root`@`localhsot` PROCEDURE `prc_GetTasksBoard`(
 	IN `p_Closed` INT
 )
 BEGIN
+	DECLARE v_Active_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET v_Active_=1;
 	SELECT 
 		bc.BoardColumnID,
 		bc.BoardColumnName,
@@ -48,7 +51,9 @@ BEGIN
 				OR (p_DueDateFrom=2 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate >= NOW() AND ts.DueDate <= DATE(DATE_ADD(NOW(), INTERVAL +3 DAY)))) 
 				OR ((p_DueDateFrom!='' OR p_DueDateTo!='') AND ts.DueDate BETWEEN STR_TO_DATE(p_DueDateFrom,'%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(p_DueDateTo,'%Y-%m-%d %H:%i:%s'))
 			)
-		AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs))
-	LEFT JOIN tblUser u on u.UserID = ts.UsersIDs 
+		AND (v_Active_ = (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs limit 1))
+	LEFT JOIN tblUser u on ts.UsersIDs = u.UserID
+	AND u.`Status` = 1 
 	ORDER BY bc.`Order`,ts.`Order`;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

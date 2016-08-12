@@ -17,8 +17,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetTasksGrid`(
 )
 BEGIN 
 	DECLARE v_OffSet_ int;
+	DECLARE v_Active_ int;
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-   SET SESSION group_concat_max_len = 1024;
+   SET v_Active_=1;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 		
@@ -62,7 +63,7 @@ BEGIN
 				OR (p_DueDateFrom=2 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate >= NOW() AND ts.DueDate <= DATE(DATE_ADD(NOW(), INTERVAL +3 DAY)))) 
 				OR ((p_DueDateFrom!='' OR p_DueDateTo!='') AND ts.DueDate BETWEEN STR_TO_DATE(p_DueDateFrom,'%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(p_DueDateTo,'%Y-%m-%d %H:%i:%s'))
 			)
-		AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs))
+		AND (v_Active_ = (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs limit 1))
 		LEFT JOIN tblUser u on u.UserID = ts.UsersIDs
 		ORDER BY
 		CASE
@@ -114,7 +115,8 @@ BEGIN
 				OR (p_DueDateFrom=2 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate >= NOW() AND ts.DueDate <= DATE(DATE_ADD(NOW(), INTERVAL +2 DAY)))) 
 				OR ((p_DueDateFrom!='' OR p_DueDateTo!='') AND ts.DueDate BETWEEN STR_TO_DATE(p_DueDateFrom,'%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(p_DueDateTo,'%Y-%m-%d %H:%i:%s'))
 			)
-		AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs));
+		AND (v_Active_ = (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs limit 1))
+		INNER JOIN tblUser u on u.UserID = ts.UsersIDs;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
