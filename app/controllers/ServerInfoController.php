@@ -37,9 +37,12 @@ class ServerInfoController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $rules = ['ServerInfoTitle'=>'required',
-                    'ServerInfoUrl'=>'required|unique:tblServerInfo'
+                    'ServerInfoUrl'=>'required|url'
         ];
-        $validator = Validator::make($data, $rules);
+        $message = ['ServerInfoTitle.required'=>'Name is required field',
+                    'ServerInfoUrl.required'=>'URL is required field',
+                    'ServerInfoUrl.url'=>'Add valid URL',];
+        $validator = Validator::make($data, $rules ,$message);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
@@ -66,9 +69,12 @@ class ServerInfoController extends \BaseController {
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
             $rules = ['ServerInfoTitle'=>'required',
-                            'ServerInfoUrl'=>'required|unique:tblServerInfo'
+                'ServerInfoUrl'=>'required|url'
             ];
-            $validator = Validator::make($data, $rules);
+            $message = ['ServerInfoTitle.required'=>'Name is required field',
+                'ServerInfoUrl.required'=>'URL is required field',
+                'ServerInfoUrl.url'=>'Add valid URL',];
+            $validator = Validator::make($data, $rules ,$message);
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }

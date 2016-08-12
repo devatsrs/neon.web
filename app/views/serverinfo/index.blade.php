@@ -5,8 +5,12 @@
         #ServerInfoTab {
             margin:0 0 1px -11px;
         }
+        #ServerInfoTab li a{
+            padding: 10px;
+        }
         #ServerInfoTab .btn-xs{
-            margin-left:3px;
+            margin-left:0px;
+            padding: 0px;;
             cursor: pointer;
         }
         #ServerInfoTabContent .tab-pane{
@@ -17,17 +21,9 @@
     </style>
             <!-- Nav tabs from Bootstrap 3 -->
             <ul id="ServerInfoTab" class="nav nav-tabs" role="tablist">
-                <!--<li id="li1" class="active">
-                    <a data-toggle="tab" role="tab" href="#tab1">
-                        <span class="title">Code Desk</span>
-                        <button class="btn btn-default btn-xs edit" type="button"><span class="entypo-pencil"></span></button>
-                        <button class="btn btn-danger btn-xs delete" type="button"><span class="entypo-cancel"></span></button>
-                    </a>
-                </li>-->
             </ul>
             <!-- Tab panes from Bootstrap 3 -->
             <div id="ServerInfoTabContent" class="tab-content" style="height: 1024px;">
-               <!-- <div class="tab-pane fade in active" id="tab1"><p>Content tab 1</p></div> -->
             </div>
 
             <script type="text/javascript">
