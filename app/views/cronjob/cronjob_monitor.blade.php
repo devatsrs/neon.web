@@ -142,7 +142,7 @@
                         $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is failing..." data-placement="top" class="badge badge-danger" data-toggle="tooltip">i</span>');
                     }
                     if(typeof data[7] != 'undefined' && data[7] == 0  ){ // 'Status'  InActive CronJob Gray color
-                        $(nRow).css('background-color', '#eaeaea');
+                        $(nRow).css('background-color', '#f5f5f6');
                         $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is Disabled" data-placement="top" class="badge badge-warning" data-toggle="tooltip">i</span>');
                     }
 
