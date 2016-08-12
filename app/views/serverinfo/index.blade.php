@@ -188,7 +188,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Server URL</label>
-                            <textarea name="ServerInfoUrl" class="form-control" value="" /></textarea>
+                            <input type="text" name="ServerInfoUrl" class="form-control" value="" />
                         </div>
                     </div>
                 </div>
