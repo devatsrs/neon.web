@@ -893,7 +893,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/dialstrings/{id}/ajaxfilegrid', 'DialStringController@ajaxfilegrid');
 	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
 	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
-
+    
     //Notifications
     Route::any('notification', 'NotificationController@index');
     Route::any('notification/ajax_datagrid/{type}', 'NotificationController@ajax_datagrid');
@@ -907,6 +907,10 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('serverinfo/store', 'ServerInfoController@store');
     Route::any('serverinfo/{server_id}/update', 'ServerInfoController@update')->where('notification_id', '(.[09]*)+');
     Route::any('serverinfo/{server_id}/delete', 'ServerInfoController@delete')->where('notification_id', '(.[09]*)+');
+
+	//Retention
+	Route::any('/retention', "RetentionController@index");
+	Route::any('/retention/create', "RetentionController@create");
 
 });
 

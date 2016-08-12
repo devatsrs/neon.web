@@ -268,7 +268,7 @@ class JobsController extends \BaseController {
 
             $userName = User::get_user_full_name();
             DB::connection('sqlsrv')->select("CALL prc_UpdatePendingJobToCanceled($JobID,'$userName')");
-            return Response::json(array("status" => "success", "message" => "Job is canceled."));
+            return Response::json(array("status" => "success", "message" => "Job is cancelled."));
 
         } else {
 
