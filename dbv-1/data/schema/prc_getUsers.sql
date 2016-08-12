@@ -24,7 +24,7 @@ BEGIN
 	u.LastName,
 	u.EmailAddress,
 	CASE WHEN u.AdminUser=1
-	then 'Admin'
+	then 'Super Admin'
 	Else group_concat(r.RoleName)
 	END as Roles,
 	u.UserID	
@@ -91,5 +91,4 @@ BEGIN
 
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;	
-END//
-DELIMITER ;
+END

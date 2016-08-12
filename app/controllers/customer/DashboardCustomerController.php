@@ -11,7 +11,8 @@ class DashboardCustomerController extends BaseController {
         $account = Account::find($CustomerID);
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        return View::make('customer.index',compact('account','original_startdate','original_enddate'));
+        $invoice_status_json = json_encode(Invoice::get_invoice_status());
+        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json'));
     }
     public function invoice_expense_chart(){
         $data = Input::all();
@@ -67,6 +68,39 @@ class DashboardCustomerController extends BaseController {
         $AccountManagerEmail = $User->EmailAddress;
         return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail'));
 
+    }
+
+    public function ajax_datagrid_Invoice_Expense($exportType){
+        $data 							 = 		Input::all();
+        $CompanyID 						 = 		Customer::get_companyID();
+        $CustomerID                      =      Customer::get_accountID();
+        $data['iDisplayStart'] 			+=		1;
+        $typeText=[1,'Payments',2=>'Invoices'];
+        if($data['Type']==1) { //1 for Payment received.
+            $columns = array('AccountName', 'InvoiceNo', 'Amount', 'PaymentType', 'PaymentDate', 'Status', 'CreatedBy', 'Notes');
+            $sort_column = $columns[$data['iSortCol_0']];
+        }elseif($data['Type']==2 || $data['Type']==3){ //2 for Total Invoices
+            $columns = ['AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
+            $sort_column = $columns[$data['iSortCol_0']];
+        }
+        $query = "call prc_getDashboardinvoiceExpenseDrilDown(" . $CompanyID . "," . $data['CurrencyID'] . ",'" . $data['PaymentDate_StartDate'] . "','" . $data['PaymentDate_EndDate'] . "',".$data['Type']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',".$CustomerID;
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($exportType=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($exportType=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query = $query.',0)';
+        //echo $query;exit();
+        return DataTableSql::of($query,'sqlsrv2')->make();
     }
 
 }

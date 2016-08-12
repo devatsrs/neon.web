@@ -1,4 +1,15 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetTasksBoard`(IN `p_CompanyID` INT, IN `p_BoardID` INT, IN `p_TaskName` VARCHAR(50), IN `p_UserIDs` VARCHAR(50), IN `p_AccountIDs` INT, IN `p_Periority` INT, IN `p_DueDateFrom` VARCHAR(50), IN `p_DueDateTo` VARCHAR(50), IN `p_Status` INT, IN `p_Closed` INT)
+CREATE DEFINER=`root`@`localhsot` PROCEDURE `prc_GetTasksBoard`(
+	IN `p_CompanyID` INT,
+	IN `p_BoardID` INT,
+	IN `p_TaskName` VARCHAR(50),
+	IN `p_UserIDs` VARCHAR(50),
+	IN `p_AccountIDs` INT,
+	IN `p_Periority` INT,
+	IN `p_DueDateFrom` VARCHAR(50),
+	IN `p_DueDateTo` VARCHAR(50),
+	IN `p_Status` INT,
+	IN `p_Closed` INT
+)
 BEGIN
 	SELECT 
 		bc.BoardColumnID,
@@ -37,6 +48,7 @@ BEGIN
 				OR (p_DueDateFrom=2 AND (ts.DueDate !='0000-00-00 00:00:00' AND ts.DueDate >= NOW() AND ts.DueDate <= DATE(DATE_ADD(NOW(), INTERVAL +3 DAY)))) 
 				OR ((p_DueDateFrom!='' OR p_DueDateTo!='') AND ts.DueDate BETWEEN STR_TO_DATE(p_DueDateFrom,'%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(p_DueDateTo,'%Y-%m-%d %H:%i:%s'))
 			)
+		AND (1 in (Select `Status` FROM tblUser Where tblUser.UserID = ts.UsersIDs))
 	LEFT JOIN tblUser u on u.UserID = ts.UsersIDs 
 	ORDER BY bc.`Order`,ts.`Order`;
 END

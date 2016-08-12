@@ -74,7 +74,7 @@ class CronJob extends \Eloquent {
                 return $valid;
             }
 
-        }elseif($CronJobCommand->Command == 'pendingduesheets'){
+        }else{
             if(DB::table('tblCronJob')->where('CronJobCommandID','=',$data['CronJobCommandID'])->where('CronJobID','<>',$id)->count() > 0){
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Command already taken."));
                 return $valid;
