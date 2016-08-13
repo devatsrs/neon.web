@@ -131,16 +131,11 @@ class EstimatesController extends \BaseController {
             $EstimateDetail 			=	 EstimateDetail::where(["EstimateID"=>$id])->get();
             $accounts 					= 	 Account::getAccountIDList();
             $products 					= 	 Product::getProductDropdownList();
-            $Account 					= 	 Account::where(["AccountID" => $Estimate->AccountID])->select(["AccountName","BillingEmail", "TaxRateID","RoundChargesAmount","CurrencyId","InvoiceTemplateID"])->first();
+            $Account 					= 	 Account::where(["AccountID" => $Estimate->AccountID])->select(["AccountName","BillingEmail","CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
+            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $CurrencyID 				= 	 !empty($Estimate->CurrencyID)?$Estimate->CurrencyID:$Account->CurrencyId;
-            $RoundChargesAmount 		= 	 2;
-            
-			if($Account->RoundChargesAmount > 0)
-			{
-                $RoundChargesAmount = $Account->RoundChargesAmount;
-            }
-			
-            $EstimateTemplateID 		=	 $Account->InvoiceTemplateID;
+            $RoundChargesAmount 		= 	 get_round_decimal_places($Estimate->AccountID);
+            $EstimateTemplateID 		=	 AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID');
             $EstimateNumberPrefix 		= 	 ($EstimateTemplateID>0)?InvoiceTemplate::find($EstimateTemplateID)->EstimateNumberPrefix:'';
             $Currency 					= 	 Currency::find($CurrencyID);
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
@@ -217,7 +212,7 @@ class EstimatesController extends \BaseController {
                 //Store Last Estimate Number.
                 
 				if($isAutoEstimateNumber) {
-                    InvoiceTemplate::find(Account::find($data["AccountID"])->InvoiceTemplateID)->update(array("LastEstimateNumber" => $LastEstimateNumber ));
+                    InvoiceTemplate::find(AccountBilling::getInvoiceTemplateID($data["AccountID"]))->update(array("LastEstimateNumber" => $LastEstimateNumber ));
                 }
 				
                 $EstimateDetailData = array();
@@ -435,11 +430,11 @@ class EstimatesController extends \BaseController {
         if(isset($data['product_type']) && Product::$ProductTypes[$data['product_type']] && isset($data['account_id']) && isset($data['product_id']) && isset($data['qty'])) {
             $AccountID = intval($data['account_id']);
             $Account = Account::find($AccountID);
+            $AccountBilling = AccountBilling::getBilling($AccountID);
             if (!empty($Account)) {
-                $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+                $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
                 if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
-                    $decimal_places = 2;
-                    $decimal_places = ($Account->RoundChargesAmount > 0) ? $Account->RoundChargesAmount : $decimal_places;
+                    $decimal_places = get_round_decimal_places($AccountID);
 
                     if (Product::$ProductTypes[$data['product_type']] == Product::ITEM) {
 
@@ -449,7 +444,7 @@ class EstimatesController extends \BaseController {
                         $Product = Product::find($data['product_id']);
                         if (!empty($Product)) {
 
-                            $Account = Account::find($data['account_id']);
+
                             $ProductAmount = number_format($Product->Amount, $decimal_places,".","");
                             $ProductDescription = $Product->Description;
 
@@ -458,7 +453,7 @@ class EstimatesController extends \BaseController {
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
-                            $AccountTaxRate = explode(",", $Account->TaxRateId);
+                            $AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
 
                             $TaxRateAmount = $TaxRateId = 0;
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
@@ -515,10 +510,11 @@ class EstimatesController extends \BaseController {
         $data = Input::all();
         if (isset($data['account_id']) && $data['account_id'] > 0 )
 		{
-            $fields 			=	["CurrencyId","Address1","Address2","Address3","City","PostCode","Country","InvoiceTemplateID"];
+            $fields 			=	["CurrencyId","Address1","Address2","Address3","City","PostCode","Country"];
             $Account 			= 	Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
+            $AccountBilling = AccountBilling::getBilling($data['account_id']);
             $Currency 			= 	Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
-            $InvoiceTemplateID  = 	$Account->InvoiceTemplateID;
+            $InvoiceTemplateID  = 	AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID');
             $CurrencyId 		= 	$Account->CurrencyId;
             $Address 			= 	Account::getFullAddress($Account);			
             $Terms 				= 	$FooterTerm = '';
@@ -591,9 +587,10 @@ class EstimatesController extends \BaseController {
         $Invoice = Invoice::find($id);
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
         $Account  = Account::find($Invoice->AccountID);
+        $AccountBilling = AccountBilling::getBilling($id);
         $Currency = Currency::find($Account->CurrencyId);
         $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-        $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+        $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
         if(empty($InvoiceTemplate->CompanyLogoUrl)){
             $logo = 'http://placehold.it/250x100';
         }else{
@@ -691,9 +688,10 @@ class EstimatesController extends \BaseController {
             $Estimate 		=	 Estimate::find($id);
             $EstimateDetail = 	 EstimateDetail::where(["EstimateID" => $id])->get();
             $Account = Account::find($Estimate->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url = 'http://placehold.it/250x100';
             } else {
@@ -756,18 +754,14 @@ class EstimatesController extends \BaseController {
         if(!empty($Estimate))
 		{
             $Account 	 	= 	Account::find($Estimate->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $Currency 	 	= 	Currency::find($Account->CurrencyId);
             $CompanyName 	= 	Company::getName();
             
 			if (!empty($Currency))
 			{
-                $Subject = "New Estimate " . Estimate::getFullEstimateNumber($Estimate,$Account). ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-                $RoundChargesAmount = 2;
-				
-                if($Account->RoundChargesAmount > 0)
-				{
-                    $RoundChargesAmount = $Account->RoundChargesAmount;
-                }
+                $Subject = "New Estimate " . Estimate::getFullEstimateNumber($Estimate,$AccountBilling). ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+                $RoundChargesAmount = get_round_decimal_places($Estimate->AccountID);
 
                 $data = [
                     'CompanyName' => $CompanyName,

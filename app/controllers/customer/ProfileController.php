@@ -19,9 +19,10 @@ class ProfileController extends \BaseController {
         $id = User::get_userID();
         $companyID = User::get_companyID();
         $account = Account::find($id);
+        $AccountBilling = AccountBilling::getBilling($id);
         $account_owner = User::find($account->Owner);
         $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-        return View::make('customer.accounts.show', compact('account', 'contacts','account_owner'));
+        return View::make('customer.accounts.show', compact('account', 'contacts','account_owner','AccountBilling'));
     }
 
     /**
@@ -101,7 +102,7 @@ class ProfileController extends \BaseController {
         $id = User::get_userID();
         $account = Account::find($id);
         $companyID = User::get_companyID();
-        $outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,$account->RoundChargesAmount);
+        $outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,get_round_decimal_places($account->AccountID));
         $currency = Currency::getCurrencySymbol($account->CurrencyId);
         $outstandingtext = $currency.$outstanding;
         echo json_encode(array("status" => "success", "message" => "","outstanding"=>$outstanding,"outstadingtext"=>$outstandingtext));

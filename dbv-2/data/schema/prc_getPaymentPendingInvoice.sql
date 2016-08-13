@@ -6,10 +6,12 @@ BEGIN
 		MAX(i.InvoiceID) AS InvoiceID,
 		(IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) AS RemaingAmount
 	FROM tblInvoice i
-	LEFT JOIN Ratemanagement3.tblAccount a
+	LEFT JOIN NeonRMDev.tblAccount a
 		ON i.AccountID = a.AccountID
+	LEFT JOIN NeonRMDev.tblAccountBilling ab 
+		ON ab.AccountID = a.AccountID
 	LEFT JOIN tblInvoiceTemplate it 
-		ON a.InvoiceTemplateID = it.InvoiceTemplateID
+		ON ab.InvoiceTemplateID = it.InvoiceTemplateID
 	LEFT JOIN tblPayment p
 		ON p.AccountID = i.AccountID
 		AND REPLACE(p.InvoiceNo,'-','') = (CONCAT( ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(i.InvoiceNumber)) )) AND p.Status = 'Approved' AND p.AccountID = i.AccountID

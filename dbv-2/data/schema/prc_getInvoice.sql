@@ -1,37 +1,22 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
-	IN `p_CompanyID` INT,
-	IN `p_AccountID` INT,
-	IN `p_InvoiceNumber` VARCHAR(50),
-	IN `p_IssueDateStart` DATETIME,
-	IN `p_IssueDateEnd` DATETIME,
-	IN `p_InvoiceType` INT,
-	IN `p_InvoiceStatus` VARCHAR(50),
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(50),
-	IN `p_SortOrder` VARCHAR(5),
-	IN `p_CurrencyID` INT,
-	IN `p_isExport` INT,
-	IN `p_sageExport` INT,
-	IN `p_zerovalueinvoice` INT,
-	IN `p_InvoiceID` LONGTEXT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_InvoiceStatus` VARCHAR(50), IN `p_IsOverdue` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT, IN `p_sageExport` INT, IN `p_zerovalueinvoice` INT, IN `p_InvoiceID` LONGTEXT
+
+
+
 
 )
-LANGUAGE SQL
-NOT DETERMINISTIC
-CONTAINS SQL
-SQL SECURITY DEFINER
-COMMENT ''
 BEGIN
     DECLARE v_OffSet_ int;
     DECLARE v_Round_ int;
+    DECLARE v_PaymentDueInDays_ int;
     DECLARE v_CurrencyCode_ VARCHAR(50);
+    DECLARE v_TotalCount int;
     
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';   	     
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
     SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	 SELECT cs.Value INTO v_PaymentDueInDays_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'PaymentDueInDays' AND cs.CompanyID = p_CompanyID;
 
  
 		
@@ -86,15 +71,16 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			ac.PaymentDueInDays,
+			IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
-			ac.NominalAnalysisNominalAccountNumber
+			ac.NominalAnalysisNominalAccountNumber 			
 			FROM tblInvoice inv
 			inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
 			left join tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
-			left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
+			INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+			LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
 			left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			where ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -103,9 +89,10 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
 			AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
 			AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
-			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0))
+			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
+			AND (p_IsOverdue = 0 OR (To_days(NOW()) - To_days(IssueDate)) > IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_));
 	       
 
 
@@ -132,7 +119,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         ItemInvoice,
 		BillingEmail,
 		GrandTotal
-        FROM tmp_Invoices_
+        FROM tmp_Invoices_        
         ORDER BY
                 CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
             END DESC,
@@ -168,14 +155,16 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
             END ASC
 				 LIMIT p_RowspPage OFFSET v_OffSet_;
         
-        
+        SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_;
+		   
         SELECT
-            COUNT(*) AS totalcount,
+            v_TotalCount AS totalcount,
 			ROUND(sum(GrandTotal),v_Round_) as total_grand,
 			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`, 
 			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
 			v_CurrencyCode_ as currency_symbol
-        FROM tmp_Invoices_ ;
+        FROM tmp_Invoices_ 
+			WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft';
 		
     END IF;
     IF p_isExport = 1
@@ -231,7 +220,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			       AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
                 AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
                 AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
-                AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal > 0))
+                AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
                 AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
 				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
         END IF; 

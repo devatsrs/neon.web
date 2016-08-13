@@ -96,7 +96,7 @@
      var update_new_url;
      var postdata;
      var dispute_status = {{json_encode(Dispute::$Status);}};
-     var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+     var toFixed = '{{get_round_decimal_places()}}';
 
      jQuery(document).ready(function ($) {
                     data_table = $("#table-4").dataTable({

@@ -147,6 +147,7 @@ class AccountsController extends \BaseController {
             $data['AccountType'] = 1;
             $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
             $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+            $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
@@ -163,10 +164,16 @@ class AccountsController extends \BaseController {
             }
             $data['Number'] = trim($data['Number']);
         unset($data['DataTables_Table_0_length']);
-        if(Company::isBillingLicence()) {
+        if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            //Account::$rules['InvoiceTemplateID'] = 'required';
+            Account::$rules['InvoiceTemplateID'] = 'required';
+            Account::$rules['CDRType'] = 'required';
+            Account::$rules['BillingCycleType'] = 'required';
+            Account::$rules['BillingStartDate'] = 'required';
+            if(isset($data['BillingCycleValue'])){
+                Account::$rules['BillingCycleValue'] = 'required';
+            }
         }
 
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
@@ -179,10 +186,13 @@ class AccountsController extends \BaseController {
             }
 
             if ($account = Account::create($data)) {
+                if($data['Billing'] == 1) {
+                    AccountBilling::insertUpdateBilling($account->AccountID, $data);
+                }
+
                 if (trim(Input::get('Number')) == '') {
                     CompanySetting::setKeyVal('LastAccountNo', $account->Number);
                 }
-                $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($account->AccountID);
                 $account->update($data);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
@@ -203,16 +213,17 @@ class AccountsController extends \BaseController {
     public function show_old($id) {
 
             $account = Account::find($id);
+        $AccountBilling = AccountBilling::getBilling($id);
             $companyID = User::get_companyID();
             $account_owner = User::find($account->Owner);
             $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
             $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
             $verificationflag = AccountApprovalList::isVerfiable($id);
-            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
             $currency = Currency::getCurrencySymbol($account->CurrencyId);
             $activity_type = AccountActivity::$activity_type;
             $activity_status = [1 => 'Open', 2 => 'Closed'];
-            return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
+            return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','AccountBilling'));
     }
 
 	
@@ -254,7 +265,7 @@ class AccountsController extends \BaseController {
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
-			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
             $account_owners 			= 	 User::getUserIDList();
 			//$Board 						=	 CRMBoard::getTaskBoard();
 			
@@ -383,8 +394,9 @@ class AccountsController extends \BaseController {
         $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND))->pluck('DiscountPlanID');
+        $AccountBilling =  AccountBilling::getBilling($id);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate','DiscountPlan','DiscountPlanID','InboundDiscountPlanID'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling'));
     }
 
     /**
@@ -405,6 +417,7 @@ class AccountsController extends \BaseController {
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
 
@@ -444,12 +457,15 @@ class AccountsController extends \BaseController {
         }
         $data['Number'] = trim($data['Number']);
 
-        if(Company::isBillingLicence()) {
+        if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            $icount = Invoice::where(["AccountID" => $id])->count();
-            if($icount>0){
-                Account::$rules['InvoiceTemplateID'] = 'required';
+            Account::$rules['InvoiceTemplateID'] = 'required';
+            Account::$rules['CDRType'] = 'required';
+            Account::$rules['BillingCycleType'] = 'required';
+            Account::$rules['BillingStartDate'] = 'required';
+            if(isset($data['BillingCycleValue'])){
+                Account::$rules['BillingCycleValue'] = 'required';
             }
         }
 
@@ -467,9 +483,10 @@ class AccountsController extends \BaseController {
             $data['LastInvoiceDate'] = $data['BillingStartDate'];
         }
         if ($account->update($data)) {
-            $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($id);
-            $account->update($data);
-            $billdays =  getBillingDay(strtotime($account->LastInvoiceDate),$account->BillingCycleType,$account->BillingCycleValue);
+            if($data['Billing'] == 1) {
+                AccountBilling::insertUpdateBilling($id, $data);
+            }
+            $billdays =  AccountBilling::getBillingDay($id);
             AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays);
             AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays);
             if(trim(Input::get('Number')) == ''){
@@ -792,7 +809,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $account = Account::find($id);
             $companyID = User::get_companyID();
             $Invoiceids = $data['InvoiceIDs'];
-            $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, $account->RoundChargesAmount);
+            $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, get_round_decimal_places($account->AccountID));
             $currency = Currency::getCurrencySymbol($account->CurrencyId);
             $outstandingtext = $currency.$outstanding;
             echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
@@ -1094,14 +1111,16 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function unbilledreport($id){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $LastInvoiceDate = Invoice::getLastInvoiceDate($id);
+        $AccountBilling = AccountBilling::getBilling($id);
         $account = Account::find($id);
-        if(empty($LastInvoiceDate)){
-            if(!empty($account->BillingStartDate)) {
-                $LastInvoiceDate = $account->BillingStartDate;
+        if(empty($AccountBilling->LastInvoiceDate)){
+            if(!empty($AccountBilling->BillingStartDate)) {
+                $LastInvoiceDate = $AccountBilling->BillingStartDate;
             }else{
                 $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
             }
+        }else{
+            $LastInvoiceDate = $AccountBilling->LastInvoiceDate;
         }
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getUnbilledReport (?,?,?,?)";

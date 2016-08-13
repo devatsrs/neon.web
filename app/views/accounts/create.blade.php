@@ -234,11 +234,14 @@
                     </div>
 
                     <div class="panel-options">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" name="Billing" value="1">
+                        </div>
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     </div>
                 </div>
 
-                <div class="panel-body">
+                <div class="panel-body billing-section">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                         <div class="col-sm-4">
@@ -280,12 +283,12 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle*</label>
                         <div class="col-sm-4">
                             {{Form::select('BillingCycleType', SortBillingType(), CompanySetting::getKeyVal('BillingCycleType') ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>
+                            <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Start of Day*</label>
                             <div class="col-sm-4">
                                 <?php $Days = array( ""=>"Please Start of Day",
                                     "monday"=>"Monday",
@@ -299,19 +302,19 @@
                             </div>
                         </div>
                         <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - for Days</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle - for Days*</label>
                             <div class="col-sm-4">
                                 {{Form::text('BillingCycleValue', CompanySetting::getKeyVal('BillingCycleValue') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Subscription Qty</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Subscription Qty*</label>
                             <div class="col-sm-4">
                                 {{Form::text('BillingCycleValue', CompanySetting::getKeyVal('BillingCycleValue') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-sm-2 control-label">Billing cycle - Monthly Anniversary Date</label>
+                            <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                             <div class="col-sm-4">
                                 {{Form::text('BillingCycleValue', CompanySetting::getKeyVal('BillingCycleValue') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                             </div>
@@ -319,17 +322,17 @@
                     </div>
 
                 <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Format</label>
+                        <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
                         <div class="col-sm-4">
                             {{Form::select('CDRType', Account::$cdr_type, CompanySetting::getKeyVal('CDRType'),array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                          <div class="col-sm-4">   
                             {{Form::text('BillingStartDate',date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                          </div>   
                 </div>
                 <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Template</label>
+                        <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                         <div class="col-sm-4">
                         {{Form::select('InvoiceTemplateID', $InvoiceTemplates,  CompanySetting::getKeyVal('InvoiceTemplateID') ,array("class"=>"form-control select2"))}}
                         </div>
@@ -373,36 +376,21 @@
                         break;
             }
         });
-        $('body').on('click', '.delete-ip', function(e) {
-            e.preventDefault();
-            result = confirm("Are you Sure?");
-            if(result){
-                $(this).parent().parent('tr').remove();
-                var nameIDs = $('table.acountiptable tr td:first-child').map(function () {
-                                                                      return this.innerHTML.trim();
-                                                                  }).get().join(',');
-                $("#account-from [name='AccountIP']").val(nameIDs);
-            }
-        });
-        $('body').on('click', '.add-ip', function(e) {
-            $("#addip-modal").modal('show');
-        });
-        $("#form-addip-modal").submit(function(e){
-            e.preventDefault();
-            var accoutiphtml = '<tr><td>'+$(this).find("[name='AccountIP']").val()+'</td><td><a class="btn  btn-danger btn-sm btn-icon icon-left delete-ip"  href="javascript:;" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
-            $('.acountiptable').children('tbody').append(accoutiphtml);
-            var nameIDs = $('table.acountiptable tr td:first-child').map(function () {
-                              return this.innerHTML.trim();
-                          }).get().join(',');
-            $("#account-from [name='AccountIP']").val(nameIDs);
-            $('.acountiptable').children('tbody').children('tr').children('td');
 
-            $("#addip-modal").modal('hide');
-        });
+
         $('select[name="BillingCycleType"]').trigger( "change" );
         setTimeout(function(){
             $('select[name="CDRType"]').trigger( "change" );
-        },500)
+        },500);
+
+        $('[name="Billing"]').on( "change",function(e){
+            if($('[name="Billing"]').prop("checked") == true){
+                $(".billing-section").show();
+            }else{
+                $(".billing-section").hide();
+            }
+        });
+        $('[name="Billing"]').trigger('change');
 
     });
 function ajax_form_success(response){
@@ -415,35 +403,5 @@ function ajax_form_success(response){
 @stop
 @section('footer_ext')
 @parent
-<div class="modal fade" id="addip-modal" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <form role="form" id="form-addip-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add IP</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">AccountIP</label>
-                    <div class="col-sm-5">
-                        <input name="AccountIP" type="text" class="form-control">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left">
-                    <i class="entypo-floppy"></i>
-                     Add
-                </button>
-                <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                     <i class="entypo-cancel"></i>
-                     Close
-                </button>
-             </div>
-        </form>
-        </div>
-    </div>
-</div>
 
 @stop

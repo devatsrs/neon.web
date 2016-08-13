@@ -44,8 +44,8 @@ class CDRController extends BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 if($data["AccountID"] >0 ){
-                   $account = Account::find($data["AccountID"]);
-                    if($account->CDRType == ''){
+                   $AccountBilling = AccountBilling::getBilling($data["AccountID"]);
+                    if(AccountBilling::getBillingKey($AccountBilling,'CDRType') == ''){
                         return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
                     }
                 }
@@ -53,7 +53,7 @@ class CDRController extends BaseController {
                 $jobType = JobType::where(["Code" => 'CDR'])->get(["JobTypeID", "Title"]);
                 $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
                 $histdata['CompanyID'] = $jobdata["CompanyID"] = $CompanyID;
-                $histdata['AccountID']= $jobdata["AccountID"] = $account->AccountID;
+                $histdata['AccountID']= $jobdata["AccountID"] = $data["AccountID"];
                 $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
                 $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
                 $jobdata["JobLoggedUserID"] = User::get_userID();

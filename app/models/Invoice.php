@@ -30,33 +30,6 @@ class Invoice extends \Eloquent {
         return $message;
     }
 
-    public static function getLastInvoiceDate($AccountID){
-
-        /**
-         *   Get EndDate from InvoiceDetail
-         *      Where ProductType is USAGE = Product::USAGE OR SUBSCRIPTION = Product::SUBSCRIPTION
-         */
-
-
-
-        if($AccountID > 0) {
-
-            $LastInvoiceDate = Account::where("AccountID",$AccountID)->pluck("LastInvoiceDate");
-            if(!empty($LastInvoiceDate)) {
-                return $LastInvoiceDate;
-            }
-
-            /*$LastInvoiceDate = Invoice::join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID')
-                ->where("tblInvoice.AccountID", $AccountID)
-                ->whereRaw("(tblInvoiceDetail.ProductType = " . Product::USAGE . ' OR ' . "tblInvoiceDetail.ProductType = " . Product::SUBSCRIPTION . ")")// Only take Invoice which has Usage Item
-                ->orderby("tblInvoiceDetail.EndDate","desc")
-                ->pluck("EndDate");
-
-            return strtotime("Y-m-d", strtotime( "+1 Day", $LastInvoiceDate));*/
-        }
-
-    }
-
     public static function getNextInvoiceDate($AccountID){
 
         /**
@@ -70,9 +43,9 @@ class Invoice extends \Eloquent {
             date_default_timezone_set($BillingTimezone);
         }
 
-        $Account = Account::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
+        $Account = AccountBilling::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
-        $BillingCycle = Account::select(["BillingCycleType","BillingCycleValue"])->where("AccountID",$AccountID)->first()->toArray();
+        $BillingCycle = AccountBilling::select(["BillingCycleType","BillingCycleValue"])->where("AccountID",$AccountID)->first()->toArray();
                         //"weekly"=>"Weekly", "monthly"=>"Monthly" , "daily"=>"Daily", "in_specific_days"=>"In Specific days", "monthly_anniversary"=>"Monthly anniversary");
 
         $NextInvoiceDate = "";
@@ -85,67 +58,7 @@ class Invoice extends \Eloquent {
             return '';
         }
 
-        if(isset($BillingCycle['BillingCycleType'])) {
-
-            switch ($BillingCycle['BillingCycleType']) {
-                case 'weekly':
-                    if (!empty($BillingCycle['BillingCycleValue'])) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("next " . $BillingCycle['BillingCycleValue'],$BillingStartDate));
-                    }
-                    break;
-                case 'monthly':
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
-                    break;
-                case 'daily':
-                        $NextInvoiceDate = date("Y-m-d", strtotime("+1 Days",$BillingStartDate));
-                    break;
-                case 'in_specific_days':
-                    if (!empty($BillingCycle['BillingCycleValue'])) {
-                            $NextInvoiceDate = date("Y-m-d", strtotime("+" . intval($BillingCycle['BillingCycleValue']) . " Day",$BillingStartDate));
-                    }
-                    break;
-                case 'monthly_anniversary':
-
-                    $day = date("d",  strtotime($BillingCycle['BillingCycleValue'])); // Date of Anivarsary
-                    $month = date("m",  $BillingStartDate); // Month of Last Invoice date or Start Date
-                    $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
-
-                    $newDate = strtotime($year . '-' . $month . '-' . $day);
-                    if($day<=date("d",  $BillingStartDate)) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate));
-                    }else{
-                        $NextInvoiceDate = date("Y-m-d",$newDate);
-                    }
-
-                    break;
-                case 'fortnightly':
-                    $fortnightly_day = date("d", $BillingStartDate);
-                    if($fortnightly_day > 15){
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
-                    }else{
-                        $NextInvoiceDate = date("Y-m-16", $BillingStartDate);
-                    }
-                    break;
-                case 'quarterly':
-                    $quarterly_month = date("m", $BillingStartDate);
-                    if($quarterly_month < 4){
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of april ",$BillingStartDate));
-                    }else if($quarterly_month > 3 && $quarterly_month < 7) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of july ",$BillingStartDate));
-                    }else if($quarterly_month > 6 && $quarterly_month < 10) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of october ",$BillingStartDate));
-                    }else if($quarterly_month > 9){
-                        $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
-                    }
-                    break;
-            }
-
-            $Timezone = Company::getCompanyTimeZone(0);
-            if(isset($Timezone) && $Timezone != ''){
-                date_default_timezone_set($Timezone);
-            }
-
-        }
+        $NextInvoiceDate = next_billing_date($BillingCycle['BillingCycleType'],$BillingCycle['BillingCycleValue'],$BillingStartDate);
 
         return $NextInvoiceDate;
 
@@ -156,10 +69,11 @@ class Invoice extends \Eloquent {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
             $Account = Account::find($Invoice->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $InvoiceTemplate = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
@@ -176,7 +90,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -229,10 +143,10 @@ class Invoice extends \Eloquent {
         }
         return $invoicearray;
     }
-    public static function getFullInvoiceNumber($Invoice,$Account){
+    public static function getFullInvoiceNumber($Invoice,$AccountBilling){
         $InvoiceNumberPrefix = '';
-        if(!empty($Account->InvoiceTemplateID)) {
-            $InvoiceNumberPrefix = InvoiceTemplate::find($Account->InvoiceTemplateID)->InvoiceNumberPrefix;
+        if(!empty($AccountBilling->InvoiceTemplateID)) {
+            $InvoiceNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->InvoiceNumberPrefix;
         }
         return $InvoiceNumberPrefix.$Invoice->InvoiceNumber;
     }

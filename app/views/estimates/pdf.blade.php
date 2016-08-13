@@ -87,13 +87,13 @@ table{
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td class="text-center">{{$ProductRow->Description}}</td>
                 <td class="text-center">{{$ProductRow->Qty}}</td>
-                <td class="text-center">{{number_format($ProductRow->Price,$Account->RoundChargesAmount)}}</td>
+                <td class="text-center">{{number_format($ProductRow->Price,$AccountBilling->RoundChargesAmount)}}</td>
                 @if($Estimate->TotalDiscount >0)
                 <td class="text-center">{{$ProductRow->Discount}}</td>
                 @endif
-                <td class="text-center">{{number_format($ProductRow->LineTotal,$Account->RoundChargesAmount)}}</td>
+                <td class="text-center">{{number_format($ProductRow->LineTotal,$AccountBilling->RoundChargesAmount)}}</td>
                 {{--<td class="text-center">{{TaxRate::getTaxRate($ProductRow->TaxRateID)}}</td>--}}
-                <td class="text-center">{{number_format($ProductRow->TaxAmount,$Account->RoundChargesAmount)}}</td>
+                <td class="text-center">{{number_format($ProductRow->TaxAmount,$AccountBilling->RoundChargesAmount)}}</td>
             </tr>
             @endif
             @endforeach
@@ -116,23 +116,23 @@ table{
                                                     <tfoot>
                                                         <tr>
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$AccountBilling->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         <?php if(isset($TaxrateName)){ ?>
                                                         <tr>
                                                                 <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
-         													 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$Account->RoundChargesAmount)}}</td>
+         													 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$AccountBilling->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         <?php } ?>
                                                         @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalDiscount,$Account->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalDiscount,$AccountBilling->RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
                                                         <tr>
                                                                 <td class="text-right"><strong>Estimate Total</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$Account->RoundChargesAmount)}} </td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$AccountBilling->RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>

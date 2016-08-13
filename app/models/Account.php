@@ -27,8 +27,30 @@ class Account extends \Eloquent {
         'CurrencyId' => 'required',
 
     );
+    /** add columns here to save in table  */
+    protected $fillable = array(
+        'AccountType','CompanyID','CurrencyId','Title','Owner',
+        'Number', 'AccountName', 'NamePrefix','FirstName','LastName',
+        'LeadStatus', 'Rating', 'LeadSource','Skype','EmailOptOut',
+        'Twitter', 'SecondaryEmail', 'Email','IsVendor','IsCustomer',
+        'IsReseller', 'Ownership', 'Website','Mobile','Phone',
+        'Fax', 'Employee', 'Description','Address1','Address2',
+        'Address3', 'City', 'State','PostCode','Country',
+        'RateEmail', 'BillingEmail', 'ResellerEmail','TechnicalEmail','VatNumber',
+        'Status', 'PaymentMethod', 'PaymentDetail','Converted','ConvertedDate',
+        'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
+        'created_at', 'created_by', 'updated_at','updated_by','password',
+        'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
+        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing'
+    );
 
-    public static $messages = array('CurrencyId.required' =>'The currency field is required');
+    public static $messages = array(
+        'CurrencyId.required' =>'The currency field is required',
+        'InvoiceTemplateID.required' =>'Invoice Template  field is required',
+        'CDRType.required' =>'Invoice Format field is required',
+        'BillingCycleType.required' =>'Billing Cycle field is required',
+        'BillingCycleValue.required' =>'Billing Cycle Value field is required',
+    );
 
     public static $importrules = array(
         'selection.AccountName' => 'required'

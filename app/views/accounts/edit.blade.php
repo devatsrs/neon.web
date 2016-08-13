@@ -366,38 +366,50 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-primary" data-collapsed="0">
+        <?php
+            $billing_disable = '';
+        if($invoice_count > 0){
+            $billing_disable = 'disabled';
+        }
+        ?>
+        <div class="panel panel-primary "   data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
                     Billing
                 </div>
 
                 <div class="panel-options">
+                    <div class="make-switch switch-small">
+                        <input type="checkbox" @if($account->Billing == 1 )checked="" @endif name="Billing" value="1">
+                    </div>
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                 </div>
             </div>
 
-            <div class="panel-body">
+            <div class="panel-body billing-section">
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                     <div class="col-sm-4">
-                        {{Form::select('TaxRateId[]', $taxrates, (isset($account->TaxRateId)? explode(',',$account->TaxRateId) : explode(',',$DefaultTextRate) ) ,array("class"=>"form-control select2",'multiple'))}}
+                        {{Form::select('TaxRateId[]', $taxrates, (isset($AccountBilling->TaxRateId)? explode(',',$AccountBilling->TaxRateId) : explode(',',$DefaultTextRate) ) ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingType', AccountApproval::$billing_type, $account->BillingType,array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingTimezone', $timezones, ($account->BillingTimezone != ''?$account->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2"))}}
+                        {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2",$billing_disable))}}
+                        @if($billing_disable)
+                            <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone')}}" name="BillingTimezone">
+                        @endif
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
                     <div class="col-sm-4">
                         <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
-                        {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ($account->SendInvoiceSetting != ''?$account->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
+                        {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
                     </div>
                 </div>
                 <div class="form-group">
@@ -405,7 +417,7 @@
                     <div class="col-sm-4">
                         <div class="input-spinner">
                             <button type="button" class="btn btn-default">-</button>
-                            {{Form::text('PaymentDueInDays',($account->PaymentDueInDays != ''?$account->PaymentDueInDays:CompanySetting::getKeyVal('PaymentDueInDays') )  ,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
+                            {{Form::text('PaymentDueInDays',(  isset($AccountBilling->PaymentDueInDays)?$AccountBilling->PaymentDueInDays:CompanySetting::getKeyVal('PaymentDueInDays') )  ,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
                             <button type="button" class="btn btn-default">+</button>
                         </div>
 
@@ -414,18 +426,21 @@
                     <div class="col-sm-4">
                         <div class="input-spinner">
                             <button type="button" class="btn btn-default">-</button>
-                            {{Form::text('RoundChargesAmount', ($account->RoundChargesAmount != ''?$account->RoundChargesAmount:CompanySetting::getKeyVal('RoundChargesAmount') ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                            {{Form::text('RoundChargesAmount', ( isset($AccountBilling->RoundChargesAmount)?$AccountBilling->RoundChargesAmount:CompanySetting::getKeyVal('RoundChargesAmount') ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
                             <button type="button" class="btn btn-default">+</button>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
+                    <label for="field-1" class="col-sm-2 control-label">Billing Cycle*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingCycleType', SortBillingType(), ($account->BillingCycleType != ''?$account->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2"))}}
+                        {{Form::select('BillingCycleType', SortBillingType(), ( isset($AccountBilling->BillingCycleType)?$AccountBilling->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2",$billing_disable))}}
+                        @if($billing_disable)
+                            <input type="hidden" value="{{isset($AccountBilling->BillingCycleType)?$AccountBilling->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType')}}" name="BillingCycleType">
+                        @endif
                     </div>
-                    <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>
+                    <div id="billing_cycle_weekly" class="billing_options" >
+                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Start of Day*</label>
                         <div class="col-sm-4">
                             <?php $Days = array( ""=>"Please Start of Day",
                                 "monday"=>"Monday",
@@ -435,25 +450,26 @@
                                 "friday"=>"Friday",
                                 "saturday"=>"Saturday",
                                 "sunday"=>"Sunday");?>
-                            {{Form::select('BillingCycleValue',$Days, ($account->BillingCycleType=='weekly'?$account->BillingCycleValue:'') ,array("class"=>"form-control select2"))}}
+                            {{Form::select('BillingCycleValue',$Days, (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='weekly'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("class"=>"form-control select2",$billing_disable))}}
+
                         </div>
                     </div>
                     <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                    <label for="field-1" class="col-sm-2 control-label">Billing cycle - for Days</label>
+                    <label for="field-1" class="col-sm-2 control-label">Billing Cycle - for Days*</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingCycleValue', ($account->BillingCycleType=='in_specific_days'?$account->BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                            {{Form::text('BillingCycleValue', (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='in_specific_days'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                    <label for="field-1" class="col-sm-2 control-label">Billing cycle - Subscription Qty</label>
+                    <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Subscription Qty</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingCycleValue', ($account->BillingCycleType=='subscription'?$account->BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
+                            {{Form::text('BillingCycleValue', (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='subscription'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Monthly Anniversary Date</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingCycleValue', ($account->BillingCycleType=='monthly_anniversary'?$account->BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                            {{Form::text('BillingCycleValue', (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='monthly_anniversary'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                         </div>
                     </div>
                 </div>
@@ -461,40 +477,38 @@
                         <label for="field-1" class="col-sm-2 control-label">Last Invoice Date</label>
                         <div class="col-sm-4">
                                 <?php
-                                $LastInvoiceDate = $account->LastInvoiceDate;
-                                if(empty($LastInvoiceDate)){
-                                    $LastInvoiceDate =Invoice::getLastInvoiceDate($account->AccountID);
-                                }
+                                $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
                                 ?>
                                 {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
                                 {{$LastInvoiceDate}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Next Invoice Date</label>
                         <div class="col-sm-4">
-                                    <?php $NextInvoiceDate =Invoice::getNextInvoiceDate($account->AccountID); ?>
+                                    <?php
+                                    $NextInvoiceDate = empty($AccountBilling)?'':Invoice::getNextInvoiceDate($account->AccountID); ?>
                                     {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
                                     {{$NextInvoiceDate}}
                         </div>
                 </div>
                 <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Format</label>
+                        <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
                         <div class="col-sm-4">
-                            {{Form::select('CDRType', Account::$cdr_type, ($account->CDRType != ''?$account->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"selectboxit"))}}
+                            {{Form::select('CDRType', Account::$cdr_type, ( isset($AccountBilling->CDRType)?$AccountBilling->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"selectboxit"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
 
                         <div class="col-sm-4">
-                            {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ($account->InvoiceTemplateID != ''?$account->InvoiceTemplateID:CompanySetting::getKeyVal('InvoiceTemplateID') ),array("class"=>"form-control select2"))}}
+                            {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($AccountBilling->InvoiceTemplateID)?$AccountBilling->InvoiceTemplateID:CompanySetting::getKeyVal('InvoiceTemplateID') ),array("class"=>"form-control select2"))}}
                         </div>
                 </div>
                 <?php
-                    $BillingStartDate = $account->BillingStartDate;
-                    if($account->BillingStartDate == ''){
+                    $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
+                    if(empty($BillingStartDate)){
                         $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
                     }
                 ?>
                  <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                         <div class="col-sm-4">
                                 @if($invoice_count == 0)
                                     {{Form::text('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
@@ -564,6 +578,8 @@
 <script type="text/javascript">
     var accountID = '{{$account->AccountID}}';
     var readonly = ['Company','Phone','Email','ContactName'];
+    var BillingChanged;
+    var FirstTimeTrigger = true;
     jQuery(document).ready(function ($) {
 		//account status start
         $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
@@ -627,6 +643,11 @@
 
               if(response.status =='success'){
                      toastr.success(response.message, "Success", toastr_opts);
+                  if($('[name="Billing"]').prop("checked") == true && BillingChanged) {
+                      setTimeout(function () {
+                          window.location.reload()
+                      }, 1000);
+                  }
               }else{
                        toastr.error(response.message, "Error", toastr_opts);
               }
@@ -636,6 +657,13 @@
 
         $('select[name="BillingCycleType"]').on( "change",function(e){
             var selection = $(this).val();
+            if(FirstTimeTrigger == true) {
+                BillingChanged = false;
+                FirstTimeTrigger= false;
+            }else{
+                BillingChanged = false;
+            }
+
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");
             $(".billing_options").hide();
             console.log(selection);
@@ -658,6 +686,17 @@
                         break;
             }
         });
+        $('[name="BillingStartDate"]').on( "change",function(e){
+            BillingChanged = true;
+        });
+        $('[name="Billing"]').on( "change",function(e){
+            if($('[name="Billing"]').prop("checked") == true){
+                $(".billing-section").show();
+            }else{
+                $(".billing-section").hide();
+            }
+        });
+        $('[name="Billing"]').trigger('change');
 
         $('select[name="BillingCycleType"]').trigger( "change" );
 
