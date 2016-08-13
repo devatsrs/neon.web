@@ -1,258 +1,392 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getSOA`(IN `p_CompanyID` INT, IN `p_accountID` INT, IN `p_StartDate` datetime, IN `p_EndDate` datetime, IN `p_isExport` INT )
-	LANGUAGE SQL
-	NOT DETERMINISTIC
-	CONTAINS SQL
-	SQL SECURITY DEFINER
-	COMMENT ''
 BEGIN
-
-
+  
+  -- - New ---- 
+    
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
      SET SESSION sql_mode='';
 
 
-	 DROP TEMPORARY TABLE IF EXISTS tmp_Invoices;
+   DROP TEMPORARY TABLE IF EXISTS tmp_Invoices;
     CREATE TEMPORARY TABLE tmp_Invoices (
         InvoiceNo VARCHAR(50),
         PeriodCover VARCHAR(50),
+        IssueDate Datetime,
         Amount NUMERIC(18, 8),
-        InvoiceType int
-       -- DisputeAmount NUMERIC(18, 8),
-        -- DisputeID INT
+        InvoiceType int,
+        AccountID int
     );
-
-
-
+    
+    
+    
     DROP TEMPORARY TABLE IF EXISTS tmp_Payments;
     CREATE TEMPORARY TABLE tmp_Payments (
         InvoiceNo VARCHAR(50),
-        PeriodCover VARCHAR(50),
+        PaymentDate VARCHAR(50),
+        IssueDate datetime,
         Amount NUMERIC(18, 8),
         PaymentID INT,
         PaymentType VARCHAR(50)
     );
-
-
+    
+    
     DROP TEMPORARY TABLE IF EXISTS tmp_Disputes;
     CREATE TEMPORARY TABLE tmp_Disputes (
         InvoiceNo VARCHAR(50),
         created_at datetime,
         DisputeAmount NUMERIC(18, 8),
         InvoiceType VARCHAR(50),
-        DisputeID INT
+        DisputeID INT,
+        AccountID INT
 
     );
-
+  
+  
+  DROP TEMPORARY TABLE IF EXISTS tmp_InvoiceOutWithDisputes;
+   CREATE TEMPORARY TABLE tmp_InvoiceOutWithDisputes (
+        InvoiceOut_InvoiceNo VARCHAR(50),
+        InvoiceOut_PeriodCover VARCHAR(50),
+        InvoiceOut_IssueDate datetime,
+        InvoiceOut_Amount NUMERIC(18, 8),
+        InvoiceOut_DisputeAmount NUMERIC(18, 8),
+        InvoiceOut_DisputeID INT,
+       InvoiceOut_AccountID INT
+    );
+    
+  DROP TEMPORARY TABLE IF EXISTS tmp_InvoiceInWithDisputes;
+   CREATE TEMPORARY TABLE tmp_InvoiceInWithDisputes (
+        InvoiceIn_InvoiceNo VARCHAR(50),
+        InvoiceIn_PeriodCover VARCHAR(50),
+        InvoiceIn_IssueDate datetime,
+        InvoiceIn_Amount NUMERIC(18, 8),
+        InvoiceIn_DisputeAmount NUMERIC(18, 8),
+        InvoiceIn_DisputeID INT,
+        InvoiceIn_AccountID INT
+    );
+  
+  
     /*
-	    New Logic
-
-	    -- 1 Invoice Sent
-	    -- 2 Payment against Invoice Sent
-
-	    -- 3 Invoice Received
-	    -- 4 Payment against Invoice Received
+      New Logic
+    
+      -- 1 Invoice Sent with Disputes 
+      -- 2 Invoice Out With Disputes + Payment Received 
+      
+      -- 3 Invoice In With Disputes 
+      -- 4 Invoice In With Disputes + Payment Received 
 
     */
 
      -- 1 Invoices
     INSERT into tmp_Invoices
     SELECT
-			DISTINCT
+      DISTINCT 
          tblInvoice.InvoiceNumber,
          CASE
-         	WHEN (tblInvoice.ItemInvoice = 1 ) THEN
-                DATE_FORMAT(tblInvoice.IssueDate,'%d-%m-%Y')
-				WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
-					Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y'))
-				WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 1) THEN
-					(select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d-%m-%Y') ,'-' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d-%m-%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)
-
+          WHEN (tblInvoice.ItemInvoice = 1 ) THEN
+                DATE_FORMAT(tblInvoice.IssueDate,'%d/%m/%Y')
+        WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
+          Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y'))
+        WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 1) THEN
+          (select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'-' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)  
        END AS PeriodCover,
+         tblInvoice.IssueDate,
          tblInvoice.GrandTotal,
-         tblInvoice.InvoiceType
+         tblInvoice.InvoiceType,
+        tblInvoice.AccountID
         FROM tblInvoice
-        LEFT JOIN tblInvoiceDetail         ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID
+        LEFT JOIN tblInvoiceDetail         
+		  ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )/* ProductType =2 = INVOICE USAGE AND InvoiceType = 1 Invoice sent and InvoiceType =2 invoice recevied */
         WHERE tblInvoice.CompanyID = p_CompanyID
         AND tblInvoice.AccountID = p_accountID
         AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
-  		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') >= p_StartDate ) )
- 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') <= p_EndDate ) )
-		  Order by tblInvoice.IssueDate desc
-		;
-
-
+        AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') >= p_StartDate ) )
+      AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') <= p_EndDate ) )
+      AND tblInvoice.GrandTotal != 0
+      Order by tblInvoice.IssueDate asc;
+    
+   
      -- 2 Payments
      INSERT into tmp_Payments
-	     SELECT
-				DISTINCT
+       SELECT
+        DISTINCT
             tblPayment.InvoiceNo,
-            DATE_FORMAT(tblPayment.PaymentDate, '%d-%m-%Y') AS PaymentDate,
+            DATE_FORMAT(tblPayment.PaymentDate, '%d/%m/%Y') AS PaymentDate,
+            tblPayment.PaymentDate as IssueDate,
             tblPayment.Amount,
             tblPayment.PaymentID,
             tblPayment.PaymentType
         FROM tblPayment
-        WHERE
-  		      tblPayment.CompanyID = p_CompanyID
-		  AND tblPayment.AccountID = p_accountID
-		  AND tblPayment.Status = 'Approved'
+        WHERE 
+            tblPayment.CompanyID = p_CompanyID
+      AND tblPayment.AccountID = p_accountID
+      AND tblPayment.Status = 'Approved'
         AND tblPayment.Recall = 0
-		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') >= p_StartDate ) )
- 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') <= p_EndDate ) )
-		Order by tblPayment.PaymentDate desc;
-
-
-     -- 3 Disputes
+      AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') >= p_StartDate ) )
+      AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') <= p_EndDate ) )
+    Order by tblPayment.PaymentDate desc;
+    
+        
+     -- 3 Disputes 
      INSERT INTO tmp_Disputes
-    	 SELECT
+       SELECT
             InvoiceNo,
-				created_at,
+        created_at,
             DisputeAmount,
             InvoiceType,
-            DisputeID
-		  FROM tblDispute
-        WHERE
-  		      CompanyID = p_CompanyID
-		  AND AccountID = p_accountID
-		  AND Status = 0
-		  AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') >= p_StartDate ) )
- 		  AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') <= p_EndDate ) )
-			order by created_at
-			;
-      	###################################################
-    	
-		 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_dup AS (SELECT * FROM tmp_Invoices);
-		 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Disputes_dup AS (SELECT * FROM tmp_Disputes);
-		     			
-     -- Invoice Sent with Disputes	
-     	SELECT  
-		InvoiceNo as InvoiceOut_InvoiceNo,
-		PeriodCover as InvoiceOut_PeriodCover,
-		Amount as InvoiceOut_Amount,
-		ifnull(DisputeAmount,0) as InvoiceOut_DisputeAmount,
-		DisputeID as InvoiceOut_DisputeID
-		FROM
-	   (
-     SELECT
-				DISTINCT
+            DisputeID,
+            AccountID
+      FROM tblDispute 
+        WHERE 
+            CompanyID = p_CompanyID
+      AND AccountID = p_accountID
+      AND Status = 0 
+      AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') >= p_StartDate ) )
+      AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') <= p_EndDate ) )
+      order by created_at
+      ;
+        ###################################################
+      
+        DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_dup;
+        DROP TEMPORARY TABLE IF EXISTS tmp_Disputes_dup;
+        DROP TEMPORARY TABLE IF EXISTS tmp_Payments_dup;        
+
+          
+     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_dup AS (SELECT * FROM tmp_Invoices);
+     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Disputes_dup AS (SELECT * FROM tmp_Disputes);
+     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Payments_dup AS (SELECT * FROM tmp_Payments);
+              
+     -- Invoice Sent with Disputes  
+    INSERT INTO tmp_InvoiceOutWithDisputes
+      SELECT  
+    InvoiceNo as InvoiceOut_InvoiceNo,
+    PeriodCover as InvoiceOut_PeriodCover,
+    IssueDate as InvoiceOut_IssueDate,
+    Amount as InvoiceOut_Amount,
+    ifnull(DisputeAmount,0) as InvoiceOut_DisputeAmount,
+    DisputeID as InvoiceOut_DisputeID,
+    AccountID as InvoiceOut_AccountID
+    FROM
+     (
+      SELECT
+      		DISTINCT
             iv.InvoiceNo,
             iv.PeriodCover,
+            iv.IssueDate,
             iv.Amount,
             ds.DisputeAmount,
-            ds.DisputeID
+            ds.DisputeID,
+       	   iv.AccountID
             
         FROM tmp_Invoices iv
-		  LEFT JOIN tmp_Disputes ds on ds.InvoiceNo = iv.InvoiceNo AND ds.InvoiceType = iv.InvoiceType  AND ds.InvoiceNo is not null
+      LEFT JOIN tmp_Disputes ds on ds.InvoiceNo = iv.InvoiceNo AND ds.InvoiceType = iv.InvoiceType  AND ds.InvoiceNo is not null
         WHERE 
         iv.InvoiceType = 1          -- Only Invoice In Disputes
        
-		
-		 UNION ALL
-		
-		 SELECT
-				DISTINCT
+    
+     UNION ALL
+    
+     SELECT
+        DISTINCT
             ds.InvoiceNo,
-            DATE_FORMAT(ds.created_at, '%d-%m-%Y') as PeriodCover,
+            DATE_FORMAT(ds.created_at, '%d/%m/%Y') as PeriodCover,
+            ds.created_at as IssueDate,
             0 as Amount,
             ds.DisputeAmount,
-            ds.DisputeID
-		  FROM tmp_Disputes_dup ds 
-		  LEFT JOIN  tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo and iv.InvoiceType = ds.InvoiceType 
+            ds.DisputeID,
+        ds.AccountID
+      FROM tmp_Disputes_dup ds 
+      LEFT JOIN  tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo and iv.InvoiceType = ds.InvoiceType 
         WHERE 
         ds.InvoiceType = 1  -- Only Invoice Sent Disputes
         AND iv.InvoiceNo is null
         
-	 
-		) tbl  ;
-	 	
-		
-		-- Payment Received
-		select 
-		 InvoiceNo as PaymentIn_InvoiceNo,
-        PeriodCover as PaymentIn_PeriodCover,
-        Amount as PaymentIn_Amount,
-        PaymentID as PaymentIn_PaymentID
-		 from tmp_Payments 
-		where PaymentType = 'Payment In'  ;
-		
-		
-		-- Invoice Received with Disputes 
-		SELECT 
-		InvoiceNo as InvoiceIn_InvoiceNo,
-		PeriodCover as InvoiceIn_PeriodCover,
-		Amount as InvoiceIn_Amount,
-		ifnull(DisputeAmount,0) as InvoiceIn_DisputeAmount,
-		DisputeID as InvoiceIn_DisputeID
-		FROM
-	   (  SELECT
-				DISTINCT
+   
+    ) tbl  ;
+    
+    
+    -- Invoice Out With Disputes & Payment Received
+    
+    SELECT 
+      InvoiceOut_InvoiceNo,
+      InvoiceOut_PeriodCover,
+      ifnull(InvoiceOut_Amount,0) as InvoiceOut_Amount,
+      InvoiceOut_DisputeAmount,
+      InvoiceOut_DisputeID,
+      ifnull(PaymentIn_PeriodCover,'') as PaymentIn_PeriodCover,
+      PaymentIn_Amount,
+      PaymentIn_PaymentID
+    FROM
+    (
+      SELECT 
+      DISTINCT
+      InvoiceOut_InvoiceNo,
+      InvoiceOut_PeriodCover,
+      InvoiceOut_IssueDate,
+      InvoiceOut_Amount,
+      InvoiceOut_DisputeAmount,
+      InvoiceOut_DisputeID,
+      tmp_Payments.PaymentDate as PaymentIn_PeriodCover,
+      tmp_Payments.Amount as PaymentIn_Amount,
+      tmp_Payments.PaymentID as PaymentIn_PaymentID
+      FROM tmp_InvoiceOutWithDisputes 
+      INNER JOIN NeonRMDev.tblAccount on tblAccount.AccountID = p_accountID
+      INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
+      INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+      LEFT JOIN tmp_Payments
+      ON tmp_Payments.PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo != '' AND (tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceNo = tmp_Payments.InvoiceNo OR REPLACE(tmp_Payments.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceNo)) ) )
+      
+      UNION ALL
+
+      select 
+      DISTINCT
+      '' as InvoiceOut_InvoiceNo,
+      '' as InvoiceOut_PeriodCover,
+      tmp_Payments.IssueDate as InvoiceOut_IssueDate,
+      0  as InvoiceOut_Amount,
+      0 as InvoiceOut_DisputeAmount,
+      0 as InvoiceOut_DisputeID,
+      tmp_Payments.PaymentDate as PaymentIn_PeriodCover,
+      tmp_Payments.Amount as PaymentIn_Amount,
+      tmp_Payments.PaymentID as PaymentIn_PaymentID
+      from tmp_Payments_dup as tmp_Payments
+      where PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo = ''
+  
+    ) tbl
+    order by InvoiceOut_IssueDate desc;
+     
+    
+    /* ##############################################################################################################################*/
+
+
+    -- Invoice Received with Disputes 
+    INSERT INTO tmp_InvoiceInWithDisputes
+    SELECT 
+    InvoiceNo as InvoiceIn_InvoiceNo,
+    PeriodCover as InvoiceIn_PeriodCover,
+    IssueDate as InvoiceIn_IssueDate,
+    Amount as InvoiceIn_Amount,
+    ifnull(DisputeAmount,0) as InvoiceIn_DisputeAmount,
+    DisputeID as InvoiceIn_DisputeID,
+    AccountID as InvoiceIn_AccountID
+    FROM
+     (  SELECT
+        DISTINCT
             iv.InvoiceNo,
             iv.PeriodCover,
+            iv.IssueDate,
             iv.Amount,
             ds.DisputeAmount,
-            ds.DisputeID
+            ds.DisputeID,
+            iv.AccountID
         FROM tmp_Invoices iv
-		  LEFT JOIN tmp_Disputes ds  on  ds.InvoiceNo = iv.InvoiceNo   AND ds.InvoiceType = iv.InvoiceType AND ds.InvoiceNo is not null
+      LEFT JOIN tmp_Disputes ds  on  ds.InvoiceNo = iv.InvoiceNo   AND ds.InvoiceType = iv.InvoiceType AND ds.InvoiceNo is not null
         WHERE 
         iv.InvoiceType = 2          -- Only Invoice In Disputes
         
-		
-		 UNION ALL
-		
-		 SELECT
-				DISTINCT
+    
+     UNION ALL
+    
+     SELECT
+        DISTINCT
             ds.InvoiceNo,
-            DATE_FORMAT(ds.created_at, '%d-%m-%Y') as PeriodCover,
+            DATE_FORMAT(ds.created_at, '%d/%m/%Y') as PeriodCover,
+            ds.created_at as IssueDate,
             0 as Amount,
             ds.DisputeAmount,
-            ds.DisputeID
-		  From tmp_Disputes_dup ds 
+            ds.DisputeID,
+            ds.AccountID
+      From tmp_Disputes_dup ds 
         LEFT JOIN tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo AND iv.InvoiceType = ds.InvoiceType 
         WHERE  ds.InvoiceType = 2  -- Only Invoice In Disputes
         AND iv.InvoiceNo is null
         
-		)tbl;
-    	
-      -- Payment Sent
-		select 
-		  InvoiceNo as PaymentOut_InvoiceNo,
-        PeriodCover as PaymentOut_PeriodCover,
-        Amount as PaymentOut_Amount,
-        PaymentID as PaymentOut_PaymentID
-		   from tmp_Payments 
-		where PaymentType = 'Payment Out' ;
-		 
-   	##########################
-   	-- Counts 
-   	
-   	-- Total Invoice Sent Amount
-   	select sum(Amount) as InvoiceOutAmountTotal
-   	from tmp_Invoices where InvoiceType = 1 ;-- Invoice Sent
-   	
+    )tbl;
+      
+      
 
-   	-- Total Invoice Sent Amount
-   	select sum(DisputeAmount) as InvoiceOutDisputeAmountTotal
-   	from tmp_Disputes where InvoiceType = 1; -- Invoice Sent
+    /* Invoice Received Dispute and  Payment Sent */ 
+    SELECT 
+      InvoiceIn_InvoiceNo,
+      InvoiceIn_PeriodCover,
+      ifnull(InvoiceIn_Amount,0) as InvoiceIn_Amount,
+      InvoiceIn_DisputeAmount,
+      InvoiceIn_DisputeID,
+      ifnull(PaymentOut_PeriodCover,'') as PaymentOut_PeriodCover,
+      ifnull(PaymentOut_Amount,0) as PaymentOut_Amount,
+      PaymentOut_PaymentID
+    FROM
+    (
+      SELECT 
+      DISTINCT
+      InvoiceIn_InvoiceNo,
+      InvoiceIn_PeriodCover,
+      InvoiceIn_IssueDate,
+      InvoiceIn_Amount,
+      InvoiceIn_DisputeAmount,
+      InvoiceIn_DisputeID,
+      tmp_Payments.PaymentDate as PaymentOut_PeriodCover,
+      tmp_Payments.Amount as PaymentOut_Amount,
+      tmp_Payments.PaymentID as PaymentOut_PaymentID
+      FROM tmp_InvoiceInWithDisputes 
+      INNER JOIN NeonRMDev.tblAccount on tblAccount.AccountID = p_accountID
+      INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
+      INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+      LEFT JOIN tmp_Payments ON tmp_Payments.PaymentType = 'Payment Out' AND tmp_InvoiceInWithDisputes.InvoiceIn_InvoiceNo = tmp_Payments.InvoiceNo 
+      
+      UNION ALL
 
-   	-- Total Payment  IN Amount
-   	select sum(Amount) as PaymentInAmountTotal
-   	from tmp_Payments where PaymentType = 'Payment In' ; 
-   	
+      select 
+      DISTINCT
+      '' as InvoiceIn_InvoiceNo,
+      '' as InvoiceIn_PeriodCover,
+      tmp_Payments.IssueDate  as InvoiceIn_IssueDate,
+      0 as InvoiceIn_Amount,
+      0 as InvoiceIn_DisputeAmount,
+      0 as InvoiceIn_DisputeID,
+      tmp_Payments.PaymentDate as PaymentOut_PeriodCover,
+      tmp_Payments.Amount as PaymentOut_Amount,
+      tmp_Payments.PaymentID as PaymentOut_PaymentID
+      from tmp_Payments_dup as tmp_Payments
+      where PaymentType = 'Payment Out' AND  tmp_Payments.InvoiceNo = ''
+  
+    ) tbl
 
-   	-- Total Invoice IN Amount
-   	select sum(Amount) as InvoiceInAmountTotal
-   	from tmp_Invoices where InvoiceType = 2 ;-- Invoice Sent
-   	
-   	
-   	-- Total Invoice IN Amount
-   	select sum(DisputeAmount) as InvoiceInDisputeAmountTotal
-   	from tmp_Disputes where InvoiceType = 2; -- Invoice Sent
-
-
-   	-- Total Payment Out Amount
-   	select sum(Amount) as PaymentOutAmountTotal
-   	from tmp_Payments where PaymentType = 'Payment Out' ; 
-   	
+   order by InvoiceIn_IssueDate desc
+   ;
      
-	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-	
+     
+    ##########################
+    -- Counts 
+    
+    -- Total Invoice Sent Amount
+    select sum(Amount) as InvoiceOutAmountTotal
+    from tmp_Invoices where InvoiceType = 1 ;-- Invoice Sent
+    
+
+    -- Total Invoice Sent Amount
+    select sum(DisputeAmount) as InvoiceOutDisputeAmountTotal
+    from tmp_Disputes where InvoiceType = 1; -- Invoice Sent
+
+    -- Total Payment  IN Amount
+    select sum(Amount) as PaymentInAmountTotal
+    from tmp_Payments where PaymentType = 'Payment In' ; 
+    
+
+    -- Total Invoice IN Amount
+    select sum(Amount) as InvoiceInAmountTotal
+    from tmp_Invoices where InvoiceType = 2 ;-- Invoice Sent
+    
+    
+    -- Total Invoice IN Amount
+    select sum(DisputeAmount) as InvoiceInDisputeAmountTotal
+    from tmp_Disputes where InvoiceType = 2; -- Invoice Sent
+
+
+    -- Total Payment Out Amount
+    select sum(Amount) as PaymentOutAmountTotal
+    from tmp_Payments where PaymentType = 'Payment Out' ; 
+    
+     
+  SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+  
 END
