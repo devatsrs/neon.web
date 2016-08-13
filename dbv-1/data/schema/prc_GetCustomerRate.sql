@@ -158,13 +158,12 @@ BEGIN
                 tblRateTableRate.IntervalN,
                 tblRateTableRate.Rate,
                 tblRateTableRate.ConnectionFee,
-                /*case when ( tblRateTableRate.EffectiveDate <= v_RateTableAssignDate_  )
-                then
-                    v_RateTableAssignDate_  
-                else 
-                    tblRateTableRate.EffectiveDate
-                end  as EffectiveDate,*/
-                tblRateTableRate.EffectiveDate,
+                 /*  CASE WHEN v_NewA2ZAssign_ = 1   THEN
+		         	v_RateTableAssignDate_
+      		    ELSE
+         			tblRateTableRate.EffectiveDate
+		          END as EffectiveDate ,*/
+      			 tblRateTableRate.EffectiveDate,
                 NULL AS LastModifiedDate,
                 NULL AS LastModifiedBy,
                 NULL AS CustomerRateId,

@@ -20,7 +20,8 @@ BEGIN
 		DiscountID INT,
 		RemainingSecond INT,
 		Discount INT,
-		ThresholdReached INT DEFAULT 0
+		ThresholdReached INT DEFAULT 0,
+		Unlimited INT
 	);
 	DROP TEMPORARY TABLE IF EXISTS tmp_discountsecons2_;
 	CREATE TEMPORARY TABLE tmp_discountsecons2_ (
@@ -30,7 +31,8 @@ BEGIN
 		DiscountID INT,
 		RemainingSecond INT,
 		Discount INT,
-		ThresholdReached INT DEFAULT 0
+		ThresholdReached INT DEFAULT 0,
+		Unlimited INT
 	);
 	
 	/* get discount plan id*/
@@ -86,10 +88,10 @@ BEGIN
 	INNER JOIN tblAccountDiscountScheme adc 
 		ON adc.AccountDiscountPlanID =  adp.AccountDiscountPlanID 
 		AND adc.DiscountID = d.DiscountID
-	SET d.RemainingSecond = (adc.Threshold - adc.SecondsUsed),d.Discount=adc.Discount;
+	SET d.RemainingSecond = (adc.Threshold - adc.SecondsUsed),d.Discount=adc.Discount,d.Unlimited = adc.Unlimited;
 	
 	/* remove call which cross the threshold */
-	UPDATE  tmp_discountsecons_ SET ThresholdReached=1   WHERE TotalSecond > RemainingSecond;
+	UPDATE  tmp_discountsecons_ SET ThresholdReached=1   WHERE Unlimited = 0 AND TotalSecond > RemainingSecond;
 	
 	INSERT INTO tmp_discountsecons2_
 	SELECT * FROM tmp_discountsecons_;

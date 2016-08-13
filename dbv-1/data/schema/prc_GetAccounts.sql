@@ -20,7 +20,7 @@ BEGIN
 			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
 			tblAccount.Phone, 
 			
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from NeonBillingDev.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from NeonBillingDev.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
 			tblAccount.Email, 
 			tblAccount.IsCustomer, 
 			tblAccount.IsVendor,
@@ -94,14 +94,14 @@ BEGIN
 	AND((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
 	AND((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 	AND((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
-	AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
-	group by tblAccount.AccountID;
+	AND((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')));
+	
 	END IF;
 	IF p_isExport = 1
     THEN
         SELECT
             tblAccount.Number as NO, tblAccount.AccountName,CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Name,tblAccount.Phone, 
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from RMBilling3.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from RMBilling3.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OS ,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from NeonBillingDev.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from NeonBillingDev.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OS ,
 			tblAccount.Email
 			FROM tblAccount
 			LEFT JOIN tblUser ON tblAccount.Owner = tblUser.UserID

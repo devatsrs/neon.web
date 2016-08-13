@@ -7,10 +7,11 @@ CREATE TABLE `tblVendorBlocking` (
   `BlockedBy` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `BlockedDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`VendorBlockingId`),
+  UNIQUE KEY `IX_UniqueAccountId_TrunkId_RateId_CountryId` (`TrunkID`,`RateId`,`CountryId`,`AccountId`),
   KEY `IX_tblVendorBlocking_AccountId` (`AccountId`),
   KEY `IX_tblVendorBlocking_CountryId` (`CountryId`),
+  KEY `IX_tblVendorBlocking_CountryId_TrunkID` (`AccountId`,`CountryId`,`TrunkID`),
   KEY `IX_tblVendorBlocking_RateId` (`RateId`),
   KEY `IX_tblVendorBlocking_TrunkID` (`TrunkID`),
-  KEY `IX_tblVendorBlocking_CountryId_TrunkID` (`AccountId`,`CountryId`,`TrunkID`),
   KEY `IX_tblVendorBlocking_TrunkID_4F42B` (`TrunkID`,`VendorBlockingId`,`RateId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

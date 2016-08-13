@@ -6,7 +6,7 @@ BEGIN
 
 	
 	SELECT BillingTime INTO v_BillingTime_
-	FROM LocalRatemanagement.tblCompanyGateway cg
+	FROM NeonRMDev.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE AccountID = p_AccountID AND (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
 	LIMIT 1;

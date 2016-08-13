@@ -1,7 +1,7 @@
 CREATE TABLE `tblUsageDownloadFiles` (
   `UsageDownloadFilesID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyGatewayID` int(11) NOT NULL DEFAULT '0',
-  `FileName` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `FileName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,

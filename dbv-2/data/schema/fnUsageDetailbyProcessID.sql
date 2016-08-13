@@ -37,8 +37,8 @@ BEGIN
 		cost,
 		connect_time,
 		disconnect_time
-	FROM RMCDR3.tblUsageDetails ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
+	FROM NeonCDRDev.tblUsageDetails ud
+	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE uh.AccountID is not null
 	AND  ud.ProcessID = p_ProcessID;

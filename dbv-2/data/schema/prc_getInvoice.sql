@@ -66,7 +66,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
+			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
@@ -87,7 +87,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
 			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
-			AND (p_IsOverdue = 0 OR (To_days(NOW()) - To_days(IssueDate)) > IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_));
+			AND (p_IsOverdue = 0 OR (To_days(NOW()) - To_days(IssueDate)) > IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_));
 	       
 
 
@@ -248,4 +248,4 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 
  
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END;
+END

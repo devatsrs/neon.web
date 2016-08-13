@@ -1017,7 +1017,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/* Dial Plan Upload */
+	/* Dial String Upload */
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -1038,7 +1038,7 @@ BEGIN
 		INNER JOIN tblJobStatus js
 			ON j.JobStatusID = js.JobStatusID
 		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
-		WHERE jt.Code = 'DPU'
+		WHERE jt.Code = 'DSU'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
@@ -1052,7 +1052,7 @@ BEGIN
 			ON j.JobTypeID = jt.JobTypeID
 		INNER JOIN tblJobStatus js
 			ON j.JobStatusID = js.JobStatusID
-		WHERE jt.Code = 'DPU'
+		WHERE jt.Code = 'DSU'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
 	) TBL2

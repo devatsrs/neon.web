@@ -8,11 +8,12 @@ BEGIN
    IF p_isExport = 0
    THEN
    
-		SELECT  
+		SELECT  Distinct
             `tblRate`.RateID
            ,`tblRate`.Code
            ,CASE WHEN tblVendorBlocking.VendorBlockingId IS NULL THEN 'Not Blocked' ELSE 'Blocked' END as Status 
            ,`tblRate`.Description
+           ,VendorBlockingId
 	    FROM      `tblRate`
        INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId AND AccountID = p_AccountID AND tblVendorRate.TrunkID = p_trunkID   
 	    INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId AND tblVendorTrunk.AccountID = p_AccountID AND tblVendorTrunk.TrunkID = p_trunkID   
@@ -37,7 +38,7 @@ BEGIN
 		LIMIT p_RowspPage OFFSET v_OffSet_;
             
       
-		SELECT  COUNT(tblRate.RateID) AS totalcount
+		SELECT COUNT(DISTINCT tblRate.RateID) AS totalcount
       FROM    tblRate
       INNER JOIN tblVendorRate ON tblRate.RateID = tblVendorRate.RateId AND AccountID = p_AccountID AND tblVendorRate.TrunkID = p_trunkID   
 		INNER JOIN tblVendorTrunk ON tblVendorTrunk.CodeDeckId = tblRate.CodeDeckId AND tblVendorTrunk.AccountID = p_AccountID AND tblVendorTrunk.TrunkID = p_trunkID   
@@ -50,7 +51,7 @@ BEGIN
   
    IF p_isExport = 1
    THEN 
-		SELECT   Code
+		SELECT Distinct  Code
       		,CASE WHEN tblVendorBlocking.VendorBlockingId IS NULL THEN 'Not Blocked' ELSE 'Blocked' END as Status
             ,tblRate.Description
 
@@ -66,7 +67,7 @@ BEGIN
    END IF;
    IF p_isExport = 2
    THEN 
-		SELECT   
+		SELECT Distinct  
 			    tblRate.RateID as RateID
 				,Code
       		,CASE WHEN tblVendorBlocking.VendorBlockingId IS NULL THEN 'Not Blocked' ELSE 'Blocked' END as Status

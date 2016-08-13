@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_isDiscountPlanApplied`(IN `p_Action` VARCHAR(50), IN `p_DestinationGroupSetID` INT, IN `p_DiscountPlanID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_isDiscountPlanApplied`(IN `p_Action` VARCHAR(50), IN `p_DestinationGroupSetID` INT, IN `p_DiscountPlanID` INT)
 BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;

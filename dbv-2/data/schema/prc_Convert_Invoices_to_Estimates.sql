@@ -37,7 +37,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
 			NOW() as updated_at,
 			1 as ItemInvoice,
 			te.FooterTerm,
-			te.EstimateID
+			te.EstimateID			
 			from tblEstimate te		
 			where
 			(p_convert_all=0 and te.EstimateID = p_EstimateID)
@@ -94,8 +94,9 @@ where
 insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
 select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
-INNER JOIN LocalRatemanagement.tblAccount ac ON ac.AccountID = inv.AccountID
-LEFT JOIN tblInvoiceTemplate it ON ac.InvoiceTemplateID = it.InvoiceTemplateID
+INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
 where
 			(p_convert_all=0 and ti.EstimateID = p_EstimateID)
 		OR	(p_EstimateID = '' and p_convert_all =1 and (ti.CompanyID = p_CompanyID)	

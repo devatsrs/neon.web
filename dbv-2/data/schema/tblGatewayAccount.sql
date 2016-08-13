@@ -10,7 +10,7 @@ CREATE TABLE `tblGatewayAccount` (
   `AccountID` int(11) DEFAULT NULL,
   `AccountIP` longtext COLLATE utf8_unicode_ci,
   PRIMARY KEY (`GatewayAccountPKID`),
-  KEY `IX_tblGatewayAccount_GatewayAccountID_AccountName_5F8A5` (`GatewayAccountID`,`AccountName`,`CompanyGatewayID`),
   KEY `IX_tblGatewayAccount_AccountID_63248` (`AccountID`,`GatewayAccountID`),
-  KEY `IX_tblGatewayAccount_AccountID_CDCF2` (`AccountID`)
+  KEY `IX_tblGatewayAccount_AccountID_CDCF2` (`AccountID`),
+  KEY `IX_tblGatewayAccount_GatewayAccountID_AccountName_5F8A5` (`GatewayAccountID`,`AccountName`,`CompanyGatewayID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
