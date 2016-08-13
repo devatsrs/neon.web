@@ -38,7 +38,20 @@ $(function() {
                                 var StartDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-01';
                                 var lastday = new Date(2008, row.x.split('/')[0], 0).getDate();
                                 var EndDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-'+lastday;
-                                return '<div class="morris-hover-row-label">'+row.x+'</div><div  class="morris-hover-point"><a  style="color: #3399FF" target="_blank" href="'+baseurl+'/customer/payments?Type=Payment In&StartDate='+StartDate+'&EndDate='+EndDate+'">Payment Deposited: {{$CurrencySymbol}}'+row.y+'</a></div><div  class="morris-hover-point"><a style="color: #333399" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a></div><div  class="morris-hover-point"><a style="color: #3366CC" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a></div>'
+                                var Currency = $('[name="CurrencyID"]').val();
+                                return '<div class="morris-hover-row-label">'+
+                                        row.x+
+                                        '</div>' +
+                                        '<div  class="morris-hover-point">' +
+                                        '   <a  style="color: #3399FF" class="paymentReceived" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">Payment Received: {{$CurrencySymbol}}'+row.y+'</a>' +
+                                        '</div>' +
+                                        '<div  class="morris-hover-point">' +
+                                        '   <a style="color: #333399" class="totalInvoice" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a>' +
+                                        '</div>' +
+                                        '<div  class="morris-hover-point">' +
+                                        '   <a style="color: #3366CC" class="totalOutstanding" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a>' +
+                                        '</div>';
+                                //return '<div class="morris-hover-row-label">'+row.x+'</div><div  class="morris-hover-point"><a  style="color: #3399FF" target="_blank" href="'+baseurl+'/customer/payments?Type=Payment In&StartDate='+StartDate+'&EndDate='+EndDate+'">Payment Deposited: {{$CurrencySymbol}}'+row.y+'</a></div><div  class="morris-hover-point"><a style="color: #333399" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a></div><div  class="morris-hover-point"><a style="color: #3366CC" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a></div>'
                             }
 
                     });

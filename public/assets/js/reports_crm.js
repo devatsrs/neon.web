@@ -76,7 +76,7 @@
             });
            
         var $searchFilter = {};
-	   		$searchFilter.AccountOwner = $("#crm_dashboard select[name='UsersID[]']").val();
+	   		$searchFilter.AccountOwner = $("#crm_dashboard [name='UsersID[]']").val();
 			$searchFilter.CurrencyID = $("#crm_dashboard select[name='CurrencyID']").val();
 			//opportunites grid start
         data_table = $("#opportunityGrid").dataTable({
@@ -85,7 +85,7 @@
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/crmdashboard/ajax_opportunity_grid",
                 "fnServerParams": function (aoData) {
-						$searchFilter.AccountOwner = $("#crm_dashboard select[name='UsersID[]']").val();
+						$searchFilter.AccountOwner = $("#crm_dashboard [name='UsersID[]']").val();
 			$searchFilter.CurrencyID = $("#crm_dashboard select[name='CurrencyID']").val();
 					$('.loaderopportunites').show();
                     aoData.push(
@@ -184,7 +184,7 @@
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/crmdashboard/ajax_task_grid",
                 "fnServerParams": function (aoData) {
-					$searchFilter.AccountOwner   = $("#crm_dashboard select[name='UsersID[]']").val();
+					$searchFilter.AccountOwner   = $("#crm_dashboard [name='UsersID[]']").val();
 					$searchFilter.DueDateFilter  = $("#DueDateFilter").val();
                     aoData.push(
                             {"name": "AccountOwner","value": $searchFilter.AccountOwner},
@@ -710,6 +710,7 @@ function GetSalesData(){
 }
 
  function GetSalesDataAccountManager(){
+	 if(RevenueReport===0){return false;} 
 	loadingUnload(".crmdSalesManager1",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();

@@ -10,14 +10,20 @@ class InvoicesController extends \BaseController {
 		$data['iSortCol_0']			 =  0;     
 		$data['sSortDir_0']			 =  'desc';
         $companyID 					 =  User::get_companyID();
+        if(!empty($data['IssueDate'])){
+            $arr = explode(' - ',$data['IssueDate']);
+            $data['IssueDateStart'] = $arr[0];
+            $data['IssueDateEnd'] = $arr[1];
+        }
         $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
+        $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
 		
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
@@ -66,11 +72,17 @@ class InvoicesController extends \BaseController {
         $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
+        if(!empty($data['IssueDate'])){
+            $arr = explode(' - ',$data['IssueDate']);
+            $data['IssueDateStart'] = $arr[0];
+            $data['IssueDateEnd'] = $arr[1];
+        }
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"")');
@@ -665,8 +677,10 @@ class InvoicesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
-            $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            @mkdir($logo_path, 0777, true);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
             $usage_data = array();

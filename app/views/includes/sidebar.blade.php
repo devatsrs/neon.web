@@ -196,7 +196,7 @@
     </li>
     @endif
     @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
-    User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
+    User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
       <ul>
         @if( User::checkCategoryPermission('Users','View'))
@@ -205,11 +205,17 @@
         @if(User::is_admin())
         <li> <a href="{{Url::to('roles')}}">  <span>User Roles</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('Notification','View'))
+            <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('themes','View'))
         <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('AccountChecklist','View'))
         <li> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>
+        @endif
+         @if(User::checkCategoryPermission('Retention','View'))
+         <li> <a href="{{URL::to('/retention')}}">  <span>Retention</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
         <!--<li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>-->

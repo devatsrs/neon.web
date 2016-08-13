@@ -136,7 +136,8 @@ class DashboardController extends BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));
+        $invoice_status_json = json_encode(Invoice::get_invoice_status());
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json'));
 
     }
     public function monitor_dashboard(){
@@ -229,84 +230,6 @@ class DashboardController extends BaseController {
 		}else{
 			return $response->data;
 		}
-		 //crm dashboard
-			
-        $companyID 			= 	User::get_companyID();
-        $userID 			= 	'';
-        $data 				= 	Input::all();		
-		$rules = array(
-            'Closingdate' =>      'required',                 
-        );
-		$message	 = array("Closingdate.required"=> "Close Date field is required.");
-        $validator   = Validator::make($data, $rules,$message);
-		if ($validator->fails()) {
-            return generateResponse($validator->errors(),true);
-        }
-		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):$data['UsersID'];
-		$CurrencyID			=	(isset($data['CurrencyID']) && !empty($data['CurrencyID']))?$data['CurrencyID']:0;
-		$array_return 		= 	array();
-		$array_return1 		= 	array();
-		$array_date			=	array();
-		$worth				=	0;
-		$array_dates		=	array();	
-		$array_users		=	array();
-		$array_worth		=	array();				
-		$total_opp			=	0;
-		$array_final 		= 	array("count"=>0,"status"=>"success");
-		$Closingdate		=	explode(' - ',$data['Closingdate']);
-		$StartDate			=   $Closingdate[0]." 00:00:00";
-		$EndDate			=	$Closingdate[1]." 23:59:59";		
-		$query  			= 	"CALL `prc_GetCrmDashboardSalesManager`(".$companyID.",'".$UserID."','".$CurrencyID."','".$StartDate."','".$EndDate."') ";  	
-		
-		$result 			= 	DB::connection('sqlsrv2')->select($query);
-		$TotalWorth			=	0;
-		
-				foreach($result as $result_data){
-			if(!in_array($result_data->AssignedUserText,$array_users)){			
-				$array_users[]   = $result_data->AssignedUserText;
-			}
-			$array_worth[] = $result_data->Revenue;
-		}
-		
-		foreach($result as $result_data){			
-			if(!in_array($result_data->MonthName,$array_dates)){			
-				$array_dates[]   = $result_data->MonthName;
-			}
-		}
-		
-		foreach($result as $result_data){
-			if(isset($array_date[$result_data->MonthName][$result_data->AssignedUserText])){
-				$current_data = $array_date[$result_data->MonthName][$result_data->AssignedUserText];	
-				$array_date[$result_data->MonthName][$result_data->AssignedUserText] 	 = 	$result_dataRevenue+$current_data;
-			}else{
-				$array_date[$result_data->MonthName][$result_data->AssignedUserText] 	 = 	$result_data->Revenue;
-			}			
-			$worth = $worth+$result_data->Revenue;
-		}
-		
-		$array_data = array();
-		
-		foreach($array_users as $array_users_data){
-			foreach($array_dates as $array_dates_data){
-				if(isset($array_date[$array_dates_data][$array_users_data])){
-					$array_data[$array_users_data][] = $array_date[$array_dates_data][$array_users_data];
-				}else{
-					$array_data[$array_users_data][] = 0;
-				}
-			}
-		}
-
-		
-		foreach($array_data as $key => $array_data_loop){
-			$array_return1[] = array("user"=>$key,"worth"=>implode(",",$array_data_loop));			
-		}
-		
-		if(count($array_users)>0){
-			$worth = number_format($worth,$result_data->round_number);
-			$array_final = array("data"=>$array_return1,"dates"=>implode(",",$array_dates),'TotalWorth'=>$worth,"count"=>count($array_users),"CurrencyCode"=>$result_data->v_CurrencyCode_,"worth"=>implode(",",$array_worth),"users"=>implode(",",$array_users),"status"=>"success");
-		}
-		
-		return json_encode($array_final);	
 	}
 	
 	

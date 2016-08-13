@@ -2378,7 +2378,8 @@ if (typeof TableTools != 'undefined') {
                 nInput.value = aoPost[i].value;
                 nForm.appendChild(nInput);
             }
-            var params = data_table.oApi._fnAjaxParameters(data_table.dataTable().fnSettings());
+            //var params = data_table.oApi._fnAjaxParameters(data_table.dataTable().fnSettings());
+            var params = this.s.dt.oApi._fnAjaxParameters(this.s.dt);
             //console.log(params);
 
             /* Add All Params data to the URL */

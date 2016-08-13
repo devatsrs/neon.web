@@ -249,9 +249,11 @@ class InvoiceTemplatesController extends \BaseController {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
             
-            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
             if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
-                $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);    
+                $logo_path = getenv('UPLOAD_PATH') . '/logo/' . User::get_companyID();
+                @mkdir($logo_path, 0777, true);
+                RemoteSSH::run("chmod -R 777 " . $logo_path);
+                $logo = $logo_path  . '/'  . basename($as3url);
                 @file_put_contents($logo, file_get_contents($as3url));
             }else{
                 $logo ='';
@@ -270,6 +272,7 @@ class InvoiceTemplatesController extends \BaseController {
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
+            RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name;
