@@ -266,6 +266,12 @@ $(document).ready(function(){
             ajax_json(url,data,function(response){
                 if ( typeof response.status != undefined &&  response.status == 'failed') {
                     toastr.error(response.message, "Error", toastr_opts);
+                    $("#Account_Address").html('');
+                    $("input[name=CurrencyCode]").val('');
+                    $("input[name=CurrencyID]").val('');
+                    $("input[name=InvoiceTemplateID]").val('');
+                    $("[name=Terms]").val('');
+                    $("[name=FooterTerm]").val('');
                 } else {
                     $("#Account_Address").html(response.Address);
                     $("input[name=CurrencyCode]").val(response.Currency);
