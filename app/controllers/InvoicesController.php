@@ -1392,6 +1392,11 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
+        if(!empty($data['IssueDate'])){
+            $arr = explode(' - ',$data['IssueDate']);
+            $data['IssueDateStart'] = $arr[0];
+            $data['IssueDateEnd'] = $arr[1];
+        }
         $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','','".$criteria['CurrencyID']."' ";
 
@@ -1413,6 +1418,11 @@ class InvoicesController extends \BaseController {
     public function sageExport(){
         $data = Input::all();
         $companyID = User::get_companyID();
+        if(!empty($data['IssueDate'])){
+            $arr = explode(' - ',$data['IssueDate']);
+            $data['IssueDateStart'] = $arr[0];
+            $data['IssueDateEnd'] = $arr[1];
+        }
         if(!empty($data['InvoiceIDs'])){
             $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',1 ,".count($data['InvoiceIDs']).",'','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
