@@ -14,6 +14,9 @@ class InvoicesController extends \BaseController {
             $arr = explode(' - ',$data['IssueDate']);
             $data['IssueDateStart'] = $arr[0];
             $data['IssueDateEnd'] = $arr[1];
+        }else{
+            $data['IssueDateStart'] = '';
+            $data['IssueDateEnd'] = '';
         }
         $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
@@ -76,6 +79,9 @@ class InvoicesController extends \BaseController {
             $arr = explode(' - ',$data['IssueDate']);
             $data['IssueDateStart'] = $arr[0];
             $data['IssueDateEnd'] = $arr[1];
+        }else{
+            $data['IssueDateStart'] = '';
+            $data['IssueDateEnd'] = '';
         }
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
@@ -1393,12 +1399,13 @@ class InvoicesController extends \BaseController {
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
         if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
+            $arr = explode(' - ',$criteria['IssueDate']);
+            $criteria['IssueDateStart'] = $arr[0];
+            $criteria['IssueDateEnd'] = $arr[1];
         }
+        $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
         $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
-        $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','','".$criteria['CurrencyID']."' ";
+        $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."',".$criteria['Overdue'].",'' ,'','','','".$criteria['CurrencyID']."' ";
 
         if(!empty($criteria['zerovalueinvoice'])){
             $query = $query.',2,0,1';
@@ -1418,13 +1425,8 @@ class InvoicesController extends \BaseController {
     public function sageExport(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }
         if(!empty($data['InvoiceIDs'])){
-            $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',1 ,".count($data['InvoiceIDs']).",'','',''";
+            $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',0,1 ,".count($data['InvoiceIDs']).",'','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2,0';
             }else{
@@ -1452,12 +1454,21 @@ class InvoicesController extends \BaseController {
         }else{			
 
             $criteria = json_decode($data['criteria'],true);
+            if(!empty($criteria['IssueDate'])){
+                $arr = explode(' - ',$criteria['IssueDate']);
+                $criteria['IssueDateStart'] = $arr[0];
+                $criteria['IssueDateEnd'] = $arr[1];
+            }else{
+                $criteria['IssueDateStart'] = '';
+                $criteria['IssueDateEnd'] = '';
+            }
             $criteria['InvoiceType'] = $criteria['InvoiceType'] == 'All'?'':$criteria['InvoiceType'];
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
 			 $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];
     	    $criteria['IssueDateEnd']        =  empty($criteria['IssueDateEnd'])?'0000-00-00 00:00:00':$criteria['IssueDateEnd'];
             $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
-            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."','' ,'','','',' ".$criteria['CurrencyID']." '";
+            $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
+            $query = "call prc_getInvoice (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."',".$criteria['Overdue'].",'' ,'','','',' ".$criteria['CurrencyID']." '";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2';
             }else{
