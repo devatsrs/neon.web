@@ -215,6 +215,9 @@
          @if( User::checkCategoryPermission('serverinfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
+         @if( User::checkCategoryPermission('Integration','View'))
+        <li> <a href="{{URL::to('/integration')}}">  <span>Integration</span> </a> </li>
+    	@endif
       </ul>
     </li>
     @endif
