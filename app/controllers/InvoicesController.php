@@ -223,7 +223,10 @@ class InvoicesController extends \BaseController {
             $InvoiceData["Terms"] = $data["Terms"];
             $InvoiceData["FooterTerm"] = $data["FooterTerm"];
             $InvoiceData["CreatedBy"] = $CreatedBy;
-
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
+            if((int)$InvoiceTemplateID == 0){
+                return Response::json(array("status" => "failed", "message" => "Please enable billing."));
+            }
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
@@ -244,10 +247,7 @@ class InvoicesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
-            if((int)$InvoiceTemplateID == 0){
-                return Response::json(array("status" => "failed", "message" => "Please enable billing."));
-            }
+
             try{
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
