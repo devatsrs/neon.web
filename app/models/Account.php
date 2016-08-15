@@ -16,7 +16,8 @@ class Account extends \Eloquent {
     const  SUMMARY_CDR= 2;
     const  NO_CDR = 3;
     public static $cdr_type = array(''=>'Select a CDR Type' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
-
+	
+	public static $SupportSlug	=	'support';
 
     public static $rules = array(
         'Owner' =>      'required',
@@ -334,4 +335,36 @@ class Account extends \Eloquent {
 
         return $response;
     }
+	
+	public static function GetActiveTicketCategory(){
+		$TicketsShow	 =	0;
+        $companyID  	 = User::get_companyID();
+
+		$Support	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>Account::$SupportSlug])->first();	
+		//print_r($Support);
+		
+		if(count($Support)>0)
+		{
+						
+			$SupportSubcategory = Integration::select("*");
+			$SupportSubcategory->join('tblIntegrationConfiguration', function($join)
+			{
+				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
+	
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Support->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			 $result = $SupportSubcategory->first();
+			 if(count($result)>0)
+			 {
+				return 1;
+			 }
+			 else
+			 {
+				return 0;
+			 }
+		}
+		else
+		{
+			return 0;	
+		}
+	}
 }

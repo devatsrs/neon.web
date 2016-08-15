@@ -219,6 +219,7 @@ class AccountsController extends \BaseController {
 		public function show($id) {
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
+		
 			//get account contacts
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
 			//get account time line data
@@ -239,6 +240,7 @@ class AccountsController extends \BaseController {
 					$response_timeline = array();
 				}
 			}else{
+				if($response_timeline['error']=='token_expired'){ Redirect::to('/login');}	
 				$message = json_response_api($response_timeline,false,true);
 			}
 			
@@ -305,8 +307,11 @@ class AccountsController extends \BaseController {
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			$ShowTickets				=	Account::GetActiveTicketCategory();
 
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
+			
+		
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets')); 	
 		}
 	
 	

@@ -312,10 +312,12 @@
                     <input class="icheck-11 timeline_filter" show_data="timeline_mail_entry" type="radio" id="minimal-radio-4" name="timeline_filter">
                     <label for="minimal-radio-4">Emails</label>
                   </div>
+                  @if($ShowTickets)
                     <div class="radio radio-replace color-red pull-left">
                     <input class="icheck-11 timeline_filter" show_data="timeline_ticket_entry" type="radio" id="minimal-radio-5" name="timeline_filter">
                     <label for="minimal-radio-5">Tickets</label>
                   </div>
+                  @endif
                 </form>
               </li>
             </ul>
@@ -339,14 +341,14 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
             <div class="cbp_tmlabel normal_tag">
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p>Subject: {{$rows['EmailSubject']}}</p></h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display"> @if($rows['EmailCc'])
                 <p>CC: {{$rows['EmailCc']}}</p>
                 @endif
                 @if($rows['EmailBcc'])
                 <p>BCC: {{$rows['EmailBcc']}}</p>
                 @endif
-                <p>Subject: {{$rows['EmailSubject']}}</p>
+                <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p>
                 <?php
 	  if($rows['EmailAttachments']!='')
 	  {
@@ -378,7 +380,7 @@
 			}			
 	  }	 
 	   ?>
-                <div>Message:<br>
+                <div class="mail_message">Message:<br>
                   {{$rows['EmailMessage']}}. </div>
               </div>
             </div>
@@ -524,5 +526,6 @@ ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-heigh
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:100%;top:10px; /*border-color:transparent #f1f1f1 #fff transparent;*/ position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
 .color-red {margin-left:5px;} .ticket_conversations{cursor:pointer; } .left-padding{padding-left:0px !important;}
+.mail_subject{font-size:14.4px !important;} .mail_message{font-family:"Noto Sans", sans-serif !important;}
 </style>
 @stop

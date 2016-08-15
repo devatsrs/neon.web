@@ -15,12 +15,12 @@
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
               <div class="cbp_tmlabel normal_tag">  
-                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p>Subject: {{$rows['EmailSubject']}}</p>
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p>
 </h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
                   @if($rows['EmailBcc'])<p>BCC: {{$rows['EmailBcc']}}</p>@endif
-                  <p>Subject: {{$rows['EmailSubject']}}</p>
+                  <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p>
                   <?php
 	  if($rows['EmailAttachments']!='')
 	  {
@@ -52,7 +52,7 @@
 			}			
 	  }	 
 	   ?>
-                  <p>Messsage:<br>{{$rows['EmailMessage']}}. </p>
+                  <p class="mail_message">Messsage:<br>{{$rows['EmailMessage']}}. </p>
                 </div>
               </div>
             </li>
