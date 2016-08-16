@@ -977,7 +977,7 @@ toastr_opts = {
                 });
             });
             $('.daterange').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                $(this).val(picker.startDate.format(attrDefault($(this), 'format', 'MM/DD/YYYY')) + ' - ' + picker.endDate.format(attrDefault($(this), 'format', 'MM/DD/YYYY')));
             });
 
             $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
