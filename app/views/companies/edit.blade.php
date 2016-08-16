@@ -166,30 +166,6 @@
 
                 </div>
             </div>
-            <!--<div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Cron Job Email Setup
-                    </div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Rate Generation Emails (Multiple Email addresses with comma separated)</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="RateGenerationEmail" class="form-control" id="field-1" placeholder="Rate Generation Emails" value="{{$RateGenerationEmail}}" />
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Generation Emails (Multiple Email addresses with comma separated)</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="InvoiceGenerationEmail" class="form-control" id="field-1" placeholder="Invoice Generation Emails" value="{{$InvoiceGenerationEmail}}" />
-                        </div>
-                    </div>
-                </div>
-            </div>-->
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -316,18 +292,6 @@
                                     <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-
-                                    <label for="field-1" class="col-sm-2 control-label">Payment Request Email (Multiple Email addresses with comma separated)</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="PaymentRequestEmail" class="form-control" id="field-1" placeholder="Payment Request Emails" value="{{$company->PaymentRequestEmail}}" />
-                                    </div>
-
-                                    <label for="field-1" class="col-sm-2 control-label">Due Sheet Email</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="DueSheetEmail" class="form-control" id="field-1" placeholder="Due Sheet Email" value="{{$company->DueSheetEmail}}" />
                                     </div>
                                 </div>
                                 <div class="form-group" >
