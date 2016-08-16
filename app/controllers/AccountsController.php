@@ -240,7 +240,7 @@ class AccountsController extends \BaseController {
 					$response_timeline = array();
 				}
 			}else{
-				if($response_timeline['error']=='token_expired'){ Redirect::to('/login');}	
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
 				$message = json_response_api($response_timeline,false,true);
 			}
 			

@@ -630,63 +630,6 @@ $('#emai_attachments_form').submit(function(e) {
 			
 			//////////////
         });
-        $("#check-lead").click(function () {
-            var checkVal = $("#check-lead").val();
-            if (checkVal == "No") {
-                $("#new-deal-fields-timeline").removeClass('no-display');
-                $("#exsiting-lead-timeline").addClass('no-display');
-            }
-            else if (checkVal == "Yes") {
-                $("#exsiting-lead-timeline").removeClass('no-display');
-                $("#new-deal-fields-timeline").addClass('no-display');
-            }
-        });
-        $("#lead-company").click(function () {
-
-            var companyName = $("#lead-company").val();
-            debugger;
-            if (companyName == "Code Desk") {
-
-                $('#lead-contact-list').append('<option>Abdul</option><option>Aamir</option>');
-
-                $("#lead-phone").val('123456');
-                $("#lead-email").val('contact@code-desk.com');
-            }
-            else if (companyName == "Wave-Tel") {
-                $('#lead-contact-list').append('<option>Sumera</option><option>Abubakar</option>');
-                $("#lead-phone").val('123456');
-                $("#lead-email").val('contact@wave-tel.com');
-            }
-        });
-        $("#deal-add").click(function () {
-
-            var dealName = $("#dealName").val();
-            var dealOwner = $("#dealOwner").val();
-            var checklead = $("#check-lead").val();
-            var dealCompany;
-            var dealContact;
-            var dealPhone;
-            var dealEmail;
-            if (checklead == "No") {
-                dealCompany = $("#dealCompany").val();
-                dealContact = $("#dealContact").val();
-                dealPhone = $("#dealPhone").val();
-                dealEmail = $("#dealEmail").val();
-
-            }
-            else if (checklead == "Yes") {
-                dealCompany = $("#lead-company").val();
-                dealContact = $("#lead-contact").val();
-                dealPhone = $("#lead-phone").val();
-                dealEmail = $("#lead-email").val();
-            }
-            var Html = '<div class="col-md-6" ><div class="board-column-item-inner deal" style="border: 1px solid #333; margin-top: 5px;"><div class="deal-details text-center"> <h6 class="m-top-0"><a href="#"> <strong>' + dealCompany + '</strong></a></h6><p><strong>' + dealName + '</strong></p><p><strong>Deal Owner:</strong> ' + dealOwner + '</p></div></div></div>'
-            $("#first-deal").append(Html);
-            var dialogDeal = document.getElementById('window-deal');
-            dialogDeal.close('destroy');
-
-
-        });
         $("#notes-from").submit(function (event) {
             event.stopImmediatePropagation();
             event.preventDefault();			

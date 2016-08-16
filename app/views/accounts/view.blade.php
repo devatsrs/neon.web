@@ -63,19 +63,21 @@
                   </div>
                 </div>
                 <div class="col-sm-12 padding-0 action">
-                  <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="entypo-target"></i> </button>
+                  <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="custom-icon opportunity-icon"></i> </button>
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif 
                     @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('AccountActivityChart','View'))
                     <a  href="{{Url::to('accounts/activity/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Account Activity Chart" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-bar-chart"></i> </a>
                     @endif
-                  
-                  <!--  <button type="button" data-id="{{$account->AccountID}}" title="View Account" class="btn btn-default btn-xs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}"> <i class="entypo-search"></i> </button> --> 
                   @if($leadOrAccountCheck=='account')
-                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;
+                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
+                     <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
                   @endif
-                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}">Vendor</a> @endif
-                  @endif </div>
+                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)
+           <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="custom-icon vendor-icon"></i></a>   
+                   @endif
+                  @endif
+                   </div>
               </div>
             </li>
           </ul>

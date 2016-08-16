@@ -6,9 +6,13 @@ class GatewayController extends \BaseController {
         $data = Input::all();
 
         $CompanyID = User::get_companyID();
+		$GatewayID = (isset($data['Gateway']) && $data['Gateway']!='')?$data['Gateway']:0;
         $Gateway = CompanyGateway::
             select('Title','IP','Status','GatewayID','CompanyGatewayID','TimeZone','BillingTimeZone')
             ->where("CompanyID", $CompanyID);
+		if($GatewayID>0){
+			$Gateway->where("GatewayID", $GatewayID);
+		}	
         if(isset($data['Export']) && $data['Export'] == 1) {
             $Gateway = CompanyGateway::select('Title','IP','Status','TimeZone','BillingTimeZone')
                 ->where("CompanyID", $CompanyID);
@@ -31,11 +35,10 @@ class GatewayController extends \BaseController {
 
     public function index()
     {
-        $gateway = Gateway::getGatewayListID();
-        $timezones = TimeZone::getTimeZoneDropdownList();
-        $gateway['other'] = 'other';
+        $gateway 			= 	Gateway::getGatewayListID();
+        $timezones 			= 	TimeZone::getTimeZoneDropdownList();
+        $gateway['other'] 	= 	'other';
         return View::make('gateway.index', compact('gateway','timezones'));
-
     }
 
     /**
