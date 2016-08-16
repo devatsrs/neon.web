@@ -519,7 +519,7 @@ class PaymentsController extends \BaseController {
 
         $InvoiceNumbers = array();
         foreach($InvoiceNumbers_ as $row){
-            $InvoiceNumbers[] = $row['InvoiceNumber'];
+            $InvoiceNumbers[] = $row['FullInvoiceNumber'];
         }
         return Response::json(array("status" => "success", "message" => "" , "Currency_Symbol"=>$Currency_Symbol, "InvoiceNumbers" => $InvoiceNumbers));
 
