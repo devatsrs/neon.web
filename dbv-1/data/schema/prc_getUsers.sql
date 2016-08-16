@@ -7,6 +7,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getUsers`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
+
 )
 BEGIN
      DECLARE v_OffSet_ int;
