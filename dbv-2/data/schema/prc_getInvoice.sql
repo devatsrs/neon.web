@@ -64,18 +64,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		insert into tmp_Invoices_
 		SELECT inv.InvoiceType ,
 			ac.AccountName,
-			CASE WHEN inv.InvoiceType = 1 THEN
-				CONCAT(ltrim(rtrim(IFNULL(it.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))) 
-			  ELSE
-				  ltrim(rtrim(inv.InvoiceNumber)) 
-			  END
-			  as InvoiceNumber,
+			FullInvoiceNumber as InvoiceNumber,
 			inv.IssueDate,
 			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
 			inv.GrandTotal as GrandTotal,		
-			(select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
-			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
+			(select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
+			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
 			inv.InvoiceStatus,
 			inv.InvoiceID,
 			inv.Description,
@@ -84,15 +79,15 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
-			(select PaymentDate from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
+			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
+			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
 			ac.NominalAnalysisNominalAccountNumber 			
 			FROM tblInvoice inv
 			inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
 			left join tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
-			left join tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
+			INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
 			left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			where ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -103,8 +98,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
-			AND (p_IsOverdue = 0 OR (To_days(NOW()) - To_days(IssueDate)) > IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_));
+			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
 	       
 
 
@@ -131,7 +125,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         ItemInvoice,
 		BillingEmail,
 		GrandTotal
-        FROM tmp_Invoices_        
+        FROM tmp_Invoices_ 
+        WHERE (p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(PendingAmount>0)
+						)
+				)
         ORDER BY
                 CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
             END DESC,
@@ -167,7 +167,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
             END ASC
 				 LIMIT p_RowspPage OFFSET v_OffSet_;
         
-        SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_;
+        SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
+		  WHERE (p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(PendingAmount>0)
+						)
+				);
 		   
         SELECT
             v_TotalCount AS totalcount,
@@ -176,7 +182,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
 			v_CurrencyCode_ as currency_symbol
         FROM tmp_Invoices_ 
-			WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft';
+			WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft'
+			AND (p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(PendingAmount>0)
+						)
+				);
 		
     END IF;
     IF p_isExport = 1
@@ -192,8 +204,14 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         InvoiceStatus,
         InvoiceType,
         ItemInvoice
-        FROM tmp_Invoices_;
-
+        FROM tmp_Invoices_
+		  WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft'
+			AND (p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(PendingAmount>0)
+						)
+				);
 		END IF;
      IF p_isExport = 2
     THEN
@@ -210,7 +228,14 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         InvoiceType,
         ItemInvoice,
         InvoiceID
-        FROM tmp_Invoices_;
+        FROM tmp_Invoices_
+		  WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft'
+			AND (p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(PendingAmount>0)
+						)
+				);
         
     END IF;
 
@@ -234,7 +259,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
                 AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
                 AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
                 AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID)) 
+				AND(p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(PendingAmount>0)
+						)
+					);
         END IF; 
         SELECT
           AccountNumber,
@@ -265,5 +296,4 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 
  
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END//
-DELIMITER ;
+END
