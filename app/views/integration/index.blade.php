@@ -24,9 +24,9 @@
         <h5 class="test">Submit Details</h5>
         </a> </li>
     </ul>
-    <div class="tab-content"> <span class="itype">
+    <div class="tab-content"> <!--<span class="itype">
       <h3>Select Category</h3>
-      </span>
+      </span>-->
       <div class="tab-pane active" id="tab2-1">
         <div class="row"> </br>
           </br>
@@ -34,8 +34,15 @@
           <div class="col-md-11">
             <div class="">
              @foreach($categories as $key => $CategoriesData)
+             <?php
+				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID']))->first();
+			  ?>
               <input type="radio" name="category" class="category" data-id="{{$CategoriesData['Slug']}}" catid="{{$CategoriesData['IntegrationID']}}" value="{{$CategoriesData['Slug']}}" id="{{$CategoriesData['Slug']}}" @if($key==0) checked @endif />
-              <label for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif">{{$CategoriesData['Title']}}</label>
+              <label for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif">{{$CategoriesData['Title']}}
+               @if(isset($active['Status']) && $active['Status']==1)
+                <i class="entypo-check"></i>
+                @endif
+              </label>
               @endforeach
             </div>
           </div>
@@ -48,30 +55,40 @@
           <div class="col-md-1"></div>
           <div class="col-md-11">
             <div class="">
-             @foreach($categories as $key => $CategoriesData)
-          <?php $array_subcategories = array();
+          <?php
+		  $array_subcategories =	array();
+		  	foreach($categories as $key => $CategoriesData) {
 		  	 $subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
 			 	foreach($subcategories as $key => $subcategoriesData){
 					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();
 					$array_subcategories[$subcategoriesData['IntegrationID']] = $subcategoriesData;
 			  ?>
               <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
-              <input class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
-              <label for="{{$subcategoriesData['Slug']}}" class="newredio @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) subselected @endif ">{{$subcategoriesData['Title']}}</label>
+              <input parent_id="{{$subcategoriesData['ParentID']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
+              <label for="{{$subcategoriesData['Slug']}}" class="newredio @if($key==0) active @endif">
+              <?php 
+			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
+	           <img width="40" height="40" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
+               <?php } ?>               
+                {{$subcategoriesData['Title']}}
+                @if(isset($active['Status']) && $active['Status']==1)
+                <i class="entypo-check"></i>
+                @endif
+                </label>		
               </div>
-              <?php } ?>
-              @endforeach
+              <?php } } ?>
             </div>
           </div>
         </div>
       </div>
-      
-      
+   
       <div class="tab-pane" id="tab2-3">
         <div class="subcategorycontent" id="subcategorycontent{{$array_subcategories[6]['Slug']}}">
         <?php 
 		$FreshDeskDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$array_subcategories[6]['IntegrationID']))->first();
-		$FreshdeskData   =  isset($FreshDeskDbData->Settings)?json_decode($FreshDeskDbData->Settings):""; ?>
+		$FreshdeskData   = isset($FreshDeskDbData->Settings)?json_decode($FreshDeskDbData->Settings):"";
+		$array = json_decode(json_encode($FreshdeskData), True);		
+		 ?>
             <div class="row">
                 <div class="col-md-12">
                         <div class="panel panel-primary" data-collapsed="0">
@@ -108,16 +125,19 @@
                                 
                                 <div class="form-group">                                 
                                        <label for="field-1" class="col-sm-2 control-label">Group:</label>
-                                    <div class="col-sm-4">
-                                        <input type="text"  class="form-control" name="FreshdeskGroup" value="{{isset($FreshdeskData->FreshdeskGroup)?$FreshdeskData->FreshdeskGroup:''}}" />
-                                        <p>*If not specified then system will get tickets against all groups.<br>Multiple Allowed with comma seperated</p>
+                                       <div class="col-sm-3">
+                        <input type="text"  class="form-control" name="FreshdeskGroup" value="{{isset($FreshdeskData->FreshdeskGroup)?$FreshdeskData->FreshdeskGroup:''}}" />
                                     </div>
+                                    <div class="col-sm-1">                                       
+                       <span data-original-title="FreshDesk Group" data-content="If not specified then system will get tickets against all groups.Multiple Allowed with comma seperated" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span>
+                       </div>
+                       
                                        <label class="col-sm-2 control-label">Active</label>
                             <div class="col-sm-2">
                                 <p class="make-switch switch-small">
-                                    <input id="FreshDeskStatus" name="FreshDeskStatus" type="checkbox" value="1" checked="checked">
+<input id="FreshDeskStatus" name="FreshDeskStatus" type="checkbox" value="1" <?php if(isset($FreshDeskDbData->Status) && $FreshDeskDbData->Status==1){ ?>   checked="checked"<?php } ?> > 
                                 </p>
-                                <p>*Enabling this will deactivate all other Support categories</p>
+                                <span data-original-title="Status" data-content="Enabling this will deactivate all other Support categories" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span>
                             </div>  
                                  </div>
                           
@@ -195,10 +215,16 @@
                 }
 
                 if(activetab=='st2'){
-					 var importcat  = $("#rootwizard-2 input[name='subcategoryfld']:checked").val();
- 					 var subcatid   = $("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
+					 var importcat   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").val();
+ 					 var subcatid    = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
+					 var parent_id   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_id');
+					 var ForeignID   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
 
-					 console.log(importcat+' '+subcatid);
+					 console.log(importcat+' '+subcatid+' '+parent_id);
+					 if(parent_id==5 && ForeignID!=0){ ///gateway 
+					 	window.location = baseurl+'/gateway?id='+ForeignID;	
+						return false;
+					 }
 					$('.subcategorycontent').hide();
 					$('#subcategorycontent'+importcat).show(); 
 					$("#secondcategory").val(importcat);
@@ -246,7 +272,7 @@
 
     });
     </script> 
-<script type="text/javascript" src="<?php echo URL::to('/').'/assets/js/jquery.bootstrap.wizard.min.js'; ?>" ></script>
+<script type="text/javascript" src="<?php echo URL::to('/'); ?>/assets/js/jquery.bootstrap.wizard.min.js" ></script>
 <style>
     .dataTables_filter label{
         display:none !important;
@@ -279,6 +305,10 @@
         color: #ababab;
         font-weight: bold;
     }
+	
+	.newredio i {
+		color:green;
+	}
 	.subselected{
 		color:green !important;
 		font-weight:bold;

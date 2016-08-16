@@ -25,6 +25,33 @@
     </a>
 @endif
 </p>
+<div class="row">
+  <div class="tab-content">
+    <div class="tab-pane active" id="customer" >
+      <div class="col-md-12">
+        <form novalidate class="form-horizontal form-groups-bordered filter validate" method="post" id="gateway_form">
+          <div data-collapsed="0" class="panel panel-primary">
+            <div class="panel-heading">
+              <div class="panel-title">
+                <h3> Filter</h3>
+              </div>
+              <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-group">
+                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
+                <div class="col-sm-2"> {{ Form::select('Gateway',$gateway,Input::get('id'),array("class"=>"select2")) }} </div>
+              </div>
+              <p style="text-align: right;">
+                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
@@ -48,6 +75,7 @@ var postdata;
         public_vars.$body = $("body");
 
         //show_loading_bar(40);
+		 $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -58,8 +86,9 @@ var postdata;
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "fnServerParams": function(aoData) {
+				  aoData.push({"name":"Gateway","value":$searchFilter.Gateway});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"Export","value":1});
+                data_table_extra_params.push({"name":"Export","value":1},{"name":"Gateway","value":$searchFilter.Gateway});
             },
             "aaSorting": [[0, 'asc']],
              "aoColumns":
@@ -157,7 +186,7 @@ var postdata;
         ev.preventDefault();
         $('#add-new-config-form').trigger("reset");
         $("#add-new-config-form [name='CompanyGatewayID']").val('');
-        $("#GatewayID").select2().select2('val','');
+        //$("#GatewayID").select2().select2('val','');
         $("#GatewayID").trigger('change');
         $('#add-new-modal-config h4').html('Add New Gateway');
         $('#add-new-modal-config').modal('show');
@@ -244,7 +273,14 @@ var postdata;
                     $('#ajax_config_html').html('');
                 }
             });
-
+			
+		 $("#gateway_form").submit(function(e){
+            e.preventDefault();
+            $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
+            data_table.fnFilter('', 0);
+            return false;
+        });
+	
     });
 </script>
 <style>
@@ -273,7 +309,7 @@ var postdata;
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Gateway Type</label>
-                                {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2",'id'=>'GatewayID')) }}
+                                {{ Form::select('GatewayID',$gateway,Input::get('id'), array("class"=>"select2",'id'=>'GatewayID')) }}
                              </div>
                         </div>
                     </div>
