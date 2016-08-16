@@ -149,7 +149,7 @@ class PaymentsController extends \BaseController {
                 unset($save['AccountName']);
             }
             if(isset($save['InvoiceNo'])) {
-                $save['InvoiceID'] = Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+                $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
             }
 
             $save['Status'] = 'Pending Approval';
@@ -515,7 +515,7 @@ class PaymentsController extends \BaseController {
 
     public function get_currency_invoice_numbers($id){
         $Currency_Symbol = Account::getCurrency($id);
-        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('InvoiceNumber')->get()->toArray();
+        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('FullInvoiceNumber')->get()->toArray();
 
         $InvoiceNumbers = array();
         foreach($InvoiceNumbers_ as $row){

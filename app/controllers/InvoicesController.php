@@ -1290,7 +1290,7 @@ class InvoicesController extends \BaseController {
                 $paymentdata['CompanyID'] = $Invoice->CompanyID;
                 $paymentdata['AccountID'] = $Invoice->AccountID;
                 $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
-                $paymentdata['InvoiceID'] = $Invoice->InvoiceID;
+                $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
                 $paymentdata['PaymentDate'] = date('Y-m-d');
                 $paymentdata['PaymentMethod'] = $response->method;
                 $paymentdata['CurrencyID'] = $account->CurrencyId;

@@ -246,8 +246,8 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Charge Code</label>
-                            <div class="col-sm-4">
+                            <label for=" field-1" class="col-sm-2 control-label chargecode">Charge Code</label>
+                            <div class="col-sm-4 chargecode">
                                 {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
@@ -433,6 +433,16 @@ var click_btn;
         $(".pagination a").click(function (ev) {
             replaceCheckboxes();
         });
+        $("select[name=RateFormat]").change(function (ev) {
+            if($(this).val() == '{{Company::CHARGECODE}}'){
+                $(".chargecode").hide();
+            }else{
+                $(".chargecode").show();
+            }
+
+        });
+        $(".chargecode").hide();
+
         $('#add-template').hide();
             $(document).ajaxSuccess(function( event, jqXHR, ajaxSettings, ResponseData ) {
                 if (ResponseData.status != undefined &&  ResponseData.status == 'success' && ResponseData.data) {

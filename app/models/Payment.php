@@ -222,7 +222,7 @@ class Payment extends \Eloquent {
 
                         if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
                             $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                            $temp['InvoiceID'] = Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
+                            $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
                         }
 
                         if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
