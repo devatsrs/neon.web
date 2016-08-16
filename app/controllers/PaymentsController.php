@@ -178,38 +178,39 @@ class PaymentsController extends \BaseController {
                     InVoiceLog::insert($invoiceloddata);
                 }
                 $companyID = User::get_companyID();
-                $result = Company::select('PaymentRequestEmail','CompanyName')->where("CompanyID", '=', $companyID)->first();
-                $PaymentRequestEmail =explode(',',$result->PaymentRequestEmail);
-                $data['EmailToName'] = $result->CompanyName;
-                $data['Subject']= 'Payment verification';
+                $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);
+
+                $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
+                $data['EmailToName'] = Company::getName();
+                $data['Subject'] = 'Payment verification';
                 $save['AccountName'] = $AccountName;
                 $data['data'] = $save;
                 $data['data']['Currency'] = Currency::getCurrencyCode($data['data']['CurrencyID']);
                 //$billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->where('Roles', 'like', '%Billing Admin%')->get(['EmailAddress']);
-                $resource = DB::table('tblResourceCategories')->select('ResourceCategoryID')->where([ "ResourceCategoryName"=>'BillingAdmin',"CompanyID" => $companyID])->first();
-                $userid=[];
-                if(!empty($resource->ResourceCategoryID)){
-                    $permission = DB::table('tblUserPermission')->where([ "AddRemove"=>'add',"CompanyID" => $companyID, "resourceID" => $resource->ResourceCategoryID])->get();
-                    if(count($permission)>0){
-                        foreach($permission as $pr){
-                            $userid[]=$pr->UserID;
+                $resource = DB::table('tblResourceCategories')->select('ResourceCategoryID')->where(["ResourceCategoryName" => 'BillingAdmin', "CompanyID" => $companyID])->first();
+                $userid = [];
+                if (!empty($resource->ResourceCategoryID)) {
+                    $permission = DB::table('tblUserPermission')->where(["AddRemove" => 'add', "CompanyID" => $companyID, "resourceID" => $resource->ResourceCategoryID])->get();
+                    if (count($permission) > 0) {
+                        foreach ($permission as $pr) {
+                            $userid[] = $pr->UserID;
                         }
                     }
                 }
                 $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
-                foreach($PaymentRequestEmail as $billingemail){
-                    if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
+                foreach ($PendingApprovalPayment as $billingemail) {
+                    if (filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingemail;
                         $status = sendMail('emails.admin.payment', $data);
                     }
                 }
-                foreach($billingadminemails as $billingadminemail){
-                    if(filter_var($billingadminemail, FILTER_VALIDATE_EMAIL)) {
+                foreach ($billingadminemails as $billingadminemail) {
+                    if (filter_var($billingadminemail, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingadminemail;
                         $status = sendMail('emails.admin.payment', $data);
                     }
                 }
-                $message = isset($status['message'])?' and '.$status['message']:'';
+                $message = isset($status['message']) ? ' and ' . $status['message'] : '';
                 return Response::json(array("status" => "success", "message" => "Payment Successfully Created ". $message ));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
