@@ -76,7 +76,7 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Date</label>
                                 <div class="col-sm-3">
-                                    <input type="text" name="DateRange" data-format="YYYY-MM-DD HH:mm:ss" data-start-date="{{Input::get('StartDate')?Input::get('StartDate'):date('Y-m-d')}}" data-end-date="{{Input::get('EndDate')?Input::get('EndDate').'23:59:59':date('Y-m-d').'23:59:59'}}" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
+                                    <input type="text" name="DateRange" value="{{Input::get('StartDate')?Input::get('StartDate').' 00:00:00'.' - '.Input::get('EndDate').' 23:59:59':date('Y-m-d').' 00:00:00'.' - '.date('Y-m-d').' 23:59:59'}}" data-format="YYYY-MM-DD HH:mm:ss" data-start-date="{{Input::get('StartDate')?Input::get('StartDate'):date('Y-m-d')}}" data-end-date="{{Input::get('EndDate')?Input::get('EndDate').'23:59:59':date('Y-m-d').'23:59:59'}}" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
                                 <div class="col-sm-2">
