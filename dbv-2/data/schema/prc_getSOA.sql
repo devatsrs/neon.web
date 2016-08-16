@@ -14,7 +14,8 @@ BEGIN
         IssueDate Datetime,
         Amount NUMERIC(18, 8),
         InvoiceType int,
-        AccountID int
+        AccountID int,
+        InvoiceID INT
     );
     
     
@@ -26,7 +27,8 @@ BEGIN
         IssueDate datetime,
         Amount NUMERIC(18, 8),
         PaymentID INT,
-        PaymentType VARCHAR(50)
+        PaymentType VARCHAR(50),
+        InvoiceID INT
     );
     
     
@@ -37,7 +39,8 @@ BEGIN
         DisputeAmount NUMERIC(18, 8),
         InvoiceType VARCHAR(50),
         DisputeID INT,
-        AccountID INT
+        AccountID INT,
+        InvoiceID INT
 
     );
   
@@ -50,7 +53,8 @@ BEGIN
         InvoiceOut_Amount NUMERIC(18, 8),
         InvoiceOut_DisputeAmount NUMERIC(18, 8),
         InvoiceOut_DisputeID INT,
-       InvoiceOut_AccountID INT
+       InvoiceOut_AccountID INT,
+       InvoiceOut_InvoiceID INT
     );
     
   DROP TEMPORARY TABLE IF EXISTS tmp_InvoiceInWithDisputes;
@@ -61,7 +65,8 @@ BEGIN
         InvoiceIn_Amount NUMERIC(18, 8),
         InvoiceIn_DisputeAmount NUMERIC(18, 8),
         InvoiceIn_DisputeID INT,
-        InvoiceIn_AccountID INT
+        InvoiceIn_AccountID INT,
+        InvoiceIn_InvoiceID INT
     );
   
   
@@ -92,7 +97,8 @@ BEGIN
          tblInvoice.IssueDate,
          tblInvoice.GrandTotal,
          tblInvoice.InvoiceType,
-        tblInvoice.AccountID
+        tblInvoice.AccountID,
+        tblInvoice.InvoiceID
         FROM tblInvoice
         LEFT JOIN tblInvoiceDetail         
 		  ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )/* ProductType =2 = INVOICE USAGE AND InvoiceType = 1 Invoice sent and InvoiceType =2 invoice recevied */
@@ -114,7 +120,8 @@ BEGIN
             tblPayment.PaymentDate as IssueDate,
             tblPayment.Amount,
             tblPayment.PaymentID,
-            tblPayment.PaymentType
+            tblPayment.PaymentType,
+            tblPayment.InvoiceID
         FROM tblPayment
         WHERE 
             tblPayment.CompanyID = p_CompanyID
@@ -134,7 +141,8 @@ BEGIN
             DisputeAmount,
             InvoiceType,
             DisputeID,
-            AccountID
+            AccountID,
+            0 as InvoiceID
       FROM tblDispute 
         WHERE 
             CompanyID = p_CompanyID
@@ -164,7 +172,9 @@ BEGIN
     Amount as InvoiceOut_Amount,
     ifnull(DisputeAmount,0) as InvoiceOut_DisputeAmount,
     DisputeID as InvoiceOut_DisputeID,
-    AccountID as InvoiceOut_AccountID
+    AccountID as InvoiceOut_AccountID,
+    InvoiceID as InvoiceOut_InvoiceID
+    
     FROM
      (
       SELECT
@@ -175,7 +185,8 @@ BEGIN
             iv.Amount,
             ds.DisputeAmount,
             ds.DisputeID,
-       	   iv.AccountID
+       	   iv.AccountID,
+       	   iv.InvoiceID
             
         FROM tmp_Invoices iv
       LEFT JOIN tmp_Disputes ds on ds.InvoiceNo = iv.InvoiceNo AND ds.InvoiceType = iv.InvoiceType  AND ds.InvoiceNo is not null
@@ -193,7 +204,8 @@ BEGIN
             0 as Amount,
             ds.DisputeAmount,
             ds.DisputeID,
-        ds.AccountID
+        ds.AccountID,
+        iv.InvoiceID
       FROM tmp_Disputes_dup ds 
       LEFT JOIN  tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo and iv.InvoiceType = ds.InvoiceType 
         WHERE 
@@ -233,7 +245,9 @@ BEGIN
       INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
       INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
       LEFT JOIN tmp_Payments
-      ON tmp_Payments.PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo != '' AND (tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceNo = tmp_Payments.InvoiceNo OR REPLACE(tmp_Payments.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceNo)) ) )
+      ON tmp_Payments.PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo != '' AND 
+      tmp_Payments.InvoiceID = tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceID
+		-- (tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceNo = tmp_Payments.InvoiceNo OR REPLACE(tmp_Payments.InvoiceNo,'-','') = concat( ltrim(rtrim(REPLACE(tblInvoiceTemplate.InvoiceNumberPrefix,'-',''))) , ltrim(rtrim(tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceNo)) ) )
       
       UNION ALL
 
@@ -267,7 +281,8 @@ BEGIN
     Amount as InvoiceIn_Amount,
     ifnull(DisputeAmount,0) as InvoiceIn_DisputeAmount,
     DisputeID as InvoiceIn_DisputeID,
-    AccountID as InvoiceIn_AccountID
+    AccountID as InvoiceIn_AccountID,
+    InvoiceID as InvoiceIn_InvoiceID
     FROM
      (  SELECT
         DISTINCT
@@ -277,7 +292,8 @@ BEGIN
             iv.Amount,
             ds.DisputeAmount,
             ds.DisputeID,
-            iv.AccountID
+            iv.AccountID,
+            iv.InvoiceID
         FROM tmp_Invoices iv
       LEFT JOIN tmp_Disputes ds  on  ds.InvoiceNo = iv.InvoiceNo   AND ds.InvoiceType = iv.InvoiceType AND ds.InvoiceNo is not null
         WHERE 
@@ -294,7 +310,8 @@ BEGIN
             0 as Amount,
             ds.DisputeAmount,
             ds.DisputeID,
-            ds.AccountID
+            ds.AccountID,
+            ds.InvoiceID
       From tmp_Disputes_dup ds 
         LEFT JOIN tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo AND iv.InvoiceType = ds.InvoiceType 
         WHERE  ds.InvoiceType = 2  -- Only Invoice In Disputes

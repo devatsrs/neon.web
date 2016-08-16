@@ -1,16 +1,18 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_Convert_Invoices_to_Estimates`(IN `p_CompanyID` INT, IN `p_AccountID` VARCHAR(50), IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_EstimateID` VARCHAR(50), IN `p_convert_all` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_Convert_Invoices_to_Estimates`(IN `p_CompanyID` INT, IN `p_AccountID` VARCHAR(50), IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_EstimateID` VARCHAR(50), IN `p_convert_all` INT)
+    COMMENT 'test'
 BEGIN
 	DECLARE estimate_ids int;
 	DECLARE note_text varchar(50);
- SET sql_mode = 'ALLOW_INVALID_DATES';
- set note_text = 'Created From Estimate: ';
+ 	SET sql_mode = 'ALLOW_INVALID_DATES'; 	
+	set note_text = 'Created From Estimate: ';
+    
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 update tblInvoice  set EstimateID = '';
 INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,EstimateID)
  	select te.CompanyID,
 	 		 te.AccountID,
 			 te.Address,
-			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,			  
+			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,
 			 NOW() as IssueDate,
 			 te.CurrencyID,
 			 te.PONumber,
@@ -117,7 +119,13 @@ where
 			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND te.IssueDate >= p_IssueDateStart))
 			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND te.IssueDate <= p_IssueDateEnd))
 			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus)));
-
+	
+	UPDATE tblInvoice 
+	INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblInvoice.AccountID
+	INNER JOIN NeonRMDev.tblAccountBilling ON tblAccount.AccountID = tblAccountBilling.AccountID
+	INNER JOIN tblInvoiceTemplate ON tblAccountBilling.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+	SET FullInvoiceNumber = IF(InvoiceType=1,CONCAT(ltrim(rtrim(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), ltrim(rtrim(tblInvoice.InvoiceNumber))),ltrim(rtrim(tblInvoice.InvoiceNumber)))
+	WHERE FullInvoiceNumber IS NULL AND tblInvoice.CompanyID = p_CompanyID ;
 			
 				SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

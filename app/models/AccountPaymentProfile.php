@@ -138,7 +138,8 @@ class AccountPaymentProfile extends \Eloquent
                             $paymentdata = array();
                             $paymentdata['CompanyID'] = $Invoice->CompanyID;
                             $paymentdata['AccountID'] = $Invoice->AccountID;
-                            $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$AccountBilling);
+                            $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+                            $paymentdata['InvoiceID'] = $Invoice->InvoiceID;
                             $paymentdata['PaymentDate'] = date('Y-m-d');
                             $paymentdata['PaymentMethod'] = $transactionResponse['transaction_payment_method'];
                             $paymentdata['CurrencyID'] = $account->CurrencyId;

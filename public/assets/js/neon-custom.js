@@ -925,7 +925,9 @@ toastr_opts = {
                         timePicker: attrDefault($this, 'timePicker', false),
                         timePickerIncrement: attrDefault($this, 'timePickerIncrement', false),
                         timePicker24Hour:attrDefault($this, 'timePicker24Hour', true),
-                        timePickerSeconds:attrDefault($this, 'timePickerSeconds', true)
+                        timePickerSeconds:attrDefault($this, 'timePickerSeconds', true),
+                        autoUpdateInput: false,
+
                     },
                     min_date = attrDefault($this, 'minDate', ''),
                     max_date = attrDefault($this, 'maxDate', ''),
@@ -973,6 +975,13 @@ toastr_opts = {
                         $this.find('span').html(start.format(drp.format) + drp.separator + end.format(drp.format));
                     }
                 });
+            });
+            $('.daterange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
             });
         }
 

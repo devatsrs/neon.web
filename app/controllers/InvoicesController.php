@@ -129,15 +129,9 @@ class InvoicesController extends \BaseController {
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
-        $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
-        $InvoiceNoarray = array();
-        foreach($InvoiceNo as $Invoicerow){
-            $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-        }
-        $invoice 						= 	implode(',',$InvoiceNoarray);
-		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
 		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data'));
 
     }
 
@@ -249,6 +243,7 @@ class InvoicesController extends \BaseController {
             }
 
             try{
+                $InvoiceData["FullInvoiceNumber"] = InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
                 //Store Last Invoice Number.
@@ -803,6 +798,7 @@ class InvoicesController extends \BaseController {
         $InvoiceData["AccountID"] = $data["AccountID"];
         $InvoiceData["Address"] = $Address;
         $InvoiceData["InvoiceNumber"] = $data["InvoiceNumber"];
+        $InvoiceData["FullInvoiceNumber"] = $data["InvoiceNumber"];
         $InvoiceData["IssueDate"] = $data["IssueDate"];
         $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceData["CurrencyID"] = $Account->CurrencyId;
@@ -882,6 +878,7 @@ class InvoicesController extends \BaseController {
         $InvoiceData["AccountID"] = $data["AccountID"];
         $InvoiceData["Address"] = $Address;
         $InvoiceData["InvoiceNumber"] = $data["InvoiceNumber"];
+        $InvoiceData["FullInvoiceNumber"] = $data["InvoiceNumber"];
         $InvoiceData["IssueDate"] = $data["IssueDate"];
         $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceData["CurrencyID"] = $Account->CurrencyId;
@@ -932,11 +929,10 @@ class InvoicesController extends \BaseController {
         $Invoice = Invoice::find($id);
         if(!empty($Invoice)) {
             $Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
-                $Subject = "New Invoice " . Invoice::getFullInvoiceNumber($Invoice,$AccountBilling). ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+                $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
                 $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
 
                 $data = [
@@ -1293,7 +1289,8 @@ class InvoicesController extends \BaseController {
                 $paymentdata = array();
                 $paymentdata['CompanyID'] = $Invoice->CompanyID;
                 $paymentdata['AccountID'] = $Invoice->AccountID;
-                $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$AccountBilling);
+                $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+                $paymentdata['InvoiceID'] = $Invoice->InvoiceID;
                 $paymentdata['PaymentDate'] = date('Y-m-d');
                 $paymentdata['PaymentMethod'] = $response->method;
                 $paymentdata['CurrencyID'] = $account->CurrencyId;

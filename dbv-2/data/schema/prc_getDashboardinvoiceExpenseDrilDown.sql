@@ -108,9 +108,7 @@ BEGIN
 		FROM tblPayment p 
 		INNER JOIN NeonRMDev.tblAccount ac 
 			ON ac.AccountID = p.AccountID
-		INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-		LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
-		LEFT JOIN tblInvoice inv on REPLACE(p.InvoiceNo,'-','') = CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber))) 
+		LEFT JOIN tblInvoice inv on p.InvoiceID = inv.InvoiceID 
 			AND p.Status = 'Approved' 
 			AND p.AccountID = inv.AccountID 
 			AND p.Recall=0
@@ -249,13 +247,13 @@ BEGIN
 	INSERT INTO tmp_Invoices_
 		SELECT inv.InvoiceType ,
 			ac.AccountName,
-			CONCAT(ltrim(rtrim(IFNULL(it.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))) as InvoiceNumber,
+			inv.FullInvoiceNumber as InvoiceNumber,
 			inv.IssueDate,
 			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
 			inv.GrandTotal as GrandTotal,		
-			(select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
-			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
+			(select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
+			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
 			inv.InvoiceStatus,
 			inv.InvoiceID,
 			inv.Description,
@@ -265,7 +263,7 @@ BEGIN
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
 			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
-			(select PaymentDate from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
+			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
 			ac.NominalAnalysisNominalAccountNumber 
@@ -274,7 +272,6 @@ BEGIN
       AND (p_CustomerID=0 OR ac.AccountID = p_CustomerID)
       LEFT JOIN tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
 		INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-		LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
 		LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 		WHERE 
 		inv.CompanyID = p_CompanyID

@@ -10,17 +10,15 @@ BEGIN
 		ON i.AccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblAccountBilling ab 
 		ON ab.AccountID = a.AccountID
-	LEFT JOIN tblInvoiceTemplate it 
-		ON ab.InvoiceTemplateID = it.InvoiceTemplateID
 	LEFT JOIN tblPayment p
 		ON p.AccountID = i.AccountID
-		AND REPLACE(p.InvoiceNo,'-','') = (CONCAT( ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(i.InvoiceNumber)) )) AND p.Status = 'Approved' AND p.AccountID = i.AccountID
+		AND p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = i.AccountID
 		AND p.Status = 'Approved'
 		AND p.Recall = 0
 	WHERE i.CompanyID = p_CompanyID
 	AND i.InvoiceStatus != 'cancel'
 	AND i.AccountID = p_AccountID
-	AND (p_PaymentDueInDays =0  OR (p_PaymentDueInDays =1 AND TIMESTAMPDIFF(DAY, i.IssueDate, NOW()) >= PaymentDueInDays) )
+	AND (p_PaymentDueInDays =0  OR (p_PaymentDueInDays =1 AND TIMESTAMPDIFF(DAY, i.IssueDate, NOW()) >= ab.PaymentDueInDays) )
 
 	GROUP BY i.InvoiceID,
 			 p.AccountID

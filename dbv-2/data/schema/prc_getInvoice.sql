@@ -46,18 +46,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		insert into tmp_Invoices_
 		SELECT inv.InvoiceType ,
 			ac.AccountName,
-			CASE WHEN inv.InvoiceType = 1 THEN
-				CONCAT(ltrim(rtrim(IFNULL(it.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))) 
-			  ELSE
-				  ltrim(rtrim(inv.InvoiceNumber)) 
-			  END
-			  as InvoiceNumber,
+			FullInvoiceNumber as InvoiceNumber,
 			inv.IssueDate,
 			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
 			inv.GrandTotal as GrandTotal,		
-			(select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
-			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
+			(select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
+			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
 			inv.InvoiceStatus,
 			inv.InvoiceID,
 			inv.Description,
@@ -67,7 +62,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
 			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
-			(select PaymentDate from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
+			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
 			ac.NominalAnalysisNominalAccountNumber 			
@@ -75,7 +70,6 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
 			left join tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
 			INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-			LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
 			left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			where ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))

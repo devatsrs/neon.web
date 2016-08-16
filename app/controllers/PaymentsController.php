@@ -148,6 +148,9 @@ class PaymentsController extends \BaseController {
                 $AccountName = $save['AccountName'];
                 unset($save['AccountName']);
             }
+            if(isset($save['InvoiceNo'])) {
+                $save['InvoiceID'] = Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+            }
 
             $save['Status'] = 'Pending Approval';
             if(User::is('BillingAdmin') || User::is_admin() ) {

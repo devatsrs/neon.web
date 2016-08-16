@@ -108,13 +108,13 @@ class Payment extends \Eloquent {
         }
 
         if($id==0){
-            $today = date('Y-m-d');
+            $today = date('Y-m-d H:i:s');
             $data['CreatedBy'] = User::get_user_full_name();
             $data['created_at'] =  $today;
             $data['ModifyBy'] = '';
             $data['updated_at'] =  '';
         }else{
-            $today = date('Y-m-d');
+            $today = date('Y-m-d H:i:s');
             $data['ModifyBy'] = User::get_user_full_name();
             $data['updated_at'] =  $today;
         }
@@ -222,6 +222,7 @@ class Payment extends \Eloquent {
 
                         if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
                             $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                            $temp['InvoiceID'] = Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
                         }
 
                         if(isset($selection['Notes']) && !empty($selection['Notes']) ) {

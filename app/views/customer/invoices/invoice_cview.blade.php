@@ -78,7 +78,7 @@ $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$Invoice->InvoiceID )->get(
 
 		<div class="col-sm-6 invoice-right">
 		        <br>
-				<p><strong>Invoice No: </strong>{{$InvoiceTemplate->InvoiceNumberPrefix}}{{$Invoice->InvoiceNumber}}</p>
+				<p><strong>Invoice No: </strong>{{$Invoice->FullInvoiceNumber}}</p>
 				<p><strong>Invoice Date: </strong>{{ date('d-m-Y',strtotime($Invoice->IssueDate))}}</p>
 		</div>
 		

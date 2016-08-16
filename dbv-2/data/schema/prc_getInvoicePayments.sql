@@ -8,12 +8,9 @@ BEGIN
 
 	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
 
-	select      ROUND(sum(inv.GrandTotal),v_Round_) as total_grand,ROUND(sum(format((select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))) , ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_)),v_Round_) as `paid_amount`,sum(ROUND(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where REPLACE(p.InvoiceNo,'-','') = ( CONCAT(ltrim(rtrim(REPLACE(IFNULL(it.InvoiceNumberPrefix,''),'-',''))), ltrim(rtrim(inv.InvoiceNumber)))) AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0 ),v_Round_)) as due_amount
+	select      ROUND(sum(inv.GrandTotal),v_Round_) as total_grand,ROUND(sum(format((select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0),v_Round_)),v_Round_) as `paid_amount`,sum(ROUND(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0 ),v_Round_)) as due_amount
 			
 from tblInvoice inv
-inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
-INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
  where InvoiceID=p_InvoiceID;
 
 END
