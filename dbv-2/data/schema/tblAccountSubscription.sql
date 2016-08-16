@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `tblAccountSubscription` (
+CREATE TABLE `tblAccountSubscription` (
   `AccountSubscriptionID` int(11) NOT NULL AUTO_INCREMENT,
   `AccountID` int(11) NOT NULL,
   `SubscriptionID` int(11) NOT NULL,
@@ -8,13 +8,14 @@ CREATE TABLE IF NOT EXISTS `tblAccountSubscription` (
   `EndDate` date DEFAULT NULL,
   `ExemptTax` tinyint(3) unsigned DEFAULT NULL,
   `ActivationFee` decimal(18,2) DEFAULT NULL,
-  `Discount` decimal(18,2) DEFAULT NULL,
+  `Discount` decimal(18,2) DEFAULT '0.00',
   `MonthlyFee` decimal(18,2) DEFAULT NULL,
   `WeeklyFee` decimal(18,2) DEFAULT NULL,
   `DailyFee` decimal(18,2) DEFAULT NULL,
+  `SequenceNo` int(11) DEFAULT '0',
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`AccountSubscriptionID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
