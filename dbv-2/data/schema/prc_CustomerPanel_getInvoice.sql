@@ -110,7 +110,6 @@ BEGIN
       FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
 							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-									AND(InvoiceStatus NOT IN('paid','partially_paid'))
 									AND(PendingAmount>0)
 								)
 						)
@@ -152,7 +151,6 @@ BEGIN
         SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
 		  WHERE (p_IsOverdue = 0 
 							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-									AND(InvoiceStatus NOT IN('paid','partially_paid'))
 									AND(PendingAmount>0)
 								)
 						);
@@ -166,7 +164,6 @@ BEGIN
         FROM tmp_Invoices_
 		  WHERE (p_IsOverdue = 0 
 							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-									AND(InvoiceStatus NOT IN('paid','partially_paid'))
 									AND(PendingAmount>0)
 								)
 						);
@@ -186,7 +183,6 @@ BEGIN
 		FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
 						OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-								AND(InvoiceStatus NOT IN('paid','partially_paid'))
 								AND(PendingAmount>0)
 							)
 					);

@@ -128,7 +128,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         FROM tmp_Invoices_ 
         WHERE (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
 				)
@@ -170,7 +170,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
 		  WHERE (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
 				);
@@ -185,7 +185,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft'
 			AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
 				);
@@ -208,7 +208,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		  WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft'
 			AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
 				);
@@ -232,7 +232,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		  WHERE InvoiceStatus <> 'Cancel' AND InvoiceStatus <> 'Draft'
 			AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
 				);
@@ -262,7 +262,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID)) 
 				AND(p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
-							AND(InvoiceStatus NOT IN('paid','partially_paid'))
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
 					);
