@@ -121,11 +121,12 @@ where
 			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus)));
 	
 	UPDATE tblInvoice 
+	INNER JOIN tblEstimate ON  tblInvoice.EstimateID =  tblEstimate.EstimateID
 	INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblInvoice.AccountID
 	INNER JOIN NeonRMDev.tblAccountBilling ON tblAccount.AccountID = tblAccountBilling.AccountID
 	INNER JOIN tblInvoiceTemplate ON tblAccountBilling.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
 	SET FullInvoiceNumber = IF(InvoiceType=1,CONCAT(ltrim(rtrim(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), ltrim(rtrim(tblInvoice.InvoiceNumber))),ltrim(rtrim(tblInvoice.InvoiceNumber)))
-	WHERE FullInvoiceNumber IS NULL AND tblInvoice.CompanyID = p_CompanyID ;
+	WHERE FullInvoiceNumber IS NULL AND tblInvoice.CompanyID = p_CompanyID AND tblInvoice.InvoiceType = 1;
 			
 				SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

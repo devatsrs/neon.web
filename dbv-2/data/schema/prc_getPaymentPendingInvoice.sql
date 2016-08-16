@@ -12,7 +12,7 @@ BEGIN
 		ON ab.AccountID = a.AccountID
 	LEFT JOIN tblPayment p
 		ON p.AccountID = i.AccountID
-		AND p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = i.AccountID
+		AND p.InvoiceID = i.InvoiceID AND p.Status = 'Approved' AND p.AccountID = i.AccountID
 		AND p.Status = 'Approved'
 		AND p.Recall = 0
 	WHERE i.CompanyID = p_CompanyID

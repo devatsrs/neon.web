@@ -266,7 +266,7 @@ BEGIN
       where PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo = ''
   
     ) tbl
-    order by InvoiceOut_IssueDate desc;
+    order by InvoiceOut_IssueDate desc,InvoiceOut_InvoiceNo desc;
      
     
     /* ##############################################################################################################################*/
