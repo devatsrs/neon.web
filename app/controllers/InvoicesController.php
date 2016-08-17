@@ -1398,7 +1398,7 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
-        if(!empty($data['IssueDate'])){
+        if(!empty($criteria['IssueDate'])){
             $arr = explode(' - ',$criteria['IssueDate']);
             $criteria['IssueDateStart'] = $arr[0];
             $criteria['IssueDateEnd'] = $arr[1];
