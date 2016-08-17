@@ -1402,6 +1402,9 @@ class InvoicesController extends \BaseController {
             $arr = explode(' - ',$criteria['IssueDate']);
             $criteria['IssueDateStart'] = $arr[0];
             $criteria['IssueDateEnd'] = $arr[1];
+        }else{
+            $criteria['IssueDateStart'] = '';
+            $criteria['IssueDateEnd'] = '';
         }
         $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
         $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
