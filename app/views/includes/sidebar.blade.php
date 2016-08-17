@@ -215,9 +215,6 @@
          @if( User::checkCategoryPermission('serverinfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
-         @if( User::checkCategoryPermission('Integration','View'))
-        <li> <a href="{{URL::to('/integration')}}">  <span>Integration</span> </a> </li>
-    	@endif
       </ul>
     </li>
     @endif
@@ -230,6 +227,9 @@
 
     @if( User::checkCategoryPermission('Company','View'))
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
+    @endif
+  	 @if( User::checkCategoryPermission('Integration','View'))
+       <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Pages','About'))
     <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>

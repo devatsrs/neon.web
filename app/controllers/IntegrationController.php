@@ -24,8 +24,8 @@ class IntegrationController extends \BaseController
 		$data 			 = 	Input::all();
 		$companyID  	 = 	User::get_companyID();
 		 $rules = array(
-            'category' => 'required',
-            'subcategoryfld' => 'required',         
+            'firstcategory' => 'required',
+            'secondcategory' => 'required',         
         );
 
         $validator = Validator::make($data, $rules);
@@ -34,10 +34,10 @@ class IntegrationController extends \BaseController
             return json_validator_response($validator);
         }
 		
-		if($data['category']=='support')
+		if($data['firstcategory']=='support')
 		{ 
 
-			if($data['subcategoryfld']=='freshdesk')
+			if($data['secondcategory']=='freshdesk')
 			{			
 				$rules = array(
 					'FreshdeskDomain'	 => 'required',
@@ -62,7 +62,7 @@ class IntegrationController extends \BaseController
 					
 			);
 			
-		  $data['Status'] = isset($data['FreshDeskStatus'])?1:0;	
+		  $data['Status'] = isset($data['Status'])?1:0;	
 		  if($data['Status']==1){ //disable all other support subcategories
 				$status =	array("Status"=>0);
 				IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
