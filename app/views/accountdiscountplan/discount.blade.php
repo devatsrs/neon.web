@@ -13,7 +13,7 @@
             @foreach($AccountDiscountPlan as $AccountDiscountPlanRow)
                 <?php
                 $UsedPercent = 100;
-                    if(!$AccountDiscountPlanRow->Unlimited){
+                    if(!$AccountDiscountPlanRow->Unlimited && $AccountDiscountPlanRow->Threshold > 0){
                         $UsedPercent = number_format(($AccountDiscountPlanRow->MinutesUsed/$AccountDiscountPlanRow->Threshold)*100,2);
                     }
                 ?>
