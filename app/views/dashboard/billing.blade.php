@@ -376,7 +376,7 @@
                                     output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                                 }
                                 output+= '</a>';
-                                account_url = baseurl + "/accounts/"+ full[11] + "/show";
+                                account_url = baseurl + "/accounts/"+ full[10] + "/show";
                                 output = output.replace("{url}",account_url);
                                 output = output.replace("{account_name}",id);
                                 return output;
@@ -390,7 +390,7 @@
                                 var output , account_url;
                                 if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                     output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                    account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
+                                    account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
                                     output = output.replace("{url}", account_url);
                                     output = output.replace("{account_name}", id);
                                 }else{
