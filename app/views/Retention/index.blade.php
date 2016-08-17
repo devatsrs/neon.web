@@ -16,7 +16,6 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-
     @if( User::checkCategoryPermission('Retention','Add'))
         <button class="btn add-new-retention btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 @endif
@@ -37,35 +36,35 @@
                 <div class="panel-body">
 
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">CDRs : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Ones CDRs Delete Then You can not generate or regenerate Invoices." data-original-title="CDR">?</span></label>
+        <label for="field-1" class="col-sm-2 control-label">CDR : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[CDR]" class="form-control" value="{{isset($DataRetenion->CDR)?$DataRetenion->CDR:''}}"/>
         </div>
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Cron Jobs History :</label>
+        <label for="field-1" class="col-sm-2 control-label">Cron Job History :</label>
         <div class="col-sm-2">
             <input type="text" name="TableData[Cronjob]" class="form-control" value="{{isset($DataRetenion->Cronjob)?$DataRetenion->Cronjob:''}}"/>
         </div>
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Jobs History :</label>
+        <label for="field-1" class="col-sm-2 control-label">Job History :</label>
         <div class="col-sm-2">
             <input type="text" name="TableData[Job]" class="form-control" value="{{isset($DataRetenion->Job)?$DataRetenion->Job:''}}"/>
         </div>
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Customers Rate Sheet History : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Ones Customers Rate Sheet History Delete Then You can not View or download of History From Account." data-original-title="Customer Rate Sheet History">?</span></label>
+        <label for="field-1" class="col-sm-2 control-label">Customer Rate Sheet Download History : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[CustomerRateSheet]" class="form-control" value="{{isset($DataRetenion->CustomerRateSheet)?$DataRetenion->CustomerRateSheet:''}}"/>
         </div>
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Vendors Rate Sheet History : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Ones Vendors Rate Sheet History Delete Then You can not View or download of Vendor Rate Upload/Download History From Account." data-original-title="Vendor Rate Sheet History">?</span></label>
+        <label for="field-1" class="col-sm-2 control-label">Vendor Rate Sheet Upload/Download History : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[VendorRateSheet]" class="form-control" value="{{isset($DataRetenion->VendorRateSheet)?$DataRetenion->VendorRateSheet:''}}"/>
         </div>
@@ -87,7 +86,7 @@
         <div class="panel-body">
 
             <div class="form-group">
-                <label for="field-1" class="col-sm-2 control-label">CDRs Files : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How Many Old Days CDRs Files Delete.?" data-original-title="CDR Files">?</span></label>
+                <label for="field-1" class="col-sm-2 control-label">CDR Files : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How Many Old Days CDRs Files Delete.?" data-original-title="CDR Files">?</span></label>
                 <div class="col-sm-2">
                     <input type="text" name="FileData[CDR]" class="form-control" value="{{isset($FileRetenion->CDR)?$FileRetenion->CDR:''}}"/>
                 </div>
@@ -95,7 +94,7 @@
             </div>
 
             <div class="form-group">
-                <label for="field-1" class="col-sm-2 control-label">Delete CDRs Files From Server:</label>
+                <label for="field-1" class="col-sm-2 control-label">Delete CDR Files From Server:</label>
                 <div class="col-sm-2">
                     <p class="make-switch switch-small">
                         <input name="FileData[CDRFilesDelete]" type="checkbox" value="1" @if(isset($FileRetenion->CDRFilesDelete) && $FileRetenion->CDRFilesDelete==1) checked @endif>
@@ -107,7 +106,7 @@
             @if(is_amazon())
 
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Move To CDRs Files To Amazon:</label>
+                    <label for="field-1" class="col-sm-2 control-label">Move CDR Files To Amazon S3:</label>
                     <div class="col-sm-2">
                         <p class="make-switch switch-small">
                             <input name="FileData[CDRMoves]" type="checkbox" value="1" @if(isset($FileRetenion->CDRMoves) && $FileRetenion->CDRMoves==1) checked @endif>
