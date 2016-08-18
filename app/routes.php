@@ -707,6 +707,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
+    Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 
 	//Themes
 	Route::any('/themes', 'ThemesController@index');

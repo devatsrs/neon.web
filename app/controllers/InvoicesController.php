@@ -1239,6 +1239,16 @@ class InvoicesController extends \BaseController {
         }
         exit;
     }
+    public static function download_attachment($InvoiceID){
+        $Invoice = Invoice::find($InvoiceID);
+        $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment);
+        if(is_amazon() == true){
+            header('Location: '.$FilePath);
+        }else if(file_exists($FilePath)){
+            download_file($FilePath);
+        }
+        exit;
+    }
     public function invoice_payment($id)
     {
         $account_inv = explode('-', $id);

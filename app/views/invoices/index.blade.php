@@ -310,6 +310,9 @@ var postdata;
                                 //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                 action += '</ul>';
                                 action += '</div>';
+                                if(full[10]) {
+                                    action += ' <a class="btn btn-success btn-sm btn-icon icon-left" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
+                                }
                             }
                         }else{
                             action += '<div class="btn-group">';
