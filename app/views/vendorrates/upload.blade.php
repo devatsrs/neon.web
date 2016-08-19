@@ -181,7 +181,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Call Rate Rules CSV Importer
+                        Import Options
                     </div>
 
                     <div class="panel-options">
@@ -236,11 +236,13 @@
 
                 <div class="panel-body" id="mapping">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Code*</label>
-                        <div class="col-sm-4">
+                        <label for="field-1" class="col-sm-2 control-label">Code* </label>
+                        <div class="col-sm-2">
                             {{Form::select('selection[Code]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
-
+                        <div class="col-sm-2">
+                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"selectboxit"))}}
+                        </div>
                         <label for="field-1" class="col-sm-2 control-label">Description*</label>
                         <div class="col-sm-4">
                             {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
@@ -332,19 +334,13 @@
                         <div class="col-sm-4">
                             {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"selectboxit"))}}
                         </div>
-                        <label for=" field-1" class="col-sm-2 control-label">Dial Code Separator
-
-                        </label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"selectboxit"))}}
-                        </div>
                     </div>
                 </div>
             </div>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        CSV File to be loaded
+                        File to be loaded
                     </div>
 
                     <div class="panel-options">
