@@ -263,7 +263,7 @@ $(document).ready(function(){
         var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
         var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
         if(flatstatus == 1){
-            var tax = parseFloat( ( qty*taxAmount) );
+            var tax = parseFloat( ( taxAmount) );
         }else{
             var tax = parseFloat( (price * qty * taxAmount)/100 );
         }
