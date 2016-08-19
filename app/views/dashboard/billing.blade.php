@@ -240,11 +240,23 @@
                         return full[16]
                     }
                 },
+                {
+                    "bSortable": true, //Type
+                    mRender: function (id, type, full) {
+                        return full[4]
+                    }
+                },
 
                 {
                     "bSortable": true, //paymentDate
                     mRender: function (id, type, full) {
                         return full[6]
+                    }
+                },
+                {
+                    "bSortable": true, //status
+                    mRender: function (id, type, full) {
+                        return full[7]
                     }
                 },
                 {
@@ -316,8 +328,7 @@
                         $(row).append(a);
                     }
                     if(TotalSum) {
-                        $($(row).children().get(0)).attr('colspan',2);
-                        $($(row).children().get(0)).html('<strong>Total</strong>');
+                        $($(row).children().get(0)).attr('colspan',2)
                         $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
                     }
                 }else{
@@ -502,8 +513,7 @@
                         $(row).append(a);
                     }
                     if(TotalSum) {
-                        $($(row).children().get(0)).attr('colspan',4);
-                        $($(row).children().get(0)).html('<strong>Total</strong>');
+                        $($(row).children().get(0)).attr('colspan',4)
                         $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
                         $($(row).children().get(2)).html('<strong>' + TotalPaymentSum +'/' + TotalPendingSum + '</strong>');
                     }
@@ -531,13 +541,11 @@
                 $searchFilter.Type = 2;
                 //invoiceTable.fnClearTable();
                 invoiceTable.fnFilter('', 0);
-                $('#modal-invoice h4').text('Total Invoices');
                 $('#modal-invoice').modal('show');
             }else if($(this).hasClass('totalOutstanding')){
                 $searchFilter.Type = 3;
                 //invoiceTable.fnClearTable();
                 invoiceTable.fnFilter('', 0);
-                $('#modal-invoice h4').text('Total Outstanding');
                 $('#modal-invoice').modal('show');
             }
 
@@ -745,7 +753,7 @@ function missingAccounts(){
 @section('footer_ext')
     @parent
     <div class="modal fade" id="modal-Payment">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -756,12 +764,14 @@ function missingAccounts(){
                         <table class="table table-bordered datatable" id="paymentTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice No</th>
-                                <th>Amount</th>
-                                <th>Payment Date</th>
-                                <th>CreatedBy</th>
-                                <th>Notes</th>
+                                <th width="15%">Account Name</th>
+                                <th width="10%">Invoice No</th>
+                                <th width="10%">Amount</th>
+                                <th width="10%">Type</th>
+                                <th width="10%">Payment Date</th>
+                                <th width="10%">Status</th>
+                                <th width="20%">CreatedBy</th>
+                                <th width="15%">Notes</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -783,7 +793,7 @@ function missingAccounts(){
     </div>
 
     <div class="modal fade" id="modal-invoice">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="TestMail-form" method="post" action="">
                     <div class="modal-header">
@@ -794,13 +804,13 @@ function missingAccounts(){
                         <table class="table table-bordered datatable" id="invoiceTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice Number</th>
-                                <th>Issue Date</th>
-                                <th>Period</th>
-                                <th>Grand Total</th>
-                                <th>Paid/OS</th>
-                                <th>Status</th>
+                                <th width="25%">Account Name</th>
+                                <th width="10%">Invoice Number</th>
+                                <th width="15%">Issue Date</th>
+                                <th width="20%">Invoice Period</th>
+                                <th width="10%">Grand Total</th>
+                                <th width="10%">Paid/OS</th>
+                                <th width="10%">Invoice Status</th>
                             </tr>
                             </thead>
                             <tbody>

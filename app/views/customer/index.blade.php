@@ -279,9 +279,22 @@ $(function() {
                 }
             },
             {
+                "bSortable": true, //Type
+                mRender: function (id, type, full) {
+                    return full[4]
+                }
+            },
+
+            {
                 "bSortable": true, //paymentDate
                 mRender: function (id, type, full) {
                     return full[6]
+                }
+            },
+            {
+                "bSortable": true, //status
+                mRender: function (id, type, full) {
+                    return full[7]
                 }
             },
             {
@@ -649,7 +662,7 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
 @section('footer_ext')
     @parent
     <div class="modal fade" id="modal-Payment">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -660,12 +673,14 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
                         <table class="table table-bordered datatable" id="paymentTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice No</th>
-                                <th>Amount</th>
-                                <th>Payment Date</th>
-                                <th>CreatedBy</th>
-                                <th>Notes</th>
+                                <th width="15%">Account Name</th>
+                                <th width="10%">Invoice No</th>
+                                <th width="10%">Amount</th>
+                                <th width="10%">Type</th>
+                                <th width="10%">Payment Date</th>
+                                <th width="10%">Status</th>
+                                <th width="20%">CreatedBy</th>
+                                <th width="15%">Notes</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -687,7 +702,7 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
     </div>
 
     <div class="modal fade" id="modal-invoice">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="TestMail-form" method="post" action="">
                     <div class="modal-header">
@@ -701,10 +716,10 @@ function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
                                 <th width="25%">Account Name</th>
                                 <th width="10%">Invoice Number</th>
                                 <th width="15%">Issue Date</th>
-                                <th width="20%">Period</th>
+                                <th width="20%">Invoice Period</th>
                                 <th width="10%">Grand Total</th>
                                 <th width="10%">Paid/OS</th>
-                                <th width="10%">Status</th>
+                                <th width="10%">Invoice Status</th>
                             </tr>
                             </thead>
                             <tbody>

@@ -39,7 +39,7 @@
                             <div class="panel-body">
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-1 control-label">Type</label>
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-2">
                                         {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 Notification_Type_dropdown"))}}
                                     </div>
                                 </div>
