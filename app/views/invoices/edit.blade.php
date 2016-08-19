@@ -117,9 +117,10 @@
                                         "selected"=>$ProductRow->TaxRateID,
                                         "value_key"=>"TaxRateID",
                                         "title_key"=>"Title",
-                                        "title_key"=>"Title",
                                         "data-title1"=>"data-amount",
                                         "data-value1"=>"Amount",
+                                        "data-title2"=>"data-flatstatus",
+                                        "data-value2"=>"FlatStatus",
                                         "class" =>"selectboxit TaxRateID",
                                         ]
                                 )}}</td>
@@ -228,7 +229,7 @@ var subscription_array = [{{implode(",",array_keys(BillingSubscription::getSubsc
 
 var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('InvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::text('InvoiceDetail[Description][]','',array("class"=>"form-control descriptions"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
      //add_row_html += '<td class="text-center">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
-     add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>$ProductRow->TaxRateID,"value_key"=>"TaxRateID","title_key"=>"Title","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","class" =>"selectboxit TaxRateID"])}}</td>';
+     add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>$ProductRow->TaxRateID,"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"selectboxit TaxRateID"])}}</td>';
      add_row_html += '<td>{{Form::text('InvoiceDetail[TaxAmount][]','',array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
      add_row_html += '{{Form::hidden('InvoiceDetail[StartDate][]','',array("class"=>"StartDate"))}}{{Form::hidden('InvoiceDetail[EndDate][]','',array("class"=>"EndDate"))}}{{Form::hidden('InvoiceDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}</td></tr>';

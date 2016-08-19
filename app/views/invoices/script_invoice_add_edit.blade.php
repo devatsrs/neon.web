@@ -261,7 +261,13 @@ $(document).ready(function(){
         //var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
 		var discount = 0;
         var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
-        var tax = parseFloat( (price * qty * taxAmount)/100 );
+        var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
+        if(flatstatus == 1){
+            var tax = parseFloat( ( qty*taxAmount) );
+        }else{
+            var tax = parseFloat( (price * qty * taxAmount)/100 );
+        }
+
         obj.find('.TaxAmount').val(tax.toFixed(decimal_places));
         var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
 
@@ -283,8 +289,11 @@ $(document).ready(function(){
         var taxTitle =  $(this).find(":selected").text() ;
         //var taxTitle = $(".TaxRateID option:selected").text();
 
+        var rowCount = $('#InvoiceTable tbody tr').length;
         if(taxTitle =='Select a Tax Rate'){
             taxTitle='VAT';
+        }else if(rowCount >1) {
+            taxTitle='Total Tax';
         }
         $(".product_tax_title").text(taxTitle);
     });
