@@ -39,7 +39,7 @@
                             <div class="panel-body">
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-1 control-label">Type</label>
-                                    <div class="col-sm-2">
+                                    <div class="col-sm-3">
                                         {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 Notification_Type_dropdown"))}}
                                     </div>
                                 </div>
@@ -79,138 +79,138 @@
                 var notification_datagrid_url = baseurl + "/notification/ajax_datagrid/type";
                 jQuery(document).ready(function ($) {
                     data_table_char = $("#table-4").dataTable({
-                            "bDestroy": true,
-                            "bProcessing": true,
-                            "bServerSide": true,
-                            "sAjaxSource": notification_datagrid_url,
-                            "fnServerParams": function (aoData) {
-                                aoData.push({"name": "NotificationType", "value": $search.NotificationType});
+                        "bDestroy": true,
+                        "bProcessing": true,
+                        "bServerSide": true,
+                        "sAjaxSource": notification_datagrid_url,
+                        "fnServerParams": function (aoData) {
+                            aoData.push({"name": "NotificationType", "value": $search.NotificationType});
 
-                                data_table_extra_params.length = 0;
-                                data_table_extra_params.push({"name": "NotificationType", "value": $search.NotificationType},{"name":"Export","value":1});
+                            data_table_extra_params.length = 0;
+                            data_table_extra_params.push({"name": "NotificationType", "value": $search.NotificationType},{"name":"Export","value":1});
 
-                            },
-                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
-                            "sPaginationType": "bootstrap",
-                            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                            "aaSorting": [[0, 'asc']],
-                            "aoColumns": [
-                                {"bSortable": true,
-                                    mRender:function(id,type,full){
-                                        return NotificationType[id];
-                                    }
-
-                                },  // 0 Notification
-                                {"bSortable": true},  // 1 Email Addresses
-                                {"bSortable": true},  // 2 Created At
-                                {"bSortable": true},  // 3 Created By
-                                {                        // 9 Action
-                                    "bSortable": false,
-                                    mRender: function (id, type, full) {
-                                        action = '<div class = "hiddenRowData" >';
-                                        for (var i = 0; i < list_fields.length; i++) {
-                                            action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + full[i] + '" / >';
-                                        }
-                                        action += '</div>';
-                                        action += ' <a href="' + notification_edit_url.replace("{id}", id) + '" class="edit-notification btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                        action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
-                                        return action;
-                                    }
+                        },
+                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "sPaginationType": "bootstrap",
+                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "aaSorting": [[0, 'asc']],
+                        "aoColumns": [
+                            {"bSortable": true,
+                                mRender:function(id,type,full){
+                                    return NotificationType[id];
                                 }
-                            ],
-                            "oTableTools": {
-                                "aButtons": [
-                                    {
-                                        "sExtends": "download",
-                                        "sButtonText": "EXCEL",
-                                        "sUrl": baseurl + "/notification/ajax_datagrid/xlsx",
-                                        sButtonClass: "save-collection btn-sm"
-                                    },
-                                    {
-                                        "sExtends": "download",
-                                        "sButtonText": "CSV",
-                                        "sUrl": baseurl + "/notification/ajax_datagrid/csv",
-                                        sButtonClass: "save-collection btn-sm"
+
+                            },  // 0 Notification
+                            {"bSortable": true},  // 1 Email Addresses
+                            {"bSortable": true},  // 2 Created At
+                            {"bSortable": true},  // 3 Created By
+                            {                        // 9 Action
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    action = '<div class = "hiddenRowData" >';
+                                    for (var i = 0; i < list_fields.length; i++) {
+                                        action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + full[i] + '" / >';
                                     }
-                                ]
-                            },
-                            "fnDrawCallback": function () {
-                                $(".dataTables_wrapper select").select2({
-                                    minimumResultsForSearch: -1
-                                });
+                                    action += '</div>';
+                                    action += ' <a href="' + notification_edit_url.replace("{id}", id) + '" class="edit-notification btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                    action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    return action;
+                                }
                             }
-
-                        });
-                        $("#notification_submit").click(function(e) {
-
-                            e.preventDefault();
-                            public_vars.$body = $("body");
-                            $search.NotificationType = $('#notification_filter [name="NotificationType"]').val();
-                            data_table_char.fnFilter('', 0);
-                            return false;
-                        });
-
-
-                        // Replace Checboxes
-                        $(".pagination a").click(function (ev) {
-                            replaceCheckboxes();
-                        });
-
-                $('#notification_submit').trigger('click');
-                //inst.myMethod('I am a method');
-                $('#add-notification').click(function(ev){
-                    ev.preventDefault();
-                    $('#notification-form').trigger("reset");
-                    $('#modal-notification h4').html('Add Notification');
-                    $("#notification-form [name='NotificationEmailAddresses']").val('');
-                    var selectBox = $("#notification-form [name='NotificationType']").data("selectBox-selectBoxIt");
-                    selectBox.selectOption('');
-                    selectBox.enable();
-                    $('.tax').removeClass('hidden');
-
-                    $('#notification-form').attr("action",notification_add_url);
-                    $('#modal-notification').modal('show');
-                });
-                $('table tbody').on('click', '.edit-notification', function (ev) {
-                    ev.preventDefault();
-                    $('#notification-form').trigger("reset");
-                    var edit_url  = $(this).attr("href");
-                    $('#notification-form').attr("action",edit_url);
-                    $('#modal-notification h4').html('Edit Notification');
-                    var cur_obj = $(this).prev("div.hiddenRowData");
-                    for(var i = 0 ; i< list_fields.length; i++){
-                        $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                        if(list_fields[i] == 'NotificationType'){
-                            var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
-                            selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                            selectBox.disable();
+                        ],
+                        "oTableTools": {
+                            "aButtons": [
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/notification/ajax_datagrid/xlsx",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/notification/ajax_datagrid/csv",
+                                    sButtonClass: "save-collection btn-sm"
+                                }
+                            ]
+                        },
+                        "fnDrawCallback": function () {
+                            $(".dataTables_wrapper select").select2({
+                                minimumResultsForSearch: -1
+                            });
                         }
-                    }
-                    $('#modal-notification').modal('show');
-                });
-                $('table tbody').on('click', '.delete-notification', function (ev) {
-                    ev.preventDefault();
-                    result = confirm("Are you Sure?");
-                    if(result){
-                        var delete_url  = $(this).attr("href");
-                        submit_ajax_datatable( delete_url,"",0,data_table_char);
+
+                    });
+                    $("#notification_submit").click(function(e) {
+
+                        e.preventDefault();
+                        public_vars.$body = $("body");
+                        $search.NotificationType = $('#notification_filter [name="NotificationType"]').val();
                         data_table_char.fnFilter('', 0);
-                    }
-                    return false;
-                });
+                        return false;
+                    });
 
-                $("#notification-form").submit(function(e){
-                    e.preventDefault();
-                    var _url  = $(this).attr("action");
-                    submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
-                    data_table_char.fnFilter('', 0);
-                });
 
-                // Replace Checboxes
-                $(".pagination a").click(function (ev) {
-                    replaceCheckboxes();
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
+
+                    $('#notification_submit').trigger('click');
+                    //inst.myMethod('I am a method');
+                    $('#add-notification').click(function(ev){
+                        ev.preventDefault();
+                        $('#notification-form').trigger("reset");
+                        $('#modal-notification h4').html('Add Notification');
+                        $("#notification-form [name='NotificationEmailAddresses']").val('');
+                        var selectBox = $("#notification-form [name='NotificationType']").data("selectBox-selectBoxIt");
+                        selectBox.selectOption('');
+                        selectBox.enable();
+                        $('.tax').removeClass('hidden');
+
+                        $('#notification-form').attr("action",notification_add_url);
+                        $('#modal-notification').modal('show');
+                    });
+                    $('table tbody').on('click', '.edit-notification', function (ev) {
+                        ev.preventDefault();
+                        $('#notification-form').trigger("reset");
+                        var edit_url  = $(this).attr("href");
+                        $('#notification-form').attr("action",edit_url);
+                        $('#modal-notification h4').html('Edit Notification');
+                        var cur_obj = $(this).prev("div.hiddenRowData");
+                        for(var i = 0 ; i< list_fields.length; i++){
+                            $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            if(list_fields[i] == 'NotificationType'){
+                                var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
+                                selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                selectBox.disable();
+                            }
+                        }
+                        $('#modal-notification').modal('show');
+                    });
+                    $('table tbody').on('click', '.delete-notification', function (ev) {
+                        ev.preventDefault();
+                        result = confirm("Are you Sure?");
+                        if(result){
+                            var delete_url  = $(this).attr("href");
+                            submit_ajax_datatable( delete_url,"",0,data_table_char);
+                            data_table_char.fnFilter('', 0);
+                        }
+                        return false;
+                    });
+
+                    $("#notification-form").submit(function(e){
+                        e.preventDefault();
+                        var _url  = $(this).attr("action");
+                        submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+                        data_table_char.fnFilter('', 0);
+                    });
+
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
                 });
-               });
 
             </script>
 
@@ -223,42 +223,42 @@
 @section('footer_ext')
     @parent
 
-<div class="modal fade in" id="modal-notification">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="notification-form" method="post">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Additional Charges</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Type</label>
-                            {{Form::select('NotificationType',$notificationType,'',array("class"=>"selectboxit product_dropdown"))}}
-                            <input type="hidden" name="NotificationID" />
+    <div class="modal fade in" id="modal-notification">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="notification-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Additional Charges</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Type</label>
+                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"selectboxit product_dropdown"))}}
+                                <input type="hidden" name="NotificationID" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Email Addresses</label>
+                                <input type="text" name="EmailAddresses" class="form-control" value="" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Email Addresses</label>
-                            <input type="text" name="EmailAddresses" class="form-control" value="" />
-                        </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        Save
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
 @stop
