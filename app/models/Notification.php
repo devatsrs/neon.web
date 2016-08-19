@@ -14,10 +14,10 @@ class Notification extends \Eloquent {
     const PendingApprovalPayment=5;
 
     public static $type = [ Notification::InvoiceGeneration=>'Invoice Generation',
-                            Notification::ReRate=>'Re Rate Log',
-                            Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
-                            Notification::LowBalanceReminder=>'Low Balance Reminder',
-                            Notification::PendingApprovalPayment=>'Pending Approval Payment'];
+        Notification::ReRate=>'CDR Rate Log',
+        Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
+        Notification::LowBalanceReminder=>'Low Balance Reminder',
+        Notification::PendingApprovalPayment=>'Pending Approval Payment'];
 
     public static function getNotificationMail($type){
         $CompanyID = User::get_companyID();

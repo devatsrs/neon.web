@@ -86,6 +86,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+    Route::any('/users/tracker', 'UsersController@view_tracker');
 
 
 	//DashBoard
