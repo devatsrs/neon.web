@@ -260,7 +260,7 @@ class InvoicesController extends \BaseController {
                     InvoiceTemplate::find(Account::find($data["AccountID"])->InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
                 }
 
-                $InvoiceDetailData = array();
+                $InvoiceDetailData = $InvoiceTaxRates = array();
 
                 foreach($data["InvoiceDetail"] as $field => $detail){
                     $i=0;
@@ -274,6 +274,15 @@ class InvoicesController extends \BaseController {
                         $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                         $InvoiceDetailData[$i]["CreatedBy"] = $CreatedBy;
+                        if($field == 'TaxRateID'){
+                            $InvoiceTaxRates[$i][$field] = $value;
+                            $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
+                            $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
+                            $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
+                        }
+                        if($field == 'TaxAmount'){
+                            $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
+                        }
                         if(empty($InvoiceDetailData[$i]['ProductID'])){
                             unset($InvoiceDetailData[$i]);
                         }
@@ -286,6 +295,7 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
+                InvoiceTaxRate::insert($InvoiceTaxRates);
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                     if (empty($pdf_path)) {
@@ -380,9 +390,10 @@ class InvoicesController extends \BaseController {
                     $invoiceloddata['InvoiceLogStatus']= InVoiceLog::UPDATED;
                     $Invoice->update($InvoiceData);
                     InVoiceLog::insert($invoiceloddata);
-                    $InvoiceDetailData = array();
+                    $InvoiceDetailData = $InvoiceTaxRates = array();
                     //Delete all Invoice Data and then Recreate.
                     InvoiceDetail::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
+                    InvoiceTaxRate::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
                     if (isset($data["InvoiceDetail"])) {
                         foreach ($data["InvoiceDetail"] as $field => $detail) {
                             $i = 0;
@@ -404,9 +415,19 @@ class InvoicesController extends \BaseController {
                                 if(empty($InvoiceDetailData[$i]['ProductID'])){
                                     unset($InvoiceDetailData[$i]);
                                 }
+                                if($field == 'TaxRateID'){
+                                    $InvoiceTaxRates[$i][$field] = $value;
+                                    $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
+                                }
+                                if($field == 'TaxAmount'){
+                                    $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
+                                }
                                 $i++;
                             }
                         }
+                        InvoiceTaxRate::insert($InvoiceTaxRates);
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
