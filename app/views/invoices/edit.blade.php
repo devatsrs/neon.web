@@ -95,9 +95,9 @@
                                 <th width="10%" class="text-center">Unit Price</th>
                                 <th width="10%"  class="text-center">Quantity</th>
                                 <!--<th width="10%" >Discount</th>-->
-                                <th width="10%" >Tax Rate </th>
+                                <th width="15%" >Tax Rate </th>
                                 <th width="10%" >Tax</th>
-                                <th width="20%" class="text-right">Line Total</th>
+                                <th width="15%" class="text-right">Line Total</th>
                 			</tr>
                 		</thead>
                 		<tbody>
