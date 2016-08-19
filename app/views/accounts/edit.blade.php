@@ -367,10 +367,14 @@
             </div>
         </div>
         <?php
-            $billing_disable = '';
+            $billing_disable = $hiden_class= '';
         if($invoice_count > 0){
             $billing_disable = 'disabled';
         }
+            if(isset($AccountBilling->BillingCycleType)){
+                $hiden_class= 'hidden';
+                $billing_disable = 'disabled';
+            }
         ?>
         <div class="panel panel-primary "   data-collapsed="0">
             <div class="panel-heading">
@@ -432,44 +436,84 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Billing Cycle*</label>
-                    <div class="col-sm-4">
-                        {{Form::select('BillingCycleType', SortBillingType(), ( isset($AccountBilling->BillingCycleType)?$AccountBilling->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType') ),array("class"=>"form-control select2",$billing_disable))}}
-                        @if($billing_disable)
-                            <input type="hidden" value="{{isset($AccountBilling->BillingCycleType)?$AccountBilling->BillingCycleType:CompanySetting::getKeyVal('BillingCycleType')}}" name="BillingCycleType">
+                    <label for="field-1" class="col-sm-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
+                    <div class="col-sm-3">
+                        <?php
+                        if(!empty($AccountNextBilling)){
+                            $BillingCycleType = $AccountNextBilling->BillingCycleType;
+                        }elseif(!empty($AccountBilling)){
+                            $BillingCycleType = $AccountBilling->BillingCycleType;
+                        }else{
+                            $BillingCycleType = CompanySetting::getKeyVal('BillingCycleType');
+                        }
+                        ?>
+                        @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
+                            <div class="billing_edit_text"> {{$BillingCycleType}} </div>
+                        @endif
+
+                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>$hiden_class." form-control select2"))}}
+
+                    </div>
+                    <div class="col-sm-1">
+                        @if($hiden_class != '')
+                        <button class="btn btn-sm btn-primary" id="billing_edit">
+                            <i class="fa fa-pencil"></i>
+                        </button>
                         @endif
                     </div>
+                    <?php
+                    if(!empty($AccountNextBilling)){
+                        $BillingCycleValue = $AccountNextBilling->BillingCycleValue;
+                    }elseif(!empty($AccountBilling)){
+                        $BillingCycleValue = $AccountBilling->BillingCycleValue;
+                    }elseif(empty($AccountBilling)){
+                        $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue');
+                    }
+                    ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
                         <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Start of Day*</label>
                         <div class="col-sm-4">
                             <?php $Days = array( ""=>"Please Start of Day",
-                                "monday"=>"Monday",
-                                "tuesday"=>"Tuesday",
-                                "wednesday"=>"Wednesday",
-                                "thursday"=>"Thursday",
-                                "friday"=>"Friday",
-                                "saturday"=>"Saturday",
-                                "sunday"=>"Sunday");?>
-                            {{Form::select('BillingCycleValue',$Days, (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='weekly'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("class"=>"form-control select2",$billing_disable))}}
+                                    "monday"=>"Monday",
+                                    "tuesday"=>"Tuesday",
+                                    "wednesday"=>"Wednesday",
+                                    "thursday"=>"Thursday",
+                                    "friday"=>"Friday",
+                                    "saturday"=>"Saturday",
+                                    "sunday"=>"Sunday");?>
+                            @if($hiden_class != '' && $BillingCycleType =='weekly' )
+                                <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
+                            @endif
+
+                            {{Form::select('BillingCycleValue',$Days, ($BillingCycleType =='weekly'?$BillingCycleValue:'') ,array("class"=>"form-control select2"))}}
 
                         </div>
                     </div>
                     <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
                     <label for="field-1" class="col-sm-2 control-label">Billing Cycle - for Days*</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingCycleValue', (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='in_specific_days'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                            @if($hiden_class != '' && $BillingCycleType =='in_specific_days' )
+                                <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
+                            @endif
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='in_specific_days'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_subscription" class="billing_options" style="display: none">
                     <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Subscription Qty</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingCycleValue', (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='subscription'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
+                            @if($hiden_class != '' && $BillingCycleType =='subscription' )
+                                <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
+                            @endif
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='subscription'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
                         <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingCycleValue', (AccountBilling::getBillingKey($AccountBilling,'BillingCycleType')=='monthly_anniversary'?$AccountBilling->BillingCycleValue:CompanySetting::getKeyVal('BillingCycleValue')) ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                            @if($hiden_class != '' && $BillingCycleType =='monthly_anniversary' )
+                                <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
+                            @endif
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                         </div>
                     </div>
                 </div>
@@ -510,7 +554,7 @@
                  <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                         <div class="col-sm-4">
-                                @if($invoice_count == 0)
+                                @if($hiden_class == '')
                                     {{Form::text('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                                 @else
                                     {{Form::hidden('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)))}}
@@ -519,6 +563,21 @@
                         </div>
 
                 </div>
+                @if(!empty($AccountNextBilling))
+                    <?php
+                    if($AccountBilling->BillingCycleType == 'weekly'){
+                        $oldBillingCycleValue = $Days[$AccountBilling->BillingCycleValue];
+                    }else{
+                        $oldBillingCycleValue = $AccountBilling->BillingCycleValue;
+                    }
+                    ?>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle</label>
+                        <div class="col-sm-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
+                        <label for="field-1" class="col-sm-2 control-label">New Invoice Period</label>
+                        <div class="col-sm-4">{{$AccountNextBilling->LastInvoiceDate.' - '.$AccountNextBilling->NextInvoiceDate}}</div>
+                    </div>
+                @endif
             </div>
         </div>
         @include('accountdiscountplan.index')
@@ -657,13 +716,10 @@
 
         $('select[name="BillingCycleType"]').on( "change",function(e){
             var selection = $(this).val();
-            if(FirstTimeTrigger == true) {
-                BillingChanged = false;
-                FirstTimeTrigger= false;
-            }else{
-                BillingChanged = false;
+            var hidden = false;
+            if($(this).hasClass('hidden')){
+                hidden = true;
             }
-
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");
             $(".billing_options").hide();
             console.log(selection);
@@ -671,22 +727,47 @@
                 case "weekly":
                         $("#billing_cycle_weekly").show();
                         $("#billing_cycle_weekly select").removeAttr("disabled");
+                        $("#billing_cycle_weekly select").addClass('billing_options_active');
+                        if(hidden){
+                            $("#billing_cycle_weekly select").addClass('hidden');
+                        }
                         break;
                 case "monthly_anniversary":
                         $("#billing_cycle_monthly_anniversary").show();
                         $("#billing_cycle_monthly_anniversary input").removeAttr("disabled");
+                        $("#billing_cycle_monthly_anniversary input").addClass('billing_options_active');
+                        if(hidden){
+                            $("#billing_cycle_monthly_anniversary input").addClass('hidden');
+                        }
                         break;
                 case "in_specific_days":
                         $("#billing_cycle_in_specific_days").show();
                         $("#billing_cycle_in_specific_days input").removeAttr("disabled");
+                        $("#billing_cycle_in_specific_days input").addClass('billing_options_active');
+                        if(hidden){
+                            $("#billing_cycle_in_specific_days input").addClass('hidden');
+                        }
                         break;
                 case "subscription":
                         $("#billing_cycle_subscription").show();
                         $("#billing_cycle_subscription input").removeAttr("disabled");
+                        $("#billing_cycle_subscription input").addClass('billing_options_active');
+                        if(hidden){
+                            $("#billing_cycle_subscription input").addClass('hidden');
+                        }
                         break;
+            }
+            if(FirstTimeTrigger == true) {
+                BillingChanged = false;
+                FirstTimeTrigger= false;
+            }else{
+                BillingChanged = true;
             }
         });
         $('[name="BillingStartDate"]').on( "change",function(e){
+            BillingChanged = true;
+        });
+        $('[name="BillingCycleValue"]').on( "change",function(e){
             BillingChanged = true;
         });
         $('[name="Billing"]').on( "change",function(e){
@@ -697,6 +778,15 @@
             }
         });
         $('[name="Billing"]').trigger('change');
+
+        $('#billing_edit').on( "click",function(e){
+            e.preventDefault();
+            $('[name="BillingCycleType"]').removeClass('hidden');
+            $('body').find(".billing_options_active").removeClass('hidden');
+            $('.billing_edit_text').addClass('hidden');
+            $(this).addClass('hidden');
+            return false;
+        });
 
         $('select[name="BillingCycleType"]').trigger( "change" );
 

@@ -10,43 +10,43 @@ class AccountBilling extends \Eloquent {
     public $timestamps = false; // no created_at and updated_at
 
     public static function insertUpdateBilling($AccountID,$data=array()){
+        if(AccountBilling::where('AccountID',$AccountID)->count() == 0) {
+            $AccountBilling['PaymentDueInDays'] = $data['PaymentDueInDays'];
+            $AccountBilling['RoundChargesAmount'] = $data['RoundChargesAmount'];
+            $AccountBilling['CDRType'] = $data['CDRType'];
+            $AccountBilling['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
+            $AccountBilling['BillingType'] = $data['BillingType'];
+            $AccountBilling['TaxRateId'] = $data['TaxRateId'];
+            $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
+            $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
+            $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
 
-        $AccountBilling['PaymentDueInDays'] = $data['PaymentDueInDays'];
-        $AccountBilling['RoundChargesAmount'] = $data['RoundChargesAmount'];
-        $AccountBilling['CDRType'] = $data['CDRType'];
-        $AccountBilling['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
-        $AccountBilling['BillingType'] = $data['BillingType'];
-        $AccountBilling['TaxRateId'] = $data['TaxRateId'];
-        $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
-        $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
-        $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
-        if(!empty($data['BillingStartDate'])) {
-            $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
-        }
-        if(!empty($data['BillingCycleValue'])){
-            $AccountBilling['BillingCycleValue'] = $data['BillingCycleValue'];
-        }else{
-            $AccountBilling['BillingCycleValue'] = '';
-        }
-        if(!empty($data['LastInvoiceDate'])){
-            $AccountBilling['LastInvoiceDate'] = $data['LastInvoiceDate'];
-        }elseif(!empty($data['BillingStartDate'])) {
-            $AccountBilling['LastInvoiceDate'] = $data['BillingStartDate'];
-        }
-        if(!empty($AccountBilling['LastInvoiceDate'])) {
-            $BillingStartDate = strtotime($AccountBilling['LastInvoiceDate']);
-        }else if(!empty($AccountBilling['BillingStartDate'])) {
-            $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
-        }
-        if(!empty($BillingStartDate)) {
-            $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
-        }
-
-        if(AccountBilling::where('AccountID',$AccountID)->count()){
-            AccountBilling::where('AccountID',$AccountID)->update($AccountBilling);
-        }else{
+            if (!empty($data['BillingStartDate'])) {
+                $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
+            }
+            if (!empty($data['BillingCycleValue'])) {
+                $AccountBilling['BillingCycleValue'] = $data['BillingCycleValue'];
+            } else {
+                $AccountBilling['BillingCycleValue'] = '';
+            }
+            if (!empty($data['LastInvoiceDate'])) {
+                $AccountBilling['LastInvoiceDate'] = $data['LastInvoiceDate'];
+            } elseif (!empty($data['BillingStartDate'])) {
+                $AccountBilling['LastInvoiceDate'] = $data['BillingStartDate'];
+            }
+            if (!empty($AccountBilling['LastInvoiceDate'])) {
+                $BillingStartDate = strtotime($AccountBilling['LastInvoiceDate']);
+            } else if (!empty($AccountBilling['BillingStartDate'])) {
+                $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
+            }
+            if (!empty($BillingStartDate)) {
+                $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+            }
             $AccountBilling['AccountID'] = $AccountID;
             AccountBilling::create($AccountBilling);
+        }else{
+            AccountNextBilling::insertUpdateBilling($AccountID,$data);
+
         }
 
     }
