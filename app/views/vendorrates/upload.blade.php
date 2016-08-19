@@ -332,6 +332,12 @@
                         <div class="col-sm-4">
                             {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"selectboxit"))}}
                         </div>
+                        <label for=" field-1" class="col-sm-2 control-label">Dial Code Separator
+
+                        </label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"selectboxit"))}}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -555,7 +561,7 @@ jQuery(document).ready(function ($) {
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]'){
+            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){

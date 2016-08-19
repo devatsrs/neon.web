@@ -4,7 +4,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessVendorRate`(IN `p_acco
 , IN `p_effectiveImmediately` INT
 , IN `p_processId` VARCHAR(200)
 , IN `p_addNewCodesToCodeDeck` INT
-, IN `p_companyId` INT, IN `p_forbidden` INT, IN `p_preference` INT, IN `p_dialstringid` INT)
+, IN `p_companyId` INT, IN `p_forbidden` INT, IN `p_preference` INT, IN `p_dialstringid` INT, IN `p_dialcodeSeparator` VARCHAR(50))
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;
@@ -86,7 +86,7 @@ BEGIN
 	);
 
     --  dial string mapping and code duplicate 
-    		CALL  prc_checkDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately);
+    		CALL  prc_checkDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately,p_dialcodeSeparator);
     		
     		SELECT COUNT(*) AS COUNT INTO newstringcode from tmp_JobLog_; 
 	
