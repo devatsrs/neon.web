@@ -27,29 +27,31 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Type</label>
+                        <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-2">
                             {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Issue Date Start</label>
+                        <label for="field-1" class="col-sm-1 control-label">Issue Date</label>
                         <div class="col-sm-2">
-                            {{ Form::text('IssueDateStart', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                            {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):'', array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Issue Date End</label>
-                        <div class="col-sm-2">
-                            {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Number</label>
                         <div class="col-sm-2">
                             {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Zero Value</label>
+                        <label for="field-1" class="col-sm-1 control-label">Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Overdue</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="Overdue" name="Overdue" type="checkbox">
                             </p>
                         </div>
                     </div>
@@ -119,6 +121,7 @@ var postdata;
         $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
         $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
         $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+        $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -130,9 +133,9 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"Overdue","value":$searchFilter.Overdue});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"Overdue","value":$searchFilter.Overdue},{ "name": "Export", "value": 1});
             },
              "aoColumns":
                      [
@@ -244,6 +247,7 @@ var postdata;
             $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
             $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
+            $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
 
             data_table.fnFilter('', 0);
             return false;
@@ -259,6 +263,7 @@ var postdata;
                     "IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
                     "IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
                     "zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"),
+                    "Overdue" : $("#invoice_filter [name='Overdue']").prop("checked"),
                     "bDestroy": true,
                     "bProcessing":true,
                     "bServerSide":true,

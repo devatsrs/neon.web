@@ -1,6 +1,8 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT)
 BEGIN
 	DECLARE v_Round_ int;
+
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_MonthlyTotalDue_;
@@ -9,7 +11,8 @@ BEGIN
 		`Month` int,
 		MonthName varchar(50),
 		TotalAmount float,
-		CurrencyID int
+		CurrencyID int,
+		InvoiceStatus VARCHAR(50)
 	);
 	DROP TEMPORARY TABLE IF EXISTS tmp_MonthlyTotalReceived_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_MonthlyTotalReceived_(
@@ -17,10 +20,11 @@ BEGIN
 		`Month` int,
 		MonthName varchar(50),
 		TotalAmount float,
+		OutAmount float,
 		CurrencyID int
 	);
 	SELECT cs.Value INTO v_Round_ 
-	FROM LocalRatemanagement.tblCompanySetting cs 
+	FROM NeonRMDev.tblCompanySetting cs 
 	WHERE cs.`Key` = 'RoundChargesAmount' 
 		AND cs.CompanyID = p_CompanyID;
 
@@ -28,8 +32,9 @@ BEGIN
 	SELECT YEAR(IssueDate) as Year
 			,MONTH(IssueDate) as Month
 			,MONTHNAME(MAX(IssueDate)) as  MonthName
-			,ROUND(SUM(IFNULL(GrandTotal,0)),v_Round_) as TotalAmount
+			,ROUND(COALESCE(SUM(GrandTotal),0),v_Round_)as TotalAmount
 			,CurrencyID
+			,InvoiceStatus
 	FROM tblInvoice
 	WHERE 
 		CompanyID = p_CompanyID
@@ -42,6 +47,7 @@ BEGIN
 			YEAR(IssueDate)
 			,MONTH(IssueDate)
 			,CurrencyID
+			,InvoiceStatus
 	ORDER BY 
 			Year
 			,Month;
@@ -51,10 +57,11 @@ BEGIN
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblPayment_(
 		PaymentDate Date,
 		Amount float,
+		OutAmount float,
 		CurrencyID int
 	);
 	/* payment recevied invoice*/
-	INSERT INTO tmp_tblPayment_ (PaymentDate,Amount,CurrencyID)
+	INSERT INTO tmp_tblPayment_ (PaymentDate,Amount,OutAmount,CurrencyID)
 	SELECT 
 		CASE WHEN inv.InvoiceID IS NOT NULL
 		THEN
@@ -63,9 +70,11 @@ BEGIN
 			p.PaymentDate
 		END as PaymentDate,
 		p.Amount,
+		IF(inv.InvoiceStatus='paid' OR inv.InvoiceStatus='partially_paid' ,inv.GrandTotal - p.Amount,p.Amount) as OutAmount,
 		ac.CurrencyId
+		
 	FROM tblPayment p 
-	INNER JOIN LocalRatemanagement.tblAccount ac 
+	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
 	LEFT JOIN tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
 	LEFT JOIN tblInvoice inv on REPLACE(p.InvoiceNo,'-','') = CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber))) 
@@ -88,7 +97,8 @@ BEGIN
 	SELECT YEAR(p.PaymentDate) as Year
 			,MONTH(p.PaymentDate) as Month
 			,MONTHNAME(MAX(p.PaymentDate)) as  MonthName
-			, ROUND(SUM(IFNULL(p.Amount,0)),v_Round_) as TotalAmount
+			,ROUND(COALESCE(SUM(p.Amount),0),v_Round_) as TotalAmount
+			,ROUND(COALESCE(SUM(p.OutAmount),0),v_Round_) as OutAmount
 			,CurrencyID
 	FROM tmp_tblPayment_ p 
 	GROUP BY 
@@ -101,9 +111,9 @@ BEGIN
 	SELECT 
 		CONCAT(CONCAT(case when td.Month <10 then concat('0',td.Month) else td.Month End, '/'), td.Year) AS MonthName ,
 			td.Year,
-			ROUND(IFNULL(td.TotalAmount,0),v_Round_) TotalInvoice ,  
-			ROUND(IFNULL(tr.TotalAmount,0),v_Round_) PaymentReceived, 
-			ROUND(IFNULL((IFNULL(td.TotalAmount,0) - IFNULL(tr.TotalAmount,0)),0),v_Round_) TotalOutstanding , 
+			ROUND(COALESCE(SUM(td.TotalAmount),0),v_Round_) TotalInvoice ,  
+			ROUND(COALESCE(MAX(tr.TotalAmount),0),v_Round_) PaymentReceived, 
+			ROUND(SUM(IF(InvoiceStatus!='paid',td.TotalAmount,0)) - COALESCE(MAX(tr.OutAmount),0) ,v_Round_) TotalOutstanding , 
 			td.CurrencyID CurrencyID 
 	FROM  
 		tmp_MonthlyTotalDue_ td
@@ -111,6 +121,10 @@ BEGIN
 		ON td.Month = tr.Month 
 		AND td.Year = tr.Year 
 		AND tr.CurrencyID = td.CurrencyID
+ 	GROUP BY 
+	 	td.Month,
+	 	td.Year,
+		td.CurrencyID
 	ORDER BY 
 		td.Year
 		,td.Month;

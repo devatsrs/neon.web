@@ -7,6 +7,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getUsers`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
+
 )
 BEGIN
      DECLARE v_OffSet_ int;
@@ -24,7 +25,7 @@ BEGIN
 	u.LastName,
 	u.EmailAddress,
 	CASE WHEN u.AdminUser=1
-	then 'Admin'
+	then 'Super Admin'
 	Else group_concat(r.RoleName)
 	END as Roles,
 	u.UserID	
@@ -91,5 +92,4 @@ BEGIN
 
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;	
-END//
-DELIMITER ;
+END
