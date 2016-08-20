@@ -8,12 +8,7 @@ class DashboardController extends BaseController {
     }
 
     public function home() {
-
-        if(Company::isBillingLicence(1)){
-            return Redirect::to('billingdashboard');
-        }
- 
-        return View::make('dashboard.index');
+        return Redirect::to('/process_redirect');
     }
     public function salesdashboard(){
 
