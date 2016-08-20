@@ -13,7 +13,7 @@
             @foreach($AccountDiscountPlan as $AccountDiscountPlanRow)
                 <?php
                 $UsedPercent = 100;
-                    if(!$AccountDiscountPlanRow->Unlimited && $AccountDiscountPlanRow->Threshold > 0){
+                    if($AccountDiscountPlanRow->Threshold > 0){
                         $UsedPercent = number_format(($AccountDiscountPlanRow->MinutesUsed/$AccountDiscountPlanRow->Threshold)*100,2);
                     }
                 ?>
@@ -24,7 +24,14 @@
                     <td>
                         <div class="progress discount_progress">
                             <div style="width: {{$UsedPercent}}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="{{$UsedPercent}}" role="progressbar" class="progress-bar progress-bar-success">
-                                <span>{{$UsedPercent}}% Used ( {{$AccountDiscountPlanRow->MinutesUsed}} Minutes Used )</span>
+                                <span>
+                                    @if($AccountDiscountPlanRow->Threshold > 0)
+                                        {{$UsedPercent}}% Used ( {{$AccountDiscountPlanRow->MinutesUsed}} Minutes Used )
+                                    @else
+                                        {{$AccountDiscountPlanRow->MinutesUsed}} Minutes Used
+                                    @endif
+
+                                </span>
                             </div>
                         </div>
                     </td>

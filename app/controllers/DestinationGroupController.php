@@ -48,7 +48,8 @@ class DestinationGroupController extends \BaseController {
         $DestinationGroupSetID = DestinationGroup::where("DestinationGroupID",$DestinationGroupID)->pluck('DestinationGroupSetID');
         $groupname = DestinationGroupSet::getName($DestinationGroupSetID);
         $name = DestinationGroup::getName($id);
-        return View::make('destinationgroup.groupshow', compact('DestinationGroupSetID','DestinationGroupID','countries','name','groupname'));
+        $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$DestinationGroupSetID,0);
+        return View::make('destinationgroup.groupshow', compact('DestinationGroupSetID','DestinationGroupID','countries','name','groupname','discountplanapplied'));
     }
 
     public function group_ajax_datagrid(){

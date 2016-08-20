@@ -255,15 +255,15 @@ var CurrencyCode = '';
                             return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                         }
                     }, //0Checkbox
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },                    
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true } /*,
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false } /*,
                          { mRender: function(id, type, full) {
                              action = '<div class = "hiddenRowData" >';
                              for(var i = 0 ; i< list_fields.length; i++){

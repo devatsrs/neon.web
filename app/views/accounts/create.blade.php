@@ -247,23 +247,6 @@
                         <div class="col-sm-4">
                             {{Form::select('TaxRateId[]', $taxrates, $DefaultTextRate ,array("class"=>"form-control select2",'multiple'))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
-                        <div class="col-sm-4">
-                            {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"selectboxit"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Timezone*</label>
-                        <div class="col-sm-4">
-                            {{Form::select('BillingTimezone', $timezones, CompanySetting::getKeyVal('BillingTimezone') ,array("class"=>"form-control select2"))}}
-                        </div>
-                    <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
-                        <div class="col-sm-4">
-                            <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
-                            {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, "never" ,array("class"=>"form-control select2"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
                         <div class="col-sm-4">
                             <div class="input-spinner">
@@ -273,6 +256,8 @@
                             </div>
 
                         </div>
+                    </div>
+                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
                         <div class="col-sm-4">
                             <div class="input-spinner">
@@ -280,6 +265,25 @@
                                 {{Form::text('RoundChargesAmount', CompanySetting::getKeyVal('RoundChargesAmount') ,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
+                        </div>
+
+
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
+                        <div class="col-sm-4">
+                            {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                        </div>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
+                        <div class="col-sm-4">
+                            {{Form::select('BillingTimezone', $timezones, CompanySetting::getKeyVal('BillingTimezone') ,array("class"=>"form-control select2"))}}
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
+                        <div class="col-sm-4">
+                            {{Form::text('BillingStartDate',date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -321,21 +325,25 @@
                         </div>
                     </div>
 
+
                 <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
+                    <div class="col-sm-4">
+                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates,  CompanySetting::getKeyVal('InvoiceTemplateID') ,array("class"=>"form-control select2"))}}
+                    </div>
                         <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
                         <div class="col-sm-4">
                             {{Form::select('CDRType', Account::$cdr_type, CompanySetting::getKeyVal('CDRType'),array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
-                         <div class="col-sm-4">   
-                            {{Form::text('BillingStartDate',date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
-                         </div>   
+
                 </div>
                 <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
-                        <div class="col-sm-4">
-                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates,  CompanySetting::getKeyVal('InvoiceTemplateID') ,array("class"=>"form-control select2"))}}
-                        </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
+                    <div class="col-sm-4">
+                        <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
+                        {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, "never" ,array("class"=>"form-control select2"))}}
+                    </div>
                 </div>
                 </div>
                 </div>

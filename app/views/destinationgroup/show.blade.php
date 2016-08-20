@@ -127,8 +127,8 @@
                                 @if(User::checkCategoryPermission('DestinationGroup','Edit'))
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
                                 @endif
-                                @if($discountplanapplied ==0)
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                @if($discountplanapplied ==0)
                                 @if(User::checkCategoryPermission('DestinationGroup','Delete'))
                                 action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
                                 @endif

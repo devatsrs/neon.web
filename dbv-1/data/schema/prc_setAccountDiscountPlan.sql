@@ -6,7 +6,7 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	SELECT IF(DATEDIFF(NextInvoiceDate,DATE(NOW()))<0,0,DATEDIFF(NextInvoiceDate,DATE(NOW()))) INTO v_DayDiff_ FROM tblAccount  WHERE AccountID = p_AccountID;	
+	SELECT IF(DATEDIFF(NextInvoiceDate,DATE(NOW()))<0,0,DATEDIFF(NextInvoiceDate,DATE(NOW()))) INTO v_DayDiff_ FROM tblAccountBilling  WHERE AccountID = p_AccountID;	
 	
 	DELETE ads FROM tblAccountDiscountScheme ads
 	INNER JOIN tblAccountDiscountPlan adp

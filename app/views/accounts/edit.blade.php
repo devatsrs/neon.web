@@ -375,6 +375,14 @@
                 $hiden_class= 'hidden';
                 $billing_disable = 'disabled';
             }
+        $Days = array( ""=>"Please Start of Day",
+                "monday"=>"Monday",
+                "tuesday"=>"Tuesday",
+                "wednesday"=>"Wednesday",
+                "thursday"=>"Thursday",
+                "friday"=>"Friday",
+                "saturday"=>"Saturday",
+                "sunday"=>"Sunday");
         ?>
         <div class="panel panel-primary "   data-collapsed="0">
             <div class="panel-heading">
@@ -396,27 +404,6 @@
                     <div class="col-sm-4">
                         {{Form::select('TaxRateId[]', $taxrates, (isset($AccountBilling->TaxRateId)? explode(',',$AccountBilling->TaxRateId) : explode(',',$DefaultTextRate) ) ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
-                    <div class="col-sm-4">
-                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
-                    <div class="col-sm-4">
-                        {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2",$billing_disable))}}
-                        @if($billing_disable)
-                            <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone')}}" name="BillingTimezone">
-                        @endif
-                    </div>
-                    <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
-                    <div class="col-sm-4">
-                        <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
-                        {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
                     <div class="col-sm-4">
                         <div class="input-spinner">
@@ -426,6 +413,10 @@
                         </div>
 
                     </div>
+
+                </div>
+
+                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
                     <div class="col-sm-4">
                         <div class="input-spinner">
@@ -434,7 +425,53 @@
                             <button type="button" class="btn btn-default">+</button>
                         </div>
                     </div>
+
                 </div>
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
+                    <div class="col-sm-4">
+                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                    </div>
+                    <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
+                    <div class="col-sm-4">
+                        {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2",$billing_disable))}}
+                        @if($billing_disable)
+                            <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone')}}" name="BillingTimezone">
+                        @endif
+                    </div>
+                </div>
+                <div class="form-group">
+                    <?php
+                    $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
+                    if(empty($BillingStartDate)){
+                        $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
+                    }
+                    ?>
+                    <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
+                    <div class="col-sm-4">
+                        @if($hiden_class == '')
+                            {{Form::text('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                        @else
+                            {{Form::hidden('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)))}}
+                            {{$BillingStartDate}}
+                        @endif
+                    </div>
+                </div>
+                @if(!empty($AccountNextBilling))
+                    <?php
+                    if($AccountBilling->BillingCycleType == 'weekly'){
+                        $oldBillingCycleValue = $Days[$AccountBilling->BillingCycleValue];
+                    }else{
+                        $oldBillingCycleValue = $AccountBilling->BillingCycleValue;
+                    }
+                    ?>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Current Billing Cycle</label>
+                        <div class="col-sm-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
+                        <label for="field-1" class="col-sm-2 control-label">New Effective Billing Date</label>
+                        <div class="col-sm-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
+                    </div>
+                @endif
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
                     <div class="col-sm-3">
@@ -448,7 +485,7 @@
                         }
                         ?>
                         @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
-                            <div class="billing_edit_text"> {{$BillingCycleType}} </div>
+                            <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
                         @endif
 
                         {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>$hiden_class." form-control select2"))}}
@@ -456,7 +493,7 @@
                     </div>
                     <div class="col-sm-1">
                         @if($hiden_class != '')
-                        <button class="btn btn-sm btn-primary" id="billing_edit">
+                        <button class="btn btn-sm btn-primary tooltip-primary" id="billing_edit" data-original-title="Edit Billing Cycle" title="" data-placement="top" data-toggle="tooltip">
                             <i class="fa fa-pencil"></i>
                         </button>
                         @endif
@@ -473,14 +510,6 @@
                     <div id="billing_cycle_weekly" class="billing_options" >
                         <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Start of Day*</label>
                         <div class="col-sm-4">
-                            <?php $Days = array( ""=>"Please Start of Day",
-                                    "monday"=>"Monday",
-                                    "tuesday"=>"Tuesday",
-                                    "wednesday"=>"Wednesday",
-                                    "thursday"=>"Thursday",
-                                    "friday"=>"Friday",
-                                    "saturday"=>"Saturday",
-                                    "sunday"=>"Sunday");?>
                             @if($hiden_class != '' && $BillingCycleType =='weekly' )
                                 <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
                             @endif
@@ -517,67 +546,47 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Last Invoice Date</label>
-                        <div class="col-sm-4">
-                                <?php
-                                $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
-                                ?>
-                                {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
-                                {{$LastInvoiceDate}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Next Invoice Date</label>
-                        <div class="col-sm-4">
-                                    <?php
-                                    $NextInvoiceDate = empty($AccountBilling)?'':Invoice::getNextInvoiceDate($account->AccountID); ?>
-                                    {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
-                                    {{$NextInvoiceDate}}
-                        </div>
-                </div>
-                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
+
+                    <div class="col-sm-4">
+                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($AccountBilling->InvoiceTemplateID)?$AccountBilling->InvoiceTemplateID:CompanySetting::getKeyVal('InvoiceTemplateID') ),array("class"=>"form-control select2"))}}
+                    </div>
                         <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
                         <div class="col-sm-4">
                             {{Form::select('CDRType', Account::$cdr_type, ( isset($AccountBilling->CDRType)?$AccountBilling->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"selectboxit"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
 
-                        <div class="col-sm-4">
-                            {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($AccountBilling->InvoiceTemplateID)?$AccountBilling->InvoiceTemplateID:CompanySetting::getKeyVal('InvoiceTemplateID') ),array("class"=>"form-control select2"))}}
-                        </div>
                 </div>
-                <?php
-                    $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
-                    if(empty($BillingStartDate)){
-                        $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
-                    }
-                ?>
+
                  <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
-                        <div class="col-sm-4">
-                                @if($hiden_class == '')
-                                    {{Form::text('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
-                                @else
-                                    {{Form::hidden('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)))}}
-                                    {{$BillingStartDate}}
-                                @endif
-                        </div>
+                     <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
+                     <div class="col-sm-4">
+                         <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
+                         {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
+                     </div>
+
 
                 </div>
-                @if(!empty($AccountNextBilling))
-                    <?php
-                    if($AccountBilling->BillingCycleType == 'weekly'){
-                        $oldBillingCycleValue = $Days[$AccountBilling->BillingCycleValue];
-                    }else{
-                        $oldBillingCycleValue = $AccountBilling->BillingCycleValue;
-                    }
-                    ?>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle</label>
-                        <div class="col-sm-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
-                        <label for="field-1" class="col-sm-2 control-label">New Invoice Period</label>
-                        <div class="col-sm-4">{{$AccountNextBilling->LastInvoiceDate.' - '.$AccountNextBilling->NextInvoiceDate}}</div>
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Last Invoice Date</label>
+                    <div class="col-sm-4">
+                        <?php
+                        $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
+                        ?>
+                        {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
+                        {{$LastInvoiceDate}}
                     </div>
-                @endif
+                    <label for="field-1" class="col-sm-2 control-label">Next Invoice Date</label>
+                    <div class="col-sm-4">
+                        <?php
+                        $NextInvoiceDate = empty($AccountBilling)?'':Invoice::getNextInvoiceDate($account->AccountID); ?>
+                        {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
+                        {{$NextInvoiceDate}}
+                    </div>
+                </div>
+
             </div>
         </div>
         @include('accountdiscountplan.index')
