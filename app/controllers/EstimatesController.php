@@ -366,6 +366,7 @@ class EstimatesController extends \BaseController {
 					
                     //Delete all Estimate Data and then Recreate.
                     EstimateDetail::where(["EstimateID" => $Estimate->EstimateID])->delete();
+                    DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID" => $Estimate->EstimateID])->delete();
                     if (isset($data["EstimateDetail"]))
 					{
                         foreach ($data["EstimateDetail"] as $field => $detail)
