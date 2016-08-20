@@ -240,7 +240,7 @@
                         <div class="col-sm-2">
                             {{Form::select('selection[Code]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
                             {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"selectboxit"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Description*</label>

@@ -31,7 +31,6 @@ class CompaniesController extends \BaseController {
         $BillingCycleType = CompanySetting::getKeyVal('BillingCycleType');
         $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue');
         $InvoiceTemplateID = CompanySetting::getKeyVal('InvoiceTemplateID');
-        $SalesTimeZone = CompanySetting::getKeyVal('SalesTimeZone');
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
         $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget')=='Invalid Key'?'':CompanySetting::getKeyVal('PincodeWidget');
@@ -40,7 +39,7 @@ class CompaniesController extends \BaseController {
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
         $taxrates = TaxRate::getTaxRateDropdownIDList();//Default TaxRate functionality Added by Abubakar
         if(isset($taxrates[""])){unset($taxrates[""]);}
-        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
+        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','LastPrefixNo','LicenceApiResponse','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
 
     }
 
@@ -73,8 +72,6 @@ class CompaniesController extends \BaseController {
         }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
-        CompanySetting::setKeyVal('SalesTimeZone',$data['SalesTimeZone']);
-        unset($data['SalesTimeZone']);
         CompanySetting::setKeyVal('BillingTimezone',$data['BillingTimezone']);
         unset($data['BillingTimezone']);
         CompanySetting::setKeyVal('CDRType',$data['CDRType']);
