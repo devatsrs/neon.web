@@ -78,7 +78,7 @@ class AccountApproval extends \Eloquent {
             $countrysql = '';
             if ($account->Country) {
                 $countryid = Country::where(['country' => $account->Country])->pluck('CountryID');
-                $countrysql = ' and (CountryId = ' . $countryid . ' or CountryId is NULL or CountryId = 0)';
+                $countrysql = ' and (CountryId = ' . intval($countryid) . ' or CountryId is NULL or CountryId = 0)';
             }
             $billingsql = '';
             if ($account->BillingType) {
