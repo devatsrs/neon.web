@@ -237,4 +237,17 @@ class Invoice extends \Eloquent {
         return $InvoiceNumberPrefix.$Invoice->InvoiceNumber;
     }
 
+    public static function getCookie($name,$val=''){
+        $cookie = 1;
+        if(isset($_COOKIE[$name])){
+            $cookie = $_COOKIE[$name];
+        }
+        return $cookie;
+    }
+
+    public static function setCookie($name,$value){
+        setcookie($name,$value,strtotime( '+30 days' ),'/');
+    }
+
+
 }

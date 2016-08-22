@@ -27,7 +27,16 @@ class InvoicesController extends \BaseController {
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
-		
+        $InvoiceHideZeroValue = Invoice::getCookie('InvoiceHideZeroValue');
+        //set Cookie
+        if($data['zerovalueinvoice'] != $InvoiceHideZeroValue){
+            if($data['zerovalueinvoice'] == 0){
+                $hidevalue = 0;
+            }else{
+                $hidevalue = 1;
+            }
+            NeonCookie::setCookie('InvoiceHideZeroValue',$hidevalue,60);
+        }
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
@@ -143,7 +152,9 @@ class InvoicesController extends \BaseController {
         $invoice 						= 	implode(',',$InvoiceNoarray);
 		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
 		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data'));
+        $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
+        //print_r($_COOKIE);exit;
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data','InvoiceHideZeroValue'));
 
     }
 
