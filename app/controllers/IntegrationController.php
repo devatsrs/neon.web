@@ -83,5 +83,99 @@ class IntegrationController extends \BaseController
 			}
 			 return Response::json(array("status" => "success", "message" => "FreshDesk Settings Successfully Updated"));
 		}
+		
+		if($data['firstcategory']=='payment')
+		{ 
+
+			if($data['secondcategory']=='Authorize.net')
+			{
+				$rules = array(
+					'AuthorizeLoginID'	 => 'required',
+					'AuthorizeTransactionKey'	 => 'required',
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 				= 	isset($data['Status'])?1:0;	
+				$data['AuthorizeTestAccount'] 	= 	isset($data['AuthorizeTestAccount'])?1:0;	
+				
+				$AuthorizeData = array(
+					"AuthorizeLoginID"=>$data['AuthorizeLoginID'],
+					"AuthorizeTransactionKey"=>$data['AuthorizeTransactionKey'],
+					"AuthorizeTestAccount"=>$data['AuthorizeTestAccount']					
+					);
+			
+				 
+				$AuthorizeDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($AuthorizeDbData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($AuthorizeData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$AuthorizeDbData->IntegrationConfigurationID))->update($SaveData);	
+						
+				}
+				else
+				{	
+						$SaveData = array("Settings"=>json_encode($AuthorizeData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						Log::info($SaveData);
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Authorize.net Settings Successfully Updated"));
+			}
+		}
+		
+		
+		if($data['firstcategory']=='email')
+		{ 
+
+			if($data['secondcategory']=='Mandrill')
+			{
+				$rules = array(
+					'MandrilSmtpServer'	 => 'required',
+					'MandrilPort'	 => 'required',					
+					'MandrilUserName'	 => 'required',
+					'MandrilPassword'	 => 'required',
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 			= 	isset($data['Status'])?1:0;	
+				$data['MandrilSSL'] 		= 	isset($data['MandrilSSL'])?1:0;	
+				
+				$MandrilData = array(
+					"MandrilSmtpServer"=>$data['MandrilSmtpServer'],
+					"MandrilPort"=>$data['MandrilPort'],
+					"MandrilUserName"=>$data['MandrilUserName'],
+					"MandrilPassword"=>$data['MandrilPassword'],
+					"MandrilSSL"=>$data['MandrilSSL'],					
+					);
+			
+				 
+				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($MandrilDbData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($MandrilData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$MandrilDbData->IntegrationConfigurationID))->update($SaveData);						
+				}
+				else
+				{	
+						$SaveData = array("Settings"=>json_encode($MandrilData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						Log::info($SaveData);
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Mandrill Settings Successfully Updated"));
+			}
+		}
+		
+		
 	}
 }

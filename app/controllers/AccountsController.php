@@ -298,7 +298,7 @@ class AccountsController extends \BaseController {
 				if(isset($response->Code) && $response->Code==400){
 					return	Redirect::to('/logout'); 	
 				}
-				else{
+				else{ 
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}
@@ -307,7 +307,7 @@ class AccountsController extends \BaseController {
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			$ShowTickets				=	Account::GetActiveTicketCategory();
+			$ShowTickets				=   SiteIntegration::is_FreshDesk();
 
 			
 		

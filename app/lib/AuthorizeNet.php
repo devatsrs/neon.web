@@ -5,20 +5,40 @@
  * Date: 8/22/2015
  * Time: 12:57 PM
  */
-$isSandbox = getenv('AUTHORIZENET_SANDBOX');
+/*$isSandbox = getenv('AUTHORIZENET_SANDBOX');
 if($isSandbox == 1){
     define("AUTHORIZENET_SANDBOX", true);
 }else{
     define("AUTHORIZENET_SANDBOX", false);
 }
 define("AUTHORIZENET_API_LOGIN_ID", getenv('AUTHORIZENET_API_LOGIN_ID'));
-define("AUTHORIZENET_TRANSACTION_KEY", getenv('AUTHORIZENET_TRANSACTION_KEY'));
+define("AUTHORIZENET_TRANSACTION_KEY", getenv('AUTHORIZENET_TRANSACTION_KEY'));*/
 
 class AuthorizeNet {
 
     public $request;
 
     function __Construct(){
+		
+		//////
+		$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID,"IntegrationID"=>9))->first();
+		if(count($AuthorizeDbData)>0){
+					
+			$AuthorizeData   				= 	isset($AuthorizeDbData->Settings)?json_decode($AuthorizeDbData->Settings):"";		
+			$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
+			$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';
+			$isSandbox						=	isset($AuthorizeDbData->AuthorizeTestAccount)?$AuthorizeDbData->AuthorizeTestAccount:'';
+			
+			define("AUTHORIZENET_API_LOGIN_ID", $AUTHORIZENET_API_LOGIN_ID);
+			define("AUTHORIZENET_TRANSACTION_KEY", $AUTHORIZENET_TRANSACTION_KEY);
+			
+			if($isSandbox == 1){
+				define("AUTHORIZENET_SANDBOX", true);
+			}else{
+				define("AUTHORIZENET_SANDBOX", false);
+			}		
+		}
+		/////////
         $this->request = new AuthorizeNetCIM();
     }
 

@@ -47,15 +47,13 @@
         <div class="col-md-11">
           <div class="">
             <?php
-		  $array_subcategories =	array();
 		  	foreach($categories as $key => $CategoriesData) {
 		  	 $subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
 			 	foreach($subcategories as $key => $subcategoriesData){
 					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();
-					$array_subcategories[$subcategoriesData['IntegrationID']] = $subcategoriesData;
 			  ?>
             <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
-              <input parent_id="{{$subcategoriesData['ParentID']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
+              <input parent_id="{{$subcategoriesData['ParentID']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
               <label for="{{$subcategoriesData['Slug']}}" class="newredio secondstep @if($key==0) active @endif">
                 <?php 
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
@@ -71,12 +69,13 @@
       </div>
     </div>
     <div class="tab-pane" id="tab2-3">
-      <div class="subcategorycontent" id="subcategorycontent{{$array_subcategories[6]['Slug']}}">
-        <?php 
-		$FreshDeskDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$array_subcategories[6]['IntegrationID']))->first();
+    <!-- fresh desk start -->
+    <?php 
+		$FreshDeskDbData = IntegrationConfiguration::GetIntegrationDataBySlug('freshdesk');
 		$FreshdeskData   = isset($FreshDeskDbData->Settings)?json_decode($FreshDeskDbData->Settings):"";
-		$array = json_decode(json_encode($FreshdeskData), True);		
 		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{$FreshDeskDbData->Slug}}">
+        
         <div class="row">
           <div class="col-md-6  margin-top pull-left">
             <div class="form-group">
@@ -121,13 +120,116 @@
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
               <label class="col-sm-4 control-label">Active:</label>
-              <div class="col-sm-8 make">
-                   <input id="FreshDeskStatus" class="subcatstatus" name="Status" type="checkbox" value="1" <?php if(isset($FreshDeskDbData->Status) && $FreshDeskDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+              <div class="col-sm-8" id="FreshdeskStatusDiv">
+                   <input id="FreshDeskStatus" class="subcatstatus" Divid="FreshdeskStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($FreshDeskDbData->Status) && $FreshDeskDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
             </div>
           </div>          
         </div>
       </div>
+      <!-- fresh desk end -->
+      <!-- authorize.net start -->
+      <?php 
+		$AuthorizeDbData = IntegrationConfiguration::GetIntegrationDataBySlug('authorizenet');
+		$AuthorizeData   = isset($AuthorizeDbData->Settings)?json_decode($AuthorizeDbData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{$AuthorizeDbData->Slug}}">        
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Api Login ID:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="AuthorizeLoginID" value="{{isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:''}}" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Transaction key:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="AuthorizeTransactionKey" value="{{isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:""}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Test Account:</label>
+              <div class="col-sm-8" id="AuthorizeTestAccountDiv">
+                   <input id="AuthorizeTestAccount" class="subcatstatus" Divid="AuthorizeTestAccountDiv" name="AuthorizeTestAccount" type="checkbox" value="1" <?php if(isset($AuthorizeData->AuthorizeTestAccount) && $AuthorizeData->AuthorizeTestAccount==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+              
+            </div>
+          </div>          
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active:</label>
+              <div class="col-sm-8" id="AuthorizeStatusDiv">
+                   <input id="AuthorizeStatus" class="subcatstatus" Divid="AuthorizeStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($AuthorizeDbData->Status) && $AuthorizeDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <!-- authorize.net end -->
+      <!-- Mandril start -->
+       <?php 
+	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug('mandrill');
+			$ManrdilData     = isset($ManrdilDbData->Settings)?json_decode($ManrdilDbData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{$ManrdilDbData->Slug}}">       
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Smtp Server:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="MandrilSmtpServer" value="{{isset($ManrdilData->MandrilSmtpServer)?$ManrdilData->MandrilSmtpServer:''}}" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Port:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="MandrilPort" value="{{isset($ManrdilData->MandrilPort)?$ManrdilData->MandrilPort:""}}" />
+              </div>
+            </div>
+          </div>                        
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Username:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="MandrilUserName" value="{{isset($ManrdilData->MandrilUserName)?$ManrdilData->MandrilUserName:""}}" />
+              </div>
+            </div>
+          </div>          
+          <div class="col-md-6 margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+              <div class="col-sm-8">
+                <input type="password"  class="form-control" name="MandrilPassword" value="{{isset($ManrdilData->MandrilPassword)?$ManrdilData->MandrilPassword:""}}" />
+              </div>
+            </div>
+          </div>  
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* SSL:</label>
+              <div class="col-sm-8" id="AuthorizeSSLDiv">
+                   <input id="MandrilSSL" class="subcatstatus" Divid="AuthorizeSSLDiv" name="MandrilSSL" type="checkbox" value="1" <?php if(isset($ManrdilData->MandrilSSL) && $ManrdilData->MandrilSSL==1){ ?>   checked="checked"<?php } ?> >
+              </div>              
+            </div>
+          </div>              
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active:</label>
+              <div class="col-sm-8" id="MandrilStatusDiv">
+                   <input id="MandrilStatus" class="subcatstatus" Divid="MandrilStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($ManrdilDbData->Status) && $ManrdilDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <!-- Mandril end -->    
     </div>
   <ul class="pager wizard">
     <li class="previous"> <a href="#"><i class="entypo-left-open"></i> Previous</a> </li>
@@ -242,16 +344,42 @@
 			$('#SubcategoryModalContent').html('');
             var SubCatID		 = 	$(this).attr('data-id');
 			var DataTitle		 = 	$(this).attr('data-title');	
-			var SubCatid	 	=	$(this).attr("data-subcatid");		 
-			var SubcatContent 	 = 	$('#'+SubCatID).html(); 			
+			var SubCatid	 	 =	$(this).attr("data-subcatid");		 
+			var SubcatContent 	 = 	$('#'+SubCatID).html(); 				
+			var parent_slug   	 = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_Slug');
+			var ForeignID   	 = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
+					
 			$('#SubcategoryModalContent').html(SubcatContent);
 			$('#SubcategoryModal .modal-title').html(DataTitle);
-			var StatusValue  = $('#'+SubCatID).find('.subcatstatus:checked').val();
+			
+			 if(parent_slug=='billinggateway' && ForeignID!=0){ ///gateway 
+				window.open(baseurl+'/gateway?id='+ForeignID, '_blank');
+				return false;
+			 }		
+			
+			
+			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
+                if($(this).prop('checked') == true)
+			    {
+					biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','checked');
+				}
+				else
+				{
+					biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','');
+				}
+            });
+			
+			//var StatusValue  = $('#'+SubCatID).find('.subcatstatus:checked').val();
+			
+			//alert(StatusValue);
+			/*return false;
 			if(StatusValue==1) {
 				biuldSwicth('.make','Status','#SubcategoryModal','checked');
 			}else{
 				biuldSwicth('.make','Status','#SubcategoryModal','');
-			}
+			}*/
+			
+			
 			$("#secondcategory").val(DataTitle);
 			$("#secondcategoryid").val(SubCatid);			
 			$('#SubcategoryModal').modal('show');	
@@ -261,7 +389,6 @@
                 var make = '<span class="make-switch switch-small">';
                 make += '<input name="'+name+'" value="1" '+checked+' type="checkbox">';
                 make +='</span>';
-
                 var container = $(formID).find(container);
                 container.empty();
                 container.html(make);
@@ -376,7 +503,6 @@
         <div id="SubcategoryModalContent" class=""></div>
       </div>
       <div class="modal-footer">
-          <input type="hidden" name="TaskID">
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

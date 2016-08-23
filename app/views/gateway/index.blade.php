@@ -32,15 +32,13 @@
         <form novalidate class="form-horizontal form-groups-bordered filter validate" method="post" id="gateway_form">
           <div data-collapsed="0" class="panel panel-primary">
             <div class="panel-heading">
-              <div class="panel-title">
-                <h3> Filter</h3>
-              </div>
+              <div class="panel-title">Filter</div>
               <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
             </div>
             <div class="panel-body">
               <div class="form-group">
                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                <div class="col-sm-2"> {{ Form::select('Gateway',$gateway,Input::get('id'),array("class"=>"select2")) }} </div>
+                <div class="col-sm-3"> {{ Form::select('Gateway',$gateway,Input::get('id'),array("class"=>"select2")) }} </div>
               </div>
               <p style="text-align: right;">
                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
