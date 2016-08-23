@@ -28,7 +28,7 @@
     </a>
     @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
-        <i class="custom-icon opportunity-icon"></i>
+        <i class="fa fa-line-chart"></i>
         Add Opportunity
     </a>
 

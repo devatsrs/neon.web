@@ -10,10 +10,10 @@
 @include('includes.success')
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
-  <div class="steps-progress">
+  <div style="display:none;" class="steps-progress">
     <div class="progress-indicator"></div>
   </div>
-  <ul id="wizardul" >
+  <ul style="display:none;" id="wizardul" >
     <li class="active" id="st1"> <a href="#tab2-1" data-toggle="tab"><span>1</span>
       <h5 class="test">Select Category</h5>
       </a> </li>
@@ -21,9 +21,10 @@
       <h5 class="test">Select Sub Category</h5>
       </a> </li>
   </ul>
-  <div class="tab-content"> <!--<span class="itype">
-      <h3>Select Category</h3>
-      </span>-->
+  <div class="tab-content"> <span class="itype">
+      <h3 class="firstStep">Select Category</h3>
+      <h3 style="display:none;" class="SecondStep">Select Subcategory</h3>
+      </span>
     <div class="tab-pane active" id="tab2-1">
       <div class="row"> </br>
         </br>
@@ -34,7 +35,7 @@
 				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID']))->first();
 			  ?>
             <input type="radio" name="category" class="category" data-id="{{$CategoriesData['Slug']}}" catid="{{$CategoriesData['IntegrationID']}}" value="{{$CategoriesData['Slug']}}" id="{{$CategoriesData['Slug']}}" @if($key==0) checked @endif />
-            <label for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif"> @if(isset($active['Status']) && $active['Status']==1) <i class="entypo-check"></i> @endif
+            <label  for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif   "> 
               {{$CategoriesData['Title']}} </label>
             @endforeach </div>
         </div>
@@ -53,14 +54,13 @@
 					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();
 			  ?>
             <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
-              <input parent_id="{{$subcategoriesData['ParentID']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
-              <label for="{{$subcategoriesData['Slug']}}" class="newredio secondstep @if($key==0) active @endif">
+              <input parent_id="{{$subcategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
+              <label for="{{$subcategoriesData['Slug']}}" class="newredio secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
                 <img width="77" height="30" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
-                <a data-subcatid="{{$subcategoriesData['IntegrationID']}}"  data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" class="manageSubcat">{{$subcategoriesData['Title']}}</a>
-                @if(isset($active['Status']) && $active['Status']==1) <i class="entypo-check"></i> @endif
+                <a data-subcatid="{{$subcategoriesData['IntegrationID']}}"  data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" class="manageSubcat">{{$subcategoriesData['Title']}}</a>
               </label>
             </div>
             <?php } } ?>
@@ -111,7 +111,10 @@
           </div>
           <div class="col-md-6  margin-top pull-left">
             <div class="form-group">
-              <label for="field-1" class="col-sm-4 control-label">Group:</label>
+              <label for="field-1" class="col-sm-4 control-label">Group:                              
+                <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not specified then system will get tickets against all groups.Multiple Allowed with comma seperated" data-original-title="FreshDesk Group" class="label label-info popover-primary">?</span>
+                         
+               </label>
               <div class="col-sm-8">
                 <input type="text"  class="form-control" name="FreshdeskGroup" value="{{isset($FreshdeskData->FreshdeskGroup)?$FreshdeskData->FreshdeskGroup:''}}" />
               </div>
@@ -119,7 +122,9 @@
           </div>
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
-              <label class="col-sm-4 control-label">Active:</label>
+              <label class="col-sm-4 control-label">Active:               
+               <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Support categories" data-original-title="Status" class="label label-info popover-primary">?</span>
+               </label>
               <div class="col-sm-8" id="FreshdeskStatusDiv">
                    <input id="FreshDeskStatus" class="subcatstatus" Divid="FreshdeskStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($FreshDeskDbData->Status) && $FreshDeskDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
@@ -272,9 +277,11 @@
                 return false;
             },
             onNext: function(tab, navigation, index) {
-	            activetab = tab.attr('id');
+	            activetab = tab.attr('id');			
                 if(activetab=='st1'){
-                    $('.itype').hide();
+                    //$('.itype').hide();
+					$('.itype .firstStep').hide();
+					$('.itype .SecondStep').show();
                     var importfrom  = $("#rootwizard-2 input[name='category']:checked").val();
 					var catid   	= $("#rootwizard-2 input[name='category']:checked").attr('catid');
 					$('.subcategoryblock').hide();
@@ -287,11 +294,13 @@
                 }
 
                 if(activetab=='st2'){
+					$('.itype .firstStep').hide();
+					$('.itype .SecondStep').show();
 					 var importcat   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").val();
  					 var subcatid    = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
 					 var parent_id   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_id');
 					 var ForeignID   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
-
+					 
 					 console.log(importcat+' '+subcatid+' '+parent_id);
 					 if(parent_id==5 && ForeignID!=0){ ///gateway 
 					 	//window.location = baseurl+'/gateway?id='+ForeignID;	
@@ -304,6 +313,8 @@
                 activetab = tab.attr('id');
                 if(activetab=='st2'){
                    // location.reload();
+				   $('.itype .firstStep').show();
+				   $('.itype .SecondStep').hide();
                 }
             }
         });
@@ -346,8 +357,8 @@
 			var DataTitle		 = 	$(this).attr('data-title');	
 			var SubCatid	 	 =	$(this).attr("data-subcatid");		 
 			var SubcatContent 	 = 	$('#'+SubCatID).html(); 				
-			var parent_slug   	 = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_Slug');
-			var ForeignID   	 = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
+			var parent_slug   	 = 	$(this).attr('parent_Slug');
+			var ForeignID   	 = 	$(this).attr('ForeignID');
 					
 			$('#SubcategoryModalContent').html(SubcatContent);
 			$('#SubcategoryModal .modal-title').html(DataTitle);
@@ -383,6 +394,27 @@
 			$("#secondcategory").val(DataTitle);
 			$("#secondcategoryid").val(SubCatid);			
 			$('#SubcategoryModal').modal('show');	
+			
+			 $('[data-toggle="popover"]').each(function(i, el)
+                {
+                    var $this = $(el),
+                        placement = attrDefault($this, 'placement', 'right'),
+                        trigger = attrDefault($this, 'trigger', 'click'),
+                        popover_class = $this.hasClass('popover-secondary') ? 'popover-secondary' : ($this.hasClass('popover-primary') ? 'popover-primary' : ($this.hasClass('popover-default') ? 'popover-default' : ''));
+
+                    $this.popover({
+                        placement: placement,
+                        trigger: trigger
+                    });
+
+                    $this.on('shown.bs.popover', function(ev)
+                    {
+                        var $popover = $this.next();
+
+                        $popover.addClass(popover_class);
+                    });
+                });
+			
         });
 		
 		 function biuldSwicth(container,name,formID,checked){

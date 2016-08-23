@@ -128,7 +128,6 @@ class IntegrationController extends \BaseController
 			}
 		}
 		
-		
 		if($data['firstcategory']=='email')
 		{ 
 

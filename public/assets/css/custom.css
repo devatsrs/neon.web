@@ -2139,3 +2139,7 @@ width: 1em;
 margin-right: .2em;
 text-align: center;
 }
+
+.wizard-active{
+	border-left:3px solid #00a651 !important;
+}
