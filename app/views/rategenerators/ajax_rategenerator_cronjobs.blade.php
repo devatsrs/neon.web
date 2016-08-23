@@ -1,6 +1,6 @@
 @if(!empty($cronJobs))
     <p>Following Cron jobs are found related to current ratetable.
-    Please delete cron job first and than press delete button at bottom.</p>
+    Please delete cron job first and than press delete button at bottom to delete rate generator..</p>
 <table class="table table-bordered datatable" id="cronjob-table">
     <thead>
     <tr>
