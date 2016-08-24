@@ -17,9 +17,6 @@
             height: 1024px;
         }
          iframe{border:0px;}
-        body{
-            overflow:hidden;
-        }
 
     </style>
             <!-- Nav tabs from Bootstrap 3 -->
@@ -160,7 +157,7 @@
                         html += '   </a>';
                         html += '</li>';
                         $('ul#ServerInfoTab').append(html);
-                        var ifram = '<iframe width="100%;" scrolling="auto" height="100%;" src="' + item.ServerInfoUrl + '" scrolling="no"></iframe>';
+                        var ifram = '<iframe width="100%;" scrolling="auto" height="100%;" src="' + item.ServerInfoUrl + '"></iframe>';
                         $('#ServerInfoTabContent').append('<div class="tab-pane fade" id="tab' + item.ServerInfoID + '">' + ifram + '</div>');
                     }
                 });
