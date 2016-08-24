@@ -311,7 +311,7 @@ var postdata;
                                 action += '</ul>';
                                 action += '</div>';
                                 if(full[10]) {
-                                    action += ' <a class="btn btn-success btn-sm btn-icon icon-left" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
+                                    action += ' <a class="btn btn-success btn-sm btn-icon icon-left download" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
                                 }
                             }
                         }else{
@@ -667,6 +667,9 @@ var postdata;
             $('#modal-invoice-in h4').html('Edit Invoice');
             //var cur_obj = $(this).prev("div.hiddenRowData");
              var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
+            var downloadbutton = $(this).parent().parent().parent().parent().find("a.download").clone();
+            downloadbutton.removeClass('');
+            $('#modal-invoice-in').find('.download').html('');
              InvoiceID = cur_obj.find("input[name='InvoiceID']").val();
              $.ajax({
                  url: baseurl + '/invoice/getInvoiceDetail',
@@ -680,7 +683,7 @@ var postdata;
                      $("#add-invoice_in_template-form [name='Description']").val(response.Description);
                      $("#add-invoice_in_template-form [name='InvoiceDetailID']").val(response.InvoiceDetailID);
                      $("#add-invoice_in_template-form [name='TotalMinutes']").val(response.TotalMinutes);
-
+                     $('#modal-invoice-in').find('.download').append(downloadbutton);
                      set_dispute(response);
 
                  },
@@ -1420,6 +1423,9 @@ var postdata;
                             <input id="Attachment" name="Attachment" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
 
                             <!--<br><span class="file-input-name"></span>-->
+                        </div>
+                        <div class="col-sm-1 download">
+
                         </div>
                     </div>
 

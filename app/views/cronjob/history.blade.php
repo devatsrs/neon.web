@@ -40,10 +40,8 @@
                             {{ Form::text('EndDate', !empty(Input::get('EndDate'))?Input::get('ToDate'):$data['EndDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
                         <label class="col-sm-1 control-label">Status</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="Status" name="Status" type="checkbox" checked />
-                            </p>
+                        <div class="col-sm-2">
+                            {{ Form::select('Status', [""=>"Both",1=>"Success",0=>"Failed"], '', array("class"=>"form-control selectboxit")) }}
                         </div>
 
                     </div>
@@ -80,7 +78,7 @@
         $searchFilter.Search = $("#history_filter [name='Search']").val();
         $searchFilter.StartDate = $("#history_filter [name='StartDate']").val();
         $searchFilter.EndDate = $("#history_filter [name='EndDate']").val();
-        $searchFilter.Status = $("#history_filter [name='Status']").prop("checked");
+        $searchFilter.Status = $("#history_filter [name='Status']").val();
         data_table = $("#table-4").dataTable({
             "bProcessing": true,
             "bServerSide": true,
@@ -149,7 +147,7 @@
             $searchFilter.Search = $("#history_filter [name='Search']").val();
             $searchFilter.StartDate = $("#history_filter [name='StartDate']").val();
             $searchFilter.EndDate = $("#history_filter [name='EndDate']").val();
-            $searchFilter.Status = $("#history_filter [name='Status']").prop("checked");
+            $searchFilter.Status = $("#history_filter [name='Status']").val();
 
             data_table.fnFilter('', 0);
             return false;

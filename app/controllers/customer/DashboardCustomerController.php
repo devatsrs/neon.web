@@ -75,7 +75,7 @@ class DashboardCustomerController extends BaseController {
         $CompanyID 						 = 		Customer::get_companyID();
         $CustomerID                      =      Customer::get_accountID();
         $data['iDisplayStart'] 			+=		1;
-        $typeText=[1,'Payments',2=>'Invoices'];
+        $typeText=[1=>'Payments',2=>'Invoices'];
         if($data['Type']==1) { //1 for Payment received.
             $columns = array('AccountName', 'InvoiceNo', 'Amount', 'PaymentType', 'PaymentDate', 'Status', 'CreatedBy', 'Notes');
             $sort_column = $columns[$data['iSortCol_0']];

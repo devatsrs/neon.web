@@ -172,24 +172,28 @@
                         var url = baseurl + '/rategenerators/'+id+'/ajax_existing_ratetable_cronjob';
                         $('#delete-rate-table-form [name="RateGeneratorID"]').val(id);
                         $('#modal-delete-ratetables .container').html('');
-                        $.ajax({
-                            url: url,
-                            type: 'POST',
-                            dataType: 'html',
-                            success: function (response) {
-                                $(".btn.delete").button('reset');
-                                if(response) {
-                                    $('#modal-delete-ratetables .container').html(response);
-                                }
-                                $('#modal-delete-ratetables').modal('show');
-                            },
+                        if(confirm('Are you sure you want to delete selected ratetable?')) {
+                            $.ajax({
+                                url: url,
+                                type: 'POST',
+                                dataType: 'html',
+                                success: function (response) {
+                                    $(".btn.delete").button('reset');
+                                    if (response) {
+                                        $('#modal-delete-ratetables .container').html(response);
+                                        $('#modal-delete-ratetables').modal('show');
+                                    }else{
+                                        $('#delete-rate-table-form').submit();
+                                    }
+                                },
 
-                            // Form data
-                            //data: {},
-                            cache: false,
-                            contentType: false,
-                            processData: false
-                        });
+                                // Form data
+                                //data: {},
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }
                         return false;
 
                     });
@@ -231,12 +235,11 @@
                         });
                         return false;
                     });
-
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
                 }
             });
-        });
-        $(".dataTables_wrapper select").select2({
-            minimumResultsForSearch: -1
         });
 
         $('#ratetable_filter').submit();
@@ -489,7 +492,7 @@
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Delete Rate Table</h4>
+                    <h4 class="modal-title">Delete Rate Table cron job</h4>
                 </div>
 
                 <div class="modal-body">

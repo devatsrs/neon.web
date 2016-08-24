@@ -761,7 +761,7 @@
                                 <th>Amount</th>
                                 <th>Payment Date</th>
                                 <th>CreatedBy</th>
-                                <th>Notes</th>
+                                <th width="30%">Notes</th>
                             </tr>
                             </thead>
                             <tbody>
