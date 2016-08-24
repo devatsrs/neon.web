@@ -203,7 +203,7 @@ class SiteIntegration{
 	}	 
 	
 	
-	public static function is_amazon_configured(){
+	public static function is_amazon_configured($data=false){ 
 		
 		$Storage	 	 =	Integration::where(["Slug"=>SiteIntegration::$AmazoneSlug])->first();	
 	
