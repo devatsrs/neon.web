@@ -205,8 +205,7 @@ class SiteIntegration{
 	
 	public static function is_amazon_configured(){
 		
-		$companyID		 =  User::get_companyID();
-		$Storage	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>SiteIntegration::$AmazoneSlug])->first();	
+		$Storage	 	 =	Integration::where(["Slug"=>SiteIntegration::$AmazoneSlug])->first();	
 	
 		if(count($Storage)>0)
 		{						
@@ -215,7 +214,7 @@ class SiteIntegration{
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
 	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Storage->ParentID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			})->where(["tblIntegration.ParentID"=>$Storage->ParentID])->where(["tblIntegrationConfiguration.Status"=>1]);
 			 $result = $StorageSubcategory->first();
 			 if(count($result)>0)
 			 {
