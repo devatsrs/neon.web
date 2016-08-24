@@ -1,6 +1,6 @@
 @extends('layout.main_only_sidebar')
 @section('content')
-    <iframe width="100%;" height="100%;" id="IframeServer" src="{{URL::to('stats')}}"></iframe>
+    <iframe width="100%;" height="100%;" id="IframeServer" src="{{URL::to('stats')}}" scrolling="no"></iframe>
     @include('includes.errors')
     @include('includes.success')
     <style>
