@@ -3,7 +3,7 @@ class SiteIntegration{
 
  protected $support;
  protected $companyID;
- static   $SupportSlug	=	'support';
+ static    $SupportSlug	=	'support';
  protected $PaymentSlug	=	'payment';
  static    $EmailSlug	=	'email';
  static    $StorageSlug	=	'storage';

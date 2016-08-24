@@ -175,6 +175,48 @@ class IntegrationController extends \BaseController
 			}
 		}
 		
+		if($data['firstcategory']=='storage')
+		{ 
+			if($data['secondcategory']=='AmazonS3')
+			{
+				$rules = array(
+					'AmazonKey'	 => 'required',
+					'AmazonSecret'	 => 'required',					
+					'AmazonAwsBucket'	 => 'required',
+					'AmazonAwsUrl'	 => 'required',
+					'AmazonAwsRegion'	 => 'required',
+				);
 		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 	= 	isset($data['Status'])?1:0;	
+				
+				$MandrilData = array(
+					"AmazonKey"=>$data['AmazonKey'],
+					"AmazonSecret"=>$data['AmazonSecret'],
+					"AmazonAwsBucket"=>$data['AmazonAwsBucket'],
+					"AmazonAwsUrl"=>$data['AmazonAwsUrl'],
+					"AmazonAwsRegion"=>$data['AmazonAwsRegion'],					
+					);
+				 
+				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($MandrilDbData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($MandrilData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$MandrilDbData->IntegrationConfigurationID))->update($SaveData);						
+				}
+				else
+				{	
+						$SaveData = array("Settings"=>json_encode($MandrilData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "AmazonS3 Settings Successfully Updated"));
+			}
+		}		
 	}
 }

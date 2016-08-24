@@ -43,11 +43,27 @@ class AmazonS3 {
     // Instantiate an S3 client
     public static function getS3Client(){
 
-        $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
+     	
+	 	$AmazonData		=	SiteIntegration::is_amazon_configured(true);
+		
+		if(empty($AmazonData)){
+            return 'NoAmazon';
+		}else{
+			return $s3Client = S3Client::factory(array(
+				'region' => $AmazonData->AmazonAwsRegion,
+				'credentials' => array(
+					'key' => $AmazonData->AmazonKey,
+					'secret' => $AmazonData->AmazonSecret
+				),
+			));
+		}
+
+       /*
+	      $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
         $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
         $AWS_REGION = getenv("AWS_REGION");
-
-        if(empty($AMAZONS3_KEY) || empty($AMAZONS3_SECRET) || empty($AWS_REGION) ){
+	
+	    if(empty($AMAZONS3_KEY) || empty($AMAZONS3_SECRET) || empty($AWS_REGION) ){
             return 'NoAmazon';
         }else {
 
@@ -58,7 +74,7 @@ class AmazonS3 {
                     'secret' => $AMAZONS3_SECRET
                 ),
             ));
-        }
+        }*/
     }
 
     /*

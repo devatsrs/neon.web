@@ -230,6 +230,7 @@ class AccountsController extends \BaseController {
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
             $RowsPerPage                =    $data['iDisplayLength'];			
 			$message 					= 	 '';
+			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
 			
 			if($response_timeline['status']!='failed'){
@@ -239,7 +240,7 @@ class AccountsController extends \BaseController {
 				}else{
 					$response_timeline = array();
 				}
-			}else{
+			}else{ Log::info($response_timeline);
 				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
 				$message = json_response_api($response_timeline,false,true);
 			}
@@ -272,7 +273,7 @@ class AccountsController extends \BaseController {
 			}
 	        
 		
-
+			
            //all users email address
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
@@ -298,7 +299,7 @@ class AccountsController extends \BaseController {
 				if(isset($response->Code) && $response->Code==400){
 					return	Redirect::to('/logout'); 	
 				}
-				else{ 
+				else{   Log::info($response);
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}

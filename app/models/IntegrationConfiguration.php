@@ -14,7 +14,7 @@ class IntegrationConfiguration extends \Eloquent {
 	   $companyID	=  User::get_companyID();
 	   
 	  $Subcategory = Integration::select("*");
-	  $Subcategory->join('tblIntegrationConfiguration', function($join)
+	  $Subcategory->leftJoin('tblIntegrationConfiguration', function($join)
 		{
 			$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
 	

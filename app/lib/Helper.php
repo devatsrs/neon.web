@@ -8,9 +8,6 @@ class Helper{
 
     public static function sendMail($view,$data){
 
-
-
-
         $status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
         $mandrill =0;
         if(isset($data['mandrill']) && $data['mandrill'] ==1){
@@ -61,16 +58,13 @@ class Helper{
     public static function setMailConfig($CompanyID,$mandrill){
         $result = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $CompanyID)->first();
         if($mandrill == 1) { 
-			$ManrdilDbData   	 = 	IntegrationConfiguration::where(array('CompanyId'=>$CompanyID,"IntegrationID"=>10))->first();
-			$ManrdilSettings     = 	isset($ManrdilDbData->Settings)?json_decode($ManrdilDbData->Settings):"";
-			
-            Config::set('mail.host', $ManrdilSettings->MandrilSmtpServer);
-            Config::set('mail.port',  $ManrdilSettings->MandrilPort);
+		 	Config::set('mail.host', getenv("MANDRILL_SMTP_SERVER"));
+            Config::set('mail.port', getenv("MANDRILL_PORT"));
             Config::set('mail.from.address', $result->EmailFrom);
             Config::set('mail.from.name', $result->CompanyName);
-            Config::set('mail.encryption', ( $ManrdilSettings->MandrilSmtpServer == 1 ? 'SSL' : 'TLS'));
-            Config::set('mail.username',  $ManrdilSettings->MandrilUserName);
-            Config::set('mail.password',  $ManrdilSettings->MandrilPassword);
+            Config::set('mail.encryption', (getenv("MADRILL_SSL") == 1 ? 'SSL' : 'TLS'));
+            Config::set('mail.username', getenv("MANDRILL_SMTP_USERNAME"));
+            Config::set('mail.password', getenv("MANDRILL_SMTP_PASSWORD"));
         }else{
             Config::set('mail.host', $result->SMTPServer);
             Config::set('mail.port', $result->Port);

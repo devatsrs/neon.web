@@ -235,6 +235,69 @@
         </div>
       </div>
       <!-- Mandril end -->    
+      <!-- Amazon start -->
+       <?php 
+		$AmazonDbData = IntegrationConfiguration::GetIntegrationDataBySlug('amazons3');
+		$AmazonData   = isset($AmazonDbData->Settings)?json_decode($AmazonDbData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{isset($AmazonDbData->Slug)?$AmazonDbData->Slug:''}}">        
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Key:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="AmazonKey" value="{{isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:''}}" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Secret:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="AmazonSecret" value="{{isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:""}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Aws Bucket:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="AmazonAwsBucket" value="{{isset($AmazonData->AmazonAwsBucket)?$AmazonData->AmazonAwsBucket:''}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Aws Url:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="AmazonAwsUrl" value="{{isset($AmazonData->AmazonAwsUrl)?$AmazonData->AmazonAwsUrl:""}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Aws Region:</label>
+              <div class="col-sm-8" >
+                  <input type="text"  class="form-control" name="AmazonAwsRegion" value="{{isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:""}}" />
+              </div>
+              
+            </div>
+          </div>          
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active:</label>
+              <div class="col-sm-8" id="AmazonStatusDiv">
+                   <input id="AmazonStatus" class="subcatstatus" Divid="AmazonStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($AmazonDbData->Status) && $AmazonDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>   
+      
+      <!-- Amazon end -->    
     </div>
   <ul class="pager wizard">
     <li class="previous"> <a href="#"><i class="entypo-left-open"></i> Previous</a> </li>
