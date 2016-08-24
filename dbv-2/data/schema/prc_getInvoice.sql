@@ -27,6 +27,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
 
 
 
+
 )
 BEGIN
     DECLARE v_OffSet_ int;
@@ -300,7 +301,14 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
           SubTotal AS `TaxAnalysisGoodsValueBeforeDiscount/1`,
           TotalTax as   `TaxAnalysisTaxOnGoodsValue/1`
 
-        FROM tmp_Invoices_;
+        FROM tmp_Invoices_
+        WHERE
+		  		(p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
 
 		
     END IF;
