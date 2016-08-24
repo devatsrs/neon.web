@@ -49,7 +49,6 @@ class CronJob extends \Eloquent {
                     $valid['message'] = Response::json(array("status" => "failed", "message" => "Job title already exist in Cron Jobs."));
                     return $valid;
                 }
-                $CronJob = CronJob::findOrFail($id);
             }else{
                 $result = CronJob::select('JobTitle')->where('JobTitle','=',$data['JobTitle'])->where('CompanyID','=',$companyID)->first();
                 if(!empty($result)){
@@ -76,7 +75,7 @@ class CronJob extends \Eloquent {
 
         }else{
             if(DB::table('tblCronJob')->where('CronJobCommandID','=',$data['CronJobCommandID'])->where('CronJobID','<>',$id)->count() > 0){
-                $valid['message'] = Response::json(array("status" => "failed", "message" => "Command already taken."));
+                $valid['message'] = Response::json(array("status" => "failed", "message" => "Cron Job is Already Setup."));
                 return $valid;
             }
 
