@@ -21,11 +21,8 @@ class Notification extends \Eloquent {
 
     public static function getNotificationMail($type){
         $CompanyID = User::get_companyID();
-        $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type])->first();
-        if(!empty($Notification)){
-            return $Notification->EmailAddresses;
-        }
-        return '';
+        $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type])->pluck('EmailAddresses');
+        return empty($Notification)?'':$Notification;
     }
 
 }
