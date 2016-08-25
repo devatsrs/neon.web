@@ -140,13 +140,15 @@ function sendMail($view,$data){
     }else{
         $companyID = $data['companyID'];
     }
+	$data   =   $data;
+	$body 	=   View::make($view,compact('data'))->render(); 
 	
 	if(SiteIntegration::is_EmailIntegration($companyID)){
-		$status = 	SiteIntegration::SendMail($view,$data,$companyID);
+		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body);
 	}
 	else{
 		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
-		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID);
+		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
 	}
 	
 	return $status;

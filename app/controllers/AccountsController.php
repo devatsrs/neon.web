@@ -299,7 +299,7 @@ class AccountsController extends \BaseController {
 				if(isset($response->Code) && $response->Code==400){
 					return	Redirect::to('/logout'); 	
 				}
-				else{   Log::info($response);
+				else{   $array = json_decode(json_encode($response), True); Log::info("error occured");  Log::info($array);
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}

@@ -76,6 +76,17 @@ class AmazonS3 {
             ));
         }*/
     }
+	
+	 private static function getAmazonSettings(){     
+		$amazon 		= 	array();
+		$AmazonData		=	SiteIntegration::is_amazon_configured(true);
+		
+		if(!empty($AmazonData)){
+			$amazon 	=	 array("AWS_BUCKET"=>$AmazonData->AmazonAwsBucket,"AMAZONS3_KEY"=>$AmazonData->AmazonKey,"AMAZONS3_SECRET"=>$AmazonData->AmazonSecret,"AWS_REGION"=>$AmazonData->AmazonAwsRegion);	
+		}
+		
+        return $amazon;
+    }
 
     /*
      * Generate Path
@@ -119,8 +130,9 @@ class AmazonS3 {
         if($s3 == 'NoAmazon'){
             return true;
         }
-
-        $bucket = getenv('AWS_BUCKET');
+		
+		$AmazonSettings  = self::getAmazonSettings();		
+        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         // Upload a publicly accessible file. The file size, file type, and MD5 hash
         // are automatically calculated by the SDK.
         try {
@@ -148,7 +160,8 @@ class AmazonS3 {
         }
 
 
-        $bucket = getenv('AWS_BUCKET');
+        $AmazonSettings  = self::getAmazonSettings();		
+        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
 
         // Get a command object from the client and pass in any options
         // available in the GetObject command (e.g. ResponseContentDisposition)
@@ -174,7 +187,8 @@ class AmazonS3 {
             return  self::preSignedUrl($key);
         }
 
-        $bucket = getenv('AWS_BUCKET');
+        $AmazonSettings  = self::getAmazonSettings();		
+        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         $unsignedUrl = '';
         if(!empty($key)){
            $unsignedUrl = $s3->getObjectUrl($bucket, $key);
@@ -216,7 +230,8 @@ class AmazonS3 {
                 }
             }
 
-            $bucket = getenv('AWS_BUCKET');
+             $AmazonSettings  = self::getAmazonSettings();		
+       		 $bucket 		 = $AmazonSettings['AWS_BUCKET'];
             // Upload a publicly accessible file. The file size, file type, and MD5 hash
             // are automatically calculated by the SDK.
             try {
