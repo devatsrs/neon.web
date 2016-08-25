@@ -233,6 +233,7 @@ class AccountsController extends \BaseController {
 			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
 			
+
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
 				{
@@ -240,7 +241,11 @@ class AccountsController extends \BaseController {
 				}else{
 					$response_timeline = array();
 				}
-			}else{ 		
+			}else{ 	
+			$array = json_decode(json_encode($response_timeline), true);
+			Log::info("show error");
+			Log::info($array);
+				
 				if(isset($response_timeline->Code) && ($response_timeline->Code==400 || $response_timeline->Code==401)){
 					return	Redirect::to('/logout'); 	
 				}		

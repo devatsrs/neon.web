@@ -17,7 +17,6 @@
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response_data['Cc'])<p>CC: {{$response_data['Cc']}}</p>@endif
       @if($response_data['Bcc'])<p>BCC: {{$response_data['Bcc']}}</p>@endif
-      <p class="mail_subject">Subject: {{$response_data['Subject']}}</p>
       <?php
 	  if($response_data['AttachmentPaths']!='')
 	  {

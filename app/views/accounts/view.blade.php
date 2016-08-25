@@ -350,7 +350,6 @@
                 @if($rows['EmailBcc'])
                 <p>BCC: {{$rows['EmailBcc']}}</p>
                 @endif
-                <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p>
                 <?php
 	  if($rows['EmailAttachments']!='')
 	  {

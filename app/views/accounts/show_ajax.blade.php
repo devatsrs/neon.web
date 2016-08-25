@@ -20,7 +20,6 @@
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
                   @if($rows['EmailBcc'])<p>BCC: {{$rows['EmailBcc']}}</p>@endif
-                  <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p>
                   <?php
 	  if($rows['EmailAttachments']!='')
 	  {

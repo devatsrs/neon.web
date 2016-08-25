@@ -16,7 +16,6 @@
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response->Cc)<p>CC: {{$response->Cc}}</p>@endif
       @if($response->Bcc)<p>BCC: {{$response->Bcc}}</p>@endif
-      <p class="mail_subject">Subject: {{$response->Subject}}</p>
       <?php
 	  if($response->AttachmentPaths!='')
 	  {
