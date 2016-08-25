@@ -240,7 +240,10 @@ class AccountsController extends \BaseController {
 				}else{
 					$response_timeline = array();
 				}
-			}else{ Log::info($response_timeline);
+			}else{ 		
+				if(isset($response_timeline->Code) && ($response_timeline->Code==400 || $response_timeline->Code==401)){
+					return	Redirect::to('/logout'); 	
+				}		
 				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
 				$message = json_response_api($response_timeline,false,true);
 			}
@@ -267,6 +270,9 @@ class AccountsController extends \BaseController {
 		   $response_extensions 	=  [];
 		
 			if($response->status=='failed'){
+				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
+					return	Redirect::to('/logout'); 	
+				}	
 				 $message = json_response_api($response,false,true);
 			 }else{
 				$response_extensions = json_response_api($response,true,true);
@@ -296,10 +302,10 @@ class AccountsController extends \BaseController {
 			 if (isset($response->status) && $response->status != 'failed') {			
 				$response = $response->data;
 			}else{		
-				if(isset($response->Code) && $response->Code==400){
+				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
 					return	Redirect::to('/logout'); 	
 				}
-				else{   $array = json_decode(json_encode($response), True); Log::info("error occured");  Log::info($array);
+				else{  
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}
