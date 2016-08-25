@@ -509,6 +509,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/gateway/delete/{id}', 'GatewayController@delete');
 	Route::any('/gateway/test_connetion/{id}', 'GatewayController@test_connetion');
 	Route::any('/gateway', 'GatewayController@index');
+	Route::any('/gateway/{id}', 'GatewayController@index');
 
 	//summaryreport
 	Route::any('/summaryreport', 'SummaryController@index');

@@ -21,5 +21,17 @@ class IntegrationConfiguration extends \Eloquent {
 		})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.Slug"=>$slug]);
 		 $result = $Subcategory->first();
 		 return $result;
-   }      
+   } 
+   
+   static function GetGatewayConfiguration($GatewayID = 0){
+ 	 	$CompanyID 		= 	User::get_companyID();
+		
+       	$Gateway =  CompanyGateway::select('*')->where("CompanyID", $CompanyID);
+		if($GatewayID>0){
+			$Gateway->where("GatewayID", $GatewayID);
+		} 
+		
+		$result = $Gateway->count();
+		return $result;
+   }     
 }

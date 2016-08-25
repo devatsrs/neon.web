@@ -15,9 +15,10 @@ class IntegrationController extends \BaseController
      */
     public function index()
 	{
-		$companyID  = User::get_companyID();
-		$categories = Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
-		return View::make('integration.index', compact('categories',"companyID"));
+		$companyID  			= 	User::get_companyID();
+	    $GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
+		$categories 			= 	Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration"));
     }
 	
 	function Update(){
@@ -121,7 +122,6 @@ class IntegrationController extends \BaseController
 				else
 				{	
 						$SaveData = array("Settings"=>json_encode($AuthorizeData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
-						Log::info($SaveData);
 						IntegrationConfiguration::create($SaveData);
 				}
 				 return Response::json(array("status" => "success", "message" => "Authorize.net Settings Successfully Updated"));
@@ -168,7 +168,6 @@ class IntegrationController extends \BaseController
 				else
 				{	
 						$SaveData = array("Settings"=>json_encode($MandrilData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
-						Log::info($SaveData);
 						IntegrationConfiguration::create($SaveData);
 				}
 				 return Response::json(array("status" => "success", "message" => "Mandrill Settings Successfully Updated"));

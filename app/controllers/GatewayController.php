@@ -33,12 +33,12 @@ class GatewayController extends \BaseController {
         return Datatables::of($Gateway)->make();
     }
 
-    public function index()
+    public function index($id=0)
     {
         $gateway 			= 	Gateway::getGatewayListID();
         $timezones 			= 	TimeZone::getTimeZoneDropdownList();
         $gateway['other'] 	= 	'other';
-        return View::make('gateway.index', compact('gateway','timezones'));
+        return View::make('gateway.index', compact('gateway','timezones','id'));
     }
 
     /**

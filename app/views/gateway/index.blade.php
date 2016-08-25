@@ -38,7 +38,7 @@
             <div class="panel-body">
               <div class="form-group">
                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                <div class="col-sm-3"> {{ Form::select('Gateway',$gateway,Input::get('id'),array("class"=>"select2")) }} </div>
+                <div class="col-sm-3"> {{ Form::select('Gateway',$gateway,$id,array("class"=>"select2")) }} </div>
               </div>
               <p style="text-align: right;">
                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
@@ -66,6 +66,7 @@
 </table>
 
 <script type="text/javascript">
+var selectedID = '{{$id}}';
 var $searchFilter = {};
 var update_new_url;
 var postdata;
@@ -102,7 +103,7 @@ var postdata;
                 }, //2   Status
                 {                       //3
                    "bSortable": true,
-                    mRender: function ( id, type, full ) {
+                    mRender: function ( id, type, full ) {						
                     var GatewayID = full[3]>0?full[3]:'';
                         var action ='';
                          action = '<div class = "hiddenRowData" >';
@@ -143,11 +144,14 @@ var postdata;
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
-            },
-           "fnDrawCallback": function() {
+            }, "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+				if(selectedID!='' && selectedID!='0' && iTotal==0){
+					$('#add-new-config').click();
+				}	
+  },
+           "fnDrawCallback": function() {			  
                    //After Delete done
-                   FnDeleteCongfigSuccess = function(response){
-
+                   FnDeleteCongfigSuccess = function(response){						
                        if (response.status == 'success') {
                            $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
                            ShowToastr("success",response.message);
@@ -278,6 +282,18 @@ var postdata;
             data_table.fnFilter('', 0);
             return false;
         });
+		
+		function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  } 
+  alert('Query Variable ' + variable + ' not found');
+}
 	
     });
 </script>
@@ -307,7 +323,7 @@ var postdata;
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Gateway Type</label>
-                                {{ Form::select('GatewayID',$gateway,Input::get('id'), array("class"=>"select2",'id'=>'GatewayID')) }}
+                                {{ Form::select('GatewayID',$gateway,$id, array("class"=>"select2",'id'=>'GatewayID')) }}
                              </div>
                         </div>
                     </div>

@@ -33,6 +33,7 @@
           <div class=""> @foreach($categories as $key => $CategoriesData)
             <?php
 				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID']))->first();
+				if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0){$active['Status'] =1;} 
 			  ?>
             <input type="radio" name="category" class="category" data-id="{{$CategoriesData['Slug']}}" catid="{{$CategoriesData['IntegrationID']}}" value="{{$CategoriesData['Slug']}}" id="{{$CategoriesData['Slug']}}" @if($key==0) checked @endif />
             <label  for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif   "> 
@@ -52,15 +53,24 @@
 		  	 $subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
 			 	foreach($subcategories as $key => $subcategoriesData){
 					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();
+					if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0)
+					{
+						$SubGatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration($subcategoriesData['ForeignID']);	
+						if($SubGatewayConfiguration>0)
+						{
+							$active['Status'] = 1;
+						}
+					} 
+					 
 			  ?>
             <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$subcategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
-              <label for="{{$subcategoriesData['Slug']}}" class="newredio secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
+              <label data-subcatid="{{$subcategoriesData['IntegrationID']}}" data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" for="{{$subcategoriesData['Slug']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
-                <img width="77" height="30" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
+                <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
-                <a data-subcatid="{{$subcategoriesData['IntegrationID']}}"  data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" class="manageSubcat">{{$subcategoriesData['Title']}}</a>
+                <a>{{$subcategoriesData['Title']}}</a>
               </label>
             </div>
             <?php } } ?>
@@ -367,7 +377,7 @@
 					 console.log(importcat+' '+subcatid+' '+parent_id);
 					 if(parent_id==5 && ForeignID!=0){ ///gateway 
 					 	//window.location = baseurl+'/gateway?id='+ForeignID;	
-					    window.open(baseurl+'/gateway?id='+ForeignID, '_blank');
+					    window.open(baseurl+'/gateway/'+ForeignID, '_blank');
 						return false;
 					 }					
                 }
@@ -427,7 +437,7 @@
 			$('#SubcategoryModal .modal-title').html(DataTitle);
 			
 			 if(parent_slug=='billinggateway' && ForeignID!=0){ ///gateway 
-				window.open(baseurl+'/gateway?id='+ForeignID, '_blank');
+				window.open(baseurl+'/gateway/'+ForeignID, '_blank');
 				return false;
 			 }		
 			
@@ -581,6 +591,7 @@
     }
 	.subcategoryblock, .subcategorycontent{display:none;}
 	.secondstep{padding-left:0px !important; padding-bottom:19px !important; padding-top:19px !important; }
+	.integrationimage{height:40px !important;}
 </style>
 @stop
 
