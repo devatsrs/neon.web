@@ -721,6 +721,10 @@ function excloded_resource($resource){
 
 function getDashBoards(){
     $DashBoards = [''=>'Select'];
+    $DashBoards['/monitor'] = 'Monitor Dashboard';
+    $DashBoards['/billingdashboard'] = 'Billing Dashboard';
+    $DashBoards['/crmdashboard'] = 'CRM Dashboard';
+    /*
     if(Company::isRMLicence()){
         $DashBoards['/dashboard'] = 'RM Dashboard';
         $DashBoards['/monitor'] = 'Monitor Dashboard';
@@ -730,16 +734,17 @@ function getDashBoards(){
     }
     if(Company::isBillingLicence()){
         $DashBoards['/billingdashboard'] = 'Billing Dashboard';
-    }
+    }*/
 
     return $DashBoards;
 }
 
 function getDashBoardController($key){
-    $DashBoards['/dashboard'] = 'RmDashboard';
-    $DashBoards['/salesdashboard'] = 'SalesDashboard';
+    /*$DashBoards['/dashboard'] = 'RmDashboard';
+    $DashBoards['/salesdashboard'] = 'SalesDashboard';*/
     $DashBoards['/billingdashboard'] = 'BillingDashboard';
     $DashBoards['/monitor'] = 'MonitorDashboard';
+    $DashBoards['/crmdashboard'] = 'CrmDashboard';
     return $DashBoards[$key];
 }
 

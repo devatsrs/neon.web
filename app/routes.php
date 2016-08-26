@@ -7,6 +7,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/analysis', "AnalysisController@customer_index");
 	Route::any('customer/vendor_analysis', "AnalysisController@vendor_index");
     Route::any('customer/invoice_expense_chart', 'DashboardCustomerController@invoice_expense_chart');
+    Route::any('customer/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'DashboardCustomerController@ajax_datagrid_Invoice_Expense');
     Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
 	Route::any('customer/subscriptions', 'DashboardCustomerController@subscriptions');	
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
@@ -26,10 +27,6 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
     Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
-
-
-	//serverinfo
-	Route::any('serverinfo', 'ServerController@index');	
 
     //Account Statement
 
@@ -89,6 +86,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+    Route::any('/users/tracker', 'UsersController@view_tracker');
 
 
 	//DashBoard
@@ -453,6 +451,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
+    Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
+    Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
+    Route::any('/rategenerators/{id}/delete', 'RateGeneratorsController@delete');
 	Route::resource('rategenerators', 'RateGeneratorsController');
 	Route::controller('rategenerators', 'RateGeneratorsController');
 
@@ -713,6 +714,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
+    Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
@@ -827,6 +829,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
+    Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 
 
     //AccountPaymentProfile
@@ -898,6 +901,20 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/dialstrings/{id}/ajaxfilegrid', 'DialStringController@ajaxfilegrid');
 	Route::any('/dialstrings/{id}/storeTemplate', 'DialStringController@storeTemplate');
 	Route::any('/dialstrings/download_sample_excel_file', "DialStringController@download_sample_excel_file");
+    
+    //Notifications
+    Route::any('notification', 'NotificationController@index');
+    Route::any('notification/ajax_datagrid/{type}', 'NotificationController@ajax_datagrid');
+    Route::any('notification/store', 'NotificationController@store');
+    Route::any('notification/{notification_id}/update', 'NotificationController@update')->where('notification_id', '(.[09]*)+');
+    Route::any('notification/{notification_id}/delete', 'NotificationController@delete')->where('notification_id', '(.[09]*)+');
+
+    //Server Info
+    Route::any('serverinfo', 'ServerInfoController@index');
+    Route::any('serverinfo/ajax_getdata', 'ServerInfoController@ajax_getdata');
+    Route::any('serverinfo/store', 'ServerInfoController@store');
+    Route::any('serverinfo/{server_id}/update', 'ServerInfoController@update')->where('notification_id', '(.[09]*)+');
+    Route::any('serverinfo/{server_id}/delete', 'ServerInfoController@delete')->where('notification_id', '(.[09]*)+');
 
 	//Retention
 	Route::any('/retention', "RetentionController@index");

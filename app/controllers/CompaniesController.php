@@ -31,10 +31,7 @@ class CompaniesController extends \BaseController {
         $BillingCycleType = CompanySetting::getKeyVal('BillingCycleType');
         $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue');
         $InvoiceTemplateID = CompanySetting::getKeyVal('InvoiceTemplateID');
-        $SalesTimeZone = CompanySetting::getKeyVal('SalesTimeZone');
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
-        $RateGenerationEmail = CompanySetting::getKeyVal('RateGenerationEmail')== 'Invalid Key'?'':CompanySetting::getKeyVal('RateGenerationEmail');
-        $InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail')== 'Invalid Key'?'':CompanySetting::getKeyVal('InvoiceGenerationEmail');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
         $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget')=='Invalid Key'?'':CompanySetting::getKeyVal('PincodeWidget');
         $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
@@ -42,7 +39,7 @@ class CompaniesController extends \BaseController {
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
         $taxrates = TaxRate::getTaxRateDropdownIDList();//Default TaxRate functionality Added by Abubakar
         if(isset($taxrates[""])){unset($taxrates[""]);}
-        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','RateGenerationEmail','InvoiceGenerationEmail','LastPrefixNo','LicenceApiResponse','SalesTimeZone','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
+        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','LastPrefixNo','LicenceApiResponse','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
 
     }
 
@@ -75,8 +72,6 @@ class CompaniesController extends \BaseController {
         }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
-        CompanySetting::setKeyVal('SalesTimeZone',$data['SalesTimeZone']);
-        unset($data['SalesTimeZone']);
         CompanySetting::setKeyVal('BillingTimezone',$data['BillingTimezone']);
         unset($data['BillingTimezone']);
         CompanySetting::setKeyVal('CDRType',$data['CDRType']);
@@ -93,10 +88,6 @@ class CompaniesController extends \BaseController {
         }
         CompanySetting::setKeyVal('InvoiceTemplateID',$data['InvoiceTemplateID']);
         unset($data['InvoiceTemplateID']);
-        CompanySetting::setKeyVal('RateGenerationEmail',$data['RateGenerationEmail']);
-        unset($data['RateGenerationEmail']);
-        CompanySetting::setKeyVal('InvoiceGenerationEmail',$data['InvoiceGenerationEmail']);
-        unset($data['InvoiceGenerationEmail']);
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
         unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish

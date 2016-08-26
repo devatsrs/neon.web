@@ -69,7 +69,7 @@
             <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
-                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
+                                <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" @if($InvoiceHideZeroValue == 1) checked @endif>
                             </p>
                         </div>
 
@@ -79,20 +79,20 @@
                         <div class="col-sm-2">
                             {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                         </div>
-                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
+                         <label for="field-1" class="col-sm-1 control-label">Issue Date</label>
                         <div class="col-sm-2">
-                              {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                              {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):$data['StartDateDefault'].' - '.$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
-                        <div class="col-sm-2">
-                              {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
-                        </div>
-                   
-            
                           <label for="field-1" class="col-sm-1 control-label">Currency</label>
                      <div class="col-sm-2">
                      {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
-                    </div>                  
+                    </div>
+                        <label for="field-1" class="col-sm-1 control-label">Overdue</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="Overdue" name="Overdue" type="checkbox">
+                            </p>
+                        </div>
                 </div>
                   <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -201,10 +201,10 @@ var postdata;
         $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
         $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
         $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
-        $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
-        $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
+        $searchFilter.IssueDate = $("#invoice_filter [name='IssueDate']").val();
         $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
 		$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
+        $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -216,9 +216,9 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
              "fnServerParams": function(aoData) {
-                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
+                aoData.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDate","value":$searchFilter.IssueDate},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID},{"name":"Overdue","value":$searchFilter.Overdue});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
+                data_table_extra_params.push({"name":"InvoiceType","value":$searchFilter.InvoiceType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"InvoiceNumber","value":$searchFilter.InvoiceNumber},{"name":"InvoiceStatus","value":$searchFilter.InvoiceStatus},{"name":"IssueDate","value":$searchFilter.IssueDate},{ "name": "Export", "value": 1},{"name":"zerovalueinvoice","value":$searchFilter.zerovalueinvoice},{"name":"CurrencyID","value":$searchFilter.CurrencyID},{"name":"Overdue","value":$searchFilter.Overdue});
             },
              "aoColumns":
             [
@@ -310,6 +310,9 @@ var postdata;
                                 //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                 action += '</ul>';
                                 action += '</div>';
+                                if(full[10]) {
+                                    action += ' <a class="btn btn-success btn-sm btn-icon icon-left download" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
+                                }
                             }
                         }else{
                             action += '<div class="btn-group">';
@@ -455,10 +458,10 @@ var postdata;
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ?$("#invoice_filter select[name='InvoiceStatus']").val():'';
-            $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
-            $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
+            $searchFilter.IssueDate = $("#invoice_filter [name='IssueDate']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
 			$searchFilter.CurrencyID 			= 	$("#invoice_filter [name='CurrencyID']").val();
+            $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
             data_table.fnFilter('', 0);
             return false;
         });
@@ -475,10 +478,10 @@ var postdata;
 			"AccountID":$("#invoice_filter select[name='AccountID']").val(),
 			"InvoiceNumber":$("#invoice_filter [name='InvoiceNumber']").val(),
 			"InvoiceStatus":$("#invoice_filter select[name='InvoiceStatus']").val(),
-			"IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
-			"IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
+			"IssueDate":$("#invoice_filter [name='IssueDate']").val(),
 			"zerovalueinvoice":$("#invoice_filter [name='zerovalueinvoice']").prop("checked"), 
 			"CurrencyID":$("#invoice_filter [name='CurrencyID']").val(),
+            "Overdue":$("#invoice_filter [name='Overdue']").prop("checked"),
 			"bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -664,6 +667,9 @@ var postdata;
             $('#modal-invoice-in h4').html('Edit Invoice');
             //var cur_obj = $(this).prev("div.hiddenRowData");
              var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
+            var downloadbutton = $(this).parent().parent().parent().parent().find("a.download").clone();
+            downloadbutton.removeClass('');
+            $('#modal-invoice-in').find('.download').html('');
              InvoiceID = cur_obj.find("input[name='InvoiceID']").val();
              $.ajax({
                  url: baseurl + '/invoice/getInvoiceDetail',
@@ -677,7 +683,7 @@ var postdata;
                      $("#add-invoice_in_template-form [name='Description']").val(response.Description);
                      $("#add-invoice_in_template-form [name='InvoiceDetailID']").val(response.InvoiceDetailID);
                      $("#add-invoice_in_template-form [name='TotalMinutes']").val(response.TotalMinutes);
-
+                     $('#modal-invoice-in').find('.download').append(downloadbutton);
                      set_dispute(response);
 
                  },
@@ -1229,6 +1235,17 @@ var postdata;
                     data_table.fnFilter('', 0);
                 },1000);
         });
+
+        $(document).on( "click",".available", function() {
+            if($(this).hasClass('prev')) {
+                return false;
+            }
+            if($(this).hasClass('next')) {
+                return false;
+            }
+
+            $('.applyBtn').click();
+        });
  
 });
 
@@ -1406,6 +1423,9 @@ var postdata;
                             <input id="Attachment" name="Attachment" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
 
                             <!--<br><span class="file-input-name"></span>-->
+                        </div>
+                        <div class="col-sm-1 download">
+
                         </div>
                     </div>
 

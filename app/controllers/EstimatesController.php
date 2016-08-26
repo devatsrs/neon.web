@@ -220,7 +220,7 @@ class EstimatesController extends \BaseController {
                     InvoiceTemplate::find(Account::find($data["AccountID"])->InvoiceTemplateID)->update(array("LastEstimateNumber" => $LastEstimateNumber ));
                 }
 				
-                $EstimateDetailData = array();
+                $EstimateDetailData = $EstimateTaxRates = array();
 
                 foreach($data["EstimateDetail"] as $field => $detail)
 				{
@@ -241,6 +241,15 @@ class EstimatesController extends \BaseController {
                         $EstimateDetailData[$i]["CreatedBy"] 	= 	$CreatedBy;
 						$EstimateDetailData[$i]["Discount"] 	= 	0;
 						
+                        if($field == 'TaxRateID'){
+                            $EstimateTaxRates[$i][$field] = $value;
+                            $EstimateTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
+                            $EstimateTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
+                            $EstimateTaxRates[$i]["EstimateID"] = $Estimate->EstimateID;
+                        }
+                        if($field == 'TaxAmount'){
+                            $EstimateTaxRates[$i][$field] = str_replace(",","",$value);
+                        }
                         if(empty($EstimateDetailData[$i]['ProductID']))
 						{
                             unset($EstimateDetailData[$i]);
@@ -251,6 +260,7 @@ class EstimatesController extends \BaseController {
 				
              
 				
+                DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -352,10 +362,11 @@ class EstimatesController extends \BaseController {
 					
                     $Estimate->update($EstimateData);
 					
-                    $EstimateDetailData 		=	array();
+                    $EstimateDetailData 		= $EstimateTaxRates =	array();
 					
                     //Delete all Estimate Data and then Recreate.
                     EstimateDetail::where(["EstimateID" => $Estimate->EstimateID])->delete();
+                    DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID" => $Estimate->EstimateID])->delete();
                     if (isset($data["EstimateDetail"]))
 					{
                         foreach ($data["EstimateDetail"] as $field => $detail)
@@ -379,6 +390,15 @@ class EstimatesController extends \BaseController {
                                 $EstimateDetailData[$i]["ModifiedBy"]  	= 	$CreatedBy;
 								$EstimateDetailData[$i]["Discount"] 	= 	0;
                                 
+                                if($field == 'TaxRateID'){
+                                    $EstimateTaxRates[$i][$field] = $value;
+                                    $EstimateTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
+                                    $EstimateTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
+                                    $EstimateTaxRates[$i]["EstimateID"] = $Estimate->EstimateID;
+                                }
+                                if($field == 'TaxAmount'){
+                                    $EstimateTaxRates[$i][$field] = str_replace(",","",$value);
+                                }
 								if(isset($EstimateDetailData[$i]["EstimateDetailID"]))
 								{
                                     unset($EstimateDetailData[$i]["EstimateDetailID"]);
@@ -392,6 +412,7 @@ class EstimatesController extends \BaseController {
                             }
                         }
 
+                        DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);

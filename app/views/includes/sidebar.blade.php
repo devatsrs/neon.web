@@ -79,6 +79,8 @@
           </ul>
         </li>--}}
     @endif
+    @if( User::checkCategoryPermission('CrmDashboard','View') || User::checkCategoryPermission('OpportunityBoard','View') ||
+    User::checkCategoryPermission('Task','View'))
     <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
          @if(User::checkCategoryPermission('CrmDashboard','View'))
@@ -92,6 +94,7 @@
             @endif
         </ul>
     </li>
+    @endif
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
@@ -199,6 +202,9 @@
         @endif
         @if(User::is_admin())
         <li> <a href="{{Url::to('roles')}}">  <span>User Roles</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('Notification','View'))
+            <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('themes','View'))
         <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>

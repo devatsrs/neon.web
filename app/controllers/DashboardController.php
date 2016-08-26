@@ -8,12 +8,7 @@ class DashboardController extends BaseController {
     }
 
     public function home() {
-
-        if(Company::isBillingLicence(1)){
-            return Redirect::to('billingdashboard');
-        }
- 
-        return View::make('dashboard.index');
+        return Redirect::to('/process_redirect');
     }
     public function salesdashboard(){
 
@@ -136,7 +131,8 @@ class DashboardController extends BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));
+        $invoice_status_json = json_encode(Invoice::get_invoice_status());
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json'));
 
     }
     public function monitor_dashboard(){
