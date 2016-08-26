@@ -181,6 +181,8 @@ class CronJobController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
+        $data['StartDate'] = !empty($data['StartTime'])?$data['StartDate'].' '.$data['StartTime']:$data['StartDate'];
+        $data['EndDate'] = !empty($data['EndTime'])?$data['EndDate'].' '.$data['EndTime']:$data['EndDate'];
         $columns = array('Title','CronJobStatus','Message','created_at');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetCronJobHistory (".$id.",'".$data['StartDate']."','".$data['EndDate']."','".$data['Search']."','".$data['Status']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";

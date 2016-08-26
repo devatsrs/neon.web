@@ -25,7 +25,7 @@
 <br>
 <div class="row">
     <div class="col-md-12">
-        <form id="ratetable_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -84,9 +84,9 @@
     var data_table = '';
     jQuery(document).ready(function($) {
         var update_rate_table_url;
-        $('#ratetable_filter').submit(function(e) {
+        $('#rategenerator_filter').submit(function(e) {
             e.preventDefault();
-            $searchFilter.Active = $('#ratetable_filter [name="Active"]').val();
+            $searchFilter.Active = $('#rategenerator_filter [name="Active"]').val();
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
@@ -169,10 +169,9 @@
                     $(".btn.delete").click(function (e) {
                         e.preventDefault();
                         var id = $(this).attr('data-id');
-                        var url = baseurl + '/rategenerators/'+id+'/ajax_existing_ratetable_cronjob';
-                        $('#delete-rate-table-form [name="RateGeneratorID"]').val(id);
-                        $('#modal-delete-ratetables .container').html('');
-                        if(confirm('Are you sure you want to delete selected ratetable?')) {
+                        var url = baseurl + '/rategenerators/'+id+'/ajax_existing_rategenerator_cronjob';
+                        $('#delete-rate-generator-form [name="RateGeneratorID"]').val(id);
+                        if(confirm('Are you sure you want to delete selected rate generator?')) {
                             $.ajax({
                                 url: url,
                                 type: 'POST',
@@ -180,10 +179,10 @@
                                 success: function (response) {
                                     $(".btn.delete").button('reset');
                                     if (response) {
-                                        $('#modal-delete-ratetables .container').html(response);
-                                        $('#modal-delete-ratetables').modal('show');
+                                        $('#modal-delete-rategenerator .container').html(response);
+                                        $('#modal-delete-rategenerator').modal('show');
                                     }else{
-                                        $('#delete-rate-table-form').submit();
+                                        $('#delete-rate-generator-form').submit();
                                     }
                                 },
 
@@ -200,7 +199,7 @@
 
                     $(".generate_rate.create").click(function (e) {
                         e.preventDefault();
-                        $('#update-rate-table-form').trigger("reset");
+                        $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
@@ -242,12 +241,12 @@
             });
         });
 
-        $('#ratetable_filter').submit();
+        $('#rategenerator_filter').submit();
         $('body').on('click', '.generate_rate.update', function (e) {
 
             e.preventDefault();
             $('#modal-update-rate').modal('show', {backdrop: 'static'});
-            $('#update-rate-table-form').trigger("reset");
+            $('#update-rate-generator-form').trigger("reset");
             var trunkID = $(this).attr("data-trunk");
             var codeDeckId = $(this).attr("data-codedeck");
             var CurrencyID = $(this).attr("data-currency");
@@ -278,7 +277,7 @@
             $('#modal-update-rate h4').html('Update Rate Table');
         });
 
-        $('#update-rate-table-form').submit(function (e) {
+        $('#update-rate-generator-form').submit(function (e) {
             e.preventDefault();
             if( typeof update_rate_table_url != 'undefined' && update_rate_table_url != '' ){
                 $.ajax({
@@ -299,7 +298,7 @@
 
                     },
                     // Form data
-                    data: $('#update-rate-table-form').serialize(),
+                    data: $('#update-rate-generator-form').serialize(),
                     cache: false
 
                 });
@@ -310,31 +309,36 @@
             }
         });
 
-        $('#delete-rate-table-form').submit(function (e) {
+        $('#delete-rate-generator-form').submit(function (e) {
             e.preventDefault();
-            var RateGeneratorID = $(this).find('[name="RateGeneratorID"]').val();
-            var url = baseurl + '/rategenerators/'+RateGeneratorID+'/delete';
-            $.ajax({
-                url: url,
-                type: 'POST',
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status == 'success') {
-                        toastr.success(response.message, "Success", toastr_opts);
-                        data_table.fnFilter('', 0);
-                        reloadJobsDrodown(0);
-                        $('#modal-delete-ratetables').modal('hide');
-                    } else {
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                    $(".save.TrunkSelect").button('reset');
+            if($('#modal-delete-rategenerator .container').is(':empty')) {
+                var RateGeneratorID = $(this).find('[name="RateGeneratorID"]').val();
+                var url = baseurl + '/rategenerators/' + RateGeneratorID + '/delete';
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            data_table.fnFilter('', 0);
+                            reloadJobsDrodown(0);
+                            $('#modal-delete-rategenerator').modal('hide');
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $(".save.TrunkSelect").button('reset');
 
-                },
-                // Form data
-                data: $('#update-rate-table-form').serialize(),
-                cache: false
+                    },
+                    // Form data
+                    data: $('#update-rate-generator-form').serialize(),
+                    cache: false
 
-            });
+                });
+            }else{
+                alert('Please delete cron job first');
+                $(".btn").button('reset');
+            }
         });
 
         $(document).on('click','.cronjobedelete',function(){
@@ -349,9 +353,10 @@
                 return false;
             }else{
                 if(confirm('Are you sure you want to delete selected cron job?')){
-                    var rateGeneratorID = $('#delete-rate-table-form [name="RateGeneratorID"]').val();
+                    var rateGeneratorID = $('#delete-rate-generator-form [name="RateGeneratorID"]').val();
                     var url = baseurl + "/rategenerators/"+rateGeneratorID+"/deletecronjob";
                     var cronjobs = SelectedIDs.join(",");
+                    $('#modal-delete-rategenerator .container').html('');
                     $.ajax({
                         url: url,
                         type:'POST',
@@ -359,7 +364,7 @@
                         datatype:'json',
                         success: function(response) {
                             if (response.status == 'success') {
-                                $('#modal-delete-ratetables .container').html(response.table);
+                                $('#modal-delete-rategenerator .container').html(response.table);
                                 $('.selectall').prop("checked", false);
                                 toastr.success(response.message,'Success', toastr_opts);
                             }else{
@@ -424,7 +429,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form id="update-rate-table-form" method="post" >
+            <form id="update-rate-generator-form" method="post" >
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -484,11 +489,11 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal-delete-ratetables" data-backdrop="static">
+<div class="modal fade" id="modal-delete-rategenerator" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form id="delete-rate-table-form" method="post" >
+            <form id="delete-rate-generator-form" method="post" >
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
