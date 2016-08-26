@@ -756,12 +756,12 @@
                         <table class="table table-bordered datatable" id="paymentTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice No</th>
-                                <th>Amount</th>
-                                <th>Payment Date</th>
-                                <th>CreatedBy</th>
-                                <th width="30%">Notes</th>
+                                <th width="15%">Account Name</th>
+                                <th width="10%">Invoice No</th>
+                                <th width="10%">Amount</th>
+                                <th width="15%">Payment Date</th>
+                                <th width="15%">CreatedBy</th>
+                                <th width="35%">Notes</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -794,13 +794,13 @@
                         <table class="table table-bordered datatable" id="invoiceTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice Number</th>
-                                <th>Issue Date</th>
-                                <th>Period</th>
-                                <th>Grand Total</th>
-                                <th>Paid/OS</th>
-                                <th>Status</th>
+                                <th width="20%">Account Name</th>
+                                <th width="10%">Invoice Number</th>
+                                <th width="15%">Issue Date</th>
+                                <th width="20%">Period</th>
+                                <th width="11%">Grand Total</th>
+                                <th width="12%">Paid/OS</th>
+                                <th width="12%">Status</th>
                             </tr>
                             </thead>
                             <tbody>
