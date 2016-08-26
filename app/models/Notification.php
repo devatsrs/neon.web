@@ -7,13 +7,13 @@ class Notification extends \Eloquent {
     protected $table = 'tblNotification';
     protected  $primaryKey = "NotificationID";
 
-    const InvoiceGeneration = 1;
+    const InvoiceCopy = 1;
     const ReRate=2;
     const WeeklyPaymentTransactionLog=3;
     const LowBalanceReminder=4;
     const PendingApprovalPayment=5;
 
-    public static $type = [ Notification::InvoiceGeneration=>'Invoice Generation',
+    public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
         Notification::LowBalanceReminder=>'Low Balance Reminder',
