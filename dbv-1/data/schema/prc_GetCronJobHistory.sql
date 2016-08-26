@@ -15,6 +15,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
 
 
 
+
 )
 BEGIN
 
@@ -36,7 +37,7 @@ BEGIN
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
                 AND tblCronJobLog.CronJobID = p_CronJobID
                 AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
-                AND date(tblCronJobLog.created_at) between p_StartDate and p_EndDate
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
                 AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
             INNER JOIN tblCronJobCommand
                 ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
@@ -74,7 +75,7 @@ BEGIN
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
                 AND tblCronJobLog.CronJobID = p_CronJobID
                 AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
-                AND date(tblCronJobLog.created_at) between p_StartDate and p_EndDate
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
                 AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
             INNER JOIN tblCronJobCommand
                 ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID;
