@@ -998,8 +998,9 @@ class InvoicesController extends \BaseController {
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
-            $InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
-            $InvoiceGenerationEmail = ($InvoiceGenerationEmail =='Invalid Key')?$Company->Email:$InvoiceGenerationEmail;
+            //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
+            $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
+            $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
             $emailtoCustomer = getenv('EmailToCustomer');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
@@ -1065,9 +1066,9 @@ class InvoicesController extends \BaseController {
             if(!empty($Account->Owner))
             {
                 $AccountManager = User::find($Account->Owner);
-                $InvoiceGenerationEmail .= ',' . $AccountManager->EmailAddress;
+                $InvoiceCopy .= ',' . $AccountManager->EmailAddress;
             }
-            $sendTo = explode(",",$InvoiceGenerationEmail);
+            $sendTo = explode(",",$InvoiceCopy);
             //$sendTo[] = User::get_user_email();
             $data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
             $data['EmailTo'] = $sendTo;
