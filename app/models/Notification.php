@@ -7,13 +7,13 @@ class Notification extends \Eloquent {
     protected $table = 'tblNotification';
     protected  $primaryKey = "NotificationID";
 
-    const InvoiceGeneration = 1;
+    const InvoiceCopy = 1;
     const ReRate=2;
     const WeeklyPaymentTransactionLog=3;
     const LowBalanceReminder=4;
     const PendingApprovalPayment=5;
 
-    public static $type = [ Notification::InvoiceGeneration=>'Invoice Generation',
+    public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
         Notification::LowBalanceReminder=>'Low Balance Reminder',
@@ -21,11 +21,8 @@ class Notification extends \Eloquent {
 
     public static function getNotificationMail($type){
         $CompanyID = User::get_companyID();
-        $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type])->first();
-        if(!empty($Notification)){
-            return $Notification->EmailAddresses;
-        }
-        return '';
+        $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type])->pluck('EmailAddresses');
+        return empty($Notification)?'':$Notification;
     }
 
 }

@@ -1,14 +1,16 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(IN `p_CronJobID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
 	IN `p_CronJobID` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_SearchText` VARCHAR(50),
-	IN `p_Status` INT,
+	IN `p_Status` VARCHAR(50),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
+
+
 
 
 
@@ -34,8 +36,8 @@ BEGIN
             INNER JOIN tblCronJobLog 
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
                 AND tblCronJobLog.CronJobID = p_CronJobID
-                AND tblCronJobLog.CronJobStatus = p_Status
-                AND date(tblCronJobLog.created_at) between p_StartDate and p_EndDate
+                AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
                 AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
             INNER JOIN tblCronJobCommand
                 ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
@@ -72,8 +74,8 @@ BEGIN
             INNER JOIN tblCronJobLog 
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
                 AND tblCronJobLog.CronJobID = p_CronJobID
-                AND tblCronJobLog.CronJobStatus = p_Status
-                AND date(tblCronJobLog.created_at) between p_StartDate and p_EndDate
+                AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
                 AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
             INNER JOIN tblCronJobCommand
                 ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID;
@@ -90,7 +92,7 @@ BEGIN
         INNER JOIN tblCronJobLog 
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
                 AND tblCronJobLog.CronJobID = p_CronJobID
-                AND tblCronJobLog.CronJobStatus = p_Status
+                AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
                 AND tblCronJobLog.created_at between p_StartDate and p_EndDate
                 AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
         INNER JOIN tblCronjobCommand

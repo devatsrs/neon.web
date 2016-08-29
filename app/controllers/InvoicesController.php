@@ -812,6 +812,7 @@ class InvoicesController extends \BaseController {
         }
         $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
+        $message = '';
         if (Input::hasFile('Attachment')) {
             $upload_path = Config::get('app.upload_path');
             $Attachment = Input::file('Attachment');
@@ -825,6 +826,8 @@ class InvoicesController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
+            }else{
+                $message = $ext.' extension is not allowed. file not uploaded.';
             }
         }
 
@@ -867,7 +870,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return Response::json(["status" => "success", "message" => "Invoice in updated successfully"]);
+            return Response::json(["status" => "success", "message" => "Invoice in updated successfully".$message]);
 
         }else{
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
@@ -891,6 +894,7 @@ class InvoicesController extends \BaseController {
         }
         $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
+        $message = '';
         if (Input::hasFile('Attachment')) {
             $upload_path = Config::get('app.upload_path');
             $Attachment = Input::file('Attachment');
@@ -904,6 +908,8 @@ class InvoicesController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
+            }else{
+                $message = $ext.' extension is not allowed. file not uploaded.';
             }
         }
 
@@ -942,7 +948,7 @@ class InvoicesController extends \BaseController {
                     //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
                     Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "InvoiceType"=>Invoice::INVOICE_IN,"AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
                 }
-                return Response::json(["status" => "success", "message" => "Invoice in updated successfully"]);
+                return Response::json(["status" => "success", "message" => "Invoice in updated successfully".$message]);
             }else{
                 return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
             }
@@ -992,8 +998,9 @@ class InvoicesController extends \BaseController {
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
-            $InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
-            $InvoiceGenerationEmail = ($InvoiceGenerationEmail =='Invalid Key')?$Company->Email:$InvoiceGenerationEmail;
+            //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
+            $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
+            $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
             $emailtoCustomer = getenv('EmailToCustomer');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
@@ -1059,9 +1066,9 @@ class InvoicesController extends \BaseController {
             if(!empty($Account->Owner))
             {
                 $AccountManager = User::find($Account->Owner);
-                $InvoiceGenerationEmail .= ',' . $AccountManager->EmailAddress;
+                $InvoiceCopy .= ',' . $AccountManager->EmailAddress;
             }
-            $sendTo = explode(",",$InvoiceGenerationEmail);
+            $sendTo = explode(",",$InvoiceCopy);
             //$sendTo[] = User::get_user_email();
             $data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
             $data['EmailTo'] = $sendTo;

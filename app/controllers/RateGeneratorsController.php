@@ -636,7 +636,7 @@ class RateGeneratorsController extends \BaseController {
         return '';
     }
 
-    public function ajax_existing_ratetable_cronjob($id){
+    public function ajax_existing_rategenerator_cronjob($id){
         $companyID = User::get_companyID();
         $tag = '"rateGeneratorID":"'.$id.'"';
         $cronJobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->select(['JobTitle','Status','created_by','CronJobID'])->get()->toArray();
@@ -655,7 +655,7 @@ class RateGeneratorsController extends \BaseController {
                 }
                 $cronjob->delete();
             }
-            $table = $this->ajax_existing_ratetable_cronjob($id);
+            $table = $this->ajax_existing_rategenerator_cronjob($id);
             return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted","table"=>$table));
         }catch (Exception $ex){
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));

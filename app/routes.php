@@ -446,7 +446,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
-    Route::any('/rategenerators/{id}/ajax_existing_ratetable_cronjob', 'RateGeneratorsController@ajax_existing_ratetable_cronjob');
+    Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
     Route::any('/rategenerators/{id}/delete', 'RateGeneratorsController@delete');
 	Route::resource('rategenerators', 'RateGeneratorsController');
