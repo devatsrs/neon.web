@@ -95,7 +95,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
-	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
+	Route::post('/dashboard/getpiplelinedata', "DashboardController@GetPipleLineData");		
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
 	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
 	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");

@@ -32,6 +32,7 @@
     </div>
   </div>
 </div>
+<?php if(User::checkCategoryPermission('CrmDashboardTasks','View')){?>
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -60,7 +61,8 @@
     </div>
   </div>
 </div>
-    <?php if(User::checkCategoryPermission('CrmDashboardAccountView','View')){?>
+<?php }  ?>
+    <?php if(User::checkCategoryPermission('CrmDashboardAccount','View')){?>
     <div class="row">
     <div class="col-sm-12">
             <div class="panel panel-primary panel-table">
@@ -292,11 +294,19 @@ var CrmDashboardOpportunities = 1;
 var CrmDashboardOpportunities = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardAccountView','View'))
+@if(User::checkCategoryPermission('CrmDashboardAccount','View'))
 var CrmDashboardAccount = 1;
 @else 
 var CrmDashboardAccount = 0;
 @endif;
+
+@if(User::checkCategoryPermission('CrmDashboardTasks','View'))
+var CrmDashboardTasks = 1;
+@else 
+var CrmDashboardTasks = 0;
+@endif;
+
+
 
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 

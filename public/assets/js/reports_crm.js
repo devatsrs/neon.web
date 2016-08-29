@@ -298,7 +298,7 @@ function getPipleLineData(){
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
     $.ajax({
         type: 'POST',
-        url: baseurl+'/dashboard/getpiplelinepata',
+        url: baseurl+'/dashboard/getpiplelinedata',
         dataType: 'html',
         data:{UsersID:UsersID,CurrencyID:CurrencyID},
         aysync: true,
@@ -869,7 +869,8 @@ function GetSalesData(){
     });
 	}
 
-function GetUsersTasks(){
+function GetUsersTasks(){	
+	 if(CrmDashboardTasks===0){return false;} 
 	data_table1.fnFilter('',0);
 }
 
