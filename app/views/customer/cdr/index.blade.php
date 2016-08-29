@@ -244,16 +244,16 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 },
                 "aoColumns":
                 [
-                    { "bVisible": false, "bSortable": true  }, //0Checkbox
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true } /*,
+                    { "bVisible": false, "bSortable": false  }, //0Checkbox
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false } /*,
                          { mRender: function(id, type, full) {
                              action = '<div class = "hiddenRowData" >';
                              for(var i = 0 ; i< list_fields.length; i++){
