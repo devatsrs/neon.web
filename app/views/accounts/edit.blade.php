@@ -22,10 +22,12 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+    @if(User::checkCategoryPermission('CreditControl','View'))
     <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="fa fa-credit-card"></i>
         Credit Control
     </a>
+    @endif
     @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
         <i class="entypo-plus"></i>
