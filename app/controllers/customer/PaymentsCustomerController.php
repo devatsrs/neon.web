@@ -104,9 +104,10 @@ class PaymentsCustomerController extends \BaseController {
             }
             if (Payment::create($save)) {
                 $companyID = User::get_companyID();
-                $result = Company::select('PaymentRequestEmail','CompanyName')->where("CompanyID", '=', $companyID)->first();
-                $PaymentRequestEmail =explode(',',$result->PaymentRequestEmail);
-                $data['EmailToName'] = $result->CompanyName;
+                $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);
+
+                $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
+                $data['EmailToName'] = Company::getName();
                 $data['Subject']= 'Payment verification';
                 $save['AccountName'] = User::get_user_full_name();
                 $data['data'] = $save;
@@ -126,7 +127,7 @@ class PaymentsCustomerController extends \BaseController {
                 }
                 $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
 
-                foreach($PaymentRequestEmail as $billingemail){
+                foreach($PendingApprovalPayment as $billingemail){
                     if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingemail;
                         $status = sendMail('emails.admin.payment', $data);

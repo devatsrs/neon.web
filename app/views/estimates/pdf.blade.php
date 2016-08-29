@@ -118,12 +118,15 @@ table{
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$AccountBilling->RoundChargesAmount)}}</td>
                                                         </tr>
-                                                        <?php if(isset($TaxrateName)){ ?>
-                                                        <tr>
-                                                                <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
-         													 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalTax,$AccountBilling->RoundChargesAmount)}}</td>
-                                                        </tr>
-                                                        <?php } ?>
+
+                                                        @if(count($EstimateTaxRates))
+                                                            @foreach($EstimateTaxRates as $EstimateTaxRate)
+                                                                <tr>
+                                                                    <td class="text-right"><strong>{{$EstimateTaxRate->Title}}</strong></td>
+                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($EstimateTaxRate->TaxAmount,$AccountBilling->RoundChargesAmount)}}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
                                                         @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>

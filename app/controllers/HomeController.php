@@ -27,12 +27,10 @@ class HomeController extends BaseController {
 
                     if(User::checkCategoryPermission('MonitorDashboard', 'All')) {
                         $this->dashboard_url = '/monitor';
-                    }elseif (User::checkCategoryPermission('RmDashboard', 'All')) {
-                        $this->dashboard_url = '/dashboard';
-                    } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
-                        $this->dashboard_url = '/salesdashboard';
                     } elseif (User::checkCategoryPermission('BillingDashboard', 'All')) {
                         $this->dashboard_url = '/billingdashboard';
+                    } elseif (User::checkCategoryPermission('CrmDashboard', 'All')) {
+                        $this->dashboard_url = '/crmdashboard';
                     } elseif (User::checkCategoryPermission('Account', 'View')) {
                         $this->dashboard_url = '/accounts';
                     } else {
@@ -48,10 +46,10 @@ class HomeController extends BaseController {
             } else {
                 if (User::checkCategoryPermission('BillingDashboard', 'All')) {
                     $this->dashboard_url = '/billingdashboard';
-                } elseif (User::checkCategoryPermission('SalesDashboard', 'All')) {
-                    $this->dashboard_url = '/salesdashboard';
                 } elseif(User::checkCategoryPermission('MonitorDashboard', 'All')) {
                     $this->dashboard_url = '/monitor';
+                } elseif (User::checkCategoryPermission('CrmDashboard', 'All')) {
+                    $this->dashboard_url = '/crmdashboard';
                 } elseif (User::checkCategoryPermission('Account', 'View')) {
                     $this->dashboard_url = '/accounts';
                 } else {

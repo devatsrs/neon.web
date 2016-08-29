@@ -119,12 +119,14 @@ table{
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$AccountBilling->RoundChargesAmount)}}</td>
                                                         </tr>
-                                                        <?php if(isset($TaxrateName)){ ?>
-                                                        <tr>
-                                                                <td class="text-right"><strong><?php if(isset($TaxrateName)){echo $TaxrateName;} ?></strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalTax,$AccountBilling->RoundChargesAmount)}}</td>
-                                                        </tr>
-                                                        <?php } ?>
+                                                        @if(count($InvoiceTaxRates))
+                                                            @foreach($InvoiceTaxRates as $InvoiceTaxRate)
+                                                                <tr>
+                                                                    <td class="text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
+                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$AccountBilling->RoundChargesAmount)}}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
                                                         @if($Invoice->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>

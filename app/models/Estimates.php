@@ -35,6 +35,7 @@ class Estimate extends \Eloquent {
 		{
             $Estimate 			= 	Estimate::find($EstimateID);
             $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
+            $EstimateTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where("EstimateID",$EstimateID)->orderby('EstimateTaxRateID')->get();
             $Account 			= 	Account::find($Estimate->AccountID);
             $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $Currency 			= 	Currency::find($Account->CurrencyId);
@@ -60,7 +61,7 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 			$print_type = 'Estimate';
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling'))->render();
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','EstimateTaxRates'))->render();
             $body 	= 	htmlspecialchars_decode($body);
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_checkDialstringAndDupliacteCode`(IN `p_companyId` INT, IN `p_processId` VARCHAR(200) , IN `p_dialStringId` INT, IN `p_effectiveImmediately` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_checkDialstringAndDupliacteCode`(IN `p_companyId` INT, IN `p_processId` VARCHAR(200) , IN `p_dialStringId` INT, IN `p_effectiveImmediately` INT, IN `p_dialcodeSeparator` VARCHAR(50))
 BEGIN
 	
     DECLARE totaldialstringcode INT(11) DEFAULT 0;	 
@@ -25,9 +25,9 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 					);
 		
 		-- vendor code split with ';' and insert codes in tmp_split_VendorRate_
-					
-		CALL prc_SplitVendorRate(p_processId);					
-
+		
+		CALL prc_SplitVendorRate(p_processId,p_dialcodeSeparator);					
+		
 		
 		DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_2;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_VendorRate_2 as (SELECT * FROM tmp_split_VendorRate_);

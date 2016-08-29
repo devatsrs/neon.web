@@ -68,6 +68,7 @@ class Invoice extends \Eloquent {
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
+            $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$InvoiceID)->orderby('InvoiceTaxRateID')->get();
             $Account = Account::find($Invoice->AccountID);
             $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
@@ -91,7 +92,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -152,5 +153,18 @@ class Invoice extends \Eloquent {
         }
         return $InvoiceNumberPrefix.$Invoice->InvoiceNumber;
     }
+
+    public static function getCookie($name,$val=''){
+        $cookie = 1;
+        if(isset($_COOKIE[$name])){
+            $cookie = $_COOKIE[$name];
+        }
+        return $cookie;
+    }
+
+    public static function setCookie($name,$value){
+        setcookie($name,$value,strtotime( '+30 days' ),'/');
+    }
+
 
 }

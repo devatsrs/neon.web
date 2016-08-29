@@ -85,6 +85,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+    Route::any('/users/tracker', 'UsersController@view_tracker');
 
 
 	//DashBoard
@@ -444,7 +445,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
-    Route::any('/rategenerators/{id}/ajax_existing_ratetable_cronjob', 'RateGeneratorsController@ajax_existing_ratetable_cronjob');
+    Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
     Route::any('/rategenerators/{id}/delete', 'RateGeneratorsController@delete');
 	Route::resource('rategenerators', 'RateGeneratorsController');
@@ -705,6 +706,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
+    Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 
 	//Themes
 	Route::any('/themes', 'ThemesController@index');

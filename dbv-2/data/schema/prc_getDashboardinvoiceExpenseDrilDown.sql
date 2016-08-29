@@ -1,21 +1,17 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilDown`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_StartDate` VARCHAR(50), IN `p_EndDate` VARCHAR(50)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilDown`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` VARCHAR(50),
+	IN `p_EndDate` VARCHAR(50)
 
 
 
-, IN `p_Type` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50)
-
-
-
-
-
-
-
-
-
-
-
-
-
+,
+	IN `p_Type` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(50)
 
 
 
@@ -23,7 +19,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilD
 
 
 
-, IN `p_CustomerID` INT, IN `p_Export` INT
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+	IN `p_CustomerID` INT,
+	IN `p_Export` INT
+
+
+
+
 
 
 
@@ -231,17 +246,13 @@ BEGIN
 		PendingAmount decimal(18,6),
 		InvoiceStatus varchar(50),
 		InvoiceID int,
-		Description varchar(500),
-		Attachment varchar(255),
 		AccountID int,
 		ItemInvoice tinyint(1),
 		BillingEmail varchar(255),
 		AccountNumber varchar(100),
 		PaymentDueInDays int,
 		PaymentDate datetime,
-		SubTotal decimal(18,6),
-		TotalTax decimal(18,6),
-		NominalAnalysisNominalAccountNumber varchar(100)
+		SubTotal decimal(18,6)
 	);
 	
 	INSERT INTO tmp_Invoices_
@@ -256,17 +267,13 @@ BEGIN
 			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
 			inv.InvoiceStatus,
 			inv.InvoiceID,
-			inv.Description,
-			inv.Attachment,
 			inv.AccountID,
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
 			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
-			inv.SubTotal,
-			inv.TotalTax,
-			ac.NominalAnalysisNominalAccountNumber 
+			inv.SubTotal
       FROM tblInvoice inv
       INNER JOIN NeonRMDev.tblAccount ac ON inv.AccountID = ac.AccountID
       AND (p_CustomerID=0 OR ac.AccountID = p_CustomerID)
@@ -278,7 +285,8 @@ BEGIN
 		AND cr.CurrencyID = p_CurrencyID
 		AND (IssueDate BETWEEN p_StartDate AND p_EndDate)
 		AND InvoiceType = 1
-		AND ((p_Type=2 AND inv.InvoiceStatus NOT IN ( 'cancel' , 'draft' )) OR (p_Type=3 AND inv.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'paid')));
+		AND ((p_Type=2 AND inv.InvoiceStatus NOT IN ( 'cancel' , 'draft' )) OR (p_Type=3 AND inv.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'paid')))
+		AND (GrandTotal<>0);
 	IF p_Export = 0
 	THEN
       SELECT 
@@ -290,8 +298,6 @@ BEGIN
 			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
 			InvoiceStatus,
 			InvoiceID,
-			Description,
-			Attachment,
 			AccountID,
 			PendingAmount as OutstandingAmount, 
 			ItemInvoice,

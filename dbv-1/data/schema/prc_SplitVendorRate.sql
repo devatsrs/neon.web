@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_SplitVendorRate`(IN `p_processId` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_SplitVendorRate`(IN `p_processId` VARCHAR(200), IN `p_dialcodeSeparator` VARCHAR(50))
 BEGIN
 
 	DECLARE i INTEGER;
@@ -6,6 +6,10 @@ BEGIN
 	DECLARE v_pointer_ INT;	
 	DECLARE v_TempVendorRateID_ INT;
 	DECLARE v_Code_ VARCHAR(500);	
+	DECLARE newcodecount INT(11) DEFAULT 0;
+	
+	IF p_dialcodeSeparator !='null'
+	THEN
 	
 	-- procedure is use for first data splite  with ';' into new rows.
 	
@@ -14,14 +18,14 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS `my_splits`;
 	CREATE TEMPORARY TABLE `my_splits` (
 		`TempVendorRateID` INT(11) NULL DEFAULT NULL,
-		`Code` VARCHAR(500) NULL DEFAULT NULL
+		`Code` Text NULL DEFAULT NULL
 	);
     
   SET i = 1;
   REPEAT
     INSERT INTO my_splits (TempVendorRateID, Code)
-      SELECT TempVendorRateID , FnStringSplit(Code, ';', i)  FROM tblTempVendorRate
-      WHERE FnStringSplit(Code, ';', i) IS NOT NULL
+      SELECT TempVendorRateID , FnStringSplit(Code, p_dialcodeSeparator, i)  FROM tblTempVendorRate
+      WHERE FnStringSplit(Code, p_dialcodeSeparator , i) IS NOT NULL
 			 AND ProcessId = p_processId;
     SET i = i + 1;
     UNTIL ROW_COUNT() = 0
@@ -29,6 +33,7 @@ BEGIN
   
   UPDATE my_splits SET Code = trim(Code);
   
+	
   -- after splite with ';' now we create temp table of where data with '-'
   
   DROP TEMPORARY TABLE IF EXISTS tmp_newvendor_splite_;
@@ -71,7 +76,7 @@ BEGIN
 
 	-- tmp_split_VendorRate_ table crated in prc_WSProcessVendorRate and use in prc_checkDialstringAndDupliacteCode
 	
-	INSERT INTO tmp_split_VendorRate_
+	 INSERT INTO tmp_split_VendorRate_
 	SELECT DISTINCT
 		   my_splits.TempVendorRateID as `TempVendorRateID`,
 		   `CodeDeckId`,
@@ -90,5 +95,30 @@ BEGIN
 		   INNER JOIN tblTempVendorRate 
 				ON my_splits.TempVendorRateID = tblTempVendorRate.TempVendorRateID
 		  WHERE	tblTempVendorRate.ProcessId = p_processId;	
-
+		  
+	END IF;
+	
+	IF p_dialcodeSeparator = 'null'
+	THEN
+	
+		INSERT INTO tmp_split_VendorRate_
+		SELECT DISTINCT
+			  `TempVendorRateID`,
+			  `CodeDeckId`,
+			   `Code`,
+			   `Description`,
+				`Rate`,
+				`EffectiveDate`,
+				`Change`,
+				`ProcessId`,
+				`Preference`,
+				`ConnectionFee`,
+				`Interval1`,
+				`IntervalN`,
+				`Forbidden`
+			 FROM tblTempVendorRate
+			  WHERE ProcessId = p_processId;	
+	
+	END IF;	
+		
 END

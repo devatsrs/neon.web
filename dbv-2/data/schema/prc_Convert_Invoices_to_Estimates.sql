@@ -13,7 +13,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
 	 		 te.AccountID,
 			 te.Address,
 			 FNGetInvoiceNumber(te.AccountID) as InvoiceNumber,
-			 NOW() as IssueDate,
+			 DATE(NOW()) as IssueDate,
 			 te.CurrencyID,
 			 te.PONumber,
 			 1 as InvoiceType,
@@ -92,6 +92,27 @@ where
 			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
 			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
 			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus)));
+			
+	INSERT INTO tblInvoiceTaxRate ( `InvoiceID`, `TaxRateID`, `TaxAmount`, `Title`, `CreatedBy`,`ModifiedBy`)
+	SELECT 
+		inv.InvoiceID,
+		ted.TaxRateID,
+		ted.TaxAmount,
+		ted.Title,
+		ted.CreatedBy,
+		ted.ModifiedBy
+	FROM tblEstimateTaxRate ted
+	INNER JOIN tblInvoice inv ON  inv.EstimateID = ted.EstimateID
+	INNER JOIN tblEstimate ti ON  ti.EstimateID = ted.EstimateID
+	WHERE	(p_convert_all=0 and ti.EstimateID = p_EstimateID)
+		OR	(
+			p_EstimateID = '' and p_convert_all =1 and (ti.CompanyID = p_CompanyID)	
+			AND (p_AccountID = '' OR ( p_AccountID != '' AND ti.AccountID = p_AccountID))
+			AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND ti.EstimateNumber = p_EstimateNumber))			
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND ti.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND ti.IssueDate <= p_IssueDateEnd))
+			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND ti.EstimateStatus = p_EstimateStatus))
+		);
 		
 insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
 select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv

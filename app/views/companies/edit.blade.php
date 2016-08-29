@@ -166,30 +166,6 @@
 
                 </div>
             </div>
-            <!--<div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Cron Job Email Setup
-                    </div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Rate Generation Emails (Multiple Email addresses with comma separated)</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="RateGenerationEmail" class="form-control" id="field-1" placeholder="Rate Generation Emails" value="{{$RateGenerationEmail}}" />
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Generation Emails (Multiple Email addresses with comma separated)</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="InvoiceGenerationEmail" class="form-control" id="field-1" placeholder="Invoice Generation Emails" value="{{$InvoiceGenerationEmail}}" />
-                        </div>
-                    </div>
-                </div>
-            </div>-->
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -246,33 +222,35 @@
                                 </div>
                             </div>
                             <div class="panel-body">
+                                <div class="form-group" >
+                                    <label for="field-1" class="col-sm-2 control-label">Default Tax Rate</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('DefaultTextRate[]', $taxrates, (isset($DefaultTextRate)? explode(',',$DefaultTextRate) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
+                                    </div>
+                                    <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
+                                    <div class="col-sm-4">
+                                        <div class="input-spinner">
+                                            <button type="button" class="btn btn-default">-</button>
+                                            {{Form::text('PaymentDueInDays',$PaymentDueInDays,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
+                                            <button type="button" class="btn btn-default">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
+                                    <div class="col-sm-4">
+                                        <div class="input-spinner">
+                                            <button type="button" class="btn btn-default">-</button>
+                                            {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                            <button type="button" class="btn btn-default">+</button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Billing Timezone</label>
                                     <div class="col-sm-4">
                                         {{Form::select('BillingTimezone', $timezones,$BillingTimezone,array("class"=>"form-control select2"))}}
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"selectboxit"))}}
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                   <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
-                                   <div class="col-sm-4">
-                                       <div class="input-spinner">
-                                           <button type="button" class="btn btn-default">-</button>
-                                           {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
-                                           <button type="button" class="btn btn-default">+</button>
-                                       </div>
-                                   </div>
-                                   <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
-                                   <div class="col-sm-4">
-                                       <div class="input-spinner">
-                                           <button type="button" class="btn btn-default">-</button>
-                                           {{Form::text('PaymentDueInDays',$PaymentDueInDays,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                                           <button type="button" class="btn btn-default">+</button>
-                                       </div>
-                                   </div>
                                 </div>
                                 <div class="form-group">
                                                     <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
@@ -318,33 +296,15 @@
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
                                     </div>
                                 </div>
-                                <div class="form-group">
-
-                                    <label for="field-1" class="col-sm-2 control-label">Payment Request Email (Multiple Email addresses with comma separated)</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="PaymentRequestEmail" class="form-control" id="field-1" placeholder="Payment Request Emails" value="{{$company->PaymentRequestEmail}}" />
-                                    </div>
-
-                                    <label for="field-1" class="col-sm-2 control-label">Due Sheet Email</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="DueSheetEmail" class="form-control" id="field-1" placeholder="Due Sheet Email" value="{{$company->DueSheetEmail}}" />
-                                    </div>
-                                </div>
                                 <div class="form-group" >
-                                <label for="field-1" class="col-sm-2 control-label">SalesBoard Timezone</label>
+                                    <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
                                     <div class="col-sm-4">
-                                        {{Form::select('SalesTimeZone', $timezones,$SalesTimeZone,array("class"=>"form-control select2"))}}
+                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"selectboxit"))}}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
                                     <p class="make-switch switch-small">
                                         <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
                                     </p>
-                                </div>
-                                <div class="form-group" >
-                                    <label for="field-1" class="col-sm-2 control-label">Default Tax Rate</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('DefaultTextRate[]', $taxrates, (isset($DefaultTextRate)? explode(',',$DefaultTextRate) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
-                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
