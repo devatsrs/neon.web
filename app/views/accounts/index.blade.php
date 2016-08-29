@@ -309,7 +309,7 @@
                                 edit_ = "{{ URL::to('accounts/{id}/edit')}}";
                                 show_ = "{{ URL::to('accounts/{id}/show')}}";
                                 chart_ = "{{ URL::to('accounts/activity/{id}')}}";
-                                credit_ = "{{ URL::to('accounts/get_credit/{id}')}}";
+                                credit_ = "{{ URL::to('account/get_credit/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
 
