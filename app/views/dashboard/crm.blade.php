@@ -60,6 +60,49 @@
     </div>
   </div>
 </div>
+    <?php if(User::checkCategoryPermission('CrmDashboardAccountView','View')){?>
+    <div class="row">
+    <div class="col-sm-12">
+            <div class="panel panel-primary panel-table">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <h3>Recent Accounts</h3>
+                        <span>Recently Added Accounts</span>
+                    </div>
+
+                    <div id="AccountsTab" class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <table id="accounts" class="table table-responsive">
+                        <thead>
+                        <tr>
+                            <th >Account Name</th>
+                            <th >Phone</th>
+                            <th >Email</th>
+                            <th >Created By</th>
+                            <th >Created</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <?php if(User::checkCategoryPermission('Account','View')){?>
+                    <div class="text-right">
+                        <a href="{{URL::to('/accounts')}}" class="btn btn-primary text-right">View All</a>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+    </div>
+    </div>
+    <?php }
+    ?>
+
 <div class="row">
 @if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
@@ -249,7 +292,11 @@ var CrmDashboardOpportunities = 1;
 var CrmDashboardOpportunities = 0;
 @endif;
 
-
+@if(User::checkCategoryPermission('CrmDashboardAccountView','View'))
+var CrmDashboardAccount = 1;
+@else 
+var CrmDashboardAccount = 0;
+@endif;
 
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 

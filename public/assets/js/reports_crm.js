@@ -418,6 +418,7 @@ function reloadCrmCharts(){
 	 GetForecastData();
 	 GetSalesDataAccountManager();
 	 data_table.fnFilter('',0);
+	 GetAccounts();	 
 }
 
 
@@ -498,7 +499,10 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 		return false;
 	}
 	
-	
+	if(id=='AccountsTab'){
+		GetAccounts();
+		return false;
+	}	
 	
 });
 
@@ -508,7 +512,7 @@ function GetForecastData(){
 	 if(CrmDashboardForecast===0){return false;} 
 	//////////////////////////////////
 	loadingUnload(".crmdForecast",1);	 
-	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
+	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val(); 
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var Closingdate   = $("#crm_dashboard_Forecast [name='Closingdate']").val();
 
@@ -867,6 +871,49 @@ function GetSalesData(){
 
 function GetUsersTasks(){
 	data_table1.fnFilter('',0);
+}
+
+function GetAccounts(){
+	////////////////////
+		 if(CrmDashboardAccount===0){return false;} 
+	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
+	 var url = baseurl+'/dashboard/ajax_get_recent_accounts';
+	 var table = $('#accounts');
+ 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
+
+
+	    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        data:{CurrencyID:CurrencyID,UsersID:UsersID},
+        aysync: true,
+        success: function(response) {
+			
+                        var accounts = response.accounts;
+                        html = '';
+                        table.find('tbody').html('');
+                        if(accounts.length > 0){
+                            for (i = 0; i < accounts.length; i++) {
+                                var url = accounts[i]["Accounturl"];
+                                var AccountName = accounts[i]["AccountName"];
+                                html +='<tr>';
+                                html +='  <td><a target="_blank" href="'+url+'">'+AccountName+'</a></td>';
+                                html +='      <td>'+accounts[i]["Phone"]+'</td>';
+                                html +='      <td>'+accounts[i]["Email"]+'</td>';
+                                html +='      <td>'+accounts[i]["created_by"]+'</td>';
+                                html +='      <td>'+accounts[i]["daydiff"]+'</td>';
+                                html +='</tr>';
+                            }
+                        }else{
+                            html = '<td colspan="3">No Records found.</td>';
+                        }
+                        table.find('tbody').html(html);
+                        loadingUnload(table,0);
+                    
+			}
+    });
+	///////////////////////////          
 }
 
 

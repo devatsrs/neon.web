@@ -335,13 +335,14 @@ class DashboardController extends BaseController {
     }
 
     public function ajax_get_recent_accounts(){
-        $companyID = User::get_companyID();
-        $userID = User::get_userID();
-        $AccountManager = 0;
+        $companyID 			= 	 User::get_companyID();        
+		$data 				= 	 Input::all();	
+		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):0;
+        $AccountManager 	= 	 0;
         if (User::is('AccountManager')) { // Account Manager
             $AccountManager = 1;
         }
-        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.','.$AccountManager.")";
+        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."')"; 
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';
