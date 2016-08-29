@@ -291,7 +291,7 @@ var CrmDashboardForecast = 0;
 @if(User::checkCategoryPermission('CrmDashboardOpportunities','View')) 
 var CrmDashboardOpportunities = 1;
 @else 
-var CrmDashboardOpportunities = 0;
+var CrmDashboardOpportunities = 0; 
 @endif;
 
 @if(User::checkCategoryPermission('CrmDashboardAccount','View'))

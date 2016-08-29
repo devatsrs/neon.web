@@ -252,7 +252,7 @@ class DashboardController extends BaseController {
 	
 	
 	 public function GetOpportunites(){
-        $data = Input::all();  
+        $data = Input::all();   
         $data['iDisplayStart'] +=1;
         if(User::is('AccountManager')){
             $data['AccountOwner'] = User::get_userID();

@@ -80,7 +80,7 @@
 			$searchFilter.CurrencyID = $("#crm_dashboard select[name='CurrencyID']").val();
 			
 			//opportunites grid start
-		function Getopportunities(){	
+		function Getopportunities(){	  
 		 if(CrmDashboardOpportunities===0){return false;} 
         data_table = $("#opportunityGrid").dataTable({
 		        "bDestroy": true,
