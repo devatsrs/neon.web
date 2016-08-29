@@ -89,7 +89,7 @@
                                     <label for="field-1" class="col-sm-1 control-label">Issue Date</label>
 
                                     <div class="col-sm-2">
-                                        {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):$data['StartDateDefault'].' - '.$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
+                                        {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):'', array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Currency</label>
 
