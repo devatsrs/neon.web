@@ -65,7 +65,7 @@ BEGIN
 					ELSE
 						''
 					END as `Formula`,
-					'' AS `Status`
+					'N' AS `Discontinued`
        FROM    tmp_VendorRate_ as tblVendorRate 
                JOIN tblRate on tblVendorRate.RateId =tblRate.RateID
                LEFT JOIN tblVendorBlocking as blockCode
@@ -98,7 +98,7 @@ BEGIN
 					ELSE
 						''
 					END as `Formula`,
-			 		'Discontinued' AS `Status`
+			 		'Y' AS `Discontinued`
 			  FROM tblVendorRateDiscontinued vrd
 					LEFT JOIN tblVendorRate vr
 						ON vrd.AccountId = vr.AccountId 

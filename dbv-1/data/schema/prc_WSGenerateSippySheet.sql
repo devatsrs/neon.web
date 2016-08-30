@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateSippySheet`(IN `p_CustomerID` INT , IN `p_Trunks` VARCHAR(200), IN `p_Effective` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateSippySheet`(IN `p_CustomerID` INT , IN `p_Trunks` varchar(200) , IN `p_Effective` VARCHAR(50))
 BEGIN
     
     DECLARE v_codedeckid_ INT;
@@ -65,7 +65,7 @@ BEGIN
          
         SET v_TrunkID_ = (SELECT TrunkID FROM tmp_trunks_ t WHERE t.RowNo = v_pointer_);
      
-        CALL prc_GetCustomerRate(v_companyid_,p_CustomerID,v_TrunkID_,null,null,null,p_Effective,1,0,0,0,'','',2);
+        CALL prc_GetCustomerRate(v_companyid_,p_CustomerID,v_TrunkID_,null,null,null,p_Effective,1,0,0,0,'','',-1);
         
         INSERT INTO tmp_customerrateall_
         SELECT * FROM tmp_customerrate_;

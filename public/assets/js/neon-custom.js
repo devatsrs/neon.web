@@ -918,10 +918,16 @@ toastr_opts = {
 
                 var $this = $(el),
                     opts = {
-                        format: attrDefault($this, 'format', 'MM/DD/YYYY'),
+                        locale:{
+                            format: attrDefault($this, 'format', 'MM/DD/YYYY'),
+                            separator: attrDefault($this, 'separator', ' - ')
+                        },
                         timePicker: attrDefault($this, 'timePicker', false),
                         timePickerIncrement: attrDefault($this, 'timePickerIncrement', false),
-                        separator: attrDefault($this, 'separator', ' - ')
+                        timePicker24Hour:attrDefault($this, 'timePicker24Hour', true),
+                        timePickerSeconds:attrDefault($this, 'timePickerSeconds', true),
+                        autoUpdateInput: false,
+
                     },
                     min_date = attrDefault($this, 'minDate', ''),
                     max_date = attrDefault($this, 'maxDate', ''),
@@ -969,6 +975,13 @@ toastr_opts = {
                         $this.find('span').html(start.format(drp.format) + drp.separator + end.format(drp.format));
                     }
                 });
+            });
+            $('.daterange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format(attrDefault($(this), 'format', 'MM/DD/YYYY')) + ' - ' + picker.endDate.format(attrDefault($(this), 'format', 'MM/DD/YYYY')));
+            });
+
+            $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
             });
         }
 
@@ -1551,8 +1564,6 @@ function fit_main_content_height()
 
         if (isxs())
         {
-            public_vars.$sidebarMenu.css('display','block');
-            public_vars.$mainContent.css('display','inherit');
             if (typeof reset_mail_container_height != 'undefined')
                 reset_mail_container_height();
             return;
@@ -1560,9 +1571,6 @@ function fit_main_content_height()
             if (typeof fit_calendar_container_height != 'undefined')
                 reset_calendar_container_height();
             return;
-        }else{
-            public_vars.$sidebarMenu.css('display','table-cell');
-            public_vars.$mainContent.css('display','table-cell');
         }
 
         var sm_height = public_vars.$sidebarMenu.outerHeight(),

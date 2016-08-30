@@ -99,6 +99,9 @@ class PaymentsCustomerController extends \BaseController {
             $save = $isvalid['data'];
             unset($save['Currency']);
             $save['Status'] = 'Pending Approval';
+            if(isset($save['InvoiceNo'])) {
+                $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+            }
             if (Payment::create($save)) {
                 $companyID = User::get_companyID();
                 $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);

@@ -259,7 +259,7 @@ class VendorFileUploadTemplateController extends \BaseController {
             $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
             $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
             $verificationflag = AccountApprovalList::isVerfiable($id);
-            $outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,$account->RoundChargesAmount);
+            $outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,get_round_decimal_places($account->AccountID));
             $currency = Currency::getCurrency($account->CurrencyId);
             return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts','verificationflag','outstanding','currency'));
     }

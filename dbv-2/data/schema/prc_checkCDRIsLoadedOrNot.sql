@@ -5,9 +5,9 @@ BEGIN
     DECLARE v_notInGateeway_ INT;
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-    SELECT COUNT(*) INTO v_notInGateeway_ FROM tblGatewayAccount 
-	 INNER  JOIN  LocalRatemanagement.tblCompanyGateway cg ON cg.CompanyGatewayID  = ga.CompanyGatewayID AND cg.Status = 1 
-	 WHERE ga.AccountID = p_AccountID and ga.CompanyID  = p_CompanyID;
+    SELECT COUNT(*) INTO v_notInGateeway_ FROM tblGatewayAccount ga
+	 INNER  JOIN  NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID  = ga.CompanyGatewayID AND cg.Status = 1 
+	 WHERE ga.AccountID = p_AccountID and ga.CompanyID  = p_CompanyID;    
 
 
     IF v_notInGateeway_ > 0 
@@ -18,7 +18,7 @@ BEGIN
             SELECT  MAX(tmpusglog.end_time) AS end_time ,ga.CompanyGatewayID  
             FROM  tblGatewayAccount ga  
             INNER  JOIN  tblTempUsageDownloadLog tmpusglog on tmpusglog.CompanyGatewayID = ga.CompanyGatewayID
-            INNER  JOIN  LocalRatemanagement.tblCompanyGateway cg ON cg.CompanyGatewayID  = ga.CompanyGatewayID AND cg.Status = 1
+            INNER  JOIN  NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID  = ga.CompanyGatewayID AND cg.Status = 1 
             WHERE  ga.AccountID = p_AccountID and ga.CompanyID  = p_CompanyID
             GROUP BY ga.CompanyGatewayID
             )TBL;        
