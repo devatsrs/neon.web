@@ -818,7 +818,7 @@ class InvoicesController extends \BaseController {
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
-            if (in_array($ext, array("pdf", "jpg", "png", "gif"))) {
+            if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($upload_path, $file_name);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
@@ -901,7 +901,7 @@ class InvoicesController extends \BaseController {
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
-            if (in_array($ext, array("pdf", "jpg", "png", "gif"))) {
+            if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($upload_path, $file_name);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
