@@ -144,17 +144,11 @@ class InvoicesController extends \BaseController {
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
-        $InvoiceNo = Invoice::where(array('CompanyID'=>$companyID,'InvoiceType'=>Invoice::INVOICE_OUT))->get(['InvoiceNumber']);
-        $InvoiceNoarray = array();
-        foreach($InvoiceNo as $Invoicerow){
-            $InvoiceNoarray[] = $Invoicerow->InvoiceNumber;
-        }
-        $invoice 						= 	implode(',',$InvoiceNoarray);
-		$data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
 		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','invoice','emailTemplates','templateoption','DefaultCurrencyID','data','InvoiceHideZeroValue'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue'));
 
     }
 
@@ -189,13 +183,11 @@ class InvoicesController extends \BaseController {
             $accounts = Account::getAccountIDList();
             $products = Product::getProductDropdownList();
             //$gateway_product_ids = Product::getGatewayProductIDs();
-            $Account = Account::where(["AccountID" => $Invoice->AccountID])->select(["AccountName","BillingEmail", "TaxRateID","RoundChargesAmount","CurrencyId","InvoiceTemplateID"])->first();
+            $Account = Account::where(["AccountID" => $Invoice->AccountID])->select(["AccountName","BillingEmail", "CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
+            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $CurrencyID = !empty($Invoice->CurrencyID)?$Invoice->CurrencyID:$Account->CurrencyId;
-            $RoundChargesAmount = 2;
-            if($Account->RoundChargesAmount > 0){
-                $RoundChargesAmount = $Account->RoundChargesAmount;
-            }
-            $InvoiceTemplateID =$Account->InvoiceTemplateID;
+            $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
+            $InvoiceTemplateID =AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID');
             $InvoiceNumberPrefix = ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix:'';
             $Currency = Currency::find($CurrencyID);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
@@ -242,7 +234,10 @@ class InvoicesController extends \BaseController {
             $InvoiceData["Terms"] = $data["Terms"];
             $InvoiceData["FooterTerm"] = $data["FooterTerm"];
             $InvoiceData["CreatedBy"] = $CreatedBy;
-
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
+            if((int)$InvoiceTemplateID == 0){
+                return Response::json(array("status" => "failed", "message" => "Please enable billing."));
+            }
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
@@ -263,12 +258,14 @@ class InvoicesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+
             try{
+                $InvoiceData["FullInvoiceNumber"] = InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
                 //Store Last Invoice Number.
                 if($isAutoInvoiceNumber) {
-                    InvoiceTemplate::find(Account::find($data["AccountID"])->InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
+                    InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
                 }
 
                 $InvoiceDetailData = $InvoiceTaxRates = array();
@@ -473,11 +470,11 @@ class InvoicesController extends \BaseController {
         if(isset($data['product_type']) && Product::$ProductTypes[$data['product_type']] && isset($data['account_id']) && isset($data['product_id']) && isset($data['qty'])) {
             $AccountID = intval($data['account_id']);
             $Account = Account::find($AccountID);
+            $AccountBilling = AccountBilling::getBilling($AccountID);
             if (!empty($Account)) {
-                $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+                $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
                 if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
-                    $decimal_places = 2;
-                    $decimal_places = ($Account->RoundChargesAmount > 0) ? $Account->RoundChargesAmount : $decimal_places;
+                    $decimal_places = get_round_decimal_places($AccountID);
 
                     if (Product::$ProductTypes[$data['product_type']] == Product::ITEM) {
 
@@ -487,7 +484,7 @@ class InvoicesController extends \BaseController {
                         $Product = Product::find($data['product_id']);
                         if (!empty($Product)) {
 
-                            $Account = Account::find($data['account_id']);
+
                             $ProductAmount = number_format($Product->Amount, $decimal_places,".","");
                             $ProductDescription = $Product->Description;
 
@@ -496,7 +493,7 @@ class InvoicesController extends \BaseController {
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
-                            $AccountTaxRate = explode(",", $Account->TaxRateId);
+                            $AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
                             //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
@@ -556,10 +553,11 @@ class InvoicesController extends \BaseController {
     {
         $data = Input::all();
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
-            $fields =["CurrencyId","Address1","Address2","Address3","City","PostCode","Country","InvoiceTemplateID"];
+            $fields =["CurrencyId","Address1","Address2","Address3","City","PostCode","Country"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
+            $AccountBilling = AccountBilling::getBilling($data['account_id']);
             $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplateID = $Account->InvoiceTemplateID;
+            $InvoiceTemplateID  = 	AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID');
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
             $Terms = $FooterTerm = '';
@@ -601,9 +599,10 @@ class InvoicesController extends \BaseController {
         $Invoice = Invoice::find($id);
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
         $Account  = Account::find($Invoice->AccountID);
+        $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
         $Currency = Currency::find($Account->CurrencyId);
         $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-        $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+        $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
         if(empty($InvoiceTemplate->CompanyLogoUrl)){
             $logo = 'http://placehold.it/250x100';
         }else{
@@ -702,9 +701,10 @@ class InvoicesController extends \BaseController {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
@@ -810,7 +810,7 @@ class InvoicesController extends \BaseController {
         if($data['StartDate'] >= $data['EndDate']){
             return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
         }
-        $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
+        $fields =["CurrencyId","Address1","Address2","Address3","City","Country"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
@@ -839,6 +839,7 @@ class InvoicesController extends \BaseController {
         $InvoiceData["AccountID"] = $data["AccountID"];
         $InvoiceData["Address"] = $Address;
         $InvoiceData["InvoiceNumber"] = $data["InvoiceNumber"];
+        $InvoiceData["FullInvoiceNumber"] = $data["InvoiceNumber"];
         $InvoiceData["IssueDate"] = $data["IssueDate"];
         $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceData["CurrencyID"] = $Account->CurrencyId;
@@ -892,7 +893,7 @@ class InvoicesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        $fields =["CurrencyId","Address1","Address2","Address3","City","Country","InvoiceTemplateID"];
+        $fields =["CurrencyId","Address1","Address2","Address3","City","Country"];
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
@@ -921,6 +922,7 @@ class InvoicesController extends \BaseController {
         $InvoiceData["AccountID"] = $data["AccountID"];
         $InvoiceData["Address"] = $Address;
         $InvoiceData["InvoiceNumber"] = $data["InvoiceNumber"];
+        $InvoiceData["FullInvoiceNumber"] = $data["InvoiceNumber"];
         $InvoiceData["IssueDate"] = $data["IssueDate"];
         $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceData["CurrencyID"] = $Account->CurrencyId;
@@ -974,11 +976,8 @@ class InvoicesController extends \BaseController {
             $Currency = Currency::find($Account->CurrencyId);
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
-                $Subject = "New Invoice " . Invoice::getFullInvoiceNumber($Invoice,$Account). ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-                $RoundChargesAmount = 2;
-                if($Account->RoundChargesAmount > 0){
-                    $RoundChargesAmount = $Account->RoundChargesAmount;
-                }
+                $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+                $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
 
                 $data = [
                     'CompanyName' => $CompanyName,
@@ -1330,6 +1329,7 @@ class InvoicesController extends \BaseController {
         }
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
         $account = Account::where(['AccountID'=>$AccountID])->first();
+        $AccountBilling = AccountBilling::getBilling($AccountID);
         if(!empty($Invoice)) {
             $data['GrandTotal'] = $Invoice->GrandTotal;
             $response = AuthorizeNet::pay_invoice($data);
@@ -1344,7 +1344,8 @@ class InvoicesController extends \BaseController {
                 $paymentdata = array();
                 $paymentdata['CompanyID'] = $Invoice->CompanyID;
                 $paymentdata['AccountID'] = $Invoice->AccountID;
-                $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$account);
+                $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+                $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
                 $paymentdata['PaymentDate'] = date('Y-m-d');
                 $paymentdata['PaymentMethod'] = $response->method;
                 $paymentdata['CurrencyID'] = $account->CurrencyId;

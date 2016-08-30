@@ -19,10 +19,10 @@ BEGIN
             Forbidden
         FROM tblDialStringCode
         WHERE  (DialStringID = p_dialstringid)
-        	AND (Forbidden = p_forbidden)
+	      AND (Forbidden = p_forbidden)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
-            AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'))                        
+            AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'))            
         ORDER BY
             CASE
                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DialStringDESC') THEN DialString
@@ -54,7 +54,7 @@ BEGIN
             COUNT(DialStringCodeID) AS totalcount
         FROM tblDialStringCode
         WHERE  (DialStringID = p_dialstringid)
-        AND (Forbidden = p_forbidden)
+         AND (Forbidden = p_forbidden) 
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'));
@@ -71,6 +71,7 @@ BEGIN
             Forbidden
         FROM tblDialStringCode
         WHERE  (DialStringID = p_dialstringid)
+        	AND (Forbidden = p_forbidden)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'));   
@@ -87,6 +88,7 @@ BEGIN
             Forbidden
         FROM tblDialStringCode
         WHERE  (DialStringID = p_dialstringid)
+         AND (Forbidden = p_forbidden)
 			AND (p_dialstring IS NULL OR DialString LIKE REPLACE(p_dialstring, '*', '%'))
             AND (p_chargecode IS NULL OR ChargeCode LIKE REPLACE(p_chargecode, '*', '%'))
             AND (p_description IS NULL OR Description LIKE REPLACE(p_description, '*', '%'));   

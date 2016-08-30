@@ -37,10 +37,11 @@ class Estimate extends \Eloquent {
             $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
             $EstimateTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where("EstimateID",$EstimateID)->orderby('EstimateTaxRateID')->get();
             $Account 			= 	Account::find($Estimate->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency)?$Currency->Code:'';
 			$CurrencySymbol 	=   Currency::getCurrencySymbol($Account->CurrencyId);
-            $EstimateTemplate 	= 	InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $EstimateTemplate 	= 	InvoiceTemplate::find($AccountBilling->InvoiceTemplateID);
 			
             if (empty($EstimateTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key) == '')
 			{
@@ -60,7 +61,7 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 			$print_type = 'Estimate';
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','EstimateTaxRates'))->render();
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','EstimateTaxRates'))->render();
             $body 	= 	htmlspecialchars_decode($body);
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
@@ -124,12 +125,12 @@ class Estimate extends \Eloquent {
 		
         return $invoicearray;
     }
-    public static function getFullEstimateNumber($Estimate,$Account)
+    public static function getFullEstimateNumber($Estimate,$AccountBilling)
 	{
         $EstimateNumberPrefix = '';
-        if(!empty($Account->InvoiceTemplateID))
+        if(!empty($AccountBilling->InvoiceTemplateID))
 		{
-             $EstimateNumberPrefix = InvoiceTemplate::find($Account->InvoiceTemplateID)->EstimateNumberPrefix;
+             $EstimateNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->EstimateNumberPrefix;
         }
         return $EstimateNumberPrefix.$Estimate->EstimateNumber;
     }
