@@ -11,7 +11,7 @@ BEGIN
  	SET 
 		JobStatusID = ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'C' ),
 		ModifiedBy  = p_UserName,
-		JobStatusMessage = concat(  p_UserName , ' has canceled the job. ', '\n' , JobStatusMessage  ),
+		JobStatusMessage = concat(  p_UserName , ' has cancelled the job. ', '\n' , JobStatusMessage  ),
 		updated_at = now()
  	WHERE 
  	JobID  = p_JobID

@@ -59,10 +59,7 @@ class ProductsController extends \BaseController {
 
         $data = Input::all();
         $companyID = User::get_companyID();
-        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
-        if($roundplaces == 'Invalid Key'){
-            $roundplaces = 2;
-        }
+        $roundplaces = $RoundChargesAmount = get_round_decimal_places();
         $data ["CompanyID"] = $companyID;
         $data['Active'] = isset($data['Active']) ? 1 : 0;
         $data["CreatedBy"] = User::get_user_full_name();
@@ -92,10 +89,7 @@ class ProductsController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $Product = Product::findOrFail($id);
-            $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
-            if($roundplaces == 'Invalid Key'){
-                $roundplaces = 2;
-            }
+            $roundplaces = $RoundChargesAmount = get_round_decimal_places();
 
             $companyID = User::get_companyID();
             $data["CompanyID"] = $companyID;

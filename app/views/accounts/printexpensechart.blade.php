@@ -148,7 +148,7 @@
                 ]
             });
         }else{
-            $('#account_expense_bar_chart').html('NO DATA!!');
+            $('#account_expense_bar_chart').html('No Data');
         }
         });
     </script>

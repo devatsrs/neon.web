@@ -12,6 +12,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerPanel_getInvoice`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT,
 	IN `p_zerovalueinvoice` INT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 )
 BEGIN
     DECLARE v_OffSet_ int;

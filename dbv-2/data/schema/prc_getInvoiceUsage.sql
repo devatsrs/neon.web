@@ -18,7 +18,7 @@ BEGIN
 	
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
 
-	Select CDRType  INTO v_CDRType_ from  NeonRMDev.tblAccount where AccountID = p_AccountID;
+	Select CDRType  INTO v_CDRType_ from  NeonRMDev.tblAccountBilling where AccountID = p_AccountID;
 
 
             

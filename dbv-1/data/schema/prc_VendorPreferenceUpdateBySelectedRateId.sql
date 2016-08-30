@@ -68,7 +68,7 @@ BEGIN
 			  created_at
 		   )
 		   
-		   SELECT  
+		   SELECT  DISTINCT
 			 vr.RateID,
 			 p_AccountId ,
 			 p_TrunkId,

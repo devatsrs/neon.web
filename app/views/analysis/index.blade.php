@@ -32,7 +32,7 @@
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Country</label>
                                 <div class="col-sm-2">
@@ -114,9 +114,10 @@
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
         var $searchFilter = {};
-        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+        var toFixed = '{{get_round_decimal_places()}}';
         var table_name = '#destination_table';
         var chart_type = '#destination';
+        var cdr_url = "{{URL::to('cdr_show')}}";
         jQuery(document).ready(function ($) {
 
             $(".nav-tabs li a").click(function(){
