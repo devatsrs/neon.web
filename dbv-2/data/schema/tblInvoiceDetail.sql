@@ -7,7 +7,6 @@ CREATE TABLE `tblInvoiceDetail` (
   `EndDate` datetime DEFAULT NULL,
   `Price` decimal(18,6) NOT NULL,
   `Qty` int(11) DEFAULT NULL,
-  `TotalMinutes` bigint(20) DEFAULT NULL,
   `Discount` decimal(18,2) DEFAULT NULL,
   `TaxRateID` int(11) DEFAULT NULL,
   `TaxAmount` decimal(18,6) NOT NULL DEFAULT '0.000000',
@@ -17,5 +16,6 @@ CREATE TABLE `tblInvoiceDetail` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `ProductType` int(11) DEFAULT NULL,
+  `TotalMinutes` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`InvoiceDetailID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

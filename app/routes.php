@@ -49,7 +49,6 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');
 	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
-	Route::any('customer/cdr/ajax_datagrid_total', 'CDRCustomerController@ajax_datagrid_total');
 
 	//commercial
 
@@ -628,8 +627,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Route::any('/cdr_upload/delete', 'CDRController@delete'); // Temporary hidden
 	//Route::any('/cdr_upload/delete_cdr', 'CDRController@delete_cdr');// Temporary hidden
 	Route::any('/cdr_upload/ajax_datagrid/{type}', 'CDRController@ajax_datagrid');
-	Route::any('/cdr_upload/ajax_datagrid_total/{type}', 'CDRController@ajax_datagrid_total');	
-    Route::any('/cdr_upload/check_upload', 'CDRController@check_upload');
+	Route::any('/cdr_upload/check_upload', 'CDRController@check_upload');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
     Route::any('/cdr_upload/storeTemplate', 'CDRController@storeTemplate');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
@@ -915,6 +913,40 @@ Route::group(array('before' => 'auth'), function () {
 	//Retention
 	Route::any('/retention', "RetentionController@index");
 	Route::any('/retention/create', "RetentionController@create");
+
+	//Destination Group Set
+	Route::any('/destination_group_set','DestinationGroupController@index');
+	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupController@ajax_datagrid');
+	Route::any('/destination_group_set/store','DestinationGroupController@store');
+	Route::any('/destination_group_set/update/{id}','DestinationGroupController@update');
+	Route::any('/destination_group_set/delete/{id}','DestinationGroupController@delete');
+	Route::any('/destination_group_set/show/{id}','DestinationGroupController@show');
+
+	//Destination Group
+	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
+	Route::any('/destination_group/store','DestinationGroupController@group_store');
+	Route::any('/destination_group/update/{id}','DestinationGroupController@group_update');
+	Route::any('/destination_group/update_name/{id}','DestinationGroupController@update_name');
+	Route::any('/destination_group/delete/{id}','DestinationGroupController@group_delete');
+	Route::any('/destination_group/show/{id}','DestinationGroupController@group_show');
+	Route::any('/destination_group_code/ajax_datagrid','DestinationGroupController@code_ajax_datagrid');
+
+	//Discount Plan
+	Route::any('/discount_plan','DiscountController@index');
+	Route::any('/discount_plan/ajax_datagrid','DiscountController@ajax_datagrid');
+	Route::any('/discount_plan/store','DiscountController@store');
+	Route::any('/discount_plan/update/{id}','DiscountController@update');
+	Route::any('/discount_plan/delete/{id}','DiscountController@delete');
+
+	//Discounts
+	Route::any('/discount_plan/show/{id}','DiscountController@show');
+	Route::any('/discount/ajax_datagrid','DiscountController@discount_ajax_datagrid');
+	Route::any('/discount/store','DiscountController@discount_store');
+	Route::any('/discount/update/{id}','DiscountController@discount_update');
+	Route::any('/discount/delete/{id}','DiscountController@discount_delete');
+
+	//Account Discount Plan
+	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
 
 });
 

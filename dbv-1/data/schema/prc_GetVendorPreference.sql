@@ -14,7 +14,7 @@ BEGIN
 			THEN
 
 				SELECT
-					distinct
+					DISTINCT
 					tblRate.RateID,
 					Code,
 					Preference,
@@ -57,7 +57,7 @@ BEGIN
 
 
 				SELECT
-					COUNT(RateID) AS totalcount
+					COUNT(DISTINCT RateID) AS totalcount
 				FROM (SELECT
 					tblRate.RateId,
 					EffectiveDate
@@ -87,6 +87,7 @@ BEGIN
 		THEN
 
 			SELECT
+				DISTINCT
 				Code,
 				tblVendorPreference.Preference,
 				Description
@@ -110,6 +111,7 @@ BEGIN
 		THEN
 
 			SELECT
+				DISTINCT
 				tblRate.RateID as RateID,
             Code,
             tblVendorPreference.Preference,

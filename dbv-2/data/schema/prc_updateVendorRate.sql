@@ -1,15 +1,15 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorRate`(IN `p_AccountID` INT, IN `p_TrunkID` INT, IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
 BEGIN
 	
-	SET @stm = CONCAT('UPDATE   LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND TrunkID = "',p_TrunkID ,'"') ;
+	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND TrunkID = "',p_TrunkID ,'"') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
 	SET @stm = CONCAT('
-	UPDATE   LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud 
-	INNER JOIN LocalRatemanagement.tmp_vcodes_ cr ON cr.Code = ud.area_prefix
+	UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
+	INNER JOIN NeonRMDev.tmp_vcodes_ cr ON cr.Code = ud.area_prefix
 	SET selling_cost = 
 		CASE WHEN  billed_second >= Interval1
 		THEN
@@ -23,7 +23,7 @@ BEGIN
 			END		    
 		END
 	,is_rerated=1
-	,duration=billed_second
+	,duration = billed_second
 	,billed_duration =
 		CASE WHEN  billed_second >= Interval1
 		THEN

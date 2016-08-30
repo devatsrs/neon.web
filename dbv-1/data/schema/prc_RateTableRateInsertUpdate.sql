@@ -126,8 +126,8 @@ BEGIN
 	
 		INSERT INTO tmp_all_RateId_
 		SELECT  tblRateTableRate.RateID,
-					tblRateTableRate.EffectiveDate,
-					tblRateTableRate.RateTableRateID
+					MAX(tblRateTableRate.EffectiveDate),
+					MAX(tblRateTableRate.RateTableRateID)
 				 FROM tblRateTableRate
 				 	 INNER JOIN tmp_RateTable_ r on tblRateTableRate.RateID = r.RateID
 					 	 WHERE tblRateTableRate.RateTableId = p_RateTableId

@@ -1,34 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
-	IN `p_CompanyID` INT,
-	IN `p_AccountID` INT,
-	IN `p_InvoiceNumber` VARCHAR(50),
-	IN `p_IssueDateStart` DATETIME,
-	IN `p_IssueDateEnd` DATETIME,
-	IN `p_InvoiceType` INT,
-	IN `p_InvoiceStatus` VARCHAR(50),
-	IN `p_IsOverdue` INT,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(50),
-	IN `p_SortOrder` VARCHAR(5),
-	IN `p_CurrencyID` INT,
-	IN `p_isExport` INT,
-	IN `p_sageExport` INT,
-	IN `p_zerovalueinvoice` INT,
-	IN `p_InvoiceID` LONGTEXT
-
-
-
-
-
-
-
-
-
-
-
-
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_InvoiceStatus` VARCHAR(50), IN `p_IsOverdue` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT, IN `p_sageExport` INT, IN `p_zerovalueinvoice` INT, IN `p_InvoiceID` LONGTEXT)
 BEGIN
     DECLARE v_OffSet_ int;
     DECLARE v_Round_ int;
@@ -259,6 +229,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         UPDATE tblInvoice  inv
         INNER JOIN NeonRMDev.tblAccount ac
           ON ac.AccountID = inv.AccountID
+        INNER JOIN NeonRMDev.tblAccountBilling ab
+          ON ab.AccountID = ac.AccountID
         INNER JOIN NeonRMDev.tblCurrency c
           ON c.CurrencyId = ac.CurrencyId
         SET InvoiceStatus = 'paid' 
@@ -271,13 +243,13 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
                 AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
                 AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
                 AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID)) 
-				AND(p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
+				AND (p_IsOverdue = 0 
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
-					);
+				);
         END IF; 
         SELECT
           AccountNumber,

@@ -36,7 +36,7 @@ class InvoiceTemplate extends \Eloquent {
     }
     public static function getAccountNextInvoiceNumber($AccountID){
 
-        $InvoiceTemplateID = Account::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        $InvoiceTemplateID = AccountBilling::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
         if($InvoiceTemplateID > 0){
             return self::getNextInvoiceNumber($InvoiceTemplateID);
         }else{
@@ -56,7 +56,7 @@ class InvoiceTemplate extends \Eloquent {
 	public static function getAccountNextEstimateNumber($AccountID)
 	{
 
-        $InvoiceTemplateID = Account::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        $InvoiceTemplateID = AccountBilling::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
         
 		if($InvoiceTemplateID > 0)
 		{

@@ -10,6 +10,6 @@ CREATE TABLE `tblRateSheetDetails` (
   `Interval1` int(11) DEFAULT NULL,
   `IntervalN` int(11) DEFAULT NULL,
   PRIMARY KEY (`RateSheetDetailsID`),
-  KEY `IX_tblRateSheetDetails_RateSheetID_DBEE5` (`RateSheetID`,`RateSheetDetailsID`),
-  KEY `IX_tblRateSheetDetails_RateSheetID_77B8B` (`RateSheetID`,`RateSheetDetailsID`)
+  KEY `IX_tblRateSheetDetails_RateSheetID_77B8B` (`RateSheetID`,`RateSheetDetailsID`),
+  KEY `IX_tblRateSheetDetails_RateSheetID_DBEE5` (`RateSheetID`,`RateSheetDetailsID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -14,7 +14,7 @@
                         <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) Paid @else DUE @endif</div>
                     </div>
                     <div class="amount">
-                        <span class="overdue">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$Account->RoundChargesAmount)}}</span>
+                        <span class="overdue">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,get_round_decimal_places($Invoice->AccountID))}}</span>
                     </div>
                 </div>
                 <div class="x-span4 pull-left" > <h1 class="text-center"><h1 class="text-center">Payment</h1></h1></div>

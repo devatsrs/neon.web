@@ -45,10 +45,10 @@ BEGIN
 		disconnect_time,
 		ud.is_inbound,
 		ud.ID
-	FROM RMCDR3.tblUsageDetails  ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
+	FROM NeonCDRDev.tblUsageDetails  ud
+	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
-	INNER JOIN Ratemanagement3.tblAccount a
+	INNER JOIN NeonRMDev.tblAccount a
 		ON uh.AccountID = a.AccountID
 	WHERE
 	(p_cdr_type = '' OR  ud.is_inbound = p_cdr_type)
@@ -59,9 +59,9 @@ BEGIN
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
-	AND (p_CLI = '' OR (p_CLI!= '' AND cli = p_CLI)) 
-	AND (p_CLD = '' OR (p_CLD!= '' AND cld = p_CLD)) 
-	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))
+	AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
+	AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
+	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))	
 	) tbl
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)
