@@ -946,14 +946,14 @@ function get_random_number(){
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
-    $path_array 	  =    explode("Controller",$Path);
+    $path_array 	  =    explode("Controller",$Path); 
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
-	$array_crm 		  =    array("OpportunityBoard","Task");
+	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
     $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
@@ -962,9 +962,9 @@ function check_uri($parent_link=''){
          $controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-			if(Request::segment(1)!='monitor'){
+			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
             	return 'opened';
-			}  		
+			} 
         }
 
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
@@ -993,7 +993,9 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-            return 'opened';
+			if($path_array[1]!='@billingdashboard'){
+				return 'opened';
+			}
         }
 
         if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
@@ -1196,7 +1198,23 @@ function terminate_process($pid){
 
 }
 function run_process($command) {
-
     $process = new Process($command);
     return $status = $process->status();
+}
+
+function Get_Api_file_extentsions(){
+	
+	 if (Session::has("api_response_extensions")){
+		 return Session::get('customer');
+	 } 	 
+	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
+	 $response_extensions 	=  [];
+	
+	if($response->status=='failed'){
+		return array();
+	}else{		
+		$response_extensions = json_response_api($response,true,true);
+		Session::set('api_response_extensions',$response_extensions);
+		return $response_extensions;
+	}
 }

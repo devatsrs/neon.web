@@ -203,9 +203,15 @@ class SiteIntegration{
 		}
 	}	 
 	
+	public static function GetComapnyIdByKey(){
+		$key 		= 	getenv('LICENCE_KEY');
+		$CompanyId  =  	CompanyConfiguration::where(['Key'=>'LICENCE_KEY',"Value"=>$key])->pluck('CompanyID');	
+		return $CompanyId;
+	}
 	
-	public static function is_amazon_configured($data=false){ 
-		
+	public static function is_amazon_configured($data=false){ 		
+	
+		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
 		$Storage	 	 =	Integration::where(["Slug"=>SiteIntegration::$AmazoneSlug])->first();	
 	
 		if(count($Storage)>0)
@@ -215,7 +221,7 @@ class SiteIntegration{
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
 	
-			})->where(["tblIntegration.ParentID"=>$Storage->ParentID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Storage->ParentID])->where(["tblIntegrationConfiguration.Status"=>1]);
 			 $result = $StorageSubcategory->first();
 			 if(count($result)>0)
 			 {
@@ -279,5 +285,11 @@ class SiteIntegration{
 			return 0;	
 		}
 	}	 
+	
+	public static function GetComapnyConfigurationValue(){
+		$key 		= 	getenv('LICENCE_KEY');
+		$CompanyId  =  	CompanyConfiguration::where(['Key'=>'LICENCE_KEY',"Value"=>$key])->pluck('CompanyID');	
+		return $CompanyId;
+	}
 }
 ?>

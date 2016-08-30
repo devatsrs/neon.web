@@ -289,7 +289,7 @@ class CronJobController extends \BaseController {
         $success = false;
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            $command = CompanyConfiguration::get("PHPExePath"). " " .CompanyConfiguration::get("RMArtisanFileLocation"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
             $success = run_process($command);
         }
         if($success){

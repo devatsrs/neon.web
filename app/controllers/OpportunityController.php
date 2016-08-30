@@ -61,7 +61,7 @@ class OpportunityController extends \BaseController {
         $opportunityattachment = Input::file('opportunityattachment');
         if(!empty($opportunityattachment)) {
             $FilesArray = array();
-            $allowed = getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
+            $allowed = Get_Api_file_extentsions();
             $allowedextensions = explode(',',$allowed);
             $allowedextensions = array_change_key_case($allowedextensions);
             foreach ($opportunityattachment as $attachment) {

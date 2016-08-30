@@ -39,7 +39,7 @@ class Helper{
             }
         }
         if(getenv('APP_ENV') != 'Production'){
-            $data['Subject'] = 'Test Mail '.getenv('RMArtisanFileLocation').' '.$data['Subject'];
+            $data['Subject'] = 'Test Mail '.CompanyConfiguration::get("RMArtisanFileLocation").' '.$data['Subject'];
         }
         $mail->Body = $body;
         $mail->Subject = $data['Subject'];
