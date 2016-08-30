@@ -76,7 +76,8 @@ BEGIN
 	FROM tblPayment p 
 	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
-	LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID 
+	LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID
+		AND p.InvoiceID = inv.InvoiceID 
 		AND p.Status = 'Approved' 
 		AND p.AccountID = inv.AccountID 
 		AND p.Recall=0
