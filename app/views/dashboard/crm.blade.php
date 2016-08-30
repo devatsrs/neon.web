@@ -62,7 +62,7 @@
   </div>
 </div>
 <?php }  ?>
-    <?php if(User::checkCategoryPermission('CrmDashboardAccount','View')){?>
+    <?php if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
     <div class="row">
     <div class="col-sm-12">
             <div class="panel panel-primary panel-table">
@@ -78,7 +78,7 @@
                         <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
                     </div>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body white-bg">
                     <table id="accounts" class="table table-responsive">
                         <thead>
                         <tr>
@@ -294,7 +294,7 @@ var CrmDashboardOpportunities = 1;
 var CrmDashboardOpportunities = 0; 
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardAccount','View'))
+@if(User::checkCategoryPermission('CrmDashboardRecentAccount','View'))
 var CrmDashboardAccount = 1;
 @else 
 var CrmDashboardAccount = 0;
