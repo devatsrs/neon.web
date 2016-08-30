@@ -503,6 +503,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/gateway/ajax_load_gateway_dropdown', 'GatewayController@ajax_load_gateway_dropdown');
 	Route::any('/gateway/delete/{id}', 'GatewayController@delete');
 	Route::any('/gateway/test_connetion/{id}', 'GatewayController@test_connetion');
+	Route::any('/gateway/{id}/ajax_existing_gateway_cronjob', 'GatewayController@ajax_existing_gateway_cronjob');
+	Route::any('/gateway/{id}/deletecronjob', 'GatewayController@deleteCronJob');
 	Route::any('/gateway', 'GatewayController@index');
 
 	//summaryreport
