@@ -305,7 +305,7 @@ class JobsController extends \BaseController {
 
             $is_updated =  \Illuminate\Support\Facades\DB::connection('sqlsrv')->select("CALL prc_UpdateInProgressJobStatusToFail($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
 
-            $is_updated = json_decode(json_encode($is_updated));
+            $is_updated = json_decode(json_encode($is_updated),true);
             $is_updated = array_shift($is_updated);
 
             if(isset($is_updated['result']) && $is_updated['result'] == 1 && $status && $PID > 0){
