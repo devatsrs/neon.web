@@ -46,8 +46,6 @@ class AuthorizeNet {
             $customerProfile->merchantCustomerId = $data["CustomerId"];
             $customerProfile->email = $data["email"];
             $response = $this->request->createCustomerProfile($customerProfile); 
-			$array = json_decode(json_encode($response), True);
-			Log::info(print_r($array,true));
             if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Customer profile created on authorize.net";

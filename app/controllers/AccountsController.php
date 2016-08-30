@@ -242,10 +242,6 @@ class AccountsController extends \BaseController {
 					$response_timeline = array();
 				}
 			}else{ 	
-			$array = json_decode(json_encode($response_timeline), true);
-			Log::info("show error");
-			Log::info($array);
-				
 				if(isset($response_timeline->Code) && ($response_timeline->Code==400 || $response_timeline->Code==401)){
 					return	Redirect::to('/logout'); 	
 				}		
