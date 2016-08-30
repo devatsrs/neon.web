@@ -61,13 +61,15 @@ class OpportunityController extends \BaseController {
         $opportunityattachment = Input::file('opportunityattachment');
         if(!empty($opportunityattachment)) {
             $FilesArray = array();
-            $allowed = Get_Api_file_extentsions();
-            $allowedextensions = explode(',',$allowed);
-            $allowedextensions = array_change_key_case($allowedextensions);
+            $allowed = Get_Api_file_extentsions(true);
+			if(!isset($allowed['allowed_extensions'])){
+				return json_response_api($allowed,false,true);
+			}
+			$allowedextensions = $allowed['allowed_extensions'];  
             foreach ($opportunityattachment as $attachment) {
                 $ext = $attachment->getClientOriginalExtension();
-                if (!in_array(strtolower($ext), $allowedextensions)) {
-                    return generateResponse($ext." file type is not allowed. Allowed file types are ".$allowed,true,true);
+                if (!in_array(strtolower($ext), $allowedextensions)) { 
+					return  array("status"=>"failed","message"=>$ext." file type is not allowed. Allowed file types are ".implode(",",$allowedextensions));
                 }
             }
             foreach($opportunityattachment as $file){

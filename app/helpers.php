@@ -1202,19 +1202,30 @@ function run_process($command) {
     return $status = $process->status();
 }
 
-function Get_Api_file_extentsions(){
+function Get_Api_file_extentsions($ajax=false){
 	
 	 if (Session::has("api_response_extensions")){
-		 return Session::get('customer');
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
+		 return $response_extensions;
 	 } 	 
 	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
 	 $response_extensions 	=  [];
 	
 	if($response->status=='failed'){
-		return array();
+		if($ajax==true){
+			return $response;
+		}else{
+			
+			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
+				return	Redirect::to('/logout'); 	
+			}		
+			if(isset($response->error) && $response->error=='token_expired'){ Redirect::to('/login');}	
+		}
 	}else{		
-		$response_extensions = json_response_api($response,true,true);
-		Session::set('api_response_extensions',$response_extensions);
-		return $response_extensions;
+		$response_extensions 		 = 	json_response_api($response,true,true); 
+		$response_extensions 		 = 	json_decode($response_extensions);		
+		$array['allowed_extensions'] = 	$response_extensions;
+		Session::put('api_response_extensions', $response_extensions);
+		return $array;
 	}
 }

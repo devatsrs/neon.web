@@ -267,20 +267,9 @@ class AccountsController extends \BaseController {
 			$random_token				=	 get_random_number();
             
 			//Backup code for getting extensions from api
-           $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
-		   $response_extensions 	=  [];
-		
-			if($response->status=='failed'){
-				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
-					return	Redirect::to('/logout'); 	
-				}	
-				 $message = json_response_api($response,false,true);
-			 }else{
-				$response_extensions = json_response_api($response,true,true);
-			}
-	        
-		
-			
+		   $response_api_extensions 	=   Get_Api_file_extentsions();
+		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
+		   
            //all users email address
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
@@ -299,8 +288,7 @@ class AccountsController extends \BaseController {
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-				$array = json_decode(json_encode($response), True); 
-			 if (isset($response->status) && $response->status != 'failed') {			
+			/* if (isset($response->status) && $response->status != 'failed') {			
 				$response = $response->data;
 			}else{		
 				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
@@ -310,7 +298,7 @@ class AccountsController extends \BaseController {
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}
-			}			
+			}			*/
 			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
