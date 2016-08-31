@@ -287,7 +287,7 @@ var postdata;
               //  alert('Please delete cron job first');
                 var SelectedIDs = getselectedIDs("cronjob-table");
                 if (SelectedIDs.length == 0) {
-                    alert('Please delete cron job first');
+                    alert('Please Select Cron Job to delete');
                     $("#gateway-select").button('reset');
                     return false;
                 }else{
@@ -297,11 +297,12 @@ var postdata;
             }
         });
 
+        /*not in use*/
         $(document).on('click','.cronjobedelete',function(){
             var deleteid = $(this).attr('data-id')
             if (deleteid == '') {
                 $(".save.GatewaySelect").button('reset');
-                toastr.error('Please select at least one cronjob.', "Error", toastr_opts);
+                toastr.error('Please Select Cron Job to delete.', "Error", toastr_opts);
                 return false;
             }else{
                 cronjobsdelete('select',deleteid);
