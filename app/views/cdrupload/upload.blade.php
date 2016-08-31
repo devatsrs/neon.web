@@ -246,10 +246,11 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label chargecode">Charge Code</label>
-                            <div class="col-sm-4 chargecode">
-                                {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"selectboxit"))}}
+                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then cdrs will be uploaded as outbound" data-original-title="Inbound/Outbound">?</span></label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
+
                         </div>
                         <div class="form-group">
                             <br />
@@ -258,9 +259,9 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[extension]',array() ,'',array("class"=>"selectboxit"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then cdrs will be uploaded as outbound" data-original-title="Inbound/Outbound">?</span></label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
+                            <label for=" field-1" class="col-sm-2 control-label chargecode">Charge Code</label>
+                            <div class="col-sm-4 chargecode">
+                                {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"selectboxit"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -435,9 +436,9 @@ var click_btn;
         });
         $("select[name=RateFormat]").change(function (ev) {
             if($(this).val() == '{{Company::CHARGECODE}}'){
-                $(".chargecode").hide();
-            }else{
                 $(".chargecode").show();
+            }else{
+                $(".chargecode").hide();
             }
 
         });

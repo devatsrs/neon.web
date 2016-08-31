@@ -926,7 +926,8 @@ toastr_opts = {
                         timePickerIncrement: attrDefault($this, 'timePickerIncrement', false),
                         timePicker24Hour:attrDefault($this, 'timePicker24Hour', true),
                         timePickerSeconds:attrDefault($this, 'timePickerSeconds', true),
-                        autoUpdateInput: false,
+                        autoApply:attrDefault($this, 'autoApply', true),
+                        autoUpdateInput: false
 
                     },
                     min_date = attrDefault($this, 'minDate', ''),

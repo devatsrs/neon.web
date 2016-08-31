@@ -297,6 +297,7 @@ class InvoicesController extends \BaseController {
                         $i++;
                     }
                 }
+                $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Created By '.$CreatedBy;
@@ -435,6 +436,7 @@ class InvoicesController extends \BaseController {
                                 $i++;
                             }
                         }
+                        $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                         InvoiceTaxRate::insert($InvoiceTaxRates);
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);

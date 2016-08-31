@@ -255,6 +255,7 @@ class EstimatesController extends \BaseController {
 				
              
 				
+                $EstimateTaxRates = merge_tax($EstimateTaxRates);
                 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
@@ -407,6 +408,7 @@ class EstimatesController extends \BaseController {
                             }
                         }
 
+                        $EstimateTaxRates = merge_tax($EstimateTaxRates);
                         DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
                         if (EstimateDetail::insert($EstimateDetailData))
 						{

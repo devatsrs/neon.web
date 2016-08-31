@@ -1366,3 +1366,27 @@ function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDat
     }
     return $NextInvoiceDate;
 }
+function tax_exists($TaxRateID, $array) {
+    $result = -1;
+    for($i=0; $i<sizeof($array); $i++) {
+        if ($array[$i]['TaxRateID'] == $TaxRateID) {
+            $result = $i;
+            break;
+        }
+    }
+    return $result;
+}
+function merge_tax($taxs) {
+    $InvoiceTaxRates = array();
+    foreach($taxs as $tax) {
+        if($tax['TaxRateID']) {
+            $index = tax_exists($tax['TaxRateID'], $InvoiceTaxRates);
+            if ($index < 0) {
+                $InvoiceTaxRates[] = $tax;
+            } else {
+                $InvoiceTaxRates[$index]['TaxAmount'] += $tax['TaxAmount'];
+            }
+        }
+    }
+    return $InvoiceTaxRates;
+}
