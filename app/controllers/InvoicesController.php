@@ -260,7 +260,7 @@ class InvoicesController extends \BaseController {
             }
 
             try{
-                $InvoiceData["FullInvoiceNumber"] = InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber;
+                $InvoiceData["FullInvoiceNumber"] = ($isAutoInvoiceNumber)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber:$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
                 //Store Last Invoice Number.
