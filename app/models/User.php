@@ -310,7 +310,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
         if(!empty($row) & $select==1){
-            $row = array(""=> "Select a User")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -321,7 +321,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         
         $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
         if(!empty($row) & $select==1){
-            $row = array(""=> "Select a User")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }

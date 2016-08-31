@@ -15,7 +15,7 @@ class Account extends \Eloquent {
     const  DETAIL_CDR = 1;
     const  SUMMARY_CDR= 2;
     const  NO_CDR = 3;
-    public static $cdr_type = array(''=>'Select a CDR Type' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
+    public static $cdr_type = array(''=>'Select' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
 
 
     public static $rules = array(
@@ -163,9 +163,9 @@ class Account extends \Eloquent {
         }
         $data['CompanyID']=User::get_companyID();
         $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
-        $row = array(""=> "Select an Account");
+        $row = array(""=> "Select");
         if(!empty($result)){
-            $row = array(""=> "Select an Account")+$result;
+            $row = array(""=> "Select")+$result;
         }
         return $row;
     }

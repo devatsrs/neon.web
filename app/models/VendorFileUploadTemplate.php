@@ -8,7 +8,7 @@ class VendorFileUploadTemplate extends \Eloquent {
 
     public static function getTemplateIDList(){
         $row = VendorFileUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->lists('Title', 'VendorFileUploadTemplateID');
-        $row = array(""=> "Select an upload Template")+$row;
+        $row = array(""=> "Select")+$row;
         return $row;
     }
 

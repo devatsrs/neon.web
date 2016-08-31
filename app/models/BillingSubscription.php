@@ -23,7 +23,7 @@ class BillingSubscription extends \Eloquent {
     public static function getSubscriptionsArray($CompanyID,$CurrencyID){
         $BillingSubscription = BillingSubscription::where(array("CompanyID"=>$CompanyID,'CurrencyID'=>$CurrencyID))->get();
         $subscription = array();
-        $subscription[''] = "Select a Subscription";
+        $subscription[''] = "Select";
         foreach($BillingSubscription as $Subscription){
             $subscription[$Subscription->SubscriptionID] =$Subscription->Name;
         }

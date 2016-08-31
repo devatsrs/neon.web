@@ -266,24 +266,21 @@
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
                         </div>
-
-
-                    </div>
-                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                         <div class="col-sm-4">
                             {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"selectboxit"))}}
                         </div>
+
+                    </div>
+                    <div class="form-group">
+
                         <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                         <div class="col-sm-4">
                             {{Form::select('BillingTimezone', $timezones, CompanySetting::getKeyVal('BillingTimezone') ,array("class"=>"form-control select2"))}}
                         </div>
-
-                    </div>
-                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingStartDate',date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                     <div class="form-group">

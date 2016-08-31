@@ -247,7 +247,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 				AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
-							AND(PendingAmount>0)
+							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
 						)
 				);
         END IF; 

@@ -1,6 +1,6 @@
 @if(!empty($cronJobs))
-    <p>Following Cron jobs are found related to current gateway.
-    Please delete cron job first and than press delete button at bottom to delete gateway..</p>
+    <p>Following Cron jobs are setup against gateway.
+    Please select cron jobs and click on delete button.</p>
 <table class="table table-bordered datatable" id="cronjob-table">
     <thead>
     <tr>
@@ -8,7 +8,6 @@
         <th width="50%">Cron Job</th>
         <th width="5%">Status</th>
         <th width="25%">Created by</th>
-        <th width="15%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -18,7 +17,6 @@
             <td>{{$row['JobTitle']}}</td>
             <td>{{$row['Status']==1?'<i style="font-size:22px;color:green" class="entypo-check"></i>':'<i style="font-size:28px;color:red" class="entypo-cancel"></i>'}}</td>
             <td>{{$row['created_by']}}</td>
-            <td><a href="javascript:void(0)" data-id = '{{$row['CronJobID']}}'  class="btn cronjobedelete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a></td>
         </tr>
     @endforeach
     </tbody>

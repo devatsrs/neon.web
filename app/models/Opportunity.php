@@ -23,7 +23,7 @@ class Opportunity extends \Eloquent {
         $companyID = User::get_companyID();
         $row = Opportunity::where(['CompanyID'=>$companyID])->select(['OpportunityID','OpportunityName'])->lists('OpportunityName','OpportunityID');
         if(!empty($row) & $select==1){
-            $row = array(""=> "Select an Opportunity")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
