@@ -11,6 +11,7 @@
         setInterval(function(){
             $( "#IframeServer" ).contents().find( "#side-menu .fa-bolt").parents('li').hide();
             $( "#IframeServer" ).contents().find( ".navbar-right li:first-child").hide();
+            $( "#IframeServer" ).contents().find( ".navbar-header .navbar-brand").html('Neon Stats Tracker');
             sidebar_height = $(".sidebar-menu").height();
             $("#content").height(sidebar_height);
         },3000);
