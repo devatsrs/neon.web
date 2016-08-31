@@ -287,7 +287,7 @@ var postdata;
               //  alert('Please delete cron job first');
                 var SelectedIDs = getselectedIDs("cronjob-table");
                 if (SelectedIDs.length == 0) {
-                    alert('Please Select Cron Job to delete');
+                    alert('No cron job selected.');
                     $("#gateway-select").button('reset');
                     return false;
                 }else{
@@ -302,7 +302,7 @@ var postdata;
             var deleteid = $(this).attr('data-id')
             if (deleteid == '') {
                 $(".save.GatewaySelect").button('reset');
-                toastr.error('Please Select Cron Job to delete.', "Error", toastr_opts);
+                toastr.error('No cron job selected.', "Error", toastr_opts);
                 return false;
             }else{
                 cronjobsdelete('select',deleteid);
