@@ -789,9 +789,9 @@ class VendorRatesController extends \BaseController
 
     public function vendordownloadtype($id,$type){
         if($type=='Vos 3.2'){
-            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
         }else{
-            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+            $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
         return $downloadtype;
     }

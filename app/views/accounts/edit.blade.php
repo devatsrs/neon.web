@@ -22,13 +22,15 @@
 @include('includes.success')
 
 <p style="text-align: right;">
+    @if(User::checkCategoryPermission('CreditControl','View'))
     <a href="{{URL::to('account/get_credit/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="fa fa-credit-card"></i>
         Credit Control
     </a>
+    @endif
     @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
-        <i class="entypo-plus"></i>
+        <i class="fa fa-line-chart"></i>
         Add Opportunity
     </a>
 
@@ -425,13 +427,14 @@
                             <button type="button" class="btn btn-default">+</button>
                         </div>
                     </div>
-
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
                         {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
                     </div>
+
+                </div>
+                <div class="form-group">
+
                     <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                     <div class="col-sm-4">
                         {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2",$billing_disable))}}
@@ -439,20 +442,21 @@
                             <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone')}}" name="BillingTimezone">
                         @endif
                     </div>
-                </div>
-                <div class="form-group">
                     <?php
                     $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
-                    if(empty($BillingStartDate)){
-                        $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
+                    if(!empty($BillingStartDate)){
+                        $BillingStartDate = date('Y-m-d',strtotime($BillingStartDate));
                     }
+                    /*if(empty($BillingStartDate)){
+                        $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
+                    }*/
                     ?>
                     <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                     <div class="col-sm-4">
                         @if($hiden_class == '')
-                            {{Form::text('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
-                            {{Form::hidden('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)))}}
+                            {{Form::hidden('BillingStartDate', $BillingStartDate)}}
                             {{$BillingStartDate}}
                         @endif
                     </div>

@@ -94,13 +94,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
-	Route::post('/dashboard/getpiplelinepata', "DashboardController@GetPipleLineData");		
+	Route::post('/dashboard/getpiplelinedata', "DashboardController@GetPipleLineData");		
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
-	
 	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
-	
-	
-	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");		
+	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");
+	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");		
 	
 	
 	
@@ -160,6 +158,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
+	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
+	
 
 	Route::post('/account/upload_file', 'AccountsController@uploadFile');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
@@ -242,6 +242,11 @@ Route::group(array('before' => 'auth'), function () {
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
 	Route::any('/accounts/{id}/update_inbound_rate_table',  'AccountsController@update_inbound_rate_table');
+
+	//Integration
+	Route::any('/integration',  'IntegrationController@index');
+	Route::any('/integration/update',  'IntegrationController@Update');
+	
 
 	//import account
 	Route::any('/import/account',  'ImportsController@index');
@@ -503,7 +508,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/gateway/ajax_load_gateway_dropdown', 'GatewayController@ajax_load_gateway_dropdown');
 	Route::any('/gateway/delete/{id}', 'GatewayController@delete');
 	Route::any('/gateway/test_connetion/{id}', 'GatewayController@test_connetion');
+	Route::any('/gateway/{id}/ajax_existing_gateway_cronjob', 'GatewayController@ajax_existing_gateway_cronjob');
+	Route::any('/gateway/{id}/deletecronjob', 'GatewayController@deleteCronJob');
 	Route::any('/gateway', 'GatewayController@index');
+	Route::any('/gateway/{id}', 'GatewayController@index');
 
 	//summaryreport
 	Route::any('/summaryreport', 'SummaryController@index');

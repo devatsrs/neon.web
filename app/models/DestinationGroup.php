@@ -24,7 +24,7 @@ class DestinationGroup extends \Eloquent
     public static function getDropdownIDList($DestinationGroupSetID){
         $CompanyId = User::get_companyID();
         $DropdownIDList = DestinationGroup::where(array("CompanyID"=> $CompanyId,'DestinationGroupSetID'=>$DestinationGroupSetID))->lists('Name', 'DestinationGroupID');
-        $DropdownIDList = array('' => "Select a Destination Group") + $DropdownIDList;
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
 
 
         return $DropdownIDList;

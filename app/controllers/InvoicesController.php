@@ -260,7 +260,7 @@ class InvoicesController extends \BaseController {
             }
 
             try{
-                $InvoiceData["FullInvoiceNumber"] = InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber;
+                $InvoiceData["FullInvoiceNumber"] = ($isAutoInvoiceNumber)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber:$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
                 //Store Last Invoice Number.
@@ -297,6 +297,7 @@ class InvoicesController extends \BaseController {
                         $i++;
                     }
                 }
+                $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Created By '.$CreatedBy;
@@ -435,6 +436,7 @@ class InvoicesController extends \BaseController {
                                 $i++;
                             }
                         }
+                        $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                         InvoiceTaxRate::insert($InvoiceTaxRates);
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
@@ -818,7 +820,7 @@ class InvoicesController extends \BaseController {
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
-            if (in_array($ext, array("pdf", "jpg", "png", "gif"))) {
+            if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($upload_path, $file_name);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
@@ -901,7 +903,7 @@ class InvoicesController extends \BaseController {
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
-            if (in_array($ext, array("pdf", "jpg", "png", "gif"))) {
+            if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($upload_path, $file_name);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
@@ -1426,9 +1428,9 @@ class InvoicesController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*if(getenv('APP_OS') == 'Linux'){
-                pclose(popen(getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
+                pclose(popen(CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
             }else{
-                pclose(popen("start /B " . getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
+                pclose(popen("start /B " . CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
             }*/
             if($JobID>0) {
                 return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));

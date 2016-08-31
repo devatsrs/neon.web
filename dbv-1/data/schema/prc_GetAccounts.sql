@@ -12,7 +12,7 @@ BEGIN
 	THEN
 
 
-
+ 
 		SELECT 
 		 	tblAccount.AccountID,
 			tblAccount.Number, 
@@ -20,7 +20,16 @@ BEGIN
 			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
 			tblAccount.Phone, 
 			
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(((Select ifnull(sum(GrandTotal),0)  from NeonBillingDev.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from NeonBillingDev.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )),v_Round_)) as OutStandingAmount,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,
+				ROUND(
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') ) - -- total invoice sent
+				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment In' )       -- total payment received 
+				) - 
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 2 ) - 																								 -- total invoice received
+				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment Out' )       -- total payment sent 
+				)
+			,v_Round_)
+			) as OutStandingAmount,
 			tblAccount.Email, 
 			tblAccount.IsCustomer, 
 			tblAccount.IsVendor,
@@ -101,7 +110,16 @@ BEGIN
     THEN
         SELECT
             tblAccount.Number as NO, tblAccount.AccountName,CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Name,tblAccount.Phone, 
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,(Select ifnull(sum(GrandTotal),0)  from NeonBillingDev.tblInvoice  where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND InvoiceStatus != 'cancel' ) -(Select ifnull(sum(Amount),0)  from NeonBillingDev.tblPayment  where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 )) as OS ,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,
+				ROUND(
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') ) - -- total invoice sent
+				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment In' )       -- total payment received 
+				) - 
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 2 ) - 																								 -- total invoice received
+				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment Out' )       -- total payment sent 
+				)
+			,v_Round_)
+			) as OS ,
 			tblAccount.Email
 			FROM tblAccount
 			LEFT JOIN tblUser ON tblAccount.Owner = tblUser.UserID

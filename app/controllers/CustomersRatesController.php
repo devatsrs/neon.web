@@ -66,7 +66,7 @@ class CustomersRatesController extends \BaseController {
             $routine = CustomerTrunk::getRoutineDropdownIDList($id);
             $account_owners = User::getOwnerUsersbyRole();
             $trunks_routing =$trunks;
-            $trunks_routing[""] = 'Select a Routing plan';
+            $trunks_routing[""] = 'Select';
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
@@ -591,9 +591,9 @@ class CustomersRatesController extends \BaseController {
 
     public function customerdownloadtype($id,$type){
         if($type=='Vos 3.2'){
-            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
         }else{
-            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+            $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
         return $downloadtype;
     }

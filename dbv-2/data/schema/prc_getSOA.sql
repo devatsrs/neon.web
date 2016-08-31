@@ -263,7 +263,9 @@ BEGIN
       tmp_Payments.Amount as PaymentIn_Amount,
       tmp_Payments.PaymentID as PaymentIn_PaymentID
       from tmp_Payments_dup as tmp_Payments
-      where PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo = ''
+      where PaymentType = 'Payment In' 
+      -- AND tmp_Payments.InvoiceNo = ''
+		AND  tmp_Payments.InvoiceID = 0
   
     ) tbl
     order by InvoiceOut_IssueDate desc,InvoiceOut_InvoiceNo desc;

@@ -16,8 +16,8 @@ class Estimate extends \Eloquent {
 	const ESTIMATE_TEMPLATE =	2;
 	
     //public static $estimate_status;
-    public static $estimate_type = array(''=>'Select an Estimate Type' ,self::ESTIMATE_OUT => 'Estimate Sent',self::ESTIMATE_IN=>'Estimate Received','All'=>'Both');
-    public static $estimate_type_customer = array(''=>'Select an Estimate Type' ,self::ESTIMATE_OUT => 'Estimate Received',self::ESTIMATE_IN=>'Estimate sent','All'=>'Both');
+    public static $estimate_type = array(''=>'Select' ,self::ESTIMATE_OUT => 'Estimate Sent',self::ESTIMATE_IN=>'Estimate Received','All'=>'Both');
+    public static $estimate_type_customer = array(''=>'Select' ,self::ESTIMATE_OUT => 'Estimate Received',self::ESTIMATE_IN=>'Estimate sent','All'=>'Both');
 
     public static function getEstimateEmailTemplate($data){
 

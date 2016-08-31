@@ -12,7 +12,7 @@ class CronJobCommand extends \Eloquent {
         $CompanyID = User::get_companyID();
         $row = CronJobCommand::where(["Status"=> 1,'CompanyID'=>$CompanyID])->orderBy('Title', 'asc')->lists('Title', 'CronJobCommandID');
         if(!empty($row)){
-            $row = array(""=> "Select a Command")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }

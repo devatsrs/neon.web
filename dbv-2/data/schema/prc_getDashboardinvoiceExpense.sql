@@ -1,5 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT)
 BEGIN
 	DECLARE v_Round_ int;
 
@@ -77,7 +76,8 @@ BEGIN
 	FROM tblPayment p 
 	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
-	LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID AND p.InvoiceID = inv.InvoiceID
+	LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID
+		AND p.InvoiceID = inv.InvoiceID 
 		AND p.Status = 'Approved' 
 		AND p.AccountID = inv.AccountID 
 		AND p.Recall=0

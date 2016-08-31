@@ -147,11 +147,11 @@ class CronJobController extends \BaseController {
                 $day_limit= 2;
                 $rateGenerators = RateGenerator::rateGeneratorList($companyID);
                 if(!empty($rateGenerators)){
-                    $rateGenerators = array(""=> "Select a Rate Generator")+$rateGenerators;
+                    $rateGenerators = array(""=> "Select")+$rateGenerators;
                 }
                 $rateTables = RateTable::where(["CompanyId" => $companyID])->lists('RateTableName', 'RateTableId');
                 if(!empty($rateTables)){
-                    $rateTables = array(""=> "Select a Rate Table")+$rateTables;
+                    $rateTables = array(""=> "Select")+$rateTables;
                 }
             }else if($CronJobCommand->Command == 'autoinvoicereminder'){
                 $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
@@ -289,7 +289,7 @@ class CronJobController extends \BaseController {
         $success = false;
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            $command = CompanyConfiguration::get("PHPExePath"). " " .CompanyConfiguration::get("RMArtisanFileLocation"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
             $success = run_process($command);
         }
         if($success){

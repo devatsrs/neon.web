@@ -89,7 +89,7 @@
                                     <label for="field-1" class="col-sm-1 control-label">Issue Date</label>
 
                                     <div class="col-sm-2">
-                                        {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):$data['StartDateDefault'].' - '.$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
+                                        {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):'', array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Currency</label>
 
@@ -701,7 +701,7 @@
                     update_new_url = baseurl + '/invoice/add_invoice_in';
                 }
                 submit_ajax_withfile(update_new_url, formData);
-                $(".btn").button('reset');
+                //$(".btn").button('reset');
             });
             $('table tbody').on('click', '.edit-invoice-in', function (ev) {
                 $('#add-invoice_in_template-form').trigger("reset");
@@ -1367,7 +1367,7 @@
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
                             </div>
                             <div class="col-sm-2">
-                                <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false"
+                                <input type="text" name="StartTime" value="00:00:00" data-minute-step="5" data-show-meridian="false"
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
                             </div>
@@ -1380,7 +1380,7 @@
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
                             </div>
                             <div class="col-sm-2">
-                                <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false"
+                                <input type="text" name="EndTime" value="23:59:59" data-minute-step="5" data-show-meridian="false"
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
                             </div>

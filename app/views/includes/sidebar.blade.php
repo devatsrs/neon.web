@@ -198,6 +198,9 @@
       </ul>
     </li>
     @endif
+     @if( User::checkCategoryPermission('Integration','View'))
+       <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
+    @endif
     @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
     User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
@@ -241,7 +244,7 @@
 
     @if( User::checkCategoryPermission('Company','View'))
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
-    @endif
+    @endif  	
     @if( User::checkCategoryPermission('Pages','About'))
     <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>
     @endif
