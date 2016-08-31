@@ -16,7 +16,6 @@ class Account extends \Eloquent {
     const  SUMMARY_CDR= 2;
     const  NO_CDR = 3;
 	
-    public static $cdr_type = array(''=>'Select a CDR Type' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');	
 	public static $SupportSlug	=	'support';
     public static $cdr_type = array(''=>'Select' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
 
