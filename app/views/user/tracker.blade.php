@@ -8,12 +8,12 @@
         .main-content{ padding: 0 !important;}
     </style>
     <script>
-        setTimeout(
-                function(){
-                    sidebar_height = $(".sidebar-menu").height() - 70;
-                    $("#content").height(sidebar_height);
-                },10000
-        );
+        setInterval(function(){
+            $( "#IframeServer" ).contents().find( "#side-menu .fa-bolt").parents('li').hide();
+            $( "#IframeServer" ).contents().find( ".navbar-right li:first-child").hide();
+            sidebar_height = $(".sidebar-menu").height();
+            $("#content").height(sidebar_height);
+        },3000);
     </script>
 @stop
 @section('footer_ext')
