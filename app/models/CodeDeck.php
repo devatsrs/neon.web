@@ -31,6 +31,6 @@ class CodeDeck extends \Eloquent {
 
     }
     public static function  getCodeDropdownList($CodeDeckId,$CompanyID){
-        return array(""=> "Select a Code") +CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])->lists('Code', 'RateID');
+        return array(""=> "Select") +CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])->lists('Code', 'RateID');
     }
 }

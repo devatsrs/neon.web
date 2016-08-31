@@ -25,7 +25,7 @@
 <br>
 <div class="row">
     <div class="col-md-12">
-        <form id="ratetable_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -81,12 +81,13 @@
 
 <script type="text/javascript">
     var $searchFilter = {};
+    var data_table = '';
     jQuery(document).ready(function($) {
         var update_rate_table_url;
-        $('#ratetable_filter').submit(function(e) {
+        $('#rategenerator_filter').submit(function(e) {
             e.preventDefault();
-            $searchFilter.Active = $('#ratetable_filter [name="Active"]').val();
-            $("#table-4").dataTable({
+            $searchFilter.Active = $('#rategenerator_filter [name="Active"]').val();
+            data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,
@@ -136,7 +137,8 @@
 
                             <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
                             action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a> '
-                            action += status_link; //'<a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
+                            action += status_link;
+                            action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
                             if (full[3] == 1) { /* When Status is 1 */
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
                                 action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[5] + '" data-codedeck="' + full[6] + '" data-currency="' + full[7] + '">Update Existing Rate Table</a></li></ul></div>';
@@ -165,20 +167,22 @@
                 "fnDrawCallback": function () {
 
                     $(".btn.delete").click(function (e) {
-
-                        response = confirm('Are you sure?');
-                        redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rategenerators')}}" : $(this).attr("data-redirect");
-                        if (response) {
+                        e.preventDefault();
+                        var id = $(this).attr('data-id');
+                        var url = baseurl + '/rategenerators/'+id+'/ajax_existing_rategenerator_cronjob';
+                        $('#delete-rate-generator-form [name="RateGeneratorID"]').val(id);
+                        if(confirm('Are you sure you want to delete selected rate generator?')) {
                             $.ajax({
-                                url: $(this).attr("href"),
+                                url: url,
                                 type: 'POST',
-                                dataType: 'json',
+                                dataType: 'html',
                                 success: function (response) {
                                     $(".btn.delete").button('reset');
-                                    if (response.status == 'success') {
-                                        window.location = redirect
-                                    } else {
-                                        toastr.error(response.message, "Error", toastr_opts);
+                                    if (response) {
+                                        $('#modal-delete-rategenerator .container').html(response);
+                                        $('#modal-delete-rategenerator').modal('show');
+                                    }else{
+                                        $('#delete-rate-generator-form').submit();
                                     }
                                 },
 
@@ -188,8 +192,6 @@
                                 contentType: false,
                                 processData: false
                             });
-
-
                         }
                         return false;
 
@@ -197,7 +199,7 @@
 
                     $(".generate_rate.create").click(function (e) {
                         e.preventDefault();
-                        $('#update-rate-table-form').trigger("reset");
+                        $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
@@ -232,20 +234,19 @@
                         });
                         return false;
                     });
-
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
                 }
             });
         });
-        $(".dataTables_wrapper select").select2({
-            minimumResultsForSearch: -1
-        });
 
-        $('#ratetable_filter').submit();
+        $('#rategenerator_filter').submit();
         $('body').on('click', '.generate_rate.update', function (e) {
 
             e.preventDefault();
             $('#modal-update-rate').modal('show', {backdrop: 'static'});
-            $('#update-rate-table-form').trigger("reset");
+            $('#update-rate-generator-form').trigger("reset");
             var trunkID = $(this).attr("data-trunk");
             var codeDeckId = $(this).attr("data-codedeck");
             var CurrencyID = $(this).attr("data-currency");
@@ -276,7 +277,7 @@
             $('#modal-update-rate h4').html('Update Rate Table');
         });
 
-        $('#update-rate-table-form').submit(function (e) {
+        $('#update-rate-generator-form').submit(function (e) {
             e.preventDefault();
             if( typeof update_rate_table_url != 'undefined' && update_rate_table_url != '' ){
                 $.ajax({
@@ -297,7 +298,7 @@
 
                     },
                     // Form data
-                    data: $('#update-rate-table-form').serialize(),
+                    data: $('#update-rate-generator-form').serialize(),
                     cache: false
 
                 });
@@ -306,9 +307,113 @@
                 $('#modal-update-rate').modal('hide');
                 toastr.info('Nothing Changed. Try again', "info", toastr_opts);
             }
-
-
         });
+
+        $('#delete-rate-generator-form').submit(function (e) {
+            e.preventDefault();
+            if($('#modal-delete-rategenerator .container').is(':empty')) {
+                var RateGeneratorID = $(this).find('[name="RateGeneratorID"]').val();
+                var url = baseurl + '/rategenerators/' + RateGeneratorID + '/delete';
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            data_table.fnFilter('', 0);
+                            reloadJobsDrodown(0);
+                            $('#modal-delete-rategenerator').modal('hide');
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $(".save.TrunkSelect").button('reset');
+
+                    },
+                    // Form data
+                    data: $('#update-rate-generator-form').serialize(),
+                    cache: false
+
+                });
+            }else{
+                alert('Please delete cron job first');
+                $(".btn").button('reset');
+            }
+        });
+
+        $(document).on('click','.cronjobedelete',function(){
+            if($(this).hasClass('icon-left')){
+                var tr = $(this).parents('tr');
+                tr.addClass('selected');
+                tr.find('.rowcheckbox').prop("checked", true);
+            }
+            var SelectedIDs = getselectedIDs("cronjob-table");
+            if (SelectedIDs.length == 0) {
+                toastr.error('Please select at least one cronjob.', "Error", toastr_opts);
+                return false;
+            }else{
+                if(confirm('Are you sure you want to delete selected cron job?')){
+                    var rateGeneratorID = $('#delete-rate-generator-form [name="RateGeneratorID"]').val();
+                    var url = baseurl + "/rategenerators/"+rateGeneratorID+"/deletecronjob";
+                    var cronjobs = SelectedIDs.join(",");
+                    $('#modal-delete-rategenerator .container').html('');
+                    $.ajax({
+                        url: url,
+                        type:'POST',
+                        data:{cronjobs:cronjobs},
+                        datatype:'json',
+                        success: function(response) {
+                            if (response.status == 'success') {
+                                $('#modal-delete-rategenerator .container').html(response.table);
+                                $('.selectall').prop("checked", false);
+                                toastr.success(response.message,'Success', toastr_opts);
+                            }else{
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        }
+
+                    });
+                }
+            }
+        });
+
+        $(document).on('click', '#cronjob-table tbody tr', function() {
+            $(this).toggleClass('selected');
+            if($(this).is('tr')) {
+                if ($(this).hasClass('selected')) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                } else {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                }
+            }
+        });
+
+        $(document).on('click','#selectall',function(){
+            if($(this).is(':checked')){
+                checked = 'checked=checked';
+                $(this).prop("checked", true);
+                $(this).parents('table').find('tbody tr').each(function (i, el) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                    $(this).addClass('selected');
+                });
+            }else{
+                checked = '';
+                $(this).prop("checked", false);
+                $(this).parents('table').find('tbody tr').each(function (i, el) {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                    $(this).removeClass('selected');
+                });
+            }
+        });
+
+        function getselectedIDs(table){
+            var SelectedIDs = [];
+            $('#'+table+' tr .rowcheckbox:checked').each(function (i, el) {
+                var cronjob = $(this).val();
+                SelectedIDs[i++] = cronjob;
+            });
+            return SelectedIDs;
+        }
     });
 
 </script>
@@ -324,7 +429,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form id="update-rate-table-form" method="post" >
+            <form id="update-rate-generator-form" method="post" >
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -373,6 +478,37 @@
                     <button type="submit"  class="save TrunkSelect btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Ok
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-delete-rategenerator" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="delete-rate-generator-form" method="post" >
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete Rate Table cron job</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container col-md-12"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="RateGeneratorID" value="">
+                    <button type="submit"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-cancel"></i>
+                        Delete
                     </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                         <i class="entypo-cancel"></i>

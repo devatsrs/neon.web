@@ -9,7 +9,7 @@ class GatewayAccount extends \Eloquent {
     public static function getAccountIDList($gatewayid=0){
         $row = GatewayAccount::where(array('CompanyID'=>User::get_companyID()))->select(array('AccountName', 'GatewayAccountID'))->orderBy('AccountName')->lists('AccountName', 'GatewayAccountID');
         if(!empty($row)){
-            $row = array(""=> "Select a Account")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -27,7 +27,7 @@ class GatewayAccount extends \Eloquent {
         if(count($accountdata)) {
             $row = GatewayAccount::where(array('CompanyID' => User::get_companyID()))->wherein('GatewayAccountID', $accountdata)->select(array('AccountName', 'GatewayAccountID'))->orderBy('AccountName')->lists('AccountName', 'GatewayAccountID');
             if (!empty($row)) {
-                $row = array("" => "Select a Account") + $row;
+                $row = array("" => "Select") + $row;
             }
         }
         return $row;
@@ -47,7 +47,7 @@ class GatewayAccount extends \Eloquent {
             }
         }
         if (!empty($row)) {
-            $row = array("" => "Select a Account") + $row;
+            $row = array("" => "Select") + $row;
         }
         return $row;
     }

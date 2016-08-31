@@ -25,7 +25,7 @@ BEGIN
 		ud.GatewayAccountID,
 		ud.GatewayAccountID,
 		1 as IsVendor
-	FROM LocalRMCdr.' , p_tbltempusagedetail_name , ' ud
+	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
 	LEFT JOIN tblGatewayAccount ga
 		ON ga.GatewayAccountID = ud.GatewayAccountID
 		AND ga.CompanyGatewayID = ud.CompanyGatewayID
@@ -44,7 +44,7 @@ BEGIN
 	
 	/* update cdr account */
 	SET @stm = CONCAT('
-	UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` uh
+	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
 	INNER JOIN tblGatewayAccount ga
 		ON ga.GatewayAccountID = uh.GatewayAccountID
 		AND ga.CompanyID = uh.CompanyID
@@ -60,7 +60,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 	
 	/* update header cdr account */
-	UPDATE LocalRMCdr.tblVendorCDRHeader uh
+	UPDATE NeonCDRDev.tblVendorCDRHeader uh
 	INNER JOIN tblGatewayAccount ga
 		ON ga.GatewayAccountID = uh.GatewayAccountID
 		AND ga.CompanyID = uh.CompanyID
@@ -77,11 +77,11 @@ BEGIN
 		
 		/* update trunk without use in billing*/
 		SET @stm = CONCAT('
-		UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN LocalRatemanagement.tblVendorTrunk ct 
+		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN NeonRMDev.tblVendorTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.Status =1 
 			AND ct.UseInBilling = 0 
-		INNER JOIN LocalRatemanagement.tblTrunk t 
+		INNER JOIN NeonRMDev.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling
 		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.TrunkID IS NULL;
@@ -93,11 +93,11 @@ BEGIN
 		
 		/* update trunk with use in billing*/
 		SET @stm = CONCAT('
-		UPDATE LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN LocalRatemanagement.tblVendorTrunk ct 
+		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN NeonRMDev.tblVendorTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.Status =1 
 			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-		INNER JOIN LocalRatemanagement.tblTrunk t 
+		INNER JOIN NeonRMDev.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
 		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.TrunkID IS NULL;
@@ -112,7 +112,7 @@ BEGIN
 	/* if rerate on */
 	IF p_RateCDR = 1
 	THEN
-   	SET @stm = CONCAT('UPDATE   LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
+   	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -129,7 +129,7 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_AccountTrunk_(AccountID,TrunkID)
-	SELECT DISTINCT AccountID,TrunkID FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
 	');
 	
 	PREPARE stm FROM @stm;
@@ -147,7 +147,7 @@ BEGIN
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
 		
 		/* get outbound rate process*/
-		CALL LocalRatemanagement.prc_getVendorCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR);
+		CALL NeonRMDev.prc_getVendorCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR);
 		
 		/* update prefix outbound process*/
 		/* if rate format is prefix base not charge code*/
@@ -171,12 +171,12 @@ BEGIN
 	SET @stm = CONCAT('
 	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
 	SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,1,  CONCAT( "Account:  " , ga.AccountName ," - Gateway: ",cg.Title," - Doesnt exist in NEON") as Message ,DATE(NOW())
-	FROM LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
+	FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 	INNER JOIN tblGatewayAccount ga 
 		ON ga.CompanyGatewayID = ud.CompanyGatewayID
 		AND ga.CompanyID = ud.CompanyID
 		AND ga.GatewayAccountID = ud.GatewayAccountID
-	INNER JOIN LocalRatemanagement.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
+	INNER JOIN NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
 	WHERE ud.ProcessID = "' , p_processid  , '" and ud.AccountID IS NULL');
 	
 	PREPARE stmt FROM @stm;
@@ -188,8 +188,8 @@ BEGIN
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",ud.cld," - No Matching prefix found") as Message ,DATE(NOW())
-		FROM  LocalRMCdr.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN LocalRatemanagement.tblAccount a on  ud.AccountID = a.AccountID
+		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
 		WHERE ud.ProcessID = "' , p_processid  , '" AND ud.is_rerated = 0 and ud.area_prefix = "Other"');
 		
 		PREPARE stmt FROM @stm;
@@ -197,9 +197,9 @@ BEGIN
 		DEALLOCATE PREPARE stmt;
 		
 		SET @stm = CONCAT('
-		INSERT INTO LocalRatemanagement.tblTempRateLog (CompanyID,CompanyGatewayID,MessageType,Message,RateDate,SentStatus,created_at)
+		INSERT INTO NeonRMDev.tblTempRateLog (CompanyID,CompanyGatewayID,MessageType,Message,RateDate,SentStatus,created_at)
 		SELECT rt.CompanyID,rt.CompanyGatewayID,rt.MessageType,rt.Message,rt.RateDate,0 as SentStatus,NOW() as created_at FROM tmp_tblTempRateLog_ rt
-		LEFT JOIN LocalRatemanagement.tblTempRateLog rt2 
+		LEFT JOIN NeonRMDev.tblTempRateLog rt2 
 			ON rt.CompanyID = rt2.CompanyID
 			AND rt.CompanyGatewayID = rt2.CompanyGatewayID
 			AND rt.MessageType = rt2.MessageType

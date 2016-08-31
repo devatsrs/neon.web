@@ -2113,3 +2113,33 @@ border:1px solid #AC33FF;
 .filter p{
     margin-bottom: 0px;
 }
+
+.vendor-icon {
+  background-image: url("../images/vendor.png");
+}
+.vendor-icon:hover {
+  background-image: url("../images/vendorhover.png");
+}
+
+.customer-icon {
+  background-image: url("../images/customers.png");
+}
+.opportunity-icon {
+  background-image: url("../images/opportunity.png");
+}
+
+.custom-icon:before{
+content: "";
+font-style: normal;
+font-weight: normal;
+speak: none;
+display: inline-block;
+text-decoration: inherit;
+width: 1em;
+margin-right: .2em;
+text-align: center;
+}
+
+.wizard-active{
+	border-left:3px solid #00a651 !important;
+}

@@ -49,7 +49,6 @@ class CronJob extends \Eloquent {
                     $valid['message'] = Response::json(array("status" => "failed", "message" => "Job title already exist in Cron Jobs."));
                     return $valid;
                 }
-                $CronJob = CronJob::findOrFail($id);
             }else{
                 $result = CronJob::select('JobTitle')->where('JobTitle','=',$data['JobTitle'])->where('CompanyID','=',$companyID)->first();
                 if(!empty($result)){
@@ -74,9 +73,9 @@ class CronJob extends \Eloquent {
                 return $valid;
             }
 
-        }elseif($CronJobCommand->Command == 'pendingduesheets'){
+        }else{
             if(DB::table('tblCronJob')->where('CronJobCommandID','=',$data['CronJobCommandID'])->where('CronJobID','<>',$id)->count() > 0){
-                $valid['message'] = Response::json(array("status" => "failed", "message" => "Command already taken."));
+                $valid['message'] = Response::json(array("status" => "failed", "message" => "Cron Job is Already Setup."));
                 return $valid;
             }
 
@@ -193,7 +192,7 @@ class CronJob extends \Eloquent {
         $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
         $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/cronjob_monitor');
 
-        $emailstatus = Helper::sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
+        $emailstatus = sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
         return $emailstatus;
     }
 
@@ -208,6 +207,26 @@ class CronJob extends \Eloquent {
             return 0;
         }
 
+    }
+
+    // check sippy and vos download cronjob is active or not
+    public static function checkCDRDownloadFiles(){
+        $CompanyID = User::get_companyID();
+        $CronJonCommandsIds = array();
+        $rows = CronJobCommand::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('Command',array('sippydownloadcdr','vosdownloadcdr'))->get()->toArray();
+        if(count($rows)>0){
+            foreach($rows as $row){
+                if(!empty($row['CronJobCommandID'])){
+                    $CronJonCommandsIds[]=$row['CronJobCommandID'];
+                }
+            }
+
+           $count = CronJob::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('CronJobCommandID',$CronJonCommandsIds)->count();
+           if($count>0){
+               return true;
+           }
+        }
+        return false;
     }
 
 }

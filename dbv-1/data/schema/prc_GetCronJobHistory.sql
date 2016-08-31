@@ -1,4 +1,22 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(IN `p_CronJobID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
+	IN `p_CronJobID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_SearchText` VARCHAR(50),
+	IN `p_Status` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+
+
+
+
+
+
+
+)
 BEGIN
 
    DECLARE v_OffSet_ int;
@@ -9,7 +27,6 @@ BEGIN
 	
     IF p_isExport = 0
     THEN
-          
             SELECT
                 tblCronJobCommand.Title,
                 tblCronJobLog.CronJobStatus,
@@ -18,9 +35,12 @@ BEGIN
             FROM tblCronJob
             INNER JOIN tblCronJobLog 
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
+                AND tblCronJobLog.CronJobID = p_CronJobID
+                AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
+                AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
             INNER JOIN tblCronJobCommand
                 ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
-            WHERE tblCronJobLog.CronJobID = p_CronJobID
             ORDER BY
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TitleDESC') THEN tblCronJobCommand.Title
@@ -53,9 +73,12 @@ BEGIN
         FROM tblCronJob
             INNER JOIN tblCronJobLog 
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
+                AND tblCronJobLog.CronJobID = p_CronJobID
+                AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
+                AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
             INNER JOIN tblCronJobCommand
-                ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
-            WHERE tblCronJobLog.CronJobID = p_CronJobID;
+                ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID;
     END IF;
 
     IF p_isExport = 1
@@ -68,9 +91,12 @@ BEGIN
         FROM tblCronJob
         INNER JOIN tblCronJobLog 
                 ON tblCronJob.CronJobID = tblCronJobLog.CronJobID
+                AND tblCronJobLog.CronJobID = p_CronJobID
+                AND (p_Status = '' OR tblCronJobLog.CronJobStatus = p_Status)
+                AND tblCronJobLog.created_at between p_StartDate and p_EndDate
+                AND (p_SearchText='' OR tblCronJobLog.Message like Concat('%',p_SearchText,'%'))
         INNER JOIN tblCronjobCommand
-            ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
-        WHERE tblCronJobLog.CronJobID = p_CronJobID;
+            ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID;
     END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

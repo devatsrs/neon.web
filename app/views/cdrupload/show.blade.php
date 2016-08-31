@@ -17,7 +17,6 @@
 
 @include('includes.errors')
 @include('includes.success')
-
 <p style="text-align: right;">
     <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary hidden">
         <i class="entypo-check"></i>
@@ -75,24 +74,19 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
-                                    <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Date</label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="DateRange" value="{{Input::get('StartDate')?Input::get('StartDate').' 00:00:00'.' - '.Input::get('EndDate').' 23:59:59':date('Y-m-d').' 00:00:00'.' - '.date('Y-m-d').' 23:59:59'}}" data-format="YYYY-MM-DD HH:mm:ss" data-start-date="{{Input::get('StartDate')?Input::get('StartDate'):date('Y-m-d')}}" data-end-date="{{Input::get('EndDate')?Input::get('EndDate').'23:59:59':date('Y-m-d').'23:59:59'}}" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
                                 </div>
-                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
+                                <div class="col-sm-2">
+                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}}
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
-                                <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
-                                    <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
+                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
-                                </div>
-                                                         <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
-            <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"selectboxit"))}} </div>
-                                
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Zero Cost</label>               
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
                                   <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
@@ -105,16 +99,13 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Account</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('AccountID',$accounts,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
-                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
+
                                          
                             
                                <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
@@ -128,6 +119,23 @@
                                                
                                                           
                 </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label" for="field-1">Prefix</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                                </div>
+                                <?php
+                                    $trunk = Input::get('trunk');
+                                    if((int)Input::get('TrunkID') > 0){
+                                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
+                                    }
+                                ?>
+                                <label class="col-sm-1 control-label" for="field-1">Trunk</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                </div>
+
+                            </div>
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
                                     <i class="entypo-search"></i>
@@ -161,20 +169,25 @@
                         <th width="15%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
-                        <th width="10%" >Billed Duration</th>
+                        <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
+                        <th width="10%" >Prefix</th>
+                        <th width="10%" >Trunk</th>
                     </tr>
                     </thead>
                     <tbody>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
     </div>
 </div>
-
 
 
 <script type="text/javascript">
@@ -183,40 +196,21 @@ var $searchFilter = {};
 var update_new_url;
 var postdata;
 var checked='';
+var TotalCall = 0;
+var TotalDuration = 0;
+var TotalCost = 0;
+var CurrencyCode = '';
 var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
     jQuery(document).ready(function ($) {
-        $('input[name="StartTime"]').click();
+
         public_vars.$body = $("body");
 
         $('#bluk_CompanyGatewayID').change(function(e){
-        if($(this).val()){
-            /*$.ajax({
-                url:  baseurl +'/cdr_upload/get_accounts/'+$(this).val(),  //Server script to process data
-                type: 'POST',
-                success: function (response) {
-                $('#bulk_AccountID').empty();
-                $('#bulk_AccountID').append(response);
-                setTimeout(function(){
-                    $("#bulk_AccountID").select2('val','');
-                },200)
-                },
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false
-            });
-            });*/
-            $('#cdr_rerate').removeClass('hidden');
-            /*$.each(rate_cdr, function(key, value) {
-                 if(key == $('#bluk_CompanyGatewayID').val()){
-                    if(value == 1){
-                        $('#cdr_rerate').removeClass('hidden')
-                    }else{
-                        $('#cdr_rerate').addClass('hidden')
-                    }
-                 }
-            });*/
-        }else{
-            $('#cdr_rerate').addClass('hidden');
-        }
+            if($(this).val()){
+                $('#cdr_rerate').removeClass('hidden');
+            }else{
+                $('#cdr_rerate').addClass('hidden');
+            }
         });
         $('#bluk_CompanyGatewayID').trigger('change');
         // Replace Checboxes
@@ -228,12 +222,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             e.preventDefault();
 			$('.result_tr_end').remove();
             var list_fields  =['UsageDetailID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
-            var starttime = $("#cdr_filter [name='StartTime']").val();
-            if(starttime =='0:00:01'){
-                starttime = '0:00:00';
-            }
-            $searchFilter.StartDate 			= 		$("#cdr_filter [name='StartDate']").val();
-            $searchFilter.EndDate 				= 		$("#cdr_filter [name='EndDate']").val();
+            $searchFilter.DateRange 			= 		$("#cdr_filter [name='DateRange']").val();
             $searchFilter.CompanyGatewayID 		= 		$("#cdr_filter [name='CompanyGatewayID']").val();
             $searchFilter.AccountID 			= 		$("#cdr_filter [name='AccountID']").val();
             $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
@@ -241,18 +230,14 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
+            $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
+            $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
 
 			
-            if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
-               toastr.error("Please Select a Start date", "Error", toastr_opts);
+            if(typeof $searchFilter.DateRange  == 'undefined' || $searchFilter.DateRange.trim() == ''){
+               toastr.error("Please Select a Date Range", "Error", toastr_opts);
                return false;
             }
-            if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
-               toastr.error("Please Select a End date", "Error", toastr_opts);
-               return false;
-            }
-            $searchFilter.StartDate += ' '+starttime;
-            $searchFilter.EndDate += ' '+$("#cdr_filter [name='EndTime']").val();
             data_table = $("#table-4").dataTable({
 
                 "bProcessing":true,
@@ -262,9 +247,32 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
+                    aoData.push(
+                            {"name":"DateRange","value":$searchFilter.DateRange},
+                            {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
+                            {"name":"AccountID","value":$searchFilter.AccountID},
+                            {"name":"CDRType","value":$searchFilter.CDRType},
+                            {"name":"CLI","value":$searchFilter.CLI},
+                            {"name":"CLD","value":$searchFilter.CLD},
+                            {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
+                            {"name":"area_prefix","value":$searchFilter.area_prefix},
+                            {"name":"Trunk","value":$searchFilter.Trunk},
+                            {"name":"CurrencyID","value":$searchFilter.CurrencyID}
+                    );
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"StartDate","value":$searchFilter.StartDate},{"name":"EndDate","value":$searchFilter.EndDate},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CDRType","value":$searchFilter.CDRType},{"name":"Export","value":1},{"name":"CLI","value":$searchFilter.CLI},{"name":"CLD","value":$searchFilter.CLD},{"name":"zerovaluecost","value":$searchFilter.zerovaluecost},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
+                    data_table_extra_params.push(
+                            {"name":"DateRange","value":$searchFilter.DateRange},
+                            {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
+                            {"name":"AccountID","value":$searchFilter.AccountID},
+                            {"name":"CDRType","value":$searchFilter.CDRType},
+                            {"name":"Export","value":1},
+                            {"name":"CLI","value":$searchFilter.CLI},
+                            {"name":"CLD","value":$searchFilter.CLD},
+                            {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
+                            {"name":"area_prefix","value":$searchFilter.area_prefix},
+                            {"name":"Trunk","value":$searchFilter.Trunk},
+                            {"name":"CurrencyID","value":$searchFilter.CurrencyID}
+                    );
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[0, 'asc']],
@@ -292,43 +300,18 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                         }
                     }, //0Checkbox
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    {   "bSortable": true,
-
-                mRender:function( id, type, full){
-														currency_symbol =full[13];
-														if(currency_symbol!=null)
-														{
-                                                      		var output = full[13]+' '+id;
-														}
-														else
-														{
-															var output = id;
-														}
-													  return output;
-                                                     }
-
-                 }, //
-                    { "bSortable": true },
-                    { "bSortable": true } /*,
-                         { mRender: function(id, type, full) {
-                             action = '<div class = "hiddenRowData" >';
-                             for(var i = 0 ; i< list_fields.length; i++){
-                                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
-                             }
-                              action += '</div>';
-
-                             action += ' <button class="btn clear delete_cdr btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Clear CDR</button>';
-
-                             return action;
-                             }*/
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    { "bSortable": false }
                 ],
                 "fnDrawCallback": function() {
-					get_total_grand();
-                    $(".dataTables_wrapper select").select2({
+					$(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
 
@@ -384,6 +367,33 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             }
                         }
                     });
+                },
+                "fnServerData": function ( sSource, aoData, fnCallback ) {
+                    /* Add some extra data to the sender */
+                    $.getJSON( sSource, aoData, function (json) {
+                        /* Do whatever additional processing you want on the callback, then tell DataTables */
+                        TotalCall = json.Total.totalcount;
+                        TotalDuration = json.Total.total_duration;
+                        TotalCost = json.Total.total_cost;
+                        CurrencyCode = json.Total.CurrencyCode != null? json.Total.CurrencyCode : '';
+                        fnCallback(json)
+                    });
+                },
+                "fnFooterCallback": function ( row, data, start, end, display ) {
+                    if (end > 0) {
+                        $(row).html('');
+                        for (var i = 0; i < 8; i++) {
+                            var a = document.createElement('td');
+                            $(a).html('');
+                            $(row).append(a);
+                        }
+                        $($(row).children().get(0)).html('<strong>Total</strong>')
+                        $($(row).children().get(3)).html('<strong>'+TotalCall+' Calls</strong>');
+                        $($(row).children().get(4)).html('<strong>'+TotalDuration+' (mm:ss)</strong>');
+                        $($(row).children().get(5)).html('<strong>' + CurrencyCode + TotalCost + '</strong>');
+                    }else{
+                        $("#table-4").find('tfoot').find('tr').html('');
+                    }
                 }
                 });
                 $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
@@ -407,12 +417,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 }
             });
             $('#bulk_clear_cdr').on('click',function (e) {
-                if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
-                   toastr.error("Please Select a Start date then search", "Error", toastr_opts);
-                   return false;
-                }
-                if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
-                   toastr.error("Please Select a End date then search", "Error", toastr_opts);
+                if(typeof $searchFilter.DateRange  == 'undefined' || $searchFilter.DateRange.trim() == ''){
+                   toastr.error("Please Select a Date range then search", "Error", toastr_opts);
                    return false;
                 }
                 response = confirm('Are you sure?');
@@ -421,12 +427,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 }
             });
             $('#cdr_rerate').on('click',function (e) {
-                if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
-                   toastr.error("Please Select a Start date then search", "Error", toastr_opts);
-                   return false;
-                }
-                if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
-                   toastr.error("Please Select a End date then search", "Error", toastr_opts);
+                if(typeof $searchFilter.DateRange  == 'undefined' || $searchFilter.DateRange.trim() == ''){
+                   toastr.error("Please Select a Date range then search", "Error", toastr_opts);
                    return false;
                 }
                 if(typeof $searchFilter.CompanyGatewayID  == 'undefined' || $searchFilter.CompanyGatewayID.trim() == ''){
@@ -504,61 +506,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
         });
 			
 			
-			function get_total_grand()
-			{
-				  var starttime = $("#cdr_filter [name='StartTime']").val();
-           	 	if(starttime =='0:00:01'){
-               		 starttime = '0:00:00';
-           		 }
-				 
-				  var EndTime = $("#cdr_filter [name='EndTime']").val();
-				
-				 $.ajax({
-					url: baseurl + "/cdr_upload/ajax_datagrid_total/type",
-					type: 'GET',
-					dataType: 'json',
-					data:{
-				"StartDate":$("#cdr_filter [name='StartDate']").val()+ ' '+starttime,
-				"EndDate":$("#cdr_filter [name='EndDate']").val()+ ' '+EndTime,
-				"CompanyGatewayID":$("#cdr_filter [name='CompanyGatewayID']").val(),
-				"AccountID":$("#cdr_filter [name='AccountID']").val(),
-				"CDRType":$("#cdr_filter [name='CDRType']").val(),
-				"CLI":$("#cdr_filter [name='CLI']").val(),				
-				"CLD":$("#cdr_filter [name='CLD']").val(),
-				"zerovaluecost":$("#cdr_filter [name='zerovaluecost']").prop("checked"),
-				"CurrencyID":$("#cdr_filter [name='CurrencyID']").val(),				
-				"bDestroy": true,
-				"bProcessing":true,
-				"bServerSide":true,
-				"sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_total/type",
-				"iDisplayLength": '{{Config::get('app.pageSize')}}',
-				"sPaginationType": "bootstrap",
-				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-				"aaSorting": [[3, 'desc']]},
-					success: function(response1) {
-						console.log("sum of result"+response1);
-						
-						if(response1.total_billed_duration!=null)
-						{ 
-							/*var selected_currency = $("#estimate_filter [name='CurrencyID']").val();
-							var concat_currency   = '';
-							if(selected_currency!='')
-							{	
-								var currency_txt =   $('#table-4 tbody tr').eq(0).find('td').eq(4).html();						
-								var concat_currency = currency_txt.substr(0,1);
-							}*/
-							if(currency_symbol==null)
-							{
-								currency_symbol = '';	
-							}
-							concat_currency = '';
-							$('#table-4 tbody').append('<tr class="odd result_tr_end"><td><strong>Total</strong></td><td></td><td align="right" colspan="2"></td><td><strong>'+response1.total_billed_duration+'</strong></td><td><strong>'+currency_symbol+' '+response1.total_cost+'</strong></td><td colspan="2"></td></tr>');
-						}
-						
-	
-						}
-				});	
-			}
+
 
 
             });

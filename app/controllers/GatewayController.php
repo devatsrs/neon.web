@@ -6,9 +6,13 @@ class GatewayController extends \BaseController {
         $data = Input::all();
 
         $CompanyID = User::get_companyID();
+		$GatewayID = (isset($data['Gateway']) && $data['Gateway']!='')?$data['Gateway']:0;
         $Gateway = CompanyGateway::
             select('Title','IP','Status','GatewayID','CompanyGatewayID','TimeZone','BillingTimeZone')
             ->where("CompanyID", $CompanyID);
+		if($GatewayID>0){
+			$Gateway->where("GatewayID", $GatewayID);
+		}	
         if(isset($data['Export']) && $data['Export'] == 1) {
             $Gateway = CompanyGateway::select('Title','IP','Status','TimeZone','BillingTimeZone')
                 ->where("CompanyID", $CompanyID);
@@ -29,13 +33,12 @@ class GatewayController extends \BaseController {
         return Datatables::of($Gateway)->make();
     }
 
-    public function index()
+    public function index($id=0)
     {
-        $gateway = Gateway::getGatewayListID();
-        $timezones = TimeZone::getTimeZoneDropdownList();
-        $gateway['other'] = 'other';
-        return View::make('gateway.index', compact('gateway','timezones'));
-
+        $gateway 			= 	Gateway::getGatewayListID();
+        $timezones 			= 	TimeZone::getTimeZoneDropdownList();
+        $gateway['other'] 	= 	'other';
+        return View::make('gateway.index', compact('gateway','timezones','id'));
     }
 
     /**
@@ -194,7 +197,7 @@ class GatewayController extends \BaseController {
     public function delete($id)
     {
         if( intval($id) > 0){
-            if(!CompanyGateway::checkForeignKeyById($id)) {
+            //if(!CompanyGateway::checkForeignKeyById($id)) {
                 try {
                     $result = CompanyGateway::find($id);
                     if (!empty($result) && $result->delete()) {
@@ -205,9 +208,9 @@ class GatewayController extends \BaseController {
                 } catch (Exception $ex) {
                     return Response::json(array("status" => "failed", "message" => "Gateway is in Use, You cant delete this Gateway."));
                 }
-            }else{
+           /* }else{
                     return Response::json(array("status" => "failed", "message" => "Gateway is in Use, You cant delete this Gateway."));
-                }
+                }*/
         }else{
             return Response::json(array("status" => "failed", "message" => "Gateway is in Use, You cant delete this Gateway."));
         }
@@ -241,5 +244,30 @@ class GatewayController extends \BaseController {
         }
     }
 
+    // check before delete if any cronjob set gateway or not
+    public function ajax_existing_gateway_cronjob($id){
+        $companyID = User::get_companyID();
+        $tag = '"CompanyGatewayID":"'.$id.'"';
+        $cronJobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->select(['JobTitle','Status','created_by','CronJobID'])->get()->toArray();
+        return View::make('gateway.ajax_gateway_cronjobs', compact('cronJobs'));
+    }
 
+    public function deleteCronJob($id){
+        $data = Input::all();
+        try{
+            $cronjobs = explode(',',$data['cronjobs']);
+            foreach($cronjobs as $cronjobID){
+                $cronjob = CronJob::find($cronjobID);
+                if($cronjob->Active){
+                    $Process = new Process();
+                    $Process->change_crontab_status(0);
+                }
+                $cronjob->delete();
+                CronJobLog::where("CronJobID",$cronjobID)->delete();
+            }
+            return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted"));
+        }catch (Exception $ex){
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
 }

@@ -297,22 +297,34 @@ class VendorRatesController extends \BaseController
             download_file($filePath);
 
     }
+
+    // Delete single and selected vendor rate
     public function bulk_clear_rate($id){
         $data = Input::all();
-
         $rules = array('VendorRateID' => 'required', 'Trunk' => 'required',);
 
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            return Redirect::back()->withInput(Input::all())->withErrors($validator);
+            return json_validator_response($validator);
+            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
         }
+
+        $CompanyID = User::get_companyID();
+
+        $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."','".$data['VendorRateID']."',NULL,NULL,NULL,NULL,2)");
+        if ($results) {
+            return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Deleted"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rate."));
+        }
+        /*
         $VendorIDs = explode(",", $data['VendorRateID']);
         if (VendorRate::whereIn('VendorRateID',$VendorIDs)->delete()) {
             return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rates."));
-        }
+        }*/
 
     }
     public function bulk_update($id){
@@ -364,6 +376,8 @@ class VendorRatesController extends \BaseController
             return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rate."));
         }
     }
+
+    // Delete All vendor rate by criteria
     public function clear_all_vendorrate($id){
         $data = Input::all();
         $rules = array('Trunk' => 'required',);
@@ -372,14 +386,15 @@ class VendorRatesController extends \BaseController
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        $company_id = User::get_companyID();
+
+        $CompanyID = User::get_companyID();
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
             $criteria['Country'] = $criteria['Country'] == 'All'?'NULL':$criteria['Country'];
             $criteria['Code'] =  $criteria['Code'] == ''?'NULL':"'".$criteria['Code']."'";
             $criteria['Description'] = $criteria['Description'] == ''?'NULL':"'".$criteria['Description']."'";
             $username = User::get_user_full_name();
-            $results = DB::statement("call prc_VendorBulkRateUpdate( '".$id."',".$data['Trunk'].",".$criteria['Code'].",".$criteria['Description'].",".$criteria['Country'].",".$company_id.",'0','','0','','','".$username."','".$criteria['Effective']."',2); ");
+            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."',NULL,".$criteria['Code'].",".$criteria['Description'].",".$criteria['Country'].",'".$criteria['Effective']."',1)");
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
             } else {
@@ -448,6 +463,8 @@ class VendorRatesController extends \BaseController
                 return Redirect::back()->with('success_message', "Vendor Trunk Saved");
             }
     }
+
+    //Delete vendor rate when codedeck change in setting page
     public function  delete_vendorrates($id){
             $data = Input::all();
             $rules = array('Trunkid' => 'required');
@@ -459,10 +476,12 @@ class VendorRatesController extends \BaseController
                 return VendorRate::where(["AccountID" =>$id ,'TrunkID'=>$data['Trunkid']])->count();
             }
 
-            if (VendorRate::where(["AccountID" =>$id ,'TrunkID'=>$data['Trunkid']])->count()  == 0 || VendorRate::where(["AccountID" =>$id ,'TrunkID'=>$data['Trunkid']])->delete()) {
-                return Response::json(array("status" => "success", "message" => "Vendor Rates Deleted Successfully"));
+            $CompanyID = User::get_companyID();
+            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunkid']."',NULL,NULL,NULL,NULL,NULL,2)");
+            if ($results) {
+                return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rates."));
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rate."));
             }
     }
     public function vendor_preference($id){
@@ -770,9 +789,9 @@ class VendorRatesController extends \BaseController
 
     public function vendordownloadtype($id,$type){
         if($type=='Vos 3.2'){
-            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
         }else{
-            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+            $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
         return $downloadtype;
     }

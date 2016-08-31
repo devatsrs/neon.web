@@ -79,6 +79,8 @@
           </ul>
         </li>--}}
     @endif
+    @if( User::checkCategoryPermission('CrmDashboard','View') || User::checkCategoryPermission('OpportunityBoard','View') ||
+    User::checkCategoryPermission('Task','View'))
     <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
          @if(User::checkCategoryPermission('CrmDashboard','View'))
@@ -92,6 +94,7 @@
             @endif
         </ul>
     </li>
+    @endif
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
@@ -116,6 +119,9 @@
 
         @if(User::checkCategoryPermission('BillingSubscription','View'))
         <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('DiscountPlan','View'))
+          <li><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
         @endif
         @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
@@ -154,8 +160,10 @@
     </li>
     @endif
     @endif
+    @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('Analysis','All'))
       <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
+    @endif
     @endif
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
@@ -183,12 +191,18 @@
         @endif
         @if(User::checkCategoryPermission('ExchangeRate','View'))
         <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
-        @endif        
+        @endif
+        @if(User::checkCategoryPermission('DestinationGroup','View'))
+          <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
+        @endif
       </ul>
     </li>
     @endif
+     @if( User::checkCategoryPermission('Integration','View'))
+       <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
+    @endif
     @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
-    User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
+    User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
       <ul>
         @if( User::checkCategoryPermission('Users','View'))
@@ -197,11 +211,17 @@
         @if(User::is_admin())
         <li> <a href="{{Url::to('roles')}}">  <span>User Roles</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('Notification','View'))
+            <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('themes','View'))
         <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('AccountChecklist','View'))
         <li> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>
+        @endif
+         @if(User::checkCategoryPermission('Retention','View'))
+         <li> <a href="{{URL::to('/retention')}}">  <span>Retention</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
         <!--<li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>-->
@@ -224,7 +244,7 @@
 
     @if( User::checkCategoryPermission('Company','View'))
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
-    @endif
+    @endif  	
     @if( User::checkCategoryPermission('Pages','About'))
     <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>
     @endif

@@ -15,7 +15,7 @@
                     <div class="panel-title">
                         <h3>Recent Due Rate Sheet</h3>
                         <span>Rate sheets due in next 2 days</span>
-                    </div>
+                    </div> 
 
                     <div class="panel-options">
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>

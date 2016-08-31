@@ -8,12 +8,7 @@ class DashboardController extends BaseController {
     }
 
     public function home() {
-
-        if(Company::isBillingLicence(1)){
-            return Redirect::to('billingdashboard');
-        }
- 
-        return View::make('dashboard.index');
+        return Redirect::to('/process_redirect');
     }
     public function salesdashboard(){
 
@@ -136,7 +131,8 @@ class DashboardController extends BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));
+        $invoice_status_json = json_encode(Invoice::get_invoice_status());
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json'));
 
     }
     public function monitor_dashboard(){
@@ -231,6 +227,17 @@ class DashboardController extends BaseController {
 		}
 	}
 	
+	function GetRevenueDrillDown(){
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/CrmDashboardUserRevenue',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			$data = json_decode($response->data);
+            return View::make('dashboard.RevenueDrillDown', compact('data'));
+		}
+	}
+	
 	
 	public function GetForecastData(){ //crm dashboard
 		 $data 			= 	 Input::all();			
@@ -245,7 +252,7 @@ class DashboardController extends BaseController {
 	
 	
 	 public function GetOpportunites(){
-        $data = Input::all();  
+        $data = Input::all();   
         $data['iDisplayStart'] +=1;
         if(User::is('AccountManager')){
             $data['AccountOwner'] = User::get_userID();
@@ -328,13 +335,14 @@ class DashboardController extends BaseController {
     }
 
     public function ajax_get_recent_accounts(){
-        $companyID = User::get_companyID();
-        $userID = User::get_userID();
-        $AccountManager = 0;
+        $companyID 			= 	 User::get_companyID();        
+		$data 				= 	 Input::all();	
+		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):0;
+        $AccountManager 	= 	 0;
         if (User::is('AccountManager')) { // Account Manager
             $AccountManager = 1;
         }
-        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.','.$AccountManager.")";
+        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."')"; 
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';

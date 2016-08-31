@@ -36,6 +36,7 @@ class AnalysisController extends BaseController {
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $query = '';
+        $customer = 1;
         if($data['chart_type'] == 'destination') {
             $query = "call prc_getDestinationReportAll ";
         }elseif($data['chart_type'] == 'prefix') {
@@ -45,7 +46,7 @@ class AnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'gateway') {
             $query = "call prc_getGatewayReportAll ";
         }
-        $query .= "('" . $companyID . "','".intval($data['GatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
 
@@ -61,7 +62,7 @@ class AnalysisController extends BaseController {
             $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
             $indexcount++;
         }
-        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
 
 
         $indexcount = 0;
@@ -73,7 +74,7 @@ class AnalysisController extends BaseController {
             $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
             $indexcount++;
         }
-        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
 
 
         $indexcount = 0;
@@ -87,7 +88,7 @@ class AnalysisController extends BaseController {
 
             $indexcount++;
         }
-        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
         return chart_reponse($alldata);
     }
     public function getAnalysisBarData(){
@@ -96,7 +97,7 @@ class AnalysisController extends BaseController {
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $reponse = array();
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
-        $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['GatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
+        $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
         $category = $counts = $minutes = $cost = array();
         $cat_index = 0;
@@ -139,7 +140,7 @@ class AnalysisController extends BaseController {
         }
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query .= "('" . $companyID . "','".intval($data['GatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('neon_report')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

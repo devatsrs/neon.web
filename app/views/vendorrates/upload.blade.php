@@ -181,7 +181,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Call Rate Rules CSV Importer
+                        Import Options
                     </div>
 
                     <div class="panel-options">
@@ -236,11 +236,13 @@
 
                 <div class="panel-body" id="mapping">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Code*</label>
-                        <div class="col-sm-4">
+                        <label for="field-1" class="col-sm-2 control-label">Code* </label>
+                        <div class="col-sm-2">
                             {{Form::select('selection[Code]', array(),'',array("class"=>"selectboxit"))}}
                         </div>
-
+                        <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
+                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"selectboxit"))}}
+                        </div>
                         <label for="field-1" class="col-sm-2 control-label">Description*</label>
                         <div class="col-sm-4">
                             {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
@@ -338,7 +340,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        CSV File to be loaded
+                        File to be loaded
                     </div>
 
                     <div class="panel-options">
@@ -555,7 +557,7 @@ jQuery(document).ready(function ($) {
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]'){
+            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]'){
                 $(el).data("selectBox-selectBoxIt").remove();
                 $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
                 $.each(data.columns,function(key,value){

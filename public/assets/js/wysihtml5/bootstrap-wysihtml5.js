@@ -1042,7 +1042,7 @@
 				}
 			}
         },
-        stylesheets: 'assets/js/wysihtml5/bootstrap-wysihtml5.css',//["./lib/css/wysiwyg-color.css"], // (path_to_project/lib/css/wysiwyg-color.css)
+        stylesheets: baseurl+'/assets/js/wysihtml5/bootstrap-wysihtml5.css',//["./lib/css/wysiwyg-color.css"], // (path_to_project/lib/css/wysiwyg-color.css)
         locale: "en"
     };
 
