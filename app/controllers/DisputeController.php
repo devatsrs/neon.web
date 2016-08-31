@@ -67,7 +67,7 @@ class DisputeController extends \BaseController {
 		$currency = Currency::getCurrencyDropdownList();
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList());
 		$accounts = Account::getAccountIDList();
-		$InvoiceTypes =  array(''=>'Select an Invoice Type' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
+		$InvoiceTypes =  array(''=>'Select' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
 		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes'));
 
 	}

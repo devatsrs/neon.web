@@ -37,7 +37,7 @@ class CompanyGateway extends \Eloquent {
     public static function getGatewayIDList($gatewayid){
         $row = CompanyGateway::where(array('Status'=>1,'GatewayID'=>$gatewayid,'CompanyID'=>User::get_companyID()))->lists('Title', 'CompanyGatewayID');
         if(!empty($row)){
-            $row = array(""=> "Select a Gateway")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
 
@@ -83,7 +83,7 @@ class CompanyGateway extends \Eloquent {
         }
         print_r($row);exit;
         if(!empty($row)){
-            $row = array(""=> "Select a Gateway")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }

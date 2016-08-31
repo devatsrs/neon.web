@@ -2108,6 +2108,7 @@ border:1px solid #AC33FF;
 .discount_progress span{
     position: absolute;
     margin-top: 5px;
+    margin-left: 5px;
 
 }
 .filter .panel-title{

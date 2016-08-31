@@ -33,7 +33,7 @@ class EmailTemplate extends \Eloquent {
         $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
 
         if(!empty($row)){
-            $row = array(""=> "Select a Template")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }

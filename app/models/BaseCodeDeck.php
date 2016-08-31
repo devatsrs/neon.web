@@ -14,7 +14,7 @@ class BaseCodeDeck extends \Eloquent {
     public static function  getCodedeckIDList(){
         $company_id = User::get_companyID();
         $row = BaseCodeDeck::where(['CompanyId'=>$company_id])->lists('CodeDeckName','CodeDeckId');
-        $row = array(""=> "Select a CodeDeck") + $row;
+        $row = array(""=> "Select") + $row;
         return $row;
 
     }
