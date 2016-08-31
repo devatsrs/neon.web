@@ -1428,9 +1428,9 @@ class InvoicesController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*if(getenv('APP_OS') == 'Linux'){
-                pclose(popen(getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
+                pclose(popen(CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
             }else{
-                pclose(popen("start /B " . getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
+                pclose(popen("start /B " . CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
             }*/
             if($JobID>0) {
                 return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));

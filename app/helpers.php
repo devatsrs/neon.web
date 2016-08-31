@@ -133,78 +133,39 @@ function opportunites_dropbox($id=0,$data=array()){
 
 
 function sendMail($view,$data){
-    $status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
-    if(empty($data['companyID']))
+    
+	if(empty($data['companyID']))
     {
         $companyID = User::get_companyID();
     }else{
         $companyID = $data['companyID'];
     }
-    $mail = setMailConfig($companyID);
-    $body = View::make($view,compact('data'))->render();
-
-    if(getenv('APP_ENV') != 'Production'){
-        $data['Subject'] = 'Test Mail '.$data['Subject'];
-    }
-    $mail->Body = $body;
-    $mail->Subject = $data['Subject'];
-    if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
-        $data['EmailTo']  = explode(',',$data['EmailTo']);
-    }
-
-    if(isset($data['cc'])) {
-        if (is_array($data['cc'])) {
-            foreach ($data['cc'] as $cc_address) {
-                $user_data = User::where(["EmailAddress" => $cc_address])->get();
-                $mail->AddCC($cc_address, $user_data[0]['FirstName'] . ' ' . $user_data[0]['LastName']);
-            }
-        }
-    }
-
-    if(isset($data['cc'])) {
-        if (is_array($data['bcc'])) {
-            foreach ($data['bcc'] as $bcc_address) {
-                $user_data = User::where(["EmailAddress" => $bcc_address])->get();
-
-                $mail->AddBCC($bcc_address, $user_data[0]['FirstName'] . ' ' . $user_data[0]['LastName']);
-            }
-        }
-    }
-    if(is_array($data['EmailTo'])){
-        foreach((array)$data['EmailTo'] as $email_address){
-            if(!empty($email_address)) {
-                $email_address = trim($email_address);
-                $mail->clearAllRecipients();
-                $mail->addAddress($email_address); //trim Added by Abubakar
-                if (!$mail->send()) {
-                    $status['status'] = 0;
-                    $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $email_address . ')';
-                } else {
-                    $status['status'] = 1;
-                    $status['message'] = 'Email has been sent';
-                    $status['body'] = $body;
-                }
-            }
-        }
-    }else{
-        if(!empty($data['EmailTo'])) {
-            $email_address = trim($data['EmailTo']);
-            $mail->clearAllRecipients();
-            $mail->addAddress($email_address); //trim Added by Abubakar
-            if (!$mail->send()) {
-                $status['status'] = 0;
-                $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $data['EmailTo'] . ')';
-            } else {
-                $status['status'] = 1;
-                $status['message'] = 'Email has been sent';
-                $status['body'] = $body;
-            }
-        }
-    }
-    return $status;
+	$data   =   $data;
+	$body 	=   View::make($view,compact('data'))->render(); 
+	
+	if(SiteIntegration::is_EmailIntegration($companyID)){
+		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body);
+	}
+	else{
+		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
+		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
+	}
+	
+	return $status;
 }
-function setMailConfig($CompanyID){
+function setMailConfig($CompanyID){	
+
+	if(SiteIntegration::is_EmailIntegration()){
+		return	SiteIntegration::SetEmailConfiguration();
+	}
+	else{
+		return	PHPMAILERIntegtration::SetEmailConfiguration();
+	}
+	exit;
+	
     $result = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $CompanyID)->first();
+	
+	
     Config::set('mail.host',$result->SMTPServer);
     Config::set('mail.port',$result->Port);
     Config::set('mail.from.address',$result->EmailFrom);
@@ -366,13 +327,25 @@ function is_amazon(){
 }
 
 function is_authorize(){
-    $AUTHORIZENET_API_LOGIN_ID  = getenv("AUTHORIZENET_API_LOGIN_ID");
-    $AUTHORIZENET_TRANSACTION_KEY = getenv("AUTHORIZENET_TRANSACTION_KEY");
-
-    if(empty($AUTHORIZENET_API_LOGIN_ID) || empty($AUTHORIZENET_TRANSACTION_KEY)){
-        return false;
-    }
-    return true;
+	
+	$Integration		=	new SiteIntegration();
+	return				$Integration->is_Authorize();
+	
+	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
+	if(count($AuthorizeDbData)>0){
+		
+		$AuthorizeData   				= 	isset($AuthorizeDbData->Settings)?json_decode($AuthorizeDbData->Settings):"";		
+		$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
+		$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';
+		
+		if(empty($AUTHORIZENET_API_LOGIN_ID) || empty($AUTHORIZENET_TRANSACTION_KEY)){
+			return false;
+		}
+		return true;		
+	}
+	else{
+		return false;
+	}	*/
 }
 
 
@@ -973,14 +946,14 @@ function get_random_number(){
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
-    $path_array 	  =    explode("Controller",$Path);
+    $path_array 	  =    explode("Controller",$Path); 
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate","EmailTemplate");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
-	$array_crm 		  =    array("OpportunityBoard","Task");
+	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
     $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
@@ -989,9 +962,9 @@ function check_uri($parent_link=''){
          $controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-			if(Request::segment(1)!='monitor'){
+			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
             	return 'opened';
-			}  		
+			} 
         }
 
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
@@ -1020,7 +993,9 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-            return 'opened';
+			if($path_array[1]!='@billingdashboard'){
+				return 'opened';
+			}
         }
 
         if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
@@ -1223,10 +1198,38 @@ function terminate_process($pid){
 
 }
 function run_process($command) {
-
     $process = new Process($command);
     return $status = $process->status();
 }
+
+function Get_Api_file_extentsions($ajax=false){
+	
+	 if (Session::has("api_response_extensions")){
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
+		 return $response_extensions;
+	 } 	 
+	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
+	 $response_extensions 	=  [];
+	
+	if($response->status=='failed'){
+		if($ajax==true){
+			return $response;
+		}else{
+			
+			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
+				return	Redirect::to('/logout'); 	
+			}		
+			if(isset($response->error) && $response->error=='token_expired'){ Redirect::to('/login');}	
+		}
+	}else{		
+		$response_extensions 		 = 	json_response_api($response,true,true); 
+		$response_extensions 		 = 	json_decode($response_extensions);		
+		$array['allowed_extensions'] = 	$response_extensions;
+		Session::put('api_response_extensions', $response_extensions);
+		return $array;
+	}
+}
+
 function getBillingDay($BillingStartDate,$BillingCycleType,$BillingCycleValue){
     $BillingDays = 0;
     switch ($BillingCycleType) {

@@ -25,6 +25,31 @@
     </a>
 @endif
 </p>
+<div class="row">
+  <div class="tab-content">
+    <div class="tab-pane active" id="customer" >
+      <div class="col-md-12">
+        <form novalidate class="form-horizontal form-groups-bordered filter validate" method="post" id="gateway_form">
+          <div data-collapsed="0" class="panel panel-primary">
+            <div class="panel-heading">
+              <div class="panel-title">Filter</div>
+              <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-group">
+                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
+                <div class="col-sm-3"> {{ Form::select('Gateway',$gateway,$id,array("class"=>"select2")) }} </div>
+              </div>
+              <p style="text-align: right;">
+                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
@@ -41,6 +66,7 @@
 </table>
 
 <script type="text/javascript">
+var selectedID = '{{$id}}';
 var $searchFilter = {};
 var update_new_url;
 var postdata;
@@ -48,6 +74,7 @@ var postdata;
         public_vars.$body = $("body");
 
         //show_loading_bar(40);
+		 $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -58,8 +85,9 @@ var postdata;
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "fnServerParams": function(aoData) {
+				  aoData.push({"name":"Gateway","value":$searchFilter.Gateway});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"Export","value":1});
+                data_table_extra_params.push({"name":"Export","value":1},{"name":"Gateway","value":$searchFilter.Gateway});
             },
             "aaSorting": [[0, 'asc']],
              "aoColumns":
@@ -75,7 +103,7 @@ var postdata;
                 }, //2   Status
                 {                       //3
                    "bSortable": true,
-                    mRender: function ( id, type, full ) {
+                    mRender: function ( id, type, full ) {						
                     var GatewayID = full[3]>0?full[3]:'';
                         var action ='';
                          action = '<div class = "hiddenRowData" >';
@@ -116,40 +144,32 @@ var postdata;
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
-            },
-           "fnDrawCallback": function() {
-
-               $(".btn.delete").click(function (e) {
-                   e.preventDefault();
-                   var id = $(this).attr('data-id');
-                   var url = baseurl + '/gateway/'+id+'/ajax_existing_gateway_cronjob';
-                   $('#delete-gateway-form [name="CompanyGatewayID"]').val(id);
-                   if(confirm('Are you sure you want to delete selected gateway?')) {
-                       $.ajax({
-                           url: url,
-                           type: 'POST',
-                           dataType: 'html',
-                           success: function (response) {
-                               $(".btn.delete").button('reset');
-                               if (response) {
-                                   $('#modal-delete-gateway .container').html(response);
-                                   $('#modal-delete-gateway').modal('show');
-                               }else{
-                                   $('#delete-gateway-form').submit();
-                               }
-                           },
-
-                           // Form data
-                           //data: {},
-                           cache: false,
-                           contentType: false,
-                           processData: false
-                       });
+            }, "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+				if(selectedID!='' && selectedID!='0' && iTotal==0){
+					$('#add-new-config').click();
+				}	
+  },
+           "fnDrawCallback": function() {			  
+                   //After Delete done
+                   FnDeleteCongfigSuccess = function(response){						
+                       if (response.status == 'success') {
+                           $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
+                           ShowToastr("success",response.message);
+                           data_table.fnFilter('', 0);
+                       }else{
+                           ShowToastr("error",response.message);
+                       }
                    }
-                   return false;
-
-               });
-
+                   //onDelete Click
+                   FnDeleteConfig = function(e){
+                       result = confirm("Are you Sure?");
+                       if(result){
+                           var id  = $(this).attr("data-id");
+                           showAjaxScript( baseurl + "/gateway/delete/"+id ,"",FnDeleteCongfigSuccess );
+                       }
+                       return false;
+                   }
+                   $(".delete-config").click(FnDeleteConfig); // Delete Note
                    $(".dataTables_wrapper select").select2({
                        minimumResultsForSearch: -1
                    });
@@ -168,7 +188,7 @@ var postdata;
         ev.preventDefault();
         $('#add-new-config-form').trigger("reset");
         $("#add-new-config-form [name='CompanyGatewayID']").val('');
-        $("#GatewayID").select2().select2('val','');
+        //$("#GatewayID").select2().select2('val','');
         $("#GatewayID").trigger('change');
         $('#add-new-modal-config h4').html('Add New Gateway');
         $('#add-new-modal-config').modal('show');
@@ -255,142 +275,26 @@ var postdata;
                     $('#ajax_config_html').html('');
                 }
             });
-
-        /*delete gateway*/
-        $('#delete-gateway-form').submit(function (e) {
+			
+		 $("#gateway_form").submit(function(e){
             e.preventDefault();
-            if($('#modal-delete-gateway .container').is(':empty')) {
-                var CompanyGatewayID = $(this).find('[name="CompanyGatewayID"]').val();
-                var url = baseurl + '/gateway/delete/' + CompanyGatewayID;
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.status == 'success') {
-                            toastr.success(response.message, "Success", toastr_opts);
-                            data_table.fnFilter('', 0);
-                            reloadJobsDrodown(0);
-                            $('#modal-delete-gateway').modal('hide');
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                        $(".save.GatewaySelect").button('reset');
-
-                    },
-                    // Form data
-                    data: '',
-                    cache: false
-
-                });
-            }else{
-              //  alert('Please delete cron job first');
-                var SelectedIDs = getselectedIDs("cronjob-table");
-                if (SelectedIDs.length == 0) {
-                    alert('Please Select Cron Job to delete');
-                    $("#gateway-select").button('reset');
-                    return false;
-                }else{
-                    var deleteid = SelectedIDs.join(",");
-                    cronjobsdelete('all',deleteid);
-                }
-            }
+            $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
+            data_table.fnFilter('', 0);
+            return false;
         });
-
-        /*not in use*/
-        $(document).on('click','.cronjobedelete',function(){
-            var deleteid = $(this).attr('data-id')
-            if (deleteid == '') {
-                $(".save.GatewaySelect").button('reset');
-                toastr.error('Please Select Cron Job to delete.', "Error", toastr_opts);
-                return false;
-            }else{
-                cronjobsdelete('select',deleteid);
-            }
-        });
-
-        function cronjobsdelete(type,deleteid){
-            if(confirm('Are you sure you want to delete selected cron job?')){
-                    var CompanyGatewayID = $('#delete-gateway-form [name="CompanyGatewayID"]').val();
-                    var url = baseurl + "/gateway/"+CompanyGatewayID+"/deletecronjob";
-                    var cronjobs = deleteid;
-                    $('#modal-delete-gateway .container').html('');
-                    $('#modal-delete-gateway').modal('hide');
-                    $.ajax({
-                        url: url,
-                        type:'POST',
-                        data:{cronjobs:cronjobs},
-                        datatype:'json',
-                        success: function(response) {
-                            if (response.status == 'success') {
-                                toastr.success(response.message,'Success', toastr_opts);
-                                var url = baseurl + '/gateway/'+CompanyGatewayID+'/ajax_existing_gateway_cronjob';
-                                $('#delete-gateway-form [name="CompanyGatewayID"]').val(CompanyGatewayID);
-                                $.ajax({
-                                    url: url,
-                                    type: 'POST',
-                                    dataType: 'html',
-                                    success: function (response) {
-                                        $(".btn.delete").button('reset');
-                                        if (response) {
-                                            $('#modal-delete-gateway .container').html(response);
-                                            $('#modal-delete-gateway').modal('show');
-                                        }else{
-                                            $('#delete-gateway-form').submit();
-                                        }
-                                    },
-
-                                    // Form data
-                                    //data: {},
-                                    cache: false,
-                                    contentType: false,
-                                    processData: false
-                                });
-                            }else{
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        }
-
-                    });
-                }
-        }
-        $(document).on('click', '#cronjob-table tbody tr', function() {
-            $(this).toggleClass('selected');
-            if($(this).is('tr')) {
-                if ($(this).hasClass('selected')) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                } else {
-                    $(this).find('.rowcheckbox').prop("checked", false);
-                }
-            }
-        });
-
-        $(document).on('click','#selectall',function(){
-            if($(this).is(':checked')){
-                checked = 'checked=checked';
-                $(this).prop("checked", true);
-                $(this).parents('table').find('tbody tr').each(function (i, el) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                    $(this).addClass('selected');
-                });
-            }else{
-                checked = '';
-                $(this).prop("checked", false);
-                $(this).parents('table').find('tbody tr').each(function (i, el) {
-                    $(this).find('.rowcheckbox').prop("checked", false);
-                    $(this).removeClass('selected');
-                });
-            }
-        });
-
-        function getselectedIDs(table){
-            var SelectedIDs = [];
-            $('#'+table+' tr .rowcheckbox:checked').each(function (i, el) {
-                var cronjob = $(this).val();
-                SelectedIDs[i++] = cronjob;
-            });
-            return SelectedIDs;
-        }
+		
+		function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  } 
+  alert('Query Variable ' + variable + ' not found');
+}
+	
     });
 </script>
 <style>
@@ -401,8 +305,6 @@ var postdata;
     right: 30px !important;
 }
 </style>
-<!--Only for Delete operation-->
-@include('includes.ajax_submit_script', array('formID'=>'' , 'url' => ('')))
 @stop
 
 
@@ -421,7 +323,7 @@ var postdata;
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Gateway Type</label>
-                                {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2",'id'=>'GatewayID')) }}
+                                {{ Form::select('GatewayID',$gateway,$id, array("class"=>"select2",'id'=>'GatewayID')) }}
                              </div>
                         </div>
                     </div>
@@ -478,36 +380,6 @@ var postdata;
                         Close
                     </button>
                 </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="modal-delete-gateway" data-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form id="delete-gateway-form" method="post" >
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Delete Gateway cron job</h4>
-                </div>
-
-                <div class="modal-body">
-                    <div class="container col-md-12"></div>
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="CompanyGatewayID" value="">
-                    <button id="gateway-select" class="save GatewaySelect btn btn-danger btn-sm btn-icon icon-left">
-                        <i class="entypo-cancel"></i>
-                        Delete
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
                 </div>
             </form>
         </div>

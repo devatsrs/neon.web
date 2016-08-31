@@ -493,14 +493,15 @@ var click_btn;
 
         $('#RateCDR').change(function(){
             if($('#RateCDR').is(":checked")){
-                $('select[name=TrunkID]').select2("val","");
-                $('select[name=RateFormat]').select2("val","");
                 $("#trunk_dropdown").removeClass("hidden");
                 $("#rate_dropdown").removeClass("hidden");
             }else{
                 $("#trunk_dropdown").addClass("hidden");
                 $("#rate_dropdown").addClass("hidden");
             }
+            $('select[name=TrunkID]').select2("val","");
+            $('select[name=RateFormat]').select2("val","");
+            $('select[name=RateFormat]').trigger('change');
         });
         $('#RateCDR').trigger('change');
     });
