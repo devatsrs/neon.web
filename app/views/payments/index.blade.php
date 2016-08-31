@@ -237,7 +237,7 @@
         </tbody>
     </table>
     <script type="text/javascript">
-        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+        var toFixed = '{{get_round_decimal_places()}}';
 	 var currency_signs = {{$currency_ids}};
                 var list_fields  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
                 var $searchFilter = {};

@@ -7,5 +7,6 @@ CREATE TABLE `tblVendorPreference` (
   `CreatedBy` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`VendorPreferenceID`),
+  UNIQUE KEY `IX_UniqueAccountId_Pref_RateId_TrunkId` (`Preference`,`RateId`,`TrunkID`,`AccountId`),
   KEY `IX_AccountID_TrunkID_RateID` (`TrunkID`,`RateId`,`AccountId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

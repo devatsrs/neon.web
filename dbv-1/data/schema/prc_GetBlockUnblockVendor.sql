@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetBlockUnblockVendor`(IN `p_companyid` INT, IN `p_UserID` int , IN `p_TrunkID` INT, IN `p_CountryIDs` TEXT, IN `p_CountryCodes` TEXT, IN `p_isCountry` int , IN `p_action` VARCHAR(10), IN `p_isAllCountry` int , IN `P_criteria` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetBlockUnblockVendor`(IN `p_companyid` INT, IN `p_UserID` int , IN `p_TrunkID` INT, IN `p_CountryIDs` TEXT, IN `p_CountryCodes` TEXT, IN `p_isCountry` int , IN `p_action` VARCHAR(10), IN `p_isAllCountry` int , IN `p_criteria` INT)
 BEGIN
 
     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
@@ -16,7 +16,7 @@ BEGIN
 			INDEX tmp_Code (`Code`)
 		);
 	END IF;	
-   		IF P_criteria = 0 AND p_isCountry = 0 -- code with selected row
+   		IF p_criteria = 0 AND p_isCountry = 0 -- code with selected row
 		THEN
    		insert into tmp_codes_
 		   SELECT  distinct tblRate.Code 
@@ -24,7 +24,7 @@ BEGIN
            WHERE    tblRate.CompanyID = p_companyid  AND ( p_CountryCodes  = '' OR FIND_IN_SET(tblRate.Code,p_CountryCodes) != 0 );
         END IF;   
 
-        IF P_criteria = 1 AND  p_isCountry = 0 -- code with critearia
+        IF p_criteria = 1 AND  p_isCountry = 0 -- code with critearia
 		THEN
    		insert into tmp_codes_
 		   SELECT  distinct tblRate.Code 
@@ -32,7 +32,7 @@ BEGIN
            WHERE    tblRate.CompanyID = p_companyid  AND ( p_CountryCodes  = '' OR Code LIKE REPLACE(p_CountryCodes,'*', '%') );
         END IF; 
 		
-		IF P_criteria =2 AND p_isCountry = 0 -- country with critearia
+		IF p_criteria =2 AND p_isCountry = 0 -- country with critearia
 		THEN
 			
 			insert into tmp_codes_
@@ -43,7 +43,7 @@ BEGIN
 		
 		END IF;
 		
-		IF P_criteria =3 AND p_isCountry = 0 -- allrate
+		IF p_criteria =3 AND p_isCountry = 0 -- allrate
 		THEN
 			
 			insert into tmp_codes_

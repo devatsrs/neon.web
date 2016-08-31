@@ -13,6 +13,7 @@ class AccountAuthenticate extends \Eloquent {
 
     public static function validate_ipclis($data){
         $dbValue = [];
+
         $status = ['status'=>0,'message'=>'','data'=>[]];
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
         $type = $data['type']==1?'CLI':'IP';
@@ -22,7 +23,15 @@ class AccountAuthenticate extends \Eloquent {
         }
         $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
         $select = ['tblAccount.AccountName',DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue) as authValue")];
-        $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID'],'CustomerAuthRule'=>$type,'VendorAuthRule'=>$type])->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')->select($select)->lists('authValue','AccountName');
+        $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID']])
+            ->where(function($where)use($data,$type){
+                $where->Where(['CustomerAuthRule'=>$type]);
+                $where->orWhere(['VendorAuthRule'=>$type]);
+            })
+            ->whereNotNull(DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue)"))
+            ->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')
+            ->select($select)
+            ->lists('authValue','AccountName');
         $validation = '';
         if(!empty($found)) {
             $status['message'] = 'Account Successfully Updated.';

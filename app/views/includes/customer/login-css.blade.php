@@ -5,6 +5,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
 
         "assets/js/jquery-ui/css/no-theme/jquery-ui-1.10.3.custom.min.css",
         "/assets/css/font-icons/entypo/css/entypo.css",
+            "assets/css/font-icons/font-awesome/css/font-awesome.css",
         "http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
         "/assets/css/bootstrap.css",
         "/assets/css/neon-core.css",
@@ -25,6 +26,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
 
         "assets/js/jquery-ui/css/no-theme/jquery-ui-1.10.3.custom.min.css",
         "assets/css/font-icons/entypo/css/entypo.css",
+            "assets/css/font-icons/font-awesome/css/font-awesome.css",
         "http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
         "assets/css/bootstrap.css",
         "assets/css/neon-core.css",
@@ -37,7 +39,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/js/selectboxit/jquery.selectBoxIt.css",
         "assets/bootstrap3-editable/css/bootstrap-editable.css",
         "assets/js/icheck/skins/minimal/_all.css",
-            "assets/js/daterangepicker/daterangepicker-bs3.css"
+            "assets/js/daterangepicker/daterangepicker.css"
 
 
     ];

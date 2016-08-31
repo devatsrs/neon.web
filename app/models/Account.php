@@ -15,9 +15,11 @@ class Account extends \Eloquent {
     const  DETAIL_CDR = 1;
     const  SUMMARY_CDR= 2;
     const  NO_CDR = 3;
-    public static $cdr_type = array(''=>'Select a CDR Type' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
 	
+    public static $cdr_type = array(''=>'Select a CDR Type' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');	
 	public static $SupportSlug	=	'support';
+    public static $cdr_type = array(''=>'Select' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
+
 
     public static $rules = array(
         'Owner' =>      'required',
@@ -28,8 +30,30 @@ class Account extends \Eloquent {
         'CurrencyId' => 'required',
 
     );
+    /** add columns here to save in table  */
+    protected $fillable = array(
+        'AccountType','CompanyID','CurrencyId','Title','Owner',
+        'Number', 'AccountName', 'NamePrefix','FirstName','LastName',
+        'LeadStatus', 'Rating', 'LeadSource','Skype','EmailOptOut',
+        'Twitter', 'SecondaryEmail', 'Email','IsVendor','IsCustomer',
+        'IsReseller', 'Ownership', 'Website','Mobile','Phone',
+        'Fax', 'Employee', 'Description','Address1','Address2',
+        'Address3', 'City', 'State','PostCode','Country',
+        'RateEmail', 'BillingEmail', 'ResellerEmail','TechnicalEmail','VatNumber',
+        'Status', 'PaymentMethod', 'PaymentDetail','Converted','ConvertedDate',
+        'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
+        'created_at', 'created_by', 'updated_at','updated_by','password',
+        'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
+        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing'
+    );
 
-    public static $messages = array('CurrencyId.required' =>'The currency field is required');
+    public static $messages = array(
+        'CurrencyId.required' =>'The currency field is required',
+        'InvoiceTemplateID.required' =>'Invoice Template  field is required',
+        'CDRType.required' =>'Invoice Format field is required',
+        'BillingCycleType.required' =>'Billing Cycle field is required',
+        'BillingCycleValue.required' =>'Billing Cycle Value field is required',
+    );
 
     public static $importrules = array(
         'selection.AccountName' => 'required'
@@ -122,7 +146,7 @@ class Account extends \Eloquent {
         $data['CompanyID']=User::get_companyID();
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
-            $row = array(""=> "Select an Account")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -142,9 +166,9 @@ class Account extends \Eloquent {
         }
         $data['CompanyID']=User::get_companyID();
         $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
-        $row = array(""=> "Select an Account");
+        $row = array(""=> "Select");
         if(!empty($result)){
-            $row = array(""=> "Select an Account")+$result;
+            $row = array(""=> "Select")+$result;
         }
         return $row;
     }
@@ -323,7 +347,7 @@ class Account extends \Eloquent {
                 $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
             }
         }else{
-            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+            $ExpenseYearHTML = '<h4>No Data</h4>';
         }
 
         $response['customer'] =  implode(',',$customer);

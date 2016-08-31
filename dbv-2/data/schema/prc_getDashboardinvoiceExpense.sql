@@ -76,8 +76,8 @@ BEGIN
 	FROM tblPayment p 
 	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
-	LEFT JOIN tblInvoiceTemplate it on ac.InvoiceTemplateID = it.InvoiceTemplateID
-	LEFT JOIN tblInvoice inv on REPLACE(p.InvoiceNo,'-','') = CONCAT(ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(inv.InvoiceNumber))) 
+	LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID
+		AND p.InvoiceID = inv.InvoiceID 
 		AND p.Status = 'Approved' 
 		AND p.AccountID = inv.AccountID 
 		AND p.Recall=0

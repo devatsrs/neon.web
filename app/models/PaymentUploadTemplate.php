@@ -8,7 +8,7 @@ class PaymentUploadTemplate extends \Eloquent {
 
 	public static function getTemplateIDList(){
 		$row = PaymentUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->lists('Title', 'PaymentUploadTemplateID');
-		$row = array(""=> "Select an upload Template")+$row;
+		$row = array(""=> "Select")+$row;
 		return $row;
 	}
 }

@@ -11,10 +11,7 @@ class AccountStatementController extends \BaseController
         $data['AccountID'] = $data['AccountID'] != '' ? $data['AccountID'] : 0;
         //$query = "prc_getSOA ".$CompanyID.",".$data['AccountID'].",0";
         $account = Account::find($data['AccountID']);
-        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');//Rounding Add by Abubakar
-        if (!empty($account->RoundChargesAmount)) {
-            $roundplaces = $account->RoundChargesAmount;
-        }
+        $roundplaces = get_round_decimal_places($data['AccountID']);
         $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
 
 
@@ -138,10 +135,7 @@ class AccountStatementController extends \BaseController
         $data['AccountID'] = $data['AccountID'] != '' ? $data['AccountID'] : 0;
 
         $account = Account::find($data['AccountID']);
-        $roundplaces = $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');//Rounding Add by Abubakar
-        if (!empty($account->RoundChargesAmount)) {
-            $roundplaces = $account->RoundChargesAmount;
-        }
+        $roundplaces = get_round_decimal_places($data['AccountID']);
         $query = "call prc_getSOA (" . $CompanyID . "," . $data['AccountID'] . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "',1)";
         $result = DB::connection('sqlsrv2')->getPdo()->query($query);
 

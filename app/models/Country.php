@@ -35,7 +35,7 @@ class Country extends \Eloquent {
             $company_id = User::get_companyID();
             self::$cache['country_dropdown1_cache'] = Country::lists('Country', 'Country');
                
-            self::$cache['country_dropdown1_cache'] = array("" => "Select a Country")+ self::$cache['country_dropdown1_cache'];
+            self::$cache['country_dropdown1_cache'] = array("" => "Select")+ self::$cache['country_dropdown1_cache'];
             
             //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('country_dropdown1_cache', array('country_dropdown1_cache' => self::$cache['country_dropdown1_cache']));
@@ -61,7 +61,7 @@ class Country extends \Eloquent {
              //if the cache doesn't have it yet
             $company_id = User::get_companyID();
             self::$cache['country_dropdown2_cache'] = Country::selectRaw("concat(prefix,' ',Country) as IDCountry")->addSelect('CountryID')->lists('IDCountry','CountryID');
-            self::$cache['country_dropdown2_cache'] = array('' => "Select a Country")+ self::$cache['country_dropdown2_cache'];
+            self::$cache['country_dropdown2_cache'] = array('' => "Select")+ self::$cache['country_dropdown2_cache'];
             
             //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('country_dropdown2_cache', array('country_dropdown2_cache' => self::$cache['country_dropdown2_cache']));

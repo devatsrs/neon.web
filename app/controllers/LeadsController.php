@@ -195,7 +195,7 @@ class LeadsController extends \BaseController {
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
-			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
             $account_owners 			= 	 User::getUserIDList();
 			//$Board 						=	 CRMBoard::getTaskBoard();
 			

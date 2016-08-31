@@ -27,9 +27,7 @@ font-weight: bold;
 .page_break{page-break-after: always;}
 </style>
 <?php
-if($Account->RoundChargesAmount == 0){
-    $Account->RoundChargesAmount = 2;
-}
+$RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 $InvoiceTo =$InvoiceFrom = '';
 $is_sub = false;
 $subscriptiontotal = $useagetotal= 0;
@@ -80,7 +78,7 @@ $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$Invoice->InvoiceID )->get(
 
 		<div class="col-sm-6 invoice-right">
 		        <br>
-				<p><strong>Invoice No: </strong>{{$InvoiceTemplate->InvoiceNumberPrefix}}{{$Invoice->InvoiceNumber}}</p>
+				<p><strong>Invoice No: </strong>{{$Invoice->FullInvoiceNumber}}</p>
 				<p><strong>Invoice Date: </strong>{{ date('d-m-Y',strtotime($Invoice->IssueDate))}}</p>
 		</div>
 		
@@ -137,15 +135,15 @@ $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$Invoice->InvoiceID )->get(
                         <tbody>
                         <tr>
                             <td style="border-top: 1px solid black;text-align: left;">Previous Balance</td>
-                            <td style="border-top: 1px solid black;text-align: right;">{{number_format($Invoice->PreviousBalance,$Account->RoundChargesAmount)}}</td>
+                            <td style="border-top: 1px solid black;text-align: right;">{{number_format($Invoice->PreviousBalance,$RoundChargesAmount)}}</td>
                         </tr>
                         <tr>
                             <td style="border-top: 1px solid black;text-align: left;">Charges for this period</td>
-                            <td style="border-top: 1px solid black;text-align: right;">{{number_format($Invoice->GrandTotal,$Account->RoundChargesAmount)}}</td>
+                            <td style="border-top: 1px solid black;text-align: right;">{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</td>
                         </tr>
                         <tr>
                             <td style="border-top: 2px solid black;text-align: left;">Total Due (USD)</td>
-                            <td style="border-top: 2px solid black;text-align: right;">{{floatval(number_format($Invoice->TotalDue,$Account->RoundChargesAmount))}}</td>
+                            <td style="border-top: 2px solid black;text-align: right;">{{floatval(number_format($Invoice->TotalDue,$RoundChargesAmount))}}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -175,27 +173,27 @@ $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$Invoice->InvoiceID )->get(
                             <tfoot>
                             <tr>
                                 <td class="text-right"><strong>Usage</strong></td>
-                                <td>{{number_format($useagetotal,$Account->RoundChargesAmount)}}</td>
+                                <td>{{number_format($useagetotal,$RoundChargesAmount)}}</td>
                             </tr>
                             <tr>
                                 <td class="text-right"><strong>Subscription </strong></td>
-                                <td>{{number_format($subscriptiontotal,$Account->RoundChargesAmount)}}</td>
+                                <td>{{number_format($subscriptiontotal,$RoundChargesAmount)}}</td>
                             </tr>
                             @if(count($InvoiceTaxRates))
                             @foreach($InvoiceTaxRates as $InvoiceTaxRate)
                             <tr>
                                     <td class="text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
-                                    <td class="text-right">{{number_format($InvoiceTaxRate->TaxAmount,$Account->RoundChargesAmount)}}</td>
+                                    <td class="text-right">{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
                             </tr>
                             @endforeach
                             @endif
                             <tr>
                                     <td class="text-right"><strong> Discount</strong></td>
-                                    <td>{{number_format($Invoice->TotalDiscount,$Account->RoundChargesAmount)}}</td>
+                                    <td>{{number_format($Invoice->TotalDiscount,$RoundChargesAmount)}}</td>
                             </tr>
                             <tr>
                                 <td class="text-right"><strong>Invoice Total </strong></td>
-                                <td>{{number_format($Invoice->GrandTotal,$Account->RoundChargesAmount)}} {{$CurrencyCode}}</td>
+                                <td>{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}} {{$CurrencyCode}}</td>
                             </tr>
 
                             </tfoot>
@@ -227,11 +225,11 @@ $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$Invoice->InvoiceID )->get(
             <tr>
                 <td >{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td>{{$ProductRow->Description}}</td>
-                <td>{{number_format($ProductRow->Price,$Account->RoundChargesAmount)}}</td>
+                <td>{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                 <td>{{$ProductRow->Qty}}</td>
                 <td>{{date('Y-m-d',strtotime($ProductRow->StartDate))}}</td>
                 <td>{{date('Y-m-d',strtotime($ProductRow->EndDate))}}</td>
-                <td>{{number_format($ProductRow->LineTotal,$Account->RoundChargesAmount)}}</td>
+                <td>{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
             </tr>
             @endif
             @endforeach
@@ -258,11 +256,11 @@ $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$Invoice->InvoiceID )->get(
                 <tr>
                     <td >{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                     <td>{{$ProductRow->Description}}</td>
-                    <td>{{number_format($ProductRow->Price,$Account->RoundChargesAmount)}}</td>
+                    <td>{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                     <td>{{$ProductRow->Qty}}</td>
                     <td>{{date('Y-m-d',strtotime($ProductRow->StartDate))}}</td>
                     <td>{{date('Y-m-d',strtotime($ProductRow->EndDate))}}</td>
-                    <td>{{number_format($ProductRow->LineTotal,$Account->RoundChargesAmount)}}</td>
+                    <td>{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                 </tr>
                 @endif
                 @endforeach

@@ -37,11 +37,11 @@ class Product extends \Eloquent {
         }
         $list = array();
         $list = self::$cache['product_dropdown1_cache'];
-        $list[""] = "Select a Product";
+        $list[""] = "Select";
         //$list["Usage"] = array("Usage");
         //$list["Subscription"] = BillingSubscription::getSubscriptionsList();
 
-        return  array('' => "Select a Product")+ self::$cache['product_dropdown1_cache'];
+        return  array('' => "Select")+ self::$cache['product_dropdown1_cache'];
 
     }
 

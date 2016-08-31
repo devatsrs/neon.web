@@ -77,7 +77,11 @@ class NeonAPI{
         }
         $post_data['LicenceKey'] = getenv('LICENCE_KEY');
         $post_data['CompanyName']= getenv('COMPANY_NAME');
-        if($post) {
+        if($post === 'delete') {
+            $curl->delete(self::$api_url . $call_method, $post_data);
+        }else if($post === 'put') {
+            $curl->put(self::$api_url . $call_method, $post_data);
+        }else if($post) {
             $curl->post(self::$api_url . $call_method, $post_data);
         }else{
             $curl->get(self::$api_url.$call_method,$post_data);

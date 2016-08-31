@@ -1,5 +1,6 @@
 @extends('layout.main')
 @section('content')
+
 <div class="row">
   <div class="tab-content">
     <div class="tab-pane active" id="customer" >

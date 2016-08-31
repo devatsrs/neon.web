@@ -150,6 +150,9 @@ class PaymentsController extends \BaseController {
                 $AccountName = $save['AccountName'];
                 unset($save['AccountName']);
             }
+            if(isset($save['InvoiceNo'])) {
+                $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+            }
 
             $save['Status'] = 'Pending Approval';
             if(User::is('BillingAdmin') || User::is_admin() ) {
@@ -518,11 +521,11 @@ class PaymentsController extends \BaseController {
 
     public function get_currency_invoice_numbers($id){
         $Currency_Symbol = Account::getCurrency($id);
-        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('InvoiceNumber')->get()->toArray();
+        $InvoiceNumbers_ = Invoice::where(['AccountID'=>intval($id)])->select('FullInvoiceNumber')->get()->toArray();
 
         $InvoiceNumbers = array();
         foreach($InvoiceNumbers_ as $row){
-            $InvoiceNumbers[] = $row['InvoiceNumber'];
+            $InvoiceNumbers[] = $row['FullInvoiceNumber'];
         }
         return Response::json(array("status" => "success", "message" => "" , "Currency_Symbol"=>$Currency_Symbol, "InvoiceNumbers" => $InvoiceNumbers));
 

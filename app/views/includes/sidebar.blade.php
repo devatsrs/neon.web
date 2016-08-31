@@ -120,6 +120,9 @@
         @if(User::checkCategoryPermission('BillingSubscription','View'))
         <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('DiscountPlan','View'))
+          <li><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
+        @endif
         @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
         @endif
@@ -157,8 +160,10 @@
     </li>
     @endif
     @endif
+    @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('Analysis','All'))
       <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
+    @endif
     @endif
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
@@ -186,7 +191,10 @@
         @endif
         @if(User::checkCategoryPermission('ExchangeRate','View'))
         <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
-        @endif        
+        @endif
+        @if(User::checkCategoryPermission('DestinationGroup','View'))
+          <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
+        @endif
       </ul>
     </li>
     @endif
