@@ -20,7 +20,7 @@ class DestinationGroupSet extends \Eloquent
     public static function getDropdownIDList(){
         $CompanyId = User::get_companyID();
         $DropdownIDList = DestinationGroupSet::where("CompanyID", $CompanyId)->orderBy('Name')->lists('Name', 'DestinationGroupSetID');
-        $DropdownIDList = array('' => "Select a Destination Group Set") + $DropdownIDList;
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
 
 
         return $DropdownIDList;

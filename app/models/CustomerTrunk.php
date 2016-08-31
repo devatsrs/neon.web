@@ -52,7 +52,7 @@ class CustomerTrunk extends \Eloquent {
         $row = CustomerTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblCustomerTrunk.TrunkID")
             ->where(["tblCustomerTrunk.Status"=> 1])->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])->where(["tblCustomerTrunk.AccountID"=>$AccountID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
         if(!empty($row)){
-            $row = array(""=> "Select a Trunk")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -61,7 +61,7 @@ class CustomerTrunk extends \Eloquent {
         $row = CustomerTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblCustomerTrunk.TrunkID")
             ->where(["tblCustomerTrunk.Status"=> 1,'tblCustomerTrunk.RoutinePlanStatus'=>1])->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])->where(["tblCustomerTrunk.AccountID"=>$AccountID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
         if(!empty($row)){
-            $row = array(""=> "Select a Routine Plan")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -71,7 +71,7 @@ class CustomerTrunk extends \Eloquent {
         $row = CustomerTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblCustomerTrunk.TrunkID")
             ->where(["tblCustomerTrunk.Status"=> 1])->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
         if(!empty($row)){
-            $row = array(""=> "Select a Trunk")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }

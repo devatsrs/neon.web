@@ -21,7 +21,7 @@ class VendorTrunk extends \Eloquent {
         $row = VendorTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblVendorTrunk.TrunkID")
             ->where(["tblVendorTrunk.Status"=> 1])->where(["tblVendorTrunk.CompanyID"=>$CompanyID])->where(["tblVendorTrunk.AccountID"=>$AccountID])->select(array('tblVendorTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
         if(!empty($row)){
-            $row = array(""=> "Select a Trunk")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
