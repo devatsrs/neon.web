@@ -1,6 +1,6 @@
 @if(!empty($cronJobs))
-    <p>Following Cron jobs are setup against gateway.
-    Please select cron jobs and click on delete button.</p>
+    <p>Gateway cannot be deleted. Following Cron jobs are setup against gateway.
+        <br>Please delete cron job first.</p>
 <table class="table table-bordered datatable" id="cronjob-table">
     <thead>
     <tr>
