@@ -63,7 +63,7 @@ class HomeController extends BaseController {
 
         if(Auth::check()){
             return Redirect::to('/accounts');
-        }else{
+        }else{ 
 			create_site_configration_cache();			
             return View::make('user.login');
         }

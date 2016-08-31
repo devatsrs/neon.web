@@ -228,24 +228,23 @@ class AccountsController extends \BaseController {
 
 	
 		public function show($id) {
-		
-		
-		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
-			
+		
 			//get account contacts
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
-			
 			//get account time line data
             $data['iDisplayStart'] 	    =	 0;
             $data['iDisplayLength']     =    10;
             $data['AccountID']          =    $id;
+			$data['GUID']               =    GUID::generate();
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
-            $RowsPerPage                =    $data['iDisplayLength'];
+            $RowsPerPage                =    $data['iDisplayLength'];			
 			$message 					= 	 '';
+			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
 			
+
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
 				{
@@ -253,7 +252,11 @@ class AccountsController extends \BaseController {
 				}else{
 					$response_timeline = array();
 				}
-			}else{
+			}else{ 	
+				if(isset($response_timeline->Code) && ($response_timeline->Code==400 || $response_timeline->Code==401)){
+					return	Redirect::to('/logout'); 	
+				}		
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
 				$message = json_response_api($response_timeline,false,true);
 			}
 			
@@ -275,17 +278,9 @@ class AccountsController extends \BaseController {
 			$random_token				=	 get_random_number();
             
 			//Backup code for getting extensions from api
-           $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
-		   $response_extensions 	=  [];
-		
-			if($response->status=='failed'){
-				 $message = json_response_api($response,false,true);
-			 }else{
-				$response_extensions = json_response_api($response,true,true);
-			}
-	        
-		
-
+		   $response_api_extensions 	=   Get_Api_file_extentsions();
+		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
+		   
            //all users email address
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
@@ -304,24 +299,24 @@ class AccountsController extends \BaseController {
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-				$array = json_decode(json_encode($response), True); 
-			 if (isset($response->status) && $response->status != 'failed') {			
+			/* if (isset($response->status) && $response->status != 'failed') {			
 				$response = $response->data;
 			}else{		
-				if(isset($response->Code) && $response->Code==400){
+				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
 					return	Redirect::to('/logout'); 	
 				}
-				else{
+				else{  
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}
-			}			
+			}			*/
 			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			$ShowTickets				=   SiteIntegration::is_FreshDesk();
 
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
+	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets')); 	
 		}
 	
 	
@@ -359,6 +354,19 @@ class AccountsController extends \BaseController {
 			$key 					= 	$data['scrol'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
+	}
+	
+	function AjaxConversations($id){ 
+		if(empty($id) || !is_numeric($id)){
+			return '<div>No conversation found.</div>';
+		}
+		 $data['id']	=	$id;
+		 $response 		= 	 NeonAPI::request('account/GetTicketConversations',$data,true,true); 
+		  if($response['status']=='failed'){
+			return json_response_api($response,false,true);
+		}else{			
+			return View::make('accounts.conversations', compact("response"));
+		}
 	}
 	 
     public function edit($id) {

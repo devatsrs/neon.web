@@ -321,7 +321,7 @@
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
                                 action = '';
                                 <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="entypo-ticket"></i> </button>';
+                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
                                 action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
@@ -360,13 +360,13 @@
 
                                 if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+customer_rate_+'" class="btn btn-warning btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Customer</a>';
+                                        action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-sm btn-icon icon-left"><i class="entypo-user"></i></a>';
                                     <?php } ?>
                                 }
 
                                 if(full[8]==1 && full[9]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+vendor_blocking_+'" class="btn btn-info btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Vendor</a>';
+                                        action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-sm btn-icon icon-left"><i class="custom-icon vendor-icon"></i></a>';
                                     <?php } ?>
                                 }
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
@@ -430,7 +430,7 @@
                 }
                 var temp = childrens.eq(7).clone();
                 $(temp).find('a').each(function () {
-                    $(this).find('i').remove();
+                   // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
                     $(this).addClass('label');
                     $(this).addClass('padding-4');

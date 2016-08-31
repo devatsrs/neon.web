@@ -62,19 +62,22 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-11 padding-0 action">
-                  <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="entypo-ticket"></i> </button>
+                <div class="col-sm-12 padding-0 action">
+                  <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="fa fa-line-chart"></i> </button>
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
-                  @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif
-                  @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('AccountActivityChart','View'))
+                  @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif 
+                    @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('AccountActivityChart','View'))
                     <a  href="{{Url::to('accounts/activity/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Account Activity Chart" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-bar-chart"></i> </a>
                     @endif
-                  <!--  <button type="button" data-id="{{$account->AccountID}}" title="View Account" class="btn btn-default btn-xs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/show1')}}"> <i class="entypo-search"></i> </button> --> 
                   @if($leadOrAccountCheck=='account')
-                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}">Customer</a>&nbsp;
+                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
+                     <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
                   @endif
-                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED) <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}">Vendor</a> @endif
-                  @endif </div>
+                  @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)
+           <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="custom-icon vendor-icon"></i></a>   
+                   @endif
+                  @endif
+                   </div>
               </div>
             </li>
           </ul>
@@ -311,6 +314,12 @@
                     <input class="icheck-11 timeline_filter" show_data="timeline_mail_entry" type="radio" id="minimal-radio-4" name="timeline_filter">
                     <label for="minimal-radio-4">Emails</label>
                   </div>
+                  @if($ShowTickets)
+                    <div class="radio radio-replace color-red pull-left">
+                    <input class="icheck-11 timeline_filter" show_data="timeline_ticket_entry" type="radio" id="minimal-radio-5" name="timeline_filter">
+                    <label for="minimal-radio-5">Tickets</label>
+                  </div>
+                  @endif
                 </form>
               </li>
             </ul>
@@ -328,20 +337,19 @@
               <span>Now</span>
               <?php }else{ ?>
               <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
-              <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+              <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
               </span>
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
             <div class="cbp_tmlabel normal_tag">
-              <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif</h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display"> @if($rows['EmailCc'])
                 <p>CC: {{$rows['EmailCc']}}</p>
                 @endif
                 @if($rows['EmailBcc'])
                 <p>BCC: {{$rows['EmailBcc']}}</p>
                 @endif
-                <p>Subject: {{$rows['EmailSubject']}}</p>
                 <?php
 	  if($rows['EmailAttachments']!='')
 	  {
@@ -373,7 +381,7 @@
 			}			
 	  }	 
 	   ?>
-                <div>Message:<br>
+                <div class="mail_message">Message:<br>
                   {{$rows['EmailMessage']}}. </div>
               </div>
             </div>
@@ -385,7 +393,7 @@
               <span>Now</span>
               <?php }else{ ?>
               <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
-              <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+              <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
               </span>
               <?php } ?>
             </time>
@@ -413,7 +421,7 @@
               <span>Now</span>
               <?php }else{ ?>
               <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
-              <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+              <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
               </span>
               <?php } ?>
             </time>
@@ -424,8 +432,35 @@
                 <p>{{$rows['Note']}}</p>
               </div>
             </div>
+          </li>          
+           @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Ticket)
+          <li id="timeline-{{$key}}" class="count-li timeline_ticket_entry">
+            <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
+              <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
+              <span>Now</span>
+              <?php }else{ ?>
+              <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
+              <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+              </span>
+              <?php } ?>
+            </time>
+            <div id_toggle="{{$key}}" class="cbp_tmicon bg-danger"><i class="entypo-ticket"></i></div>
+            <div class="cbp_tmlabel normal_tag">  
+              <h2 class="toggle_open" id_toggle="{{$key}}">Ticket<br><p>Subject: {{$rows['TicketSubject']}}</p></span></h2>
+              <div id="hidden-timeline-{{$key}}" class="details no-display">
+                <p>Status: {{$rows['TicketStatus']}}</p>
+                <p>Requester: {{$rows['RequestEmail']}}</p>
+                <p>Priority: {{$rows['TicketPriority']}}</p>
+                <p>Type: {{$rows['TicketType']}}</p>
+                <p>Group: {{$rows['TicketGroup']}}</p>
+                <p>Date Created: {{$rows['created_at']}}</p>
+                <p>Description: {{$rows['TicketDescription']}}</p>
+                <p><a ticket_id="{{$rows['TicketID']}}" class="ticket_conversations">View Ticket Conversations</a></p>
+              </div>
+            </div>
           </li>
           @endif
+          
           <?php  }
 			if(count($response_timeline)<10)
 			{
@@ -491,5 +526,7 @@ ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-heigh
 .col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
 #account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:100%;top:10px; /*border-color:transparent #f1f1f1 #fff transparent;*/ position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
+.color-red {margin-left:5px;} .ticket_conversations{cursor:pointer; } .left-padding{padding-left:0px !important;}
+.mail_subject{font-size:14.4px !important;} .mail_message{font-family:"Noto Sans", sans-serif !important;}
 </style>
 @stop

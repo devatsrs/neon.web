@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\View;
 class Helper{
 
     public static function sendMail($view,$data){
+
         $status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
         $mandrill =0;
         if(isset($data['mandrill']) && $data['mandrill'] ==1){
@@ -38,7 +39,7 @@ class Helper{
             }
         }
         if(getenv('APP_ENV') != 'Production'){
-            $data['Subject'] = 'Test Mail '.getenv('RMArtisanFileLocation').' '.$data['Subject'];
+            $data['Subject'] = 'Test Mail '.CompanyConfiguration::get("RMArtisanFileLocation").' '.$data['Subject'];
         }
         $mail->Body = $body;
         $mail->Subject = $data['Subject'];
@@ -56,8 +57,8 @@ class Helper{
     }
     public static function setMailConfig($CompanyID,$mandrill){
         $result = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $CompanyID)->first();
-        if($mandrill == 1) {
-            Config::set('mail.host', getenv("MANDRILL_SMTP_SERVER"));
+        if($mandrill == 1) { 
+		 	Config::set('mail.host', getenv("MANDRILL_SMTP_SERVER"));
             Config::set('mail.port', getenv("MANDRILL_PORT"));
             Config::set('mail.from.address', $result->EmailFrom);
             Config::set('mail.from.name', $result->CompanyName);
