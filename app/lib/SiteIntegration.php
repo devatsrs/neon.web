@@ -3,12 +3,18 @@ class SiteIntegration{
 
  protected $support;
  protected $companyID;
- static    $SupportSlug	=	'support';
- protected $PaymentSlug	=	'payment';
- static    $EmailSlug	=	'email';
- static    $StorageSlug	=	'storage';
- static    $AmazoneSlug	=	'amazons3';
- static    $AuthorizeSlug	=	'authorizenet';
+ static    $SupportSlug			=	'support';
+ protected $PaymentSlug			=	'payment';
+ static    $EmailSlug			=	'email';
+ static    $StorageSlug			=	'storage';
+ static    $AmazoneSlug			=	'amazons3';
+ static    $AuthorizeSlug		=	'authorizenet';
+ static    $GatewaySlug			=	'billinggateway';
+ static    $freshdeskSlug		=	'freshdesk';
+ static    $mandrillSlug		=	'mandrill';
+ 
+ 
+ 
 
  	public function __construct(){
 	
@@ -62,15 +68,8 @@ class SiteIntegration{
 			 {
 				return 1;
 			 }
-			 else
-			 {
-				return 0;
-			 }
-		}
-		else
-		{
-			return 0;	
-		}	
+		}		
+		return 0;				
 	 }
 	 
 	 
@@ -96,20 +95,10 @@ class SiteIntegration{
 					 }else{
 						return 1;
 					 }
-				 }else
-				 {
-				 	return 0;
 				 }
 			 }
-			 else
-			 {
-				return 0;
-			 }
 		}
-		else
-		{
-			return 0;	
-		}
+		return 0;	
 	}	
 	
 	public static function is_EmailIntegration($companyID='',$data = false){
@@ -138,20 +127,10 @@ class SiteIntegration{
 					 }else{
 						return 1;
 					 }
-				 }else
-				 {
-				 	return 0;
 				 }
 			 }
-			 else
-			 {
-				return 0;
-			 }
 		}
-		else
-		{
-			return 0;	
-		}
+		return 0;	
 	}
 	
 	public static function SendMail($view,$data,$companyID){
@@ -187,20 +166,10 @@ class SiteIntegration{
 					 }else{
 						return 1;
 					 }
-				 }else
-				 {
-				 	return 0;
 				 }
 			 }
-			 else
-			 {
-				return 0;
-			 }
 		}
-		else
-		{
-			return 0;	
-		}
+		return 0;	
 	}	 
 	
 	public static function GetComapnyIdByKey(){
@@ -230,22 +199,12 @@ class SiteIntegration{
 					 if($data ==true){
 						return $StorageData;
 					 }else{
-						return 1;
+						return true;
 					 }
-				 }else
-				 {
-				 	return 0;
 				 }
-			 }
-			 else
-			 {
-				return 0;
-			 }
+			 }	
 		}
-		else
-		{
-			return 0;	
-		}
+		return false;	
 	}	 
 	
 	public static function is_authorize_configured($data=false){ 
@@ -270,20 +229,10 @@ class SiteIntegration{
 					 }else{
 						return 1;
 					 }
-				 }else
-				 {
-				 	return 0;
 				 }
 			 }
-			 else
-			 {
-				return 0;
-			 }
 		}
-		else
-		{
-			return 0;	
-		}
+		return 0;	
 	}	 
 	
 	public static function GetComapnyConfigurationValue(){

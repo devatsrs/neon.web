@@ -253,7 +253,7 @@ class AccountsController extends \BaseController {
 					$response_timeline = array();
 				}
 			}else{ 	
-				if(isset($response_timeline->Code) && ($response_timeline->Code==400 || $response_timeline->Code==401)){
+				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
 					return	Redirect::to('/logout'); 	
 				}		
 				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
