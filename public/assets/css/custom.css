@@ -2143,3 +2143,9 @@ text-align: center;
 .wizard-active{
 	border-left:3px solid #00a651 !important;
 }
+.billing-section-hide input,
+.billing-section-hide .selectboxit,
+.billing-section-hide .select2-choice ,
+.billing-section-hide .select2-choices{
+    background-color: #F4F4F4 !important;
+}
