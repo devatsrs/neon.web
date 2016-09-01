@@ -316,7 +316,7 @@ class JobsController extends \BaseController {
 
                 }else {
 
-                    return Response::json(array("status" => "success", "message" => "Process is no longer running."));
+                    return Response::json(array("status" => "success", "message" => "Job Status Updated."));
                 }
 
             } else {
