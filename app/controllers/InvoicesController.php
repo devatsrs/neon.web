@@ -260,7 +260,7 @@ class InvoicesController extends \BaseController {
             }
 
             try{
-                $InvoiceData["FullInvoiceNumber"] = InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber;
+                $InvoiceData["FullInvoiceNumber"] = ($isAutoInvoiceNumber)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber:$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
                 //Store Last Invoice Number.
@@ -297,6 +297,7 @@ class InvoicesController extends \BaseController {
                         $i++;
                     }
                 }
+                $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Created By '.$CreatedBy;
@@ -435,6 +436,7 @@ class InvoicesController extends \BaseController {
                                 $i++;
                             }
                         }
+                        $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                         InvoiceTaxRate::insert($InvoiceTaxRates);
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
@@ -871,7 +873,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return Response::json(["status" => "success", "message" => "Invoice in updated successfully".$message]);
+
 
         }else{
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
@@ -950,7 +952,7 @@ class InvoicesController extends \BaseController {
                     //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
                     Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "InvoiceType"=>Invoice::INVOICE_IN,"AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
                 }
-                return Response::json(["status" => "success", "message" => "Invoice in updated successfully".$message]);
+                return Response::json(["status" => "success", "message" => "Invoice in updated successfully. ".$message]);
             }else{
                 return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
             }
@@ -1426,9 +1428,9 @@ class InvoicesController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*if(getenv('APP_OS') == 'Linux'){
-                pclose(popen(getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
+                pclose(popen(CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
             }else{
-                pclose(popen("start /B " . getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
+                pclose(popen("start /B " . CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
             }*/
             if($JobID>0) {
                 return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));

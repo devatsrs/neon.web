@@ -5,20 +5,37 @@
  * Date: 8/22/2015
  * Time: 12:57 PM
  */
-$isSandbox = getenv('AUTHORIZENET_SANDBOX');
+/*$isSandbox = getenv('AUTHORIZENET_SANDBOX');
 if($isSandbox == 1){
     define("AUTHORIZENET_SANDBOX", true);
 }else{
     define("AUTHORIZENET_SANDBOX", false);
 }
 define("AUTHORIZENET_API_LOGIN_ID", getenv('AUTHORIZENET_API_LOGIN_ID'));
-define("AUTHORIZENET_TRANSACTION_KEY", getenv('AUTHORIZENET_TRANSACTION_KEY'));
+define("AUTHORIZENET_TRANSACTION_KEY", getenv('AUTHORIZENET_TRANSACTION_KEY'));*/
 
 class AuthorizeNet {
 
     public $request;
 
     function __Construct(){
+		
+		$AuthorizeDbData 						= 	SiteIntegration::is_authorize_configured(true); 
+		if(count($AuthorizeDbData)>0){	
+			$AuthorizeData					=	json_decode($AuthorizeDbData->Settings);		
+			$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
+			$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';
+			$isSandbox						=	isset($AuthorizeDbData->AuthorizeTestAccount)?$AuthorizeDbData->AuthorizeTestAccount:'';
+
+			define("AUTHORIZENET_API_LOGIN_ID", $AUTHORIZENET_API_LOGIN_ID);
+			define("AUTHORIZENET_TRANSACTION_KEY", $AUTHORIZENET_TRANSACTION_KEY);
+			
+			if($isSandbox == 1){
+				define("AUTHORIZENET_SANDBOX", true);
+			}else{
+				define("AUTHORIZENET_SANDBOX", false);
+			}		
+		}
         $this->request = new AuthorizeNetCIM();
     }
 
@@ -28,7 +45,7 @@ class AuthorizeNet {
             $customerProfile->description = $data["description"];
             $customerProfile->merchantCustomerId = $data["CustomerId"];
             $customerProfile->email = $data["email"];
-            $response = $this->request->createCustomerProfile($customerProfile);
+            $response = $this->request->createCustomerProfile($customerProfile); 
             if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Customer profile created on authorize.net";
@@ -90,13 +107,13 @@ class AuthorizeNet {
         }
     }
 
-    function CreatePaymentProfile($customerProfileId,$data){
+    function CreatePaymentProfile($customerProfileId,$data){ 
         try{
             $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
             $paymentProfile->customerType = "individual";
             $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
-            $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"];
+            $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"]; 
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
             if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
                 $result["status"] = "success";
@@ -278,7 +295,7 @@ class AuthorizeNet {
 
             )
         );
-        $response = $sale->authorizeAndCapture();
-        return $response;
+        $response = $sale->authorizeAndCapture(); Log::info($response);
+        return $response; 
     }
 }

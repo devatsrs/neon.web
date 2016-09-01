@@ -30,7 +30,7 @@
     @endif
     @if(User::checkCategoryPermission('Opportunity','Add'))
     <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
-        <i class="entypo-plus"></i>
+        <i class="fa fa-line-chart"></i>
         Add Opportunity
     </a>
 
@@ -386,7 +386,7 @@
                 "saturday"=>"Saturday",
                 "sunday"=>"Sunday");
         ?>
-        <div class="panel panel-primary "   data-collapsed="0">
+        <div class="panel panel-primary billing-section billing-section-hide"   data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
                     Billing
@@ -400,7 +400,7 @@
                 </div>
             </div>
 
-            <div class="panel-body billing-section">
+            <div class="panel-body">
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                     <div class="col-sm-4">
@@ -427,13 +427,14 @@
                             <button type="button" class="btn btn-default">+</button>
                         </div>
                     </div>
-
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
                         {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
                     </div>
+
+                </div>
+                <div class="form-group">
+
                     <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                     <div class="col-sm-4">
                         {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2",$billing_disable))}}
@@ -441,20 +442,21 @@
                             <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone')}}" name="BillingTimezone">
                         @endif
                     </div>
-                </div>
-                <div class="form-group">
                     <?php
                     $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
-                    if(empty($BillingStartDate)){
-                        $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
+                    if(!empty($BillingStartDate)){
+                        $BillingStartDate = date('Y-m-d',strtotime($BillingStartDate));
                     }
+                    /*if(empty($BillingStartDate)){
+                        $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
+                    }*/
                     ?>
                     <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                     <div class="col-sm-4">
                         @if($hiden_class == '')
-                            {{Form::text('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
-                            {{Form::hidden('BillingStartDate', date('Y-m-d',strtotime($BillingStartDate)))}}
+                            {{Form::hidden('BillingStartDate', $BillingStartDate)}}
                             {{$BillingStartDate}}
                         @endif
                     </div>
@@ -783,9 +785,9 @@
         });
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
-                $(".billing-section").show();
+                $(".billing-section").removeClass('billing-section-hide');
             }else{
-                $(".billing-section").hide();
+                $(".billing-section").addClass('billing-section-hide');
             }
         });
         $('[name="Billing"]').trigger('change');

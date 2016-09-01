@@ -233,10 +233,10 @@ class AccountActivityController extends \BaseController {
         if($response['status']=='failed'){
             return json_response_api($response,false);
         }else{
-            $Comment = json_response_api($response,true,false,false);
-
-            $FilePath =  AmazonS3::preSignedUrl($Comment['filepath']);
-
+            $Comment  = 	json_response_api($response,true,false,false);
+            $FilePath =  	AmazonS3::preSignedUrl($Comment['filepath']);
+			Log::info("file path");
+			Log::info($FilePath);
             if(file_exists($FilePath)){
                 download_file($FilePath);
             }else{

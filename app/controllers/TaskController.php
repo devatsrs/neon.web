@@ -60,13 +60,15 @@ class TaskController extends \BaseController {
         $taskattachment = Input::file('taskattachment');
         if(!empty($taskattachment)) {
             $FilesArray = array();
-            $allowed = getenv("CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS");
-            $allowedextensions = explode(',',$allowed);
-            $allowedextensions = array_change_key_case($allowedextensions);
+            $allowed = Get_Api_file_extentsions(true);
+			if(!isset($allowed['allowed_extensions'])){
+				return json_response_api($allowed,false,true);
+			}
+			$allowedextensions = $allowed['allowed_extensions'];  
             foreach ($taskattachment as $attachment) {
                 $ext = $attachment->getClientOriginalExtension();
                 if (!in_array(strtolower($ext), $allowedextensions)) {
-                    return generateResponse($ext." file type is not allowed. Allowed file types are ".$allowed,true,true);
+					return  array("status"=>"failed","message"=>$ext." file type is not allowed. Allowed file types are ".implode(",",$allowedextensions));
                 }
             }
             foreach($taskattachment as $file){

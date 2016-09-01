@@ -2097,20 +2097,6 @@ background:#AC33FF none repeat scroll 0 0;
 .checkbox-replace.color-purple .cb-wrapper, .radio-replace.color-purple .cb-wrapper{
 border:1px solid #AC33FF;
 }
-.discount_progress{
-    height: 25px;
-    position: relative;
-    background-color: #008d4c;
-}
-.discount_progress .progress-bar-success{
-    background-color: #ffa812;
-}
-.discount_progress span{
-    position: absolute;
-    margin-top: 5px;
-    margin-left: 5px;
-
-}
 .filter .panel-title{
     padding: 5px 15px;
 }
@@ -2126,6 +2112,56 @@ border:1px solid #AC33FF;
 }
 .filter p{
     margin-bottom: 0px;
+}
+
+.vendor-icon {
+  background-image: url("../images/vendor.png");
+}
+.vendor-icon:hover {
+  background-image: url("../images/vendorhover.png");
+}
+
+.customer-icon {
+  background-image: url("../images/customers.png");
+}
+.opportunity-icon {
+  background-image: url("../images/opportunity.png");
+}
+
+.custom-icon:before{
+content: "";
+font-style: normal;
+font-weight: normal;
+speak: none;
+display: inline-block;
+text-decoration: inherit;
+width: 1em;
+margin-right: .2em;
+text-align: center;
+}
+
+.wizard-active{
+	border-left:3px solid #00a651 !important;
+}
+.billing-section-hide input,
+.billing-section-hide .selectboxit,
+.billing-section-hide .select2-choice ,
+.billing-section-hide .select2-choices{
+    background-color: #F4F4F4 !important;
+}
+.discount_progress{
+    height: 25px;
+    position: relative;
+    background-color: #008d4c;
+}
+.discount_progress .progress-bar-success{
+    background-color: #ffa812;
+}
+.discount_progress span{
+    position: absolute;
+    margin-top: 5px;
+    margin-left: 5px;
+
 }
 .page-body .select2-container .select2-choice {
     height: 32px;

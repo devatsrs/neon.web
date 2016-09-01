@@ -104,8 +104,8 @@ class NeonAPI{
     protected  static function makeResponse($curl,$is_array){
         $response = json_decode($curl->response,$is_array);
         if($curl->http_status_code!=200){
-            Log::info($curl->response);
-            $response = self::errorResponse($is_array,$curl->http_status_code);
+			$array = json_decode(json_encode($curl), true);			
+		    $response = self::errorResponse($is_array,$curl->http_status_code);
         }
         return $response;
     }

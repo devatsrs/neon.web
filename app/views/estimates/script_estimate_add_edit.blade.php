@@ -258,7 +258,7 @@ $(document).ready(function(){
         var taxTitle =  $(this).find(":selected").text() ;
         //var taxTitle = $(".TaxRateID option:selected").text();
 
-        var rowCount = $('#InvoiceTable tbody tr').length;
+        var rowCount = $('#EstimateTable tbody tr').length;
         if(taxTitle =='Select a Tax Rate'){
             taxTitle='VAT';
         }else if(rowCount >1) {

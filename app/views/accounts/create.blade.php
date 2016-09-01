@@ -227,7 +227,7 @@
                                 </div>
                             </div>
                         </div>
-            <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel panel-primary billing-section billing-section-hide" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
                         Billing
@@ -241,7 +241,7 @@
                     </div>
                 </div>
 
-                <div class="panel-body billing-section">
+                <div class="panel-body">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                         <div class="col-sm-4">
@@ -266,24 +266,21 @@
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
                         </div>
-
-
-                    </div>
-                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                         <div class="col-sm-4">
                             {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"selectboxit"))}}
                         </div>
+
+                    </div>
+                    <div class="form-group">
+
                         <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                         <div class="col-sm-4">
                             {{Form::select('BillingTimezone', $timezones, CompanySetting::getKeyVal('BillingTimezone') ,array("class"=>"form-control select2"))}}
                         </div>
-
-                    </div>
-                    <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                         <div class="col-sm-4">
-                            {{Form::text('BillingStartDate',date('Y-m-d',strtotime($BillingStartDate)),array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -393,9 +390,9 @@
 
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
-                $(".billing-section").show();
+                $(".billing-section").removeClass('billing-section-hide');
             }else{
-                $(".billing-section").hide();
+                $(".billing-section").addClass('billing-section-hide');
             }
         });
         $('[name="Billing"]').trigger('change');
