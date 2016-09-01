@@ -95,94 +95,109 @@ class CompanyGateway extends \Eloquent {
         $CompanyID = User::get_companyID();
         $CompanyGateway = CompanyGateway::find($CompanyGatewayID);
         $GatewayID = $CompanyGateway->GatewayID;
-        $GatewayName = Gateway::getGatewayName($GatewayID);
+        if(!empty($GatewayID)){
+            $GatewayName = Gateway::getGatewayName($GatewayID);
 
-        if(isset($GatewayName) && $GatewayName == 'SippySFTP'){
-            log::info($GatewayName);
-            log::info('--SIPPYSFTP FILE DOWNLOAD CRONJOB START--');
+            if(isset($GatewayName) && $GatewayName == 'SippySFTP'){
+                log::info($GatewayName);
+                log::info('--SIPPYSFTP FILE DOWNLOAD CRONJOB START--');
 
-            $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippydownloadcdr');
-            $DownloadSetting = CompanyConfiguration::get('SIPPYSFTP_DOWNLOAD_CRONJOB');
-            $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
-            $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
-            $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippydownloadcdr');
+                $DownloadSetting = CompanyConfiguration::get('SIPPYSFTP_DOWNLOAD_CRONJOB');
+                $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
+                $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
 
-            log::info($DownloadSettings);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
-            log::info('--SIPPYSFTP FILE DOWNLOAD CRONJOB END--');
+                log::info($DownloadSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
+                log::info('--SIPPYSFTP FILE DOWNLOAD CRONJOB END--');
 
-            log::info('--SIPPYSFTP FILE PROCESS CRONJOB START--');
+                log::info('--SIPPYSFTP FILE PROCESS CRONJOB START--');
 
-            $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippyaccountusage');
-            $ProcessSetting = CompanyConfiguration::get('SIPPYSFTP_PROCESS_CRONJOB');
-            $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
-            $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
-            $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippyaccountusage');
+                $ProcessSetting = CompanyConfiguration::get('SIPPYSFTP_PROCESS_CRONJOB');
+                $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
+                $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
 
-            log::info($ProcessSettings);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
-            log::info('--SIPPYSFTP FILE PROCESS CRONJOB END--');
+                log::info($ProcessSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
+                log::info('--SIPPYSFTP FILE PROCESS CRONJOB END--');
 
-            CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1);
 
-        }elseif(isset($GatewayName) && $GatewayName == 'VOS'){
-            log::info($GatewayName);
-            log::info('--VOS FILE DOWNLOAD CRONJOB START--');
+            }elseif(isset($GatewayName) && $GatewayName == 'VOS'){
+                log::info($GatewayName);
+                log::info('--VOS FILE DOWNLOAD CRONJOB START--');
 
-            $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosdownloadcdr');
-            $DownloadSetting = CompanyConfiguration::get('VOS_DOWNLOAD_CRONJOB');
-            $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
-            $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
-            $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosdownloadcdr');
+                $DownloadSetting = CompanyConfiguration::get('VOS_DOWNLOAD_CRONJOB');
+                $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
+                $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
 
-            log::info($DownloadSettings);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
-            log::info('--VOS FILE DOWNLOAD CRONJOB END--');
+                log::info($DownloadSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
+                log::info('--VOS FILE DOWNLOAD CRONJOB END--');
 
-            log::info('--VOS FILE PROCESS CRONJOB START--');
+                log::info('--VOS FILE PROCESS CRONJOB START--');
 
-            $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosaccountusage');
-            $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
-            $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
-            $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
-            $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosaccountusage');
+                $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
+                $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
+                $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
 
-            log::info($ProcessSettings);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
-            log::info('--VOS FILE PROCESS CRONJOB END--');
+                log::info($ProcessSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
+                log::info('--VOS FILE PROCESS CRONJOB END--');
 
-            CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1);
 
-        }elseif(isset($GatewayName) && $GatewayName == 'PBX'){
-            log::info($GatewayName);
-            log::info('--PBX CRONJOB START--');
+            }elseif(isset($GatewayName) && $GatewayName == 'PBX'){
+                log::info($GatewayName);
+                log::info('--PBX CRONJOB START--');
 
-            $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('pbxaccountusage');
-            $setting = CompanyConfiguration::get('PBX_CRONJOB');
-            $JobTitle = $CompanyGateway->Title.' CDR Download';
-            $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
-            $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('pbxaccountusage');
+                $setting = CompanyConfiguration::get('PBX_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
 
-            log::info($settings);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
-            log::info('--PBX CRONJOB END--');
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--PBX CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
+            }elseif(isset($GatewayName) && $GatewayName == 'Porta'){
+                log::info($GatewayName);
+                log::info('--PORTA CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('portaaccountusage');
+                $setting = CompanyConfiguration::get('PORTA_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--PORTA CRONJOB START--');
+
+                CompanyGateway::createSummaryCronJobs(0);
+            }elseif(isset($GatewayName) && $GatewayName == 'ManualCDR'){
+                log::info($GatewayName);
+                log::info('--ManualCDR CRONJOB START--');
+
+                CompanyGateway::createSummaryCronJobs(0);
+
+                log::info('--ManualCDR CRONJOB START--');
+            }
+        }else{
+            log::info('--Other CRONJOB START--');
 
             CompanyGateway::createSummaryCronJobs(0);
-        }elseif(isset($GatewayName) && $GatewayName == 'Porta'){
-            log::info($GatewayName);
-            log::info('--PORTA CRONJOB START--');
 
-            $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('portaaccountusage');
-            $setting = CompanyConfiguration::get('PORTA_CRONJOB');
-            $JobTitle = $CompanyGateway->Title.' CDR Download';
-            $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
-            $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
-
-            log::info($settings);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
-            log::info('--PORTA CRONJOB START--');
-
-            CompanyGateway::createSummaryCronJobs(0);
+            log::info('--Other CRONJOB START--');
         }
     }
 
