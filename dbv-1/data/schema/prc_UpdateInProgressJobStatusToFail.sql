@@ -17,16 +17,16 @@ BEGIN
 		
  	WHERE 
  	JobID  = p_JobID
-	AND JobStatusID != ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
- 	
+	AND JobStatusID = ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
+
  	IF p_JobStatusMessage != '' THEN
 
-		UPDATE tblJob 
-		SET 
+		UPDATE tblJob
+		SET
 			JobStatusMessage = concat(JobStatusMessage ,'\n' ,p_JobStatusMessage)
-		WHERE 
+		WHERE
 		JobID  = p_JobID
-		AND JobStatusID != ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
+		AND JobStatusID = ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
 	 
  	END IF;
 
