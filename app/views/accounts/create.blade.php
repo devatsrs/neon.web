@@ -227,7 +227,7 @@
                                 </div>
                             </div>
                         </div>
-            <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel panel-primary billing-section billing-section-hide" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
                         Billing
@@ -241,7 +241,7 @@
                     </div>
                 </div>
 
-                <div class="panel-body billing-section">
+                <div class="panel-body">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                         <div class="col-sm-4">
@@ -390,9 +390,9 @@
 
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
-                $(".billing-section").show();
+                $(".billing-section").removeClass('billing-section-hide');
             }else{
-                $(".billing-section").hide();
+                $(".billing-section").addClass('billing-section-hide');
             }
         });
         $('[name="Billing"]').trigger('change');
