@@ -873,7 +873,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return Response::json(["status" => "success", "message" => "Invoice in updated successfully".$message]);
+
 
         }else{
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
@@ -952,7 +952,7 @@ class InvoicesController extends \BaseController {
                     //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
                     Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "InvoiceType"=>Invoice::INVOICE_IN,"AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
                 }
-                return Response::json(["status" => "success", "message" => "Invoice in updated successfully".$message]);
+                return Response::json(["status" => "success", "message" => "Invoice in updated successfully. ".$message]);
             }else{
                 return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
             }
