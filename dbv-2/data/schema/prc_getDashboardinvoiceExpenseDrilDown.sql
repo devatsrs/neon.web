@@ -1,4 +1,16 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilDown`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_StartDate` VARCHAR(50), IN `p_EndDate` VARCHAR(50), IN `p_Type` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_CustomerID` INT, IN `p_Export` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilDown`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` VARCHAR(50),
+	IN `p_EndDate` VARCHAR(50),
+	IN `p_Type` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(50),
+	IN `p_CustomerID` INT,
+	IN `p_Export` INT
+)
 BEGIN
 	DECLARE v_Round_ int;
 	DECLARE v_OffSet_ int;
@@ -17,48 +29,28 @@ BEGIN
 	THEN
 		DROP TEMPORARY TABLE IF EXISTS tmp_Payment_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Payment_(
-			PaymentID int,
 			AccountName varchar(100),
-			AccountID int,
 			Amount decimal(18,6),
-			PaymentType varchar(10),
-			CurrencyID int,
 			PaymentDate datetime,
-			Status varchar(50),
 			CreatedBy varchar(50),
-			PaymentProof varchar(150),
-			InvoiceNo varchar(30),
-			PaymentMethod varchar(15),
+			InvoiceNo varchar(50),
 			Notes varchar(500),
-			Recall TINYINT(1),
-			RecallReasoan varchar(500),
-			RecallBy varchar(30),
 			AmountWithSymbol varchar(30)
 		);
 		
 		INSERT INTO tmp_Payment_
 		SELECT 
-	      p.PaymentID,
 	      ac.AccountName,
-	      p.AccountID,
 	      ROUND(p.Amount,v_Round_) AS Amount,
-			p.PaymentType,
-	      p.CurrencyID,
 	      CASE WHEN inv.InvoiceID IS NOT NULL
 			THEN
 				inv.IssueDate
 			ELSE
 				p.PaymentDate
 			END as PaymentDate,
-	      p.Status,
 	      p.CreatedBy,
-	      p.PaymentProof,
 	      p.InvoiceNo,
-	      p.PaymentMethod,
 	      p.Notes,
-	      p.Recall,
-	      p.RecallReasoan,
-	      p.RecallBy,
 	      CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(p.Amount,v_Round_)) as AmountWithSymbol
 		FROM tblPayment p 
 		INNER JOIN NeonRMDev.tblAccount ac 
@@ -79,23 +71,12 @@ BEGIN
 		IF  p_Export = 0
 		THEN
 			SELECT 
-		      PaymentID,
 		      AccountName,
-		      AccountID,
-		      Amount,
-			 	PaymentType,
-		      CurrencyID,
-		      PaymentDate,
-		      Status,
-		      CreatedBy,
-		      PaymentProof,
 		      InvoiceNo,
-		      PaymentMethod,
-		      Notes,
-		      Recall,
-		      RecallReasoan,
-		      RecallBy,
-		      AmountWithSymbol
+		      AmountWithSymbol,
+		      PaymentDate,
+		      CreatedBy,
+		      Notes
 			FROM tmp_Payment_
 			where (PaymentDate BETWEEN p_StartDate AND p_EndDate)
 			ORDER BY
@@ -118,22 +99,10 @@ BEGIN
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountASC') THEN Amount
 					END ASC,
 					CASE
-						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentTypeDESC') THEN PaymentType
-					END DESC,
-					CASE
-						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentTypeASC') THEN PaymentType
-					END ASC,
-					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentDateDESC') THEN PaymentDate
 					END DESC,
 					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentDateASC') THEN PaymentDate
-					END ASC,
-					CASE
-						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusDESC') THEN Status
-					END DESC,
-					CASE
-						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusASC') THEN Status
 					END ASC,
 					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByDESC') THEN CreatedBy
@@ -144,7 +113,7 @@ BEGIN
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 			
 			
-			SELECT COUNT(PaymentID) AS totalcount,ROUND(COALESCE(SUM(Amount),0),v_Round_) as totalsum
+			SELECT COUNT(AccountName) AS totalcount,ROUND(COALESCE(SUM(Amount),0),v_Round_) as totalsum
 			FROM tmp_Payment_
 			where (PaymentDate BETWEEN p_StartDate AND p_EndDate);
 		END IF;
@@ -154,13 +123,7 @@ BEGIN
 			SELECT 
             AccountName,
             Amount,
-            CASE WHEN p_CustomerID > 0 THEN
-              CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
-              END
-            ELSE  PaymentType
-            END as PaymentType,
             PaymentDate,
-            Status,
             CreatedBy,
             InvoiceNo,
             PaymentMethod,
