@@ -1,48 +1,18 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerPanel_getInvoice`(
-	IN `p_CompanyID` INT,
-	IN `p_AccountID` INT,
-	IN `p_InvoiceNumber` VARCHAR(50),
-	IN `p_IssueDateStart` DATETIME,
-	IN `p_IssueDateEnd` DATETIME,
-	IN `p_InvoiceType` INT,
-	IN `p_IsOverdue` INT,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(50),
-	IN `p_SortOrder` VARCHAR(5),
-	IN `p_isExport` INT,
-	IN `p_zerovalueinvoice` INT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerPanel_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_IsOverdue` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT, IN `p_zerovalueinvoice` INT)
 BEGIN
-    DECLARE v_OffSet_ int;
-    DECLARE v_Round_ int;
-    DECLARE v_PaymentDueInDays_ int;
-    DECLARE v_CurrencyCode_ VARCHAR(50);
-    DECLARE v_TotalCount int;
-    
-    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';   	     
- 	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
-	 SELECT cs.Value INTO v_PaymentDueInDays_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'PaymentDueInDays' AND cs.CompanyID = p_CompanyID;
-	 
-	 DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
+	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
+	DECLARE v_PaymentDueInDays_ int;
+	DECLARE v_CurrencyCode_ VARCHAR(50);
+	DECLARE v_TotalCount int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT cs.Value INTO v_PaymentDueInDays_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'PaymentDueInDays' AND cs.CompanyID = p_CompanyID;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		InvoiceType tinyint(1),
 		AccountName varchar(100),
@@ -86,7 +56,7 @@ BEGIN
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			IFNULL(ac.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
+			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
@@ -123,70 +93,66 @@ BEGIN
 			ItemInvoice,
 			BillingEmail,
 			GrandTotal
-      FROM tmp_Invoices_
+		FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
 							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
 									AND(PendingAmount>0)
 								)
 						)
-      ORDER BY
-                CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
-            END DESC,
-                CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeDESC') THEN InvoiceType
-            END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeASC') THEN InvoiceType
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusDESC') THEN InvoiceStatus
-            END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusASC') THEN InvoiceStatus
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberASC') THEN InvoiceNumber
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberDESC') THEN InvoiceNumber
-            END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN IssueDate
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
-            END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
-            END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
-            END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDDESC') THEN InvoiceID
-            END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
-            END ASC
-        
-        LIMIT p_RowspPage OFFSET v_OffSet_;
-				
-				
-        
-   
-        SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
-		  WHERE (p_IsOverdue = 0 
+		ORDER BY
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+			END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeDESC') THEN InvoiceType
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeASC') THEN InvoiceType
+			END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusDESC') THEN InvoiceStatus
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusASC') THEN InvoiceStatus
+			END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberASC') THEN InvoiceNumber
+			END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberDESC') THEN InvoiceNumber
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN IssueDate
+			END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
+			END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDDESC') THEN InvoiceID
+			END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
+			END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+
+		SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0 
 							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
 									AND(PendingAmount>0)
 								)
 						);
-		   
-        SELECT
-            v_TotalCount AS totalcount,
+
+		SELECT
+			v_TotalCount AS totalcount,
 			ROUND(sum(GrandTotal),v_Round_) as total_grand,
 			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`, 
 			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
 			v_CurrencyCode_ as currency_symbol
-        FROM tmp_Invoices_
-		  WHERE (p_IsOverdue = 0 
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0 
 							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
 									AND(PendingAmount>0)
 								)
 						);
-    END IF;
-     
-     IF p_isExport = 1
-    THEN
+	END IF;
+	IF p_isExport = 1
+	THEN
 		SELECT
 			AccountName,
 			InvoiceNumber,
@@ -202,8 +168,8 @@ BEGIN
 								AND(PendingAmount>0)
 							)
 					);
-    END IF;
+	END IF;
 
-     
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END
