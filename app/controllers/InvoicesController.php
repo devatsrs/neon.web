@@ -873,7 +873,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-
+            return Response::json(["status" => "success", "message" => "Invoice in Created successfully. ".$message]);
 
         }else{
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
