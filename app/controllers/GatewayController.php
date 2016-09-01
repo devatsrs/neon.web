@@ -89,7 +89,9 @@ class GatewayController extends \BaseController {
         if(count($datainput)>0){
             $data['Settings'] =  json_encode($datainput);
         }
-        if (CompanyGateway::create($data)) {
+        if ($CompanyGateway = CompanyGateway::create($data)) {
+            $CompanyGatewayID = $CompanyGateway->CompanyGatewayID;
+            CompanyGateway::createCronJobsByCompanyGateway($CompanyGatewayID);
             return Response::json(array("status" => "success", "message" => "Gateway Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Gateway."));
@@ -178,6 +180,7 @@ class GatewayController extends \BaseController {
                 $data['Settings'] =  json_encode($datainput);
             }
             if ($CompanyGateway->update($data)) {
+                CompanyGateway::createCronJobsByCompanyGateway($id);
                 return Response::json(array("status" => "success", "message" => "Gateway Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Gateway."));
