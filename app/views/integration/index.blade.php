@@ -322,7 +322,9 @@
           </div>          
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
-              <label class="col-sm-4 control-label">Active:</label>
+              <label class="col-sm-4 control-label">Active:
+                             <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Old transactions will not be accessible" data-original-title="Caution" class="label label-info popover-primary">?</span>
+              </label>
               <div class="col-sm-8" id="AmazonStatusDiv">
                    <input id="AmazonStatus" class="subcatstatus" Divid="AmazonStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($AmazonDbData->Status) && $AmazonDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
