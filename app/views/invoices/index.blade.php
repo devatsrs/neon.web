@@ -1367,7 +1367,7 @@
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
                             </div>
                             <div class="col-sm-2">
-                                <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false"
+                                <input type="text" name="StartTime" value="00:00:00" data-minute-step="5" data-show-meridian="false"
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
                             </div>
@@ -1380,7 +1380,7 @@
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
                             </div>
                             <div class="col-sm-2">
-                                <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false"
+                                <input type="text" name="EndTime" value="23:59:59" data-minute-step="5" data-show-meridian="false"
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
                             </div>
