@@ -137,7 +137,7 @@ class SiteIntegration{
 		$config = SiteIntegration::is_EmailIntegration($companyID,true);
 		
 		switch ($config->Slug){
-			case "mandrill":
+			case  SiteIntegration::$mandrillSlug:
        		return MandrilIntegration::SendMail($view,$data,$config,$companyID);
       	  break;
 		}	
