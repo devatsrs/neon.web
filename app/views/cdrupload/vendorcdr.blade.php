@@ -46,28 +46,22 @@
             </div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Date</label>
-                    <div class="col-sm-3">
-                        <input type="text" name="DateRange" value="{{Input::get('StartDate')?Input::get('StartDate').' 00:00:00'.' - '.Input::get('EndDate').' 23:59:59':date('Y-m-d').' 00:00:00'.' - '.date('Y-m-d').' 23:59:59'}}" data-format="YYYY-MM-DD HH:mm:ss" data-start-date="{{Input::get('StartDate')?Input::get('StartDate'):date('Y-m-d')}}" data-end-date="{{Input::get('EndDate')?Input::get('EndDate').'23:59:59':date('Y-m-d').'23:59:59'}}" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
+                    <label class="col-sm-2 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
+                    <div class="col-sm-2" style="width: 15%;">
+                        <input type="text" name="StartDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                    </div>
+                    <div class="col-sm-1" style="padding: 0px; width: 11%;">
+                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
+                    </div>
+                    <label class="col-sm-2 control-label small_label" style="width: 9%;" for="field-1">End Date</label>
+                    <div class="col-sm-2" style=" width: 15%;">
+                        <input type="text" name="EndDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                    </div>
+                    <div class="col-sm-1" style="padding: 0px; width: 11%;">
+                        <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
                     </div>
                     <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
                     <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}} </div>
-                    <?php
-                    $trunk = Input::get('trunk');
-                    if((int)Input::get('TrunkID') > 0){
-                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
-                    }
-                    ?>
-                    <label class="col-sm-1 control-label" for="field-1">Trunk</label>
-                    <div class="col-sm-2">
-                        {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                    </div>
-                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Hide Zero Cost</label>
-                    <div class="col-sm-1" style="padding: 0px;">
-                        <p class="make-switch switch-small">
-                            <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
-                        </p>
-                    </div>
 
                 </div>
                 <div class="form-group">
@@ -87,6 +81,24 @@
                     <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">Prefix</label>
                     <div class="col-sm-2" style="width: 10%;">
                         <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <?php
+                    $trunk = Input::get('trunk');
+                    if((int)Input::get('TrunkID') > 0){
+                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
+                    }
+                    ?>
+                    <label class="col-sm-1 control-label" for="field-1">Trunk</label>
+                    <div class="col-sm-2">
+                        {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                    </div>
+                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Hide Zero Cost</label>
+                    <div class="col-sm-1" style="padding: 0px;">
+                        <p class="make-switch switch-small">
+                            <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
+                        </p>
                     </div>
                 </div>
               <p style="text-align: right;">
@@ -179,8 +191,12 @@ var CurrencyCode = '';
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
             var list_fields  =['VendorCDRID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date'];
-
-            $searchFilter.DateRange 			= 		$("#cdr_filter [name='DateRange']").val();
+            var starttime = $("#cdr_filter [name='StartTime']").val();
+            if(starttime =='00:00:01'){
+                starttime = '00:00:00';
+            }
+            $searchFilter.StartDate 				= 		$("#cdr_filter [name='StartDate']").val();
+            $searchFilter.EndDate 					= 		$("#cdr_filter [name='EndDate']").val();
             $searchFilter.CompanyGatewayID 			= 		$("#cdr_filter [name='CompanyGatewayID']").val();
             $searchFilter.AccountID 				= 		$("#cdr_filter [name='AccountID']").val();			
 			$searchFilter.CLI 						= 		$("#cdr_filter [name='CLI']").val();
@@ -191,10 +207,17 @@ var CurrencyCode = '';
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
 
-            if(typeof $searchFilter.DateRange  == 'undefined' || $searchFilter.DateRange.trim() == ''){
-                toastr.error("Please Select a Date Range", "Error", toastr_opts);
+            if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
+                toastr.error("Please Select a Start date", "Error", toastr_opts);
                 return false;
             }
+            if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
+                toastr.error("Please Select a End date", "Error", toastr_opts);
+                return false;
+            }
+
+            $searchFilter.StartDate += ' '+starttime;
+            $searchFilter.EndDate += ' '+$("#cdr_filter [name='EndTime']").val();
             data_table = $("#table-4").dataTable({
 
                 "bProcessing":true,
@@ -205,7 +228,8 @@ var CurrencyCode = '';
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
                     aoData.push(
-                            {"name":"DateRange","value":$searchFilter.DateRange},
+                            {"name":"StartDate","value":$searchFilter.StartDate},
+                            {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
                             {"name":"CLI","value":$searchFilter.CLI},
@@ -218,7 +242,8 @@ var CurrencyCode = '';
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
                             {"name":"Export","value":1},
-                            {"name":"DateRange","value":$searchFilter.DateRange},
+                            {"name":"StartDate","value":$searchFilter.StartDate},
+                            {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
                             {"name":"CLI","value":$searchFilter.CLI},
