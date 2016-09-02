@@ -7,14 +7,6 @@ class InvoicesCustomerController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
         $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','InvoiceStatus','InvoiceID'];
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }else{
-            $data['IssueDateStart'] = '';
-            $data['IssueDateEnd'] = '';
-        }
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
         $data['AccountID'] = User::get_userID();
@@ -196,14 +188,6 @@ class InvoicesCustomerController extends \BaseController {
         $data['sSortDir_0']			 =  'desc';
         $companyID 					 =  User::get_companyID();
         $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }else{
-            $data['IssueDateStart'] = '';
-            $data['IssueDateEnd'] = '';
-        }
         $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];

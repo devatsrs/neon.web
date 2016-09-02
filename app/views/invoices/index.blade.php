@@ -86,16 +86,22 @@
                                     <div class="col-sm-2">
                                         {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                                     </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Issue Date</label>
-
+                                    <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
                                     <div class="col-sm-2">
-                                        {{ Form::text('IssueDate', !empty(Input::get('IssueDate'))?Input::get('IssueDate'):'', array("class"=>"form-control small-date-input daterange","data-format"=>"YYYY-MM-DD")) }}<!-- Time formate Updated by Abubakar -->
+                                        {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                                     </div>
+                                    <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
+                                    <div class="col-sm-2">
+                                        {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                                    </div>
+
                                     <label for="field-1" class="col-sm-1 control-label">Currency</label>
 
                                     <div class="col-sm-2">
                                         {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
                                     </div>
+                                </div>
+                                <div class="form-group">
                                     <label for="field-1" class="col-sm-1 control-label">Overdue</label>
 
                                     <div class="col-sm-2">
@@ -217,7 +223,8 @@
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
             $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
-            $searchFilter.IssueDate = $("#invoice_filter [name='IssueDate']").val();
+            $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
+            $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
             $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
             $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
@@ -232,36 +239,27 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, 'desc']],
                 "fnServerParams": function (aoData) {
-                    aoData.push({"name": "InvoiceType", "value": $searchFilter.InvoiceType}, {
-                        "name": "AccountID",
-                        "value": $searchFilter.AccountID
-                    }, {"name": "InvoiceNumber", "value": $searchFilter.InvoiceNumber}, {
-                        "name": "InvoiceStatus",
-                        "value": $searchFilter.InvoiceStatus
-                    }, {"name": "IssueDate", "value": $searchFilter.IssueDate}, {
-                        "name": "zerovalueinvoice",
-                        "value": $searchFilter.zerovalueinvoice
-                    }, {"name": "CurrencyID", "value": $searchFilter.CurrencyID}, {
-                        "name": "Overdue",
-                        "value": $searchFilter.Overdue
-                    });
+                    aoData.push({"name": "InvoiceType", "value": $searchFilter.InvoiceType},
+                            {"name": "AccountID","value": $searchFilter.AccountID},
+                            {"name": "InvoiceNumber", "value": $searchFilter.InvoiceNumber},
+                            {"name": "InvoiceStatus","value": $searchFilter.InvoiceStatus},
+                            {"name":"IssueDateStart","value":$searchFilter.IssueDateStart},
+                            {"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},
+                            {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
+                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                            {"name": "Overdue","value": $searchFilter.Overdue});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({
-                        "name": "InvoiceType",
-                        "value": $searchFilter.InvoiceType
-                    }, {"name": "AccountID", "value": $searchFilter.AccountID}, {
-                        "name": "InvoiceNumber",
-                        "value": $searchFilter.InvoiceNumber
-                    }, {"name": "InvoiceStatus", "value": $searchFilter.InvoiceStatus}, {
-                        "name": "IssueDate",
-                        "value": $searchFilter.IssueDate
-                    }, {"name": "Export", "value": 1}, {
-                        "name": "zerovalueinvoice",
-                        "value": $searchFilter.zerovalueinvoice
-                    }, {"name": "CurrencyID", "value": $searchFilter.CurrencyID}, {
-                        "name": "Overdue",
-                        "value": $searchFilter.Overdue
-                    });
+                    data_table_extra_params.push({"name": "InvoiceType","value": $searchFilter.InvoiceType},
+                            {"name": "AccountID", "value": $searchFilter.AccountID},
+                            {"name": "InvoiceNumber","value": $searchFilter.InvoiceNumber},
+                            {"name": "InvoiceStatus", "value": $searchFilter.InvoiceStatus},
+                            {"name":"IssueDateStart","value":$searchFilter.IssueDateStart},
+                            {"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},
+                            {"name": "IssueDate","value": $searchFilter.IssueDate},
+                            {"name": "Export", "value": 1},
+                            {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
+                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                            {"name": "Overdue","value": $searchFilter.Overdue});
                 },
                 "aoColumns": [
                     {
@@ -504,7 +502,8 @@
                 $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
                 $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
                 $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
-                $searchFilter.IssueDate = $("#invoice_filter [name='IssueDate']").val();
+                $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
+                $searchFilter.IssueDateEnd = $("#invoice_filter [name='IssueDateEnd']").val();
                 $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
                 $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
                 $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
@@ -523,7 +522,8 @@
                         "AccountID": $("#invoice_filter select[name='AccountID']").val(),
                         "InvoiceNumber": $("#invoice_filter [name='InvoiceNumber']").val(),
                         "InvoiceStatus": $("#invoice_filter select[name='InvoiceStatus']").val(),
-                        "IssueDate": $("#invoice_filter [name='IssueDate']").val(),
+                        "IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),
+                        "IssueDateEnd":$("#invoice_filter [name='IssueDateEnd']").val(),
                         "zerovalueinvoice": $("#invoice_filter [name='zerovalueinvoice']").prop("checked"),
                         "CurrencyID": $("#invoice_filter [name='CurrencyID']").val(),
                         "Overdue": $("#invoice_filter [name='Overdue']").prop("checked"),
