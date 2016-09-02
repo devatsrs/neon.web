@@ -19,9 +19,9 @@ class AccountDiscountPlan extends \Eloquent
         return true;
     }
 
-    public static function addUpdateDiscountPlan($AccountID,$DiscountPlanID,$Type,$billdays){
+    public static function addUpdateDiscountPlan($AccountID,$DiscountPlanID,$Type,$billdays,$DayDiff){
         if( AccountDiscountPlan::where(["AccountID"=> $AccountID,'Type'=>$Type])->pluck('DiscountPlanID') != $DiscountPlanID){
-            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,User::get_user_full_name()));
+            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,User::get_user_full_name()));
         }
     }
     public static function getDiscountPlan($AccountID,$Type){

@@ -10,14 +10,6 @@ class InvoicesController extends \BaseController {
 		$data['iSortCol_0']			 =  0;     
 		$data['sSortDir_0']			 =  'desc';
         $companyID 					 =  User::get_companyID();
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }else{
-            $data['IssueDateStart'] = '';
-            $data['IssueDateEnd'] = '';
-        }
         $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
@@ -84,14 +76,6 @@ class InvoicesController extends \BaseController {
         $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }else{
-            $data['IssueDateStart'] = '';
-            $data['IssueDateEnd'] = '';
-        }
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -144,8 +128,8 @@ class InvoicesController extends \BaseController {
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
-        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
-		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
+        $data['StartDateDefault'] 	  	= 	'';
+		$data['IssueDateEndDefault']  	= 	'';
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         //print_r($_COOKIE);exit;
         return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue'));
@@ -873,7 +857,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-
+            return Response::json(["status" => "success", "message" => "Invoice in Created successfully. ".$message]);
 
         }else{
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
@@ -1432,14 +1416,6 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
-        if(!empty($criteria['IssueDate'])){
-            $arr = explode(' - ',$criteria['IssueDate']);
-            $criteria['IssueDateStart'] = $arr[0];
-            $criteria['IssueDateEnd'] = $arr[1];
-        }else{
-            $criteria['IssueDateStart'] = '';
-            $criteria['IssueDateEnd'] = '';
-        }
         $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
         $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."',".$criteria['Overdue'].",'' ,'','','','".$criteria['CurrencyID']."' ";
@@ -1491,14 +1467,6 @@ class InvoicesController extends \BaseController {
         }else{			
 
             $criteria = json_decode($data['criteria'],true);
-            if(!empty($criteria['IssueDate'])){
-                $arr = explode(' - ',$criteria['IssueDate']);
-                $criteria['IssueDateStart'] = $arr[0];
-                $criteria['IssueDateEnd'] = $arr[1];
-            }else{
-                $criteria['IssueDateStart'] = '';
-                $criteria['IssueDateEnd'] = '';
-            }
             $criteria['InvoiceType'] = $criteria['InvoiceType'] == 'All'?'':$criteria['InvoiceType'];
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
 			 $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];

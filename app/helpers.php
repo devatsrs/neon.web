@@ -913,7 +913,7 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path); 
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
@@ -1357,4 +1357,9 @@ function merge_tax($taxs) {
         }
     }
     return $InvoiceTaxRates;
+}
+function getdaysdiff($date1,$date2){
+    $date1 = new DateTime($date1);
+    $date2 = new DateTime($date2);
+    return $date2->diff($date1)->format("%R%a");
 }

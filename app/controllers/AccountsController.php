@@ -496,8 +496,10 @@ class AccountsController extends \BaseController {
                 AccountBilling::insertUpdateBilling($id, $data);
             }
             $billdays =  AccountBilling::getBillingDay($id);
-            AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays);
-            AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays);
+            $getdaysdiff = getdaysdiff(AccountBilling::where('AccountID',$id)->pluck('NextInvoiceDate'),date('Y-m-d'));
+            $DayDiff = $getdaysdiff >0?intval($getdaysdiff):0;
+            AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays,$DayDiff);
+            AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays,$DayDiff);
             if(trim(Input::get('Number')) == ''){
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }

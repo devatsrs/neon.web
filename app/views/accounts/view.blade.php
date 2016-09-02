@@ -64,11 +64,15 @@
                 </div>
                 <div class="col-sm-12 padding-0 action">
                   <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="fa fa-line-chart"></i> </button>
-                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
+
                   @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif 
                     @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('AccountActivityChart','View'))
                     <a  href="{{Url::to('accounts/activity/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Account Activity Chart" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-bar-chart"></i> </a>
                     @endif
+                  @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('CreditControl','View'))
+                    <a  href="{{Url::to('account/get_credit/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Credit Control" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-credit-card"></i> </a>
+                  @endif
+                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>

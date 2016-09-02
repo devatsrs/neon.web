@@ -202,7 +202,9 @@
        <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Users','View') || User::checkCategoryPermission('AccountChecklist','View') ||
-    User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') || User::checkCategoryPermission('UploadFileTemplate','View'))
+    User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') ||
+    User::checkCategoryPermission('UploadFileTemplate','View')||User::checkCategoryPermission('Notification','View')||
+    User::checkCategoryPermission('ServerInfo','View'))
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
       <ul>
         @if( User::checkCategoryPermission('Users','View'))
@@ -229,7 +231,7 @@
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
     	@endif
-         @if( User::checkCategoryPermission('serverinfo','View'))
+         @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
       </ul>

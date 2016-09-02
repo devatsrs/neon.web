@@ -11,6 +11,22 @@
             $('#inbound_minutes_report').button('loading');
             getreport("{{AccountDiscountPlan::INBOUND}}")
         });
+        $('select[name="DiscountPlanID"]').on( "change",function(e){
+            if($(this).val()){
+                $('#minutes_report').removeClass('hidden')
+            }else{
+                $('#minutes_report').addClass('hidden')
+            }
+        });
+        $('select[name="DiscountPlanID"]').trigger( "change" );
+        $('select[name="InboundDiscountPlanID"]').on( "change",function(e){
+            if($(this).val()){
+                $('#inbound_minutes_report').removeClass('hidden')
+            }else{
+                $('#inbound_minutes_report').addClass('hidden')
+            }
+        });
+        $('select[name="InboundDiscountPlanID"]').trigger( "change" );
     });
     function getreport(Type){
         var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';
