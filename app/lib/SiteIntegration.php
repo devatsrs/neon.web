@@ -20,6 +20,10 @@ class SiteIntegration{
 	
 		$this->companyID = 	User::get_companyID();
 	 } 
+	 
+	 /*
+	 * Get support settings return current active support
+	 */
 
 	public function SetSupportSettings($type,$data){
 		
@@ -28,6 +32,10 @@ class SiteIntegration{
 		}		
 	}
 	
+	/*
+	 * Get support contacts from active support
+	 */
+	
 	public function GetSupportContacts($options = array()){
         if($this->support){
             return $this->support->GetContacts($options);
@@ -35,14 +43,21 @@ class SiteIntegration{
         return false;
     }
 	
+	/*
+	 * Get support tickets from active support
+	 */
+	
 	public function GetSupportTickets($options = array()){
         if($this->support){
             return $this->support->GetTickets($options);
         }
         return false;
-
     }
-
+	
+	/*
+	 * Get support tickets conversation from active support
+	 */
+	 
 	public function GetSupportTicketConversations($id){
         if($this->support){
             return $this->support->GetTicketConversations($id);
@@ -50,6 +65,10 @@ class SiteIntegration{
         return false;
 
     }
+	
+	/*
+	 * check fresh desk support active
+	 */
 	
 	 public static function is_FreshDesk(){
 		$companyID		 =  User::get_companyID();
@@ -72,6 +91,9 @@ class SiteIntegration{
 		return 0;				
 	 }
 	 
+	 /*
+	 * check authorize active and return its data if data = true
+	 */ 
 	 
 	public function is_Authorize($data = false){
 
@@ -100,6 +122,10 @@ class SiteIntegration{
 		}
 		return 0;	
 	}	
+	
+	/*
+	 * check Email configuration addded or not . return true,data or false
+	 */
 	
 	public static function is_EmailIntegration($companyID='',$data = false){
 		
@@ -133,6 +159,10 @@ class SiteIntegration{
 		return 0;	
 	}
 	
+	/*
+	 * send mail . check active mail settings 
+	 */
+	
 	public static function SendMail($view,$data,$companyID){
 		$config = SiteIntegration::is_EmailIntegration($companyID,true);
 		
@@ -142,6 +172,10 @@ class SiteIntegration{
       	  break;
 		}	
 	}
+	
+	/*
+	 * check storage configuration addded or not . return true,data or false
+	 */
 	
 	public static function is_storage_configured(){
 		
@@ -170,13 +204,21 @@ class SiteIntegration{
 			 }
 		}
 		return 0;	
-	}	 
+	}
+	
+	/*
+	 * get company id using license key from company configuration
+	 */	 
 	
 	public static function GetComapnyIdByKey(){
 		$key 		= 	getenv('LICENCE_KEY');
 		$CompanyId  =  	CompanyConfiguration::where(['Key'=>'LICENCE_KEY',"Value"=>$key])->pluck('CompanyID');	
 		return $CompanyId;
 	}
+	
+	/*
+	 * check amazon addded or not . return true,data or false
+	 */
 	
 	public static function is_amazon_configured($data=false){ 		
 	
@@ -205,7 +247,11 @@ class SiteIntegration{
 			 }	
 		}
 		return false;	
-	}	 
+	}	
+	
+	/*
+	 * check authorize addded or not . return true,data or false
+	 */ 
 	
 	public static function is_authorize_configured($data=false){ 
 		
@@ -233,12 +279,6 @@ class SiteIntegration{
 			 }
 		}
 		return false;	
-	}	 
-	
-	public static function GetComapnyConfigurationValue(){
-		$key 		= 	getenv('LICENCE_KEY');
-		$CompanyId  =  	CompanyConfiguration::where(['Key'=>'LICENCE_KEY',"Value"=>$key])->pluck('CompanyID');	
-		return $CompanyId;
 	}
 }
 ?>
