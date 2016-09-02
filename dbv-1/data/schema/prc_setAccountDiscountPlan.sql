@@ -5,6 +5,17 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
+	INSERT INTO tblAccountDiscountPlanHistory(AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,Applied,Changed)
+	SELECT AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,created_at,NOW() FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND Type = p_Type;
+	
+	INSERT INTO tblAccountDiscountSchemeHistory (AccountDiscountSchemeID,AccountDiscountPlanID,DiscountID,Threshold,Discount,Unlimited,SecondsUsed)
+	SELECT ads.AccountDiscountSchemeID,ads.AccountDiscountPlanID,ads.DiscountID,ads.Threshold,ads.Discount,ads.Unlimited,ads.SecondsUsed 
+	FROM tblAccountDiscountScheme ads
+	INNER JOIN tblAccountDiscountPlan adp
+		ON adp.AccountDiscountPlanID = ads.AccountDiscountPlanID
+	WHERE AccountID = p_AccountID 
+		AND Type = p_Type;
+	
 	DELETE ads FROM tblAccountDiscountScheme ads
 	INNER JOIN tblAccountDiscountPlan adp
 		ON adp.AccountDiscountPlanID = ads.AccountDiscountPlanID
