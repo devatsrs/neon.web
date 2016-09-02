@@ -700,8 +700,27 @@
                 } else {
                     update_new_url = baseurl + '/invoice/add_invoice_in';
                 }
-                submit_ajax_withfile(update_new_url, formData);
-                //$(".btn").button('reset');
+                $.ajax({
+                    url: update_new_url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if(response.status =='success'){
+                            toastr.success(response.message, "Success", toastr_opts);
+                            $('#modal-invoice-in').modal('hide');
+                            data_table.fnFilter('', 0);
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $("#saveinvoice").button('reset');
+                    },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
             });
             $('table tbody').on('click', '.edit-invoice-in', function (ev) {
                 $('#add-invoice_in_template-form').trigger("reset");
@@ -1498,7 +1517,7 @@
 
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
+                        <button id="saveinvoice" class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
                                 data-loading-text="Loading...">
                             <i class="entypo-pencil"></i>
                             Save Invoice

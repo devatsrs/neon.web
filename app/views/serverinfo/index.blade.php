@@ -152,8 +152,12 @@
                         html += '   <a href="#tab' + item.ServerInfoID + '" role="tab" data-toggle="tab">';
                         html += '       <span class="title">' + item.ServerInfoTitle + '</span>';
                         html += '       <div class="hiddenRowData hidden"><input type="hidden" name="ServerInfoID" value="' + item.ServerInfoID + '" /> <input type="hidden" name="ServerInfoTitle" value="' + item.ServerInfoTitle + '" /> <input type="hidden" name="ServerInfoUrl" value="' + item.ServerInfoUrl + '" /> </div>';
-                        html += '       <span class="edit btn-xs" title="Edit Server"><i class="entypo-pencil"></i></span>';
-                        html += '       <span class="delete btn-xs" title="Delete Server"><i class="fa fa-trash-o"></i></span>';
+                        @if(User::checkCategoryPermission('ServerInfo','Edit'))
+                            html += '       <span class="edit btn-xs" title="Edit Server"><i class="entypo-pencil"></i></span>';
+                        @endif
+                        @if(User::checkCategoryPermission('ServerInfo','Delete'))
+                            html += '       <span class="delete btn-xs" title="Delete Server"><i class="fa fa-trash-o"></i></span>';
+                        @ednif
                         html += '   </a>';
                         html += '</li>';
                         $('ul#ServerInfoTab').append(html);
