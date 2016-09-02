@@ -45,10 +45,6 @@ class CDRCustomerController extends BaseController {
         $account                     = Account::find($data['AccountID']);
         $CurrencyId                  = $account->CurrencyId;
         $CurrencyID 		 = 	 empty($CurrencyId)?'0':$CurrencyId;
-        $DateRange = explode(' - ',$data['DateRange']);
-        $DateRange = array_map('trim',$DateRange);
-        $data['StartDate'] = $DateRange[0];
-        $data['EndDate'] = $DateRange[1];
         $area_prefix = $Trunk = '';
 
         $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$CurrencyID.",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
