@@ -76,7 +76,7 @@ class AmazonS3 {
         }*/
     }
 	
-	 private static function getAmazonSettings(){     
+	 public static function getAmazonSettings(){     
 		$amazon 		= 	array();
 		$AmazonData		=	SiteIntegration::is_amazon_configured(true);
 		

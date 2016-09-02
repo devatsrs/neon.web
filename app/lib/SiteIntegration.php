@@ -227,12 +227,12 @@ class SiteIntegration{
 					 if($data ==true){
 						return $result;
 					 }else{
-						return 1;
+						return true;
 					 }
 				 }
 			 }
 		}
-		return 0;	
+		return false;	
 	}	 
 	
 	public static function GetComapnyConfigurationValue(){

@@ -41,7 +41,7 @@ class Gateway extends \Eloquent {
 	
 	public static function getGatWayList(){
         //$data['CompanyID']=User::get_companyID();
-        $row = Gateway::select(array('Name', 'GatewayID','Title','Status'))->orderBy('Name')->get();
+        $row = Gateway::select(array('Name', 'GatewayID','Title','Status'))->where(array('Status'=>1))->orderBy('Name')->get();
         return $row;
     }
 }

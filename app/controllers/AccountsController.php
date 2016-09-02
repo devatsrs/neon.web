@@ -504,6 +504,7 @@ class AccountsController extends \BaseController {
             if(isset($data['password'])) {
                // $this->sendPasswordEmail($account, $password, $data);
             }
+			
             $PaymentGatewayID = PaymentGateway::where(['Title'=>PaymentGateway::$gateways['Authorize']])
                 ->where(['CompanyID'=>$companyID])
                 ->pluck('PaymentGatewayID');
@@ -517,11 +518,13 @@ class AccountsController extends \BaseController {
                 $ShippingProfileID = $options->ShippingProfileID;
 
                 //If using Authorize.net
-                $isAuthorizedNet = getenv('AMAZONS3_KEY');
-                if(!empty($isAuthorizedNet)) {
+				$isAuthorizedNet  = 	SiteIntegration::is_authorize_configured();
+				if($isAuthorizedNet){
                     $AuthorizeNet = new AuthorizeNet();
                     $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
-                }
+                }else{
+					return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+				}
             }
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
