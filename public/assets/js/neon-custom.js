@@ -1565,6 +1565,8 @@ function fit_main_content_height()
 
         if (isxs())
         {
+            public_vars.$sidebarMenu.css('display','block');
+            public_vars.$mainContent.css('display','inherit');
             if (typeof reset_mail_container_height != 'undefined')
                 reset_mail_container_height();
             return;
@@ -1572,6 +1574,9 @@ function fit_main_content_height()
             if (typeof fit_calendar_container_height != 'undefined')
                 reset_calendar_container_height();
             return;
+        }else{
+            public_vars.$sidebarMenu.css('display','table-cell');
+            public_vars.$mainContent.css('display','table-cell');
         }
 
         var sm_height = public_vars.$sidebarMenu.outerHeight(),
