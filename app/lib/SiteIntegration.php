@@ -163,12 +163,12 @@ class SiteIntegration{
 	 * send mail . check active mail settings 
 	 */
 	
-	public static function SendMail($view,$data,$companyID){
+	public static function SendMail($view,$data,$companyID,$body){
 		$config = SiteIntegration::is_EmailIntegration($companyID,true);
 		
 		switch ($config->Slug){
 			case  SiteIntegration::$mandrillSlug:
-       		return MandrilIntegration::SendMail($view,$data,$config,$companyID);
+       		return MandrilIntegration::SendMail($view,$data,$config,$companyID,$body);
       	  break;
 		}	
 	}
