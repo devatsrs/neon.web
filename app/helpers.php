@@ -1393,3 +1393,8 @@ function merge_tax($taxs) {
     }
     return $InvoiceTaxRates;
 }
+function getdaysdiff($date1,$date2){
+    $date1 = new DateTime($date1);
+    $date2 = new DateTime($date2);
+    return $date2->diff($date1)->format("%R%a");
+}
