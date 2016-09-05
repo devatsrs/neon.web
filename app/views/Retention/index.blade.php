@@ -86,7 +86,7 @@
         <div class="panel-body">
 
             <div class="form-group">
-                <label for="field-1" class="col-sm-2 control-label">CDR Files : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How Many Old Days CDRs Files Delete.?" data-original-title="CDR Files">?</span></label>
+                <label for="field-1" class="col-sm-2 control-label">CDR Files : </label>
                 <div class="col-sm-2">
                     <input type="text" name="FileData[CDR]" class="form-control" value="{{isset($FileRetenion->CDR)?$FileRetenion->CDR:''}}"/>
                 </div>
