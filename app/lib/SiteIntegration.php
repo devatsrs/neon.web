@@ -18,7 +18,8 @@ class SiteIntegration{
 
  	public function __construct(){
 	
-		$this->companyID = 	User::get_companyID();
+		//$this->companyID = 	User::get_companyID();
+		$this->companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
 	 } 
 	 
 	 /*
@@ -177,7 +178,7 @@ class SiteIntegration{
 	 * check storage configuration addded or not . return true,data or false
 	 */
 	
-	public static function is_storage_configured(){
+	public static function is_storage_configured($data=false){
 		
 		$companyID		 =  User::get_companyID();
 		$Storage	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>SiteIntegration::$StorageSlug])->first();	

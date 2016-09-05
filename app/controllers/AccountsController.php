@@ -243,8 +243,10 @@ class AccountsController extends \BaseController {
 			$message 					= 	 '';
 			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
-			
-
+		/*		echo "<pre>";
+				print_r($response_timeline);		
+				exit;*/
+	
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
 				{
@@ -257,7 +259,7 @@ class AccountsController extends \BaseController {
 					return	Redirect::to('/logout'); 	
 				}		
 				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
-				$message = json_response_api($response_timeline,false,true);
+				$message = json_response_api($response_timeline,false,false);
 			}
 			
 			$vendor   = $account->IsVendor?1:0;

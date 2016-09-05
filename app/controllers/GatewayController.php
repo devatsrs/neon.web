@@ -37,7 +37,7 @@ class GatewayController extends \BaseController {
     {
         $gateway 			= 	Gateway::getGatewayListID();
         $timezones 			= 	TimeZone::getTimeZoneDropdownList();
-        $gateway['other'] 	= 	'other';
+       // $gateway['other'] 	= 	'other';
         return View::make('gateway.index', compact('gateway','timezones','id'));
     }
 
