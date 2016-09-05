@@ -351,7 +351,7 @@ var postdata;
 
         /*not in use*/
         $(document).on('click','.cronjobedelete',function(){
-            var deleteid = $(this).attr('data-id')
+            var deleteid = $(this).attr('data-id');
             if (deleteid == '') {
                 $(".save.GatewaySelect").button('reset');
                 toastr.error('No cron job selected.', "Error", toastr_opts);
