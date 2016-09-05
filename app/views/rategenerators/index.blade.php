@@ -338,46 +338,63 @@
 
                 });
             }else{
-                alert('Please delete cron job first');
-                $(".btn").button('reset');
-            }
-        });
-
-        $(document).on('click','.cronjobedelete',function(){
-            if($(this).hasClass('icon-left')){
-                var tr = $(this).parents('tr');
-                tr.addClass('selected');
-                tr.find('.rowcheckbox').prop("checked", true);
-            }
-            var SelectedIDs = getselectedIDs("cronjob-table");
-            if (SelectedIDs.length == 0) {
-                toastr.error('Please select at least one cronjob.', "Error", toastr_opts);
-                return false;
-            }else{
-                if(confirm('Are you sure you want to delete selected cron job?')){
-                    var rateGeneratorID = $('#delete-rate-generator-form [name="RateGeneratorID"]').val();
-                    var url = baseurl + "/rategenerators/"+rateGeneratorID+"/deletecronjob";
-                    var cronjobs = SelectedIDs.join(",");
-                    $('#modal-delete-rategenerator .container').html('');
-                    $.ajax({
-                        url: url,
-                        type:'POST',
-                        data:{cronjobs:cronjobs},
-                        datatype:'json',
-                        success: function(response) {
-                            if (response.status == 'success') {
-                                $('#modal-delete-rategenerator .container').html(response.table);
-                                $('.selectall').prop("checked", false);
-                                toastr.success(response.message,'Success', toastr_opts);
-                            }else{
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        }
-
-                    });
+                var SelectedIDs = getselectedIDs("cronjob-table");
+                if (SelectedIDs.length == 0) {
+                    alert('No cron job selected.');
+                    $("#rategenerator-select").button('reset');
+                    return false;
+                }else{
+                    var deleteid = SelectedIDs.join(",");
+                    cronjobsdelete(deleteid);
                 }
             }
         });
+
+        function cronjobsdelete(deleteid){
+            if(confirm('Are you sure you want to delete selected cron job?')){
+                var rateGeneratorID = $('#delete-rate-generator-form [name="RateGeneratorID"]').val();
+                var url = baseurl + "/rategenerators/"+rateGeneratorID+"/deletecronjob";
+                var cronjobs = deleteid;
+                $('#modal-delete-rategenerator .container').html('');
+                $('#modal-delete-rategenerator').modal('hide');
+                $.ajax({
+                    url: url,
+                    type:'POST',
+                    data:{cronjobs:cronjobs},
+                    datatype:'json',
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message,'Success', toastr_opts);
+                            var url = baseurl + '/rategenerators/'+rateGeneratorID+'/ajax_existing_rategenerator_cronjob';
+                            $('#delete-rate-generator-form [name="RateGeneratorID"]').val(rateGeneratorID);
+                            $.ajax({
+                                url: url,
+                                type: 'POST',
+                                dataType: 'html',
+                                success: function (response) {
+                                    $(".btn.delete").button('reset');
+                                    if (response) {
+                                        $('#modal-delete-rategenerator .container').html(response);
+                                        $('#modal-delete-rategenerator').modal('show');
+                                    }else{
+                                        $('#delete-rate-generator-form').submit();
+                                    }
+                                },
+
+                                // Form data
+                                //data: {},
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+
+                });
+            }
+        }
 
         $(document).on('click', '#cronjob-table tbody tr', function() {
             $(this).toggleClass('selected');
@@ -508,7 +525,7 @@
 
                 <div class="modal-footer">
                     <input type="hidden" name="RateGeneratorID" value="">
-                    <button type="submit"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-cancel"></i>
                         Delete
                     </button>

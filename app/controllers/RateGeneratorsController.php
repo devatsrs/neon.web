@@ -520,9 +520,9 @@ class RateGeneratorsController extends \BaseController {
     public function delete($id) {
         if ($id) {
             if (RateGenerator::find($id)->delete()) {
-                return Response::json(array("status" => "success", "message" => "RateGenerator Successfully deleted"));
+                return Response::json(array("status" => "success", "message" => "Rate Generator Successfully deleted"));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting RateGenerator"));
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate Generator"));
             }
         }
     }
@@ -654,9 +654,9 @@ class RateGeneratorsController extends \BaseController {
                     $Process->change_crontab_status(0);
                 }
                 $cronjob->delete();
+                CronJobLog::where("CronJobID",$cronjobID)->delete();
             }
-            $table = $this->ajax_existing_rategenerator_cronjob($id);
-            return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted","table"=>$table));
+            return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted"));
         }catch (Exception $ex){
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
