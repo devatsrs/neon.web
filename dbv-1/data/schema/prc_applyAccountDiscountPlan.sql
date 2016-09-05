@@ -74,8 +74,8 @@ BEGIN
 			AND ud.is_inbound = ',p_inbound,' 
 			AND ud.AccountID = ' , p_AccountID , '
 			AND area_prefix =  c.Code
-			AND DATE(ud.disconnect_time) >= ', v_StartDate ,'
-			AND DATE(ud.disconnect_time) < ',v_EndDate, '
+			AND DATE(ud.disconnect_time) >= "', v_StartDate ,'"
+			AND DATE(ud.disconnect_time) < "',v_EndDate, '"
 		ORDER BY c.DiscountID asc , disconnect_time asc
 	) d
 	CROSS JOIN (SELECT @t := 0) i
