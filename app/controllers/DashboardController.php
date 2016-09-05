@@ -208,7 +208,7 @@ class DashboardController extends BaseController {
      }
 	
 	public function getSalesdata(){ //crm dashboard
-		 $data 			= 	 Input::all();			
+		 $data 			= 	 Input::all();
 		 $response 		= 	 NeonAPI::request('dashboard/GetSalesdata',$data,true);
 		  if($response->status=='failed'){
 			return json_response_api($response,false,true);

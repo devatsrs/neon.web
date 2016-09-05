@@ -20,8 +20,8 @@ class AuthorizeNet {
 
     function __Construct(){
 		
-		$AuthorizeDbData 						= 	SiteIntegration::is_authorize_configured(true); 
-		if(count($AuthorizeDbData)>0){	
+		$AuthorizeDbData 					= 	SiteIntegration::is_authorize_configured(true); 
+		if($AuthorizeDbData){	
 			$AuthorizeData					=	json_decode($AuthorizeDbData->Settings);		
 			$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
 			$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';

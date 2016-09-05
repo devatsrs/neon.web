@@ -909,38 +909,15 @@ class EstimatesController extends \BaseController {
     function sendEstimateMail($view,$data)
 	{ 
         $status 		= 	array('status' => 0, 'message' => 'Something wrong with sending mail.');
-        $companyID 		= 	User::get_companyID();
-        $mail 			= 	setMailConfig($companyID);
-        $body 			= 	View::make($view,compact('data'))->render();
-
-        if(getenv('APP_ENV') != 'Production')
-		{
-            $data['Subject'] = 'Test Mail '.$data['Subject'];
-        }
-		
-        $mail->Body 	= $body;
-        $mail->Subject 	= $data['Subject'];
-		
-        if(is_array($data['EmailTo']))
+    
+	    if(is_array($data['EmailTo']))
 		{
             foreach((array)$data['EmailTo'] as $email_address)
 			{
                 if(!empty($email_address))
 				{
-                    $email_address = trim($email_address);					
-                    $mail->addAddress($email_address);
-					
-                    if (!$mail->send())
-					{
-                        $mail->clearAllRecipients();
-                        $status['status']   = 	0;
-                        $status['message'] .= 	$mail->ErrorInfo . ' ( Email Address: ' . $email_address . ')';
-                    }
-					else
-					{
-                        $status['status'] 	= 	1;
-                        $status['message'] 	= 	'Email has been sent';
-                    }
+					$data['EmailTo'] 	= 	trim($email_address);
+					$status 			= 	sendMail($view,$data);
                 }
             }
         }
@@ -948,19 +925,8 @@ class EstimatesController extends \BaseController {
 		{ 
             if(!empty($data['EmailTo']))
 			{
-                $email_address = trim($data['EmailTo']);
-                $mail->addAddress($email_address);
-                if (!$mail->send())
-				{
-                    $mail->clearAllRecipients();
-                    $status['status'] = 0;
-                    $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $data['EmailTo'] . ')';
-                }
-				else
-				{
-                    $status['status'] = 1;
-                    $status['message'] = 'Email has been sent';
-                }
+				$data['EmailTo'] 	= 	trim($data['EmailTo']);
+				$status 			= 	sendMail($view,$data);
             }
         }
         return $status;

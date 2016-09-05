@@ -22,5 +22,5 @@
   </div>
 </div>
 @else
-@if(isset($response['message']))<h3>{{ $response['message'] }}</h3>@endif 
+@if(isset($response['message']))<h3 style="text-align:center;">{{ $response['message'] }}</h3>@endif 
 @endif 
