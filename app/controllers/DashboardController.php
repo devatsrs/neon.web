@@ -342,7 +342,7 @@ class DashboardController extends BaseController {
         if (User::is('AccountManager')) { // Account Manager
             $AccountManager = 1;
         }
-        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."')"; 
+        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."','".$AccountManager."')"; 
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';
