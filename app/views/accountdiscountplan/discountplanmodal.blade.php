@@ -1,6 +1,7 @@
 <script>
     jQuery(document).ready(function ($) {
-
+        var alert_inbound_first = false;
+        var alert_outbound_first = false;
         $('#minutes_report').click(function(e){
             e.preventDefault();
             $('#minutes_report').button('loading');
@@ -12,6 +13,11 @@
             getreport("{{AccountDiscountPlan::INBOUND}}")
         });
         $('select[name="DiscountPlanID"]').on( "change",function(e){
+            if(alert_inbound_first == true) {
+                alert('If you change discount plan,it will refresh current used minutes.');
+            }else if($(this).val()){
+                alert_inbound_first = true;
+            }
             if($(this).val()){
                 $('#minutes_report').removeClass('hidden')
             }else{
@@ -20,6 +26,11 @@
         });
         $('select[name="DiscountPlanID"]').trigger( "change" );
         $('select[name="InboundDiscountPlanID"]').on( "change",function(e){
+            if(alert_outbound_first == true) {
+                alert('If you change discount plan,it will refresh current used minutes.');
+            }else if($(this).val()){
+                alert_outbound_first = true;
+            }
             if($(this).val()){
                 $('#inbound_minutes_report').removeClass('hidden')
             }else{

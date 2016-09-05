@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountDiscountPlan`(IN `p_AccountID` INT, IN `p_Type` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getAccountDiscountPlan`(IN `p_AccountID` INT, IN `p_Type` INT)
 BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -7,7 +7,11 @@ BEGIN
 		dg.Name,
 		ROUND(adc.Threshold/60,0) as Threshold,
 		IF (adc.Unlimited=1,'Unlimited','') as Unlimited,
-		ROUND(adc.SecondsUsed/60,0) as MinutesUsed
+		ROUND(adc.SecondsUsed/60,0) as MinutesUsed,
+		StartDate,
+		EndDate,
+		adp.created_at,
+		adp.CreatedBy
 	FROM tblAccountDiscountPlan adp
 	INNER JOIN tblAccountDiscountScheme adc
 		ON adc.AccountDiscountPlanID = adp.AccountDiscountPlanID
