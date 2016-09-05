@@ -100,7 +100,8 @@ BEGIN
 	SET @stm = CONCAT('
 	UPDATE NeonCDRDev.' , p_tbltempusagedetail_name , ' ud  INNER JOIN
 	tmp_discountsecons_ d ON d.TempUsageDetailID = ud.TempUsageDetailID 
-	SET cost = (cost - d.Discount*cost/100);
+	SET cost = (cost - d.Discount*cost/100)
+	WHERE ThresholdReached = 0;
 	');
 	
 	PREPARE stmt FROM @stm;

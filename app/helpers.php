@@ -441,7 +441,7 @@ function bulk_mail($type,$data){
                     mkdir($dir, 777, TRUE);
                 }
                 $Attachment->move($dir, $file_name);
-                if (!AmazonS3::upload($dir.$file_name, $amazonPath)) {
+                if (!AmazonS3::upload($dir . '/' . $file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
