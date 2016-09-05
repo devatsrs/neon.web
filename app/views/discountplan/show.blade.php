@@ -189,6 +189,12 @@
                         $("#modal-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }else if(list_fields[i] == 'Service'){
                         $("#modal-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    }else if(list_fields[i] == 'Unlimited') {
+                        if (cur_obj.find("[name='Unlimited']").val() == 1) {
+                            $('#modal-form [name="Unlimited"]').prop('checked', true)
+                        } else {
+                            $('#modal-form [name="Unlimited"]').prop('checked', false)
+                        }
                     }
                 }
                 $('#modal-list').modal('show');
