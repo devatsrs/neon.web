@@ -188,6 +188,7 @@ class AccountsController extends \BaseController {
             if ($account = Account::create($data)) {
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data);
+                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID);
                 }
 
                 if (trim(Input::get('Number')) == '') {

@@ -103,7 +103,7 @@ class AccountBilling extends \Eloquent {
     }
 
     public static function storeFirstTimeInvoicePeriod($AccountID){
-        if(DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID))->count() == 0){
+        if(DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID))->where('StartDate','>=',date('Y-m-d'))->count() == 0){
             $AccountBilling =  AccountBilling::getBilling($AccountID);
             AccountBilling::storeNextInvoicePeriod($AccountID,$AccountBilling->BillingCycleType,$AccountBilling->BillingCycleValue,$AccountBilling->LastInvoiceDate,$AccountBilling->NextInvoiceDate);
         }
