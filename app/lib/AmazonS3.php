@@ -43,7 +43,7 @@ class AmazonS3 {
     // Instantiate an S3 client
     public static function getS3Client(){
 		     	
-	 	$AmazonData		=	SiteIntegration::is_amazon_configured(true);
+	 	$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
 		
 		if(!$AmazonData){
             return 'NoAmazon';
@@ -78,7 +78,7 @@ class AmazonS3 {
 	
 	 public static function getAmazonSettings(){     
 		$amazon 		= 	array();
-		$AmazonData		=	SiteIntegration::is_amazon_configured(true);
+		$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
 		
 		if($AmazonData){
 			$amazon 	=	 array("AWS_BUCKET"=>$AmazonData->AmazonAwsBucket,"AMAZONS3_KEY"=>$AmazonData->AmazonKey,"AMAZONS3_SECRET"=>$AmazonData->AmazonSecret,"AWS_REGION"=>$AmazonData->AmazonAwsRegion);	
