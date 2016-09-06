@@ -4,7 +4,7 @@ class SiteIntegration{
  protected $support;
  protected $companyID;
  static    $SupportSlug			=	'support';
- protected $PaymentSlug			=	'payment';
+ static    $PaymentSlug			=	'payment';
  static    $EmailSlug			=	'email';
  static    $StorageSlug			=	'storage';
  static    $AmazoneSlug			=	'amazons3';
@@ -28,7 +28,7 @@ class SiteIntegration{
 
 	public function SetSupportSettings($type,$data){
 		
-		if(is_FreshDesk()){		
+		if(self::CheckIntegrationConfiguration(false,SiteIntegration::$freshdeskSlug)){		
 			$this->support = new Freshdesk($data);
 		}		
 	}
@@ -66,145 +66,19 @@ class SiteIntegration{
         return false;
 
     }
-	
-	/*
-	 * check fresh desk support active
-	 */
-	
-	 public static function is_FreshDesk(){
-		$companyID		 =  User::get_companyID();
-		$Support	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>SiteIntegration::$SupportSlug])->first();	
-	
-		if(count($Support)>0)
-		{						
-			$SupportSubcategory = Integration::select("*");
-			$SupportSubcategory->join('tblIntegrationConfiguration', function($join)
-			{
-				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Support->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
-			 $result = $SupportSubcategory->first();
-			 if(count($result)>0)
-			 {
-				return 1;
-			 }
-		}		
-		return 0;				
-	 }
 	 
-	 /*
-	 * check authorize active and return its data if data = true
-	 */ 
-	 
-	public function is_Authorize($data = false){
-
-		$Payment	 	 =	Integration::where(["CompanyID" => $this->companyID,"Slug"=>$this->PaymentSlug])->first();	
-	
-		if(count($Payment)>0)
-		{						
-			$PaymentSubcategory = Integration::select("*");
-			$PaymentSubcategory->join('tblIntegrationConfiguration', function($join)
-			{
-				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$this->companyID])->where(["tblIntegration.ParentID"=>$Payment->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
-			 $result = $PaymentSubcategory->first();
-			 if(count($result)>0)
-			 {
-				 $PaymentData =  isset($result->Settings)?json_decode($result->Settings):array();
-				 if(count($PaymentData)>0){
-					 if($data ==true){
-						return $PaymentData;
-					 }else{
-						return 1;
-					 }
-				 }
-			 }
-		}
-		return 0;	
-	}	
-	
-	/*
-	 * check Email configuration addded or not . return true,data or false
-	 */
-	
-	public static function is_EmailIntegration($companyID='',$data = false){
-		
-	
-		if($companyID==''){
-			$companyID =  User::get_companyID();
-		}
-		$Email	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>SiteIntegration::$EmailSlug])->first();	
-	
-		if(count($Email)>0)
-		{						
-			$EmailSubcategory = Integration::select("*");
-			$EmailSubcategory->join('tblIntegrationConfiguration', function($join)
-			{
-				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Email->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
-			 $result = $EmailSubcategory->first();
-			 if(count($result)>0)
-			 {
-				 $EmailData =  isset($result->Settings)?json_decode($result->Settings):array();
-				 if(count($EmailData)>0){
-					 if($data){						
-						return $result;
-					 }else{
-						return 1;
-					 }
-				 }
-			 }
-		}
-		return 0;	
-	}
-	
 	/*
 	 * send mail . check active mail settings 
 	 */
 	
 	public static function SendMail($view,$data,$companyID,$body){
-		$config = SiteIntegration::is_EmailIntegration($companyID,true);
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$EmailSlug);
 		
 		switch ($config->Slug){
 			case  SiteIntegration::$mandrillSlug:
        		return MandrilIntegration::SendMail($view,$data,$config,$companyID,$body);
       	  break;
 		}	
-	}
-	
-	/*
-	 * check storage configuration addded or not . return true,data or false
-	 */
-	
-	public static function is_storage_configured($data=false){
-		
-		$companyID		 =  User::get_companyID();
-		$Storage	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>SiteIntegration::$StorageSlug])->first();	
-	
-		if(count($Storage)>0)
-		{						
-			$StorageSubcategory = Integration::select("*");
-			$StorageSubcategory->join('tblIntegrationConfiguration', function($join)
-			{
-				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Storage->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
-			 $result = $StorageSubcategory->first();
-			 if(count($result)>0)
-			 {
-				 $StorageData =  isset($result->Settings)?json_decode($result->Settings):array();
-				 if(count($StorageData)>0){
-					 if($data ==true){
-						return $StorageData;
-					 }else{
-						return 1;
-					 }
-				 }
-			 }
-		}
-		return 0;	
 	}
 	
 	/*
@@ -218,59 +92,58 @@ class SiteIntegration{
 	}
 	
 	/*
-	 * check amazon addded or not . return true,data or false
-	 */
-	
-	public static function is_amazon_configured($data=false){ 		
-	
+	 * check settings addded or not . return true,data or false
+	 */ 	
+	public static function  CheckIntegrationConfiguration($data=false,$slug){	
+		
 		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
-		$Storage	 	 =	Integration::where(["Slug"=>SiteIntegration::$AmazoneSlug])->first();	
+		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
 	
-		if(count($Storage)>0)
+		if(count($Integration)>0)
 		{						
-			$StorageSubcategory = Integration::select("*");
-			$StorageSubcategory->join('tblIntegrationConfiguration', function($join)
+			$IntegrationSubcategory = Integration::select("*");
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
 	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Storage->ParentID])->where(["tblIntegrationConfiguration.Status"=>1]);
-			 $result = $StorageSubcategory->first();
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			 $result = $IntegrationSubcategory->first();
 			 if(count($result)>0)
-			 {
-				 $StorageData =  isset($result->Settings)?json_decode($result->Settings):array();
-				 if(count($StorageData)>0){
+			 {	
+				 $IntegrationData =  isset($result->Settings)?json_decode($result->Settings):array();
+				 if(count($IntegrationData)>0){
 					 if($data ==true){
-						return $StorageData;
+						return $IntegrationData;
 					 }else{
 						return true;
 					 }
 				 }
-			 }	
+			 }
 		}
-		return false;	
-	}	
+		return false;		
+	}
 	
 	/*
-	 * check authorize addded or not . return true,data or false
-	 */ 
-	
-	public static function is_authorize_configured($data=false){ 
+	check main category have data or not
+	*/
+	public static function  CheckCategoryConfiguration($data=false,$slug){	
 		
-		$Authorize	 	 =	Integration::where(["Slug"=>SiteIntegration::$AuthorizeSlug])->first();	
+		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
 	
-		if(count($Authorize)>0)
+		if(count($Integration)>0)
 		{						
-			$AuthorizeSubcategory = Integration::select("*");
-			$AuthorizeSubcategory->join('tblIntegrationConfiguration', function($join)
+			$IntegrationSubcategory = Integration::select("*");
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
 	
-			})->where(["tblIntegration.ParentID"=>$Authorize->ParentID])->where(["tblIntegrationConfiguration.Status"=>1]);
-			 $result = $AuthorizeSubcategory->first();
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegrationConfiguration.ParentIntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			 $result = $IntegrationSubcategory->first();
 			 if(count($result)>0)
-			 {
-				 $AuthorizeData =  isset($result->Settings)?json_decode($result->Settings):array();
-				 if(count($AuthorizeData)>0){
+			 {	
+				 $IntegrationData =  isset($result->Settings)?json_decode($result->Settings):array();
+				 if(count($IntegrationData)>0){
 					 if($data ==true){
 						return $result;
 					 }else{
@@ -279,7 +152,9 @@ class SiteIntegration{
 				 }
 			 }
 		}
-		return false;	
+		return false;		
 	}
+
+	
 }
 ?>

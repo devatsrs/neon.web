@@ -143,14 +143,13 @@ function sendMail($view,$data){
 	$data   =   $data;
 	$body 	=   View::make($view,compact('data'))->render(); 
 	
-	if(SiteIntegration::is_EmailIntegration($companyID)){
-		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body);
+	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
+		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
 	}
-	else{
+	else{ 
 		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
 		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
 	}
-	
 	return $status;
 }
 
@@ -280,7 +279,7 @@ function is_amazon(){
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
     $AWS_REGION = getenv("AWS_REGION");*/
 
-	$AmazonData			=	SiteIntegration::is_amazon_configured(true);
+	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
     $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
     $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
     $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';
@@ -292,9 +291,7 @@ function is_amazon(){
 }
 
 function is_authorize(){
-	
-	$Integration		=	new SiteIntegration();
-	return				$Integration->is_Authorize();
+	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
 	
 	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
 	if(count($AuthorizeDbData)>0){

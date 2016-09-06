@@ -50,7 +50,7 @@ class PaymentProfileCustomerController extends \BaseController {
 
         $data = Input::all();
 		
-		$isAuthorizedNet  = 	SiteIntegration::is_authorize_configured();
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
 		if(!$isAuthorizedNet){
 			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
 		}
@@ -100,7 +100,7 @@ class PaymentProfileCustomerController extends \BaseController {
         $AccountID = Customer::get_accountID();
         
 		//If using Authorize.net
-		$isAuthorizedNet  = 	SiteIntegration::is_authorize_configured();
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
 		if(!$isAuthorizedNet){
 			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
 		}
