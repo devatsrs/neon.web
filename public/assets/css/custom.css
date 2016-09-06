@@ -2114,6 +2114,38 @@ border:1px solid #AC33FF;
     margin-bottom: 0px;
 }
 
+.panel-primary{
+    border-color:#ebebeb;
+}
+
+.panel-primary > .panel-heading{
+    background-color:#ffffff;
+    border-color:#ebebeb;
+    color:#373e4a;
+}
+
+.panel-heading > .panel-options{
+    position: absolute;
+    right:25px;
+    top:15px;
+}
+.panel-title {
+    color: inherit;
+    font-size: 14px;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+label{
+    font-weight: 400;
+}
+
+.breadcrumb.bc-3, .breadcrumb.breadcrumb-3{
+    background-color:transparent;
+    padding-left:0px;
+    padding-right:0px;
+}
+
 .vendor-icon {
   background-image: url("../images/vendor.png");
 }
