@@ -188,6 +188,7 @@ class AccountsController extends \BaseController {
             if ($account = Account::create($data)) {
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data);
+                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID);
                 }
 
                 if (trim(Input::get('Number')) == '') {
@@ -243,8 +244,10 @@ class AccountsController extends \BaseController {
 			$message 					= 	 '';
 			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
-			
-
+		/*		echo "<pre>";
+				print_r($response_timeline);		
+				exit;*/
+	
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
 				{
@@ -253,11 +256,11 @@ class AccountsController extends \BaseController {
 					$response_timeline = array();
 				}
 			}else{ 	
-				if(isset($response_timeline->Code) && ($response_timeline->Code==400 || $response_timeline->Code==401)){
+				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
 					return	Redirect::to('/logout'); 	
 				}		
 				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
-				$message = json_response_api($response_timeline,false,true);
+				$message = json_response_api($response_timeline,false,false);
 			}
 			
 			$vendor   = $account->IsVendor?1:0;
@@ -494,16 +497,21 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data);
+                AccountBilling::storeFirstTimeInvoicePeriod($id);
             }
-            $billdays =  AccountBilling::getBillingDay($id);
-            AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays);
-            AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays);
+            $AccountPeriod =  AccountBilling::getCurrentPeriod($id,date('Y-m-d'));
+            $billdays = getdaysdiff($AccountPeriod->EndDate,$AccountPeriod->StartDate);
+            $getdaysdiff = getdaysdiff($AccountPeriod->EndDate,date('Y-m-d'));
+            $DayDiff = $getdaysdiff >0?intval($getdaysdiff):0;
+            AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays,$DayDiff);
+            AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays,$DayDiff);
             if(trim(Input::get('Number')) == ''){
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }
             if(isset($data['password'])) {
                // $this->sendPasswordEmail($account, $password, $data);
             }
+			
             $PaymentGatewayID = PaymentGateway::where(['Title'=>PaymentGateway::$gateways['Authorize']])
                 ->where(['CompanyID'=>$companyID])
                 ->pluck('PaymentGatewayID');
@@ -517,11 +525,13 @@ class AccountsController extends \BaseController {
                 $ShippingProfileID = $options->ShippingProfileID;
 
                 //If using Authorize.net
-                $isAuthorizedNet = getenv('AMAZONS3_KEY');
-                if(!empty($isAuthorizedNet)) {
+				$isAuthorizedNet  = 	SiteIntegration::is_authorize_configured();
+				if($isAuthorizedNet){
                     $AuthorizeNet = new AuthorizeNet();
                     $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
-                }
+                }else{
+					return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+				}
             }
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {

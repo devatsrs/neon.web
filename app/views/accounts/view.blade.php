@@ -64,17 +64,21 @@
                 </div>
                 <div class="col-sm-12 padding-0 action">
                   <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="fa fa-line-chart"></i> </button>
-                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
+
                   @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif 
                     @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('AccountActivityChart','View'))
                     <a  href="{{Url::to('accounts/activity/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Account Activity Chart" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-bar-chart"></i> </a>
                     @endif
+                  @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('CreditControl','View'))
+                    <a  href="{{Url::to('account/get_credit/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Credit Control" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-credit-card"></i> </a>
+                  @endif
+                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
                   @endif
                   @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)
-           <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="custom-icon vendor-icon"></i></a>   
+           <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="fa fa-slideshare"></i></a>   
                    @endif
                   @endif
                    </div>
@@ -121,7 +125,7 @@
                       <div class="meta">Skype: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Skype']}}</a></div>
                     </div>
                   </div>
-                  <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}">Edit </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}">View </a> </div>
+                  <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}"><i class="entypo-pencil"></i> </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}"><i class="entypo-search"></i> </a> </div>
                 </div>
               </li>
               @endforeach
@@ -506,6 +510,7 @@
 @include('opportunityboards.opportunitymodal')
 @include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token))
 @include('accounts.view_edit_models')
+<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/select2/select2.js"></script> 

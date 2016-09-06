@@ -386,7 +386,7 @@
                 "saturday"=>"Saturday",
                 "sunday"=>"Sunday");
         ?>
-        <div class="panel panel-primary "   data-collapsed="0">
+        <div class="panel panel-primary billing-section-hide"   data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
                     Billing
@@ -472,7 +472,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Current Billing Cycle</label>
                         <div class="col-sm-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
-                        <label for="field-1" class="col-sm-2 control-label">New Effective Billing Date</label>
+                        <label for="field-1" class="col-sm-2 control-label">New Billing Cycle Effective From</label>
                         <div class="col-sm-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
                     </div>
                 @endif
@@ -585,7 +585,7 @@
                     <label for="field-1" class="col-sm-2 control-label">Next Invoice Date</label>
                     <div class="col-sm-4">
                         <?php
-                        $NextInvoiceDate = empty($AccountBilling)?'':Invoice::getNextInvoiceDate($account->AccountID); ?>
+                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:''; ?>
                         {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
                         {{$NextInvoiceDate}}
                     </div>
@@ -786,8 +786,12 @@
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
                 $(".billing-section").show();
+                $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',0);
+                $(".billing-section-hide").nextAll('.panel').find('.panel-body').show();
             }else{
                 $(".billing-section").hide();
+                $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
+                $(".billing-section-hide").nextAll('.panel').find('.panel-body').hide();
             }
         });
         $('[name="Billing"]').trigger('change');

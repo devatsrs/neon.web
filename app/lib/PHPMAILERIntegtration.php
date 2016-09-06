@@ -98,6 +98,7 @@ class PHPMAILERIntegtration{
 					$status['status'] = 0;
 					$status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $data['EmailTo'] . ')';
 				} else {
+					$mail->clearAllRecipients();
 					$status['status'] = 1;
 					$status['message'] = 'Email has been sent';
 					$status['body'] = $body;

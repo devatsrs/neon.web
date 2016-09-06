@@ -13,13 +13,48 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.05</h1>
+    <h1>NEON - 4.06</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.05</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.06</strong></div>
 </p>
+</div>
+
+<h2>
+    <span class="label label-success">4.06</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>06-09-2016</h4>
+                    01. Added an option of ISO country codes in country.<br>
+                    02. Added an option of Discontinued column in porta download sheet.<br>
+                    03. Added an option of Data Retention and File Retention.<br>
+                    04. Improved CDR upload mapping.<br>
+                    05. Added Drill down option on dashboards.<br>
+                    06. Added an option of Billing Enable in account page.<br>
+                    07. Added an option of show unbilled usage on account card.<br>
+                    08. Added Available Credit limit in negative.<br>
+                    09. Added Laravel error log integration.<br>
+                    10. Added Notification emails.<br>
+                    11. Added an option to overdue invoices.<br>
+                    12. Added Ticket Logging.<br>
+                    13. Added an option of Drill down Sales by revenue chart.<br>
+                    14. Added Widgets on CRM dashboard.<br>
+                    15. Improved NetData for other servers.<br>
+                    16. Added Integration Page.<br>
+                    17. Auto cron job setup.<br>
+                    18. Added MS Exchange calender.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 <h2>

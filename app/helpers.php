@@ -153,47 +153,6 @@ function sendMail($view,$data){
 	
 	return $status;
 }
-function setMailConfig($CompanyID){	
-
-	if(SiteIntegration::is_EmailIntegration()){
-		return	SiteIntegration::SetEmailConfiguration();
-	}
-	else{
-		return	PHPMAILERIntegtration::SetEmailConfiguration();
-	}
-	exit;
-	
-    $result = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $CompanyID)->first();
-	
-	
-    Config::set('mail.host',$result->SMTPServer);
-    Config::set('mail.port',$result->Port);
-    Config::set('mail.from.address',$result->EmailFrom);
-    Config::set('mail.from.name',$result->CompanyName);
-    Config::set('mail.encryption',($result->IsSSL==1?'SSL':'TLS'));
-    Config::set('mail.username',$result->SMTPUsername);
-    Config::set('mail.password',$result->SMTPPassword);
-    extract(Config::get('mail'));
-
-    $mail = new PHPMailer;
-    //$mail->SMTPDebug = 3;                               // Enable verbose debug output
-    $mail->isSMTP();                                      // Set mailer to use SMTP
-    $mail->Host = $host;  // Specify main and backup SMTP servers
-    $mail->SMTPAuth = true;                               // Enable SMTP authentication
-    $mail->Username = $username;                 // SMTP username
-
-    $mail->Password = $password;                           // SMTP password
-    $mail->SMTPSecure = $encryption;                            // Enable TLS encryption, `ssl` also accepted
-
-    $mail->Port = $port;                                    // TCP port to connect to
-
-    $mail->From = $from['address'];
-    $mail->FromName = $from['name'];
-    $mail->isHTML(true);
-
-    return $mail;
-
-}
 
 function getMonths() {
     $months = array(''=>'Select');
@@ -316,9 +275,15 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
 });
 
 function is_amazon(){
-    $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
+	
+  /*  $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
-    $AWS_REGION = getenv("AWS_REGION");
+    $AWS_REGION = getenv("AWS_REGION");*/
+
+	$AmazonData			=	SiteIntegration::is_amazon_configured(true);
+    $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
+    $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
+    $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';
 
     if(empty($AMAZONS3_KEY) || empty($AMAZONS3_SECRET) || empty($AWS_REGION) ){
         return false;
@@ -476,7 +441,7 @@ function bulk_mail($type,$data){
                     mkdir($dir, 777, TRUE);
                 }
                 $Attachment->move($dir, $file_name);
-                if (!AmazonS3::upload($dir . '\\' . $file_name, $amazonPath)) {
+                if (!AmazonS3::upload($dir . '/' . $file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -948,7 +913,7 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path); 
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
@@ -1392,4 +1357,9 @@ function merge_tax($taxs) {
         }
     }
     return $InvoiceTaxRates;
+}
+function getdaysdiff($date1,$date2){
+    $date1 = new DateTime($date1);
+    $date2 = new DateTime($date2);
+    return $date2->diff($date1)->format("%R%a");
 }
