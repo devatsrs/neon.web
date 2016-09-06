@@ -32,24 +32,20 @@
                 <div class="notes full-width ">
                     <h3>ChangeLog</h3>
                     <h4>06-09-2016</h4>
-                    01. Added an option of ISO country codes in country.<br>
-                    02. Added an option of Discontinued column in porta download sheet.<br>
-                    03. Added an option of Data Retention and File Retention.<br>
-                    04. Improved CDR upload mapping.<br>
-                    05. Added Drill down option on dashboards.<br>
-                    06. Added an option of Billing Enable in account page.<br>
-                    07. Added an option of show unbilled usage on account card.<br>
-                    08. Added Available Credit limit in negative.<br>
-                    09. Added Laravel error log integration.<br>
-                    10. Added Notification emails.<br>
-                    11. Added an option to overdue invoices.<br>
-                    12. Added Ticket Logging.<br>
-                    13. Added an option of Drill down Sales by revenue chart.<br>
-                    14. Added Widgets on CRM dashboard.<br>
-                    15. Improved NetData for other servers.<br>
-                    16. Added Integration Page.<br>
-                    17. Auto cron job setup.<br>
-                    18. Added MS Exchange calender.<br>
+                    01 .Added new feature ‘Discount Plans’.<br>
+                    02 .Added ISO code to Code deck.<br>
+                    03. Added Billing Enable option on Accounts.<br>
+                    04. Added Overdue invoices filter under Invoices.<br>
+                    05. Added Drill down option on Analysis and Monitor dashboard.<br>
+                    06. Added new functionality to setup Data and File Retention.<br>
+                    07. Added Integration section to setup third party integrations.<br>
+                    08. Integration with Fresh desk.<br>
+                    09. Integration with MS Exchange calendar.<br>
+                    10. Added Recent accounts widget on CRM dashboard.<br>
+                    11. Added Notification option under Admin to setup email notifications.<br>
+                    12. Added option to setup multiple servers under Server Monitor.<br>
+                    13. Added new column in porta sheet ‘Discontinued’.<br>
+                    14. Added No against subscription under account. Subscriptions will be displayed in ‘No’ order on the invoice.<br>
                 </div>
             </li>
         </ul>
