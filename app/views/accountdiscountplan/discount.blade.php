@@ -3,7 +3,7 @@
         <thead>
         <tr>
             <th width="40%">Discount Period</th>
-            <th width="30%">Discount Applied</th>
+            <th width="30%">Date Applied</th>
             <th width="30%">Applied By</th>
         </tr>
         </thead>
