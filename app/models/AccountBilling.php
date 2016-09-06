@@ -16,7 +16,9 @@ class AccountBilling extends \Eloquent {
             $AccountBilling['CDRType'] = $data['CDRType'];
             $AccountBilling['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
             $AccountBilling['BillingType'] = $data['BillingType'];
-            $AccountBilling['TaxRateId'] = $data['TaxRateId'];
+            if (!empty($data['TaxRateId'])) {
+                $AccountBilling['TaxRateId'] = $data['TaxRateId'];
+            }
             $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
             $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
             $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
@@ -52,7 +54,9 @@ class AccountBilling extends \Eloquent {
             $AccountBilling['CDRType'] = $data['CDRType'];
             $AccountBilling['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
             $AccountBilling['BillingType'] = $data['BillingType'];
-            $AccountBilling['TaxRateId'] = $data['TaxRateId'];
+            if (!empty($data['TaxRateId'])) {
+                $AccountBilling['TaxRateId'] = $data['TaxRateId'];
+            }
             $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
             $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
             AccountBilling::where('AccountID', $AccountID)->update($AccountBilling);
