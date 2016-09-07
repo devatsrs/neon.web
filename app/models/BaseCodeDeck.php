@@ -24,11 +24,10 @@ class BaseCodeDeck extends \Eloquent {
     public static function checkForeignKeyById($id) {
 
         $hasInCodeDeck = CodeDeck::where("CodeDeckId",$id)->count();
-        $hasInAccount = Account::where("CodeDeckId",$id)->count();
         $hasInRateGenerator = RateGenerator::where("CodeDeckId",$id)->count();
         $hasInCustomerTrunk = CustomerTrunk::where("CodeDeckId",$id)->count();
 
-        if( intval($hasInCodeDeck) > 0 || intval($hasInAccount) > 0 || intval($hasInRateGenerator) > 0  || intval($hasInCustomerTrunk) > 0    ){
+        if( intval($hasInCodeDeck) > 0 || intval($hasInRateGenerator) > 0  || intval($hasInCustomerTrunk) > 0    ){
             return true;
         }else{
             return false;
