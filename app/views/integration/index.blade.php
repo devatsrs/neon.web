@@ -50,6 +50,8 @@
           <div class="">
             <?php
 		  	foreach($categories as $key => $CategoriesData) {
+				if($CategoriesData['Slug']!==SiteIntegration::$GatewaySlug){
+				
 		  	 $subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
 			 	foreach($subcategories as $key => $subcategoriesData){
 					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();
@@ -73,7 +75,29 @@
                 <a>{{$subcategoriesData['Title']}}</a>
               </label>
             </div>
-            <?php } } ?>
+            <?php 
+			}
+		}
+			else{ //billing gateway
+			foreach($Gateway as $key => $Gateway_data){
+				?>
+             <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
+              <input parent_id="{{$CategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$Gateway_data['GatewayID']}}" value="{{$Gateway_data['Name']}}" id="{{$Gateway_data['Name']}}" @if($key==0) checked @endif />
+              <label data-subcatid="{{$Gateway_data['GatewayID']}}" data-title="{{$Gateway_data['Title']}}" data-id="subcategorycontent{{$Gateway_data['Name']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$Gateway_data['GatewayID']}}"  for="{{$Gateway_data['Name']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
+                <?php 
+			  if(File::exists(public_path().'/assets/images/'.$Gateway_data['Name'].'.png')){	?>
+                <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$Gateway_data['Name']}}.png" />
+                <?php }else{ ?>
+                <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/defaultGateway.png" />
+                <?php } ?>
+                <a>{{$Gateway_data['Title']}}</a>
+              </label>
+            </div>
+                <?php
+				
+			}
+			
+			} } ?>
           </div>
         </div>
       </div>
@@ -81,7 +105,7 @@
     <div class="tab-pane" id="tab2-3">
     <!-- fresh desk start -->
     <?php 
-		$FreshDeskDbData = IntegrationConfiguration::GetIntegrationDataBySlug('freshdesk');
+		$FreshDeskDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$freshdeskSlug);
 		$FreshdeskData   = isset($FreshDeskDbData->Settings)?json_decode($FreshDeskDbData->Settings):"";
 		 ?>
       <div class="subcategorycontent" id="subcategorycontent{{$FreshDeskDbData->Slug}}">
@@ -89,7 +113,9 @@
         <div class="row">
           <div class="col-md-6  margin-top pull-left">
             <div class="form-group">
-              <label for="field-1" class="col-sm-4 control-label">* Domain:</label>
+              <label for="field-1" class="col-sm-4 control-label">* Domain:
+                  <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Name example cdpk" data-original-title="FreshDesk Domain" class="label label-info popover-primary">?</span>
+              </label>
               <div class="col-sm-8">
                 <input type="text"  class="form-control" name="FreshdeskDomain" value="{{isset($FreshdeskData->FreshdeskDomain)?$FreshdeskData->FreshdeskDomain:''}}" />
               </div>
@@ -145,7 +171,7 @@
       <!-- fresh desk end -->
       <!-- authorize.net start -->
       <?php 
-		$AuthorizeDbData = IntegrationConfiguration::GetIntegrationDataBySlug('authorizenet');
+		$AuthorizeDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$AuthorizeSlug);
 		$AuthorizeData   = isset($AuthorizeDbData->Settings)?json_decode($AuthorizeDbData->Settings):"";
 		 ?>
       <div class="subcategorycontent" id="subcategorycontent{{$AuthorizeDbData->Slug}}">        
@@ -189,7 +215,7 @@
       <!-- authorize.net end -->
       <!-- Mandril start -->
        <?php 
-	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug('mandrill');
+	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
 			$ManrdilData     = isset($ManrdilDbData->Settings)?json_decode($ManrdilDbData->Settings):"";
 		 ?>
       <div class="subcategorycontent" id="subcategorycontent{{$ManrdilDbData->Slug}}">       
@@ -247,7 +273,7 @@
       <!-- Mandril end -->    
       <!-- Amazon start -->
        <?php 
-		$AmazonDbData = IntegrationConfiguration::GetIntegrationDataBySlug('amazons3');
+		$AmazonDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$AmazoneSlug);
 		$AmazonData   = isset($AmazonDbData->Settings)?json_decode($AmazonDbData->Settings):"";
 		 ?>
       <div class="subcategorycontent" id="subcategorycontent{{isset($AmazonDbData->Slug)?$AmazonDbData->Slug:''}}">        
@@ -298,7 +324,9 @@
           </div>          
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
-              <label class="col-sm-4 control-label">Active:</label>
+              <label class="col-sm-4 control-label">Active:
+                             <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Old transactions will not be accessible" data-original-title="Caution" class="label label-info popover-primary">?</span>
+              </label>
               <div class="col-sm-8" id="AmazonStatusDiv">
                    <input id="AmazonStatus" class="subcatstatus" Divid="AmazonStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($AmazonDbData->Status) && $AmazonDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>

@@ -19,7 +19,7 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_account">
         <i class="entypo-floppy"></i>
         Save
     </button>
@@ -353,8 +353,9 @@
     jQuery(document).ready(function ($) {
 
         $(".save.btn").click(function (ev) {
+            $('#save_account').button('loading');
             $("#account-from").submit();
-            $(this).button('Loading');
+
 
         });
         $('select[name="BillingCycleType"]').on( "change",function(e){

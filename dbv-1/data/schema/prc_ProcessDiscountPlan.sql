@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessDiscountPlan`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_ProcessDiscountPlan`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
 BEGIN
 	
 	DECLARE v_rowCount_ INT;
@@ -17,7 +17,7 @@ BEGIN
 	INSERT INTO tmp_Accounts_(AccountID)
 	SELECT DISTINCT ud.AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
 	INNER JOIN tblAccountDiscountPlan adp
-		ON ud.AccountID = adp.AccountID
+		ON ud.AccountID = adp.AccountID AND Type = 1
 	WHERE ProcessID="' , p_processId , '" AND ud.is_inbound = 0;
 	');
 	
@@ -49,7 +49,7 @@ BEGIN
 	INSERT INTO tmp_Accounts_(AccountID)
 	SELECT DISTINCT ud.AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
 	INNER JOIN tblAccountDiscountPlan adp
-		ON ud.AccountID = adp.AccountID
+		ON ud.AccountID = adp.AccountID AND Type = 2
 	WHERE ProcessID="' , p_processId , '" AND ud.is_inbound = 1;
 	');
 	

@@ -585,7 +585,7 @@
                     <label for="field-1" class="col-sm-2 control-label">Next Invoice Date</label>
                     <div class="col-sm-4">
                         <?php
-                        $NextInvoiceDate = empty($AccountBilling)?'':Invoice::getNextInvoiceDate($account->AccountID); ?>
+                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:''; ?>
                         {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
                         {{$NextInvoiceDate}}
                     </div>

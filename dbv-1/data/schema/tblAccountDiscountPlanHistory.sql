@@ -7,6 +7,8 @@ CREATE TABLE `tblAccountDiscountPlanHistory` (
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Applied` datetime DEFAULT NULL,
   `Changed` datetime DEFAULT NULL,
+  `StartDate` date DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`AccountDiscountPlanHistoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

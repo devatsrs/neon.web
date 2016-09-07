@@ -49,6 +49,12 @@ class PaymentProfileCustomerController extends \BaseController {
     public function update(){
 
         $data = Input::all();
+		
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+		if(!$isAuthorizedNet){
+			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+		}
+		
         $AuthorizeNet = new AuthorizeNet();
         $ProfileID = "";
         $PaymentProfile = AccountPaymentProfile::find($data['cardID']);
@@ -92,7 +98,14 @@ class PaymentProfileCustomerController extends \BaseController {
         $isDefault = 0;
         $CompanyID = Customer::get_companyID();
         $AccountID = Customer::get_accountID();
-        $AuthorizeNet = new AuthorizeNet();
+        
+		//If using Authorize.net
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+		if(!$isAuthorizedNet){
+			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+		}
+		
+		$AuthorizeNet = new AuthorizeNet();
         $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
         $PaymentProfile = AccountPaymentProfile::find($id);
         if(!empty($PaymentProfile)){

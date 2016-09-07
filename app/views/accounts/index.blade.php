@@ -360,13 +360,13 @@
 
                                 if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-sm btn-icon icon-left"><i class="entypo-user"></i></a>';
+                                        action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-xs"><i class="entypo-user"></i></a>';
                                     <?php } ?>
                                 }
 
                                 if(full[8]==1 && full[9]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-sm btn-icon icon-left"><i class="custom-icon vendor-icon"></i></a>';
+                                        action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
                                     <?php } ?>
                                 }
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
