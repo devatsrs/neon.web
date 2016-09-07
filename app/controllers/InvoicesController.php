@@ -10,14 +10,6 @@ class InvoicesController extends \BaseController {
 		$data['iSortCol_0']			 =  0;     
 		$data['sSortDir_0']			 =  'desc';
         $companyID 					 =  User::get_companyID();
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }else{
-            $data['IssueDateStart'] = '';
-            $data['IssueDateEnd'] = '';
-        }
         $columns 					 =  ['InvoiceID','AccountName','InvoiceNumber','IssueDate','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] 		 = 	$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
@@ -84,14 +76,6 @@ class InvoicesController extends \BaseController {
         $columns = ['InvoiceID','AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
         $data['InvoiceType'] = $data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
         $data['zerovalueinvoice'] = $data['zerovalueinvoice']== 'true'?1:0;
-        if(!empty($data['IssueDate'])){
-            $arr = explode(' - ',$data['IssueDate']);
-            $data['IssueDateStart'] = $arr[0];
-            $data['IssueDateEnd'] = $arr[1];
-        }else{
-            $data['IssueDateStart'] = '';
-            $data['IssueDateEnd'] = '';
-        }
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -144,8 +128,8 @@ class InvoicesController extends \BaseController {
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
-        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
-		$data['IssueDateEndDefault']  	= 	date('Y-m-d');
+        $data['StartDateDefault'] 	  	= 	'';
+		$data['IssueDateEndDefault']  	= 	'';
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         //print_r($_COOKIE);exit;
         return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue'));
@@ -1087,44 +1071,26 @@ class InvoicesController extends \BaseController {
     }
 
     function sendInvoiceMail($view,$data){
-        $status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
-        $companyID = User::get_companyID();
-        $mail = setMailConfig($companyID);
-        $body = View::make($view,compact('data'))->render();
-
-        if(getenv('APP_ENV') != 'Production'){
-            $data['Subject'] = 'Test Mail '.$data['Subject'];
-        }
-        $mail->Body = $body;
-        $mail->Subject = $data['Subject'];
-
-        if(is_array($data['EmailTo'])){
-            foreach((array)$data['EmailTo'] as $email_address){
-                if(!empty($email_address)) {
-                    $email_address = trim($email_address);
-                    $mail->addAddress($email_address);
-                    if (!$mail->send()) {
-                        $mail->clearAllRecipients();
-                        $status['status'] = 0;
-                        $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $email_address . ')';
-                    } else {
-                        $status['status'] = 1;
-                        $status['message'] = 'Email has been sent';
-                    }
+	
+	   $status 		= 	array('status' => 0, 'message' => 'Something wrong with sending mail.');
+    
+	    if(is_array($data['EmailTo']))
+		{
+            foreach((array)$data['EmailTo'] as $email_address)
+			{
+                if(!empty($email_address))
+				{
+					$data['EmailTo'] 	= 	trim($email_address);
+					$status 			= 	sendMail($view,$data);
                 }
             }
-        }else{
-            if(!empty($data['EmailTo'])) {
-                $email_address = trim($data['EmailTo']);
-                $mail->addAddress($email_address);
-                if (!$mail->send()) {
-                    $mail->clearAllRecipients();
-                    $status['status'] = 0;
-                    $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $data['EmailTo'] . ')';
-                } else {
-                    $status['status'] = 1;
-                    $status['message'] = 'Email has been sent';
-                }
+        }
+		else
+		{ 
+            if(!empty($data['EmailTo']))
+			{
+				$data['EmailTo'] 	= 	trim($data['EmailTo']);
+				$status 			= 	sendMail($view,$data);
             }
         }
         return $status;
@@ -1450,14 +1416,6 @@ class InvoicesController extends \BaseController {
     public function getInvoicesIdByCriteria($data){
         $companyID = User::get_companyID();
         $criteria = json_decode($data['criteria'],true);
-        if(!empty($criteria['IssueDate'])){
-            $arr = explode(' - ',$criteria['IssueDate']);
-            $criteria['IssueDateStart'] = $arr[0];
-            $criteria['IssueDateEnd'] = $arr[1];
-        }else{
-            $criteria['IssueDateStart'] = '';
-            $criteria['IssueDateEnd'] = '';
-        }
         $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
         $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."',".$criteria['Overdue'].",'' ,'','','','".$criteria['CurrencyID']."' ";
@@ -1509,14 +1467,6 @@ class InvoicesController extends \BaseController {
         }else{			
 
             $criteria = json_decode($data['criteria'],true);
-            if(!empty($criteria['IssueDate'])){
-                $arr = explode(' - ',$criteria['IssueDate']);
-                $criteria['IssueDateStart'] = $arr[0];
-                $criteria['IssueDateEnd'] = $arr[1];
-            }else{
-                $criteria['IssueDateStart'] = '';
-                $criteria['IssueDateEnd'] = '';
-            }
             $criteria['InvoiceType'] = $criteria['InvoiceType'] == 'All'?'':$criteria['InvoiceType'];
             $criteria['zerovalueinvoice'] = $criteria['zerovalueinvoice']== 'true'?1:0;
 			 $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];

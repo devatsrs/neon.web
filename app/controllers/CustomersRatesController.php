@@ -507,13 +507,13 @@ class CustomersRatesController extends \BaseController {
     public function process_bulk_rate_update($id) {
         $data = Input::all();
         $company_id = User::get_companyID();
-        $data['customer'][] = $id;
-        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
         $rules = array('EffectiveDate' => 'required','Rate' => 'required', 'Trunk' => 'required',);
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $data['customer'][] = $id;
+        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
         $data['Country'] = $data['Country'] == ''?'NULL':$data['Country'];
         $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
         $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";

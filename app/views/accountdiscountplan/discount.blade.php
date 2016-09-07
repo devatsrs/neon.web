@@ -2,6 +2,27 @@
     <table class="table table-bordered datatable">
         <thead>
         <tr>
+            <th width="40%">Discount Period</th>
+            <th width="30%">Date Applied</th>
+            <th width="30%">Applied By</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if(count($AccountDiscountPlan))
+            @foreach($AccountDiscountPlan as $AccountDiscountPlanRow)
+        <tr>
+            <td>{{$AccountDiscountPlanRow->StartDate.' to '.Date('Y-m-d',strtotime('-1 day',strtotime($AccountDiscountPlanRow->EndDate)))}}</td>
+            <td>{{Date('Y-m-d',strtotime($AccountDiscountPlanRow->created_at))}}</td>
+            <td>{{$AccountDiscountPlanRow->CreatedBy}}</td>
+        </tr>
+                <?php break; ?>
+            @endforeach
+        @endif
+        </tbody>
+    </table>
+    <table class="table table-bordered datatable">
+        <thead>
+        <tr>
             <th width="20%">Discount</th>
             <th width="20%">Threshold</th>
             <th width="20%">Unlimited</th>

@@ -417,7 +417,7 @@ function reloadCrmCharts(){
      GetSalesData();
 	 GetForecastData();
 	 GetSalesDataAccountManager();
-	 data_table.fnFilter('',0);
+	 Getopportunities();
 	 GetAccounts();	 
 }
 

@@ -1,6 +1,7 @@
 <script>
     jQuery(document).ready(function ($) {
-
+        var alert_inbound_first = false;
+        var alert_outbound_first = false;
         $('#minutes_report').click(function(e){
             e.preventDefault();
             $('#minutes_report').button('loading');
@@ -11,6 +12,32 @@
             $('#inbound_minutes_report').button('loading');
             getreport("{{AccountDiscountPlan::INBOUND}}")
         });
+        $('select[name="DiscountPlanID"]').on( "change",function(e){
+            if(alert_inbound_first == true) {
+                alert('Are you sure? Current used minutes will be refreshed.');
+            }else if($(this).val()){
+                alert_inbound_first = true;
+            }
+            if($(this).val()){
+                $('#minutes_report').removeClass('hidden')
+            }else{
+                $('#minutes_report').addClass('hidden')
+            }
+        });
+        $('select[name="DiscountPlanID"]').trigger( "change" );
+        $('select[name="InboundDiscountPlanID"]').on( "change",function(e){
+            if(alert_outbound_first == true) {
+                alert('Are you sure? Current used minutes will be refreshed.');
+            }else if($(this).val()){
+                alert_outbound_first = true;
+            }
+            if($(this).val()){
+                $('#inbound_minutes_report').removeClass('hidden')
+            }else{
+                $('#inbound_minutes_report').addClass('hidden')
+            }
+        });
+        $('select[name="InboundDiscountPlanID"]').trigger( "change" );
     });
     function getreport(Type){
         var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';

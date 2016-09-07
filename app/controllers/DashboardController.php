@@ -208,7 +208,7 @@ class DashboardController extends BaseController {
      }
 	
 	public function getSalesdata(){ //crm dashboard
-		 $data 			= 	 Input::all();			
+		 $data 			= 	 Input::all();
 		 $response 		= 	 NeonAPI::request('dashboard/GetSalesdata',$data,true);
 		  if($response->status=='failed'){
 			return json_response_api($response,false,true);
@@ -342,7 +342,7 @@ class DashboardController extends BaseController {
         if (User::is('AccountManager')) { // Account Manager
             $AccountManager = 1;
         }
-        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."')"; 
+        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."','".$AccountManager."')"; 
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';

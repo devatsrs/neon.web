@@ -13,7 +13,7 @@
               </div>
               <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
             </div>
-            <div class="panel-body">
+            <div class="panel-body white-bg">
               <div class="form-group"> @if(User::is_admin())
                 <label class="col-sm-1 control-label" for="field-1">User</label>
                 <div class="col-sm-6"> {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
@@ -43,7 +43,7 @@
         </div>
         <div id="UsersTasks" class="panel-options"> {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'All', array('id'=>'DueDateFilter','class'=>'select_gray')) }} <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+      <div class="panel-body white-bg" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
         <table class="table table-bordered datatable" id="taskGrid">
           <thead>
             <tr>
@@ -110,14 +110,14 @@
 @if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
-      <div class="panel-heading">
+      <div class="panel-heading">      
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
           <h3>Sales by Opportunity</h3>
           <div class="SalesResult"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Sales">
+        </div>        
+      </div>
+      <div class="form_Sales panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales">
               <div class="form-group form-group-border-none">
                 <label for="Closingdate" class="col-sm-2 control-label ClosingdateLabel ">Close Date</label>
@@ -135,8 +135,6 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
     </div>
   </div>
   @endif 
@@ -168,9 +166,9 @@
         <div class="panel-title forecase_title">
           <h3>Forecast</h3>
           <div class="ForecastResult"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Forecast">
+        </div>          
+      </div>
+      <div class="form_Forecast panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
@@ -184,8 +182,6 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -199,9 +195,9 @@
         <div class="panel-title forecase_title">
           <h3>Sales By Revenue</h3>
           <div class="SalesResultManager"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Sales">
+        </div>          
+      </div>
+      <div class="form_Sales panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales_Manager">
               <div class="form-group form-group-border-none">               
                 <div class="col-sm-8">
@@ -216,8 +212,6 @@
               </div>
             </form> 
           </div>
-        </div>
-      </div>
     </div>
     </div>
 </div>
@@ -232,7 +226,7 @@
         </div>
         <div id="UsersOpportunities" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body">
+      <div class="panel-body white-bg">
         <table class="table table-bordered datatable" id="opportunityGrid">
           <thead>
             <tr>
@@ -407,6 +401,9 @@ var RevenueReport = 0;
 		cursor:pointer;
 		text-decoration:underline;
 		font-weight:bold;
+	}
+	.panel-heading{
+	border:none !important;
 	}
 </style>
 @stop

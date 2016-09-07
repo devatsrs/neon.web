@@ -28,6 +28,7 @@
 <div class="panel-heading">
                     <div class="panel-title">
                         Data Retention (Days)
+                        <br><span class="small">Blank (do not delete)</span>
                     </div>
                     <div class="panel-options">
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -50,7 +51,7 @@
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Job History :</label>
+        <label for="field-1" class="col-sm-2 control-label">Job :</label>
         <div class="col-sm-2">
             <input type="text" name="TableData[Job]" class="form-control" value="{{isset($DataRetenion->Job)?$DataRetenion->Job:''}}"/>
         </div>
@@ -86,7 +87,7 @@
         <div class="panel-body">
 
             <div class="form-group">
-                <label for="field-1" class="col-sm-2 control-label">CDR Files : <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How Many Old Days CDRs Files Delete.?" data-original-title="CDR Files">?</span></label>
+                <label for="field-1" class="col-sm-2 control-label">CDR Files : </label>
                 <div class="col-sm-2">
                     <input type="text" name="FileData[CDR]" class="form-control" value="{{isset($FileRetenion->CDR)?$FileRetenion->CDR:''}}"/>
                 </div>
