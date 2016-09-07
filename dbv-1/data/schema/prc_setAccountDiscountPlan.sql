@@ -2,11 +2,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_setAccountDiscountPlan`(IN `p_A
 BEGIN
 	
 	DECLARE v_AccountDiscountPlanID INT;
+	DECLARE v_StartDate DATE;
+	DECLARE v_EndDate DATE;
+	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	INSERT INTO tblAccountDiscountPlanHistory(AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,Applied,Changed)
-	SELECT AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,created_at,NOW() FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND Type = p_Type;
+	SELECT StartDate,EndDate INTO v_StartDate,v_EndDate FROM tblAccountBillingPeriod WHERE AccountID = p_AccountID AND StartDate <= DATE(NOW()) AND EndDate > DATE(NOW());
+	
+	INSERT INTO tblAccountDiscountPlanHistory(AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,Applied,Changed,StartDate,EndDate)
+	SELECT AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,created_at,NOW(),StartDate,EndDate FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND Type = p_Type;
 	
 	INSERT INTO tblAccountDiscountSchemeHistory (AccountDiscountSchemeID,AccountDiscountPlanID,DiscountID,Threshold,Discount,Unlimited,SecondsUsed)
 	SELECT ads.AccountDiscountSchemeID,ads.AccountDiscountPlanID,ads.DiscountID,ads.Threshold,ads.Discount,ads.Unlimited,ads.SecondsUsed 
@@ -27,8 +32,8 @@ BEGIN
 	IF p_DiscountPlanID > 0
 	THEN
 	 
-		INSERT INTO tblAccountDiscountPlan (AccountID,DiscountPlanID,Type,CreatedBy,created_at)
-		VALUES (p_AccountID,p_DiscountPlanID,p_Type,p_CreatedBy,now());
+		INSERT INTO tblAccountDiscountPlan (AccountID,DiscountPlanID,Type,CreatedBy,created_at,StartDate,EndDate)
+		VALUES (p_AccountID,p_DiscountPlanID,p_Type,p_CreatedBy,now(),v_StartDate,v_EndDate);
 		
 		SET v_AccountDiscountPlanID = LAST_INSERT_ID(); 
 		

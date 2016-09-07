@@ -15,7 +15,8 @@ CREATE TABLE `tmp_VendorUsageSummaryLive` (
   `NoOfFailCalls` int(11) DEFAULT '0',
   `FinalStatus` int(11) DEFAULT '0',
   `CountryID` int(11) DEFAULT NULL,
-  KEY `tmp_VendorUsageSummary_dim_date` (`DateID`),
   KEY `tmp_VendorUsageSummary_AreaPrefix` (`AreaPrefix`),
-  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`)
+  KEY `tmp_VendorUsageSummary_dim_date` (`DateID`),
+  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),
+  KEY `IX_CompanyID` (`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -188,6 +188,7 @@ class AccountsController extends \BaseController {
             if ($account = Account::create($data)) {
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data);
+                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID);
                 }
 
                 if (trim(Input::get('Number')) == '') {
@@ -496,12 +497,15 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data);
+                AccountBilling::storeFirstTimeInvoicePeriod($id);
+                $AccountPeriod =  AccountBilling::getCurrentPeriod($id,date('Y-m-d'));
+                $billdays = getdaysdiff($AccountPeriod->EndDate,$AccountPeriod->StartDate);
+                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate,date('Y-m-d'));
+                $DayDiff = $getdaysdiff >0?intval($getdaysdiff):0;
+                AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays,$DayDiff);
+                AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays,$DayDiff);
             }
-            $billdays =  AccountBilling::getBillingDay($id);
-            $getdaysdiff = getdaysdiff(AccountBilling::where('AccountID',$id)->pluck('NextInvoiceDate'),date('Y-m-d'));
-            $DayDiff = $getdaysdiff >0?intval($getdaysdiff):0;
-            AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays,$DayDiff);
-            AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays,$DayDiff);
+
             if(trim(Input::get('Number')) == ''){
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }

@@ -1,7 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_applyAccountDiscountPlan`(IN `p_AccountID` INT, IN `p_tbltempusagedetail_name` VARCHAR(200), IN `p_processId` INT, IN `p_inbound` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_applyAccountDiscountPlan`(IN `p_AccountID` INT, IN `p_tbltempusagedetail_name` VARCHAR(200), IN `p_processId` INT, IN `p_inbound` INT)
 BEGIN
 	
 	DECLARE v_DiscountPlanID_ INT;
+	DECLARE v_StartDate DATE;
+	DECLARE v_EndDate DATE;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
@@ -36,7 +38,8 @@ BEGIN
 	);
 	
 	/* get discount plan id*/
-	SELECT DiscountPlanID INTO  v_DiscountPlanID_ FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID;
+	SELECT DiscountPlanID,StartDate,EndDate INTO  v_DiscountPlanID_,v_StartDate,v_EndDate FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND 
+	( (p_inbound = 0 AND Type = 1) OR  (p_inbound = 1 AND Type = 2 ) );
 	
 	/* get codes from discount destination group*/
 	INSERT INTO tmp_codes_
@@ -70,7 +73,9 @@ BEGIN
 			ON ud.ProcessID = ' , p_processId , '
 			AND ud.is_inbound = ',p_inbound,' 
 			AND ud.AccountID = ' , p_AccountID , '
-			AND area_prefix =  c.Code 
+			AND area_prefix =  c.Code
+			AND DATE(ud.disconnect_time) >= "', v_StartDate ,'"
+			AND DATE(ud.disconnect_time) < "',v_EndDate, '"
 		ORDER BY c.DiscountID asc , disconnect_time asc
 	) d
 	CROSS JOIN (SELECT @t := 0) i

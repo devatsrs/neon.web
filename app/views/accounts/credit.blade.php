@@ -69,7 +69,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Available Credit Limit</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$PermanentCredit - $BalanceAmount}}">
+                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{($PermanentCredit - $BalanceAmount)<0?0:($PermanentCredit - $BalanceAmount)}}">
                         </div>
                     </div>
                     <div class="form-group">
