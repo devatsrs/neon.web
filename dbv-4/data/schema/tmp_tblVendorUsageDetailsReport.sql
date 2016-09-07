@@ -13,5 +13,6 @@ CREATE TABLE `tmp_tblVendorUsageDetailsReport` (
   `connect_time` time DEFAULT NULL,
   `connect_date` date DEFAULT NULL,
   `call_status` tinyint(4) DEFAULT NULL,
-  KEY `temp_connect_time` (`connect_time`,`connect_date`)
+  KEY `temp_connect_time` (`connect_time`,`connect_date`),
+  KEY `IX_CompanyID` (`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
