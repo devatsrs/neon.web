@@ -149,27 +149,40 @@ var postdata;
 					$('#add-new-config').click();
 				}	
   },
-           "fnDrawCallback": function() {			  
-                   //After Delete done
-                   FnDeleteCongfigSuccess = function(response){						
-                       if (response.status == 'success') {
-                           $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
-                           ShowToastr("success",response.message);
-                           data_table.fnFilter('', 0);
-                       }else{
-                           ShowToastr("error",response.message);
-                       }
-                   }
+           "fnDrawCallback": function() {
                    //onDelete Click
-                   FnDeleteConfig = function(e){
-                       result = confirm("Are you Sure?");
-                       if(result){
-                           var id  = $(this).attr("data-id");
-                           showAjaxScript( baseurl + "/gateway/delete/"+id ,"",FnDeleteCongfigSuccess );
-                       }
-                       return false;
+
+               $(".btn.delete").click(function (e) {
+                   e.preventDefault();
+                   var id = $(this).attr('data-id');
+                   var url = baseurl + '/gateway/'+id+'/ajax_existing_gateway_cronjob';
+                   $('#delete-gateway-form [name="CompanyGatewayID"]').val(id);
+                   if(confirm('Are you sure you want to delete selected gateway?')) {
+                       $.ajax({
+                           url: url,
+                           type: 'POST',
+                           dataType: 'html',
+                           success: function (response) {
+                               $(".btn.delete").button('reset');
+                               if (response) {
+                                   $('#modal-delete-gateway .container').html(response);
+                                   $('#modal-delete-gateway').modal('show');
+                               }else{
+                                   $('#delete-gateway-form').submit();
+                               }
+                           },
+
+                           // Form data
+                           //data: {},
+                           cache: false,
+                           contentType: false,
+                           processData: false
+                       });
                    }
-                   $(".delete-config").click(FnDeleteConfig); // Delete Note
+                   return false;
+
+               });
+
                    $(".dataTables_wrapper select").select2({
                        minimumResultsForSearch: -1
                    });
@@ -294,7 +307,143 @@ var postdata;
   } 
   alert('Query Variable ' + variable + ' not found');
 }
-	
+
+        /*delete gateway*/
+        $('#delete-gateway-form').submit(function (e) {
+            e.preventDefault();
+            if($('#modal-delete-gateway .container').is(':empty')) {
+                var CompanyGatewayID = $(this).find('[name="CompanyGatewayID"]').val();
+                var url = baseurl + '/gateway/delete/' + CompanyGatewayID;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            data_table.fnFilter('', 0);
+                            reloadJobsDrodown(0);
+                            $('#modal-delete-gateway').modal('hide');
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $(".save.GatewaySelect").button('reset');
+
+                    },
+                    // Form data
+                    data: '',
+                    cache: false
+
+                });
+            }else{
+                //  alert('Please delete cron job first');
+                var SelectedIDs = getselectedIDs("cronjob-table");
+                if (SelectedIDs.length == 0) {
+                    alert('No cron job selected.');
+                    $("#gateway-select").button('reset');
+                    return false;
+                }else{
+                    var deleteid = SelectedIDs.join(",");
+                    cronjobsdelete('all',deleteid);
+                }
+            }
+        });
+
+        /*not in use*/
+        $(document).on('click','.cronjobedelete',function(){
+            var deleteid = $(this).attr('data-id');
+            if (deleteid == '') {
+                $(".save.GatewaySelect").button('reset');
+                toastr.error('No cron job selected.', "Error", toastr_opts);
+                return false;
+            }else{
+                cronjobsdelete('select',deleteid);
+            }
+        });
+
+        function cronjobsdelete(type,deleteid){
+            if(confirm('Are you sure you want to delete selected cron job?')){
+                var CompanyGatewayID = $('#delete-gateway-form [name="CompanyGatewayID"]').val();
+                var url = baseurl + "/gateway/"+CompanyGatewayID+"/deletecronjob";
+                var cronjobs = deleteid;
+                $('#modal-delete-gateway .container').html('');
+                $('#modal-delete-gateway').modal('hide');
+                $.ajax({
+                    url: url,
+                    type:'POST',
+                    data:{cronjobs:cronjobs},
+                    datatype:'json',
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message,'Success', toastr_opts);
+                            var url = baseurl + '/gateway/'+CompanyGatewayID+'/ajax_existing_gateway_cronjob';
+                            $('#delete-gateway-form [name="CompanyGatewayID"]').val(CompanyGatewayID);
+                            $.ajax({
+                                url: url,
+                                type: 'POST',
+                                dataType: 'html',
+                                success: function (response) {
+                                    $(".btn.delete").button('reset');
+                                    if (response) {
+                                        $('#modal-delete-gateway .container').html(response);
+                                        $('#modal-delete-gateway').modal('show');
+                                    }else{
+                                        $('#delete-gateway-form').submit();
+                                    }
+                                },
+
+                                // Form data
+                                //data: {},
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+
+                });
+            }
+        }
+        $(document).on('click', '#cronjob-table tbody tr', function() {
+            $(this).toggleClass('selected');
+            if($(this).is('tr')) {
+                if ($(this).hasClass('selected')) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                } else {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                }
+            }
+        });
+
+        $(document).on('click','#selectall',function(){
+            if($(this).is(':checked')){
+                checked = 'checked=checked';
+                $(this).prop("checked", true);
+                $(this).parents('table').find('tbody tr').each(function (i, el) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                    $(this).addClass('selected');
+                });
+            }else{
+                checked = '';
+                $(this).prop("checked", false);
+                $(this).parents('table').find('tbody tr').each(function (i, el) {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                    $(this).removeClass('selected');
+                });
+            }
+        });
+
+        function getselectedIDs(table){
+            var SelectedIDs = [];
+            $('#'+table+' tr .rowcheckbox:checked').each(function (i, el) {
+                var cronjob = $(this).val();
+                SelectedIDs[i++] = cronjob;
+            });
+            return SelectedIDs;
+        }
+
     });
 </script>
 <style>
@@ -305,6 +454,8 @@ var postdata;
     right: 30px !important;
 }
 </style>
+<!--Only for Delete operation-->
+@include('includes.ajax_submit_script', array('formID'=>'' , 'url' => ('')))
 @stop
 
 
@@ -380,6 +531,36 @@ var postdata;
                         Close
                     </button>
                 </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-delete-gateway" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="delete-gateway-form" method="post" >
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete Gateway cron job</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container col-md-12"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="CompanyGatewayID" value="">
+                    <button id="gateway-select" class="save GatewaySelect btn btn-danger btn-sm btn-icon icon-left">
+                        <i class="entypo-cancel"></i>
+                        Delete
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
                 </div>
             </form>
         </div>

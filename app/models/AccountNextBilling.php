@@ -30,6 +30,7 @@ class AccountNextBilling extends \Eloquent {
                 $AccountNextBilling['AccountID'] = $AccountID;
                 AccountNextBilling::create($AccountNextBilling);
             }
+            AccountBilling::storeNextInvoicePeriod($AccountID,$AccountNextBilling['BillingCycleType'],$AccountNextBilling['BillingCycleValue'],$AccountNextBilling['LastInvoiceDate'],$AccountNextBilling['NextInvoiceDate']);
         }else{
             AccountNextBilling::where('AccountID', $AccountID)->delete();
         }

@@ -17,8 +17,9 @@ class IntegrationController extends \BaseController
 	{
 		$companyID  			= 	User::get_companyID();
 	    $GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
+		$Gateway 				= 	Gateway::getGatWayList();		
 		$categories 			= 	Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration"));
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway"));
     }
 	
 	function Update(){

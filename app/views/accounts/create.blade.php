@@ -19,7 +19,7 @@
 @include('includes.success')
 
 <p style="text-align: right;">
-    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_account">
         <i class="entypo-floppy"></i>
         Save
     </button>
@@ -227,7 +227,7 @@
                                 </div>
                             </div>
                         </div>
-            <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel panel-primary billing-section-hide" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
                         Billing
@@ -353,8 +353,9 @@
     jQuery(document).ready(function ($) {
 
         $(".save.btn").click(function (ev) {
+            $('#save_account').button('loading');
             $("#account-from").submit();
-            $(this).button('Loading');
+
 
         });
         $('select[name="BillingCycleType"]').on( "change",function(e){

@@ -29,6 +29,12 @@ class AccountPaymentProfile extends \Eloquent
     public static function createProfile($CompanyID, $CustomerID)
     {
         $data = Input::all();
+		
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+		if(!$isAuthorizedNet){
+			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+		}
+		
         $AuthorizeNet = new AuthorizeNet();
         $ProfileID = "";
         $ShippingProfileID = "";

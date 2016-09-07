@@ -194,10 +194,6 @@ class CDRController extends BaseController {
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-        $DateRange = explode(' - ',$data['DateRange']);
-        $DateRange = array_map('trim',$DateRange);
-        $data['StartDate'] = $DateRange[0];
-        $data['EndDate'] = $DateRange[1];
 		
        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -227,11 +223,6 @@ class CDRController extends BaseController {
         $data = Input::all();
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
-
-            $DateRange = explode(' - ',$criteria['DateRange']);
-            $DateRange = array_map('trim',$DateRange);
-            $criteria['StartDate'] = $DateRange[0];
-            $criteria['EndDate'] = $DateRange[1];
 
             $criteria['zerovaluecost'] = $criteria['zerovaluecost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
@@ -502,10 +493,6 @@ class CDRController extends BaseController {
         $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
 		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
 		$data['CurrencyID'] 		 	 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-        $DateRange = explode(' - ',$data['DateRange']);
-        $DateRange = array_map('trim',$DateRange);
-        $data['StartDate'] = $DateRange[0];
-        $data['EndDate'] = $DateRange[1];
         $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -678,11 +665,6 @@ class CDRController extends BaseController {
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
-
-            $DateRange = explode(' - ',$criteria['DateRange']);
-            $DateRange = array_map('trim',$DateRange);
-            $criteria['StartDate'] = $DateRange[0];
-            $criteria['EndDate'] = $DateRange[1];
 
             $companyID = User::get_companyID();
             $query = "call prc_DeleteVCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluecost']."','".(int)$criteria['CurrencyID']."','".$criteria['area_prefix']."','".$criteria['Trunk']."')";

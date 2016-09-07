@@ -67,9 +67,19 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Date</label>
-                                <div class="col-sm-3">
-                                    <input type="text" name="DateRange" value="{{Input::get('StartDate')?Input::get('StartDate').' 00:00:00'.' - '.Input::get('EndDate').' 23:59:59':date('Y-m-d').' 00:00:00'.' - '.date('Y-m-d').' 23:59:59'}}" data-format="YYYY-MM-DD HH:mm:ss" data-start-date="{{Input::get('StartDate')?Input::get('StartDate'):date('Y-m-d')}}" data-end-date="{{Input::get('EndDate')?Input::get('EndDate').'23:59:59':date('Y-m-d').'23:59:59'}}" data-time-picker-increment="1" data-time-picker="true" data-time-picker24hour="true" class="form-control daterange active"  data-max-date="{{date('Y-m-d',strtotime('+1 day'))}}">
+                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
+                                <div class="col-sm-2" style="padding-right: 0px; width: 9%;">
+                                    <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                </div>
+                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
+                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                </div>
+                                <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
+                                <div class="col-sm-2" style="padding-right: 0px; width: 9%; padding-left: 0px;">
+                                    <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                </div>
+                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
+                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
                                 <div class="col-sm-1">
@@ -85,12 +95,13 @@
                                 <div class="col-sm-2 col-sm-e1" style="width: 10%;">
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div>
-                                <label class="col-sm-1 control-label " for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CDR Type</label>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label " for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CDR Type</label>
                                 <div class="col-sm-1" style="padding-right: 0px; width: 17%;">
                                     {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                            </div>
-                            <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Prefix</label>
                                 <div class="col-sm-2">
                                     <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
@@ -159,7 +170,7 @@ var TotalCost = 0;
 var CurrencyCode = '';
 var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
     jQuery(document).ready(function ($) {
-
+        $('input[name="StartTime"]').click();
         public_vars.$body = $("body");
 
         // Replace Checboxes
@@ -170,8 +181,12 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
         $("#cdr_filter").submit(function(e) {
             e.preventDefault();
             var list_fields  =['UsageDetailID','AccountName','connect_time','disconnect_time','duration','cost','cli','cld','AccountID','CompanyGatewayID','start_date','end_date','CDRType'];
-
-            $searchFilter.DateRange 			= 		$("#cdr_filter [name='DateRange']").val();
+            var starttime = $("#cdr_filter [name='StartTime']").val();
+            if(starttime =='00:00:01'){
+                starttime = '00:00:00';
+            }
+            $searchFilter.StartDate 			= 		$("#cdr_filter [name='StartDate']").val();
+            $searchFilter.EndDate 				= 		$("#cdr_filter [name='EndDate']").val();
             $searchFilter.CompanyGatewayID 		= 		'0';
             $searchFilter.AccountID 			= 		'{{$AccountID}}';
             $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
@@ -183,10 +198,17 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
 
 
-            if(typeof $searchFilter.DateRange  == 'undefined' || $searchFilter.DateRange.trim() == ''){
-                toastr.error("Please Select a Date Range", "Error", toastr_opts);
+            if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
+                toastr.error("Please Select a Start date", "Error", toastr_opts);
                 return false;
             }
+            if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
+                toastr.error("Please Select a End date", "Error", toastr_opts);
+                return false;
+            }
+            $searchFilter.StartDate += ' '+starttime;
+            $searchFilter.EndDate += ' '+$("#cdr_filter [name='EndTime']").val();
+
             data_table = $("#table-4").dataTable({
 
                 "bProcessing":true,
@@ -197,7 +219,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "fnServerParams": function(aoData) {
                     aoData.push(
-                            {"name":"DateRange","value":$searchFilter.DateRange},
+                            {"name":"StartDate","value":$searchFilter.StartDate},
+                            {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
                             {"name":"CDRType","value":$searchFilter.CDRType},
@@ -210,7 +233,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
-                            {"name":"DateRange","value":$searchFilter.DateRange},
+                            {"name":"StartDate","value":$searchFilter.StartDate},
+                            {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
                             {"name":"CDRType","value":$searchFilter.CDRType},

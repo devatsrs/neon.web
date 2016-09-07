@@ -219,46 +219,12 @@
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[4, 'desc']],
                 "aoColumns": [
-                    //1   CurrencyDescription
-                    {
-                        "bSortable": true, //Account
-                        mRender: function (id, type, full) {
-                            return full[1]
-                        }
-                    }, //1   CurrencyDescription
-                    {
-                        "bSortable": true, //Account
-                        mRender: function (id, type, full) {
-                            return full[10]
-                        }
-                    }, //1   CurrencyDescription
-                    {
-                        "bSortable": true, //Amount
-                        mRender: function (id, type, full) {
-                            /*var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(toFixed);
-                             a = a.toString();*/
-                            return full[16]
-                        }
-                    },
-
-                    {
-                        "bSortable": true, //paymentDate
-                        mRender: function (id, type, full) {
-                            return full[6]
-                        }
-                    },
-                    {
-                        "bSortable": true, //Created by
-                        mRender: function (id, type, full) {
-                            return full[8]
-                        }
-                    },
-                    {
-                        "bSortable": true, //Created by
-                        mRender: function (id, type, full) {
-                            return full[12]
-                        }
-                    },
+                    {  "bSortable": true }, //0   Account Name
+                    {  "bSortable": true }, //1   Invoice No
+                    {  "bSortable": true }, //2   Amount
+                    {  "bSortable": true }, //3   PaymentDate
+                    {  "bSortable": true }, //4   Created by
+                    {  "bSortable": true }, //5   Notes
                 ],
                 "oTableTools": {
                     "aButtons": [

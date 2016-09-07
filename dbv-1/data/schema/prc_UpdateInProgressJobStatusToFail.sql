@@ -7,32 +7,34 @@ BEGIN
 	 This procedure used to restart and terminate job.
 	 */
  	
- 	UPDATE tblJob 
- 	SET 
- 	
-		JobStatusID = p_JobStatusID,
-		PID = NULL,
-		ModifiedBy  = p_UserName,
-		updated_at = now()
-		
- 	WHERE 
- 	JobID  = p_JobID
-	AND JobStatusID != ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
- 	
- 	IF p_JobStatusMessage != '' THEN
 
-		UPDATE tblJob 
-		SET 
-			JobStatusMessage = concat(JobStatusMessage ,'\n' ,p_JobStatusMessage)
-		WHERE 
-		JobID  = p_JobID
-		AND JobStatusID != ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
-	 
- 	END IF;
+ 	IF (SELECT count(*) from tblJob WHERE JobID  = p_JobID 	AND JobStatusID = ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' ) ) = 1
+	 THEN
 
-	IF (SELECT ROW_COUNT()) > 0 THEN
-		
-		SELECT '1' as result;
+		 	UPDATE tblJob
+		 	SET
+
+				JobStatusID = p_JobStatusID,
+				PID = NULL,
+				ModifiedBy  = p_UserName,
+				updated_at = now()
+
+		 	WHERE
+		 	JobID  = p_JobID
+			AND JobStatusID = ( Select tblJobStatus.JobStatusID from tblJobStatus where tblJobStatus.Code = 'I' );
+
+		 	IF p_JobStatusMessage != '' THEN
+
+				UPDATE tblJob
+				SET
+					JobStatusMessage = concat(JobStatusMessage ,'\n' ,p_JobStatusMessage)
+				WHERE
+				JobID  = p_JobID;
+
+		 	END IF;
+
+
+   		SELECT '1' as result;
 	
 	ELSE
 	
