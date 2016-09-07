@@ -532,5 +532,6 @@ ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-heigh
 .cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:100%;top:10px; /*border-color:transparent #f1f1f1 #fff transparent;*/ position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
 .color-red {margin-left:5px;} .ticket_conversations{cursor:pointer; } .left-padding{padding-left:0px !important;}
 .mail_subject{font-size:14.4px !important;} .mail_message{font-family:"Noto Sans", sans-serif !important;}
+.no-display{overflow-x:scroll;}
 </style>
 @stop
