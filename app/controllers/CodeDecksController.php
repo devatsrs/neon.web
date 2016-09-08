@@ -435,7 +435,7 @@ class CodeDecksController extends \BaseController {
     }
     public function base_datagrid(){
         $CompanyID = User::get_companyID();
-        $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId"]);
+        $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","DefaultCodedeck","updated_at","ModifiedBy","CodeDeckId"]);
         return Datatables::of($rate_tables)->make();
     }
     public function updatecodedeck($id){
@@ -499,5 +499,15 @@ class CodeDecksController extends \BaseController {
                     $sheet->fromArray($codedecks);
                 });
             })->download('xls');*/
+    }
+
+    public function setdefault($id){
+        $CompanyID = User::get_companyID();
+        BaseCodeDeck::where(["CompanyId" => $CompanyID])->update(array('DefaultCodedeck'=>0));
+        if (BaseCodeDeck::where(["CodeDeckId" => $id])->update(array('DefaultCodedeck'=>1))) {
+            return Response::json(array("status" => "success", "message" => "Code Decks Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Code Decks."));
+        }
     }
 }
