@@ -1023,7 +1023,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog" style="width: 80%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">

@@ -650,11 +650,17 @@ toastr_opts = {
                     opts = {
                         allowClear: attrDefault($this, 'allowClear', false)
                     };
-
+                if($this.hasClass('small')){
+                    opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+                }
                 $this.select2(opts);
-                $this.addClass('visible');
-
+                if($this.hasClass('small')){
+                    $this.select2('container').find('.select2-search').addClass ('hidden') ;
+                }
                 //$this.select2("open");
+            }).promise().done(function(){
+                $('.select2').css('visibility','visible');
             });
 
 
@@ -2550,9 +2556,9 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
 });
 
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
-$('.modal').on('show.bs.modal', function (e) {
+/*$('.modal').on('show.bs.modal', function (e) {
     $('.modal').css('top', $(document).scrollTop() + 20);
-})
+})*/
 function submit_ajax(fullurl,data,refreshjob){
     $.ajax({
         url:fullurl, //Server script to process data

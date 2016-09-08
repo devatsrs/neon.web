@@ -116,9 +116,9 @@ body {
 .datepicker-dropdown{z-index:99999 !important }
 .task.bold{ font-weight: bold; color:#000000; }
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
-.modal{position: absolute!important;
+/*.modal{position: absolute!important;
 height: 680px;
-}
+}*/
 .mar-left-5{
     margin-left: 5px;
 }
@@ -2195,4 +2195,8 @@ background-repeat:no-repeat;
 .page-body .select2-container .select2-choice {
     height: 32px;
     line-height: 29px;
+}
+
+.page-body .select2-container .select2-choice .select2-chosen{
+    font-size:13px;
 }
