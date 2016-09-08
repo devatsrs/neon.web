@@ -1,0 +1,160 @@
+<?php 
+class SiteIntegration{ 
+
+ protected $support;
+ protected $companyID;
+ static    $SupportSlug			=	'support';
+ static    $PaymentSlug			=	'payment';
+ static    $EmailSlug			=	'email';
+ static    $StorageSlug			=	'storage';
+ static    $AmazoneSlug			=	'amazons3';
+ static    $AuthorizeSlug		=	'authorizenet';
+ static    $GatewaySlug			=	'billinggateway';
+ static    $freshdeskSlug		=	'freshdesk';
+ static    $mandrillSlug		=	'mandrill';
+ 
+ 
+ 
+
+ 	public function __construct(){
+	
+		//$this->companyID = 	User::get_companyID();
+		$this->companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+	 } 
+	 
+	 /*
+	 * Get support settings return current active support
+	 */
+
+	public function SetSupportSettings($type,$data){
+		
+		if(self::CheckIntegrationConfiguration(false,SiteIntegration::$freshdeskSlug)){		
+			$this->support = new Freshdesk($data);
+		}		
+	}
+	
+	/*
+	 * Get support contacts from active support
+	 */
+	
+	public function GetSupportContacts($options = array()){
+        if($this->support){
+            return $this->support->GetContacts($options);
+        }
+        return false;
+    }
+	
+	/*
+	 * Get support tickets from active support
+	 */
+	
+	public function GetSupportTickets($options = array()){
+        if($this->support){
+            return $this->support->GetTickets($options);
+        }
+        return false;
+    }
+	
+	/*
+	 * Get support tickets conversation from active support
+	 */
+	 
+	public function GetSupportTicketConversations($id){
+        if($this->support){
+            return $this->support->GetTicketConversations($id);
+        }
+        return false;
+
+    }
+	 
+	/*
+	 * send mail . check active mail settings 
+	 */
+	
+	public static function SendMail($view,$data,$companyID,$body){
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$EmailSlug);
+		
+		switch ($config->Slug){
+			case  SiteIntegration::$mandrillSlug:
+       		return MandrilIntegration::SendMail($view,$data,$config,$companyID,$body);
+      	  break;
+		}	
+	}
+	
+	/*
+	 * get company id using license key from company configuration
+	 */	 
+	
+	public static function GetComapnyIdByKey(){
+		$key 		= 	getenv('LICENCE_KEY');
+		$CompanyId  =  	CompanyConfiguration::where(['Key'=>'LICENCE_KEY',"Value"=>$key])->pluck('CompanyID');	
+		return $CompanyId;
+	}
+	
+	/*
+	 * check settings addded or not . return true,data or false
+	 */ 	
+	public static function  CheckIntegrationConfiguration($data=false,$slug){	
+		
+		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
+	
+		if(count($Integration)>0)
+		{						
+			$IntegrationSubcategory = Integration::select("*");
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
+			{
+				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
+	
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			 $result = $IntegrationSubcategory->first();
+			 if(count($result)>0)
+			 {	
+				 $IntegrationData =  isset($result->Settings)?json_decode($result->Settings):array();
+				 if(count($IntegrationData)>0){
+					 if($data ==true){
+						return $IntegrationData;
+					 }else{
+						return true;
+					 }
+				 }
+			 }
+		}
+		return false;		
+	}
+	
+	/*
+	check main category have data or not
+	*/
+	public static function  CheckCategoryConfiguration($data=false,$slug){	
+		
+		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
+	
+		if(count($Integration)>0)
+		{						
+			$IntegrationSubcategory = Integration::select("*");
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
+			{
+				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
+	
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegrationConfiguration.ParentIntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			 $result = $IntegrationSubcategory->first();
+			 if(count($result)>0)
+			 {	
+				 $IntegrationData =  isset($result->Settings)?json_decode($result->Settings):array();
+				 if(count($IntegrationData)>0){
+					 if($data ==true){
+						return $result;
+					 }else{
+						return true;
+					 }
+				 }
+			 }
+		}
+		return false;		
+	}
+
+	
+}
+?>

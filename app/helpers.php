@@ -133,105 +133,24 @@ function opportunites_dropbox($id=0,$data=array()){
 
 
 function sendMail($view,$data){
-    $status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
-    if(empty($data['companyID']))
+    
+	if(empty($data['companyID']))
     {
         $companyID = User::get_companyID();
     }else{
         $companyID = $data['companyID'];
     }
-    $mail = setMailConfig($companyID);
-    $body = View::make($view,compact('data'))->render();
-
-    if(getenv('APP_ENV') != 'Production'){
-        $data['Subject'] = 'Test Mail '.$data['Subject'];
-    }
-    $mail->Body = $body;
-    $mail->Subject = $data['Subject'];
-    if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
-        $data['EmailTo']  = explode(',',$data['EmailTo']);
-    }
-
-    if(isset($data['cc'])) {
-        if (is_array($data['cc'])) {
-            foreach ($data['cc'] as $cc_address) {
-                $user_data = User::where(["EmailAddress" => $cc_address])->get();
-                $mail->AddCC($cc_address, $user_data[0]['FirstName'] . ' ' . $user_data[0]['LastName']);
-            }
-        }
-    }
-
-    if(isset($data['cc'])) {
-        if (is_array($data['bcc'])) {
-            foreach ($data['bcc'] as $bcc_address) {
-                $user_data = User::where(["EmailAddress" => $bcc_address])->get();
-
-                $mail->AddBCC($bcc_address, $user_data[0]['FirstName'] . ' ' . $user_data[0]['LastName']);
-            }
-        }
-    }
-    if(is_array($data['EmailTo'])){
-        foreach((array)$data['EmailTo'] as $email_address){
-            if(!empty($email_address)) {
-                $email_address = trim($email_address);
-                $mail->clearAllRecipients();
-                $mail->addAddress($email_address); //trim Added by Abubakar
-                if (!$mail->send()) {
-                    $status['status'] = 0;
-                    $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $email_address . ')';
-                } else {
-                    $status['status'] = 1;
-                    $status['message'] = 'Email has been sent';
-                    $status['body'] = $body;
-                }
-            }
-        }
-    }else{
-        if(!empty($data['EmailTo'])) {
-            $email_address = trim($data['EmailTo']);
-            $mail->clearAllRecipients();
-            $mail->addAddress($email_address); //trim Added by Abubakar
-            if (!$mail->send()) {
-                $status['status'] = 0;
-                $status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $data['EmailTo'] . ')';
-            } else {
-                $status['status'] = 1;
-                $status['message'] = 'Email has been sent';
-                $status['body'] = $body;
-            }
-        }
-    }
-    return $status;
-}
-function setMailConfig($CompanyID){
-    $result = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $CompanyID)->first();
-    Config::set('mail.host',$result->SMTPServer);
-    Config::set('mail.port',$result->Port);
-    Config::set('mail.from.address',$result->EmailFrom);
-    Config::set('mail.from.name',$result->CompanyName);
-    Config::set('mail.encryption',($result->IsSSL==1?'SSL':'TLS'));
-    Config::set('mail.username',$result->SMTPUsername);
-    Config::set('mail.password',$result->SMTPPassword);
-    extract(Config::get('mail'));
-
-    $mail = new PHPMailer;
-    //$mail->SMTPDebug = 3;                               // Enable verbose debug output
-    $mail->isSMTP();                                      // Set mailer to use SMTP
-    $mail->Host = $host;  // Specify main and backup SMTP servers
-    $mail->SMTPAuth = true;                               // Enable SMTP authentication
-    $mail->Username = $username;                 // SMTP username
-
-    $mail->Password = $password;                           // SMTP password
-    $mail->SMTPSecure = $encryption;                            // Enable TLS encryption, `ssl` also accepted
-
-    $mail->Port = $port;                                    // TCP port to connect to
-
-    $mail->From = $from['address'];
-    $mail->FromName = $from['name'];
-    $mail->isHTML(true);
-
-    return $mail;
-
+	$data   =   $data;
+	$body 	=   View::make($view,compact('data'))->render(); 
+	
+	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
+		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
+	}
+	else{ 
+		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
+		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
+	}
+	return $status;
 }
 
 function getMonths() {
@@ -355,9 +274,15 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
 });
 
 function is_amazon(){
-    $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
+	
+  /*  $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
-    $AWS_REGION = getenv("AWS_REGION");
+    $AWS_REGION = getenv("AWS_REGION");*/
+
+	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+    $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
+    $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
+    $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';
 
     if(empty($AMAZONS3_KEY) || empty($AMAZONS3_SECRET) || empty($AWS_REGION) ){
         return false;
@@ -366,13 +291,23 @@ function is_amazon(){
 }
 
 function is_authorize(){
-    $AUTHORIZENET_API_LOGIN_ID  = getenv("AUTHORIZENET_API_LOGIN_ID");
-    $AUTHORIZENET_TRANSACTION_KEY = getenv("AUTHORIZENET_TRANSACTION_KEY");
-
-    if(empty($AUTHORIZENET_API_LOGIN_ID) || empty($AUTHORIZENET_TRANSACTION_KEY)){
-        return false;
-    }
-    return true;
+	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+	
+	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
+	if(count($AuthorizeDbData)>0){
+		
+		$AuthorizeData   				= 	isset($AuthorizeDbData->Settings)?json_decode($AuthorizeDbData->Settings):"";		
+		$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
+		$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';
+		
+		if(empty($AUTHORIZENET_API_LOGIN_ID) || empty($AUTHORIZENET_TRANSACTION_KEY)){
+			return false;
+		}
+		return true;		
+	}
+	else{
+		return false;
+	}	*/
 }
 
 
@@ -503,7 +438,7 @@ function bulk_mail($type,$data){
                     mkdir($dir, 777, TRUE);
                 }
                 $Attachment->move($dir, $file_name);
-                if (!AmazonS3::upload($dir . '\\' . $file_name, $amazonPath)) {
+                if (!AmazonS3::upload($dir . '/' . $file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -748,6 +683,10 @@ function excloded_resource($resource){
 
 function getDashBoards(){
     $DashBoards = [''=>'Select'];
+    $DashBoards['/monitor'] = 'Monitor Dashboard';
+    $DashBoards['/billingdashboard'] = 'Billing Dashboard';
+    $DashBoards['/crmdashboard'] = 'CRM Dashboard';
+    /*
     if(Company::isRMLicence()){
         $DashBoards['/dashboard'] = 'RM Dashboard';
         $DashBoards['/monitor'] = 'Monitor Dashboard';
@@ -757,16 +696,17 @@ function getDashBoards(){
     }
     if(Company::isBillingLicence()){
         $DashBoards['/billingdashboard'] = 'Billing Dashboard';
-    }
+    }*/
 
     return $DashBoards;
 }
 
 function getDashBoardController($key){
-    $DashBoards['/dashboard'] = 'RmDashboard';
-    $DashBoards['/salesdashboard'] = 'SalesDashboard';
+    /*$DashBoards['/dashboard'] = 'RmDashboard';
+    $DashBoards['/salesdashboard'] = 'SalesDashboard';*/
     $DashBoards['/billingdashboard'] = 'BillingDashboard';
     $DashBoards['/monitor'] = 'MonitorDashboard';
+    $DashBoards['/crmdashboard'] = 'CrmDashboard';
     return $DashBoards[$key];
 }
 
@@ -890,7 +830,7 @@ function chart_reponse($alldata){
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
-        $response['CallCountHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallCountHtml'] = '<h4>No Data</h4>';
         $response['CallCount'] = '';
         $response['CallCountVal'] = '';
     }else{
@@ -899,7 +839,7 @@ function chart_reponse($alldata){
         $response['CallCountHtml'] =  $alldata['call_count_html'];
     }
     if(empty($alldata['call_cost'])) {
-        $response['CallCostHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallCostHtml'] = '<h4>No Data</h4>';
         $response['CallCost'] = '';
         $response['CallCostVal'] = '';
     }else{
@@ -908,7 +848,7 @@ function chart_reponse($alldata){
         $response['CallCostHtml'] = $alldata['call_cost_html'];
     }
     if(empty($alldata['call_minutes'])) {
-        $response['CallMinutesHtml'] = '<h3>NO DATA!!</h3>';
+        $response['CallMinutesHtml'] = '<h4>No Data</h4>';
         $response['CallMinutes'] = '';
         $response['CallMinutesVal'] = '';
     }else{
@@ -968,14 +908,14 @@ function get_random_number(){
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
-    $path_array 	  =    explode("Controller",$Path);
+    $path_array 	  =    explode("Controller",$Path); 
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","CronJob","VendorFileUploadTemplate","EmailTemplate");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
-	$array_crm 		  =    array("OpportunityBoard","Task");
+	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
     $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
@@ -984,9 +924,9 @@ function check_uri($parent_link=''){
          $controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-			if(Request::segment(1)!='monitor'){
+			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
             	return 'opened';
-			}  		
+			} 
         }
 
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
@@ -1015,7 +955,9 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-            return 'opened';
+			if($path_array[1]!='@billingdashboard'){
+				return 'opened';
+			}
         }
 
         if(in_array($controller,$array_dashboard) && $parent_link =='Dashboard')
@@ -1105,7 +1047,7 @@ function get_round_decimal_places($AccountID = 0) {
 
     if($AccountID>0){
 
-        $RoundChargesAmount = Account::where(["AccountID"=>$AccountID])->pluck("RoundChargesAmount");
+        $RoundChargesAmount = AccountBilling::where(["AccountID"=>$AccountID])->pluck("RoundChargesAmount");
 
         if ( empty($RoundChargesAmount) ) {
 
@@ -1178,7 +1120,7 @@ function account_expense_table($Expense,$customer_vendor){
             $datacount++;
         }
     }else{
-        $tablebody = '<tr><td>NO DATA</td></tr>';
+        $tablebody = '<tr><td>No Data</td></tr>';
     }
     $tableheader = "<thead><tr><th colspan='".$colsplan."'>$customer_vendor Activity</th></tr>".$tableheader."</thead>";
     return $tablehtml = $tableheader."<tbody>".$tablebody."</tbody>";
@@ -1218,7 +1160,203 @@ function terminate_process($pid){
 
 }
 function run_process($command) {
-
     $process = new Process($command);
     return $status = $process->status();
+}
+
+function Get_Api_file_extentsions($ajax=false){
+	
+	 if (Session::has("api_response_extensions")){
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
+		 return $response_extensions;
+	 } 	 
+	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
+	 $response_extensions 	=  [];
+	
+	if($response->status=='failed'){
+		if($ajax==true){
+			return $response;
+		}else{
+			
+			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
+				return	Redirect::to('/logout'); 	
+			}		
+			if(isset($response->error) && $response->error=='token_expired'){ Redirect::to('/login');}	
+		}
+	}else{		
+		$response_extensions 		 = 	json_response_api($response,true,true); 
+		$response_extensions 		 = 	json_decode($response_extensions);		
+		$array['allowed_extensions'] = 	$response_extensions;
+		Session::put('api_response_extensions', $response_extensions);
+		return $array;
+	}
+}
+
+function getBillingDay($BillingStartDate,$BillingCycleType,$BillingCycleValue){
+    $BillingDays = 0;
+    switch ($BillingCycleType) {
+        case 'weekly':
+            $BillingDays = 7;
+            break;
+        case 'monthly':
+            $BillingDays = date("t", $BillingStartDate);
+            break;
+        case 'daily':
+            $BillingDays = 1;
+            break;
+        case 'in_specific_days':
+            $BillingDays = intval($BillingCycleValue);
+            break;
+        case 'monthly_anniversary':
+
+            $day = date("d",  strtotime($BillingCycleValue)); // Date of Anivarsary
+            $month = date("m",  $BillingStartDate); // Month of Last Invoice date or Start Date
+            $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
+
+            $newDate = strtotime($year . '-' . $month . '-' . $day);
+
+            if($day<=date("d",  $BillingStartDate)) {
+                $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate));
+                $LastInvoiceDate = date("Y-m-d",$newDate);
+            }else{
+                $NextInvoiceDate = date("Y-m-d",$newDate);
+                $LastInvoiceDate = date("Y-m-d", strtotime("-1 month", $newDate));
+            }
+            $date1 = new DateTime($LastInvoiceDate);
+            $date2 = new DateTime($NextInvoiceDate);
+            $interval = $date1->diff($date2);
+            $BillingDays =  $interval->days;
+
+            break;
+        case 'fortnightly':
+            $fortnightly_day = date("d", $BillingStartDate);
+            if($fortnightly_day > 15){
+                $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
+                $LastInvoiceDate = date("Y-m-16", $BillingStartDate);
+            }else {
+                $NextInvoiceDate = date("Y-m-16", $BillingStartDate);
+                $LastInvoiceDate = date("Y-m-01", $BillingStartDate);
+            }
+            $date1 = new DateTime($LastInvoiceDate);
+            $date2 = new DateTime($NextInvoiceDate);
+            $interval = $date1->diff($date2);
+            $BillingDays =  $interval->days;
+            break;
+        case 'quarterly':
+            $quarterly_month = date("m", $BillingStartDate);
+            if($quarterly_month < 4){
+                $NextInvoiceDate = date("Y-m-d", strtotime("first day of april ",$BillingStartDate));
+                $LastInvoiceDate = date("Y-m-d", strtotime("first day of january ",$BillingStartDate));
+            }else if($quarterly_month > 3 && $quarterly_month < 7) {
+                $NextInvoiceDate = date("Y-m-d", strtotime("first day of july ",$BillingStartDate));
+                $LastInvoiceDate = date("Y-m-d", strtotime("first day of april ",$BillingStartDate));
+            }else if($quarterly_month > 6 && $quarterly_month < 10) {
+                $NextInvoiceDate = date("Y-m-d", strtotime("first day of october ",$BillingStartDate));
+                $LastInvoiceDate = date("Y-m-d", strtotime("first day of july ",$BillingStartDate));
+            }else if($quarterly_month > 9){
+                $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
+                $LastInvoiceDate = date("Y-m-d", strtotime("first day of october ",$BillingStartDate));
+            }
+            $date1 = new DateTime($LastInvoiceDate);
+            $date2 = new DateTime($NextInvoiceDate);
+            $interval = $date1->diff($date2);
+            $BillingDays =  $interval->days;
+            break;
+    }
+    return $BillingDays;
+}
+function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDate){
+    $NextInvoiceDate = '';
+    if(isset($BillingCycleType)) {
+        switch ($BillingCycleType) {
+            case 'weekly':
+                if (!empty($BillingCycleValue)) {
+                    $NextInvoiceDate = date("Y-m-d", strtotime("next " . $BillingCycleValue,$BillingStartDate));
+                }else{
+                    $NextInvoiceDate = date("Y-m-d", strtotime("next monday")); /** default value set to monday if not set in account **/
+                }
+                break;
+            case 'monthly':
+                $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
+                break;
+            case 'daily':
+                $NextInvoiceDate = date("Y-m-d", strtotime("+1 Days",$BillingStartDate));
+                break;
+            case 'in_specific_days':
+                if (!empty($BillingCycleValue)) {
+                    $NextInvoiceDate = date("Y-m-d", strtotime("+" . intval($BillingCycleValue)  . " Day",$BillingStartDate));
+                }
+                break;
+            case 'monthly_anniversary':
+
+                $day = date("d",  strtotime($BillingCycleValue)); // Date of Anivarsary
+                $month = date("m",  $BillingStartDate); // Month of Last Invoice date or Start Date
+                $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
+
+                $newDate = strtotime($year . '-' . $month . '-' . $day);
+
+                if($day<=date("d",  $BillingStartDate)) {
+                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate));
+                }else{
+                    $NextInvoiceDate = date("Y-m-d",$newDate);
+                }
+
+                break;
+            case 'fortnightly':
+                $fortnightly_day = date("d", $BillingStartDate);
+                if($fortnightly_day > 15){
+                    $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
+                }else{
+                    $NextInvoiceDate = date("Y-m-16", $BillingStartDate);
+                }
+                break;
+            case 'quarterly':
+                $quarterly_month = date("m", $BillingStartDate);
+                if($quarterly_month < 4){
+                    $NextInvoiceDate = date("Y-m-d", strtotime("first day of april ",$BillingStartDate));
+                }else if($quarterly_month > 3 && $quarterly_month < 7) {
+                    $NextInvoiceDate = date("Y-m-d", strtotime("first day of july ",$BillingStartDate));
+                }else if($quarterly_month > 6 && $quarterly_month < 10) {
+                    $NextInvoiceDate = date("Y-m-d", strtotime("first day of october ",$BillingStartDate));
+                }else if($quarterly_month > 9){
+                    $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
+                }
+                break;
+        }
+        $Timezone = Company::getCompanyTimeZone(0);
+        if(isset($Timezone) && $Timezone != ''){
+            date_default_timezone_set($Timezone);
+        }
+
+    }
+    return $NextInvoiceDate;
+}
+function tax_exists($TaxRateID, $array) {
+    $result = -1;
+    for($i=0; $i<sizeof($array); $i++) {
+        if ($array[$i]['TaxRateID'] == $TaxRateID) {
+            $result = $i;
+            break;
+        }
+    }
+    return $result;
+}
+function merge_tax($taxs) {
+    $InvoiceTaxRates = array();
+    foreach($taxs as $tax) {
+        if($tax['TaxRateID']) {
+            $index = tax_exists($tax['TaxRateID'], $InvoiceTaxRates);
+            if ($index < 0) {
+                $InvoiceTaxRates[] = $tax;
+            } else {
+                $InvoiceTaxRates[$index]['TaxAmount'] += $tax['TaxAmount'];
+            }
+        }
+    }
+    return $InvoiceTaxRates;
+}
+function getdaysdiff($date1,$date2){
+    $date1 = new DateTime($date1);
+    $date2 = new DateTime($date2);
+    return $date2->diff($date1)->format("%R%a");
 }

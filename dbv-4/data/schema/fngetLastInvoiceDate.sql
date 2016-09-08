@@ -15,7 +15,7 @@ BEGIN
 			END 
 		END
 		INTO v_LastInvoiceDate_ 
-	FROM NeonRMDev.tblAccount 
+	FROM NeonRMDev.tblAccountBilling 
 	WHERE AccountID = p_AccountID;
 	
 	RETURN v_LastInvoiceDate_;

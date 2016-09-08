@@ -78,7 +78,10 @@
         var $searchFilter = {};
 	   		$searchFilter.AccountOwner = $("#crm_dashboard [name='UsersID[]']").val();
 			$searchFilter.CurrencyID = $("#crm_dashboard select[name='CurrencyID']").val();
+			
 			//opportunites grid start
+		function Getopportunities(){	  
+		 if(CrmDashboardOpportunities===0){return false;} 
         data_table = $("#opportunityGrid").dataTable({
 		        "bDestroy": true,
                 "bProcessing": true,
@@ -175,6 +178,7 @@
                     $('#opportunityGrid .knob').knob({"readOnly":true});
                 }
 		});
+		}
 			//opportunites grid end
 			
 			///task grid start
@@ -288,12 +292,13 @@ function loading(table,bit){
     }
 }
 function getPipleLineData(){
-		loadingUnload(".crmdpipeline",1);
+	 if(CrmDashboardPipeline===0){return false;} 
+	loadingUnload(".crmdpipeline",1);
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
     $.ajax({
         type: 'POST',
-        url: baseurl+'/dashboard/getpiplelinepata',
+        url: baseurl+'/dashboard/getpiplelinedata',
         dataType: 'html',
         data:{UsersID:UsersID,CurrencyID:CurrencyID},
         aysync: true,
@@ -405,13 +410,15 @@ function getPipleLineData(){
 function reloadCrmCharts(){
     /* get destination data for today and display in pie three chart*/
         getPipleLineData();
+		Getopportunities();
   /* get data by time in bar chart*/
     //getSales($searchFilter.chart_type,$searchFilter);
 	 GetUsersTasks();
      GetSalesData();
 	 GetForecastData();
 	 GetSalesDataAccountManager();
-	 data_table.fnFilter('',0);
+	 Getopportunities();
+	 GetAccounts();	 
 }
 
 
@@ -467,7 +474,7 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 	  return false;
     }
 	if(id=='Pipeline'){
-        getPipleLineData('',$searchFilter);
+        getPipleLineData();
 		return false;
     }
 	
@@ -483,7 +490,7 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 	
 	if(id=='UsersOpportunities'){
 		$('.loaderopportunites').show();
-		data_table.fnFilter('',0);
+		Getopportunities();
 		return false;
 	}
 	
@@ -492,17 +499,20 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
 		return false;
 	}
 	
-	
+	if(id=='AccountsTab'){
+		GetAccounts();
+		return false;
+	}	
 	
 });
 
 
 
 function GetForecastData(){
-	
+	 if(CrmDashboardForecast===0){return false;} 
 	//////////////////////////////////
 	loadingUnload(".crmdForecast",1);	 
-	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
+	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val(); 
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var Closingdate   = $("#crm_dashboard_Forecast [name='Closingdate']").val();
 
@@ -584,7 +594,12 @@ function GetForecastData(){
                     series: crmdForecastdata
                 });
 			
-			$('.ForecastResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
+					var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.ForecastResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total value - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdForecast').html('<br><h4>No Data</h4>');
 					$('.ForecastResult').html('');
@@ -598,7 +613,7 @@ function GetForecastData(){
 }
 
 function GetSalesData(){
-	
+	 if(CrmDashboardSalesOpportunity===0){return false;} 
 	//////////////////////////////////
 	loadingUnload(".crmdSales",1);	 
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
@@ -686,8 +701,12 @@ function GetSalesData(){
 					
                     series: crmdSalesdata
                 });
-			
-			$('.SalesResult').html('<div class="panel-title">'+dataObj.CurrencyCode+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
+				var currency_sign = '';
+				if(dataObj.CurrencyCode !== null)
+				{
+					currency_sign = dataObj.CurrencyCode ;
+				}
+			$('.SalesResult').html('<div class="panel-title">'+currency_sign+dataObj.TotalWorth + " Total Sales - "+dataObj.TotalOpportunites+" Opportunities</div>");
 	           	}else{
                 	$('.crmdSales').html('<br><h4>No Data</h4>');
 					$('.SalesResult').html('');
@@ -706,11 +725,12 @@ function GetSalesData(){
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var Duedate     = $("#crm_dashboard_Sales_Manager [name='Duedate']").val();
+	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']").val();
     $.ajax({
         type: 'POST',
         url: baseurl+'/dashboard/CrmDashboardSalesRevenue',
         dataType: 'html',
-        data:{CurrencyID:CurrencyID,UsersID:UsersID,Duedate:Duedate},
+        data:{CurrencyID:CurrencyID,UsersID:UsersID,Duedate:Duedate,ListType:ListType},
         aysync: true,
         success: function(data11) {
 			$('#crmdSalesManager1').html('');
@@ -727,8 +747,9 @@ function GetSalesData(){
 			{
 	             	 crmdSalesdata[s] =
 					{					
-					 'name': dataObj.data[s].user,
-					 'data': dataObj.data[s].worth.split(',').map(parseFloat) 
+					 'name': dataObj.data[s].user,					 
+					 'data': dataObj.data[s].worth.split(',').map(parseFloat), 
+					 'id': 	 dataObj.data[s].id
 					 };
 			}
 			
@@ -755,9 +776,20 @@ function GetSalesData(){
                             overflow: 'justify'
                         }
                     },
-                    tooltip: {
-                        valueSuffix: ''
-                    },
+                    tooltip: {			
+					useHTML: true,						
+						formatter: function () {							
+							var name_user   = 	this.series.name;
+							var date_range	= 	this.key;
+							var userid		=	this.series.userOptions.id;
+							var duedate		=	$("#crm_dashboard_Sales_Manager [name='Duedate']").val();
+							if(dataObj.CurrencyCode !== null)
+							{
+								currency_sign = dataObj.CurrencyCode ;
+							}
+ return '<b>'+date_range+'</b><br/><span><a name_user="'+name_user+'" date_range="'+date_range+'" userid="'+userid+'" duedate="'+duedate+'" class="click_revenue_diagram" style="color:'+this.color+';">&#9679;'+name_user+'</a> ' +this.point.y+'</span>';
+						}
+					},
                     plotOptions: {
                         bar: {
                             dataLabels: {
@@ -784,7 +816,8 @@ function GetSalesData(){
                         enabled: false
                     },
 					
-                    series: crmdSalesdata
+                    series: crmdSalesdata,
+					
                 });
 				
 					var currency_sign = '';
@@ -807,9 +840,81 @@ function GetSalesData(){
 		}
     });
  }
+ 
+ $(document).on( "click",".click_revenue_diagram", function() {
+	var name_user   = 	$(this).attr('name_user');
+	var date_range	= 	$(this).attr('date_range');
+	var userid		=	$(this).attr('userid');
+	var duedate		=	$(this).attr('duedate');
+	GetRevenuePopup(name_user,date_range,userid,duedate);
+ });
+ 
+ function GetRevenuePopup(name_user,date_range,userid,duedate){
+	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']").val();	
+	var CurrencyID	 = $("#crm_dashboard").find("[name='CurrencyID']").val();
+	 $.ajax({
+        type: 'POST',
+        url: baseurl+'/dashboard/GetRevenueDrillDown',
+        dataType: 'html',
+        data:{name_user:name_user,date_range:date_range,userid:userid,duedate:duedate,ListType:ListType,CurrencyID:CurrencyID},
+        aysync: true,
+        success: function(data11) {	
+					$('#UserRevenue #UserRevenueTable').html(data11);
+					var	revenueusertext =	$('#revenueusertext').val();
+					var	revenuedate_range =	$('#revenuedate_range').val();
+					var	revenuelisttype =	$('#revenuelisttype').val();
+					$('#UserRevenue .modal-title').html(revenueusertext+' '+revenuelisttype+' ('+revenuedate_range+') Revenue');
+ 	                $('#UserRevenue').modal('show');
+		}
+    });
+	}
 
-function GetUsersTasks(){
+function GetUsersTasks(){	
+	 if(CrmDashboardTasks===0){return false;} 
 	data_table1.fnFilter('',0);
+}
+
+function GetAccounts(){
+	////////////////////
+		 if(CrmDashboardAccount===0){return false;} 
+	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
+	 var url = baseurl+'/dashboard/ajax_get_recent_accounts';
+	 var table = $('#accounts');
+ 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
+
+
+	    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        data:{CurrencyID:CurrencyID,UsersID:UsersID},
+        aysync: true,
+        success: function(response) {
+			
+                        var accounts = response.accounts;
+                        html = '';
+                        table.find('tbody').html('');
+                        if(accounts.length > 0){
+                            for (i = 0; i < accounts.length; i++) {
+                                var url = accounts[i]["Accounturl"];
+                                var AccountName = accounts[i]["AccountName"];
+                                html +='<tr>';
+                                html +='  <td><a target="_blank" href="'+url+'">'+AccountName+'</a></td>';
+                                html +='      <td>'+accounts[i]["Phone"]+'</td>';
+                                html +='      <td>'+accounts[i]["Email"]+'</td>';
+                                html +='      <td>'+accounts[i]["created_by"]+'</td>';
+                                html +='      <td>'+accounts[i]["daydiff"]+'</td>';
+                                html +='</tr>';
+                            }
+                        }else{
+                            html = '<td colspan="3">No Records found.</td>';
+                        }
+                        table.find('tbody').html(html);
+                        loadingUnload(table,0);
+                    
+			}
+    });
+	///////////////////////////          
 }
 
 

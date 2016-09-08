@@ -19,7 +19,9 @@
 		"authorizenet/authorizenet": "~1.8",
 		"inacho/php-credit-card-validator": "1.*",
 		"box/spout": "^2.4",
-		"jenssegers/agent":"2.3.*"
+		"jenssegers/agent":"2.3.*",
+        "geoip/geoip":"~1.14",
+		"pragmarx/tracker": "2.0.2"
 	},
 	"require-dev": {
 		"maatwebsite/excel": "~1.3.0",

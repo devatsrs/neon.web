@@ -918,10 +918,17 @@ toastr_opts = {
 
                 var $this = $(el),
                     opts = {
-                        format: attrDefault($this, 'format', 'MM/DD/YYYY'),
+                        locale:{
+                            format: attrDefault($this, 'format', 'MM/DD/YYYY'),
+                            separator: attrDefault($this, 'separator', ' - ')
+                        },
                         timePicker: attrDefault($this, 'timePicker', false),
                         timePickerIncrement: attrDefault($this, 'timePickerIncrement', false),
-                        separator: attrDefault($this, 'separator', ' - ')
+                        timePicker24Hour:attrDefault($this, 'timePicker24Hour', true),
+                        timePickerSeconds:attrDefault($this, 'timePickerSeconds', true),
+                        autoApply:attrDefault($this, 'autoApply', true),
+                        autoUpdateInput: false
+
                     },
                     min_date = attrDefault($this, 'minDate', ''),
                     max_date = attrDefault($this, 'maxDate', ''),
@@ -969,6 +976,13 @@ toastr_opts = {
                         $this.find('span').html(start.format(drp.format) + drp.separator + end.format(drp.format));
                     }
                 });
+            });
+            $('.daterange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format(attrDefault($(this), 'format', 'MM/DD/YYYY')) + ' - ' + picker.endDate.format(attrDefault($(this), 'format', 'MM/DD/YYYY')));
+            });
+
+            $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
             });
         }
 
@@ -2374,7 +2388,8 @@ if (typeof TableTools != 'undefined') {
                 nInput.value = aoPost[i].value;
                 nForm.appendChild(nInput);
             }
-            var params = data_table.oApi._fnAjaxParameters(data_table.dataTable().fnSettings());
+            //var params = data_table.oApi._fnAjaxParameters(data_table.dataTable().fnSettings());
+            var params = this.s.dt.oApi._fnAjaxParameters(this.s.dt);
             //console.log(params);
 
             /* Add All Params data to the URL */

@@ -29,6 +29,12 @@ class AccountPaymentProfile extends \Eloquent
     public static function createProfile($CompanyID, $CustomerID)
     {
         $data = Input::all();
+		
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+		if(!$isAuthorizedNet){
+			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+		}
+		
         $AuthorizeNet = new AuthorizeNet();
         $ProfileID = "";
         $ShippingProfileID = "";
@@ -118,8 +124,9 @@ class AccountPaymentProfile extends \Eloquent
     public static function paynow($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID)
     {
         $account = Account::find($AccountID);
-        $outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,$account->RoundChargesAmount);
-        $outstanginamount = Account::getOutstandingInvoiceAmount($CompanyID,$account->AccountID,$Invoiceids, $account->RoundChargesAmount);
+        $AccountBilling = AccountBilling::getBilling($AccountID);
+        $outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));
+        $outstanginamount = Account::getOutstandingInvoiceAmount($CompanyID,$account->AccountID,$Invoiceids, get_round_decimal_places($account->AccountID));
         if ($outstanginamount > 0 && $outstanginamounttotal > 0 ) {
             $CustomerProfile = AccountPaymentProfile::getProfile($AccountPaymentProfileID);
             if (!empty($CustomerProfile)) {
@@ -137,7 +144,8 @@ class AccountPaymentProfile extends \Eloquent
                             $paymentdata = array();
                             $paymentdata['CompanyID'] = $Invoice->CompanyID;
                             $paymentdata['AccountID'] = $Invoice->AccountID;
-                            $paymentdata['InvoiceNo'] = Invoice::getFullInvoiceNumber($Invoice,$account);
+                            $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+                            $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
                             $paymentdata['PaymentDate'] = date('Y-m-d');
                             $paymentdata['PaymentMethod'] = $transactionResponse['transaction_payment_method'];
                             $paymentdata['CurrencyID'] = $account->CurrencyId;

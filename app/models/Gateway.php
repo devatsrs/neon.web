@@ -11,7 +11,7 @@ class Gateway extends \Eloquent {
     public  static  function getGatewayListID(){
         $row = Gateway::where(array('Status'=>1))->lists('Title', 'GatewayID');
         if(!empty($row)){
-            $row = array(""=> "Select a Gateway")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -34,8 +34,14 @@ class Gateway extends \Eloquent {
         //$data['CompanyID']=User::get_companyID();
         $row = Gateway::select(array('Name', 'GatewayID'))->orderBy('Name')->lists('Name', 'GatewayID');
         if(!empty($row)){
-            $row = array(""=> "Select a Gateway")+$row;
+            $row = array(""=> "Select")+$row;
         }
+        return $row;
+    }
+	
+	public static function getGatWayList(){
+        //$data['CompanyID']=User::get_companyID();
+        $row = Gateway::select(array('Name', 'GatewayID','Title','Status'))->where(array('Status'=>1))->orderBy('Name')->get();
         return $row;
     }
 }

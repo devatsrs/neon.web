@@ -16,5 +16,6 @@ CREATE TABLE `AccountEmailLog` (
   `Cc` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Bcc` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AttachmentPaths` longtext COLLATE utf8_unicode_ci,
+  `EmailType` int(11) DEFAULT '0',
   PRIMARY KEY (`AccountEmailLogID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

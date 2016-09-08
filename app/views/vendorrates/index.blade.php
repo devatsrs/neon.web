@@ -272,8 +272,11 @@ jQuery(document).ready(function($) {
                                url: $(this).attr("href"),
                                type: 'POST',
                                dataType: 'json',
+                               beforeSend: function(){
+                                   $(this).button('loading');
+                               },
                                success: function(response) {
-                                   $(".btn.clear").button('reset');
+                                   $(this).button('reset');
 
                                    if (response.status == 'success') {
                                        toastr.success(response.message, "Success", toastr_opts);
@@ -339,8 +342,10 @@ jQuery(document).ready(function($) {
                            $("#selectall").prop("checked", true).prop('disabled', true);
                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
                                $('#table-4 tbody tr').each(function(i, el) {
-                                   $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                   $(this).addClass('selected');
+                                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                       $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                       $(this).addClass('selected');
+                                   }
                                });
                            }
                        }else{
@@ -348,8 +353,10 @@ jQuery(document).ready(function($) {
                            $("#selectall").prop("checked", false).prop('disabled', false);
                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
                                $('#table-4 tbody tr').each(function(i, el) {
-                                   $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                   $(this).removeClass('selected');
+                                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                       $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                       $(this).removeClass('selected');
+                                   }
                                });
                            }
                        }
@@ -363,12 +370,14 @@ jQuery(document).ready(function($) {
     });
 
                $('#table-4 tbody').on('click', 'tr', function() {
-                   if (checked =='') {
-                       $(this).toggleClass('selected');
-                       if ($(this).hasClass('selected')) {
-                           $(this).find('.rowcheckbox').prop("checked", true);
-                       } else {
-                           $(this).find('.rowcheckbox').prop("checked", false);
+                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                       if (checked == '') {
+                           $(this).toggleClass('selected');
+                           if ($(this).hasClass('selected')) {
+                               $(this).find('.rowcheckbox').prop("checked", true);
+                           } else {
+                               $(this).find('.rowcheckbox').prop("checked", false);
+                           }
                        }
                    }
                });
@@ -479,6 +488,9 @@ jQuery(document).ready(function($) {
                     url: baseurl + '/vendor_rates/clear_all_vendorrate/{{$id}}', //Server script to process data
                     type: 'POST',
                     dataType: 'json',
+                    beforeSend: function(){
+                        $('#clear-bulk-rate').button('loading');
+                    },
                     success: function (response) {
                         $("#clear-bulk-rate").button('reset');
 
@@ -516,6 +528,9 @@ jQuery(document).ready(function($) {
                         url: baseurl + '/vendor_rates/bulk_clear_rate/{{$id}}', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
+                        beforeSend: function(){
+                            $('#clear-bulk-rate').button('loading');
+                        },
                         success: function (response) {
                             $("#clear-bulk-rate").button('reset');
 

@@ -30,7 +30,7 @@
             <div class="x-row">
                 <div class="x-span8">                   
                     <div class="amount">                        
-                         <span class="overdue">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$Account->RoundChargesAmount)}}</span>
+                         <span class="overdue">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,get_round_decimal_places($Estimate->AccountID))}}</span>
                     </div>
                 </div>
                 <div class="x-span4 pull-left" > <h1 class="text-center">Estimate</h1></div>

@@ -45,29 +45,7 @@ BEGIN
 		ConnectionFee = p_ConnectionFee,
 		updated_at = NOW(); 
  	END IF;
-	 
-	 IF p_action = 2
-	 THEN
-	 -- bulk clear vendor rate
-	 
-	 DELETE tblVendorRate
-	FROM tblVendorRate INNER JOIN
-	( 
-	SELECT VendorRateID
-	  FROM tblVendorRate v
-	  INNER JOIN tblRate r ON r.RateID = v.RateId
-	  INNER JOIN tblVendorTrunk vt on vt.trunkID = p_TrunkId AND vt.AccountID = p_AccountId AND vt.CodeDeckId = r.CodeDeckId
-	 WHERE 
-	 ((p_CountryId IS NULL) OR (p_CountryId IS NOT NULL AND r.CountryId = p_CountryId))
-	 AND ((p_code IS NULL) OR (p_code IS NOT NULL AND r.Code like REPLACE(p_code,'*', '%')))
-	 AND ((p_description IS NULL) OR (p_description IS NOT NULL AND r.Description like REPLACE(p_description,'*', '%')))
-	 AND  ((p_effective = 'Now' and v.EffectiveDate <= NOW() ) OR (p_effective = 'Future' and v.EffectiveDate> NOW() ) )
-	 AND v.AccountId = p_AccountId AND v.TrunkID = p_TrunkId
-	 ) vr 
-	 ON vr.VendorRateID = tblVendorRate.VendorRateID;
-	 
-	 END IF;
-	
+		
 	 CALL prc_ArchiveOldVendorRate(p_AccountId,p_TrunkId);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

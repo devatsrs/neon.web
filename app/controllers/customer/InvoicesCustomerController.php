@@ -12,8 +12,9 @@ class InvoicesCustomerController extends \BaseController {
         $data['AccountID'] = User::get_userID();
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
+        $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
@@ -59,9 +60,10 @@ class InvoicesCustomerController extends \BaseController {
         $Invoice = Invoice::find($id);
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
         $Account  = Account::find($Invoice->AccountID);
+        $AccountBilling = AccountBilling::getBilling($id);
         $Currency = Currency::find($Account->CurrencyId);
         $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-        $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+        $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
         if(empty($InvoiceTemplate->CompanyLogoUrl)){
             $logo = 'http://placehold.it/250x100';
         }else{
@@ -75,9 +77,10 @@ class InvoicesCustomerController extends \BaseController {
         if(!empty($Invoice)) {
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $logo = 'http://placehold.it/250x100';
             } else {
@@ -99,9 +102,10 @@ class InvoicesCustomerController extends \BaseController {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url = 'http://placehold.it/250x100';
             } else {
@@ -188,11 +192,12 @@ class InvoicesCustomerController extends \BaseController {
         $data['zerovalueinvoice'] 	 =  $data['zerovalueinvoice']== 'true'?1:0;
         $data['IssueDateStart'] = empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
+        $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['AccountID'] = User::get_userID();
 
-        $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-		
+        $query = "call prc_CustomerPanel_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
         {
             $query = $query.',0,1)';

@@ -334,4 +334,8 @@ class UsersController extends BaseController {
         }
         return View::make('user.users_dropdown', compact('users'));
     }
+
+    public function view_tracker(){
+        return View::make('user.tracker', compact(''));
+    }
 }

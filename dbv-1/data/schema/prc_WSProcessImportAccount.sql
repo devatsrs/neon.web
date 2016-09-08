@@ -1,5 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessImportAccount`(IN `p_processId` VARCHAR(200) , IN `p_companyId` INT, IN `p_companygatewayid` INT, IN `p_tempaccountid` TEXT, IN `p_option` INT)
-DECLARE v_AffectedRecords_ INT DEFAULT 0;         
+BEGIN
+
+   DECLARE v_AffectedRecords_ INT DEFAULT 0;         
 	DECLARE totalduplicatecode INT(11);	 
 	DECLARE errormessage longtext;
 	DECLARE errorheader longtext;

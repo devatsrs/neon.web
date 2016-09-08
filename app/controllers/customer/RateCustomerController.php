@@ -73,7 +73,7 @@ class RateCustomerController extends \BaseController {
             $routine = CustomerTrunk::getRoutineDropdownIDList($id);
             $account_owners = User::getOwnerUsersbyRole();
             $trunks_routing =$trunks;
-            $trunks_routing[""] = 'Select a Routing plan';
+            $trunks_routing[""] = 'Select';
             /*if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }*/
@@ -137,7 +137,7 @@ class RateCustomerController extends \BaseController {
         $routine = CustomerTrunk::getRoutineDropdownIDList($id);
         $account_owners = User::getOwnerUsersbyRole();
         $trunks_routing =$trunks;
-        $trunks_routing[""] = 'Select a Routing plan';
+        $trunks_routing[""] = 'Select';
 
         $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
         return View::make('customer.customersrates.inboundrate', compact('id', 'trunks', 'countries','Account','routine','trunks_routing','account_owners','trunk_keys','CurrencySymbol','displayinbound'));

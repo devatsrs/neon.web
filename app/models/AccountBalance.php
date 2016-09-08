@@ -9,15 +9,6 @@ class AccountBalance extends \Eloquent {
 
     public $timestamps = false; // no created_at and updated_at
 
-    public static function getUnbilledAmount($CompanyID,$AccountID){
-        $Amount = 0;
-        $LastInvoiceDate = Invoice::getLastInvoiceDate($CompanyID, $AccountID);
-        if(!empty($LastInvoiceDate)){
-            $UnbilledAmount = DB::connection('neon_report')->select("CALL prc_getUnbilledReport(?,?,?,?)",array($CompanyID,$AccountID,$LastInvoiceDate,3));
-            $Amount = $UnbilledAmount[0]->FinalAmount;
-        }
-        return $Amount;
-    }
 
     public static function getAccountSOA($CompanyID,$AccountID){
         $query = "call prc_getSOA (" . $CompanyID . "," . $AccountID . ",'','',0)";

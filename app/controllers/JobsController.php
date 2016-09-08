@@ -268,7 +268,7 @@ class JobsController extends \BaseController {
 
             $userName = User::get_user_full_name();
             DB::connection('sqlsrv')->select("CALL prc_UpdatePendingJobToCanceled($JobID,'$userName')");
-            return Response::json(array("status" => "success", "message" => "Job is canceled."));
+            return Response::json(array("status" => "success", "message" => "Job is cancelled."));
 
         } else {
 
@@ -305,13 +305,22 @@ class JobsController extends \BaseController {
 
             $is_updated =  \Illuminate\Support\Facades\DB::connection('sqlsrv')->select("CALL prc_UpdateInProgressJobStatusToFail($JobID,$JobStatusID,'$JobStatusMessage', '$UserName')");
 
-            $is_updated = json_decode(json_encode($is_updated));
+            $is_updated = json_decode(json_encode($is_updated),true);
             $is_updated = array_shift($is_updated);
 
-            if(isset($is_updated['result']) && $is_updated['result'] == 1 && $status && $PID > 0){
+            if(isset($is_updated['result']) && $is_updated['result'] == 1 ){
+
+                if($status && $PID > 0){
+
                     return Response::json(array("status" => "success", "message" => "Job Terminated Successfully!"));
+
+                }else {
+
+                    return Response::json(array("status" => "success", "message" => "Job Status Updated."));
+                }
+
             } else {
-                    return Response::json(array("status" => "success", "message" => "Process might be already completed."));
+                    return Response::json(array("status" => "success", "message" => "Process might be already Completed"));
             }
 
         } else {

@@ -204,7 +204,7 @@
                             show_ = show_.replace('{id}', id);
                             action = '';
                             <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="entypo-ticket"></i> </button>';
+                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
                             action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';

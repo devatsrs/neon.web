@@ -30,6 +30,7 @@ GenerateRateTable:BEGIN
 	DECLARE v_Commit int;
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN      
+             show warnings;
 		   ROLLBACK;	  
 		   CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', ''); 
                		   
@@ -205,6 +206,22 @@ GenerateRateTable:BEGIN
 			Preference int,
 			INDEX IX_CODE (Code)			
 	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates1_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates1_(
+		AccountId int,
+		AccountName varchar(200),
+		Code varchar(50),
+		Description varchar(200),
+		Rate DECIMAL(18,6) ,
+		ConnectionFee DECIMAL(18,6) , 
+		EffectiveDate date,
+		TrunkID int,
+		CountryID int,
+		RateID int,
+		Preference int,
+		INDEX IX_Code (Code),
+		INDEX tmp_VendorCurrentRates_AccountId (`AccountId`,`TrunkID`,`RateId`,`EffectiveDate`)
+	);
 
     	SELECT CurrencyID INTO v_CurrencyID_ FROM  tblRateGenerator WHERE RateGeneratorId = p_RateGeneratorId;
 
@@ -304,7 +321,7 @@ GenerateRateTable:BEGIN
      
 	
      -- Collect Vendor Rates 
-	 INSERT INTO tmp_VendorCurrentRates_ 
+	 INSERT INTO tmp_VendorCurrentRates1_ 
 	 Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference					
       FROM (
 				SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description, 
@@ -326,12 +343,7 @@ GenerateRateTable:BEGIN
 								as  Rate,
 								 ConnectionFee,
 			  DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate, 
-			    tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference,
-				@row_num := IF(@prev_AccountId = tblVendorRate.AccountID AND @prev_TrunkID = tblVendorRate.TrunkID AND @prev_RateId = tblVendorRate.RateID AND @prev_EffectiveDate >= tblVendorRate.EffectiveDate, @row_num + 1, 1) AS RowID,
-				@prev_AccountId := tblVendorRate.AccountID,
-				@prev_TrunkID := tblVendorRate.TrunkID,
-				@prev_RateId := tblVendorRate.RateID,
-				@prev_EffectiveDate := tblVendorRate.EffectiveDate
+			    tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference
 			  FROM      tblVendorRate
 			  
 					 Inner join tblVendorTrunk vt on vt.CompanyID = v_CompanyId_ AND vt.AccountID = tblVendorRate.AccountID and 
@@ -352,7 +364,6 @@ GenerateRateTable:BEGIN
 																	  AND tblVendorRate.AccountId = blockCountry.AccountId
 																	  AND tblVendorRate.TrunkID = blockCountry.TrunkID
 						
-						,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
 					 
 			  WHERE      
 						( EffectiveDate <= NOW() )
@@ -369,7 +380,23 @@ GenerateRateTable:BEGIN
 							)
 				ORDER BY tblVendorRate.AccountId, tblVendorRate.TrunkID, tblVendorRate.RateId, tblVendorRate.EffectiveDate DESC	
 		) tbl
-		 WHERE RowID = 1
+		order by Code asc;
+		
+		-- filter by Effective Dates
+     INSERT INTO tmp_VendorCurrentRates_ 
+	  Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference 
+      FROM (
+			  SELECT * ,
+				@row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
+				@prev_AccountId := AccountID,
+				@prev_TrunkID := TrunkID,
+				@prev_RateId := RateID,
+				@prev_EffectiveDate := EffectiveDate
+			  FROM tmp_VendorCurrentRates1_
+			  ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+           ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC	
+		) tbl
+		 WHERE RowID = 1 
 		order by Code asc;
 		
 	--  3 Sort with Rank by Preference or Rate as per setting in RateGenerator 

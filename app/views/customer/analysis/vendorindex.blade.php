@@ -114,7 +114,7 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
         var $searchFilter = {};
-        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+        var toFixed = '{{get_round_decimal_places()}}';
         var table_name = '#destination_table';
         var chart_type = '#destination';
         jQuery(document).ready(function ($) {

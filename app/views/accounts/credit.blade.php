@@ -22,11 +22,12 @@
 </ol>
 <h3>Account Credits</h3>
 <p style="text-align: right;">
-
+    @if(User::checkCategoryPermission('CreditControl','Edit'))
     <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
     </button>
+    @endif
 
 
     <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -68,7 +69,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Available Credit Limit</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$PermanentCredit - $BalanceAmount}}">
+                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{($PermanentCredit - $BalanceAmount)<0?0:($PermanentCredit - $BalanceAmount)}}">
                         </div>
                     </div>
                     <div class="form-group">

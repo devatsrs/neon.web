@@ -161,7 +161,7 @@ BEGIN
        IF p_isExport = 1
 		THEN
 
-			SELECT
+			SELECT DISTINCT
 				Code,
 				Description,
 				Rate,
@@ -170,6 +170,7 @@ BEGIN
 				updated_by AS `Modified By`
 
 			FROM tmp_VendorRate_;
+
 		END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

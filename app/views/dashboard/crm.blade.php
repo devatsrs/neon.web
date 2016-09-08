@@ -1,5 +1,6 @@
 @extends('layout.main')
 @section('content')
+
 <div class="row">
   <div class="tab-content">
     <div class="tab-pane active" id="customer" >
@@ -12,7 +13,7 @@
               </div>
               <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
             </div>
-            <div class="panel-body">
+            <div class="panel-body white-bg">
               <div class="form-group"> @if(User::is_admin())
                 <label class="col-sm-1 control-label" for="field-1">User</label>
                 <div class="col-sm-6"> {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
@@ -32,6 +33,7 @@
     </div>
   </div>
 </div>
+<?php if(User::checkCategoryPermission('CrmDashboardTasks','View')){?>
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -41,7 +43,7 @@
         </div>
         <div id="UsersTasks" class="panel-options"> {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'All', array('id'=>'DueDateFilter','class'=>'select_gray')) }} <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+      <div class="panel-body white-bg" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
         <table class="table table-bordered datatable" id="taskGrid">
           <thead>
             <tr>
@@ -60,17 +62,62 @@
     </div>
   </div>
 </div>
+<?php }  ?>
+    <?php if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
+    <div class="row">
+    <div class="col-sm-12">
+            <div class="panel panel-primary panel-table">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <h3>Recent Accounts</h3>
+                        <span>Recently Added Accounts</span>
+                    </div>
+
+                    <div id="AccountsTab" class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body white-bg">
+                    <table id="accounts" class="table table-responsive">
+                        <thead>
+                        <tr>
+                            <th >Account Name</th>
+                            <th >Phone</th>
+                            <th >Email</th>
+                            <th >Created By</th>
+                            <th >Created</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <?php if(User::checkCategoryPermission('Account','View')){?>
+                    <div class="text-right">
+                        <a href="{{URL::to('/accounts')}}" class="btn btn-primary text-right">View All</a>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+    </div>
+    </div>
+    <?php }
+    ?>
+
 <div class="row">
+@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
-      <div class="panel-heading">
+      <div class="panel-heading">      
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
           <h3>Sales by Opportunity</h3>
           <div class="SalesResult"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Sales">
+        </div>        
+      </div>
+      <div class="form_Sales panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales">
               <div class="form-group form-group-border-none">
                 <label for="Closingdate" class="col-sm-2 control-label ClosingdateLabel ">Close Date</label>
@@ -88,10 +135,10 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
     </div>
   </div>
+  @endif 
+  @if(User::checkCategoryPermission('CrmDashboardPipeline','View'))
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
@@ -108,7 +155,9 @@
       </div>
     </div>
   </div>
+@endif 
 </div>
+ @if(User::checkCategoryPermission('CrmDashboardForecast','View'))
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary panel-table">
@@ -117,9 +166,9 @@
         <div class="panel-title forecase_title">
           <h3>Forecast</h3>
           <div class="ForecastResult"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Forecast">
+        </div>          
+      </div>
+      <div class="form_Forecast panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
@@ -133,11 +182,10 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
+@endif 
  @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
 <div class="row">
 <div class="col-sm-12">
@@ -147,28 +195,28 @@
         <div class="panel-title forecase_title">
           <h3>Sales By Revenue</h3>
           <div class="SalesResultManager"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Sales">
+        </div>          
+      </div>
+      <div class="form_Sales panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales_Manager">
-              <div class="form-group form-group-border-none">
-                <label for="Closingdate" class="col-sm-2 control-label managerLabel ">Date</label>
-                <div class="col-sm-6">
-                  <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange"> 
-                  <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+              <div class="form-group form-group-border-none">               
+                <div class="col-sm-8">
+                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                 <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>               
+                <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+               <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                 </div>
               </div>
               <div class="text-center">
                 <div id="crmdSalesManager1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSalesManager1"></div>
               </div>
-            </form>
+            </form> 
           </div>
-        </div>
-      </div>
     </div>
     </div>
 </div>
 @endif 
+ @if(User::checkCategoryPermission('CrmDashboardOpportunities','View'))
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -178,7 +226,7 @@
         </div>
         <div id="UsersOpportunities" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body">
+      <div class="panel-body white-bg">
         <table class="table table-bordered datatable" id="opportunityGrid">
           <thead>
             <tr>
@@ -201,6 +249,7 @@
   </div>
 </div>
 </div>
+@endif 
 <div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
@@ -215,6 +264,45 @@ var Opportunity_edit = 1;
 @else 
 var Opportunity_edit = 0;
 @endif;
+
+@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')) 
+var CrmDashboardSalesOpportunity = 1;
+@else 
+var CrmDashboardSalesOpportunity = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardPipeline','View')) 
+var CrmDashboardPipeline = 1;
+@else 
+var CrmDashboardPipeline = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardForecast','View')) 
+var CrmDashboardForecast = 1;
+@else 
+var CrmDashboardForecast = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardOpportunities','View')) 
+var CrmDashboardOpportunities = 1;
+@else 
+var CrmDashboardOpportunities = 0; 
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardRecentAccount','View'))
+var CrmDashboardAccount = 1;
+@else 
+var CrmDashboardAccount = 0;
+@endif;
+
+@if(User::checkCategoryPermission('CrmDashboardTasks','View'))
+var CrmDashboardTasks = 1;
+@else 
+var CrmDashboardTasks = 0;
+@endif;
+
+
+
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
@@ -308,6 +396,14 @@ var RevenueReport = 0;
 		padding-left:0;
 		padding-right:0;
 		width:38px;
+	}
+	.click_revenue_diagram{
+		cursor:pointer;
+		text-decoration:underline;
+		font-weight:bold;
+	}
+	.panel-heading{
+	border:none !important;
 	}
 </style>
 @stop
@@ -551,4 +647,25 @@ var RevenueReport = 0;
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="UserRevenue" data-backdrop="static">
+        <div  class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">User Revenue</h4>
+                    </div>
+                    <div class="modal-body left-padding">                      
+                        <div id="UserRevenueTable" class="form-group"></div>                      
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
 @stop

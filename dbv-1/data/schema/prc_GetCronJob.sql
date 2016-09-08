@@ -1,4 +1,13 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJob`(IN `p_companyid` INT, IN `p_Status` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJob`(
+	IN `p_companyid` INT,
+	IN `p_Status` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+
+)
 BEGIN
 
    DECLARE v_OffSet_ int;
@@ -48,7 +57,7 @@ BEGIN
             INNER JOIN tblCronJobCommand
                 ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
             WHERE tblCronJob.CompanyID = p_companyid
-						AND (p_Status =2 OR tblCronJob.`Status`=p_Status);
+            AND (p_Status =2 OR tblCronJob.`Status`=p_Status);
     END IF;
 
     IF p_isExport = 1
@@ -61,7 +70,7 @@ BEGIN
         INNER JOIN tblCronjobCommand
             ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
         WHERE tblCronJob.CompanyID = p_companyid
-        AND (p_Status =2 OR tblCronJob.`Status`=p_Status);
+		  AND (p_Status =2 OR tblCronJob.`Status`=p_Status);
     END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

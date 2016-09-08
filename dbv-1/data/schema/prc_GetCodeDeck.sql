@@ -13,6 +13,7 @@ BEGIN
 
         SELECT
             RateID,
+            tblCountry.ISO2,
             tblCountry.Country,
             Code,
             Description,
@@ -43,6 +44,24 @@ BEGIN
             END DESC,
             CASE
                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+            END ASC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ISO2DESC') THEN ISO2
+            END DESC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ISO2ASC') THEN ISO2
+            END ASC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
+            END DESC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN Interval1
+            END ASC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN IntervalN
+            END DESC,
+            CASE
+                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN IntervalN
             END ASC
         LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -62,6 +81,7 @@ BEGIN
     THEN
 
         SELECT
+            tblCountry.ISO2 as 'ISO Code',
             tblCountry.Country,
             Code,
             Description,
@@ -81,11 +101,12 @@ BEGIN
 
         SELECT
 	        RateID,
+	         tblCountry.ISO2,
             tblCountry.Country,
             Code,
             Description,
             Interval1,
-            IntervalN
+            IntervalN            
         FROM tblRate
         LEFT JOIN tblCountry
             ON tblCountry.CountryID = tblRate.CountryID

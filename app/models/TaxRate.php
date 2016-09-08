@@ -21,7 +21,7 @@ class TaxRate extends \Eloquent {
          * Tables To Check Foreign Key before Delete.
          * */
 
-        $hasInAccount = Account::where("TaxRateID",$id)->count();
+        $hasInAccount = AccountBilling::where("TaxRateID",$id)->count();
 
         if( intval($hasInAccount) > 0 ){
             return true;
@@ -50,7 +50,7 @@ class TaxRate extends \Eloquent {
             self::$cache['taxrate_dropdown1_cache'] = $admin_defaults['taxrate_dropdown1_cache'];
         } else {
             self::$cache['taxrate_dropdown1_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID()))->lists('Title','TaxRateID');
-            self::$cache['taxrate_dropdown1_cache'] = array('' => "Select a Tax Rate")+ self::$cache['taxrate_dropdown1_cache'];
+            self::$cache['taxrate_dropdown1_cache'] = array('' => "Select")+ self::$cache['taxrate_dropdown1_cache'];
 
             Cache::forever('taxrate_dropdown1_cache', array('taxrate_dropdown1_cache' => self::$cache['taxrate_dropdown1_cache']));
         }
@@ -64,7 +64,7 @@ class TaxRate extends \Eloquent {
         }else{
             self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID(),'TaxRateID'=>$TaxRateID))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
         }
-        self::$cache['taxrate_dropdown2_cache'] = array_merge(array(array('TaxRateID' => 0 , "Title"=> "Select a Tax Rate", "Amount"=> 0,"FlatStatus"=>0)),self::$cache['taxrate_dropdown2_cache']);
+        self::$cache['taxrate_dropdown2_cache'] = array_merge(array(array('TaxRateID' => 0 , "Title"=> "Select", "Amount"=> 0,"FlatStatus"=>0)),self::$cache['taxrate_dropdown2_cache']);
         return self::$cache['taxrate_dropdown2_cache'];
     }
 
@@ -77,7 +77,7 @@ class TaxRate extends \Eloquent {
     public static function calculateProductTotalTaxAmount($AccountID,$amount,$qty,$decimal_places) {
 
         //Get Account TaxIDs
-        $TaxRateIDs = Account::where("AccountID",$AccountID)->pluck("TaxRateId");
+        $TaxRateIDs = AccountBilling::where("AccountID",$AccountID)->pluck("TaxRateId");
 
         $SubTotal = $amount*$qty;
         $TotalTax = 0;

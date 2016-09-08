@@ -77,7 +77,11 @@ class NeonAPI{
         }
         $post_data['LicenceKey'] = getenv('LICENCE_KEY');
         $post_data['CompanyName']= getenv('COMPANY_NAME');
-        if($post) {
+        if($post === 'delete') {
+            $curl->delete(self::$api_url . $call_method, $post_data);
+        }else if($post === 'put') {
+            $curl->put(self::$api_url . $call_method, $post_data);
+        }else if($post) {
             $curl->post(self::$api_url . $call_method, $post_data);
         }else{
             $curl->get(self::$api_url.$call_method,$post_data);
@@ -100,8 +104,8 @@ class NeonAPI{
     protected  static function makeResponse($curl,$is_array){
         $response = json_decode($curl->response,$is_array);
         if($curl->http_status_code!=200){
-            Log::info($curl->response);
-            $response = self::errorResponse($is_array,$curl->http_status_code);
+			$array = json_decode(json_encode($curl), true);			
+		    $response = self::errorResponse($is_array,$curl->http_status_code);
         }
         return $response;
     }
