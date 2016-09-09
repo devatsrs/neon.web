@@ -2555,11 +2555,6 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
-$( document ).ajaxSuccess(function( event, xhr, settings ) {
-    if (isxs()){
-        $('.dataTables_wrapper').css('overflow-x','scroll').css('overflow-y','hidden');
-    }
-});
 
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
 /*$('.modal').on('show.bs.modal', function (e) {
@@ -2752,6 +2747,13 @@ $(document).ajaxComplete(function(event, xhr, settings) {
             $(elem).bootstrapSwitch();
         }
     });
+    if (isxs()){
+        $('.dataTables_wrapper').each(function(){
+            var self = $(this);
+            self.css('overflow-x','scroll').css('overflow-y','hidden');
+        });
+
+    }
 });
 $(document).on('click','[redirecto]',function(){
     var url = $(this).attr('redirecto');
