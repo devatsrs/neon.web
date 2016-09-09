@@ -2555,6 +2555,12 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
+$( document ).ajaxSuccess(function( event, xhr, settings ) {
+    if (isxs()){
+        $('.dataTables_wrapper').css('overflow-x','scroll').css('overflow-y','hidden');
+    }
+});
+
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
 /*$('.modal').on('show.bs.modal', function (e) {
     $('.modal').css('top', $(document).scrollTop() + 20);

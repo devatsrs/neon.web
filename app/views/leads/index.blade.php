@@ -161,7 +161,7 @@
                     data_table_extra_params.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
                 },
                 "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-md-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-md-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-md-6 col-left'i><'col-md-6 col-right'p>>",
                 "oTableTools": {},
                 "aaSorting": [[0, 'asc']],
                 "aoColumns": [
