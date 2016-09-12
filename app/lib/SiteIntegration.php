@@ -19,7 +19,8 @@ class SiteIntegration{
  	public function __construct(){
 	
 		//$this->companyID = 	User::get_companyID();
-		$this->companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+		$companyID = SiteIntegration::GetComapnyIdByKey();
+		$this->companyID = !empty($companyID)?$companyID:User::get_companyID();
 	 } 
 	 
 	 /*
@@ -94,9 +95,10 @@ class SiteIntegration{
 	/*
 	 * check settings addded or not . return true,data or false
 	 */ 	
-	public static function  CheckIntegrationConfiguration($data=false,$slug){	
-		
-		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+	public static function  CheckIntegrationConfiguration($data=false,$slug){
+
+		$companyID = SiteIntegration::GetComapnyIdByKey();
+		$companyID = !empty($companyID)?$companyID:User::get_companyID();
 		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
 	
 		if(count($Integration)>0)
@@ -126,9 +128,10 @@ class SiteIntegration{
 	/*
 	check main category have data or not
 	*/
-	public static function  CheckCategoryConfiguration($data=false,$slug){	
-		
-		$companyID		 =	!empty(SiteIntegration::GetComapnyIdByKey())?SiteIntegration::GetComapnyIdByKey():User::get_companyID();
+	public static function  CheckCategoryConfiguration($data=false,$slug){
+
+		$companyID = SiteIntegration::GetComapnyIdByKey();
+		$companyID = !empty($companyID)?$companyID:User::get_companyID();
 		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
 	
 		if(count($Integration)>0)
