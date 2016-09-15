@@ -147,6 +147,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('codedecks/base_datagrid', 'CodeDecksController@base_datagrid');
 	Route::any('codedecks/basecodedeck/{id}', 'CodeDecksController@basecodedeck');
 	Route::any('codedecks/updatecodedeck/{id}', 'CodeDecksController@updatecodedeck');
+	Route::any('codedecks/setdefault/{id}', 'CodeDecksController@setdefault');
 	Route::any('codedecks/{id}/base_delete', 'CodeDecksController@base_delete');
 	Route::any('codedecks/base_exports/{type}', 'CodeDecksController@base_exports');
 	Route::resource('codedecks', 'CodeDecksController');
