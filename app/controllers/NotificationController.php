@@ -4,7 +4,7 @@ class NotificationController extends \BaseController {
     public function ajax_datagrid($type){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $select = ["NotificationType", "EmailAddresses", "created_at" ,"CreatedBy","NotificationID"];
+        $select = ["NotificationType", "EmailAddresses","Status", "created_at" ,"CreatedBy","NotificationID"];
         $Notification = Notification::where(['CompanyID'=>$companyID]);
         if(!empty($data['NotificationType'])){
             $Notification->where('NotificationType','=',$data['NotificationType']);
@@ -46,8 +46,9 @@ class NotificationController extends \BaseController {
 		$data = Input::all();
         $data["CreatedBy"] = User::get_user_full_name();
         $data['CompanyID'] = User::get_companyID();
+        $data['Status'] = isset($data['Status'])?1:0;
         $rules = array(
-            'NotificationType'         =>      'required',
+            'NotificationType'         =>      'required|unique:tblNotification,NotificationType,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
             'EmailAddresses'               =>'required',
         );
         $validator = Validator::make($data, $rules);
@@ -69,6 +70,7 @@ class NotificationController extends \BaseController {
             $NotificationID = $data['NotificationID'];
             $Notification = Notification::find($NotificationID);
             $data["ModifiedBy"] = User::get_user_full_name();
+            $data['Status'] = isset($data['Status'])?1:0;
 
             $rules = array(
                 'EmailAddresses'               =>'required',
@@ -105,4 +107,37 @@ class NotificationController extends \BaseController {
             }
         }
 	}
+    public function settings($NotificationID){
+        $data = Input::all();
+        $Notification = Notification::find($NotificationID);
+        $NotificationType = $Notification->NotificationType;
+        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+        $accoutns = Account::getAccountIDList();
+        unset($accoutns['']);
+        if($NotificationType > 0 && in_array($NotificationType,Notification::$has_settings) ) {
+            $Settings = json_decode($Notification->Settings);
+            return View::make('notification.settings',compact('NotificationType','Notification','emailTemplates','NotificationID','Settings','accoutns'));
+        }else {
+            return '';
+        }
+    }
+    public function store_settings(){
+        $data = Input::all();
+        $NotificationID = $data['NotificationID'];
+        $Notification = Notification::find($NotificationID);
+        if(!empty($Notification)){
+            $valid = Notification::validateNotification($Notification);
+            $update_data = array('Settings'=>json_encode($data['Settings']));
+            if($valid['valid'] == 0){
+                return $valid['message'];
+            }else if ($Notification->update($update_data)) {
+                return Response::json(array("status" => "success", "message" => "Notification Successfully Updated"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Notification."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Notification Not Found."));
+        }
+
+    }
 }

@@ -37,4 +37,8 @@ class EmailTemplate extends \Eloquent {
         }
         return $row;
     }
+
+    public static function getDefaultSystemTemplate($SystemType){
+       return  EmailTemplate::where(array('SystemType'=>$SystemType))->pluck('TemplateID');
+    }
 }

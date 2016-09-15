@@ -2164,3 +2164,6 @@ background-repeat:no-repeat;
     height: 32px;
     line-height: 29px;
 }
+.ms-container .ms-list{
+    height: 200px;
+}

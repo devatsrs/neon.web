@@ -77,7 +77,7 @@ BEGIN
 	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
 	LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID
-		AND p.InvoiceID = inv.InvoiceID 
+		AND p.InvoiceID = inv.InvoiceID
 		AND p.Status = 'Approved' 
 		AND p.AccountID = inv.AccountID 
 		AND p.Recall=0
@@ -113,7 +113,7 @@ BEGIN
 			td.Year,
 			ROUND(COALESCE(SUM(td.TotalAmount),0),v_Round_) TotalInvoice ,  
 			ROUND(COALESCE(MAX(tr.TotalAmount),0),v_Round_) PaymentReceived, 
-			ROUND(SUM(IF(InvoiceStatus!='paid',td.TotalAmount,0)) - COALESCE(MAX(tr.OutAmount),0) ,v_Round_) TotalOutstanding , 
+			ROUND(SUM(IF(InvoiceStatus ='paid' OR InvoiceStatus='partially_paid' ,0,td.TotalAmount)) + COALESCE(MAX(tr.OutAmount),0) ,2) TotalOutstanding ,
 			td.CurrencyID CurrencyID 
 	FROM  
 		tmp_MonthlyTotalDue_ td

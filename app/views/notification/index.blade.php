@@ -59,6 +59,7 @@
                 <tr>
                     <th width="20%">Type</th>
                     <th width="30%">Email Address</th>
+                    <th width="10%">Status</th>
                     <th width="10%">Created Date</th>
                     <th width="10%">Created By</th>
                     <th width="20%">Action</th>
@@ -68,14 +69,16 @@
                 </tbody>
             </table>
             <script type="text/javascript">
-                var list_fields  = ["NotificationType","EmailAddresses","created_at","CreatedBy","NotificationID"];
+                var list_fields  = ["NotificationType","EmailAddresses","Status","created_at","CreatedBy","NotificationID"];
                 var NotificationType = JSON.parse('{{json_encode(Notification::$type)}}');
+                var NotificationWithSetting = {{json_encode(Notification::$has_settings)}};
                 var $search = {};
                 var update_new_url;
                 var postdata;
                 var notification_add_url = baseurl + "/notification/store";
                 var notification_edit_url = baseurl + "/notification/{id}/update";
                 var notification_delete_url = baseurl + "/notification/{id}/delete";
+                var notification_settingg_url = baseurl + "/notification/settings/{id}";
                 var notification_datagrid_url = baseurl + "/notification/ajax_datagrid/type";
                 jQuery(document).ready(function ($) {
                     data_table_char = $("#table-4").dataTable({
@@ -102,6 +105,14 @@
 
                             },  // 0 Notification
                             {"bSortable": true},  // 1 Email Addresses
+                            {
+                                mRender: function (status, type, full) {
+                                    if (status == 1)
+                                        return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
+                                    else
+                                        return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
+                                }
+                            }, //2   Status
                             {"bSortable": true},  // 2 Created At
                             {"bSortable": true},  // 3 Created By
                             {                        // 9 Action
@@ -117,6 +128,11 @@
                                     @endif
                                     @if(User::checkCategoryPermission('Notification','Delete'))
                                         action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    @endif
+                                    @if(User::checkCategoryPermission('Notification','Update'))
+                                    if(NotificationWithSetting.indexOf(full[0]) != -1 ){
+                                        action += ' <a href="' + notification_settingg_url.replace("{id}", id) + '" class="btn btn-success btn-sm btn-icon icon-left"><i class="fa fa-cog"></i>Settings </a>'
+                                    }
                                     @endif
                                     return action;
                                 }
@@ -188,6 +204,12 @@
                                 var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
                                 selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                                 selectBox.disable();
+                            }else if(list_fields[i] == 'Status'){
+                                if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1 ){
+                                    $("#notification-form [name='"+list_fields[i]+"']").prop('checked',true);
+                                }else{
+                                    $("#notification-form [name='"+list_fields[i]+"']").prop('checked',false);
+                                }
                             }
                         }
                         $('#modal-notification').modal('show');
@@ -247,6 +269,16 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Email Addresses</label>
                                 <input type="text" name="EmailAddresses" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Status</label>
+                                <div class="clear">
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" name="Status" value="1">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

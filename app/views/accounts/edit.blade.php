@@ -508,7 +508,7 @@
                     }elseif(!empty($AccountBilling)){
                         $BillingCycleValue = $AccountBilling->BillingCycleValue;
                     }elseif(empty($AccountBilling)){
-                        $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue');
+                        $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue') == 'Invalid Key'?'':CompanySetting::getKeyVal('BillingCycleValue');
                     }
                     ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
