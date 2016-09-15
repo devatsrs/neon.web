@@ -361,17 +361,24 @@
         }});
         $('#save_account').click(function(){
             $(this).button('loading');
-            if($('#customer_detail select[name="CustomerAuthRule"]').val()!='IP'){
-                $('.customeriptable').DataTable().fnClearTable();
-            }else if($('#customer_detail select[name="CustomerAuthRule"]').val()!='CLI'){
-                $('.customerclitable').DataTable().fnClearTable();
+            var post_data = '';
+            if($('#customer_detail select[name="CustomerAuthRule"]').length > 0) {
+                if ($('#customer_detail select[name="CustomerAuthRule"]').val() != 'IP') {
+                    $('.customeriptable').DataTable().fnClearTable();
+                } else if ($('#customer_detail select[name="CustomerAuthRule"]').val() != 'CLI') {
+                    $('.customerclitable').DataTable().fnClearTable();
+                }
+                post_data = $('#customer_detail').serialize();
             }
-            if($('#vendor_detail select[name="VendorAuthRule"]').val()!='IP'){
-                $('.vendoriptable').DataTable().fnClearTable();
-            }else if($('#vendor_detail select[name="VendorAuthRule"]').val()!='CLI'){
-                $('.vendorclitable').DataTable().fnClearTable();
+            if($('#vendor_detail select[name="VendorAuthRule"]').length > 0) {
+                if ($('#vendor_detail select[name="VendorAuthRule"]').val() != 'IP') {
+                    $('.vendoriptable').DataTable().fnClearTable();
+                } else if ($('#vendor_detail select[name="VendorAuthRule"]').val() != 'CLI') {
+                    $('.vendorclitable').DataTable().fnClearTable();
+                }
+                post_data +='&'+$('#vendor_detail').serialize();
             }
-            var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
+            post_data += '&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
             submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
@@ -429,24 +436,30 @@
             $('.customer_accountip').addClass('hidden');
             $('.customer_accountcli').addClass('hidden');
             $('.customer_value_other').addClass('hidden');
+            $('#save_account').removeClass('hidden')
             if($(this).val() == 'Other'){
                 $('.customer_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.customer_accountip').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }else if($(this).val() == 'CLI'){
                 $('.customer_accountcli').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }
         });
         $('[name="VendorAuthRule"]').change(function(){
             $('.vendor_accountip').addClass('hidden');
             $('.vendor_accountcli').addClass('hidden');
             $('.vendor_value_other').addClass('hidden');
+            $('#save_account').removeClass('hidden')
             if($(this).val() == 'Other'){
                 $('.vendor_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.vendor_accountip').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }else if($(this).val() == 'CLI'){
                 $('.vendor_accountcli').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }
         });
         $("#form-addipcli-modal").submit(function(e){
