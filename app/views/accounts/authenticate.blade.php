@@ -376,7 +376,7 @@
                 } else if ($('#vendor_detail select[name="VendorAuthRule"]').val() != 'CLI') {
                     $('.vendorclitable').DataTable().fnClearTable();
                 }
-                post_data +=$('#vendor_detail').serialize();
+                post_data +='&'+$('#vendor_detail').serialize();
             }
             post_data += '&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
@@ -436,24 +436,30 @@
             $('.customer_accountip').addClass('hidden');
             $('.customer_accountcli').addClass('hidden');
             $('.customer_value_other').addClass('hidden');
+            $('#save_account').removeClass('hidden')
             if($(this).val() == 'Other'){
                 $('.customer_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.customer_accountip').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }else if($(this).val() == 'CLI'){
                 $('.customer_accountcli').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }
         });
         $('[name="VendorAuthRule"]').change(function(){
             $('.vendor_accountip').addClass('hidden');
             $('.vendor_accountcli').addClass('hidden');
             $('.vendor_value_other').addClass('hidden');
+            $('#save_account').removeClass('hidden')
             if($(this).val() == 'Other'){
                 $('.vendor_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.vendor_accountip').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }else if($(this).val() == 'CLI'){
                 $('.vendor_accountcli').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }
         });
         $("#form-addipcli-modal").submit(function(e){
