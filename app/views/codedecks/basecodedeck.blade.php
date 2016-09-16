@@ -30,10 +30,9 @@
     <thead>
     <tr>
         <th width="30%">Name</th>
-        <th width="15%">Default</th>
-        <th width="15%">Modified Date</th>
+        <th width="20%">Modified Date</th>
         <th width="20%">ModifiedBy</th>
-        <th width="20%">Actions</th>
+        <th width="30%">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -61,13 +60,12 @@ var postdata;
             "aaSorting": [[0, 'asc']],
              "aoColumns":
             [
-                {  "bSortable": true },
                 {  "bSortable": true ,
-                    mRender: function (isDefault, type, full) {
-                        if(isDefault==1)
-                            return 'Default';
+                    mRender: function (name, type, full) {
+                        if(full[4]==1)
+                            return name+' <span class="badge badge-primary badge-roundless">Base Codedeck</span>';
                         else
-                            return '';
+                            return name;
                     }
                 },
                 {  "bSortable": true },
@@ -83,13 +81,13 @@ var postdata;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>';
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Delete') )
-                        if(full[1] == 0) {
+                        if(full[4] == 0) {
                             action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
                         }
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )
-                            if(full[1] == 0) {
-                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success btn-primary tooltip-primary" data-original-title="Set Default" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
+                            if(full[4] == 0) {
+                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success btn-primary tooltip-primary" data-original-title="Set Base Codedeck" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
                             }
                         @endif
 
