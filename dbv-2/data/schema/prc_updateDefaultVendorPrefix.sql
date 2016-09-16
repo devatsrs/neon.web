@@ -1,19 +1,19 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateDefaultPrefix`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateDefaultVendorPrefix`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
 BEGIN
 	DECLARE v_pointer_ INT;	
 	DECLARE v_partition_limit_ INT;
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetail_(
-		TempUsageDetailID int,
+		TempVendorCDRID int,
 		prefix varchar(50),
-		INDEX IX_TempUsageDetailID(`TempUsageDetailID`)
+		INDEX IX_TempVendorCDRID(`TempVendorCDRID`)
 	);
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail2_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetail2_(
-		TempUsageDetailID int,
+		TempVendorCDRID int,
 		prefix varchar(50),
-		INDEX IX_TempUsageDetailID2(`TempUsageDetailID`)
+		INDEX IX_TempVendorCDRID2(`TempVendorCDRID`)
 	);
 	
 
@@ -34,15 +34,15 @@ BEGIN
 			
 		DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetailPart_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempUsageDetailPart_(
-			TempUsageDetailID int,
+			TempVendorCDRID int,
 			cld varchar(500),
-			INDEX IX_TempUsageDetailID(`TempUsageDetailID`),
+			INDEX IX_TempVendorCDRID(`TempVendorCDRID`),
 			INDEX IX_cld(`cld`)
 		);
 		SET @stm = CONCAT('
 		INSERT INTO tmp_TempUsageDetailPart_
 		SELECT 
-			TempUsageDetailID,
+			TempVendorCDRID,
 			cld
 		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
 		LEFT JOIN tmp_Accounts_ a
@@ -58,7 +58,7 @@ BEGIN
 		
 		INSERT INTO tmp_TempUsageDetail_
 		SELECT
-			TempUsageDetailID,
+			TempVendorCDRID,
 			c.code AS prefix
 		FROM tmp_TempUsageDetailPart_ ud
 		INNER JOIN NeonRMDev.tmp_codes_ c 
@@ -72,13 +72,13 @@ BEGIN
 
 
 	INSERT INTO tmp_TempUsageDetail2_
-	SELECT tbl.TempUsageDetailID,MAX(tbl.prefix)  
+	SELECT tbl.TempVendorCDRID,MAX(tbl.prefix)  
 	FROM tmp_TempUsageDetail_ tbl
-	GROUP BY tbl.TempUsageDetailID;
+	GROUP BY tbl.TempVendorCDRID;
 
 	SET @stm = CONCAT('UPDATE NeonCDRDev.' , p_tbltempusagedetail_name , ' tbl2
 	INNER JOIN tmp_TempUsageDetail2_ tbl
-		ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
+		ON tbl2.TempVendorCDRID = tbl.TempVendorCDRID
 	SET area_prefix = prefix
 	WHERE tbl2.processId = "' , p_processId , '"
 	');
