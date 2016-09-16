@@ -63,7 +63,7 @@ var postdata;
                 {  "bSortable": true ,
                     mRender: function (name, type, full) {
                         if(full[4]==1)
-                            return name+' <span class="badge badge-primary badge-roundless">Base Codedeck</span>';
+                            return name+' <span class="badge badge-primary badge-roundless">Default Codedeck</span>';
                         else
                             return name;
                     }
@@ -87,7 +87,7 @@ var postdata;
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )
                             if(full[4] == 0) {
-                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success btn-primary tooltip-primary" data-original-title="Set Base Codedeck" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
+                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success btn-primary tooltip-primary" data-original-title="Set Default Codedeck" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
                             }
                         @endif
 
