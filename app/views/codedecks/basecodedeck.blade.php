@@ -83,7 +83,9 @@ var postdata;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>';
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Delete') )
-                            action += ' <a data-id="'+ id +'" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
+                        if(full[1] == 0) {
+                            action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
+                        }
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )
                             if(full[1] == 0) {
