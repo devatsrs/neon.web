@@ -191,7 +191,7 @@ BEGIN
 		
 		/* update prefix from default codes 
 		 if rate format is prefix base not charge code*/
-		CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
+		CALL prc_updateDefaultVendorPrefix(p_processId, p_tbltempusagedetail_name);
 
 	END IF;
 	
