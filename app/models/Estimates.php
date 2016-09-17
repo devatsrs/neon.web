@@ -12,6 +12,7 @@ class Estimate extends \Eloquent {
     const DRAFT 			= 	'draft';
     const SEND 				= 	'send';
     const ACCEPTED 			= 	'accepted';
+    const REJECTED 			= 	'rejected';
     const ITEM_ESTIMATE 	=	1;
 	const ESTIMATE_TEMPLATE =	2;
 	
@@ -115,7 +116,8 @@ class Estimate extends \Eloquent {
 	   										''=>'Select Estimate Status',
 	   										self::DRAFT=>'Draft',
 											self::SEND=>'Sent',
-											self::ACCEPTED=>"Accepted"
+											self::ACCEPTED=>"Accepted",
+											self::REJECTED=>"Rejected"
 								);
 	   
         foreach($invoiceStatus as $status)
