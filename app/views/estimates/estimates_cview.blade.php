@@ -64,7 +64,7 @@
                 </a><div class="pull-right"> &nbsp;</div>
                 @endif
                 <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-primary btn-icon icon-left hidden-print">
-                    Print Estimate
+                    Print
                     <i class="entypo-doc-text"></i>
                 </a>
 
