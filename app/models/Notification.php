@@ -43,12 +43,12 @@ class Notification extends \Eloquent {
         return empty($Notification)?'':$Notification;
     }
 
-    public static function validateNotification($Notification){
+    public static function validateNotification($NotificationType){
         $data = Input::all();
         $settings = $data['Settings'];
         $valid = array('valid'=>0,'message'=>'Some thing wrong with cron model validation','data'=>'');
         $message = '';
-        if($Notification->NotificationType == self::PaymentReminder){
+        if($NotificationType == self::PaymentReminder){
             $message = self::validatePaymentReminder($settings);
         }
         if(!empty($message)){

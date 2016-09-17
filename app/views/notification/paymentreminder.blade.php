@@ -1,17 +1,16 @@
-<div class="row">
+<div class="row {{$tabs}}" id="tab_{{Notification::PaymentReminder}}">
     <div class="col-md-12">
         <div data-collapsed="0" class="panel panel-primary">
             <div class="panel-heading">
                 <div class="panel-title">
-                    {{Notification::$type[$NotificationType]}}
+                    {{Notification::$type[Notification::PaymentReminder]}}
                 </div>
                 <div class="panel-options">
                     <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                 </div>
             </div>
             <div class="panel-body">
-                <form id="notification_setting" class="form-horizontal form-groups-bordered" role="form">
-                    <input type="hidden"  name="NotificationID"  value="{{$NotificationID}}">
+                <form id="notification_setting_{{Notification::PaymentReminder}}" class="form-horizontal form-groups-bordered" role="form">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Based On</label>
                         <div class="col-sm-4">
@@ -71,7 +70,7 @@
                             <a href='#' id='deselect-all' class="btn btn-success btn-sm btn-icon icon-left"><i class="fa fa-minus"></i>deselect all</a>
                             <br>
                             <br>
-                            {{Form::select('Settings[AccountID][]', $accoutns, array() ,array("class"=>"form-control multi-select searchable","multiple"=>"multiple"))}}
+                            {{Form::select('Settings[AccountID][]', $accoutns, (isset($Settings->AccountID) ? $Settings->AccountID: array()) ,array("class"=>"form-control multi-select searchable","multiple"=>"multiple"))}}
                         </div>
                     </div>
                 </form>

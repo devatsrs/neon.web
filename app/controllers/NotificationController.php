@@ -33,6 +33,28 @@ class NotificationController extends \BaseController {
         $notificationType = array(""=> "Select") + Notification::$type;
         return View::make('notification.index', compact('notificationType'));
     }
+    public function create(){
+        asort(Notification::$type);
+        $notificationType = array(""=> "Select") + Notification::$type;
+        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+        $accoutns = Account::getAccountIDList();
+        unset($accoutns['']);
+        return View::make('notification.create', compact('notificationType','emailTemplates','accoutns'));
+    }
+    public function edit($NotificationID){
+        asort(Notification::$type);
+        $notificationType = array(""=> "Select") + Notification::$type;
+        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+        $accoutns = Account::getAccountIDList();
+        unset($accoutns['']);
+        $Notification = Notification::find($NotificationID);
+        $NotificationType = $Notification->NotificationType;
+        $Settings = '';
+        if($NotificationType > 0 && in_array($NotificationType,Notification::$has_settings) ) {
+            $Settings = json_decode($Notification->Settings);
+        }
+        return View::make('notification.edit', compact('notificationType','emailTemplates','accoutns','Notification','NotificationID','NotificationType','Settings'));
+    }
 
 
     /**
@@ -55,9 +77,16 @@ class NotificationController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if(isset($data['Settings'])) {
+            $valid = Notification::validateNotification($data['NotificationType']);
+            if($valid['valid'] == 0){
+                return $valid['message'];
+            }
+            $data['Settings'] = json_encode($data['Settings']);
+        }
         unset($data['NotificationID']);
-        if (Notification::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Notification Successfully Created"));
+        if ($Notification = Notification::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Notification Successfully Created",'redirect'=>URL::to('/notification/edit/' . $Notification->NotificationID)));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Notification."));
         }
@@ -67,7 +96,6 @@ class NotificationController extends \BaseController {
 	{
         if($NotificationID > 0 ) {
             $data = Input::all();
-            $NotificationID = $data['NotificationID'];
             $Notification = Notification::find($NotificationID);
             $data["ModifiedBy"] = User::get_user_full_name();
             $data['Status'] = isset($data['Status'])?1:0;
@@ -79,6 +107,13 @@ class NotificationController extends \BaseController {
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
+            }
+            if(isset($data['Settings'])) {
+                $valid = Notification::validateNotification($Notification->NotificationType);
+                if($valid['valid'] == 0){
+                    return $valid['message'];
+                }
+                $data['Settings'] = json_encode($data['Settings']);
             }
             unset($data['NotificationID']);
             unset($data['NotificationType']);
@@ -107,37 +142,4 @@ class NotificationController extends \BaseController {
             }
         }
 	}
-    public function settings($NotificationID){
-        $data = Input::all();
-        $Notification = Notification::find($NotificationID);
-        $NotificationType = $Notification->NotificationType;
-        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
-        $accoutns = Account::getAccountIDList();
-        unset($accoutns['']);
-        if($NotificationType > 0 && in_array($NotificationType,Notification::$has_settings) ) {
-            $Settings = json_decode($Notification->Settings);
-            return View::make('notification.settings',compact('NotificationType','Notification','emailTemplates','NotificationID','Settings','accoutns'));
-        }else {
-            return '';
-        }
-    }
-    public function store_settings(){
-        $data = Input::all();
-        $NotificationID = $data['NotificationID'];
-        $Notification = Notification::find($NotificationID);
-        if(!empty($Notification)){
-            $valid = Notification::validateNotification($Notification);
-            $update_data = array('Settings'=>json_encode($data['Settings']));
-            if($valid['valid'] == 0){
-                return $valid['message'];
-            }else if ($Notification->update($update_data)) {
-                return Response::json(array("status" => "success", "message" => "Notification Successfully Updated"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Notification."));
-            }
-        }else{
-            return Response::json(array("status" => "failed", "message" => "Notification Not Found."));
-        }
-
-    }
 }

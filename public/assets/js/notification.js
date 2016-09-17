@@ -1,4 +1,4 @@
-$('.template_edit').on( "click",function(e){
+/*$('.template_edit').on( "click",function(e){
     e.preventDefault();
     click_id = $(this).attr('id');
     $('.'+click_id+'_txt').addClass('hidden');
@@ -10,11 +10,16 @@ $('#notification_setting').submit(function(e){
     e.preventDefault();
     submit_ajax(baseurl+'/notification/store_settings',$('#notification_setting').serialize());
     return false;
-});
+});*/
 $('#save_notification').on("click",function(e){
     e.preventDefault();
     $('#save_notification').button('loading');
-    $('#notification_setting').trigger('submit');
+    if($('#save_notification').attr('data-id')){
+        submit_ajax($('#save_notification').attr('href'),$("#notification_datail").serialize()+'&'+$('#notification_setting_'+$('#save_notification').attr('data-id')).serialize());
+    }else{
+        submit_ajax($('#save_notification').attr('href'),$("#notification_datail").serialize()+'&'+$('#notification_setting_'+$("#notification_datail [name='NotificationType'] option:selected").val()).serialize());
+    }
+
     return false;
 });
 
@@ -26,6 +31,16 @@ $('#deselect-all').click(function(){
     $('.multi-select').multiSelect('deselect_all');
     return false;
 });
+$("#notification_datail [name='NotificationType']").change(function(){
+    $('#ajax_config_html').html('Loading...<br>');
+    $('.tabs').hide();
+    if($(this).val() != ''){
+        $('#tab_'+$(this).val()).show();
+    }else{
+        $('#ajax_config_html').html('');
+    }
+});
+$('.tabs').hide();
 $('.searchable').multiSelect({
     selectableHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='try \"xyz\"'>",
     selectionHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='try \"xyz\"'>",
