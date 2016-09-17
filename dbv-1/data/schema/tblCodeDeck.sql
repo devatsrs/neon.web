@@ -7,6 +7,7 @@ CREATE TABLE `tblCodeDeck` (
   `updated_at` datetime DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Type` tinyint(3) unsigned DEFAULT NULL,
+  `DefaultCodedeck` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`CodeDeckId`),
   UNIQUE KEY `IXUnique_CodeDeckName_CompanyId` (`CodeDeckName`,`CompanyId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
