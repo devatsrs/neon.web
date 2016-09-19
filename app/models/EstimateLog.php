@@ -34,4 +34,9 @@ class EstimateLog extends \Eloquent {
         return $EstimateComment;
     }
 
+    public static function get_comments_count($EstimateID){
+        $EstimateCommentCount 	= 	EstimateLog::where(["EstimateID" => $EstimateID,"EstimateLogStatus" =>EstimateLog::COMMENT])->count();
+        return $EstimateCommentCount;
+    }
+
 }
