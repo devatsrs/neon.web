@@ -18,7 +18,9 @@
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-body">
           <div class="form-group">
-            <label for="DomainUrl" class="col-sm-2 control-label">Domain Url</label>
+            <label for="DomainUrl" class="col-sm-2 control-label">Domain Url
+              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Url example linux1.neon-soft.com" data-original-title="Domain Url" class="label label-info popover-primary">?</span>
+            </label>
             <div class="col-sm-4">
               <input type="text" name='DomainUrl' class="form-control" id="DomainUrl" placeholder="https://www.site.com" value="">
             </div>

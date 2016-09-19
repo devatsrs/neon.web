@@ -147,6 +147,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('codedecks/base_datagrid', 'CodeDecksController@base_datagrid');
 	Route::any('codedecks/basecodedeck/{id}', 'CodeDecksController@basecodedeck');
 	Route::any('codedecks/updatecodedeck/{id}', 'CodeDecksController@updatecodedeck');
+	Route::any('codedecks/setdefault/{id}', 'CodeDecksController@setdefault');
 	Route::any('codedecks/{id}/base_delete', 'CodeDecksController@base_delete');
 	Route::any('codedecks/base_exports/{type}', 'CodeDecksController@base_exports');
 	Route::resource('codedecks', 'CodeDecksController');
@@ -679,6 +680,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/download_doc_file/{id}', 'EstimatesController@download_doc_file');
 	Route::any('/estimate/sageExport', 'EstimatesController@sageExport');
 	Route::any('/estimate/getEstimateDetail', 'EstimatesController@getEstimateDetail');
+	Route::any('/estimate/estimatelog/{id}', 'EstimatesController@estimatelog');
+	Route::any('/estimate/ajax_estimatelog_datagrid/{id}/{type}', 'EstimatesController@ajax_estimatelog_datagrid');
 	///////////////////////////
 
 	//Invoice
@@ -986,23 +989,23 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
     Route::get('/l/{id}', function($id){
-        $user = User::find($id);
-        $redirect_to = URL::to('/process_redirect');
-        if(!empty($user) ){
-        create_site_configration_cache();
-        Auth::login($user);
-        if(NeonAPI::login_by_id($id)) {
-            User::setUserPermission();
-            Session::set("admin", 1);
-            return Redirect::to($redirect_to);
-        }else{			
-            Session::flush();
-            Auth::logout();
-            echo json_encode(array("login_status" => "invalid"));
-            return;
-        }
-    }
-    exit;
+		$user = User::find($id);
+		$redirect_to = URL::to('/process_redirect');
+		if(!empty($user) ){
+		create_site_configration_cache();
+		Auth::login($user);
+		if(NeonAPI::login_by_id($id)) {
+			User::setUserPermission();
+			Session::set("admin", 1);
+			return Redirect::to($redirect_to);
+		}else{
+			Session::flush();
+			Auth::logout();
+			echo json_encode(array("login_status" => "invalid"));
+			return;
+		}
+	}
+	exit;
     });
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
@@ -1019,7 +1022,11 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/estimate/{id}/estimate_email', 'EstimatesController@estimate_email');
 	
 	Route::any('/estimate/{id}/convert_estimate', 'EstimatesController@convert_estimate');
-	
+	Route::any('/estimate/{id}/customer_accept_estimate', 'EstimatesController@customer_accept_estimate');
+	Route::any('/estimate/estimate_reject_Status', 'EstimatesController@estimate_reject_Status');
+	Route::any('/estimate/{id}/estimate_comment', 'EstimatesController@estimate_comment');
+	Route::any('/estimate/{id}/create_comment', 'EstimatesController@create_comment');
+
 	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
 
 });

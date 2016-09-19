@@ -28,6 +28,7 @@
 <div class="panel-heading">
                     <div class="panel-title">
                         Data Retention (Days)
+                        <br><span class="small">Blank (do not delete)</span>
                     </div>
                     <div class="panel-options">
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -50,7 +51,7 @@
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Job History :</label>
+        <label for="field-1" class="col-sm-2 control-label">Job :</label>
         <div class="col-sm-2">
             <input type="text" name="TableData[Job]" class="form-control" value="{{isset($DataRetenion->Job)?$DataRetenion->Job:''}}"/>
         </div>

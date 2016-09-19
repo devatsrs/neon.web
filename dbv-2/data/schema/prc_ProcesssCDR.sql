@@ -203,6 +203,34 @@ BEGIN
 	END WHILE;
 	
 	
+	/* if rerate is off and acconts and trunks not setup update prefix from default codedeck*/
+	IF p_RateCDR = 0 AND p_RateFormat = 2
+	THEN 
+		/* temp accounts and trunks*/
+		DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
+		CREATE TEMPORARY TABLE tmp_Accounts_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT
+		);
+		SET @stm = CONCAT('
+		INSERT INTO tmp_Accounts_(AccountID)
+		SELECT DISTINCT AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+		
+			
+		/* get default code */
+		CALL NeonRMDev.prc_getDefaultCodes(p_CompanyID);
+		
+		/* update prefix from default codes 
+		 if rate format is prefix base not charge code*/
+		CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
+
+	END IF;
+
 	/* inbound rerate process*/
 	IF p_RateCDR = 1  
 	THEN
