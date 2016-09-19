@@ -2,12 +2,12 @@
 
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
-    <li><a href="{{URL::to('/estimate')}}">Estimate Log</a></li>
-    <li class="active"><strong>View Estimate Log</strong></li>
+    <li><a href="{{URL::to('/estimates')}}">Estimate</a></li>
+    <li class="active"><strong>Estimate Log</strong></li>
 </ol>
 <h3>View Estimate Log</h3>
 <div class="float-right" >
-    <a href="{{URL::to('/estimate')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
+    <a href="{{URL::to('/estimates')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
         <i class="entypo-floppy"></i>
         Back
     </a>

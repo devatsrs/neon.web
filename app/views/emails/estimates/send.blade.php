@@ -1,4 +1,4 @@
-Hi {{$data['AccountName']}}<br><br>
+Dear {{$data['AccountName']}}<br><br>
 
 
 {{$data['Message']}}<br><br>

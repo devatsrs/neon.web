@@ -256,6 +256,12 @@ class EstimatesController extends \BaseController {
              
 				
                 $EstimateTaxRates = merge_tax($EstimateTaxRates);
+                $EstimateLogData = array();
+                $EstimateLogData['EstimateID']= $Estimate->EstimateID;
+                $EstimateLogData['Note']= 'Created By '.$CreatedBy;
+                $EstimateLogData['created_at']= date("Y-m-d H:i:s");
+                $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
+                EstimateLog::insert($EstimateLogData);
                 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
@@ -632,8 +638,10 @@ class EstimatesController extends \BaseController {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
 			$CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
-            $EstimateStatus =   $Estimate->EstimateStatus;
-            return View::make('estimates.estimates_preview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus'));
+            $estimate_status 	= 	 Estimate::get_estimate_status();
+            $EstimateStatus =   $estimate_status[$Estimate->EstimateStatus];
+            $EstimateComments =   EstimateLog::get_comments_count($id);
+            return View::make('estimates.estimates_preview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus','EstimateComments'));
         }
     }
 
@@ -648,8 +656,10 @@ class EstimatesController extends \BaseController {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
             $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
-            $EstimateStatus =   $Estimate->EstimateStatus;
-            return View::make('estimates.estimates_cview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus'));
+            $estimate_status 	= 	 Estimate::get_customer_estimate_status($Estimate->CompanyID);
+            $EstimateStatus =   $estimate_status[$Estimate->EstimateStatus];
+            $EstimateComments =   EstimateLog::get_comments_count($id);
+            return View::make('estimates.estimates_cview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus','EstimateComments'));
         }
     }
 
@@ -885,6 +895,14 @@ class EstimatesController extends \BaseController {
 			{
                 $status['status'] 					= "success";
                 $Estimate->update(['EstimateStatus' => Estimate::SEND ]);
+
+                $estimateloddata = array();
+                $estimateloddata['EstimateID']= $Estimate->EstimateID;
+                $estimateloddata['Note']= 'Sent By '.$CreatedBy;
+                $estimateloddata['created_at']= date("Y-m-d H:i:s");
+                $estimateloddata['EstimateLogStatus']= EstimateLog::SENT;
+                EstimateLog::insert($estimateloddata);
+
                 /*
                     Insert email log in account
                 */
@@ -1298,7 +1316,8 @@ class EstimatesController extends \BaseController {
                 $emaildata['CompanyName'] 		= 	$CompanyName;
                 $emaildata['AccountName'] 		= 	$CreatedBy;
                 $emaildata['Message'] 		= 	$Comment;
-                $emaildata['Subject'] 		= 	$estimatenumber.' Estimate Comment ('.$CustomerName.')';
+                $emaildata['EstimateNumber'] 		= 	$estimatenumber;
+                $emaildata['Subject'] 		= 	'1 added a comment to Estimate '.$estimatenumber.' ('.$CustomerName.')';
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
@@ -1311,9 +1330,10 @@ class EstimatesController extends \BaseController {
                     $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
                     $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
                     $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
-                    $data['Subject'] 		= 	$estimatenumber.' Estimate Comment';
+                    $data['Subject'] 		= 	'1 added a comment to Estimate '.$estimatenumber;
                     $data['Message'] 		= 	$Comment;
-                    $data['CompanyName'] 		= 	$CompanyName;
+                    $data['EstimateNumber'] = 	$estimatenumber;
+                    $data['CompanyName'] 	= 	$CompanyName;
 
                     $CustomerEmails 	=	 $data['EmailTo'];
 
