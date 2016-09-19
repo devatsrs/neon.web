@@ -251,7 +251,9 @@ var postdata;
 							{                                
                                 action += '<li><a class="icon-left"  target="_blank" href="' + estimate_preview +'"><i class="entypo-pencil"></i>View </a></li>';
                             }
-							
+
+                            action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Log </a></li>';
+
 							if ('{{User::checkCategoryPermission('Invoice','Edit')}}' && delete_url)
 							{     
 								//if(full[4] != 'accepted')

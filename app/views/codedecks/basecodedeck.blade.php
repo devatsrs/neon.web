@@ -30,9 +30,9 @@
     <thead>
     <tr>
         <th width="30%">Name</th>
-        <th width="25%">Modified Date</th>
-        <th width="25%">ModifiedBy</th>
-        <th width="20%">Actions</th>
+        <th width="20%">Modified Date</th>
+        <th width="20%">ModifiedBy</th>
+        <th width="30%">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -60,7 +60,14 @@ var postdata;
             "aaSorting": [[0, 'asc']],
              "aoColumns":
             [
-                {  "bSortable": true },
+                {  "bSortable": true ,
+                    mRender: function (name, type, full) {
+                        if(full[4]==1)
+                            return name+' <span class="badge badge-primary badge-roundless">Default Codedeck</span>';
+                        else
+                            return name;
+                    }
+                },
                 {  "bSortable": true },
                 {  "bSortable": true },
                 {
@@ -69,13 +76,20 @@ var postdata;
                         var action , edit_ , show_ , delete_;
                         show_ = "{{ URL::to('codedecks/basecodedeck/{id}')}}";
                         show_ = show_.replace( '{id}', id);
-                        action = '<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';                        
-                        <?php if(User::checkCategoryPermission('CodeDecks','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-type = "'+full[4]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                        <?php } ?>
-                        <?php if(User::checkCategoryPermission('CodeDecks','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-codedecks btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
-                        <?php } ?>    
+                        action = '<a href="'+show_+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
+                        @if(User::checkCategoryPermission('CodeDecks','Edit') )
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>';
+                        @endif
+                        @if(User::checkCategoryPermission('CodeDecks','Delete') )
+                        if(full[4] == 0) {
+                            action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
+                        }
+                        @endif
+                        @if(User::checkCategoryPermission('CodeDecks','Edit') )
+                            if(full[4] == 0) {
+                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success btn-primary tooltip-primary" data-original-title="Set Default Codedeck" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
+                            }
+                        @endif
 
                         return action;
                       }
@@ -100,7 +114,7 @@ var postdata;
            "fnDrawCallback": function() {
                    //After Delete done
                    FnDeleteCodeDecksSuccess = function(response){
-
+                       $(".save.btn").button('reset');
                        if (response.status == 'success') {
                            $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
                            ShowToastr("success",response.message);
@@ -114,6 +128,7 @@ var postdata;
                        result = confirm("Are you Sure?");
                        if(result){
                            var id  = $(this).attr("data-id");
+                           $(this).button('loading');
                            showAjaxScript( baseurl + "/codedecks/"+id+"/base_delete" ,"",FnDeleteCodeDecksSuccess );
                        }
                        return false;
@@ -145,11 +160,15 @@ var postdata;
         ev.stopPropagation();
         $('#add-new-codedeck-form').trigger("reset");
         $("#add-new-codedeck-form [name='CodedeckName']").val($(this).attr('data-name'));
-        $("#add-new-codedeck-form [name='Type']").select2().select2('val',$(this).attr('data-type'));
         $("#add-new-codedeck-form [name='CodeDeckId']").val($(this).attr('data-id'));
         $('#add-new-modal-codedeck h4').html('Edit Codedeck');
         $('#add-new-modal-codedeck').modal('show');
-    })
+    });
+    $('table tbody').on('click','.default-codedecks',function(ev){
+        ev.preventDefault();
+        $(this).button('loading');
+        submit_ajax( baseurl + '/codedecks/setdefault/'+$(this).attr('data-id'))
+    });
 
     $('#add-new-codedeck-form').submit(function(e){
         e.preventDefault();

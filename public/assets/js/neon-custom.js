@@ -416,7 +416,9 @@ toastr_opts = {
                 $popover.addClass(popover_class);
             });
         });
-
+        $("body").tooltip({
+            selector: '[data-toggle="tooltip"]'
+        });
         $('[data-toggle="tooltip"]').each(function(i, el)
         {
             var $this = $(el),
