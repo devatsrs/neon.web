@@ -75,9 +75,8 @@
                 var update_new_url;
                 var postdata;
                 var notification_add_url = baseurl + "/notification/store";
-                var notification_edit_url = baseurl + "/notification/edit/{id}";
+                var notification_edit_url = baseurl + "/notification/{id}/update";
                 var notification_delete_url = baseurl + "/notification/{id}/delete";
-                var notification_settingg_url = baseurl + "/notification/settings/{id}";
                 var notification_datagrid_url = baseurl + "/notification/ajax_datagrid/type";
                 jQuery(document).ready(function ($) {
                     data_table_char = $("#table-4").dataTable({
@@ -172,19 +171,59 @@
 
                     $('#notification_submit').trigger('click');
                     //inst.myMethod('I am a method');
+                    $('#add-notification').click(function(ev){
+                        ev.preventDefault();
+                        $('#notification-form').trigger("reset");
+                        $('#modal-notification h4').html('Add Notification');
+                        $("#notification-form [name='NotificationEmailAddresses']").val('');
+                        var selectBox = $("#notification-form [name='NotificationType']").data("selectBox-selectBoxIt");
+                        selectBox.selectOption('');
+                        selectBox.enable();
+                        $('.tax').removeClass('hidden');
 
-
+                        $('#notification-form').attr("action",notification_add_url);
+                        $('#modal-notification').modal('show');
+                    });
+                    $('table tbody').on('click', '.edit-notification', function (ev) {
+                        ev.preventDefault();
+                        $('#notification-form').trigger("reset");
+                        var edit_url  = $(this).attr("href");
+                        $('#notification-form').attr("action",edit_url);
+                        $('#modal-notification h4').html('Edit Notification');
+                        var cur_obj = $(this).prev("div.hiddenRowData");
+                        for(var i = 0 ; i< list_fields.length; i++){
+                            $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            if(list_fields[i] == 'NotificationType'){
+                                var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
+                                selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                selectBox.disable();
+                            }
+                            if(list_fields[i] == 'Status') {
+                                if (cur_obj.find("input[name='Status']").val() == 1) {
+                                    $("#notification-form [name='"+list_fields[i]+"']").prop('checked', true)
+                                } else {
+                                    $("#notification-form [name='"+list_fields[i]+"']").prop('checked', false)
+                                }
+                            }
+                        }
+                        $('#modal-notification').modal('show');
+                    });
                     $('table tbody').on('click', '.delete-notification', function (ev) {
                         ev.preventDefault();
                         result = confirm("Are you Sure?");
                         if(result){
                             var delete_url  = $(this).attr("href");
                             submit_ajax_datatable( delete_url,"",0,data_table_char);
-                            data_table_char.fnFilter('', 0);
                         }
                         return false;
                     });
 
+                    $("#notification-form").submit(function(e){
+                        e.preventDefault();
+                        var _url  = $(this).attr("action");
+                        submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+
+                    });
 
                     // Replace Checboxes
                     $(".pagination a").click(function (ev) {
@@ -199,4 +238,56 @@
 
         </div>
     </div>
+@stop
+@section('footer_ext')
+    @parent
+
+    <div class="modal fade in" id="modal-notification">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="notification-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Additional Charges</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Type</label>
+                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"selectboxit product_dropdown"))}}
+                                <input type="hidden" name="NotificationID" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Email Addresses</label>
+                                <input type="text" name="EmailAddresses" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Active</label>
+                                <div class="clear">
+                                    <p class="make-switch switch-small">
+                                        <input type="checkbox" checked=""  name="Status" value="0">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @stop

@@ -33,28 +33,6 @@ class NotificationController extends \BaseController {
         $notificationType = array(""=> "Select") + Notification::$type;
         return View::make('notification.index', compact('notificationType'));
     }
-    public function create(){
-        asort(Notification::$type);
-        $notificationType = array(""=> "Select") + Notification::$type;
-        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
-        $accoutns = Account::getAccountIDList();
-        unset($accoutns['']);
-        return View::make('notification.create', compact('notificationType','emailTemplates','accoutns'));
-    }
-    public function edit($NotificationID){
-        asort(Notification::$type);
-        $notificationType = array(""=> "Select") + Notification::$type;
-        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
-        $accoutns = Account::getAccountIDList();
-        unset($accoutns['']);
-        $Notification = Notification::find($NotificationID);
-        $NotificationType = $Notification->NotificationType;
-        $Settings = '';
-        if($NotificationType > 0 && in_array($NotificationType,Notification::$has_settings) ) {
-            $Settings = json_decode($Notification->Settings);
-        }
-        return View::make('notification.edit', compact('notificationType','emailTemplates','accoutns','Notification','NotificationID','NotificationType','Settings'));
-    }
 
 
     /**
@@ -76,13 +54,6 @@ class NotificationController extends \BaseController {
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
-        }
-        if(isset($data['Settings'])) {
-            $valid = Notification::validateNotification($data['NotificationType']);
-            if($valid['valid'] == 0){
-                return $valid['message'];
-            }
-            $data['Settings'] = json_encode($data['Settings']);
         }
         unset($data['NotificationID']);
         if ($Notification = Notification::create($data)) {
@@ -107,13 +78,6 @@ class NotificationController extends \BaseController {
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
-            }
-            if(isset($data['Settings'])) {
-                $valid = Notification::validateNotification($Notification->NotificationType);
-                if($valid['valid'] == 0){
-                    return $valid['message'];
-                }
-                $data['Settings'] = json_encode($data['Settings']);
             }
             unset($data['NotificationID']);
             unset($data['NotificationType']);
