@@ -5,7 +5,8 @@
             <label for="field-5" class="col-sm-2 control-label">Comments:</label>
             <div class="col-sm-10">
                 @foreach($EstimateComments as $EstimateComment)
-                    {{$EstimateComment->Note}}<br><br>
+                    {{$EstimateComment->Note}}<br>
+                    {{$EstimateComment->created_at}}<br><br>
                 @endforeach
             </div>
         </div>

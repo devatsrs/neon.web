@@ -839,7 +839,7 @@ class EstimatesController extends \BaseController {
             $EstimateGenerationEmail 	= 	CompanySetting::getKeyVal('EstimateGenerationEmail');
             $EstimateGenerationEmail 	= 	($EstimateGenerationEmail =='Invalid Key')?$Company->Email:$EstimateGenerationEmail;
             $emailtoCustomer 			= 	getenv('EmailToCustomer');
-            
+
 			if(intval($emailtoCustomer) == 1)
 			{
                 $CustomerEmail = $data['Email'];
@@ -1317,7 +1317,7 @@ class EstimatesController extends \BaseController {
                 $emaildata['AccountName'] 		= 	$CreatedBy;
                 $emaildata['Message'] 		= 	$Comment;
                 $emaildata['EstimateNumber'] 		= 	$estimatenumber;
-                $emaildata['Subject'] 		= 	'1 added a comment to Estimate '.$estimatenumber.' ('.$CustomerName.')';
+                $emaildata['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber.' ('.$CustomerName.')';
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
@@ -1330,7 +1330,7 @@ class EstimatesController extends \BaseController {
                     $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
                     $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
                     $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
-                    $data['Subject'] 		= 	'1 added a comment to Estimate '.$estimatenumber;
+                    $data['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber;
                     $data['Message'] 		= 	$Comment;
                     $data['EstimateNumber'] = 	$estimatenumber;
                     $data['CompanyName'] 	= 	$CompanyName;
@@ -1366,7 +1366,9 @@ class EstimatesController extends \BaseController {
     public function estimatelog($id)
     {
         $estimate = Estimate::find($id);
-        return View::make('estimates.estimatelog', compact('estimate','id'));
+        $AccountBilling = AccountBilling::getBilling($estimate->AccountID);
+        $estimatenumber = Estimate::getFullEstimateNumber($estimate,$AccountBilling);
+        return View::make('estimates.estimatelog', compact('estimate','id','estimatenumber'));
     }
 
 
@@ -1376,7 +1378,7 @@ class EstimatesController extends \BaseController {
 
 
         //$columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
-        $columns = array('EstimateNumber','Notes','EstimateLogStatus','created_at','EstimateID');
+        $columns = array('Notes','EstimateLogStatus','created_at','EstimateID');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
