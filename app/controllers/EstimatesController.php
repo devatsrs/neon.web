@@ -262,7 +262,10 @@ class EstimatesController extends \BaseController {
                 $EstimateLogData['created_at']= date("Y-m-d H:i:s");
                 $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
                 EstimateLog::insert($EstimateLogData);
-                DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                if(!empty($EstimateTaxRates)) {
+                    DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                }
+
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -415,7 +418,9 @@ class EstimatesController extends \BaseController {
                         }
 
                         $EstimateTaxRates = merge_tax($EstimateTaxRates);
-                        DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                        if(!empty($EstimateTaxRates)) {
+                            DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                        }
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
