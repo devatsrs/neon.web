@@ -25,7 +25,7 @@
           <div>
             <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) Paid @else DUE @endif</div>
           </div>
-          <div class="amount"> <span class="overdue"><?php if($Invoice->InvoiceStatus==Invoice::PAID){echo $CurrencySymbol.number_format($payment_log['paid_amount'],get_round_decimal_places($Invoice->AccountID));}elseif($Invoice->InvoiceStatus!=Invoice::PAID && $payment_log['paid_amount']>0){echo $CurrencySymbol.number_format($payment_log['due_amount'],$Account->RoundChargesAmount);}else{echo $CurrencySymbol.number_format($payment_log['total'],$Account->RoundChargesAmount);}  ?></span> </div>
+          <div class="amount"> <span class="overdue"><?php if($Invoice->InvoiceStatus==Invoice::PAID){echo $CurrencySymbol.number_format($payment_log['paid_amount'],get_round_decimal_places($Invoice->AccountID));}elseif($Invoice->InvoiceStatus!=Invoice::PAID && $payment_log['paid_amount']>0){echo $CurrencySymbol.number_format($payment_log['due_amount'],get_round_decimal_places($Invoice->AccountID));}else{echo $CurrencySymbol.number_format($payment_log['total'],get_round_decimal_places($Invoice->AccountID));}  ?></span> </div>
         </div>
         <div class="x-span4 pull-left" >
           <h1 class="text-center">Invoice</h1>
