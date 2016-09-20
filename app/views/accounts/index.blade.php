@@ -946,11 +946,14 @@
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
-                    $(el).data("selectBox-selectBoxIt").remove();
+                    el.empty();
+                    options = [];
                     $.each(data,function(key,value){
-                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
+                        options.push(new Option(value, key, true, true));
                     });
-                    $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    options.sort();
+                    el.append(options);
+                    el.trigger('change');
                 } else {
                     toastr.error(status, "Error", toastr_opts);
                 }
@@ -1030,11 +1033,12 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Bulk Send Email</h4>
                     </div>
+
                     <div class="modal-body">
                         <div class="row CD">
-                            <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Trunk</label>
-                                <div class="col-sm-9">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                                     @foreach ($trunks as $index=>$trunk)
                                         @if(!empty($trunk) && !empty($index))
                                             <div class="col-sm-2">
@@ -1050,10 +1054,10 @@
                             </div>
                         </div>
                         <div class="row CD">
-                            <div class="form-group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Merge Output file By Trunk</label>
-                                <div class="col-sm-5">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <br />
+                                    <label for="field-1" class="control-label">Merge Output file By Trunk</label>
                                     <div class="make-switch switch-small" data-on-label="<i class='entypo-check'></i>" data-off-label="<i class='entypo-cancel'></i>" data-animated="false">
                                         <input type="hidden" name="isMerge" value="0">
                                         <input type="checkbox" name="isMerge" value="1">
@@ -1065,78 +1069,71 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Show Template</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('email_template_privacy',EmailTemplate::$privacy,'',array("class"=>"selectboxit"))}}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">Show Template</label>
+                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label">Email Template</label>
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Email Template</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Subject</label>
-                                <div class="col-sm-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-4" class="control-label">Subject</label>
                                     <input type="text" class="form-control" id="subject" name="subject" />
                                     <input type="hidden" name="SelectedIDs" />
                                     <input type="hidden" name="criteria" />
                                     <input type="hidden" name="Type" value="{{EmailTemplate::ACCOUNT_TEMPLATE}}" />
                                     <input type="hidden" name="type" value="BAE" />
+                                    <input type="hidden" name="ratesheetmail" value="0" />
                                     <input type="hidden" name="test" value="0" />
                                     <input type="hidden" name="testEmail" value="" />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Message</label>
-                                <div class="col-sm-10">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Message</label>
                                     <textarea class="form-control message" rows="18" name="message"></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group">
-                                <br/>
-                                <label for="field-5" class="col-sm-2 control-label">Attachment</label>
-                                <div class="col-sm-10">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-6" class="control-label">Attchament</label>
                                     <input type="file" id="attachment"  name="attachment" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                                 </div>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Template Option</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-7" class="control-label">Template Option</label>
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
-                        </div>
-                        <div id="templatename" class="row hidden">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-5" class="col-sm-2 control-label">New Template Name</label>
-                                <div class="col-sm-4">
+                            <div id="templatename" class="col-md-6 hidden">
+                                <div class="form-group">
+                                    <label for="field-7" class="control-label">New Template Name</label>
                                     <input type="text" name="template_name" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                         </div>
+
                     </div>
+
                     <div class="modal-footer">
-                        <button id="bull-email-account" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button id="bull-email-account" type="submit" id="mail-send"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Send
                         </button>
