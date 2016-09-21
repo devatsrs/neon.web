@@ -2751,7 +2751,15 @@ $(document).ajaxComplete(function(event, xhr, settings) {
         $('.dataTables_wrapper').each(function(){
             var self = $(this);
             setTimeout(function(){
-                var width = self.find('table').outerWidth();
+                var table = self.find('table');
+                var width = 0;
+                if(table.hasClass('hidden')){
+                    table.removeClass('hidden');
+                    width = self.find('table').outerWidth();
+                    table.addClass('hidden');
+                }else{
+                    width = self.find('table').outerWidth();
+                }
                 self.find('div.row').each(function(index,item){
                     $(item).css('width',width);
                     $(item).css('margin',0);
