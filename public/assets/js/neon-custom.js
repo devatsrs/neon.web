@@ -2765,7 +2765,7 @@ $(document).ajaxComplete(function(event, xhr, settings) {
                     $(item).css('margin',0);
                     $(item).find('.col-xs-6').css('padding',0);
                 }.bind(width));
-            }, 5000,self);
+            }, 3000,self);
             self.css('overflow-x','scroll').css('overflow-y','hidden');
         });
     }
