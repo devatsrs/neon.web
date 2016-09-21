@@ -955,6 +955,15 @@ Route::group(array('before' => 'auth'), function () {
 	//Account Discount Plan
 	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
 
+	// Billing Class
+	Route::any('/billing_class','BillingClassController@index');
+	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
+	Route::any('/billing_class/create','BillingClassController@create');
+	Route::any('/billing_class/store','BillingClassController@store');
+	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
+	Route::any('/billing_class/update/{id}','BillingClassController@update');
+	Route::any('/billing_class/delete/{id}','BillingClassController@delete');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {

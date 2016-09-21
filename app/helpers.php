@@ -42,13 +42,18 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
             }
         }
     }
+    $parse_repose = array("status" => $status, "message" => $message);
+    if(($isArray && isset($response['redirect'])) || (!$isArray && isset($response->redirect))){
+        $parse_repose['redirect'] =  $isArray ? $response['redirect'] : $response->redirect;
+    }
+
 
     if($isBrowser){
         if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
 
-            return  Response::json(array("status" => $status, "message" => $message),401);
+            return  Response::json($parse_repose,401);
         }else {
-            return Response::json(array("status" => $status, "message" => $message));
+            return Response::json($parse_repose);
         }
     }else{
         return $message;
