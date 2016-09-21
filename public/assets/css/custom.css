@@ -1595,30 +1595,6 @@ margin-left:0px;
      margin-left: 0px;
     margin-right: -10px;
     }
-.deals-board {
-margin-top:10px;
-}
-#task-dashboard .board-column-item {
-background-color:#e8e8e8 !important;
-}
-.no-display {
-display:none;
-}
-#exsiting-lead .form-group,
-#new-deal-fields .form-group {
-    margin-left: 0px;
-    margin-right: -10px;
-        border-bottom: 1px solid #ebebeb;
-    padding-bottom: 15px;
-    padding-top: 15px;
-    margin-bottom: 0px;
-}
-.deal-details img {
-    width: 100px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
 #sample-board-page tile-stats {
 background-color:#303641;
 }
@@ -2122,18 +2098,23 @@ border:1px solid #AC33FF;
     background-color:#ffffff;
     border-color:#ebebeb;
     color:#373e4a;
+    min-height:40px;
 }
 
 .panel-heading > .panel-options{
-    position: absolute;
-    right:25px;
-    top:15px;
+    float:right;
 }
 .panel-title {
     color: inherit;
     font-size: 14px;
     margin-bottom: 0;
     margin-top: 0;
+    float:left;
+}
+
+.panel-table .panel-heading > .panel-title{
+    padding: 0px;
+    margin-top:-19px;
 }
 
 label{

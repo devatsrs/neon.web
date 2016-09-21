@@ -2750,9 +2750,16 @@ $(document).ajaxComplete(function(event, xhr, settings) {
     if (isxs()){
         $('.dataTables_wrapper').each(function(){
             var self = $(this);
+            setTimeout(function(){
+                var width = self.find('table').outerWidth();
+                self.find('div.row').each(function(index,item){
+                    $(item).css('width',width);
+                    $(item).css('margin',0);
+                    $(item).find('.col-xs-6').css('padding',0);
+                }.bind(width));
+            }, 5000,self);
             self.css('overflow-x','scroll').css('overflow-y','hidden');
         });
-
     }
 });
 $(document).on('click','[redirecto]',function(){
