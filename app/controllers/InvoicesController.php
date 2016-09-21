@@ -288,7 +288,9 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
-                InvoiceTaxRate::insert($InvoiceTaxRates);
+                if(!empty($InvoiceTaxRates)) {
+                    InvoiceTaxRate::insert($InvoiceTaxRates);
+                }
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                     if (empty($pdf_path)) {
@@ -421,7 +423,9 @@ class InvoicesController extends \BaseController {
                             }
                         }
                         $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
-                        InvoiceTaxRate::insert($InvoiceTaxRates);
+                        if(!empty($InvoiceTaxRates)) {
+                            InvoiceTaxRate::insert($InvoiceTaxRates);
+                        }
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {

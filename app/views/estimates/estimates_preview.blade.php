@@ -42,10 +42,10 @@
                 <div class="x-span4 pull-left" > <h1 class="text-center">Estimate</h1></div>
                 <div class="x-span8 pull-right" style="margin-top:5px;">
 
-                 <a id="comment-estimate" class="pull-right  btn btn-sm btn-info btn-icon icon-left hidden-print">
-                     Comment @if($EstimateComments>0)({{$EstimateComments}})@endif
-                     <i class="fa fa-comment-o"></i>
-                 </a><div class="pull-right"> &nbsp;</div>
+                <a id="comment-estimate" class="pull-right  btn btn-sm btn-info btn-icon icon-left hidden-print">
+                    Comment @if($EstimateComments>0)({{$EstimateComments}})@endif
+                    <i class="fa fa-comment-o"></i>
+                </a><div class="pull-right"> &nbsp;</div>
                 <a id="reject-estimate" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print">
                     Reject
                     <i class="fa fa-times"></i>
@@ -90,7 +90,6 @@
 
         </div>
 </div>
-
     <div class="modal fade in" id="comment-modal-estimate">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -108,74 +107,63 @@
             </div>
         </div>
     </div>
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        var base_url_estimate 		= 	"{{ URL::to('estimate')}}";
+        var estimate_id = '{{$Estimate->EstimateID}}';
+        $("#accept-estimate").click(function(ev) {
+            if (!confirm('Are you sure you want to Accept estimate ?')) {
+                return false;
+            }
+            var ajaxurl_convert = base_url_estimate+"/"+estimate_id+"/convert_estimate";
 
-    <script type="text/javascript">
-        jQuery(document).ready(function ($) {
-            var base_url_estimate 		= 	"{{ URL::to('estimate')}}";
-            var estimate_id = '{{$Estimate->EstimateID}}';
-            $("#accept-estimate").click(function(ev) {
-                if (!confirm('Are you sure you want to Accept estimate ?')) {
-                    return false;
+            $.ajax({
+                url: ajaxurl_convert,
+                type: 'POST',
+                dataType: 'json',
+                data:{'eid':estimate_id,'convert':1},
+                success: function(response) {
+                    alert(response.message);
+                    window.location.reload();
                 }
-                var email = '';
-                @if(isset($_GET['email']))
-                   email = '{{$_GET['email']}}';
-                @endif
-
-                var ajaxurl_convert = base_url_estimate+"/"+estimate_id+"/customer_accept_estimate";
-
-                $.ajax({
-                    url: ajaxurl_convert,
-                    type: 'POST',
-                    dataType: 'json',
-                    data:{'eid':estimate_id,'convert':1,'Email':email,'Type':2},
-                    success: function(response) {
-                        alert(response.message);
-                        window.location.reload();
-                    }
-                });
             });
+        });
 
-            $("#reject-estimate").click(function(ev) {
-                if (!confirm('Are you sure you want to Reject estimate ?')) {
-                    return false;
+        $("#reject-estimate").click(function(ev) {
+            if (!confirm('Are you sure you want to Reject estimate ?')) {
+                return false;
+            }
+            var email = '';
+
+            var ajaxurl_convert = base_url_estimate+"/estimate_reject_Status";
+
+            $.ajax({
+                url: ajaxurl_convert,
+                type: 'POST',
+                dataType: 'json',
+                data:{'EstimateIDs':estimate_id,'EstimateStatus':'rejected','Email':email,'Type':'1'},
+                success: function(response) {
+                    alert(response.message);
+                    window.location.reload();
                 }
-                var email = '';
-                @if(isset($_GET['email']))
-                    email = '{{$_GET['email']}}';
-                @endif
-
-                var ajaxurl_convert = base_url_estimate+"/estimate_reject_Status";
-
-                $.ajax({
-                    url: ajaxurl_convert,
-                    type: 'POST',
-                    dataType: 'json',
-                    data:{'EstimateIDs':estimate_id,'EstimateStatus':'rejected','Email':email,'Type':'2'},
-                    success: function(response) {
-                        alert(response.message);
-                        window.location.reload();
-                    }
-                });
-
             });
 
-            $("#comment-estimate").click(function(ev) {
-                $('#send-modal-estimate').find(".modal-body").html("Loading Content...");
-                var ajaxurl = base_url_estimate + "/"+estimate_id+"/estimate_comment";
-                showAjaxModalnew(ajaxurl,'comment-modal-estimate');
-                $("#comment-estimate-form")[0].reset();
-                $('#comment-modal-estimate').modal('show');
-            });
+        });
 
-            $("#comment-estimate-form").submit(function(e){
-                e.preventDefault();
-                var email = '';
-                @if(isset($_GET['email']))
-                        email = '{{$_GET['email']}}';
-                @endif
-                var Comment = $(this).find("[name=Comment]").val();
-                if(Comment != ''){
+        $("#comment-estimate").click(function(ev) {
+
+            $('#send-modal-estimate').find(".modal-body").html("Loading Content...");
+            var ajaxurl = base_url_estimate + "/"+estimate_id+"/estimate_comment";
+            showAjaxModalnew(ajaxurl,'comment-modal-estimate');
+            $("#comment-estimate-form")[0].reset();
+            $('#comment-modal-estimate').modal('show');
+        });
+
+        $("#comment-estimate-form").submit(function(e){
+            e.preventDefault();
+            var email = '';
+            var Comment = $(this).find("[name=Comment]").val();
+            if(Comment != ''){
                 var EstimateID = $(this).find("[name=EstimateID]").val();
                 var ajaxurl_comment = base_url_estimate+"/"+EstimateID+"/create_comment";
 
@@ -183,36 +171,36 @@
                     url: ajaxurl_comment,
                     type: 'POST',
                     dataType: 'json',
-                    data:{'EstimateID':EstimateID,'Comment':Comment,'Email':email,'Type':'2'},
+                    data:{'EstimateID':EstimateID,'Comment':Comment,'Email':email,'Type':'1'},
                     success: function(response) {
                         $('#comment-modal-estimate').modal('hide');
                         $("#comment-estimate-form")[0].reset();
                         alert(response.message);
                     }
                 });
-                }else{
-                    alert('Please Add Comment');
-                    return false;
-                }
-
-            });
+            }else{
+                alert('Please Add Comment');
+                return false;
+            }
 
         });
 
-        function showAjaxModalnew(ajaxurl, modalID)
-        {
-            modalID = '#' + modalID;
-            $(modalID).modal('show', {backdrop: 'static'});
+    });
 
-            $(modalID + ' .modal-body').html("Content is loading...");
-            $.ajax({
-                url: ajaxurl,
-                success: function(response)
-                {
-                    $(modalID + ' .modal-body').html(response);
-                }
-            });
-        }
+    function showAjaxModalnew(ajaxurl, modalID)
+    {
+        modalID = '#' + modalID;
+        $(modalID).modal('show', {backdrop: 'static'});
 
-    </script>
+        $(modalID + ' .modal-body').html("Content is loading...");
+        $.ajax({
+            url: ajaxurl,
+            success: function(response)
+            {
+                $(modalID + ' .modal-body').html(response);
+            }
+        });
+    }
+
+</script>
 @stop

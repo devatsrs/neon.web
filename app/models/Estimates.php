@@ -12,6 +12,7 @@ class Estimate extends \Eloquent {
     const DRAFT 			= 	'draft';
     const SEND 				= 	'send';
     const ACCEPTED 			= 	'accepted';
+    const REJECTED 			= 	'rejected';
     const ITEM_ESTIMATE 	=	1;
 	const ESTIMATE_TEMPLATE =	2;
 	
@@ -115,7 +116,8 @@ class Estimate extends \Eloquent {
 	   										''=>'Select Estimate Status',
 	   										self::DRAFT=>'Draft',
 											self::SEND=>'Sent',
-											self::ACCEPTED=>"Accepted"
+											self::ACCEPTED=>"Accepted",
+											self::REJECTED=>"Rejected"
 								);
 	   
         foreach($invoiceStatus as $status)
@@ -125,6 +127,28 @@ class Estimate extends \Eloquent {
 		
         return $invoicearray;
     }
+
+    public static function get_customer_estimate_status($CompanyID)
+    {
+        $Company 		= 	Company::find($CompanyID);
+
+        $invoiceStatus 	= 	explode(',',$Company->InvoiceStatus);
+        $invoicearray 	= 	array(
+            ''=>'Select Estimate Status',
+            self::DRAFT=>'Draft',
+            self::SEND=>'Sent',
+            self::ACCEPTED=>"Accepted",
+            self::REJECTED=>"Rejected"
+        );
+
+        foreach($invoiceStatus as $status)
+        {
+            $invoicearray[$status] = $status;
+        }
+
+        return $invoicearray;
+    }
+
     public static function getFullEstimateNumber($Estimate,$AccountBilling)
 	{
         $EstimateNumberPrefix = '';
