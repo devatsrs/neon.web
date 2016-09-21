@@ -166,6 +166,7 @@ class LeadsController extends \BaseController {
             $data['iDisplayStart'] 	    =	 0;
             $data['iDisplayLength']     =    10;
             $data['AccountID']          =    $id;
+			$data['GUID']               =    GUID::generate();
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
             $RowsPerPage                =    $data['iDisplayLength'];
 			$message 					= 	 '';
@@ -178,11 +179,13 @@ class LeadsController extends \BaseController {
 				}else{
 					$response_timeline = array();
 				}
+			}else{ 	
+				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
+					return	Redirect::to('/logout'); 	
+				}		
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				$message = json_response_api($response_timeline,false,false);
 			}
-			else{
-				$message = json_response_api($response_timeline,false,true);
-			}
-			
 			
 			//get account card data
 			$sql = "select `tblAccount`.`AccountName`, concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
@@ -204,18 +207,10 @@ class LeadsController extends \BaseController {
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
 			$random_token				=	 get_random_number();
             
-			//Backup code for getting extensions from api
-           $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
-		   $response_extensions 	=  [];
-		
-			if($response->status=='failed'){
-				 $message = json_response_api($response,false,true);
-			 }else{
-				$response_extensions = json_response_api($response,true,true);
-			}
+           $response_api_extensions 	=   Get_Api_file_extentsions();
+		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
 	        
-		
-
+	
            //all users email address
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
@@ -232,23 +227,14 @@ class LeadsController extends \BaseController {
 			$leads 			 			= 	Lead::getLeadList();
 			$leadOrAccountID 			= 	'';
 			$leadOrAccount 				= 	$leads;
-			$leadOrAccountCheck 		= 	'lead';
-		
+			$leadOrAccountCheck 		= 	'lead';		
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-
-			 if (isset($response->status_code) && $response->status_code == 200) {			
-				$response = $response->data;
-			}else{				
-			 	$message	=	isset($response->message)?$response->message:$response->error;
-			 	Session::set('error_message',$message);
-			}
-			
-			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
 			
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data'));
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets'));
     	}
 
     /**
