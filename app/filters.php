@@ -17,6 +17,8 @@ App::before(function($request)
     if($customer==1) {
         Config::set('auth.model', 'Customer');
         Config::set('auth.table', 'tblAccount');
+        Config::set('tracker::user_model', 'Account');
+        //Config::set('packages/pragmarx/tracker.user_model', 'Account');
     }
 });
 
