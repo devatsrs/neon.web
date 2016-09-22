@@ -4,10 +4,6 @@
         margin-top: 10px;
     }
 
-    .margin-top {
-        margin-top: 10px;
-    }
-
     .margin-top-group {
         margin-top: 15px;
     }
@@ -70,12 +66,12 @@
             for (var i = 0; i < opportunity.length; i++) {
                 var elem = $('#add-opportunity-form [name="' + opportunity[i] + '"]');
                 if (select.indexOf(opportunity[i]) != -1) {
-                    elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    elem.val('').trigger("change");
                     if (opportunity[i] == 'UserID') {
-                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
+                        elem.val(usetId).trigger("change");
                         if (BoardID) {
-                            $('#add-opportunity-form [name="leadcheck"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('No');
-                            $('#add-opportunity-form [name="leadOrAccount"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('Lead');
+                            $('#add-opportunity-form [name="leadcheck"]').val('No').trigger("change");
+                            $('#add-opportunity-form [name="leadOrAccount"]').val('Lead').trigger("change");
                         } else {
                             $('#add-modal-opportunity .leads').removeClass('hidden');
                             $('#add-modal-opportunity .toHidden').addClass('hidden');
@@ -83,13 +79,13 @@
                     } else if (opportunity[i] == 'AccountID') {
                         if (!BoardID) {
                             accountID = $(this).attr('data-id');
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+                            elem.val(accountID).trigger("change");
                         }
                         if (leadOrAccountID) {
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(leadOrAccountID);
+                            elem.val(leadOrAccountID).trigger("change");
                         }
                     } else if (opportunity[i] == 'Status') {
-                        elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        elem.val('').trigger("change");
                     }
                 } else {
                     elem.val('');
@@ -100,7 +96,7 @@
                     }
                 }
             }
-            $('#add-modal-opportunity [name="BoardID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(BoardID);
+            $('#add-modal-opportunity [name="BoardID"]').select2().select2('val',BoardID);
 
             setcolor($('#add-modal-opportunity [name="BackGroundColour"]'), '#ffffff');
             setcolor($('#add-modal-opportunity [name="TextColour"]'), '#303641');
@@ -211,19 +207,19 @@
                 dataType: 'json',
                 success: function (response) {
                     var elem = $('#add-opportunity-form [name="AccountID"]');
-                    //elem.select2('destroy');
+                    options = [];
                     elem.empty();
                     if (Object.prototype.toString.call(response.result) === '[object Object]') {
                         $.each(response.result, function (i, item) {
-                            elem.append('<option value="' + i + '">' + item + '</option>');
+                            options.push(new Option(item, i, true, true));
                         });
 
                     } else {
-                        elem.append('<option value="">Not Found</option>');
+                        options.push(new Option('Not Found', '', true, true));
                     }
-                    elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                    //opts = {allowClear: attrDefault(elem, 'allowClear', false)};
-                    //elem.select2(opts);
+                    options.sort();
+                    elem.append(options);
+                    elem.trigger('change');
                 },
                 // Form data
                 data: formData,
@@ -240,7 +236,7 @@
                 //$('#add-opportunity-form [name="'+readonly[i]+'"]').prop('readonly', status);
                 if (data) {
                     if (readonly[i] == 'Title') {
-                        $('#add-opportunity-form [name="' + readonly[i] + '"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(data[readonly[i]]);
+                        $('#add-opportunity-form [name="' + readonly[i] + '"]').val(data[readonly[i]]).trigger("change");
                     } else {
                         $('#add-opportunity-form [name="' + readonly[i] + '"]').val(data[readonly[i]]);
                     }
@@ -280,7 +276,7 @@
             if ($('#add-opportunity-form [name="leadOrAccount"]').val() == 'Lead') {
                 $('#leadlable').text('Existing lead');
                 $('.leads label').text('Lead');
-                $('#add-opportunity-form [name="Title"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                $('#add-opportunity-form [name="Title"]').val('').trigger("change");
             } else {
                 $('#leadlable').text('Existing Account');
                 $('.leads label').text('Account');
@@ -296,7 +292,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-modal-opportunity">
-        <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="add-opportunity-form" method="post">
                     <div class="modal-header">
@@ -341,7 +337,7 @@
 
                                     <div class="col-sm-8">
                                         <?php $leadaccount = ['Lead' => 'Lead', 'Account' => 'Account']; ?>
-                                        {{Form::select('leadOrAccount',$leadaccount,$leadOrAccountCheck,array("class"=>"selectboxit"))}}
+                                        {{Form::select('leadOrAccount',$leadaccount,$leadOrAccountCheck,array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -352,7 +348,7 @@
 
                                     <div class="col-sm-8">
                                         <?php $leadcheck = ['No' => 'No', 'Yes' => 'Yes']; ?>
-                                        {{Form::select('leadcheck',$leadcheck,$leadOrAccountExist,array("class"=>"selectboxit"))}}
+                                        {{Form::select('leadcheck',$leadcheck,$leadOrAccountExist,array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -375,7 +371,7 @@
                                         <div class="input-group" style="width: 100%;">
                                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                                 <?php $NamePrefix_array = array("" => "-None-", "Mr" => "Mr", "Miss" => "Miss", "Mrs" => "Mrs"); ?>
-                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}}
                                             </div>
                                             <input type="text" name="FirstName" class="form-control" id="field-5">
                                         </div>
@@ -427,7 +423,7 @@
                                     <label for="field-5" class="control-label col-sm-4">Status</label>
 
                                     <div class="col-sm-8 input-group">
-                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -437,7 +433,7 @@
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
 
                                     <div class="col-sm-8">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>

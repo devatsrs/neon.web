@@ -2555,6 +2555,13 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
+$('.modal').on('show.bs.modal', function (e) {
+    if (isxs()) {
+     $('.modal').find('.pull-left,.pull-right').each(function(){
+         $(this).removeClass('pull-left').removeClass('pull-right');
+     });
+    }
+});
 
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
 /*$('.modal').on('show.bs.modal', function (e) {
