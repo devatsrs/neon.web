@@ -47,13 +47,9 @@
         leadOrAccountID = '{{$leadOrAccountID}}';
         @endif
         var userId = "{{User::get_userID()}}";
-        /*$('#add-task-form [name="Rating"]').knob();*/
-        //getOpportunities();
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
-            //$('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
             $('#add-task-form [name="UsersIDs"]').val('').trigger("change");
-            //$('#add-task-form [name="UsersIDs"]').select2().select2('val',usetId);
             $('#add-task-form [name="AccountIDs"]').val('').trigger("change");
             $('#add-modal-task h4').text('Add Task');
             if(!BoardID){
@@ -92,7 +88,6 @@
                     }
                     $("#task-add").button('reset');
                     $("#task-update").button('reset');
-                    //getOpportunities();
                 },
                 // Form data
                 data: formData,

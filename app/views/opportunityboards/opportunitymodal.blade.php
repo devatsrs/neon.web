@@ -207,19 +207,13 @@
                 dataType: 'json',
                 success: function (response) {
                     var elem = $('#add-opportunity-form [name="AccountID"]');
-                    options = [];
-                    elem.empty();
                     if (Object.prototype.toString.call(response.result) === '[object Object]') {
-                        $.each(response.result, function (i, item) {
-                            options.push(new Option(item, i, true, true));
-                        });
-
+                        data = response.result;
                     } else {
-                        options.push(new Option('Not Found', '', true, true));
+                        data = [];
+                        data[0] = 'Not Found';
                     }
-                    options.sort();
-                    elem.append(options);
-                    elem.trigger('change');
+                    rebuildSelect2(el,data);
                 },
                 // Form data
                 data: formData,

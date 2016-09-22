@@ -681,14 +681,7 @@
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
-                    el.empty();
-                    options = [];
-                    $.each(data,function(key,value){
-                        options.push(new Option(value, key, true, true));
-                    });
-                    options.sort();
-                    el.append(options);
-                    el.trigger('change');
+                    rebuildSelect2(el,data);
                 } else {
                     toastr.error(status, "Error", toastr_opts);
                 }

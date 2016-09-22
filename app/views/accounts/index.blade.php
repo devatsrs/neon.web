@@ -76,7 +76,7 @@
                         </div>
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"selectboxit"))}}
+                            {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
                         </div>
                         @if(User::is_admin())
                          <label for="field-1" class="col-sm-1 control-label">Owner</label>
@@ -771,10 +771,8 @@
         });
 
         $(document).on('click','#bulk-Ratesheet,.sendemail',function(){
-            $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            //$("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            //$("#BulkMail-form [name='Format']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $('#BulkMail-form [name="email_template_privacy"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(0);
+            $("#BulkMail-form [name='template_option']").val('').trigger("change");
+            $('#BulkMail-form [name="email_template_privacy"]').val(0).trigger("change");
             $("#BulkMail-form")[0].reset();
             if($(this).hasClass('sendemail')){
                 $("#BulkMail-form [name='type']").val('BAE');
@@ -946,14 +944,7 @@
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
-                    el.empty();
-                    options = [];
-                    $.each(data,function(key,value){
-                        options.push(new Option(value, key, true, true));
-                    });
-                    options.sort();
-                    el.append(options);
-                    el.trigger('change');
+                    rebuildSelect2(el,data);
                 } else {
                     toastr.error(status, "Error", toastr_opts);
                 }

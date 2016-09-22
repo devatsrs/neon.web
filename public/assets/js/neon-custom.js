@@ -2791,5 +2791,16 @@ function isJson(str) {
     return true;
 }
 
+function rebuildSelect2(el,data){
+    el.empty();
+    options = [];
+    $.each(data,function(key,value){
+        options.push(new Option(value, key, true, true));
+    });
+    options.sort();
+    el.append(options);
+    el.trigger('change');
+}
+
 
 
