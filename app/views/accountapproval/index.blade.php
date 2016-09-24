@@ -206,13 +206,13 @@ var postdata;
         $("#add-new-config-form [name='Status']").val(Status);
         $("#add-new-config-form [name='Infomsg']").val(Infomsg);
         //$("#add-new-config-form [name='AccountType']").val(AccountType);
-        $("#account_type").selectBoxIt().data("selectBox-selectBoxIt").selectOption(AccountType);
-        $("#billing_type").selectBoxIt().data("selectBox-selectBoxIt").selectOption(BillingType);
+        $("#account_type").val(AccountType).trigger("change");
+        $("#billing_type").val(BillingType).trigger("change");
 
         if(CountryId !=  'null' && CountryId !=  null){
-            $("#CountryId").select2().select2('val',CountryId);
+            $("#CountryId").val(CountryId).trigger("change");
         }else{
-            $("#CountryId").select2().select2('val','');
+            $("#CountryId").val('').trigger("change");
         }
         if(Required == 1 ){
             $('[name="Required_name"]').prop('checked',true)
@@ -326,13 +326,13 @@ var postdata;
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Required For</label>
-                                {{Form::select('AccountType', AccountApproval::$account_type, '',array('id'=>'account_type',"class"=>"selectboxit"))}}
+                                {{Form::select('AccountType', AccountApproval::$account_type, '',array('id'=>'account_type',"class"=>"select2 small"))}}
                              </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Billing Type</label>
-                                {{Form::select('BillingType', AccountApproval::$billing_type_1, '',array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                                {{Form::select('BillingType', AccountApproval::$billing_type_1, '',array('id'=>'billing_type',"class"=>"select2 small"))}}
                              </div>
                         </div>
 
