@@ -213,7 +213,7 @@
                         data = [];
                         data[0] = 'Not Found';
                     }
-                    rebuildSelect2(el,data);
+                    rebuildSelect2(el,data,'');
                 },
                 // Form data
                 data: formData,

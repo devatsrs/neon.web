@@ -1252,7 +1252,7 @@
                     if (Status = "success") {
                         var modal = $("#modal-BulkMail");
                         var el = modal.find('#BulkMail-form [name=email_template]');
-                        rebuildSelect2(el,data);
+                        rebuildSelect2(el,data,'');
                     } else {
                         toastr.error(status, "Error", toastr_opts);
                     }
@@ -1883,7 +1883,7 @@
         </div>
     </div>
     <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog" style="width: 80%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">

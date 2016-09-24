@@ -470,7 +470,7 @@
                         var select = ['AccountID','PaymentMethod','PaymentType'];
                         for(var i = 0 ; i< list_fields.length; i++){
                             if(select.indexOf(list_fields[i])!=-1){
-                                $("#add-edit-payment-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                $("#add-edit-payment-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                             }else if(list_fields[i] == 'PaymentProof'){
 
                             }else{
@@ -701,8 +701,8 @@
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
                         $("#add-edit-payment-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                        $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
+                        $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
                         $('.file-input-name').text('');
@@ -1035,12 +1035,12 @@
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Method *</label>
-              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }} </div>
+              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"select2 small")) }} </div>
           </div>
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Action *</label>
-              {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }} </div>
+              {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }} </div>
           </div>
           <div class="col-md-12">
             <div class="form-group">

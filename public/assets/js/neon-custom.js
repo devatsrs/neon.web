@@ -2791,12 +2791,15 @@ function isJson(str) {
     return true;
 }
 
-function rebuildSelect2(el,data){
+function rebuildSelect2(el,data,defualtText){
     el.empty();
     options = [];
     $.each(data,function(key,value){
         options.push(new Option(value, key, true, true));
     });
+    if(defualtText.length > 0){
+        options.push(new Option(defualtText, '', true, true));
+    }
     options.sort();
     el.append(options);
     el.trigger('change');

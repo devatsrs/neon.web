@@ -21,11 +21,11 @@
             @endif
 
             @if($configkey == 'NameFormat')
-                {{Form::select($configkey,$NameFormat,$selectd_val,array( "class"=>"selectboxit"))}}
+                {{Form::select($configkey,$NameFormat,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'CallType')
-                {{Form::select($configkey,GatewayConfig::$CallType,$selectd_val,array( "class"=>"selectboxit"))}}
+                {{Form::select($configkey,GatewayConfig::$CallType,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'BillingTime')
-                {{Form::select($configkey,Company::$billing_time,$selectd_val,array( "class"=>"selectboxit"))}}
+                {{Form::select($configkey,Company::$billing_time,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'RateCDR')
                 <div class="clear col-md-13">
                 <p class="make-switch switch-small">
@@ -38,7 +38,7 @@
                 if(!empty($selectd_val)){
                     $disable = array('disabled'=>'disabled');
                 }
-                $options = array_merge(array( "class"=>"selectboxit"),$disable);
+                $options = array_merge(array( "class"=>"select2 small"),$disable);
                 ?>
                 <input type="hidden" name="RateFormat" value="{{$selectd_val}}">
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
@@ -58,7 +58,7 @@
 </div>
 
 <script>
-if ($.isFunction($.fn.selectBoxIt))
+/*if ($.isFunction($.fn.selectBoxIt))
 {
     $("select.selectboxit").each(function(i, el)
     {
@@ -72,5 +72,5 @@ if ($.isFunction($.fn.selectBoxIt))
         $this.addClass('visible');
         $this.selectBoxIt(opts);
     });
-}
+}*/
 </script>

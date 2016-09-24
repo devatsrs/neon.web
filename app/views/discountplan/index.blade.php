@@ -209,7 +209,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade custom-width in " id="modal-list">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="modal-form" method="post">
                     <div class="modal-header">
