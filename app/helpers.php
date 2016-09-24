@@ -1049,27 +1049,12 @@ function isJson($string) {
 function get_round_decimal_places($AccountID = 0) {
 
     $RoundChargesAmount = 2;
-
     if($AccountID>0){
-
-        $RoundChargesAmount = AccountBilling::where(["AccountID"=>$AccountID])->pluck("RoundChargesAmount");
-
-        if ( empty($RoundChargesAmount) ) {
-
-            $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
-
-        }
-
-    } else {
-
-        $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
-
+        $RoundChargesAmount = AccountBilling::getRoundChargesAmount($AccountID);
     }
-
     if ( empty($RoundChargesAmount) ) {
         $RoundChargesAmount = 2;
     }
-
     return $RoundChargesAmount;
 }
 

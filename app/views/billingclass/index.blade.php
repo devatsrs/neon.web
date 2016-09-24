@@ -61,7 +61,7 @@
          * */
 
         jQuery(document).ready(function ($) {
-            var list_fields  = ["Name","DestinationGroupSet","Currency","UpdatedBy","updated_at","BillingClassID","DestinationGroupSetID","CurrencyID","Description","Applied"];
+            var list_fields  = ["Name","UpdatedBy","updated_at","BillingClassID","Applied"];
             //public_vars.$body = $("body");
             var $search = {};
             var edit_url = baseurl + "/billing_class/edit/{id}";
@@ -108,7 +108,7 @@
                                 action += '</div>';
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
                                 @if(User::checkCategoryPermission('BillingClass','Delete'))
-                                if(full[9]== null) {
+                                if(full[4]== 0) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
                                 }
                                 @endif

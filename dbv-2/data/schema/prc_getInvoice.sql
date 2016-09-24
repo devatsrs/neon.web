@@ -2,7 +2,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(IN `p_CompanyID` IN
 BEGIN
     DECLARE v_OffSet_ int;
     DECLARE v_Round_ int;
-    DECLARE v_PaymentDueInDays_ int;
     DECLARE v_CurrencyCode_ VARCHAR(50);
     DECLARE v_TotalCount int;
     
@@ -10,8 +9,8 @@ BEGIN
 	 SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';   	     
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
     SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
-	 SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
-	 SELECT cs.Value INTO v_PaymentDueInDays_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'PaymentDueInDays' AND cs.CompanyID = p_CompanyID;
+    SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
 
  
 		
@@ -61,7 +60,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
+			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
@@ -69,7 +68,6 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 			FROM tblInvoice inv
 			inner join NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
 			left join tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
-			INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
 			left join NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			where ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -109,7 +107,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
 		GrandTotal
         FROM tmp_Invoices_ 
         WHERE (p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
@@ -151,7 +149,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         
         SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
 		  WHERE (p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
@@ -166,7 +164,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         FROM tmp_Invoices_ 
 			WHERE ((InvoiceStatus IS NULL) OR (InvoiceStatus NOT IN('draft','Cancel')))
 			AND (p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
@@ -189,7 +187,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         FROM tmp_Invoices_
 		  WHERE
 		  		(p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
@@ -213,7 +211,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         FROM tmp_Invoices_
 		  WHERE
 		  		(p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)
@@ -231,6 +229,8 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
           ON ac.AccountID = inv.AccountID
         INNER JOIN NeonRMDev.tblAccountBilling ab
           ON ab.AccountID = ac.AccountID
+	     INNER JOIN NeonRMDev.tblBillingClass b
+          ON ab.BillingClassID = b.BillingClassID
         INNER JOIN NeonRMDev.tblCurrency c
           ON c.CurrencyId = ac.CurrencyId
         SET InvoiceStatus = 'paid' 
@@ -243,9 +243,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
                 AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
                 AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
                 AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
+				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID)) 
 				AND (p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(b.PaymentDueInDays,0)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
 						)
@@ -276,7 +276,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
         FROM tmp_Invoices_
         WHERE
 		  		(p_IsOverdue = 0 
-					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
 						)

@@ -28,7 +28,7 @@
                                 <div class="col-sm-4">
                                     {{Form::select('TaxRateID[]', $taxrates, (isset($BillingClass->TaxRateId)? explode(',',$BillingClass->TaxRateId) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
+                                <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)*</label>
                                 <div class="col-sm-4">
                                     <div class="input-spinner">
                                         <button type="button" class="btn btn-default">-</button>
@@ -38,7 +38,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
+                                <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45)*</label>
                                 <div class="col-sm-4">
                                     <div class="input-spinner">
                                         <button type="button" class="btn btn-default">-</button>
@@ -46,19 +46,25 @@
                                         <button type="button" class="btn btn-default">+</button>
                                     </div>
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('BillingType', $billing_type, ( isset($BillingClass->BillingType)?$BillingClass->BillingType:'' ),array('id'=>'billing_type',"class"=>"selectboxit"))}}
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                                 <div class="col-sm-4">
                                     {{Form::select('BillingTimezone', $timezones, ( isset($BillingClass->BillingTimezone)?$BillingClass->BillingTimezone:'' ),array("class"=>"form-control select2"))}}
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                                </div>
+                                <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email*</label>
                                 <div class="col-sm-4">
                                     {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($BillingClass->SendInvoiceSetting)?$BillingClass->SendInvoiceSetting:'' ),array("class"=>"form-control select2"))}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('CDRType', Account::$cdr_type, ( isset($BillingClass->CDRType)?$BillingClass->CDRType:'' ),array('id'=>'billing_type',"class"=>"selectboxit"))}}
                                 </div>
                             </div>
                         </div>
@@ -71,13 +77,13 @@
                         <!-- panel body -->
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Payment Reminder</label>
+                                <label class="col-sm-2 control-label">Active</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($BillingClass->PaymentReminderStatus) && $BillingClass->PaymentReminderStatus == 1 )checked="" @endif name="PaymentReminderStatus" value="1">
                                     </div>
                                 </div>
-                                <label class="col-sm-2 control-label">Send To AccountManager</label>
+                                <label class="col-sm-2 control-label">Send To Account Manager</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($PaymentReminders->AccountManager) && $PaymentReminders->AccountManager == 1 )checked="" @endif name="PaymentReminder[AccountManager]" value="1">
@@ -85,7 +91,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Payment Reminder Copy</label>
+                                <label class="col-sm-2 control-label">Send Copy To</label>
                                 <div class="col-sm-4">
                                     <input type="text" name="PaymentReminder[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$PaymentReminders->ReminderEmail or ''}}" />
                                 </div>
@@ -95,6 +101,7 @@
                                         <tr>
                                             <th width="5%" ><button type="button" id="payment-add-row" class="btn btn-primary btn-xs ">+</button></th>
                                             <th width="30%" >Days<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Send reminder based on due dates. ex. send reminder before one day of due date(-1),send reminder after two day of due date(2)" data-original-title="Due Days">?</span></th>
+                                            <th width="30%" >Account Age<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Reminder will not send if Account Age not less than this" data-original-title="Account Age">?</span></th>
                                             <th width="30%" >Template </th>
                                         </tr>
                                         </thead>
@@ -103,6 +110,14 @@
                                             @foreach($PaymentReminders->Day as $PaymentReminder => $Day)
                                             <tr>
                                                 <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
+                                                <td>
+                                                    <div class="input-spinner">
+                                                        <button type="button" class="btn btn-default">-</button>
+                                                        <input type="text" name="PaymentReminder[Day][]" class="form-control" id="field-1" placeholder="" value="{{$Day}}" Placeholder="Add Numeric value" data-mask="decimal"/>
+                                                        <button type="button" class="btn btn-default">+</button>
+                                                    </div>
+
+                                                </td>
                                                 <td>
                                                     <div class="input-spinner">
                                                         <button type="button" class="btn btn-default">-</button>
@@ -131,13 +146,13 @@
                         <!-- panel body -->
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Low Balance Reminder</label>
+                                <label class="col-sm-2 control-label">Active</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($BillingClass->LowBalanceReminderStatus) && $BillingClass->LowBalanceReminderStatus == 1 )checked="" @endif name="LowBalanceReminderStatus" value="1">
                                     </div>
                                 </div>
-                                <label class="col-sm-2 control-label">Send To AccountManager</label>
+                                <label class="col-sm-2 control-label">Send To Account Manager</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($LowBalanceReminder->AccountManager) && $LowBalanceReminder->AccountManager == 1 )checked="" @endif name="LowBalanceReminder[AccountManager]" value="1">
@@ -145,7 +160,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Low Balance Reminder Copy</label>
+                                <label class="col-sm-2 control-label">Send Copy To</label>
                                 <div class="col-sm-4">
                                     <input type="text" name="LowBalanceReminder[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$LowBalanceReminder->ReminderEmail or ''}}" />
                                 </div>

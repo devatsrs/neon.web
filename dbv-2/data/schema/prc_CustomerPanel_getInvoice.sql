@@ -2,15 +2,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerPanel_getInvoice`(IN `p
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
-	DECLARE v_PaymentDueInDays_ int;
 	DECLARE v_CurrencyCode_ VARCHAR(50);
 	DECLARE v_TotalCount int;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
-	SELECT cs.Value INTO v_PaymentDueInDays_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'PaymentDueInDays' AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
@@ -56,7 +54,7 @@ BEGIN
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
+			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
@@ -64,7 +62,6 @@ BEGIN
 			FROM tblInvoice inv
 			INNER JOIN NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
 			LEFT JOIN tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
-			INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
 			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			WHERE ac.CompanyID = p_CompanyID
 					AND (inv.AccountID = p_AccountID)

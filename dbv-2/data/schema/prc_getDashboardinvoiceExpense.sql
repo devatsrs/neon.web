@@ -23,10 +23,7 @@ BEGIN
 		OutAmount float,
 		CurrencyID int
 	);
-	SELECT cs.Value INTO v_Round_ 
-	FROM NeonRMDev.tblCompanySetting cs 
-	WHERE cs.`Key` = 'RoundChargesAmount' 
-		AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	INSERT INTO tmp_MonthlyTotalDue_
 	SELECT YEAR(IssueDate) as Year
@@ -113,7 +110,7 @@ BEGIN
 			td.Year,
 			ROUND(COALESCE(SUM(td.TotalAmount),0),v_Round_) TotalInvoice ,  
 			ROUND(COALESCE(MAX(tr.TotalAmount),0),v_Round_) PaymentReceived, 
-			ROUND(SUM(IF(InvoiceStatus ='paid' OR InvoiceStatus='partially_paid' ,0,td.TotalAmount)) + COALESCE(MAX(tr.OutAmount),0) ,2) TotalOutstanding ,
+			ROUND(SUM(IF(InvoiceStatus ='paid' OR InvoiceStatus='partially_paid' ,0,td.TotalAmount)) + COALESCE(MAX(tr.OutAmount),0) ,v_Round_) TotalOutstanding ,
 			td.CurrencyID CurrencyID 
 	FROM  
 		tmp_MonthlyTotalDue_ td

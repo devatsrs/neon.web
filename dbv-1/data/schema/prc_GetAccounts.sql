@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_activeStatus` int, IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_activeStatus` int, IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
 BEGIN
    DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
@@ -6,13 +6,13 @@ BEGIN
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
  
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-		SELECT cs.Value INTO v_Round_ from tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+		SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 		
 	IF p_isExport = 0
 	THEN
 
 
- 
+
 		SELECT 
 		 	tblAccount.AccountID,
 			tblAccount.Number, 
@@ -22,11 +22,11 @@ BEGIN
 			
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,
 				ROUND(
-				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') ) - -- total invoice sent
-				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment In' )       -- total payment received 
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM NeonBillingDev.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') ) - -- total invoice sent
+				  (SELECT COALESCE(SUM(Amount),0) FROM NeonBillingDev.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment In' )       -- total payment received 
 				) - 
-				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 2 ) - 																								 -- total invoice received
-				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment Out' )       -- total payment sent 
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM NeonBillingDev.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 2 ) - 																								 -- total invoice received
+				  (SELECT COALESCE(SUM(Amount),0) FROM NeonBillingDev.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment Out' )       -- total payment sent 
 				)
 			,v_Round_)
 			) as OutStandingAmount,
@@ -112,11 +112,11 @@ BEGIN
             tblAccount.Number as NO, tblAccount.AccountName,CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Name,tblAccount.Phone, 
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,
 				ROUND(
-				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') ) - -- total invoice sent
-				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment In' )       -- total payment received 
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM NeonBillingDev.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') ) - -- total invoice sent
+				  (SELECT COALESCE(SUM(Amount),0) FROM NeonBillingDev.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment In' )       -- total payment received 
 				) - 
-				( (SELECT COALESCE(SUM(GrandTotal),0) FROM RMBilling3.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 2 ) - 																								 -- total invoice received
-				  (SELECT COALESCE(SUM(Amount),0) FROM RMBilling3.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment Out' )       -- total payment sent 
+				( (SELECT COALESCE(SUM(GrandTotal),0) FROM NeonBillingDev.tblInvoice where AccountID = tblAccount.AccountID and CompanyID = p_CompanyID AND  tblInvoice.InvoiceType = 2 ) - 																								 -- total invoice received
+				  (SELECT COALESCE(SUM(Amount),0) FROM NeonBillingDev.tblPayment where tblPayment.AccountID = tblAccount.AccountID and tblPayment.CompanyID = p_CompanyID and Status = 'Approved' AND tblPayment.Recall = 0 AND PaymentType = 'Payment Out' )       -- total payment sent 
 				)
 			,v_Round_)
 			) as OS ,

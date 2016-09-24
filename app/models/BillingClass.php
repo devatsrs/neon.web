@@ -16,4 +16,17 @@ class BillingClass extends \Eloquent
         return $DropdownIDList;
     }
 
+    public static function getInvoiceTemplateID($BillingClassID){
+        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+    }
+    public static function getPaymentDueInDays($BillingClassID){
+        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('PaymentDueInDays');
+    }
+    public static function getCDRType($BillingClassID){
+        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('CDRType');
+    }
+    public static function getRoundChargesAmount($BillingClassID){
+        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('RoundChargesAmount');
+    }
+
 }

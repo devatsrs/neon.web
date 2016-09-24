@@ -60,10 +60,10 @@ class InvoicesCustomerController extends \BaseController {
         $Invoice = Invoice::find($id);
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
         $Account  = Account::find($Invoice->AccountID);
-        $AccountBilling = AccountBilling::getBilling($id);
         $Currency = Currency::find($Account->CurrencyId);
         $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-        $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
         if(empty($InvoiceTemplate->CompanyLogoUrl)){
             $logo = 'http://placehold.it/250x100';
         }else{
@@ -77,10 +77,10 @@ class InvoicesCustomerController extends \BaseController {
         if(!empty($Invoice)) {
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $logo = 'http://placehold.it/250x100';
             } else {
@@ -102,10 +102,10 @@ class InvoicesCustomerController extends \BaseController {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url = 'http://placehold.it/250x100';
             } else {

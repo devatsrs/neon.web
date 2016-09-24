@@ -12,8 +12,9 @@ class BillingClassController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $billing_type = AccountApproval::$billing_type;
         $taxrates = TaxRate::getTaxRateDropdownIDList();
+        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
         if(isset($taxrates[""])){unset($taxrates[""]);}
-        return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting'));
+        return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates'));
     }
     public function edit($id) {
 
@@ -25,12 +26,14 @@ class BillingClassController extends \BaseController {
             $timezones = TimeZone::getTimeZoneDropdownList();
             $billing_type = AccountApproval::$billing_type;
             $taxrates = TaxRate::getTaxRateDropdownIDList();
+            $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
             if(isset($taxrates[""])){unset($taxrates[""]);}
             $BillingClass = $response->data;
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
+            $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
 
-            return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder'));
+            return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList'));
         }else{
             return view_response_api($response);
         }
@@ -69,6 +72,11 @@ class BillingClassController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('billing_class/update/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
+    }
+    public function getInfo($id) {
+        $getdata['BillingClassID'] = $id;
+        $response =  NeonAPI::request('billing_class/get/'.$id,$getdata,false,true,false);
+        return Response::json($response);
     }
 
 }
