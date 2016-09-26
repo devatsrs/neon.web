@@ -47,6 +47,7 @@
 	  }
 	   ?>
       <p class="mail_message">Message:<br>{{$response_data['Message']}}. </p>
+      <p><a data_fetch_id="{{$response_data['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Email Replies</a></p>
     </div>
             </div>
 

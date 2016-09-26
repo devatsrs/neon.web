@@ -2,8 +2,6 @@
 use Carbon\Carbon;
 class AccountActivityController extends \BaseController {
 
-
-
     public function ajax_datagrid($AccountID){
         $data = Input::all();
         $CompanyID = User::get_companyID();
@@ -161,8 +159,7 @@ class AccountActivityController extends \BaseController {
             return json_validator_response($validator);
         }
 		$data['AccountID']		=   $AccountID;
-
-        $attachmentsinfo            =$data['attachmentsinfo'];
+        $attachmentsinfo        =	$data['attachmentsinfo']; 
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
             $files_array = json_decode($attachmentsinfo,true);
         }
@@ -170,7 +167,7 @@ class AccountActivityController extends \BaseController {
         if(!empty($files_array) && count($files_array)>0) {
             $FilesArray = array();
             foreach($files_array as $key=> $array_file_data){
-                $file_name = basename($array_file_data['filepath']);
+                $file_name  = basename($array_file_data['filepath']); 
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
                 $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
 
@@ -178,7 +175,6 @@ class AccountActivityController extends \BaseController {
                     mkdir($destinationPath, 0777, true);
                 }
                 copy($array_file_data['filepath'], $destinationPath . $file_name);
-
                 if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
@@ -186,11 +182,11 @@ class AccountActivityController extends \BaseController {
                 unlink($array_file_data['filepath']);
             }
             $data['file']		=	json_encode($FilesArray);
-		}
+		} 
 		
 		$data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
 		
-		$data['address']		=    Auth::user()->EmailAddress;
+		$data['address']		=    Auth::user()->EmailAddress; 
 	   
 		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
 	
@@ -207,6 +203,22 @@ class AccountActivityController extends \BaseController {
 			return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
 	}
 
+
+	function EmailAction(){
+		$data 		   		= 	  Input::all();
+		$action_type   		=     $data['action_type'];
+		$email_number  		=     $data['email_number'];
+		$response_email     =     NeonAPI::request('account/get_email',array('EmailID'=>$email_number),false,true);
+		
+		if($response_email['status']=='failed'){
+			return  json_response_api($response_email);
+		}else{	
+			$response_data      =  	  $response_email['data'];		
+			return View::make('accounts.emailaction', compact('response_data','action_type'));  			
+		}
+        
+	}	
+	
     public function delete_email_log($AccountID,$logID){
         if( intval($logID) > 0){
             try{
@@ -243,5 +255,25 @@ class AccountActivityController extends \BaseController {
             exit;
         }
     }
+	
+	 function GetReplyAttachment($emailID,$attachmentID)
+	 {
+		  
+		 $email 		= 	AccountEmailLog::where(['AccountEmailLogID'=>$emailID])->first();		 
+		 $attachments 	= 	unserialize($email->AttachmentPaths);
+		 if($attachments)
+		 { 
+			 if(isset($attachments[$attachmentID]))
+			 {
+		 		$file			=	$attachments[$attachmentID];
+				$FilePath 		= 	AmazonS3::preSignedUrl($file['filepath']);
+				if(is_amazon() == true){
+					header('Location: '.$FilePath); exit;
+				}else if(file_exists($FilePath)){
+					download_file($FilePath); 
+				}
+			 }
+		 }			
+	 }	
 
 }

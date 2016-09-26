@@ -52,6 +52,7 @@
 	  }	 
 	   ?>
                   <p class="mail_message">Messsage:<br>{{$rows['EmailMessage']}}. </p>
+                  <p><a data_fetch_id="{{$rows['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Email Replies</a></p>
                 </div>
               </div>
             </li>

@@ -387,6 +387,7 @@
 	   ?>
                 <div class="mail_message">Message:<br>
                   {{$rows['EmailMessage']}}. </div>
+                    <p><a data_fetch_id="{{$rows['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Email Replies</a></p>
               </div>
             </div>
           </li>
@@ -459,7 +460,7 @@
                 <p>Group: {{$rows['TicketGroup']}}</p>
                 <p>Date Created: {{$rows['created_at']}}</p>
                 <p>Description: {{$rows['TicketDescription']}}</p>
-                <p><a ticket_id="{{$rows['TicketID']}}" class="ticket_conversations">View Ticket Conversations</a></p>
+                <p><a data_fetch_id="{{$rows['TicketID']}}" conversations_type="ticket" class="ticket_conversations">View Ticket Conversations</a></p>
               </div>
             </div>
           </li>
@@ -504,6 +505,16 @@
   <input id="info1" type="hidden" name="attachmentsinfo" />
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
+<form id="emai_attachments_reply_form" class="hidden" name="emai_attachments_form">
+  <span class="emai_attachments_span">
+  <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole2">
+  </span>
+  <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
+  <input  hidden="" name="token_attachment" value="{{$random_token}}" />
+  <input id="info3" type="hidden" name="attachmentsinfo" />
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+</form>
+
 @include('includes.submit_note_script',array("controller"=>"accounts")) 
 @include("accounts.taskmodal")
 <?php unset($BoardID); ?>
@@ -524,14 +535,4 @@
             tags:{{$opportunitytags}}
         });
 </script>
-<style>
-#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
-ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
-#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
-.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:100%;top:10px; /*border-color:transparent #f1f1f1 #fff transparent;*/ position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
-.color-red {margin-left:5px;} .ticket_conversations{cursor:pointer; } .left-padding{padding-left:0px !important;}
-.mail_subject{font-size:14.4px !important;} .mail_message{font-family:"Noto Sans", sans-serif !important;}
-.no-display{overflow-x:scroll;}
-</style>
 @stop
