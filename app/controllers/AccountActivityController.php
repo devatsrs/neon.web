@@ -219,7 +219,7 @@ class AccountActivityController extends \BaseController {
 				$parent_data 	=	 AccountEmailLog::find($parent_id);
 			}else{$parent_data = array();}
 				
-			return View::make('accounts.emailaction', compact('response_data','action_type'));  			
+			return View::make('accounts.emailaction', compact('response_data','action_type','parent_data'));  			
 		}
         
 	}	

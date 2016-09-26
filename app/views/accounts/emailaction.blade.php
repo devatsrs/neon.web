@@ -7,7 +7,7 @@
     <div class="col-md-12 margin-top">
       <div class="form-group">
         <label for="EmailActionTo">* To:</label>
-        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value=" @if($action_type!='forward') @if($response_data['EmailCall']=='Send')  {{$response_data['Emailfrom']}}  @else @if(isset($parent_data->EmailTo)) {{$parent_data->EmailTo}} @endif  @endif   @endif " />
+        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="@if($action_type!='forward') @if($response_data['EmailCall']=='Send')  {{$response_data['Emailfrom']}}  @else @if(isset($parent_data->EmailTo)) {{$parent_data->EmailTo}} @endif  @endif   @endif" />
       </div>
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
