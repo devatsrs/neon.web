@@ -213,7 +213,12 @@ class AccountActivityController extends \BaseController {
 		if($response_email['status']=='failed'){
 			return  json_response_api($response_email);
 		}else{	
-			$response_data      =  	  $response_email['data'];		
+			$response_data      =  	  $response_email['data'];	
+			$parent_id          =  	  $response_data['EmailParent'];	
+			if(!empty($parent_id)){
+				$parent_data 	=	 AccountEmailLog::find($parent_id);
+			}else{$parent_data = array();}
+				
 			return View::make('accounts.emailaction', compact('response_data','action_type'));  			
 		}
         
