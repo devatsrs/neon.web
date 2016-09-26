@@ -132,7 +132,7 @@
         </p>
 
         <section class="deals-board">
-            <table class="table table-bordered datatable" id="taskGrid">
+            <table class="table table-bordered datatable hidden" id="taskGrid">
                 <thead>
                 <tr>
                     <th width="30%" >Subject</th>

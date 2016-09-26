@@ -141,7 +141,7 @@
         <section class="deals-board" >
             
 
-            <table class="table table-bordered datatable" id="opportunityGrid">
+            <table class="table table-bordered datatable hidden" id="opportunityGrid">
                 <thead>
                 <tr>
                     <th width="25%" >Name</th>
@@ -321,6 +321,11 @@
                         $('#opportunityGrid').removeClass('hidden');
                     }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
+                    $('#opportunityGrid .knob').each(function(){
+                        var self = $(this);
+                        self.css('position','relative');
+                        self.css('margin-top',self.css('margin-left'));
+                    });
                 }
 
             });
@@ -873,7 +878,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="edit-modal-opportunity">
-        <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="edit-opportunity-form" method="post">
                     <div class="modal-header">
