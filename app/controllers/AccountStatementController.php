@@ -536,41 +536,75 @@ class AccountStatementController extends \BaseController
 
     /**
      * Cleanup duplicate Invoice against multiple payments against single Invoice
+     * compare invoice number and its period covered if both are duplicate then clear the record with blank
+     * some times invoice number can be duplicate but not period covered is different.
      */
     public function cleanup_duplicate_records($soa_result = array()){
 
         if(count($soa_result) > 0) {
-            $InvoiceOut_InvoiceNo = array();
+            //$InvoiceOut_InvoiceNo = array();
+            $InvoiceOut_PeriodCovered = array();
             foreach ($soa_result as $index => $soa_result_row) {
 
-                if (!empty($soa_result[$index]["InvoiceOut_InvoiceNo"])) {
 
-                    if (!in_array($soa_result[$index]["InvoiceOut_InvoiceNo"], $InvoiceOut_InvoiceNo)) {
-                        $InvoiceOut_InvoiceNo[] = $soa_result[$index]["InvoiceOut_InvoiceNo"];
+                if (isset($soa_result[$index]["InvoiceOut_InvoiceNo"]) &&  !empty($soa_result[$index]["InvoiceOut_InvoiceNo"])) {
+
+                    $InvoiceNo = $soa_result[$index]["InvoiceOut_InvoiceNo"];
+
+                    $PeriodCover = $soa_result[$index]["InvoiceOut_PeriodCover"];
+
+                    $add_record = false;
+
+                    if ( !isset($InvoiceOut_PeriodCovered[$InvoiceNo]) || (in_array($InvoiceOut_PeriodCovered[$InvoiceNo]) && !in_array($PeriodCover, $InvoiceOut_PeriodCovered[$InvoiceNo]))){
+
+                        $add_record = true;
+                    }
+
+                    if($add_record) {
+                        $InvoiceOut_PeriodCovered[$InvoiceNo][] = $PeriodCover;
+
 
                     } else {
+
                         $soa_result[$index]["InvoiceOut_InvoiceNo"] = "";
                         $soa_result[$index]["InvoiceOut_PeriodCover"] = "";
                         $soa_result[$index]["InvoiceOut_Amount"] = "";
                     }
                 }
             }
-            $InvoiceIn_InvoiceNo = array();
+
+            $InvoiceIn_PeriodCovered = array();
+
             foreach ($soa_result as $index => $soa_result_row) {
 
-                if (!empty($soa_result[$index]["InvoiceIn_InvoiceNo"])) {
 
-                    if (!in_array($soa_result[$index]["InvoiceIn_InvoiceNo"], $InvoiceIn_InvoiceNo)) {
-                        $InvoiceIn_InvoiceNo[] = $soa_result[$index]["InvoiceIn_InvoiceNo"];
+                if (isset($soa_result[$index]["InvoiceIn_InvoiceNo"]) &&  !empty($soa_result[$index]["InvoiceIn_InvoiceNo"])) {
+
+                    $InvoiceNo = $soa_result[$index]["InvoiceIn_InvoiceNo"];
+                    $PeriodCover = $soa_result[$index]["InvoiceIn_PeriodCover"];
+
+                    $add_record = false;
+
+                    if ( !isset($InvoiceIn_PeriodCovered[$InvoiceNo]) || (  is_array($InvoiceIn_PeriodCovered[$InvoiceNo]) && !in_array($PeriodCover, $InvoiceIn_PeriodCovered[$InvoiceNo]))){
+
+                        $add_record = true;
+                    }
+
+                    if($add_record) {
+
+                        $InvoiceIn_PeriodCovered[$InvoiceNo][] = $PeriodCover;
 
                     } else {
+
                         $soa_result[$index]["InvoiceIn_InvoiceNo"] = "";
                         $soa_result[$index]["InvoiceIn_PeriodCover"] = "";
                         $soa_result[$index]["InvoiceIn_Amount"] = "0";
                     }
+
                 }
             }
         }
+
         return $soa_result;
     }
 
