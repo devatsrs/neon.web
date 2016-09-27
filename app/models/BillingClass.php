@@ -28,5 +28,8 @@ class BillingClass extends \Eloquent
     public static function getRoundChargesAmount($BillingClassID){
         return BillingClass::where('BillingClassID',$BillingClassID)->pluck('RoundChargesAmount');
     }
+    public static function getAccounts($BillingClassID){
+        return Account::join('tblAccountBilling','tblAccountBilling.AccountID','=','tblAccount.AccountID')->where('BillingClassID',$BillingClassID)->get(['AccountName']);
+    }
 
 }

@@ -23,6 +23,11 @@ $('#PaymentReminderTable > tbody').on('click','.remove-row', function(e){
     row.remove();
 });
 
+$("#billing-form [name='PaymentReminder[Time]']").change(function(){
+    console.log("jobtype" + $(this).val());
+    populateInterval($(this).val());
+});
+
 function rebind() {
 
     $('#PaymentReminderTable > tbody').find(".input-spinner").each(function (i, el) {
@@ -62,4 +67,45 @@ function rebind() {
         });
 
     });
+}
+
+function populateInterval(jobtype){
+
+    //console.log("in populateJonInterval ");
+    $("#billing-form [name='PaymentReminder[Interval]']").addClass('visible');
+    var selectBox = $("#billing-form [name='PaymentReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt");
+    var selectBoxStartDay = $("#billing-form [name='PaymentReminder[StartDay]']").selectBoxIt().data("selectBox-selectBoxIt");
+    $("#billing-form .JobStartDay").hide();
+    var starttime = $("#billing-form .starttime");
+    if(selectBox){
+        selectBox.remove();
+        // console.log("jobtype" + jobtype);
+        if(jobtype == 'HOUR'){
+            for(var i=1;i<'24';i++){
+                selectBox.add({ value: i, text: i+" Hour"})
+            }
+            starttime.show();
+        }else if(jobtype == 'MINUTE'){
+            for(var i=1;i<60;i++){
+                selectBox.add({ value: i, text: i+" Minute"})
+            }
+            starttime.hide();
+            starttime.val('');
+        }else if(jobtype == 'DAILY'){
+            for(var i=1;i<'32';i++){
+                selectBox.add({ value: i, text: i+" Day"})
+            }
+            //console.log("jobtype" + jobtype);
+            starttime.show();
+        }else if(jobtype == 'MONTHLY'){
+            for(var i=1;i<13;i++){
+                selectBox.add({ value: i, text: i+" Month"})
+            }
+            for(var i=1;i<'32';i++){
+                selectBoxStartDay.add({ value: i, text: i+" Day"})
+            }
+            $("#billing-form .JobStartDay").show();
+            starttime.show();
+        }
+    }
 }
