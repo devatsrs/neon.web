@@ -555,7 +555,7 @@ class AccountStatementController extends \BaseController
 
                     $add_record = false;
 
-                    if ( !isset($InvoiceOut_PeriodCovered[$InvoiceNo]) || (in_array($InvoiceOut_PeriodCovered[$InvoiceNo]) && !in_array($PeriodCover, $InvoiceOut_PeriodCovered[$InvoiceNo]))){
+                    if ( !isset($InvoiceOut_PeriodCovered[$InvoiceNo]) || (is_array($InvoiceOut_PeriodCovered[$InvoiceNo]) && !in_array($PeriodCover, $InvoiceOut_PeriodCovered[$InvoiceNo]))){
 
                         $add_record = true;
                     }
