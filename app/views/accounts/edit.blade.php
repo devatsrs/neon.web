@@ -610,18 +610,13 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <div class="panel-title desc col-sm-6">
-                        Preferred Payment Method
-                    </div>
                     <script>
                         var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";
                     </script>
-                    <div class="col-sm-9" style="float: right;">
-                        @if (is_authorize())
-                            @include('customer.paymentprofile.paymentGrid')
-                        @endif
-                    </div>
-                    <div class="col-sm-3">
+                    <div class="col-md-3">
+
+                        <h4>Preferred Payment Method</h4>
+
                         <ul class="icheck-list">
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
@@ -640,6 +635,11 @@
                                 <label for="minimal-radio-2-11">Other</label>
                             </li>
                         </ul>
+                    </div>
+                    <div class="col-md-9">
+                        @if (is_authorize())
+                            @include('customer.paymentprofile.paymentGrid')
+                        @endif
                     </div>
                 </div>
             </div>
