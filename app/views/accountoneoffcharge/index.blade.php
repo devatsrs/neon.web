@@ -51,23 +51,25 @@
                                     </div>
                                 </div>
         </div>
-        <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
-            <thead>
-            <tr>
-                <th width="20%">Item</th>
-                <th width="20%">Description</th>
-                <th width="2%">Quantity</th>
-                <th width="5%">Price</th>
-                <th width="10%">Date</th>
-                <th width="2%">Tax Amount</th>
-                <th width="5%">Created Date</th>
-                <th width="15%">Created By</th>
-                <th width="20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="dataTables_wrapper">
+            <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
+                <thead>
+                <tr>
+                    <th width="20%">Item</th>
+                    <th width="20%">Description</th>
+                    <th width="2%">Quantity</th>
+                    <th width="5%">Price</th>
+                    <th width="10%">Date</th>
+                    <th width="2%">Tax Amount</th>
+                    <th width="5%">Created Date</th>
+                    <th width="15%">Created By</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
