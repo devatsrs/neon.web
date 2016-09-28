@@ -25,7 +25,12 @@ $('#PaymentReminderTable > tbody').on('click','.remove-row', function(e){
 
 $("#billing-form [name='PaymentReminder[Time]']").change(function(){
     console.log("jobtype" + $(this).val());
-    populateInterval($(this).val());
+    populateInterval($(this).val(),'PaymentReminder');
+});
+
+$("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
+    console.log("jobtype" + $(this).val());
+    populateInterval($(this).val(),'LowBalanceReminder');
 });
 
 function rebind() {
@@ -69,13 +74,13 @@ function rebind() {
     });
 }
 
-function populateInterval(jobtype){
+function populateInterval(jobtype,form){
 
     //console.log("in populateJonInterval ");
-    $("#billing-form [name='PaymentReminder[Interval]']").addClass('visible');
-    var selectBox = $("#billing-form [name='PaymentReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt");
-    var selectBoxStartDay = $("#billing-form [name='PaymentReminder[StartDay]']").selectBoxIt().data("selectBox-selectBoxIt");
-    $("#billing-form .JobStartDay").hide();
+    $("#billing-form [name='"+form+"[Interval]']").addClass('visible');
+    var selectBox = $("#billing-form [name='"+form+"[Interval]']").selectBoxIt().data("selectBox-selectBoxIt");
+    var selectBoxStartDay = $("#billing-form [name='"+form+"[StartDay]']").selectBoxIt().data("selectBox-selectBoxIt");
+    $("#billing-form ."+form+"Day").hide();
     var starttime = $("#billing-form .starttime");
     if(selectBox){
         selectBox.remove();
@@ -104,7 +109,7 @@ function populateInterval(jobtype){
             for(var i=1;i<'32';i++){
                 selectBoxStartDay.add({ value: i, text: i+" Day"})
             }
-            $("#billing-form .JobStartDay").show();
+            $("#billing-form ."+form+"Day").show();
             starttime.show();
         }
     }

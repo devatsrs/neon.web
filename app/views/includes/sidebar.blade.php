@@ -116,7 +116,9 @@
         @if(User::checkCategoryPermission('Disputes','View'))
         <li> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
         @endif
-
+          @if( User::checkCategoryPermission('BillingClass','View'))
+            <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
+          @endif
         @if(User::checkCategoryPermission('BillingSubscription','View'))
         <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
         @endif

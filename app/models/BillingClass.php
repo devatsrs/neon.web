@@ -29,7 +29,7 @@ class BillingClass extends \Eloquent
         return BillingClass::where('BillingClassID',$BillingClassID)->pluck('RoundChargesAmount');
     }
     public static function getAccounts($BillingClassID){
-        return Account::join('tblAccountBilling','tblAccountBilling.AccountID','=','tblAccount.AccountID')->where('BillingClassID',$BillingClassID)->get(['AccountName']);
+        return Account::join('tblAccountBilling','tblAccountBilling.AccountID','=','tblAccount.AccountID')->where('BillingClassID',$BillingClassID)->orderBy('AccountName')->get(['AccountName']);
     }
 
 }

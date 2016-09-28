@@ -167,7 +167,7 @@
                                         <div class="col-sm-4">
                                             <input type="text" name="PaymentReminder[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$PaymentReminders->ReminderEmail or ''}}" />
                                         </div>
-                                        <label class="col-sm-2 control-label">Send Copy To</label>
+                                        <label class="col-sm-2 control-label">Template</label>
                                         <div class="col-sm-4">
                                             {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
                                         </div>
@@ -192,6 +192,12 @@
                                         <label for="field-5" class="col-sm-2 control-label">Start Time</label>
                                         <div class="col-sm-4">
                                             <input name="PaymentReminder[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="{{(isset($PaymentReminders->StartTime)?$PaymentReminders->StartTime:'')}}" >
+                                        </div>
+                                    </div>
+                                    <div class="form-group PaymentReminderDay">
+                                        <label for="field-5" class="col-sm-2 control-label">Start Day</label>
+                                        <div class="col-sm-4">
+                                            {{Form::select('PaymentReminder[StartDay]',array(),'',array( "class"=>"selectboxit"))}}
                                         </div>
                                     </div>
                                 </div>
@@ -225,6 +231,34 @@
                                 <label class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
                                     {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-5" class="col-sm-2 control-label">Time</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"selectboxit"))}}
+                                </div>
+
+                                <label for="field-5" class="col-sm-2 control-label">Interval</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('LowBalanceReminder[Interval]',array(),'',array( "class"=>"selectboxit"))}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-5" class="col-sm-2 control-label">Day</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('LowBalanceReminder[Day][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),(isset($LowBalanceReminder->Day)?$LowBalanceReminder->Day:''),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
+                                </div>
+
+                                <label for="field-5" class="col-sm-2 control-label">Start Time</label>
+                                <div class="col-sm-4">
+                                    <input name="LowBalanceReminder[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="{{(isset($LowBalanceReminder->StartTime)?$LowBalanceReminder->StartTime:'')}}" >
+                                </div>
+                            </div>
+                            <div class="form-group LowBalanceReminderDay">
+                                <label for="field-5" class="col-sm-2 control-label">Start Day</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('LowBalanceReminder[StartDay]',array(),'',array( "class"=>"selectboxit"))}}
                                 </div>
                             </div>
 
@@ -262,9 +296,11 @@
     add_row_html_payment += '<td>{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"selectboxit form-control"))}}</td><tr>';
     jQuery(document).ready(function ($) {
         $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
+        $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
         @if(isset($PaymentReminders->Interval))
             setTimeout(function(){
                 $("#billing-form [name='PaymentReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('{{$PaymentReminders->Interval}}');
+                $("#billing-form [name='LowBalanceReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('{{$LowBalanceReminder->Interval}}');
             },5);
         @endif
     });
