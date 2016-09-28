@@ -645,7 +645,7 @@
 @section('footer_ext')
 @parent
 <div class="modal fade" id="addipcli-modal" >
-    <div class="modal-dialog" style="width: 30%;">
+    <div class="modal-dialog">
         <div class="modal-content">
             <form role="form" id="form-addipcli-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">
