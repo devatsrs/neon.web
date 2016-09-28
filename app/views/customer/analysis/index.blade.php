@@ -130,9 +130,7 @@
                 $("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
                 setTimeout(function(){
                     set_search_parameter($("#customer_analysis"));
-                    if($('.bar_chart_'+$("#customer_analysis").find("input[name='chart_type']").val()).html() == ''){
-                        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                    }
+                    reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
             });
             $("#customer_analysis").submit(function(e) {

@@ -7,9 +7,9 @@ BEGIN
     	SET sql_mode = '';
     	
 		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-     
-		SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
-		SELECT cr.Symbol INTO v_CurrencyCode_ from LocalRatemanagement.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+		
+		SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+		SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	    
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -39,7 +39,7 @@ BEGIN
             tblPayment.RecallBy,
             CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) as AmountWithSymbol
             from tblPayment
-            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            left join NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -98,7 +98,7 @@ BEGIN
             SELECT
             COUNT(tblPayment.PaymentID) AS totalcount,CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(sum(Amount),v_Round_)) as total_grand
             from tblPayment
-           left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+           left join NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -129,7 +129,7 @@ BEGIN
             tblPayment.PaymentMethod,
             Notes 
 			from tblPayment
-            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            left join NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -160,7 +160,7 @@ BEGIN
             tblPayment.PaymentMethod,
             Notes 
 			from tblPayment
-            left join LocalRatemanagement.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+            left join NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
             
             where tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)

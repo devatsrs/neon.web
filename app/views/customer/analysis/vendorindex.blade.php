@@ -125,9 +125,7 @@
                 $("#vendor_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
                 setTimeout(function(){
                     set_search_parameter($("#vendor_analysis"));
-                    if($('.bar_chart_'+$("#vendor_analysis").find("input[name='chart_type']").val()).html() == ''){
-                        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                    }
+                    reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
             });
             $("#vendor_analysis").submit(function(e) {

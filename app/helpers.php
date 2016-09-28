@@ -42,13 +42,18 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
             }
         }
     }
+    $parse_repose = array("status" => $status, "message" => $message);
+    if(($isArray && isset($response['redirect'])) || (!$isArray && isset($response->redirect))){
+        $parse_repose['redirect'] =  $isArray ? $response['redirect'] : $response->redirect;
+    }
+
 
     if($isBrowser){
         if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
 
-            return  Response::json(array("status" => $status, "message" => $message),401);
+            return  Response::json($parse_repose,401);
         }else {
-            return Response::json(array("status" => $status, "message" => $message));
+            return Response::json($parse_repose);
         }
     }else{
         return $message;
@@ -909,14 +914,14 @@ function get_random_number(){
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path); 
-    $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
+    $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
-    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount");
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
     if(count($path_array)>0)
@@ -1044,27 +1049,12 @@ function isJson($string) {
 function get_round_decimal_places($AccountID = 0) {
 
     $RoundChargesAmount = 2;
-
     if($AccountID>0){
-
-        $RoundChargesAmount = AccountBilling::where(["AccountID"=>$AccountID])->pluck("RoundChargesAmount");
-
-        if ( empty($RoundChargesAmount) ) {
-
-            $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
-
-        }
-
-    } else {
-
-        $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
-
+        $RoundChargesAmount = AccountBilling::getRoundChargesAmount($AccountID);
     }
-
     if ( empty($RoundChargesAmount) ) {
         $RoundChargesAmount = 2;
     }
-
     return $RoundChargesAmount;
 }
 
