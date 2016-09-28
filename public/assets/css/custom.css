@@ -113,6 +113,11 @@ body {
 .float-right{
     float: right;
 }
+
+.clear-both{
+    clear: both;
+}
+
 .datepicker-dropdown{z-index:99999 !important }
 .task.bold{ font-weight: bold; color:#000000; }
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
