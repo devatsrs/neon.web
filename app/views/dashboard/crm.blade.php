@@ -81,7 +81,8 @@
                     </div>
                 </div>
                 <div class="panel-body white-bg">
-                    <table id="accounts" class="table table-responsive">
+                    <div class="dataTables_wrapper">
+                        <table id="accounts" class="table table-responsive">
                         <thead>
                         <tr>
                             <th >Account Name</th>
@@ -95,6 +96,7 @@
                         <tbody>
                         </tbody>
                     </table>
+                    </div>
                     <?php if(User::checkCategoryPermission('Account','View')){?>
                     <div class="text-right">
                         <a href="{{URL::to('/accounts')}}" class="btn btn-primary text-right">View All</a>
