@@ -193,9 +193,9 @@
                     <label class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit",'disabled'))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -429,7 +429,7 @@
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"select2 small"))}}
                     </div>
 
                 </div>
@@ -559,7 +559,7 @@
                     </div>
                         <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
                         <div class="col-sm-4">
-                            {{Form::select('CDRType', Account::$cdr_type, ( isset($AccountBilling->CDRType)?$AccountBilling->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"selectboxit"))}}
+                            {{Form::select('CDRType', Account::$cdr_type, ( isset($AccountBilling->CDRType)?$AccountBilling->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"select2 small"))}}
                         </div>
 
                 </div>

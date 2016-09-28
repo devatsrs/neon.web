@@ -106,7 +106,7 @@
                         <label for="field-1" class="col-sm-2 control-label">Default DashBoard</label>
 
                         <div class="col-sm-4">
-                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
@@ -206,7 +206,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -299,7 +299,7 @@
                                 <div class="form-group" >
                                     <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
                                     <div class="col-sm-4">
-                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"selectboxit"))}}
+                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"select2 small"))}}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
                                     <p class="make-switch switch-small">

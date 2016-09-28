@@ -59,7 +59,7 @@
                         <div class="input-group" style="width: 100%;">
                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                 <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                                {{Form::select('NamePrefix', $NamePrefix_array, $contact->NamePrefix ,array("class"=>"selectboxit"))}}
+                                {{Form::select('NamePrefix', $NamePrefix_array, $contact->NamePrefix ,array("class"=>"select2 small"))}}
                             </div>
                             <input type="text" name="FirstName" class="form-control" value="{{$contact->FirstName}}"/>
                         </div>
@@ -230,7 +230,7 @@
                     <label for=" field-1" class="col-sm-2 control-label">Country</label>
                     <div class="col-sm-4">
 
-                        {{Form::select('Country', $countries, $contact->Country ,array("class"=>"selectboxit"))}}
+                        {{Form::select('Country', $countries, $contact->Country ,array("class"=>"select2 small"))}}
                     </div>
                 </div>
             </div>

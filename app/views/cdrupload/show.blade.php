@@ -90,11 +90,11 @@
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}}
+                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
                                 </div>
                                 <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
                                 <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
              
                             </div>

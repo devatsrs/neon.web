@@ -57,7 +57,7 @@
 
                         </label>
                         <div class="desc col-sm-4">
-                            {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"selectboxit"))}}
+                            {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"select2 small"))}}
                         </div>
                         <?php
                             $AccountIPList = array();
@@ -204,7 +204,7 @@
 
                         </label>
                         <div class="desc col-sm-4">
-                            {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"selectboxit"))}}
+                            {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"select2 small"))}}
                         </div>
                         <?php
                         $AccountIPList = array();

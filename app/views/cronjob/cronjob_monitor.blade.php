@@ -51,7 +51,7 @@
                             <label for="field-1" class="col-sm-1 control-label">Status</label>
                             <div class="col-sm-2">
 
-                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control select2 small")) }}
 
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>

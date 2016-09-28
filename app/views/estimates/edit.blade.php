@@ -121,7 +121,7 @@
                                         "data-value1"=>"Amount",
                                         "data-title2"=>"data-flatstatus",
                                         "data-value2"=>"FlatStatus",
-                                        "class" =>"selectboxit TaxRateID",
+                                        "class" =>"select2 small TaxRateID",
                                         ]
                                 )}}</td>
                                 <td>{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
@@ -209,7 +209,7 @@ var subscription_array = [{{implode(",",array_keys(BillingSubscription::getSubsc
 
 var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('EstimateDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::text('EstimateDetail[Description][]','',array("class"=>"form-control descriptions"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
      //add_row_html += '<td class="text-center">{{Form::text('EstimateDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
-     add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID][]","data"=>$taxes,"selected"=>$ProductRow->TaxRateID,"value_key"=>"TaxRateID","title_key"=>"Title","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"selectboxit TaxRateID"])}}</td>';
+     add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID][]","data"=>$taxes,"selected"=>$ProductRow->TaxRateID,"value_key"=>"TaxRateID","title_key"=>"Title","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 small TaxRateID"])}}</td>';
      add_row_html += '<td>{{Form::text('EstimateDetail[TaxAmount][]','',array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::text('EstimateDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
      add_row_html += '{{Form::hidden('EstimateDetail[StartDate][]','',array("class"=>"StartDate"))}}{{Form::hidden('EstimateDetail[EndDate][]','',array("class"=>"EndDate"))}}{{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}</td></tr>';

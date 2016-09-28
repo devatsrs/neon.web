@@ -133,7 +133,7 @@
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">First row:</label>
                         <div class="col-sm-4">
-                            {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -161,12 +161,12 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Prefix*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[DialString]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[DialString]', array(),'',array("class"=>"select2 small"))}}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Charge Code*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[ChargeCode]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[ChargeCode]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -174,12 +174,12 @@
                         <br />
                         <label for="field-1" class="col-sm-2 control-label">Description</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Forbidden</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"select2 small"))}}
                         </div>
 
                     </div>
@@ -188,7 +188,7 @@
                         <br />
                         <label for="field-1" class="col-sm-2 control-label">Action</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Action]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Action]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
                         <div class="col-sm-4">
@@ -386,11 +386,7 @@ jQuery(document).ready(function ($) {
         });
         $("#mapping select").each(function(i, el){
             if(el.name !='selection[DateFormat]'){
-                $(el).data("selectBox-selectBoxIt").remove();
-                $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                $.each(data.columns,function(key,value){
-                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                });
+                rebuildSelect2(el,data.columns,'Skip loading')
             }
         });
         if(data.DialStringFileUploadTemplate){
@@ -404,7 +400,7 @@ jQuery(document).ready(function ($) {
                     if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                         $('#add-template-form').find('[name="option['+key+']"]').val(value)
                         if(key == 'Firstrow'){
-                            $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                            $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                         }
                     }
 
@@ -413,7 +409,7 @@ jQuery(document).ready(function ($) {
                         if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                             $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                         }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                            $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                            $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                         }
                     });
                 }

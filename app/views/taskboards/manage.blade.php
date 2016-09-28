@@ -83,7 +83,7 @@
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
                                 <div class="col-sm-3">
-                                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -99,7 +99,7 @@
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"select2 small"))}}
                                 </div>
                                 <div class="col-sm-2 hidden tohidden">
                                     <input autocomplete="off" id="DueDateFrom" placeholder="From" type="text" name="DueDateFrom" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
@@ -316,7 +316,7 @@
                         if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         }else {
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                            elem.val(val).trigger("change");
                         }
                     } else{
                         elem.val(val);
@@ -855,7 +855,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Task Status *</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>

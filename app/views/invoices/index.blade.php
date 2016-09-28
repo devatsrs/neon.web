@@ -57,7 +57,7 @@
                                     <label for="field-1" class="col-sm-1 control-label">Type</label>
 
                                     <div class="col-sm-2">
-                                        {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
+                                        {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Account</label>
 
@@ -1819,13 +1819,13 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }}
+                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -1897,7 +1897,7 @@
                                 <label for="field-1" class="col-sm-2 control-label">Email Template</label>
 
                                 <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -1947,7 +1947,7 @@
                                 <label for="field-1" class="col-sm-2 control-label">Template Option</label>
 
                                 <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>

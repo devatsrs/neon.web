@@ -29,7 +29,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
                         <div class="col-sm-2">

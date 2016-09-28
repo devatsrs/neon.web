@@ -2795,6 +2795,10 @@ function rebuildSelect2(el,data,defualtText){
     el.empty();
     options = [];
     $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
         options.push(new Option(value, key, true, true));
     });
     if(defualtText.length > 0){

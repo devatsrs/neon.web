@@ -863,7 +863,7 @@
                                 <br />
                                 <label for="field-1" class="col-md-2 control-label">Show Template</label>
                                 <div class="col-md-2">
-                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -872,7 +872,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -916,7 +916,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Template Option</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>

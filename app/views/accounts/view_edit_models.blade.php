@@ -208,7 +208,7 @@
             <div class="col-md-6 pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             @endif

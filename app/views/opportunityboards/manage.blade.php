@@ -363,7 +363,7 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                            elem.val(val).trigger("change");
                         }
                     } else{
                         elem.val(val);
@@ -929,7 +929,7 @@
                                         <div class="input-group" style="width: 100%;">
                                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                                 <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}}
                                             </div>
                                             <input type="text" name="FirstName" class="form-control" id="field-5">
                                         </div>
@@ -976,7 +976,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Status</label>
                                     <div class="col-sm-8 input-group">
-                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -985,7 +985,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>

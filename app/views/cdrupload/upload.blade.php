@@ -41,7 +41,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="field-1">Upload Template</label>
                         <div class="col-sm-3">
-                            {{ Form::select('FileUploadTemplateID', $UploadTemplate, '' , array("class"=>"selectboxit")) }}
+                            {{ Form::select('FileUploadTemplateID', $UploadTemplate, '' , array("class"=>"select2 small")) }}
                         </div>
                     </div>
                     <div class="form-group">
@@ -153,7 +153,7 @@
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">First row:</label>
                             <div class="col-sm-4">
-                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <p style="text-align: right;">
@@ -181,12 +181,12 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Connect DateTime</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[connect_datetime]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[connect_datetime]', array(),'',array("class"=>"select2 small"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">Disconnect DateTime</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[disconnect_time]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[disconnect_time]', array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -194,12 +194,12 @@
                             <br />
                             <label for="field-1" class="col-sm-2 control-label">Billed Duration</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[billed_duration]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[billed_duration]', array(),'',array("class"=>"select2 small"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">Duration</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[duration]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[duration]', array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -207,11 +207,11 @@
                             <br />
                             <label for=" field-1" class="col-sm-2 control-label">CLI</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[cli]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[cli]', array(),'',array("class"=>"select2 small"))}}
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">CLD</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[cld]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[cld]', array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -231,12 +231,12 @@
                             <br />
                             <label for="field-1" class="col-sm-2 control-label">Account*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Account]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Account]', array(),'',array("class"=>"select2 small"))}}
                             </div>
 
                             <label for=" field-1" class="col-sm-2 control-label">Cost</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[cost]', array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[cost]', array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -244,11 +244,11 @@
                             <br />
                             <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}}
                             </div>
                             <label for=" field-1" class="col-sm-2 control-label">Inbound/Outbound <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then cdrs will be uploaded as outbound" data-original-title="Inbound/Outbound">?</span></label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[is_inbound]',array(),'',array("class"=>"select2 small"))}}
                             </div>
 
                         </div>
@@ -257,11 +257,11 @@
                             <br />
                             <label for=" field-1" class="col-sm-2 control-label">Extension</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[extension]',array() ,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[extension]',array() ,'',array("class"=>"select2 small"))}}
                             </div>
                             <label for=" field-1" class="col-sm-2 control-label chargecode">Charge Code</label>
                             <div class="col-sm-4 chargecode">
-                                {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -270,7 +270,7 @@
                             <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
                             <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Authentication]',$NameFormat ,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Authentication]',$NameFormat ,'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>
@@ -524,11 +524,7 @@ var click_btn;
         });
         $("#mapping select").each(function(i, el){
             if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]'){
-                $(el).data("selectBox-selectBoxIt").remove();
-                $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                $.each(data.columns,function(key,value){
-                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                });
+                rebuildSelect2(el,data.columns,'Skip loading');
             }
         });
         if(data.FileUploadTemplate){
@@ -542,7 +538,7 @@ var click_btn;
                     if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                         $('#add-template-form').find('[name="option['+key+']"]').val(value)
                         if(key == 'Firstrow'){
-                            $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                            $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                         }
                     }
 
@@ -551,7 +547,7 @@ var click_btn;
                         if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                             $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                         }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                            $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                            $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                         }
                     });
                 }
