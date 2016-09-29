@@ -71,7 +71,7 @@
                <div class="form-group">
                 <div class="col-sm-12">
 
-
+                <div class="dataTables_wrapper">
                 	<table id="InvoiceTable" class="table table-bordered" style="margin-bottom: 0">
                 		<thead>
                 			<tr>
@@ -121,13 +121,13 @@
                 		</tbody>
 
                 	</table>
-
+                </div>
                 </div>
             </div>
                <div class="form-group">
-                <div class="col-sm-9">
+                <div class="col-md-6">
 
-                    <table  width="50%" >
+                    <table>
                         <tr>
                             <td><label for="field-1" class=" control-label">*Terms</label></td>
                         </tr>
@@ -149,7 +149,8 @@
                     </table>
 
                 </div>
-                <div class="col-sm-3">
+                <div class="col-md-3"></div>
+                <div class="col-md-3">
                     <table class="table table-bordered">
                     <tfoot>
                             <tr>
