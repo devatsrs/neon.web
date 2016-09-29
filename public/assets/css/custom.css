@@ -230,6 +230,10 @@ a[disabled] {
   }
 }
 
+.form-wizard .tab-content{
+    margin: 32px 20.5px 0;
+}
+
 #drp_customers_jump{
     border: 0px solid #fff;
     background-color: rgba(255,255,255,0);
