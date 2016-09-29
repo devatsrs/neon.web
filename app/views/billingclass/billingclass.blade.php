@@ -297,12 +297,15 @@
     jQuery(document).ready(function ($) {
         $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
         $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
-        @if(isset($PaymentReminders->Interval))
             setTimeout(function(){
+                @if(isset($PaymentReminders->Interval))
                 $("#billing-form [name='PaymentReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('{{$PaymentReminders->Interval}}');
+                @endif
+                @if(isset($LowBalanceReminder->Interval))
                 $("#billing-form [name='LowBalanceReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('{{$LowBalanceReminder->Interval}}');
+                @endif
             },5);
-        @endif
+
     });
 </script>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>

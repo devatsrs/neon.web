@@ -921,7 +921,7 @@ function check_uri($parent_link=''){
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
-    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount");
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass");
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
 
     if(count($path_array)>0)
