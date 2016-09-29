@@ -92,7 +92,7 @@ BEGIN
 			GrandTotal
 		FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
-							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 									AND(PendingAmount>0)
 								)
 						)
@@ -130,7 +130,7 @@ BEGIN
 
 		SELECT COUNT(*) into v_TotalCount FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
-							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 									AND(PendingAmount>0)
 								)
 						);
@@ -143,7 +143,7 @@ BEGIN
 			v_CurrencyCode_ as currency_symbol
 		FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
-							OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+							OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 									AND(PendingAmount>0)
 								)
 						);
@@ -161,7 +161,7 @@ BEGIN
 			ItemInvoice
 		FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0 
-						OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(PaymentDueInDays,v_PaymentDueInDays_)
+						OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 								AND(PendingAmount>0)
 							)
 					);
