@@ -1,6 +1,5 @@
 @extends('layout.main')
 @section('content')
-<?php print_r($CrmAllowedReports); echo count($CrmAllowedReports); ?>
 <div class="row">
   <div class="tab-content">
     <div class="tab-pane active" id="customer" >
