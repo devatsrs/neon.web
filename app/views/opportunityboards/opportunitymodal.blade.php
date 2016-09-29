@@ -213,6 +213,7 @@
                         data = [];
                         data[0] = 'Not Found';
                     }
+                    var el = $('#add-opportunity-form [name="leadOrAccount"]');
                     rebuildSelect2(el,data,'');
                 },
                 // Form data

@@ -490,7 +490,8 @@ var click_btn;
         });
         $("#mapping select").each(function(i, el){
             if(el.name !='selection[DateFormat]'){
-                rebuildSelect2(el,data.columns,'Skip loading');
+                var self = $('#add-template-form [name="'+el.name+'"]');
+                rebuildSelect2(self,data.columns,'Skip loading');
             }
         });
         if(data.FileUploadTemplate){
