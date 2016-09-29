@@ -21,7 +21,7 @@
             <div class="panel-title"> Filter </div>
             <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
           </div>
-          <div class="panel-body">
+          <div class="panel-body" id="paymentsearch">
             <div class="form-group">
               <label for="field-1" class="col-sm-1 control-label small_label">Account</label>
               <div class="col-sm-2 col-sm-e2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
@@ -827,7 +827,8 @@
                         });
                         $("#mapping select").each(function(i, el){
                             if(el.name !='selection[DateFormat]'){
-                                rebuildSelect2(el,data.columns,'Skip loading');
+                                var self = $('#add-template-form [name="'+el.name+'"]');
+                                rebuildSelect2(self,data.columns,'Skip loading');
                             }
                         });
                         if ( data.PaymentUploadTemplate ) {
@@ -899,8 +900,14 @@
 						}
 				});	
 		}
+                    if (isxs()) {
+                        $('#paymentsearch').find('.col-sm-2,.col-sm-1').each(function () {
+                            $(this).removeClass('col-sm-e2');
+                            $(this).removeClass('small-date-input');
+                            $(this).removeAttr('style');
 
-
+                        });
+                    }
                 });
 
                 $("#payment-table-search").submit(function(e) {
