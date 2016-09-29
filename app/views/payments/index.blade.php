@@ -167,13 +167,15 @@
                 </div>
                 <div class="panel-body">
                   <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
-                  <table class="table table-bordered datatable" id="tablemapping">
-                    <thead>
-                      <tr> </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
+                    <div class="dataTables_wrapper">
+                      <table class="table table-bordered datatable" id="tablemapping">
+                        <thead>
+                          <tr> </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
                 </div>
               </div>
               <p style="text-align: right;">
