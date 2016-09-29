@@ -180,7 +180,7 @@
                 </div>
                 <div class="form-Group" style="margin-bottom: 15px;">
                   <label >Email Template</label>
-                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template"))}} </div>
+                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}} </div>
                 <div class="form-group">
                   <label for="subject">Subject *</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
@@ -347,6 +347,9 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
             <div class="cbp_tmlabel normal_tag">
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="forward" class="pull-right edit-deal email_action" title="Forward"><i class="entypo-forward"></i></a>            
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="reply-all" class=" pull-right edit-deal email_action" title="Reply All"><i class="entypo-reply-all"></i></a>           
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="reply" class="pull-right edit-deal email_action" title="Reply"><i class="entypo-reply"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display"> @if($rows['EmailCc'])
                 <p>CC: {{$rows['EmailCc']}}</p>
@@ -386,8 +389,8 @@
 	  }	 
 	   ?>
                 <div class="mail_message">Message:<br>
-                  {{$rows['EmailMessage']}}. </div>
-                    <p><a data_fetch_id="{{$rows['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Email Replies</a></p>
+                  {{$rows['EmailMessage']}}</div><br>
+                    <p><a data_fetch_id="{{$rows['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
               </div>
             </div>
           </li>
@@ -403,7 +406,9 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-            <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a> <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
+            <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> 
+            <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
+             <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>             
               <h2 class="toggle_open" id_toggle="{{$key}}"> @if($rows['TaskPriority']=='High') <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span> @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span> @else <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> @endif </h2>

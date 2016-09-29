@@ -20,7 +20,7 @@
         @endforeach 
         @elseif($data['conversations_type']=='mail')
          @foreach($response['data'] as $rows)
-        <li class="countComments" id="comment-1">
+        <li class="countComments replyboxemail" id="comment-1">
           <div class="comment-details">
             <p class="comment-text">
 	  <div class="comment-time pull-right">
@@ -31,10 +31,14 @@
             	<p><h3>{{$rows['Subject']}}</h3> </p>
                 @if($rows['EmailCall']=='Send' &&  $rows['EmailTo']!='')<p>To: {{$rows['EmailTo']}}</p> @endif
                 @if($rows['EmailCall']=='Received' && $rows['Emailfrom']!='')<p>From: {{$rows['Emailfrom']}}</p> @endif
+            	<div class="replyboxhidden">
              <p>Message:<br> {{$rows['Message']}}</p>
               </p>
+              </div>
             <div class="comment-footer">
-             <div class="comment-time pull-left">   <?php
+            <div class="replyboxhidden">
+             <div class="comment-time pull-left"> 
+        <?php
 	  if($rows['AttachmentPaths']!='')
 	  {
     		$attachments = unserialize($rows['AttachmentPaths']);
@@ -65,6 +69,8 @@
 			}			
 	  }	 
 	   ?> </div>
+       			</div>
+       
               <div class="comment-time pull-right"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($rows['created_at']))->diffForHumans()}} </div>
             </div>
           </div>

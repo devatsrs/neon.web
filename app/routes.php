@@ -427,7 +427,14 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::resource('jobs', 'JobsController');
 	Route::controller('jobs', 'JobsController');
+	
+	//msgs
+	Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
+	Route::any('/emailmessages', 'MessagesController@index');
+	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
+	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
 
+	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
 	Route::any('/rategenerators/ajax_datagrid', array('as' => 'rategenerator_ajax_datagrid', 'uses' => 'RateGeneratorsController@ajax_datagrid'));

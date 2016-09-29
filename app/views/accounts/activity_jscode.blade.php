@@ -53,6 +53,10 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 		});
 	});
 	
+	$( document ).on("click",'.replyboxemail' ,function(e) {	
+		$(this).find('.replyboxhidden').toggle();
+	});
+	
 	$( document ).on("click",'.email_action' ,function(e) {			
 		var url 		   = 	 baseurl + '/emails/email_action';
 		var action_type    =     $(this).attr('action_type');
@@ -69,28 +73,34 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			type: 'POST',
 			dataType: 'html',
 			async :false,
-			data:{s:1,action_type:action_type,email_number:email_number},
+			data:{s:1,action_type:action_type,email_number:email_number,AccountID:account_id},
 			success: function(response){
 				$('#EmailAction-model .modal-content').html('');
 				$('#EmailAction-model .modal-content').html(response);				
-				 var mod = $('#EmailAction-model');
-				 mod.find('.wysihtml5-toolbar').remove();
-				 mod.find('.wysihtml5-sandbox').remove();
-				 mod.find('#EmailActionbody').wysihtml5({
-					"font-styles": true,
-					"leadoptions":false,
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-					parser: function(html) {
-						return html;
-					}
+					var mod =  $(document).find('.EmailAction_box');
+				 	mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        			mod.find('.message').show();
+					
+				 	mod.find('.message').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":true,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+						parser: function(html) {
+							return html;
+						}
 				});
-				mod.modal('show');
+				mod.find("select").select2({
+                    minimumResultsForSearch: -1
+                });
+				mod.find('.select2-container').css('visibility','visible');
+				$('#EmailAction-model').modal('show');
+		    
 			},
 		});
 	});
@@ -376,13 +386,14 @@ toastr.error(status, "Error", toastr_opts);
 		var per_scroll 		= 	{{$per_scroll}};
 		var per_scroll_inc  = 	per_scroll;
 		
-		  $("#email-from [name=email_template]").change(function(e){
-            var templateID = $(this).val();
+		$( document ).on("change",'.email_template' ,function(e) {
+            var templateID = $(this).val(); 
+			var parent_box = $(this).attr('parent_box'); 
             if(templateID>0) {
                 var url = baseurl + '/accounts/' + templateID + '/ajax_template';
                 $.get(url, function (data, status) {
-                    if (Status = "success") {
-                        editor_reset(data);
+                    if (Status = "success") {						
+                        editor_reset(data,parent_box);
                     } else {
                         toastr.error(status, "Error", toastr_opts);
                     }
@@ -390,14 +401,13 @@ toastr.error(status, "Error", toastr_opts);
             }
         });
 
-		        function editor_reset(data){
-				var doc = $('.mail-compose');
+		        function editor_reset(data,parent_box){
+				//var doc = $('.mail-compose');
+				var doc = $(document).find('.'+parent_box);
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 						
-								
-            var doc = $(".mail-compose");
-            if(!Array.isArray(data)){				
+	       if(!Array.isArray(data)){				
                 var EmailTemplate = data['EmailTemplate'];
                 doc.find('[name="Subject"]').val(EmailTemplate.Subject);
                 doc.find('.message').val(EmailTemplate.TemplateBody);
@@ -1221,6 +1231,7 @@ footer.main {
 }
 .ticket_conversations {
 	cursor: pointer;
+	text-decoration:underline;
 }
 .left-padding {
 	padding-left: 0px !important;
@@ -1240,4 +1251,6 @@ footer.main {
 .email_action {
 	cursor: pointer;
 }
+.replyboxhidden{display:none; }
+.replyboxemail{width:100% !important; cursor:pointer;}
 </style>

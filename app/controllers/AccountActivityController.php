@@ -208,6 +208,9 @@ class AccountActivityController extends \BaseController {
 		$data 		   		= 	  Input::all();
 		$action_type   		=     $data['action_type'];
 		$email_number  		=     $data['email_number'];
+		$AccountID  		=     $data['AccountID'];
+		$AccountName 		= 	  Account::where(array('AccountID'=>$AccountID))->pluck('AccountName');
+		$AccountEmail 		= 	  Account::where(array('AccountID'=>$AccountID))->pluck('Email');
 		$response_email     =     NeonAPI::request('account/get_email',array('EmailID'=>$email_number),false,true);
 		
 		if($response_email['status']=='failed'){
@@ -218,8 +221,8 @@ class AccountActivityController extends \BaseController {
 			if(!empty($parent_id)){
 				$parent_data 	=	 AccountEmailLog::find($parent_id);
 			}else{$parent_data = array();}
-				
-			return View::make('accounts.emailaction', compact('response_data','action_type','parent_data'));  			
+			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			return View::make('accounts.emailaction', compact('response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail'));  			
 		}
         
 	}	
@@ -280,5 +283,18 @@ class AccountActivityController extends \BaseController {
 			 }
 		 }			
 	 }	
+	 
+	 public function ajax_getEmailTemplate($privacy, $type){
+        $filter = array();
+        if($type == EmailTemplate::ACCOUNT_TEMPLATE){
+            $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+        }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
+            $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
+        }
+        if($privacy == 1){
+            $filter ['UserID'] =  User::get_userID();
+        }
+        return EmailTemplate::getTemplateArray($filter);
+    }
 
 }

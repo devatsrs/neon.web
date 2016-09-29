@@ -288,9 +288,9 @@
             </div>
         </div>
     </div>    
-    <div class="modal fade" id="EmailAction-model">
+    <div class="modal fade " id="EmailAction-model">
      <form id="EmailActionform" method="post">     
-  <div class="modal-dialog" style="width: 70%;">
+  <div class="modal-dialog EmailAction_box"  style="width: 70%;">
     <div class="modal-content">     
     </div>
   </div>

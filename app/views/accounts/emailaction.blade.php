@@ -8,14 +8,34 @@
       <div class="form-group">
         <label for="EmailActionTo">* To:</label>
         <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="@if($action_type!='forward') @if($response_data['EmailCall']=='Send')  {{$response_data['Emailfrom']}}  @else @if(isset($parent_data->EmailTo)) {{$parent_data->EmailTo}} @endif  @endif   @endif" />
+        <div class="field-options"> 
+        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
+        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
+         </div>
       </div>
+      <div class="form-group hidden">
+        <label for="cc">CC</label>
+        <input type="text" name="cc"  class="form-control tags"  id="replycc" />
+      </div>
+      <div class="form-group hidden">
+        <label for="bcc">BCC</label>
+        <input type="text" name="bcc"  class="form-control tags"  id="replybcc" />
+      </div>
+      <div class="form-Group" style="margin-bottom: 15px;">
+                  <label >Email Template</label>
+                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"EmailAction_box"))}} </div>
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
         <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{$response_data['Subject']}}" />
       </div>
       <div class="form-group">
         <label for="EmailActionbody">* Message:</label>
-        <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"> @if($action_type!='forward') <br><br><hr>    @endif{{$response_data['Message']}}</textarea>
+        <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"> @if($action_type!='forward')<br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); if($response_data['EmailCall']=='Send'){echo $AccountName."(".$AccountEmail.")";}else{echo $response_data['Emailfrom'];} ?> wrote: <br>
+  @else <br><br><br> ---------- Forwarded message ----------<br>
+From: <?php $AccountName."(".$AccountEmail.")"; ?><br>
+Subject: <?php $response_data['Subject']; ?>....<br>
+Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); ?><br>
+To: <?php if($response_data['EmailCall']=='Send'){echo $response_data['EmailTo'];}else{echo $response_data['Emailfrom'];} ?><br><br> @endif{{$response_data['Message']}}</textarea>
       </div>
       <p class="comment-box-options-activity"> <a id="addReplyTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
       <div class="form-group email_attachment">
