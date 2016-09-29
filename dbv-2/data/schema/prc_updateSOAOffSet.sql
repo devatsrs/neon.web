@@ -25,7 +25,8 @@ BEGIN
 		tblInvoice.InvoiceType
 	FROM tblInvoice
 	WHERE tblInvoice.CompanyID = p_CompanyID
-	AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  );
+	AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
+	AND (p_AccountID = 0 OR  tblInvoice.AccountID = p_AccountID);
 
      -- 2 Payments
 	INSERT into tmp_AccountSOA(AccountID,Amount,PaymentType)
@@ -36,7 +37,8 @@ BEGIN
 	FROM tblPayment
 	WHERE tblPayment.CompanyID = p_CompanyID
 	AND tblPayment.Status = 'Approved'
-	AND tblPayment.Recall = 0;
+	AND tblPayment.Recall = 0
+	AND (p_AccountID = 0 OR  tblPayment.AccountID = p_AccountID);
 	
 	INSERT INTO tmp_AccountSOABal
 	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) as SOAOffSet 
