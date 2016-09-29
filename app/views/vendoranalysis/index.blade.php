@@ -99,8 +99,8 @@
                     @include('vendoranalysis.trunk_grid')
                 </div>
                 <div class="tab-pane" id="account" >
-                    @include('analysis.account')
-                    @include('analysis.account_grid')
+                    @include('vendoranalysis.account')
+                    @include('vendoranalysis.account_grid')
                 </div>
                 <div class="tab-pane" id="gateway" >
                     @include('vendoranalysis.gateway')
