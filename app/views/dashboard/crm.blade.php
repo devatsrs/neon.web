@@ -398,9 +398,10 @@ var RevenueReport = 0;
 		width:38px;
 	}
 	.click_revenue_diagram{
-		cursor:pointer;
+		cursor:pointer !important; 
 		text-decoration:underline;
 		font-weight:bold;
+		pointer-events:auto !important;
 	}
 	.panel-heading{
 	border:none !important;
