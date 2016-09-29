@@ -13,6 +13,9 @@ function loadDashboard(){
         /* get trunk data for today and display in three chart*/
         getReportData('trunk');
 
+        /* get trunk data for today and display in three chart*/
+        getReportData('account');
+
         /* get gateway data for today and display in three chart*/
         getReportData('gateway');
 

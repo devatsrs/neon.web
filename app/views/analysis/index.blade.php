@@ -84,6 +84,7 @@
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
+        <li ><a href="#account" data-toggle="tab">Account</a></li>
         <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
     </ul>
     <div class="tab-content">
@@ -98,6 +99,10 @@
         <div class="tab-pane" id="trunk" >
             @include('analysis.trunk')
             @include('analysis.trunk_grid')
+        </div>
+        <div class="tab-pane" id="account" >
+            @include('analysis.account')
+            @include('analysis.account_grid')
         </div>
         <div class="tab-pane" id="gateway" >
             @include('analysis.gateway')
