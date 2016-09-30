@@ -377,6 +377,8 @@
                                 action +='<input type="hidden" name="country" value="'+full[14]+'"/>';
 								action +='<input type="hidden" name="PostCode" value="'+full[15]+'"/>';
                                 action +='<input type="hidden" name="picture" value="'+full[16]+'"/>';
+                                action +='<input type="hidden" name="UnbilledAmount" value="'+full[17]+'"/>';
+                                action +='<input type="hidden" name="PermanentCredit" value="'+full[18]+'"/>';
                                 return action;
                             }
                         },
@@ -443,6 +445,10 @@
                 var city = $(temp).find('input[name="city"]').val();
                 var country = $(temp).find('input[name="country"]').val();
 				var PostCode = $(temp).find('input[name="PostCode"]').val();
+
+                var PermanentCredit = $(temp).find('input[name="PermanentCredit"]').val();
+                var UnbilledAmount = $(temp).find('input[name="UnbilledAmount"]').val();
+                var accountid =  $(temp).find('input[name="accountid"]').val();
 				
 				
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
@@ -490,14 +496,22 @@
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div>';
-                html += '     <div class="meta">Outstanding</div>';
+                html += '     <div class="meta">Account Balance</div>';
                 html += '     <div>' + childrens.eq(5).text() + '</div>';
+                html += '  </div>';
+                html += '  <div>';
+                html += '     <div class="meta">Unbilled Amount</div>';
+                html += '     <div><a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a></div>';
                 html += '  </div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Address</div>';
                 html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
+                html += '  </div>';
+                html += '  <div>';
+                html += '     <div class="meta">Credit Limit</div>';
+                html += '     <div>' + PermanentCredit + '</div>';
                 html += '  </div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-11 padding-0 action">';
@@ -1018,6 +1032,7 @@
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 @include('opportunityboards.opportunitymodal')
+@include('accounts.unbilledreportmodal')
 @stop
 
 @section('footer_ext')
