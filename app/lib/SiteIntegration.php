@@ -12,7 +12,8 @@ class SiteIntegration{
  static    $GatewaySlug			=	'billinggateway';
  static    $freshdeskSlug		=	'freshdesk';
  static    $mandrillSlug		=	'mandrill';
- 
+ static    $paypalipnSlug		=	'paypalipn';
+
  
  
 

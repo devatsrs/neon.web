@@ -310,6 +310,15 @@ function is_authorize(){
 	}	*/
 }
 
+function is_paypal(){
+
+    $paypal = new PaypalIpn();
+    if($paypal){
+        return true;
+    }
+    return false;
+}
+
 
 function get_image_data($path){
     $type = pathinfo($path, PATHINFO_EXTENSION);

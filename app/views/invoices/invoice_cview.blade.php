@@ -30,9 +30,15 @@
         <div class="x-span4 pull-left" >
           <h1 class="text-center">Invoice</h1>
         </div>
-        <div class="x-span8 pull-right" style="margin-top:5px;"> @if(($Invoice->InvoiceStatus != Invoice::PAID) && is_authorize()) <a href="{{URL::to('invoice_payment', $Invoice->AccountID.'-'.$Invoice->InvoiceID);}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now </a>
-          <div class="pull-right"> &nbsp;</div>
+        <div class="x-span8 pull-right" style="margin-top:5px;">
+          @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_authorize()  ) )
+                <a href="{{URL::to('invoice_payment', $Invoice->AccountID.'-'.$Invoice->InvoiceID);}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now </a>
+                <div class="pull-right"> &nbsp;</div>
+          @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
+                {{$paypal_button}}
+                <div class="pull-right"> &nbsp;</div>
           @endif
+
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
           @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> </div>

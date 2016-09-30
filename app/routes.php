@@ -1015,7 +1015,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
-	
+    Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
+    Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
+
 	#estimate
 	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View
 	Route::any('/estimate/display_estimate/{id}', 'EstimatesController@display_estimate');
