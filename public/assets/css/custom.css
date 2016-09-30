@@ -2167,3 +2167,6 @@ background-repeat:no-repeat;
 .ms-container .ms-list{
     height: 200px;
 }
+ul.grid li div.low_balance_account:not(.selected){
+    background :#ffc9c9 none repeat scroll 0 0;
+}

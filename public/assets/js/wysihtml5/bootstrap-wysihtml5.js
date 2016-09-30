@@ -20,17 +20,42 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.leadoptions.InvoiceNumber + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{GrandTotal}}'>" + locale.leadoptions.GrandTotal + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStanding}}'>" + locale.leadoptions.OutStanding + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TotalOutStanding}}'>" + locale.leadoptions.TotalOutStanding + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceAmount}}'>" + locale.leadoptions.BalanceAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutStandingExcludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingIncludeUnbilledAmount}}'>" + locale.leadoptions.OutStandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.leadoptions.BalanceThreshold + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CurrencySymbol}}'>" + locale.leadoptions.CurrencySymbol + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
                 "</ul>" +
                 "</li>";
         },
-		
+        "invoiceoptions": function(locale, options) {
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.invoiceoptions.FirstName + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.invoiceoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.invoiceoptions.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.invoiceoptions.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.invoiceoptions.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.invoiceoptions.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.invoiceoptions.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.invoiceoptions.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.invoiceoptions.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.invoiceoptions.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.invoiceoptions.Country + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.invoiceoptions.InvoiceNumber + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{GrandTotal}}'>" + locale.invoiceoptions.GrandTotal + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutStanding}}'>" + locale.invoiceoptions.InvoiceOutStanding + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingExcludeUnbilledAmount}}'>" + locale.invoiceoptions.OutStandingExcludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingIncludeUnbilledAmount}}'>" + locale.invoiceoptions.OutStandingIncludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.invoiceoptions.BalanceThreshold + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CurrencySymbol}}'>" + locale.invoiceoptions.CurrencySymbol + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.invoiceoptions.Signature + "</a></li>" +
+                "</ul>" +
+                "</li>";
+        },
         "font-styles": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
@@ -557,6 +582,7 @@
 
     var defaultOptions = $.fn.wysihtml5.defaultOptions = {
         "leadoptions":true ,
+        "invoiceoptions":false ,
 		"Crm":true,
         "font-styles": true,
         "color": false,
@@ -1063,13 +1089,31 @@
                 State:"State",
                 PostCode:"PostCode",
                 Country:"Country",
+                Signature:"Signature",
+                OutStandingExcludeUnbilledAmount:"OutStandingExcludeUnbilledAmount",
+                OutStandingIncludeUnbilledAmount:"OutStandingIncludeUnbilledAmount",
+                BalanceThreshold:"BalanceThreshold",
+                CurrencySymbol:"CurrencySymbol"
+            },
+            invoiceoptions:{
+                FirstName:"FirstName",
+                LastName:"LastName",
+                Email:"Email",
+                Address1:"Address1",
+                Address2:"Address2",
+                Address3:"Address3",
+                City:"City",
+                State:"State",
+                PostCode:"PostCode",
+                Country:"Country",
                 InvoiceNumber:"InvoiceNumber",
                 GrandTotal:"GrandTotal",
-                OutStanding:"OutStanding",
-                TotalOutStanding:"TotalOutStanding",
+                InvoiceOutStanding:"InvoiceOutStanding",
+                OutStandingExcludeUnbilledAmount:"OutStandingExcludeUnbilledAmount",
                 Signature:"Signature",
-                BalanceAmount:"BalanceAmount",
-                BalanceThreshold:"BalanceThreshold"
+                OutStandingIncludeUnbilledAmount:"OutStandingIncludeUnbilledAmount",
+                BalanceThreshold:"BalanceThreshold",
+                CurrencySymbol:"CurrencySymbol"
             },
 			Crm:{				
                 FirstName:"FirstName",

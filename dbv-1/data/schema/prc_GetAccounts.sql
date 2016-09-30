@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_activeStatus` int, IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_activeStatus` int, IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_low_balance` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
@@ -30,7 +30,8 @@ BEGIN
 			tblAccount.PostCode,
 			tblAccount.Picture,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)) as UnbilledAmount,
-			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_)) as PermanentCredit
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_)) as PermanentCredit,
+			IF ( (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount ,1,0) as BalanceWarning
 		FROM tblAccount
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
@@ -49,6 +50,7 @@ BEGIN
 			AND ((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 			AND ((p_tags = '' OR tblAccount.tags like Concat(p_tags,'%')))
 			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
 		GROUP BY tblAccount.AccountID
 		ORDER BY
 			CASE
@@ -86,8 +88,12 @@ BEGIN
 		SELECT
 			COUNT(tblAccount.AccountID) AS totalcount
 		FROM tblAccount
-			LEFT JOIN tblUser ON tblAccount.Owner = tblUser.UserID
-		LEFT JOIN tblContact ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountBalance abc
+			ON abc.AccountID = tblAccount.AccountID
+		LEFT JOIN tblUser
+			ON tblAccount.Owner = tblUser.UserID
+		LEFT JOIN tblContact
+			ON tblContact.Owner=tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -98,7 +104,8 @@ BEGIN
 			AND ((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 			AND ((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
-			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')));
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) );
 
 	END IF;
 	IF p_isExport = 1
@@ -130,6 +137,7 @@ BEGIN
 			AND ((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
 			AND ((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
 			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
 		GROUP BY tblAccount.AccountID;
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
