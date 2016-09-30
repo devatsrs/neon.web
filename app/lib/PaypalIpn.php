@@ -191,6 +191,7 @@ class PaypalIpn
             $paypal_email =  $this->business_email;
 
         }
+        $this->amount = number_format($this->amount,2,'.','') ;// paypal gives error if more than 2 decimal placesrequies 2 decimal points
 
         $form = '<form method="post" id="pyapal" action="' . $paypal_url  .  '" target="_self" class="no-margin" >
         <input type="hidden" name="business" value="' . $paypal_email  .  '"/>
@@ -200,7 +201,7 @@ class PaypalIpn
         <input type="hidden" name="item_name" value="' . $this->item_title  .  '"/>
         <input type="hidden" name="item_number" value="' . $this->item_number  .  '" />
         <input type="hidden" name="quantity" value="1"/>
-        <input type="hidden" name="amount" value="' . $this->amount .  '"/>
+        <input type="hidden" name="amount" value="' . $this->amount  .  '"/>
         <input type="hidden" name="custom" value=""/>
         <input type="hidden" name="currency_code" value="' . $this->curreny_code  .  '"/>
         <input type="hidden" name="image_url" value=""/>
