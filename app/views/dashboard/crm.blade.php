@@ -313,7 +313,7 @@ var RevenueReport = 1;
 var RevenueReport = 0;
 @endif;
 </script> 
-<script src="https://code.highcharts.com/highcharts.js"></script> 
+<script src="{{ URL::asset('assets/js/highcharts.js') }}"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
 <style>
 #taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
@@ -398,9 +398,10 @@ var RevenueReport = 0;
 		width:38px;
 	}
 	.click_revenue_diagram{
-		cursor:pointer;
+		cursor:pointer !important; 
 		text-decoration:underline;
 		font-weight:bold;
+		pointer-events:auto !important;
 	}
 	.panel-heading{
 	border:none !important;

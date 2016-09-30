@@ -327,11 +327,11 @@
                                 mRender:function( id, type, full){
                                     var output , account_url;
                                     output = '<a href="{url}" target="_blank" >{account_name}';
-                                    if(full[14] ==''){
+                                    if(full[11] ==''){
                                         output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                                     }
                                     output+= '</a>';
-                                    account_url = baseurl + "/accounts/"+ full[10] + "/show";
+                                    account_url = baseurl + "/accounts/"+ full[8] + "/show";
                                     output = output.replace("{url}",account_url);
                                     output = output.replace("{account_name}",id);
                                     return output;

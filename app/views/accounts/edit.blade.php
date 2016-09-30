@@ -402,30 +402,9 @@
 
             <div class="panel-body billing-section">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
+                    <label for="field-1" class="col-sm-2 control-label">Billing Class*</label>
                     <div class="col-sm-4">
-                        {{Form::select('TaxRateId[]', $taxrates, (isset($AccountBilling->TaxRateId)? explode(',',$AccountBilling->TaxRateId) : explode(',',$DefaultTextRate) ) ,array("class"=>"form-control select2",'multiple'))}}
-                    </div>
-                    <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
-                    <div class="col-sm-4">
-                        <div class="input-spinner">
-                            <button type="button" class="btn btn-default">-</button>
-                            {{Form::text('PaymentDueInDays',(  isset($AccountBilling->PaymentDueInDays)?$AccountBilling->PaymentDueInDays:CompanySetting::getKeyVal('PaymentDueInDays') )  ,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                            <button type="button" class="btn btn-default">+</button>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
-                    <div class="col-sm-4">
-                        <div class="input-spinner">
-                            <button type="button" class="btn btn-default">-</button>
-                            {{Form::text('RoundChargesAmount', ( isset($AccountBilling->RoundChargesAmount)?$AccountBilling->RoundChargesAmount:CompanySetting::getKeyVal('RoundChargesAmount') ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
-                            <button type="button" class="btn btn-default">+</button>
-                        </div>
+                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"selectboxit form-control1"));}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
@@ -437,9 +416,9 @@
 
                     <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone') ),array("class"=>"form-control select2",$billing_disable))}}
+                        {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:'' ),array("class"=>"form-control select2",$billing_disable))}}
                         @if($billing_disable)
-                            <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:CompanySetting::getKeyVal('BillingTimezone')}}" name="BillingTimezone">
+                            <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:''}}" name="BillingTimezone">
                         @endif
                     </div>
                     <?php
@@ -485,7 +464,7 @@
                         }elseif(!empty($AccountBilling)){
                             $BillingCycleType = $AccountBilling->BillingCycleType;
                         }else{
-                            $BillingCycleType = CompanySetting::getKeyVal('BillingCycleType');
+                            $BillingCycleType = '';
                         }
                         ?>
                         @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
@@ -508,7 +487,7 @@
                     }elseif(!empty($AccountBilling)){
                         $BillingCycleValue = $AccountBilling->BillingCycleValue;
                     }elseif(empty($AccountBilling)){
-                        $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue');
+                        $BillingCycleValue = '';
                     }
                     ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
@@ -550,20 +529,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
-
-                    <div class="col-sm-4">
-                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($AccountBilling->InvoiceTemplateID)?$AccountBilling->InvoiceTemplateID:CompanySetting::getKeyVal('InvoiceTemplateID') ),array("class"=>"form-control select2"))}}
-                    </div>
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
-                        <div class="col-sm-4">
-                            {{Form::select('CDRType', Account::$cdr_type, ( isset($AccountBilling->CDRType)?$AccountBilling->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"selectboxit"))}}
-                        </div>
-
-                </div>
-
                  <div class="form-group">
                      <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
                      <div class="col-sm-4">
@@ -877,9 +842,27 @@
             }
         });
 
-        setTimeout(function(){
-            $('select[name="CDRType"]').trigger( "change" );
-        },500)
+        $('[name="BillingClassID"]').on( "change",function(e){
+            if($(this).val()>0) {
+                $.ajax({
+                    url: baseurl+'/billing_class/getInfo/' + $(this).val(),
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $(this).button('reset');
+                        if (response.status == 'success') {
+                            if($("select[name='BillingTimezone']").val() == '') {
+                                $("select[name='BillingTimezone']").select2().select2('val', response.data.BillingTimezone);
+                            }
+                            $("[name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+                        }
+                    },
+                });
+            }
+
+        });
+
+
 
         @if ($account->VerificationStatus == Account::NOT_VERIFIED)
         $(".btn-toolbar .btn").first().button("toggle");

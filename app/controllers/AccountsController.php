@@ -120,18 +120,16 @@ class AccountsController extends \BaseController {
             $countries = $this->countries;
 
             $currencies = Currency::getCurrencyDropdownIDList();
-            $taxrates = TaxRate::getTaxRateDropdownIDList();
-            $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
-            if(isset($taxrates[""])){unset($taxrates[""]);}
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
             $BillingStartDate=date('Y-m-d');
             $LastAccountNo =  '';
             $doc_status = Account::$doc_status;
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate','DefaultTextRate'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass'));
     }
 
     /**
@@ -167,8 +165,6 @@ class AccountsController extends \BaseController {
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            Account::$rules['InvoiceTemplateID'] = 'required';
-            Account::$rules['CDRType'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingStartDate'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -381,11 +377,9 @@ class AccountsController extends \BaseController {
         $products = Product::getProductDropdownList();
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
         $currencies = Currency::getCurrencyDropdownIDList();
-        $taxrates = TaxRate::getTaxRateDropdownIDList();
-        if(isset($taxrates[""])){unset($taxrates[""]);}
-        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
 
         $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
@@ -408,7 +402,7 @@ class AccountsController extends \BaseController {
         $AccountBilling =  AccountBilling::getBilling($id);
         $AccountNextBilling =  AccountNextBilling::getBilling($id);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass'));
     }
 
     /**
@@ -472,8 +466,6 @@ class AccountsController extends \BaseController {
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            Account::$rules['InvoiceTemplateID'] = 'required';
-            Account::$rules['CDRType'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingStartDate'] = 'required';
             if(isset($data['BillingCycleValue'])){

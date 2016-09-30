@@ -113,31 +113,33 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
+          @if(User::checkCategoryPermission('Payments','View'))
+            <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
+          @endif
         @if(User::checkCategoryPermission('Disputes','View'))
         <li> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
         @endif
-
-        @if(User::checkCategoryPermission('BillingSubscription','View'))
-        <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('DiscountPlan','View'))
-          <li><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
-        @endif
-        @if(User::checkCategoryPermission('Payments','View'))
-        <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('AccountStatement','All'))
-        <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('Products','View'))
-        <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('InvoiceTemplates','View'))
-        <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('TaxRates','View'))
-        <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
-        @endif
+          @if(User::checkCategoryPermission('AccountStatement','All'))
+            <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
+          @endif
+          @if(User::checkCategoryPermission('BillingSubscription','View'))
+            <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
+          @endif
+          @if(User::checkCategoryPermission('DiscountPlan','View'))
+            <li><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
+          @endif
+          @if(User::checkCategoryPermission('Products','View'))
+            <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>
+          @endif
+          @if(User::checkCategoryPermission('InvoiceTemplates','View'))
+            <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
+          @endif
+          @if(User::checkCategoryPermission('TaxRates','View'))
+            <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
+          @endif
+          @if( User::checkCategoryPermission('BillingClass','View'))
+            <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
+          @endif
         @if(User::checkCategoryPermission('CDR','Upload'))
         <li> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
         @endif
