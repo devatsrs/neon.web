@@ -80,38 +80,40 @@
         <div class="tab-pane" id="tab2-2">
             <input type="hidden" name="importway" value="">
             <div class="row" id="csvimport">
+                <div class="col-md-1"></div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <input type="hidden" name="importfrom" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('uploadtemplate', $UploadTemplate, '' , array("class"=>"select2")) }}
 
-                <div class="form-group">
-                    <input type="hidden" name="importfrom" value="">
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
-                    <div class="col-sm-4">
-                        {{ Form::select('uploadtemplate', $UploadTemplate, '' , array("class"=>"select2")) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                        <div class="col-sm-4">
+                            <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" data-validate="required"/>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Note</label>
+                        <div class="col-sm-8">
+
+                            <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
+                            <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
+
+                            <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+
+                        </div>
 
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
-                    <div class="col-sm-4">
-                        <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" data-validate="required"/>
-
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Note</label>
-                    <div class="col-sm-8">
-
-                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
-                        <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
-
-                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
-
-                    </div>
-
-                </div>
-
+                <div class="col-md-2"></div>
             </div>
 
             <div class="row" id="gatewayimport">
@@ -981,7 +983,7 @@
     }
 
     #csvimport{
-        padding: 0 75px;
+        /*padding: 0 75px;*/
     }
     h5{
         font-size: 14px !important;
