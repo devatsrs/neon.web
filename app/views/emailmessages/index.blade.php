@@ -163,7 +163,7 @@
 @section('footer_ext')
 @parent
 <!-- Job Modal  (Ajax Modal)-->
-<div class="modal fade" id="modal-job">
+<div class="modal fade" id="modal-mailmsg">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

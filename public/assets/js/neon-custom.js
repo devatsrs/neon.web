@@ -2326,14 +2326,14 @@ function showJobAjaxModal(id)
 
 function showEmailMessageAjaxModal(id)
 {
-    jQuery('#modal-job').modal('show', {backdrop: 'static'});
+    jQuery('#modal-mailmsg').modal('show', {backdrop: 'static'});
 
-    jQuery('#modal-job .modal-body').html("Content is loading...");
+    jQuery('#modal-mailmsg .modal-body').html("Content is loading...");
     $.ajax({
         url: baseurl + "/emailmessages/" + id + "/show",
         success: function(response)
         {
-            jQuery('#modal-job .modal-body').html(response);
+            jQuery('#modal-mailmsg .modal-body').html(response);
             jobID = id;
             jobRead(jobID);
 
