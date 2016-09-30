@@ -21,13 +21,14 @@ class AccountsController extends \BaseController {
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
+        $data['low_balance'] = $data['low_balance']== 'true'?1:0;
         //$data['account_name'] = $data['account_name']!= ''?$data['account_name']:'';
         //$data['tag'] = $data['tag']!= ''?$data['tag']:'null';
         //$data['account_number'] = $data['account_number']!= ''?$data['account_number']:0;
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -263,7 +264,7 @@ class AccountsController extends \BaseController {
 			$Customer = $account->IsCustomer?1:0;
 			
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -1089,8 +1090,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 			}
 			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
 			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
-		
-		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['status_set']."')";
+			$data['low_balance'] = $data['low_balance']== 'true'?1:0;
+
+		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
 		 
 		 	$result  			= 	DB::select($query);	
 			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				

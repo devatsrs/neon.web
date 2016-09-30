@@ -7,7 +7,7 @@ class BillingClassController extends \BaseController {
         return View::make('billingclass.index');
     }
     public function create() {
-        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+        $emailTemplates = EmailTemplate::getTemplateArray();
         $SendInvoiceSetting = BillingClass::$SendInvoiceSetting;
         $timezones = TimeZone::getTimeZoneDropdownList();
         $billing_type = AccountApproval::$billing_type;
@@ -21,7 +21,7 @@ class BillingClassController extends \BaseController {
         $getdata['BillingClassID'] = $id;
         $response =  NeonAPI::request('billing_class/get/'.$id,$getdata,false,false,false);
         if(!empty($response) && $response->status == 'success' ){
-            $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+            $emailTemplates = EmailTemplate::getTemplateArray();
             $SendInvoiceSetting = BillingClass::$SendInvoiceSetting;
             $timezones = TimeZone::getTimeZoneDropdownList();
             $billing_type = AccountApproval::$billing_type;
