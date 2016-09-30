@@ -1339,7 +1339,7 @@ class InvoicesController extends \BaseController {
                 $paymentdata['AccountID'] = $Invoice->AccountID;
                 $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
                 $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
-                $paymentdata['PaymentDate'] = date('Y-m-d');
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
                 $paymentdata['PaymentMethod'] = $response->method;
                 $paymentdata['CurrencyID'] = $account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
@@ -1649,7 +1649,7 @@ class InvoicesController extends \BaseController {
                 $paymentdata['AccountID'] = $Invoice->AccountID;
                 $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
                 $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
-                $paymentdata['PaymentDate'] = date('Y-m-d');
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
                 $paymentdata['PaymentMethod'] = 'PAYPAL_IPN';
                 $paymentdata['CurrencyID'] = $Account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
