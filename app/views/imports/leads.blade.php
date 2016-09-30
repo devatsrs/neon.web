@@ -22,6 +22,12 @@
 </p>
 @include('includes.errors')
 @include('includes.success')
+<style>
+    .col-md-4{
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
 
@@ -47,19 +53,26 @@
             <div class="row">
                 </br></br>
                 <div class="col-md-1"></div>
-                <div class="col-md-11">
+                <div class="col-md-9">
                     <div class="">
-                        <input type="radio" name="size" value="excel" id="size_S" checked />
-                        <label for="size_S" class="newredio active">EXCEL</label>
-                        <input type="radio" name="size" value="csv" id="size_M"/>
-                        <label for="size_M" class="newredio">CSV</label>
-                        <!--<input type="radio" name="size" value="pbx" id="size_L"/>
-                        <label for="size_L" class="newredio">PBX</label>-->
+                        <div class="col-md-4">
+                            <input type="radio" name="size" value="excel" id="size_S" checked />
+                            <label for="size_S" class="newredio active">EXCEL</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="radio" name="size" value="csv" id="size_M"/>
+                            <label for="size_M" class="newredio">CSV</label>
+                        <div>
+                        <!--<div class="col-md-4">
+                                <input type="radio" name="size" value="pbx" id="size_L"/>
+                                <label for="size_L" class="newredio">PBX</label>
+                        </div>-->
 
                     </div>
                 </div>
             </div>
         </div>
+                <div class="col-md-2"></div>
 
         <div class="tab-pane" id="tab2-2">
 
