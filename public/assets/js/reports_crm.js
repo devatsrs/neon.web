@@ -176,6 +176,7 @@
                         $('#opportunityGrid').removeClass('hidden');
                     }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
+					$('.loaderopportunites').hide();
                 }
 		});
 		}
@@ -266,6 +267,7 @@
                         $('#taskGrid_wrapper').removeClass('hidden');
                         $('#taskGrid').removeClass('hidden');
                     }
+					$('#taskGrid').find('#blockOverlay').hide();
                 }
 
             });
