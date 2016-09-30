@@ -139,7 +139,7 @@ class AnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'gateway') {
             $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getGatewayReportAll ";
-        }elseif($data['chart_type'] == 'gateway') {
+        }elseif($data['chart_type'] == 'account') {
             $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getAccountReportAll ";
         }
