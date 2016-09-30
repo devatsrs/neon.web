@@ -23,6 +23,12 @@
 
 @include('includes.errors')
 @include('includes.success')
+<style>
+    .col-md-4{
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
     <div class="steps-progress" style="display:none">
@@ -50,19 +56,24 @@
 
                 </br></br>
                 <div class="col-md-1"></div>
-                <div class="col-md-11">
-                    <div class="">
+                <div class="col-md-9">
+                    <div class="col-md-4">
                         <input type="radio" name="size" data-id="" value="excel" id="size_S" checked />
                         <label for="size_S" class="newredio active">EXCEL</label>
+                    </div>
+                    <div class="col-md-4">
                         <input type="radio" name="size" data-id="" value="csv" id="size_M"/>
                         <label for="size_M" class="newredio">CSV</label>
-                        @foreach($gatewaylist as $gateway)
-                        <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
-                        <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
-                        @endforeach
-
                     </div>
+                    @foreach($gatewaylist as $gateway)
+                        <div class="col-md-4">
+                            <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
+                            <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
+                        </div>
+                    @endforeach
+
                 </div>
+                <div class="col-md-2"></div>
             </div>
         </div>
 
