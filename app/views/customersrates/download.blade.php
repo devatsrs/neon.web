@@ -361,6 +361,8 @@ jQuery(document).ready(function ($) {
         modal.find('.message').wysihtml5({
             "font-styles": true,
             "emphasis": true,
+            "leadoptions":true,
+            "Crm":false,
             "lists": true,
             "html": true,
             "link": true,
@@ -393,6 +395,8 @@ jQuery(document).ready(function ($) {
         modal.find('.message').wysihtml5({
             "font-styles": true,
             "emphasis": true,
+            "leadoptions":true,
+            "Crm":false,
             "lists": true,
             "html": true,
             "link": true,
