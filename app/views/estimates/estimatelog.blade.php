@@ -2,12 +2,12 @@
 
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
-    <li><a href="{{URL::to('/estimate')}}">Estimate Log</a></li>
-    <li class="active"><strong>View Estimate Log</strong></li>
+    <li><a href="{{URL::to('/estimates')}}">Estimate</a></li>
+    <li class="active"><strong>{{$estimatenumber}}</strong></li>
 </ol>
 <h3>View Estimate Log</h3>
 <div class="float-right" >
-    <a href="{{URL::to('/estimate')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
+    <a href="{{URL::to('/estimates')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
         <i class="entypo-floppy"></i>
         Back
     </a>
@@ -24,7 +24,6 @@
 <table class="table table-bordered datatable" id="table-5">
     <thead>
         <tr>
-            <th width="15%">Estimate Number</th>
             <th width="35%">Notes</th>
             <th width="20%">Status</th>
             <th width="20%">Date</th>
@@ -37,7 +36,7 @@
 
 <script type="text/javascript">
     var $searchFilter = {};
-    var list_fields  = ['EstimateNumber','Notes','EstimateLogStatus','created_at','EstimateID'];
+    var list_fields  = ['Notes','EstimateLogStatus','created_at','EstimateID'];
     var data_table_invoice_log;
     var estimatelogstatus = {{json_encode(EstimateLog::$log_status)}};
     jQuery(document).ready(function($) {
@@ -56,17 +55,16 @@
                 "iDisplayLength":'{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[3, "desc"]],
-                "aoColumns":
-                        [
-                            {}, //1 Invoice Number
-                            {}, //4 Amount
+                "aaSorting": [[2, "desc"]],
+                "aoColumns":                        [
+
+                            {}, //note
                             {
                                 mRender: function(status, type, full) {
                                     return estimatelogstatus[status];
                                 }
-                            }, //5 Status
-                            {} //5 Date
+                            }, // Status
+                            {} // Date
 
                         ],
                         "oTableTools":

@@ -1,10 +1,6 @@
 CREATE TABLE `tblAccountBilling` (
   `AccountBillingID` int(11) NOT NULL AUTO_INCREMENT,
   `AccountID` int(11) NOT NULL DEFAULT '0',
-  `PaymentDueInDays` int(11) DEFAULT NULL,
-  `RoundChargesAmount` int(11) DEFAULT NULL,
-  `CDRType` int(11) DEFAULT NULL,
-  `InvoiceTemplateID` int(11) DEFAULT NULL,
   `BillingType` tinyint(3) unsigned DEFAULT NULL,
   `TaxRateId` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `BillingTimezone` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,

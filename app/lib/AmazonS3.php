@@ -114,7 +114,9 @@ class AmazonS3 {
         $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
         $dir = getenv('UPLOAD_PATH') . '/'. $path;
         if (!file_exists($dir)) {
-            mkdir($dir, 0777, TRUE);
+            RemoteSSH::run("mkdir -p " . $dir);
+            RemoteSSH::run("chmod -R 777 " . $dir);
+            @mkdir($dir, 0777, TRUE);
         }
 
         return $path;

@@ -113,7 +113,7 @@ class BillingDashboard extends \BaseController {
         $data 							 = 		Input::all();
         $CompanyID 						 = 		User::get_companyID();
         $data['iDisplayStart'] 			+=		1;
-        $typeText=[1=>'Payments',2=>'Invoices'];
+        $typeText=[1=>'Payments',2=>'Invoices',3=>'OutStanding'];
         if($data['Type']==1) { //1 for Payment received.
             $columns = array('AccountName', 'InvoiceNo', 'Amount', 'PaymentType', 'PaymentDate', 'Status', 'CreatedBy', 'Notes');
             $sort_column = $columns[$data['iSortCol_0']];

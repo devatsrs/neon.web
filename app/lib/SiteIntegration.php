@@ -15,6 +15,8 @@ class SiteIntegration{
  static    $mandrillSlug		=	'mandrill';
  static    $emailtrackingSlug   =   'emailtracking';
  static    $imapSlug      		=   'imap';
+ static    $paypalipnSlug		=	'paypalipn';
+
 
  	public function __construct(){
 	

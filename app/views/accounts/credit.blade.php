@@ -61,7 +61,7 @@
                             <input type="text" class="form-control" readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
                         </div>
                         <div  class="col-sm-1">
-                            <button id="unbilled_report" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button id="unbilled_report" class="btn btn-primary btn-sm btn-icon icon-left unbilled_report" data-id="{{$account->AccountID}}" data-loading-text="Loading...">
                                 <i class="fa fa-eye"></i>View Report
                             </button>
                         </div>

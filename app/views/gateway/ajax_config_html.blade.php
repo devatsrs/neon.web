@@ -5,7 +5,9 @@
         if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){
             $selectd_val =$gatewayconfigval->$configkey;
         }
-        $count++;
+        if($configkey != 'AllowAccountImport'){
+            $count++;
+        }
         $NameFormat =  GatewayConfig::$NameFormat;
         if($GatewayName == 'Porta'){
             unset($NameFormat['IP']);
@@ -14,6 +16,10 @@
     @if($count%2 == 0)
             <div class="clear"></div>
     @endif
+        @if($configkey == 'AllowAccountImport')
+            <input id="AllowAccountImport"  type="hidden" name="AllowAccountImport" value="1">
+        @else
+
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
         <div class="form-group">
             @if($configkey != 'AllowAccountImport')
@@ -42,8 +48,6 @@
                 ?>
                 <input type="hidden" name="RateFormat" value="{{$selectd_val}}">
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
-            @elseif($configkey == 'AllowAccountImport')
-                <input id="AllowAccountImport"  type="hidden" name="AllowAccountImport" value="1">
 
             @else
 
@@ -54,6 +58,7 @@
                 @endif
          </div>
     </div>
+        @endif
 @endforeach
 </div>
 

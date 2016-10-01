@@ -2619,6 +2619,9 @@ function submit_ajax(fullurl,data,refreshjob){
                     reloadJobsDrodown(0);
 					reloadMsgDrodown(0);
                 }
+                if(typeof response.redirect != 'undefined' && response.redirect != ''){
+                    window.location = response.redirect;
+                }
             } else {
                 toastr.error(response.message, "Error", toastr_opts);
             }

@@ -24,8 +24,9 @@ BEGIN
 		tblInvoice.GrandTotal,
 		tblInvoice.InvoiceType
 	FROM tblInvoice
-	WHERE tblInvoice.CompanyID = 1
-	AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  );
+	WHERE tblInvoice.CompanyID = p_CompanyID
+	AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
+	AND (p_AccountID = 0 OR  tblInvoice.AccountID = p_AccountID);
 
      -- 2 Payments
 	INSERT into tmp_AccountSOA(AccountID,Amount,PaymentType)
@@ -34,9 +35,10 @@ BEGIN
 		tblPayment.Amount,
 		tblPayment.PaymentType
 	FROM tblPayment
-	WHERE tblPayment.CompanyID = 1
+	WHERE tblPayment.CompanyID = p_CompanyID
 	AND tblPayment.Status = 'Approved'
-	AND tblPayment.Recall = 0;
+	AND tblPayment.Recall = 0
+	AND (p_AccountID = 0 OR  tblPayment.AccountID = p_AccountID);
 	
 	INSERT INTO tmp_AccountSOABal
 	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) as SOAOffSet 
@@ -46,10 +48,10 @@ BEGIN
 	UPDATE NeonRMDev.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
 		ON  tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
-	SET tblAccountBalance.BalanceAmount = tmp_AccountSOABal.Amount + tblAccountBalance.UnbilledAmount;
+	SET tblAccountBalance.BalanceAmount = tmp_AccountSOABal.Amount + tblAccountBalance.UnbilledAmount,SOAOffset=tmp_AccountSOABal.Amount;
 	
-	INSERT INTO NeonRMDev.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount)
-	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0 
+	INSERT INTO NeonRMDev.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
+	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0,tmp_AccountSOABal.Amount
 	FROM tmp_AccountSOABal 
 	LEFT JOIN NeonRMDev.tblAccountBalance
 		ON tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID

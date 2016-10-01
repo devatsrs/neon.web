@@ -82,6 +82,7 @@
                 <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                 <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
                 <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
+                <li ><a href="#account" data-toggle="tab">Account</a></li>
                 <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
             </ul>
             <div class="tab-content">
@@ -96,6 +97,10 @@
                 <div class="tab-pane" id="trunk" >
                     @include('vendoranalysis.trunk')
                     @include('vendoranalysis.trunk_grid')
+                </div>
+                <div class="tab-pane" id="account" >
+                    @include('vendoranalysis.account')
+                    @include('vendoranalysis.account_grid')
                 </div>
                 <div class="tab-pane" id="gateway" >
                     @include('vendoranalysis.gateway')
@@ -122,9 +127,7 @@
                 $("#vendor_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
                 setTimeout(function(){
                     set_search_parameter($("#vendor_analysis"));
-                    if($('.bar_chart_'+$("#vendor_analysis").find("input[name='chart_type']").val()).html() == ''){
-                        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                    }
+                    reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
             });
             $("#vendor_analysis").submit(function(e) {

@@ -1108,6 +1108,9 @@
                 modal.find('.message').wysihtml5({
                     "font-styles": true,
                     "emphasis": true,
+                    "leadoptions":false,
+                    "invoiceoptions":true,
+                    "Crm":false,
                     "lists": true,
                     "html": true,
                     "link": true,
@@ -1139,6 +1142,9 @@
                             modal.find('.message').wysihtml5({
                                 "font-styles": true,
                                 "emphasis": true,
+                                "leadoptions":false,
+                                "invoiceoptions":true,
+                                "Crm":false,
                                 "lists": true,
                                 "html": true,
                                 "link": true,

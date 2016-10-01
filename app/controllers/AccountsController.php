@@ -21,13 +21,14 @@ class AccountsController extends \BaseController {
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
+        $data['low_balance'] = $data['low_balance']== 'true'?1:0;
         //$data['account_name'] = $data['account_name']!= ''?$data['account_name']:'';
         //$data['tag'] = $data['tag']!= ''?$data['tag']:'null';
         //$data['account_number'] = $data['account_number']!= ''?$data['account_number']:0;
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -120,18 +121,16 @@ class AccountsController extends \BaseController {
             $countries = $this->countries;
 
             $currencies = Currency::getCurrencyDropdownIDList();
-            $taxrates = TaxRate::getTaxRateDropdownIDList();
-            $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
-            if(isset($taxrates[""])){unset($taxrates[""]);}
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
             $BillingStartDate=date('Y-m-d');
             $LastAccountNo =  '';
             $doc_status = Account::$doc_status;
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate','DefaultTextRate'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass'));
     }
 
     /**
@@ -167,8 +166,6 @@ class AccountsController extends \BaseController {
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            Account::$rules['InvoiceTemplateID'] = 'required';
-            Account::$rules['CDRType'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingStartDate'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -266,7 +263,7 @@ class AccountsController extends \BaseController {
 			$Customer = $account->IsCustomer?1:0;
 			
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -381,11 +378,9 @@ class AccountsController extends \BaseController {
         $products = Product::getProductDropdownList();
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
         $currencies = Currency::getCurrencyDropdownIDList();
-        $taxrates = TaxRate::getTaxRateDropdownIDList();
-        if(isset($taxrates[""])){unset($taxrates[""]);}
-        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
 
         $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
@@ -408,7 +403,7 @@ class AccountsController extends \BaseController {
         $AccountBilling =  AccountBilling::getBilling($id);
         $AccountNextBilling =  AccountNextBilling::getBilling($id);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass'));
     }
 
     /**
@@ -472,8 +467,6 @@ class AccountsController extends \BaseController {
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            Account::$rules['InvoiceTemplateID'] = 'required';
-            Account::$rules['CDRType'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingStartDate'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -497,13 +490,15 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data);
-                AccountBilling::storeFirstTimeInvoicePeriod($id);
-                $AccountPeriod =  AccountBilling::getCurrentPeriod($id,date('Y-m-d'));
-                $billdays = getdaysdiff($AccountPeriod->EndDate,$AccountPeriod->StartDate);
-                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate,date('Y-m-d'));
-                $DayDiff = $getdaysdiff >0?intval($getdaysdiff):0;
-                AccountDiscountPlan::addUpdateDiscountPlan($id,$DiscountPlanID,AccountDiscountPlan::OUTBOUND,$billdays,$DayDiff);
-                AccountDiscountPlan::addUpdateDiscountPlan($id,$InboundDiscountPlanID,AccountDiscountPlan::INBOUND,$billdays,$DayDiff);
+                if($DiscountPlanID > 0 || $InboundDiscountPlanID> 0) {
+                    AccountBilling::storeFirstTimeInvoicePeriod($id);
+                    $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $DiscountPlanID, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlanID, AccountDiscountPlan::INBOUND, $billdays, $DayDiff);
+                }
             }
 
             if(trim(Input::get('Number')) == ''){
@@ -1095,8 +1090,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 			}
 			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
 			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
-		
-		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['status_set']."')";
+			$data['low_balance'] = $data['low_balance']== 'true'?1:0;
+
+		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
 		 
 		 	$result  			= 	DB::select($query);	
 			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				

@@ -43,19 +43,17 @@
                 <div class="x-span8 pull-right" style="margin-top:5px;">
 
                  <a id="comment-estimate" class="pull-right  btn btn-sm btn-info btn-icon icon-left hidden-print">
-                     Comment
-                     <i class="entypo-doc-text"></i>
+                     Comment @if($EstimateComments>0)({{$EstimateComments}})@endif
+                     <i class="fa fa-comment-o"></i>
                  </a><div class="pull-right"> &nbsp;</div>
-                @if($EstimateStatus != 'accepted')
-                    <a id="reject-estimate" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print">
-                        Reject
-                        <i class="entypo-doc-text"></i>
-                    </a><div class="pull-right"> &nbsp;</div>
-                    <a id="accept-estimate" class="pull-right  btn btn-sm btn-success btn-icon icon-left hidden-print">
-                        Accept
-                        <i class="entypo-doc-text"></i>
-                    </a><div class="pull-right"> &nbsp;</div>
-                @endif
+                <a id="reject-estimate" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print">
+                    Reject
+                    <i class="fa fa-times"></i>
+                </a><div class="pull-right"> &nbsp;</div>
+                <a id="accept-estimate" class="pull-right  btn btn-sm btn-success btn-icon icon-left hidden-print">
+                    Accept
+                    <i class="fa fa-check"></i>
+                </a><div class="pull-right"> &nbsp;</div>
                 @if( !empty($Estimate->UsagePath))
 
                 <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left">
@@ -116,7 +114,7 @@
             var base_url_estimate 		= 	"{{ URL::to('estimate')}}";
             var estimate_id = '{{$Estimate->EstimateID}}';
             $("#accept-estimate").click(function(ev) {
-                if (!confirm('Are you sure to accept estimate?')) {
+                if (!confirm('Are you sure you want to Accept estimate ?')) {
                     return false;
                 }
                 var email = '';
@@ -139,7 +137,7 @@
             });
 
             $("#reject-estimate").click(function(ev) {
-                if (!confirm('Are you sure to reject estimate?')) {
+                if (!confirm('Are you sure you want to Reject estimate ?')) {
                     return false;
                 }
                 var email = '';

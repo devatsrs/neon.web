@@ -42,7 +42,8 @@ class Estimate extends \Eloquent {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency)?$Currency->Code:'';
 			$CurrencySymbol 	=   Currency::getCurrencySymbol($Account->CurrencyId);
-            $EstimateTemplate 	= 	InvoiceTemplate::find($AccountBilling->InvoiceTemplateID);
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+            $EstimateTemplate 	= 	InvoiceTemplate::find($InvoiceTemplateID);
 			
             if (empty($EstimateTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key) == '')
 			{
@@ -127,12 +128,34 @@ class Estimate extends \Eloquent {
 		
         return $invoicearray;
     }
-    public static function getFullEstimateNumber($Estimate,$AccountBilling)
+
+    public static function get_customer_estimate_status($CompanyID)
+    {
+        $Company 		= 	Company::find($CompanyID);
+
+        $invoiceStatus 	= 	explode(',',$Company->InvoiceStatus);
+        $invoicearray 	= 	array(
+            ''=>'Select Estimate Status',
+            self::DRAFT=>'Draft',
+            self::SEND=>'Sent',
+            self::ACCEPTED=>"Accepted",
+            self::REJECTED=>"Rejected"
+        );
+
+        foreach($invoiceStatus as $status)
+        {
+            $invoicearray[$status] = $status;
+        }
+
+        return $invoicearray;
+    }
+
+    public static function getFullEstimateNumber($Estimate,$InvoiceTemplateID)
 	{
         $EstimateNumberPrefix = '';
-        if(!empty($AccountBilling->InvoiceTemplateID))
+        if(!empty($InvoiceTemplateID))
 		{
-             $EstimateNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->EstimateNumberPrefix;
+             $EstimateNumberPrefix = InvoiceTemplate::find($InvoiceTemplateID)->EstimateNumberPrefix;
         }
         return $EstimateNumberPrefix.$Estimate->EstimateNumber;
     }

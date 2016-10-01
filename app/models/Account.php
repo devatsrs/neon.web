@@ -48,8 +48,6 @@ class Account extends \Eloquent {
 
     public static $messages = array(
         'CurrencyId.required' =>'The currency field is required',
-        'InvoiceTemplateID.required' =>'Invoice Template  field is required',
-        'CDRType.required' =>'Invoice Format field is required',
         'BillingCycleType.required' =>'Billing Cycle field is required',
         'BillingCycleValue.required' =>'Billing Cycle Value field is required',
     );
@@ -390,4 +388,9 @@ class Account extends \Eloquent {
 			return 0;	
 		}
 	}
+
+    public static function getAccountIDByName($Name){
+        $companyID  	 = User::get_companyID();
+        return  Account::where(["AccountName"=>$Name,"CompanyID" => $companyID])->pluck('AccountID');
+    }
 }

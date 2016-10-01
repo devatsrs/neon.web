@@ -2,12 +2,12 @@
 
 @section('content')
 <style>
-    table th {
+    table.table th {
         background-color: #fff !important;
         font-weight: bold;
         color: #333 !important;
     }
-    table td {
+    table.table td {
         background-color: #fff !important;
      }
 </style>
