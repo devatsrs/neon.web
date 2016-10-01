@@ -47,39 +47,40 @@
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
                         <label class="col-sm-1 control-label">Contact Name</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control" name="contact_name" type="text" >
                         </div>
                         <label class="col-sm-1 control-label">Tag</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control tags" name="tag" type="text" >
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label" style="padding-right: 0px; padding-left: 0px; width: 4%;">Customer</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
-                            </p>
-                        </div>
-                        <label class="col-sm-1 control-label" style="padding-right: 0px; padding-left: 0px; width: 4%;">Vendor</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
-                            </p>
-                        </div>
-                        <label class="col-sm-1 control-label" style="padding-right: 0px; padding-left: 0px; width: 4%;">Active</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
-                            </p>
-                        </div>
-                        <label class="col-sm-1 control-label" style="padding-right: 0px; padding-left: 0px; width: 4%;">Low Balance</label>
+                        <label class="col-sm-1 control-label">Low Balance</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="low_balance" name="low_balance" type="checkbox" value="1">
                             </p>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label"  >Customer</label>
+                        <div class="col-sm-1">
+                            <p class="make-switch switch-small">
+                                <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
+                            </p>
+                        </div>
+                        <label class="col-sm-1 control-label"  >Vendor</label>
+                        <div class="col-sm-1">
+                            <p class="make-switch switch-small">
+                                <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
+                            </p>
+                        </div>
+                        <label class="col-sm-1 control-label"  >Active</label>
+                        <div class="col-sm-1">
+                            <p class="make-switch switch-small">
+                                <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
+                            </p>
+                        </div>
+
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
                             {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"selectboxit"))}}
@@ -535,23 +536,14 @@
                 html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
-                html += '  <div>';
-                html += '     <div class="meta">Account Balance</div>';
-                html += '     <div>' + childrens.eq(5).text() + '</div>';
-                html += '  </div>';
-                html += '  <div>';
-                html += '     <div class="meta">Unbilled Amount</div>';
-                html += '     <div><a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a></div>';
-                html += '  </div>';
+                html += '  <div><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OST : </div> <div class="pull-left"> ' + childrens.eq(5).text() + ' </div></div>';
+                html += '  <div><div class="meta clear pull-left tooltip-primary" data-original-title="(Unbilled Amount). Click on amount to view breakdown" title="" data-placement="right" data-toggle="tooltip">UA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a> </div></div>';
+                html += '  <div><div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Address</div>';
                 html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
-                html += '  </div>';
-                html += '  <div>';
-                html += '     <div class="meta">Credit Limit</div>';
-                html += '     <div>' + PermanentCredit + '</div>';
                 html += '  </div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-11 padding-0 action">';

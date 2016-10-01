@@ -88,7 +88,8 @@ class CompanyGateway extends \Eloquent {
     }
 
     public static function getCompanyGatewayIDByName($Title){
-        return CompanyGateway::where(array('Title'=>$Title))->pluck('CompanyGatewayID');
+        $companyID  	 = User::get_companyID();
+        return CompanyGateway::where(array('Title'=>$Title,"CompanyID" => $companyID))->pluck('CompanyGatewayID');
     }
 
     public static function createCronJobsByCompanyGateway($CompanyGatewayID){
