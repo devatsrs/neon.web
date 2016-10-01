@@ -118,6 +118,18 @@ body {
     clear: both;
 }
 
+.newredio.js{
+    width:100% !important;
+}
+
+.notifications.dropdown .dropdown-menu{
+    min-width: 350px;
+}
+
+.pull-right-xs .dropdown-menu{
+    right:-37px
+}
+
 .datepicker-dropdown{z-index:99999 !important }
 .task.bold{ font-weight: bold; color:#000000; }
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
@@ -2339,8 +2351,4 @@ background-repeat:no-repeat;
 .dropdown-menu > li > a{
     color:#7d8086;
     padding: 4px 8px;
-}
-
-.newredio.js{
-    width:100% !important;
 }
