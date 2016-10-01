@@ -123,11 +123,11 @@ body {
 }
 
 .notifications.dropdown .dropdown-menu{
-    min-width: 350px;
+    min-width: 340px;
 }
 
 .pull-right-xs .dropdown-menu{
-    right:-37px
+    right:-10px
 }
 
 .datepicker-dropdown{z-index:99999 !important }
