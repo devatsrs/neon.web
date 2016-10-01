@@ -388,4 +388,9 @@ class Account extends \Eloquent {
 			return 0;	
 		}
 	}
+
+    public static function getAccountIDByName($Name){
+        $companyID  	 = User::get_companyID();
+        return  Account::where(["AccountName"=>$Name,"CompanyID" => $companyID])->pluck('AccountID');
+    }
 }

@@ -18,7 +18,7 @@ BEGIN
 		AND ((p_AccountName = '' OR ta.AccountName like Concat('%',p_AccountName,'%')))
 		AND ((p_tags = '' OR ta.tags like Concat(p_tags,'%')))
 		AND ((p_ContactName = '' OR (CONCAT(IFNULL(tc.FirstName,'') ,' ', IFNULL(tc.LastName,''))) like Concat('%',p_ContactName,'%')))
-		AND (p_low_balance = 0 OR ( p_low_balance = 1 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) );
+		AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.PermanentCredit > 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) );
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
