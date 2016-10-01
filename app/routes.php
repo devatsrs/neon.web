@@ -433,7 +433,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages', 'MessagesController@index');
 	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
 	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
-
+	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
+	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
+	
+	
+	
 	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
