@@ -226,7 +226,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                     chart_type_param = 'CompanyGatewayID='+full[6]+'&';
                 }
                 if($searchFilter.chart_type == 'account'){
-                    delete $searchFilter.CompanyGatewayID;
+                    delete $searchFilter.AccountID;
                     chart_type_param = 'AccountID='+full[6]+'&';
                 }
                 if($searchFilter.chart_type != 'destination') {
