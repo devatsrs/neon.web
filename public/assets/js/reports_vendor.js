@@ -225,6 +225,10 @@ function loadTable(table_id,pageSize,$searchFilter){
                     delete $searchFilter.CompanyGatewayID;
                     chart_type_param = 'CompanyGatewayID='+full[6]+'&';
                 }
+                if($searchFilter.chart_type == 'account'){
+                    delete $searchFilter.CompanyGatewayID;
+                    chart_type_param = 'AccountID='+full[6]+'&';
+                }
                 if($searchFilter.chart_type != 'destination') {
                     output = '<a href="{url}" target="_blank" >{name}</a>';
                     output = output.replace("{url}", cdr_url + '?' + chart_type_param + $.param($searchFilter));
