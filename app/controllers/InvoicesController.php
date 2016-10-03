@@ -1325,7 +1325,8 @@ class InvoicesController extends \BaseController {
         $AccountBilling = AccountBilling::getBilling($AccountID);
         if(!empty($Invoice)) {
             $data['GrandTotal'] = $Invoice->GrandTotal;
-            $response = AuthorizeNet::pay_invoice($data);
+            $authorize = new AuthorizeNet();
+            $response = $authorize->pay_invoice($data);
             $Notes = '';
             if($response->response_code == 1) {
                 $Notes = 'AuthorizeNet transaction_id ' . $response->transaction_id;
