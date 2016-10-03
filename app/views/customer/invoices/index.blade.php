@@ -146,9 +146,9 @@ var postdata;
                              mRender: function ( id, type, full ) {
                                  var action , action = '<div class = "hiddenRowData" >';
                                  if (id != '{{Invoice::INVOICE_IN}}'){
-                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Sent"><i class="entypo-left-bold"></i>RCV</a>';
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-left-bold"></i>RCV</a>';
                                  }else{
-                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Received"><i class="entypo-right-bold"></i>SNT</a>';
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
                                      if('{{is_authorize()}}'){
