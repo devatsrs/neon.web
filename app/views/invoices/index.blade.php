@@ -382,7 +382,7 @@
                                 }
                                 if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[7] != '{{Invoice::PAID}}')) {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
-                                        action += '<li><a data-id="' + id + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Paytment</a></li>';
+                                        action += '<li><a data-id="' + id + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Payment</a></li>';
                                     }
                                 }
                                 action += '</ul>';
