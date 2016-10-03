@@ -41,11 +41,12 @@
         Verify
     </a>
     @endif
-
+    @if($account->IsCustomer==1 || $account->IsVendor==1)
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Authentication Rule
     </a>
+    @endif
     <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
