@@ -275,7 +275,7 @@ class AuthorizeNet {
 		
         return $transactionResponse;
     }
-    public static function pay_invoice($data){
+    public function pay_invoice($data){
         $sale = new AuthorizeNetAIM;
         $sale->setFields(
             array(
@@ -294,7 +294,8 @@ class AuthorizeNet {
 
             )
         );
-        $response = $sale->authorizeAndCapture(); Log::info($response);
+        $response = $sale->authorizeAndCapture();
+        //Log::info($response);
         return $response; 
     }
 }
