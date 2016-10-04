@@ -95,10 +95,9 @@
                         {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
                     <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Hide Zero Cost</label>
-                    <div class="col-sm-1" style="padding: 0px;">
-                        <p class="make-switch switch-small">
-                            <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
-                        </p>
+                    <div class="col-sm-2">
+                        <?php $options = [0=>'All',1=>'Zero Cost Only',2=>'Hide Zero Cost'] ?>
+                        {{ Form::select('zerovaluebuyingcost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
                 </div>
               <p style="text-align: right;">
@@ -202,7 +201,7 @@ var CurrencyCode = '';
 			$searchFilter.CLI 						= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 						= 		$("#cdr_filter [name='CLD']").val();			
 			//$searchFilter.zerovaluesellingcost 		= 		$("#cdr_filter [name='zerovaluesellingcost']").prop("checked");			
-			$searchFilter.zerovaluebuyingcost 		= 		$("#cdr_filter [name='zerovaluebuyingcost']").prop("checked");
+			$searchFilter.zerovaluebuyingcost 		= 		$("#cdr_filter [name='zerovaluebuyingcost']").val();
 			$searchFilter.CurrencyID 				= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();

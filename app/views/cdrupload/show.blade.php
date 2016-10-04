@@ -119,11 +119,10 @@
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div>
 
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
-                                <div class="col-sm-1">
-                                    <p class="make-switch switch-small">
-                                        <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
-                                    </p>
+                                <label for="field-1" class="col-sm-1 control-label" style="width: 4%;">Show</label>
+                                <div class="col-sm-2">
+                                    <?php $options = [0=>'All',1=>'Zero Cost Only',2=>'Hide Zero Cost'] ?>
+                                    {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                 </div>
                             <div class="form-group">
@@ -242,7 +241,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
-			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
+			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
