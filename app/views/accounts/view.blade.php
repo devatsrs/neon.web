@@ -7,6 +7,9 @@
     @if($leadOrAccountCheck=='account')
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
     <li> <a href="{{URL::to('accounts')}}">Accounts</a> </li>
+    <li>
+      <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active"> <strong>View Account</strong> </li>
     @elseif($leadOrAccountCheck=='lead')
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -45,8 +48,9 @@
                   </div>
                   @if($leadOrAccountCheck=='account')
                   <div class="block blockSmall">
-                    <div class="meta">Outstanding</div>
-                    <div>{{$Account_card->OutStandingAmount}}</div>
+                    <div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OS : </div><div class="pull-left">{{$Account_card->OutStandingAmount}}</div>
+                    <div class="meta clear pull-left tooltip-primary" data-original-title="Unbilled Amount" title="" data-placement="right" data-toggle="tooltip">UA : </div><div class="pull-left">{{$Account_card->UnbilledAmount}}</div>
+                    <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div><div class="pull-left">{{$Account_card->PermanentCredit}}</div>
                   </div>
                   @endif </div>
                 <div class="col-sm-6 padding-0">
@@ -62,7 +66,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-12 padding-0 action">
+                <div class="col-sm-11 padding-0 action">
                   <button type="button" data-id="{{$account->AccountID}}" title="Add Opportunity" class="btn btn-default btn-xs opportunity"> <i class="fa fa-line-chart"></i> </button>
 
                   @if($leadOrAccountCheck=='account') <a href="{{ URL::to('accounts/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @elseif($leadOrAccountCheck=='lead') <a href="{{ URL::to('leads/'.$account->AccountID.'/edit')}}" id="edit_account" target="_blank" class="hidden">Add Contact</a> @endif 
@@ -450,7 +454,7 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-danger"><i class="entypo-ticket"></i></div>
             <div class="cbp_tmlabel normal_tag">  
-              <h2 class="toggle_open" id_toggle="{{$key}}">Ticket<br><p>Subject: {{$rows['TicketSubject']}}</p></span></h2>
+              <h2 class="toggle_open" id_toggle="{{$key}}">Ticket<br><p>Subject: {{$rows['TicketSubject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>Status: {{$rows['TicketStatus']}}</p>
                 <p>Requester: {{$rows['RequestEmail']}}</p>
