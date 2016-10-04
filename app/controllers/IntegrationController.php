@@ -259,6 +259,44 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "Tracking Email Settings Successfully Updated"));
 			}
-		}			
+		}
+
+		if($data['firstcategory']=='calendar')
+		{ 
+			if($data['secondcategory']=='Outlook')
+			{
+				$rules = array(
+					'OutlookCalendarEmail'	 => 'required|email',
+					'OutlookCalendarServer'	 => 'required',					
+					'OutlookCalendarPassword'	 => 'required',					
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 	= 	isset($data['Status'])?1:0;	
+				
+				$outlookcalendarData = array(
+					"OutlookCalendarEmail"=>$data['OutlookCalendarEmail'],
+					"OutlookCalendarServer"=>$data['OutlookCalendarServer'],					
+					"OutlookCalendarPassword"=>$data['OutlookCalendarPassword'],
+					);
+				 
+				$outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($outlookcalendarDBData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$outlookcalendarDBData->IntegrationConfigurationID))->update($SaveData);						
+				}else{	
+						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Outlook Calendar Successfully Updated"));
+			}
+		}
 	}
 }

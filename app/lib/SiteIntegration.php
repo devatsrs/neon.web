@@ -16,6 +16,7 @@ class SiteIntegration{
  static    $emailtrackingSlug   =   'emailtracking';
  static    $imapSlug      		=   'imap';
  static    $paypalipnSlug		=	'paypalipn';
+ static    $outlookcalenarSlug	=	'outlook';
 
 
  	public function __construct(){

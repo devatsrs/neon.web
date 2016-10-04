@@ -388,6 +388,50 @@
         </div>
       </div>   
       <!-- EmailTracking end -->    
+       <!-- Outlook calendar start -->
+       <?php 
+		$outlookcalendarDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$outlookcalenarSlug);
+		$outlookcalendarData   = isset($outlookcalendarDBData->Settings)?json_decode($outlookcalendarDBData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{isset($outlookcalendarDBData->Slug)?$outlookcalendarDBData->Slug:''}}">        
+        <div class="row">
+        <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">*Server:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="OutlookCalendarServer" value="{{isset($outlookcalendarData->OutlookCalendarServer)?$outlookcalendarData->OutlookCalendarServer:""}}" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="OutlookCalendarEmail" value="{{isset($outlookcalendarData->OutlookCalendarEmail)?$outlookcalendarData->OutlookCalendarEmail:''}}" />
+              </div>
+            </div>
+          </div>  
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+              <div class="col-sm-8">
+                <input type="password"  class="form-control" name="OutlookCalendarPassword" value="{{isset($outlookcalendarData->OutlookCalendarPassword)?$outlookcalendarData->OutlookCalendarPassword:''}}" />
+              </div>
+            </div>
+          </div>          
+                    
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active: </label>
+              <div class="col-sm-8" id="OutlookCalendarDiv">
+                   <input id="OutlookCalendarstatus" class="subcatstatus" Divid="OutlookCalendarDiv" name="Status" type="checkbox" value="1" <?php if(isset($outlookcalendarDBData->Status) && $outlookcalendarDBData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>   
+      <!-- Outlook calendar end -->    
+      
   </div>
   <ul class="pager wizard">
     <li class="previous"> <a href="#"><i class="entypo-left-open"></i> Previous</a> </li>
