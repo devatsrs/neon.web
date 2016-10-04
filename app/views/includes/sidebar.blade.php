@@ -168,7 +168,7 @@
     @endif
     @endif
     
-    if(User::checkCategoryPermission('emailmessages','All'))
+    @if(User::checkCategoryPermission('emailmessages','All'))
     <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a> </li>
     @endif
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
