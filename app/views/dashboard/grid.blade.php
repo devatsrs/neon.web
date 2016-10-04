@@ -22,7 +22,7 @@
                     }
                     ?>
                     @if(!empty($cdr_url) && ($data['chart_type'] == 'trunk' || $data['chart_type'] == 'prefix'))
-                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost),$data))}}">{{$call_cost}}</a>
+                        <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge(array($data['chart_type']=>$call_cost,'StartDate'=>date('Y-m-d'),'EndDate'=>date('Y-m-d')),$data))}}">{{$call_cost}}</a>
                     @elseif($data['chart_type'] == 'gateway' && !empty($cdr_url))
                         <a target="_blank" href="{{$cdr_url.'?'.http_build_query(array_merge($data,array('CompanyGatewayID'=>CompanyGateway::getCompanyGatewayIDByName($call_cost))))}}">{{$call_cost}}</a>
                     @else
