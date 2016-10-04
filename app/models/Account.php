@@ -393,4 +393,14 @@ class Account extends \Eloquent {
         $companyID  	 = User::get_companyID();
         return  Account::where(["AccountName"=>$Name,"CompanyID" => $companyID])->pluck('AccountID');
     }
+
+    public static function getVendorLastInvoiceDate($AccountID){
+        $LastInvoiceDate = '';
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->first(['EndDate']);
+        if(!empty($invoiceDetail)){
+            $LastInvoiceDate = $invoiceDetail->EndDate;
+        }
+        return $LastInvoiceDate;
+
+    }
 }
