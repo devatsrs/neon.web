@@ -167,6 +167,10 @@
       <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
     @endif
     @endif
+    
+    if(User::checkCategoryPermission('emailmessages','All'))
+    <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a> </li>
+    @endif
     @if(User::checkCategoryPermission('MyProfile','All') || User::checkCategoryPermission('Users','All') ||
     User::checkCategoryPermission('Trunk','View') || User::checkCategoryPermission('Gateway','View') ||
     User::checkCategoryPermission('Currency','View') || User::checkCategoryPermission('ExchangeRate','View') ||
