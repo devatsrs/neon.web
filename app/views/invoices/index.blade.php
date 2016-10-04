@@ -170,6 +170,13 @@
                                         </a>
                                     </li>
                                 @endif
+                                @if(User::checkCategoryPermission('Invoice','Post'))
+                                    <li>
+                                        <a class="quickbookpost create" id="quickbook_post" href="javascript:;">
+                                            QuickBook Post
+                                        </a>
+                                    </li>
+                                @endif
                             </ul>
                         @endif
                         <form id="clear-bulk-rate-form">
@@ -1303,6 +1310,29 @@
                 }
 
                 $('.applyBtn').click();
+            });
+
+
+
+            $("#quickbook_post").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                if (!confirm('Are you sure you want to post in quickbook selected invoices?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
             });
 
         });

@@ -335,7 +335,83 @@
         </div>
       </div>   
       
-      <!-- Amazon end -->    
+      <!-- Amazon end -->
+      <!-- Quick Book -->
+        <?php
+        $QuickBookDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookSlug);
+        $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-12">
+                    *Please First save and after click for connect
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6  margin-top pull-left">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="QuickBookLoginID" value="{{isset($QuickBookData->QuickBookLoginID)?$QuickBookData->QuickBookLoginID:''}}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 margin-top pull-right">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData->QuickBookPassqord)?$QuickBookData->QuickBookPassqord:""}}" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6  margin-top pull-left">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="OauthConsumerKey" value="{{isset($QuickBookData->OauthConsumerKey)?$QuickBookData->OauthConsumerKey:''}}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 margin-top pull-right">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Secret:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="OauthConsumerSecret" value="{{isset($QuickBookData->OauthConsumerSecret)?$QuickBookData->OauthConsumerSecret:""}}" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 margin-top pull-left">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* App Token:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="AppToken" value="{{isset($QuickBookData->AppToken)?$QuickBookData->AppToken:""}}" />
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-md-6 margin-top pull-right">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">SandBox:</label>
+                        <div class="col-sm-8" id="QuickBookSandboxDiv">
+                            <input id="QuickBookSandbox" class="subcatstatus" Divid="QuickBookSandboxDiv" name="QuickBookSandbox" type="checkbox" value="1" <?php if(isset($QuickBookData->QuickBookSandbox) && $QuickBookData->QuickBookSandbox==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-6  margin-top pull-left">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Active:</label>
+                        <div class="col-sm-8" id="QuickBookStatusDiv">
+                            <input id="QuickBookStatus" class="subcatstatus" Divid="QuickBookStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($QuickBookDbData->Status) && $QuickBookDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- Quick Book End-->
     </div>
   <ul class="pager wizard">
     <li class="previous"> <a href="#"><i class="entypo-left-open"></i> Previous</a> </li>
@@ -401,7 +477,7 @@
  					 var subcatid    = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
 					 var parent_id   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_id');
 					 var ForeignID   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
-					 
+
 					 console.log(importcat+' '+subcatid+' '+parent_id);
 					 if(parent_id==5 && ForeignID!=0){ ///gateway 
 					 	//window.location = baseurl+'/gateway?id='+ForeignID;	
@@ -425,6 +501,7 @@
         $("#SubcategoryForm").submit(function(e){
             e.preventDefault();
 	       var formData = new FormData($(this)[0]);
+            var redirecturl = baseurl+ "/quickbook";
             console.log(formData);
             $.ajax({
                 url:"{{URL::to('/integration/update')}}", //Server script to process data
@@ -438,7 +515,12 @@
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         reloadJobsDrodown(0);
-                        location.reload();
+                        if(response.quickbookredirect == '1'){
+                            //location.href=redirecturl;
+                        }else{
+                            location.reload();
+                        }
+                        //location.reload();
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
@@ -467,9 +549,16 @@
 			 if(parent_slug=='billinggateway' && ForeignID!=0){ ///gateway 
 				window.open(baseurl+'/gateway/'+ForeignID, '_blank');
 				return false;
-			 }		
-			
-			
+			 }
+            /*
+            if(parent_slug=='accounting'){
+                $('#quickbook-connect').show();
+                $('#task-update').hide();
+            }else{
+                $('#quickbook-connect').hide();
+                $('#task-update').show();
+            }*/
+
 			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
                 if($(this).prop('checked') == true)
 			    {
@@ -530,6 +619,13 @@
     });
     </script> 
 <script type="text/javascript" src="<?php echo URL::to('/'); ?>/assets/js/jquery.bootstrap.wizard.min.js" ></script>
+<script type="text/javascript" src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js"></script>
+<script type="text/javascript">
+    intuit.ipp.anywhere.setup({
+        menuProxy: '{{ URL::to('/quickbook')}}',
+        grantUrl: '{{ URL::to('/quickbook/oauth')}}'
+    });
+</script>
 <style>
     .dataTables_filter label{
         display:none !important;
@@ -620,6 +716,7 @@
 	.subcategoryblock, .subcategorycontent{display:none;}
 	.secondstep{padding-left:0px !important; padding-bottom:19px !important; padding-top:19px !important; }
 	.integrationimage{height:40px !important;}
+    #quickbook-connect{display: none;}
 </style>
 @stop
 
@@ -637,6 +734,7 @@
         <div id="SubcategoryModalContent" class=""></div>
       </div>
       <div class="modal-footer">
+          <a class="btn btn-success btn-sm btn-icon icon-left" onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

@@ -217,6 +217,53 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "AmazonS3 Settings Successfully Updated"));
 			}
-		}		
+		}
+		if($data['firstcategory']=='accounting')
+		{
+
+			if($data['secondcategory']=='QuickBook')
+			{
+				$rules = array(
+					'QuickBookLoginID'	  => 'required',
+					'QuickBookPassqord'	  => 'required',
+					'OauthConsumerKey'	  => 'required',
+					'OauthConsumerSecret' => 'required',
+					'AppToken' => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
+				$data['QuickBookSandbox'] 	= 	isset($data['QuickBookSandbox'])?1:0;
+
+				$QuickBookData = array(
+					"QuickBookLoginID"=>$data['QuickBookLoginID'],
+					"QuickBookPassqord"=>$data['QuickBookPassqord'],
+					"OauthConsumerKey"=>$data['OauthConsumerKey'],
+					"OauthConsumerSecret"=>$data['OauthConsumerSecret'],
+					"AppToken"=>$data['AppToken'],
+					"QuickBookSandbox"=>$data['QuickBookSandbox']
+				);
+
+				$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($QuickBookDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$QuickBookDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "QuickBook Settings Successfully Updated", "quickbookredirect" =>1));
+			}
+		}
 	}
 }

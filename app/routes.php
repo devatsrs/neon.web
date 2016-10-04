@@ -718,6 +718,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
+	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
 
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
@@ -956,6 +957,15 @@ Route::group(array('before' => 'auth'), function () {
 
 	//Account Discount Plan
 	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
+
+	Route::any('/quickbook', 'QuickBookController@index');
+	Route::any('/quickbook/disconnect', 'QuickBookController@disconnect');
+	Route::any('/quickbook/addcustomer', 'QuickBookController@addCustomer');
+	Route::any('/quickbook/oauth', 'QuickBookController@quickbookoauth');
+	Route::any('/quickbook/success', 'QuickBookController@success');
+	Route::any('/quickbook/customers', 'QuickBookController@getAllCustomer');
+	Route::any('/quickbook/items', 'QuickBookController@getAllItems');
+	Route::any('/quickbook/createitem', 'QuickBookController@createItem');
 
 });
 
