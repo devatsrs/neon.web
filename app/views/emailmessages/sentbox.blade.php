@@ -17,7 +17,7 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <h3 class="mail-title"> Inbox <span class="count">({{$TotalUnreads}})</span> </h3>
+      <h3 class="mail-title"> Sent Mail</h3>
       
       <!-- search -->
       <form method="get" role="form" id="mail-search" class="mail-search">
@@ -29,7 +29,7 @@
     </div>
     
     <!-- mail table -->
-    <div class="inbox">
+    <div class="sentbox">
       <table id="table-4" class="table mail-table">
         <!-- mail table header -->
         <thead>
@@ -52,20 +52,22 @@
               <?php } ?>
             </th>
           </tr>
-        </thead>        
+        </thead>
+        
         <!-- email list -->
         <tbody>
           <?php
-		  if(count($result)>0){
+		   if(count($result)>0){
 		 foreach($result as $result_data){ 
 			$attachments  =  unserialize($result_data[3]);
+			$AccountName  =  Account::where(array('AccountID'=>$result_data[5]))->pluck('AccountName');   
 			 ?>
-          <tr class="<?php if($result_data[6]==0){echo "unread";} ?>"><!-- new email class: unread -->
+          <tr class="<?php if($result_data[5]==0){echo "unread";} ?>"><!-- new email class: unread -->
             <td><div class="hidden checkbox checkbox-replace">
                 <input value="<?php  echo $result_data[0]; ?>" type="checkbox" />
               </div></td>
-            <td class="col-name"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail" class="col-name"><?php echo $result_data[1]; ?></a></td>
-            <td class="col-subject"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail">@if($result_data[5]==0)<span class="label label-info">Not matched</span> @endif <?php echo $result_data[2]; ?> </a></td>
+            <td class="col-name"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail" class="col-name"><?php echo $AccountName; ?></a></td>
+            <td class="col-subject"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail"> <?php echo $result_data[2]; ?> </a></td>
             <td class="col-options"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail">
               <?php if(count($attachments)>0){ ?>
               <i class="entypo-attach"></i></a>
@@ -73,9 +75,10 @@
             <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data[4]))->diffForHumans();  ?></td>
           </tr>
           <?php } }else{ ?>
-           <tr><td align="center" colspan="5">No Result Found.</td></tr>
+          <tr><td align="center" colspan="5">No Result Found.</td></tr>
           <?php } ?>
-        </tbody>        
+        </tbody>
+        
         <!-- mail table footer -->
         <tfoot>
           <tr>
@@ -98,7 +101,8 @@
         </tfoot>
       </table>
     </div>
-  </div>  
+  </div>
+  
   <!-- Sidebar -->
   @include("emailmessages.mail_sidebar") 
 </div>
@@ -111,8 +115,8 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/emailmessages/ajex_result';
-	var boxtype			=	'inbox';
-	var EmailCall		=	"{{Messages::Received}}";
+	var boxtype			=	'sentbox';
+	var EmailCall		=	"{{Messages::Sent}}";
 	var SearchStr		=	'';
 	$(document).on('click','.move_mail',function(){
 		var clicktype = $(this).attr('movetype');	
@@ -162,8 +166,8 @@ $(document).ready(function(e) {
 								return false;
 							}
 							
-							 $('.inbox').html('');
-							 $('.inbox').html(response);	
+							 $('.sentbox').html('');
+							 $('.sentbox').html(response);	
 							 if(clicktype=='next')
 							 {
 								currentpage =  currentpage+1;
@@ -175,7 +179,7 @@ $(document).ready(function(e) {
 							 replaceCheckboxes();
 						}
 						else
-						{ 					
+						{
 							if(clicktype=='next')
 							 {
 								$('.next').addClass('disabled');
@@ -188,6 +192,7 @@ $(document).ready(function(e) {
 					
 					}
 				});	
+			
 	}
 });
 </script> 

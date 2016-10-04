@@ -5,7 +5,11 @@ class Messages extends \Eloquent {
     protected $fillable 	= 	['PID'];
     protected $table 		= 	"tblMessages";
     protected $primaryKey 	= 	"MsgID";
-    public $timestamps 		= 	false; // no created_at and updated_at
+    public    $timestamps 	= 	false; // no created_at and updated_at
+	
+	const  Sent 			= 	0;
+    const  Received			=   1;
+    const  Draft 			= 	2;
 
     public static function logMsgRecord($JobType, $options = "") {
 		              

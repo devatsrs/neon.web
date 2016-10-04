@@ -16,10 +16,10 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <div class="mail-title"> {{$Emaildata->Subject}} <span class="label label-warning">Friends</span> <span class="label label-info">Sport</span> </div>
+      <div class="mail-title"> {{$Emaildata->Subject}} <span class="label label-warning hidden">Friends</span> <span class="label label-info hidden">Sport</span> </div>
       
       <!-- links -->
-      <div class="mail-links"> <a href="#" class="btn btn-default"> <i class="entypo-print"></i> </a> <a href="#" class="btn btn-default"> <i class="entypo-trash"></i> </a> <a class="btn btn-primary btn-icon"> Reply <i class="entypo-reply"></i> </a> </div>
+      <div class="mail-links hidden"> <a href="#" class="btn btn-default"> <i class="entypo-print"></i> </a> <a href="#" class="btn btn-default"> <i class="entypo-trash"></i> </a> <a class="btn btn-primary btn-icon"> Reply <i class="entypo-reply"></i> </a> </div>
     </div>
     <div class="mail-info">
       <div class="mail-sender dropdown"> <a class="href dropdown-toggle" data-toggle="dropdown"> <span>{{$Emaildata->EmailfromName}}</span> ({{$Emaildata->Emailfrom}}) to <span>me</span> </a>
@@ -51,14 +51,14 @@
           <?php }else{ ?>
           <a href="{{$FilePath}}" class="thumb download"> <img width="175"  src="{{URL::to('/')}}/assets/images/attach-1.png" class="img-rounded" /> </a>
           <?php } ?>
-          <a href="{{$FilePath}}" class="name"> {{$attachments_data['filename']}} </a>
-          <div class="links"> <a href="{{$FilePath}}">View</a> - <a href="{{$FilePath}}">Download</a> </div>
+          <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+          <div class="links"><a href="{{$FilePath}}">Download</a> </div>
         </li>
         @endforeach
       </ul>
     </div>
     @endif
-    <div class="mail-reply">
+    <div class="hidden mail-reply">
       <div class="fake-form">
         <div> <a href="#">Reply</a> or <a href="#">Forward</a> this message... </div>
       </div>
@@ -66,18 +66,6 @@
   </div>
   
   <!-- Sidebar -->
-  <div class="mail-sidebar"> 
-    
-    <!-- compose new email button -->
-    <div class="mail-sidebar-row hidden-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
-    
-    <!-- menu -->
-    <ul class="mail-menu">
-      <li class="active"> <a href="{{URL::to('/')}}/emailmessages"> <span class="badge badge-danger pull-right">{{$TotalUnreads}}</span> Inbox </a> </li>
-    </ul>
-    
-    <!-- menu --> 
-    
-  </div>
+  @include("emailmessages.mail_sidebar")
 </div>
 @stop 

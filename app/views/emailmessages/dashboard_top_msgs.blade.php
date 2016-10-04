@@ -14,7 +14,9 @@
             }
 
             ?>
-      <li> <a href="Javascript:;" onclick="return showEmailMessageAjaxModal('{{$job->MsgID}}');"> <span class="task <?php echo $HasReadClass;?>"> <span class="desc">{{$job->Title}}</span> </span>  <span class="task <?php echo $HasReadClass;?>"><span class="desc">{{$job->Description}}</span> <span class="percent">{{\Carbon\Carbon::createFromTimeStamp(strtotime($job->created_at))->diffForHumans() }}</span> </span> </a> </li>
+            <!--<a href="Javascript:;" onclick="return showEmailMessageAjaxModal('{{$job->MsgID}}');"> -->
+      <li> <a href="{{URL::to('/')}}/emailmessages/{{$job->EmailID}}/detail" > <span class="task <?php echo $HasReadClass;?>"> <span class="desc">{{$job->Title}}</span> </span>  <span class="task <?php echo $HasReadClass;?>"><span class="desc">{{$job->Description}}</span> <span class="percent">{{\Carbon\Carbon::createFromTimeStamp(strtotime($job->created_at))->diffForHumans() }}</span> </span> </a> </li>
+      
       @endforeach
       @endif
     </ul>

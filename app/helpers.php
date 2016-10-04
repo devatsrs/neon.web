@@ -1359,3 +1359,12 @@ function getdaysdiff($date1,$date2){
     $date2 = new DateTime($date2);
     return $date2->diff($date1)->format("%R%a");
 }
+
+function ShortName($title){
+	if(strlen($title)>8)
+	{
+		return substr($title,0,8).'..';
+	}else{
+		return $title;
+	}
+}
