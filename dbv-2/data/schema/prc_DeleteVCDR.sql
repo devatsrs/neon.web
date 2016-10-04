@@ -46,7 +46,7 @@ BEGIN
 			  AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))
 			  AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
 			  AND (p_trunk = '' OR trunk = p_trunk )	
-			  AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND buying_cost > 0))
+			  AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND buying_cost = 0) OR ( p_zerovaluecost = 2 AND buying_cost > 0))
 			  AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 	        ) tbl
 	        WHERE 

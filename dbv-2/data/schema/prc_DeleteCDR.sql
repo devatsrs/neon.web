@@ -46,7 +46,7 @@ BEGIN
 				AND (p_CDRType = '' OR ud.is_inbound = p_CDRType)
 				AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
 				AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
-				AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))
+				AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))
 				AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 				AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
 				AND (p_trunk = '' OR trunk = p_trunk )

@@ -223,7 +223,6 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
-            $criteria['zerovaluecost'] = $criteria['zerovaluecost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
@@ -660,7 +659,6 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
-            $criteria['zerovaluecost'] = $criteria['zerovaluebuyingcost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
