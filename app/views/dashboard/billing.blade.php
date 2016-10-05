@@ -327,11 +327,11 @@
                                 mRender:function( id, type, full){
                                     var output , account_url;
                                     output = '<a href="{url}" target="_blank" >{account_name}';
-                                    if(full[14] ==''){
+                                    if(full[11] ==''){
                                         output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                                     }
                                     output+= '</a>';
-                                    account_url = baseurl + "/accounts/"+ full[10] + "/show";
+                                    account_url = baseurl + "/accounts/"+ full[8] + "/show";
                                     output = output.replace("{url}",account_url);
                                     output = output.replace("{account_name}",id);
                                     return output;
@@ -711,7 +711,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="modal-Payment">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -749,7 +749,7 @@
     </div>
 
     <div class="modal fade" id="modal-invoice">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="TestMail-form" method="post" action="">
                     <div class="modal-header">

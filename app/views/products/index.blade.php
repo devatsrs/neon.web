@@ -49,7 +49,7 @@
                                     <label for="field-1" class="col-sm-2 control-label">Active</label>
                                     <div class="col-sm-2">
                                            <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                                          {{ Form::select('Active', $active, '', array("class"=>"form-control selectboxit")) }}
+                                          {{ Form::select('Active', $active, '', array("class"=>"form-control select2 small")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">

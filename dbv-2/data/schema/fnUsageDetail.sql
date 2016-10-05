@@ -61,7 +61,7 @@ BEGIN
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
 	AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
 	AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
-	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))	
+	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))	
 	) tbl
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)

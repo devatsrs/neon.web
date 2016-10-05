@@ -12,6 +12,9 @@
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
   <div class="cbp_tmlabel normal_tag">  
+  <a email_number="{{$response_data['AccountEmailLogID']}}" action_type="forward" class="pull-right edit-deal email_action" title="Forward"><i class="entypo-forward"></i></a>            
+         <a email_number="{{$response_data['AccountEmailLogID']}}" action_type="reply-all" class=" pull-right edit-deal email_action" title="Reply All"><i class="entypo-reply-all"></i></a>           
+         <a email_number="{{$response_data['AccountEmailLogID']}}" action_type="reply" class="pull-right edit-deal email_action" title="Reply"><i class="entypo-reply"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['CreatedBy']==$current_user_title) You @else {{$response_data['CreatedBy']}}  @endif <span>sent an email to</span> @if($response_data['EmailTo']==$current_user_title) You @else {{$response_data['EmailTo']}}  @endif <br>
  <p class="mail_subject">Subject: {{$response_data['Subject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
@@ -21,7 +24,7 @@
 	  if($response_data['AttachmentPaths']!='')
 	  {
     		$attachments = unserialize($response_data['AttachmentPaths']);
-			if(count($attachments)>0)
+			if(count($attachments)>0 && is_array($attachments))
 			{
 				 echo "<p>Attachments: ";
 				foreach($attachments as $key => $attachments_data)
@@ -47,6 +50,7 @@
 	  }
 	   ?>
       <p class="mail_message">Message:<br>{{$response_data['Message']}}. </p>
+      <p><a data_fetch_id="{{$response_data['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
     </div>
             </div>
 

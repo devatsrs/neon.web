@@ -18,7 +18,7 @@
             <br>
             @if(User::checkCategoryPermission('Notification','Add'))
                 <p style="text-align: right;">
-                    <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
+                    <a href="{{URL::to('notification/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
                         <i class="entypo-plus"></i>
                         Add Notification
                     </a>
@@ -59,6 +59,7 @@
                 <tr>
                     <th width="20%">Type</th>
                     <th width="30%">Email Address</th>
+                    <th width="10%">Status</th>
                     <th width="10%">Created Date</th>
                     <th width="10%">Created By</th>
                     <th width="20%">Action</th>
@@ -68,7 +69,7 @@
                 </tbody>
             </table>
             <script type="text/javascript">
-                var list_fields  = ["NotificationType","EmailAddresses","created_at","CreatedBy","NotificationID"];
+                var list_fields  = ["NotificationType","EmailAddresses","Status","created_at","CreatedBy","NotificationID"];
                 var NotificationType = JSON.parse('{{json_encode(Notification::$type)}}');
                 var $search = {};
                 var update_new_url;
@@ -102,6 +103,14 @@
 
                             },  // 0 Notification
                             {"bSortable": true},  // 1 Email Addresses
+                            {
+                                mRender: function (status, type, full) {
+                                    if (status == 1)
+                                        return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
+                                    else
+                                        return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
+                                }
+                            }, //2   Status
                             {"bSortable": true},  // 2 Created At
                             {"bSortable": true},  // 3 Created By
                             {                        // 9 Action
@@ -167,9 +176,10 @@
                         $('#notification-form').trigger("reset");
                         $('#modal-notification h4').html('Add Notification');
                         $("#notification-form [name='NotificationEmailAddresses']").val('');
-                        var selectBox = $("#notification-form [name='NotificationType']").data("selectBox-selectBoxIt");
-                        selectBox.selectOption('');
-                        selectBox.enable();
+                        $(".js-example-disabled").prop("disabled", false);
+                        var selectBox = $("#notification-form [name='NotificationType']");
+                        selectBox.val('').trigger("change");
+                        selectBox.prop("disabled", false);
                         $('.tax').removeClass('hidden');
 
                         $('#notification-form').attr("action",notification_add_url);
@@ -185,9 +195,16 @@
                         for(var i = 0 ; i< list_fields.length; i++){
                             $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'NotificationType'){
-                                var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
-                                selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                                selectBox.disable();
+                                var selectBox = $("#notification-form [name='"+list_fields[i]+"']");
+                                selectBox.val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                selectBox.prop("disabled", true);
+                            }
+                            if(list_fields[i] == 'Status') {
+                                if (cur_obj.find("input[name='Status']").val() == 1) {
+                                    $("#notification-form [name='"+list_fields[i]+"']").prop('checked', true)
+                                } else {
+                                    $("#notification-form [name='"+list_fields[i]+"']").prop('checked', false)
+                                }
                             }
                         }
                         $('#modal-notification').modal('show');
@@ -198,7 +215,6 @@
                         if(result){
                             var delete_url  = $(this).attr("href");
                             submit_ajax_datatable( delete_url,"",0,data_table_char);
-                            data_table_char.fnFilter('', 0);
                         }
                         return false;
                     });
@@ -207,7 +223,7 @@
                         e.preventDefault();
                         var _url  = $(this).attr("action");
                         submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
-                        data_table_char.fnFilter('', 0);
+
                     });
 
                     // Replace Checboxes
@@ -239,7 +255,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Type</label>
-                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"selectboxit product_dropdown"))}}
+                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 small product_dropdown"))}}
                                 <input type="hidden" name="NotificationID" />
                             </div>
                         </div>
@@ -247,6 +263,16 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Email Addresses</label>
                                 <input type="text" name="EmailAddresses" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Active</label>
+                                <div class="clear">
+                                    <p class="make-switch switch-small">
+                                        <input type="checkbox" checked=""  name="Status" value="0">
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

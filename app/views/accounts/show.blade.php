@@ -16,6 +16,9 @@
     <li>
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active">
         <strong>View Account</strong>
     </li>

@@ -22,9 +22,10 @@ class UploadFile{
             $filesArray	=	array_merge($filesArray,$uploadedFile);
         } else {
             $filesArray	=	$uploadedFile;
-        }
+        } 
+		if(isset($data['add_type'])){$class="reply_del_attachment";}else{$class='del_attachment';}
         foreach($filesArray as $key=> $fileData) {
-            $returnText  .= '<span class="file_upload_span imgspan_filecontrole">'.$fileData['filename'].'<a  del_file_name="'.$fileData['filename'].'" class="del_attachment"> X </a><br></span>';
+            $returnText  .= '<span class="file_upload_span imgspan_filecontrole">'.$fileData['filename'].'<a  del_file_name="'.$fileData['filename'].'" class="'.$class.'"> X </a><br></span>';
         }
         return ['text'=>$returnText,'attachmentsinfo'=>$filesArray];
     }

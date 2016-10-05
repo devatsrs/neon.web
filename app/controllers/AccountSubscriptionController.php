@@ -59,6 +59,10 @@ class AccountSubscriptionController extends \BaseController {
 			 
             //'EndDate'               =>'required'
         );
+        if(!empty($data['EndDate'])) {
+            $rules['StartDate'] = 'required|date|before:EndDate';
+            $rules['EndDate'] = 'required|date';
+        }
         $validator = Validator::make($data, $rules);
         $validator->setPresenceVerifier($verifier);
 
@@ -104,6 +108,10 @@ class AccountSubscriptionController extends \BaseController {
 			 
                 //'EndDate' => 'required'
             );
+            if(!empty($data['EndDate'])) {
+                $rules['StartDate'] = 'required|date|before:EndDate';
+                $rules['EndDate'] = 'required|date';
+            }
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);
 

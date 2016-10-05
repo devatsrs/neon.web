@@ -55,7 +55,7 @@
                                 <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                     <?php $nameprefix_array = array("Mr" => "Mr", "Miss" => "Miss", "Mrs" => "Mrs"); ?>
                                     {{Form::select('NamePrefix', $nameprefix_array, Input::old('NamePrefix')
-                                    ,array("class"=>"selectboxit"))}}
+                                    ,array("class"=>"select2 small"))}}
                                 </div>
                                 <input type="text" name="FirstName" class="form-control"
                                        value="{{Input::old('FirstName')}}"/>
@@ -273,7 +273,7 @@
 
                         <div class="col-sm-4">
 
-                            {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"selectboxit"))}}
+                            {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"select2 small"))}}
                         </div>
                     </div>
                 </div>

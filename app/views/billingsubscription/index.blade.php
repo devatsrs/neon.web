@@ -45,13 +45,13 @@
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-2">
-                           {{Form::select('FilterCurrencyID', $currencies, '' ,array("class"=>"form-control selectboxit"))}}
+                           {{Form::select('FilterCurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Advance Subscription</label>
                         <div class="col-sm-2">
 
                            <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->
-                            {{Form::select('FilterAdvance', array(''=>'All' , 0 => 'Off',1=>'On'), '' ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('FilterAdvance', array(''=>'All' , 0 => 'Off',1=>'On'), '' ,array("class"=>"form-control select2 small"))}}
 
 
                     </div>
@@ -205,7 +205,7 @@ $('#add-new-billing_subscription').click(function(ev){
     $('#add-new-modal-billing_subscription h4').html('Add New Subscription');
     $('#add-new-modal-billing_subscription').modal('show');
     $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
-    $("#add-new-billing_subscription-form select[name=CurrencyID]").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+    $("#add-new-billing_subscription-form select[name=CurrencyID]").val('No').trigger("change");
 
 });
 $('table tbody').on('click','.edit-billing_subscription',function(e){
@@ -219,7 +219,7 @@ $('table tbody').on('click','.edit-billing_subscription',function(e){
     $.each(list_fields, function( index, field_name ) {
         $("#add-new-billing_subscription-form [name='"+field_name+"']").val($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val());
         if(field_name =='CurrencyID'){
-            $("#add-new-billing_subscription-form [name='"+field_name+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val());
+            $("#add-new-billing_subscription-form [name='"+field_name+"']").val($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val()).trigger("change");
         }else if(field_name == 'Advance'){
             if($this.prev("div.hiddenRowData").find("input[name='Advance']").val() == 1 ){
                 $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',true)
@@ -299,7 +299,7 @@ right: 30px !important;
 @section('footer_ext')
 @parent
 <div class="modal fade custom-width" id="add-new-modal-billing_subscription">
-<div class="modal-dialog" style="width: 60%;">
+<div class="modal-dialog modal-lg">
     <div class="modal-content">
         <form id="add-new-billing_subscription-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
             <div class="modal-header">
@@ -345,7 +345,7 @@ right: 30px !important;
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
-                            {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>

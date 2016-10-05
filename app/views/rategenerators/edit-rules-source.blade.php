@@ -62,7 +62,7 @@
 
                                     <label class="control-label col-md-3" >Select Sources</label>
                                     <div class="col-md-3">
-                                    {{Form::select('Sources',array( "all"=>"All","selected"=>"Selected"),$rategenerator->Sources , array("class"=>"selectboxit","id"=>'Sourcess'))}}
+                                    {{Form::select('Sources',array( "all"=>"All","selected"=>"Selected"),$rategenerator->Sources , array("class"=>"select2 small","id"=>'Sourcess'))}}
                                     </div>
                                 </div>
                             </div>

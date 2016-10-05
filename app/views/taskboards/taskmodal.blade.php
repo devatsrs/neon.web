@@ -46,22 +46,18 @@
          <?php $leads = [];$disabled = 'disabled';$leadOrAccountExist = 'Yes'?>
         leadOrAccountID = '{{$leadOrAccountID}}';
         @endif
-        var usetId = "{{User::get_userID()}}";
-        /*$('#add-task-form [name="Rating"]').knob();*/
-        //getOpportunities();
+        var userId = "{{User::get_userID()}}";
         $(document).on('click','.task',function(){
             $('#add-task-form').trigger("reset");
-            //$('#add-task-form [name="Priority"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(1);
-            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            //$('#add-task-form [name="UsersIDs"]').select2().select2('val',usetId);
-            $('#add-task-form [name="AccountIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $('#add-task-form [name="UsersIDs"]').val('').trigger("change");
+            $('#add-task-form [name="AccountIDs"]').val('').trigger("change");
             $('#add-modal-task h4').text('Add Task');
             if(!BoardID){
                 accountID =$(this).attr('data-id');
-                $('#add-task-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+                $('#add-task-form [name="AccountID"]').val(accountID).trigger("change");
             }
             $('#add-task-form [name="BoardID"]').val(BoardID);
-            $('#add-task-form [name="UsersIDs"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(usetId);
+            $('#add-task-form [name="UsersIDs"]').val(userId).trigger("change");
             $('#add-modal-task').modal('show');
         });
 
@@ -92,7 +88,6 @@
                     }
                     $("#task-add").button('reset');
                     $("#task-update").button('reset');
-                    //getOpportunities();
                 },
                 // Form data
                 data: formData,
@@ -112,7 +107,7 @@
 @section('footer_ext')
     @parent
 <div class="modal fade" id="add-modal-task">
-    <div class="modal-dialog" style="width: 70%;">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="add-task-form" method="post">
                 <div class="modal-header">
@@ -125,7 +120,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
                                 <div class="col-sm-8">
-                                    {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"selectboxit",$disabled))}}
+                                    {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($BoardID),'',array("class"=>"select2 small",$disabled))}}
                                 </div>
                             </div>
                         </div>

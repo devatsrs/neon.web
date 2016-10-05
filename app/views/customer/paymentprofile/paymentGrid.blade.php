@@ -178,8 +178,8 @@
                     ev.preventDefault();
                     $("#add-credit-card-form")[0].reset();
                     $("#add-credit-card-form").find('input[name="cardID"]').val('');
-                    $("#add-credit-card-form [name='ExpirationMonth']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                    $("#add-credit-card-form [name='ExpirationYear']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
+                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
                     $('#add-modal-card').modal('show');
                 });
 
@@ -202,8 +202,8 @@
                     ev.preventDefault();
                     ev.stopPropagation();
                     $("#add-credit-card-form")[0].reset();
-                    $("#add-credit-card-form [name='ExpirationMonth']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                    $("#add-credit-card-form [name='ExpirationYear']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
+                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
                     cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
                     Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
                     $("#add-credit-card-form").find('[name="cardID"]').val(cardID);
@@ -302,7 +302,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Card Type*</label>
-                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -317,10 +317,10 @@
                                         <label for="field-5" class="control-label">Expiry Date *</label>
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
                                     </div>
 
                                 </div>

@@ -153,7 +153,7 @@ return [
 	/**
 	 * Do you wish to log your users?
 	 */
-	'log_users' => true,
+	'log_users' => false,
 
 	/**
 	 * Do you wish to log devices?

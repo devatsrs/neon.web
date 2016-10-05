@@ -168,14 +168,13 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    if($('#tools .active').hasClass('grid')){
-                        $('#opportunityGrid_wrapper').addClass('hidden');
-                        $('#opportunityGrid').addClass('hidden');
-                    }else{
-                        $('#opportunityGrid_wrapper').removeClass('hidden');
-                        $('#opportunityGrid').removeClass('hidden');
-                    }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
+                    $('#opportunityGrid .knob').each(function(){
+                        var self = $(this);
+                        self.css('position','relative');
+                        self.css('margin-top',self.css('margin-left'));
+                    });
+					$('.loaderopportunites').hide();
                 }
 		});
 		}
@@ -266,6 +265,7 @@
                         $('#taskGrid_wrapper').removeClass('hidden');
                         $('#taskGrid').removeClass('hidden');
                     }
+					$('#taskGrid').find('#blockOverlay').hide();
                 }
 
             });

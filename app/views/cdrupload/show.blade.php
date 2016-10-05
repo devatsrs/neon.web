@@ -63,7 +63,7 @@
         <div class="row">
             <div class="col-md-12">
                 <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-                    <div data-collapsed="0" class="panel panel-primary filter">
+                    <div id="cdrfilter" data-collapsed="0" class="panel panel-primary filter">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Filter
@@ -76,25 +76,25 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
                                 <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
-                                    <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
+                                    <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?Input::get('StartDate'):'' }}" data-enddate="{{Input::get('StartDate')!=null?Input::get('StartDate'):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
                                 <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
-                                    <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
+                                    <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?Input::get('EndDate'):'' }}" data-enddate="{{Input::get('EndDate')!=null?Input::get('EndDate'):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}}
+                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
                                 </div>
                                 <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
                                 <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
              
                             </div>
@@ -119,11 +119,10 @@
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div>
 
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
-                                <div class="col-sm-1">
-                                    <p class="make-switch switch-small">
-                                        <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
-                                    </p>
+                                <label for="field-1" class="col-sm-1 control-label" style="width: 4%;">Show</label>
+                                <div class="col-sm-2">
+                                    <?php $options = [0=>'All',1=>'Zero Cost Only',2=>'Hide Zero Cost'] ?>
+                                    {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                 </div>
                             <div class="form-group">
@@ -242,7 +241,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
-			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
+			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
@@ -534,9 +533,13 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
 
         });
-			
-			
 
+
+        if (isxs()) {
+            $('#cdrfilter').find('.col-sm-1,.col-sm-2').each(function () {
+                $(this).removeAttr('style');
+            });
+        }
 
 
             });

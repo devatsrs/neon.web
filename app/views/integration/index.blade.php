@@ -8,6 +8,12 @@
 <h3>Integration</h3>
 @include('includes.errors')
 @include('includes.success')
+<style>
+    .col-md-4{
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
   <div style="display:none;" class="steps-progress">
@@ -28,26 +34,26 @@
     <div class="tab-pane active" id="tab2-1">
       <div class="row"> </br>
         </br>
-        <div class="col-md-1"></div>
-        <div class="col-md-11">
-          <div class=""> @foreach($categories as $key => $CategoriesData)
+          <div class="col-md-1"></div>
+          <div class="col-md-9"> @foreach($categories as $key => $CategoriesData)
             <?php
 				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID']))->first();
 				if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0){$active['Status'] =1;} 
 			  ?>
+              <div class="col-md-4">
             <input type="radio" name="category" class="category" data-id="{{$CategoriesData['Slug']}}" catid="{{$CategoriesData['IntegrationID']}}" value="{{$CategoriesData['Slug']}}" id="{{$CategoriesData['Slug']}}" @if($key==0) checked @endif />
             <label  for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif   "> 
               {{$CategoriesData['Title']}} </label>
+              </div>
             @endforeach </div>
-        </div>
+          <div class="col-md-1"></div>
       </div>
     </div>
     <div class="tab-pane" id="tab2-2">
       <div class="row"> </br>
         </br>
-        <div class="col-md-1"></div>
-        <div class="col-md-11">
-          <div class="">
+          <div class="col-md-1"></div>
+          <div class="col-md-9">
             <?php
 		  	foreach($categories as $key => $CategoriesData) {
 				if($CategoriesData['Slug']!==SiteIntegration::$GatewaySlug){
@@ -65,7 +71,7 @@
 					} 
 					 
 			  ?>
-            <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
+            <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$subcategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
               <label data-subcatid="{{$subcategoriesData['IntegrationID']}}" data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" for="{{$subcategoriesData['Slug']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
@@ -81,7 +87,7 @@
 			else{ //billing gateway
 			foreach($Gateway as $key => $Gateway_data){
 				?>
-             <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
+             <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$CategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$Gateway_data['GatewayID']}}" value="{{$Gateway_data['Name']}}" id="{{$Gateway_data['Name']}}" @if($key==0) checked @endif />
               <label data-subcatid="{{$Gateway_data['GatewayID']}}" data-title="{{$Gateway_data['Title']}}" data-id="subcategorycontent{{$Gateway_data['Name']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$Gateway_data['GatewayID']}}"  for="{{$Gateway_data['Name']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
@@ -99,7 +105,7 @@
 			
 			} } ?>
           </div>
-        </div>
+          <div class="col-md-1"></div>
       </div>
     </div>
     <div class="tab-pane" id="tab2-3">
@@ -334,6 +340,104 @@
           </div>          
         </div>
       </div>   
+   
+
+      <!-- Amazon end -->   
+      <!-- EmailTracking start -->
+       <?php 
+		$EmailTrackingDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$imapSlug);
+		$EmailTrackingData   = isset($EmailTrackingDBData->Settings)?json_decode($EmailTrackingDBData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{isset($EmailTrackingDBData->Slug)?$EmailTrackingDBData->Slug:''}}">        
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="EmailTrackingEmail" value="{{isset($EmailTrackingData->EmailTrackingEmail)?$EmailTrackingData->EmailTrackingEmail:''}}" />
+              </div>
+            </div>
+          </div>          
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Name:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="EmailTrackingName" value="{{isset($EmailTrackingData->EmailTrackingName)?$EmailTrackingData->EmailTrackingName:''}}" />
+              </div>
+            </div>
+          </div>          
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Inbox Server:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="EmailTrackingServer" value="{{isset($EmailTrackingData->EmailTrackingServer)?$EmailTrackingData->EmailTrackingServer:""}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+              <div class="col-sm-8">
+                <input type="password"  class="form-control" name="EmailTrackingPassword" value="{{isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:''}}" />
+              </div>
+            </div>
+          </div>          
+                    
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active: </label>
+              <div class="col-sm-8" id="EmailTrackingDiv">
+                   <input id="EmailTrackingstatus" class="subcatstatus" Divid="EmailTrackingDiv" name="Status" type="checkbox" value="1" <?php if(isset($EmailTrackingDBData->Status) && $EmailTrackingDBData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>   
+      <!-- EmailTracking end -->    
+       <!-- Outlook calendar start -->
+       <?php 
+		$outlookcalendarDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$outlookcalenarSlug);
+		$outlookcalendarData   = isset($outlookcalendarDBData->Settings)?json_decode($outlookcalendarDBData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{isset($outlookcalendarDBData->Slug)?$outlookcalendarDBData->Slug:''}}">        
+        <div class="row">
+        <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">*Server:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="OutlookCalendarServer" value="{{isset($outlookcalendarData->OutlookCalendarServer)?$outlookcalendarData->OutlookCalendarServer:""}}" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="OutlookCalendarEmail" value="{{isset($outlookcalendarData->OutlookCalendarEmail)?$outlookcalendarData->OutlookCalendarEmail:''}}" />
+              </div>
+            </div>
+          </div>  
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+              <div class="col-sm-8">
+                <input type="password"  class="form-control" name="OutlookCalendarPassword" value="{{isset($outlookcalendarData->OutlookCalendarPassword)?$outlookcalendarData->OutlookCalendarPassword:''}}" />
+              </div>
+            </div>
+          </div>          
+                    
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active: </label>
+              <div class="col-sm-8" id="OutlookCalendarDiv">
+                   <input id="OutlookCalendarstatus" class="subcatstatus" Divid="OutlookCalendarDiv" name="Status" type="checkbox" value="1" <?php if(isset($outlookcalendarDBData->Status) && $outlookcalendarDBData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>   
+      <!-- Outlook calendar end -->    
       
       <!-- Amazon end -->
       <!-- Quick Book -->
@@ -416,6 +520,7 @@
         </div>
       <!-- Quick Book End-->
     </div>
+
   <ul class="pager wizard">
     <li class="previous"> <a href="#"><i class="entypo-left-open"></i> Previous</a> </li>
     <li class="next"> <a href="#">Next <i class="entypo-right-open"></i></a> </li>

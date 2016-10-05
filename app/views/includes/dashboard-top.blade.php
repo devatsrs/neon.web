@@ -62,6 +62,18 @@
          </li>
      </ul>
 </li>
+	<!-- Message Notifications -->
+<li class="notifications msgs dropdown">
+        
+        <!-- Ajax Content here : Messages -->
+		<a data-close-others="true" data-hover="dropdown" data-toggle="dropdown" class="dropdown-toggle msgs" href="#"><i class="entypo-mail"></i></a>
+		<ul class="dropdown-menu">
+        	 <li class="top">
+          	   <p>Loading...</p>
+         	</li>
+       </ul>				
+</li>
+			
 </ul>
 </div>
 <!-- Raw Links -->
@@ -216,6 +228,19 @@
              <div class="modal-header">
                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                  <h4 class="modal-title">Job Content</h4>
+             </div>
+             <div class="modal-body">
+                 Content is loading...
+             </div>
+         </div>
+     </div>
+ </div>
+ <div class="modal fade" id="modal-mailmsg">
+     <div class="modal-dialog">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title">Message Content</h4>
              </div>
              <div class="modal-body">
                  Content is loading...

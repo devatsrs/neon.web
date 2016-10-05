@@ -141,7 +141,7 @@
         <section class="deals-board" >
             
 
-            <table class="table table-bordered datatable" id="opportunityGrid">
+            <table class="table table-bordered datatable hidden" id="opportunityGrid">
                 <thead>
                 <tr>
                     <th width="25%" >Name</th>
@@ -321,6 +321,11 @@
                         $('#opportunityGrid').removeClass('hidden');
                     }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
+                    $('#opportunityGrid .knob').each(function(){
+                        var self = $(this);
+                        self.css('position','relative');
+                        self.css('margin-top',self.css('margin-left'));
+                    });
                 }
 
             });
@@ -358,7 +363,7 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                            elem.val(val).trigger("change");
                         }
                     } else{
                         elem.val(val);
@@ -873,7 +878,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="edit-modal-opportunity">
-        <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="edit-opportunity-form" method="post">
                     <div class="modal-header">
@@ -924,7 +929,7 @@
                                         <div class="input-group" style="width: 100%;">
                                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                                 <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}}
                                             </div>
                                             <input type="text" name="FirstName" class="form-control" id="field-5">
                                         </div>
@@ -971,7 +976,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Status</label>
                                     <div class="col-sm-8 input-group">
-                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -980,7 +985,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>

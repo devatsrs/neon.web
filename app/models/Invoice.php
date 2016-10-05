@@ -38,11 +38,7 @@ class Invoice extends \Eloquent {
         * */
 
         //set company billing timezone
-        $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
 
-        if($BillingTimezone != 'Invalid Key'){
-            date_default_timezone_set($BillingTimezone);
-        }
 
         $Account = AccountBilling::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
@@ -75,7 +71,9 @@ class Invoice extends \Eloquent {
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplate = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID);
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+            $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
@@ -93,7 +91,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -147,6 +145,9 @@ class Invoice extends \Eloquent {
         }
         return $invoicearray;
     }
+    /**
+     * not in use
+    */
     public static function getFullInvoiceNumber($Invoice,$AccountBilling){
         $InvoiceNumberPrefix = '';
         if(!empty($AccountBilling->InvoiceTemplateID)) {

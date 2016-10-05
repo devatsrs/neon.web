@@ -160,7 +160,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
-	
 
 	Route::post('/account/upload_file', 'AccountsController@uploadFile');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
@@ -230,7 +229,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/store', 'AccountActivityController@store');
     Route::any('accounts/{id}/activities/{activity_id}/update', 'AccountActivityController@update')->where('activity_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{activity_id}/delete', 'AccountActivityController@delete')->where('activity_id', '(.[09]*)+');
-
+	
 
     //Account email log
     Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
@@ -239,6 +238,8 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{log_id}/view_email_log', 'AccountActivityController@view_email_log')->where('log_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
     Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
+	Route::any('emails/{id}/getreplyattachment/{attachmentID}', 'AccountActivityController@GetReplyAttachment');
+	Route::post('emails/email_action', 'AccountActivityController@EmailAction');
 
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
@@ -426,7 +427,19 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::resource('jobs', 'JobsController');
 	Route::controller('jobs', 'JobsController');
-
+	
+	//msgs
+	Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
+	Route::any('/emailmessages', 'MessagesController@index');
+	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
+	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
+	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
+	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
+	Route::any('/emailmessages/sent','MessagesController@SentBox');
+	
+	
+	
+	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
 	Route::any('/rategenerators/ajax_datagrid', array('as' => 'rategenerator_ajax_datagrid', 'uses' => 'RateGeneratorsController@ajax_datagrid'));
@@ -958,6 +971,16 @@ Route::group(array('before' => 'auth'), function () {
 	//Account Discount Plan
 	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
 
+	// Billing Class
+	Route::any('/billing_class','BillingClassController@index');
+	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
+	Route::any('/billing_class/create','BillingClassController@create');
+	Route::any('/billing_class/store','BillingClassController@store');
+	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
+	Route::any('/billing_class/update/{id}','BillingClassController@update');
+	Route::any('/billing_class/delete/{id}','BillingClassController@delete');
+	Route::any('/billing_class/getInfo/{id}','BillingClassController@getInfo');
+
 	Route::any('/quickbook', 'QuickBookController@index');
 	Route::any('/quickbook/disconnect', 'QuickBookController@disconnect');
 	Route::any('/quickbook/addcustomer', 'QuickBookController@addCustomer');
@@ -1025,7 +1048,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
-	
+    Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
+    Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
+
 	#estimate
 	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View
 	Route::any('/estimate/display_estimate/{id}', 'EstimatesController@display_estimate');

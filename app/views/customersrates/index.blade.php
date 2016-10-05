@@ -82,7 +82,7 @@
                                </div>
                                <label for="field-1" class="col-sm-1 control-label">Effective</label>
                                <div class="col-sm-2">
-                                   <select name="Effective" class="selectboxit" data-allow-clear="true" data-placeholder="Select Effective">
+                                   <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
                                        <option value="Now">Now</option>
                                        <option value="Future">Future</option>
                                        <option value="All">All</option>
