@@ -124,8 +124,7 @@ body {
 
 
 .pull-right-xs .dropdown-menu{
-    right:-65px;
-    width:340px !important;
+    min-width:280px !important;
 }
 
 .datepicker-dropdown{z-index:99999 !important }
