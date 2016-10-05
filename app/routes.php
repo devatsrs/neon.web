@@ -248,6 +248,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Integration
 	Route::any('/integration',  'IntegrationController@index');
 	Route::any('/integration/update',  'IntegrationController@Update');
+	Route::any('/integration/checkimapconnection',  'IntegrationController@CheckImapConnection');
 	
 
 	//import account

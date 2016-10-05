@@ -2,6 +2,11 @@
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+  @if($Emaildata->EmailCall==Messages::Sent)
+  <li><a href="{{URL::to('emailmessages/sent')}}">Sentbox</a></li>
+  @elseif ($Emaildata->EmailCall==Messages::Received)
+  <li><a href="{{URL::to('emailmessages')}}">Inbox</a></li>
+  @endif
   <li class="active"> <strong>Emails Detail</strong> </li>
 </ol>
 <h3>Emails</h3>
@@ -22,20 +27,12 @@
       <div class="mail-links hidden"> <a href="#" class="btn btn-default"> <i class="entypo-print"></i> </a> <a href="#" class="btn btn-default"> <i class="entypo-trash"></i> </a> <a class="btn btn-primary btn-icon"> Reply <i class="entypo-reply"></i> </a> </div>
     </div>
     <div class="mail-info">
-      <div class="mail-sender dropdown"> <a class="href dropdown-toggle" data-toggle="dropdown"> <span>{{$Emaildata->EmailfromName}}</span> ({{$Emaildata->Emailfrom}}) to <span>me</span> </a>
-        <ul class="dropdown-menu dropdown-red">
-          <li> <a href="#"> <i class="entypo-user"></i> Add to Contacts </a> </li>
-          <li> <a href="#"> <i class="entypo-menu"></i> Show other messages </a> </li>
-          <li class="divider"></li>
-          <li> <a href="#"> <i class="entypo-star"></i> Star this message </a> </li>
-          <li> <a href="#"> <i class="entypo-reply"></i> Reply </a> </li>
-          <li> <a href="#"> <i class="entypo-right"></i> Forward </a> </li>
-        </ul>
+      <div class="mail-sender"> <a class="href"> <span>{{$Emaildata->EmailfromName}}</span> ({{$Emaildata->Emailfrom}}) to <span>me</span> </a>        
       </div>
       <div class="mail-date"> {{date('H:i A',strtotime($Emaildata->created_at))}} - {{date('d M',strtotime($Emaildata->created_at))}} </div>
     </div>
     <div class="mail-text">{{$Emaildata->Message}}</div>
-    @if(count($attachments)>0)
+    @if(count($attachments)>0 && is_array($attachments))
     <div class="mail-attachments">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
