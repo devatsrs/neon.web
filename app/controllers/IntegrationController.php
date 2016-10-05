@@ -298,7 +298,7 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "Outlook Calendar Successfully Updated"));
 
-		}
+		}}
 		if($data['firstcategory']=='accounting')
 		{
 
