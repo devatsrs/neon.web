@@ -102,7 +102,7 @@
                 <label for="field-1" class="col-sm-3 control-label">Output format</label>
                 <div class="col-sm-5">
  
-                   {{ Form::select('Format', $rate_sheet_formates, Input::get('RateSheetFormate') , array("class"=>"selectboxit","id"=>"fileformat")) }}
+                   {{ Form::select('Format', $rate_sheet_formates, Input::get('RateSheetFormate') , array("class"=>"select2 small","id"=>"fileformat")) }}
                     
                 </div>
             </div>
@@ -118,7 +118,7 @@
                 <label for="field-1" class="col-sm-3 control-label">Effective</label>
                 <div class="col-sm-5">
 
-                    <select name="Effective" class="selectboxit" data-allow-clear="true" data-placeholder="Select Effective">
+                    <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
                         <option value="All">All</option>

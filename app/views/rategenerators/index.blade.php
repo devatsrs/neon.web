@@ -40,7 +40,7 @@
                         <label for="field-1" class="col-sm-2 control-label">Active</label>
                         <div class="col-sm-2">
                             <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                            {{ Form::select('Active', $active, 1, array("class"=>"form-control selectboxit")) }}
+                            {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small")) }}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -260,8 +260,8 @@
 
                     $("#modal-update-rate #DropdownRateTableID").html('');
                     $("#modal-update-rate #DropdownRateTableID").html(response);
-                    $("#modal-update-rate #DropdownRateTableID select.selectboxit").addClass('visible');
-                    $("#modal-update-rate #DropdownRateTableID select.selectboxit").selectBoxIt();
+                    $("#modal-update-rate #DropdownRateTableID select.select2").addClass('visible');
+                    $("#modal-update-rate #DropdownRateTableID select.select2").select2();
 
                 },
                 // Form data

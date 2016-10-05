@@ -1,1 +1,1 @@
-{{ Form::select( 'RateTableID', $rate_table, '' , array("class"=>"selectboxit","data-placeholder"=>"Select a Rate Table"))}}
+{{ Form::select( 'RateTableID', $rate_table, '' , array("class"=>"select2 small","data-placeholder"=>"Select a Rate Table"))}}

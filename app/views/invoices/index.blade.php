@@ -57,7 +57,7 @@
                                     <label for="field-1" class="col-sm-1 control-label">Type</label>
 
                                     <div class="col-sm-2">
-                                        {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
+                                        {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Account</label>
 
@@ -389,7 +389,7 @@
                                 }
                                 if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[7] != '{{Invoice::PAID}}')) {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
-                                        action += '<li><a data-id="' + id + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Paytment</a></li>';
+                                        action += '<li><a data-id="' + id + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Payment</a></li>';
                                     }
                                 }
                                 action += '</ul>';
@@ -1048,9 +1048,9 @@
                 ev.preventDefault();
                 $('#add-edit-payment-form').trigger("reset");
 
-                $("#add-edit-payment-form [name='AccountID']").select2().select2('val', '');
-                $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('Payment In');
+                $("#add-edit-payment-form [name='AccountID']").val('').trigger("change");
+                $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
+                $("#add-edit-payment-form [name='PaymentType']").val('Payment In').trigger("change");
                 $("#add-edit-payment-form [name='PaymentID']").val('');
 
 
@@ -1105,8 +1105,8 @@
 
             });
             $("#bulk_email").click(function () {
-                $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                $("#BulkMail-form [name='email_template']").val('').trigger("change");
+                $("#BulkMail-form [name='template_option']").val('').trigger("change");
                 $("#BulkMail-form").trigger('reset')
                 $("#modal-BulkMail").modal('show');
             });
@@ -1265,11 +1265,7 @@
                     if (Status = "success") {
                         var modal = $("#modal-BulkMail");
                         var el = modal.find('#BulkMail-form [name=email_template]');
-                        $(el).data("selectBox-selectBoxIt").remove();
-                        $.each(data, function (key, value) {
-                            $(el).data("selectBox-selectBoxIt").add({value: key, text: value});
-                        });
-                        $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        rebuildSelect2(el,data,'');
                     } else {
                         toastr.error(status, "Error", toastr_opts);
                     }
@@ -1397,7 +1393,7 @@
     </div>
 
     <div class="modal fade custom-width" id="modal-invoice-in">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="add-invoice_in_template-form" method="post" class="form-horizontal form-groups-bordered">
                     <div class="modal-header">
@@ -1735,7 +1731,7 @@
         </div>
     </div>
     <div class="modal fade custom-width" id="pay_now_modal">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -1790,7 +1786,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Card Type*</label>
-                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -1806,10 +1802,10 @@
                                         <label for="field-5" class="control-label">Expiry Date *</label>
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
                                     </div>
                                 </div>
                             </div>
@@ -1859,13 +1855,13 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }}
+                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -1923,7 +1919,7 @@
         </div>
     </div>
     <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog" style="width: 80%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -1937,7 +1933,7 @@
                                 <label for="field-1" class="col-sm-2 control-label">Email Template</label>
 
                                 <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -1987,7 +1983,7 @@
                                 <label for="field-1" class="col-sm-2 control-label">Template Option</label>
 
                                 <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>

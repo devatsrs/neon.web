@@ -209,7 +209,7 @@
             var JobID = $(this).attr('data-id');
 
             $('#job_terminate_form').trigger('reset');
-            $("#job_terminate_form [name='JobStatusID']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+            $("#job_terminate_form [name='JobStatusID']").val('').trigger("change");
 
             $('#modal-Terminate').modal('show');
             $('#job_terminate_form').attr("action", baseurl+'/jobs/'+JobID + '/terminate');
@@ -260,7 +260,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Change Status To</label>
                             <div class="col-sm-9">
-                                {{Form::select('JobStatusID',$jobstatus_for_terminate,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('JobStatusID',$jobstatus_for_terminate,'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         </div>

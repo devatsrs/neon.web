@@ -30,11 +30,11 @@
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Activity Type</label>
                                     <div class="col-sm-2">
-                                          {{ Form::select('activityType', $activity_type, '', array("class"=>"form-control selectboxit")) }}
+                                          {{ Form::select('activityType', $activity_type, '', array("class"=>"form-control select2 small")) }}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Activity Status</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('activityStatus', $activity_status, '', array("class"=>"form-control selectboxit")) }}
+                                        {{ Form::select('activityStatus', $activity_status, '', array("class"=>"form-control select2 small")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">
@@ -164,7 +164,7 @@
                             for(var i = 0 ; i< list_fields_activity.length; i++){
 
                                 if(list_fields_activity[i] == 'ActivityType'){
-                                    $("#add-edit-activity-form [name='ActivityType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields_activity[i]+"']").val());
+                                    $("#add-edit-activity-form [name='ActivityType']").val(cur_obj.find("input[name='"+list_fields_activity[i]+"']").val()).trigger("change");
                                 }else if(list_fields_activity[i]=='Date'){
                                     var str = cur_obj.find("input[name='"+list_fields_activity[i]+"']").val();
                                     var datetime = str.split(' ');
@@ -183,7 +183,7 @@
                         ev.preventDefault();
                         $('#add-edit-activity-form').trigger("reset");
                         $("#add-edit-activity-form [name='ActivityID']").val('');
-                        $("#add-edit-activity-form [name='ActivityType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-activity-form [name='ActivityType']").val('').trigger("change");
                         $('#add-edit-modal-activity h4').html('Add New activity');
                         $('#add-edit-modal-activity').modal('show');
                     });
@@ -289,7 +289,7 @@
                         <div class="form-group">
                             <label for="field-5" class="col-sm-2 control-label">Activity Type<span id="currency"></span></label>
                             <div class="col-sm-4">
-                                {{ Form::select('ActivityType', $activity_type, '', array("class"=>"form-control selectboxit")) }}
+                                {{ Form::select('ActivityType', $activity_type, '', array("class"=>"form-control select2 small")) }}
                             </div>
                         </div>
                         <div class="form-group">

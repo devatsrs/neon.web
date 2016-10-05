@@ -88,7 +88,7 @@
                     <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                     <div class="col-sm-4">
 
-                       {{ Form::select('Trunk', $trunks, $trunk_keys , array("class"=>"selectboxit")) }}
+                       {{ Form::select('Trunk', $trunks, $trunk_keys , array("class"=>"select2 small")) }}
                         
                     </div>
                 </div>
@@ -210,7 +210,7 @@
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">First row:</label>
                         <div class="col-sm-4">
-                            {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -238,14 +238,14 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Code* </label>
                         <div class="col-sm-2">
-                            {{Form::select('selection[Code]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Code]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                         <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
-                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Description*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -253,12 +253,12 @@
                         <br />
                         <label for="field-1" class="col-sm-2 control-label">Rate*</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Rate]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Rate]', array(),'',array("class"=>"select2 small"))}}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[EffectiveDate]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[EffectiveDate]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -266,7 +266,7 @@
                         <br />
                         <label for="field-1" class="col-sm-2 control-label">Action</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Action]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Action]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
                         <div class="col-sm-4">
@@ -291,12 +291,12 @@
                         <br />
                         <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"select2 small"))}}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Preference</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Preference]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Preference]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -304,12 +304,12 @@
                         <br />
                         <label for="field-1" class="col-sm-2 control-label">Interval1</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[Interval1]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[Interval1]', array(),'',array("class"=>"select2 small"))}}
                         </div>
 
                         <label for=" field-1" class="col-sm-2 control-label">IntervalN</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[IntervalN]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[IntervalN]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -317,13 +317,13 @@
                         <br />
                         <label for=" field-1" class="col-sm-2 control-label">Connection Fee</label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[ConnectionFee]', array(),'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[ConnectionFee]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span>
 
                         </label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -332,7 +332,7 @@
                         <label for=" field-1" class="col-sm-2 control-label">Dial String <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you want code to prefix mapping then select dial string." data-original-title="Dial String">?</span>
                         </label>
                         <div class="col-sm-4">
-                            {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -558,11 +558,8 @@ jQuery(document).ready(function ($) {
         });
         $("#mapping select").each(function(i, el){
             if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]'){
-                $(el).data("selectBox-selectBoxIt").remove();
-                $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                $.each(data.columns,function(key,value){
-                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                });
+                var self = $('#add-template-form [name="'+el.name+'"]');
+                rebuildSelect2(self,data.columns,'Skip loading');
             }
         });
         if(data.VendorFileUploadTemplate){
@@ -576,7 +573,7 @@ jQuery(document).ready(function ($) {
                     if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                         $('#add-template-form').find('[name="option['+key+']"]').val(value)
                         if(key == 'Firstrow'){
-                            $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                            $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                         }
                     }
 
@@ -585,7 +582,7 @@ jQuery(document).ready(function ($) {
                         if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                             $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                         }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                            $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                            $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                         }
                     });
                 }

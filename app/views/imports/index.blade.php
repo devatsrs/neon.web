@@ -23,6 +23,12 @@
 
 @include('includes.errors')
 @include('includes.success')
+<style>
+    .col-md-4{
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
     <div class="steps-progress" style="display:none">
@@ -50,57 +56,64 @@
 
                 </br></br>
                 <div class="col-md-1"></div>
-                <div class="col-md-11">
-                    <div class="">
-                        <input type="radio" name="size" data-id="" value="excel" id="size_S" checked />
-                        <label for="size_S" class="newredio active">EXCEL</label>
-                        <input type="radio" name="size" data-id="" value="csv" id="size_M"/>
-                        <label for="size_M" class="newredio">CSV</label>
+                    <div class="col-md-9">
+                        <div class="col-md-4">
+                            <input type="radio" name="size" data-id="" value="excel" id="size_S" checked />
+                            <label for="size_S" class="newredio active">EXCEL</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="radio" name="size" data-id="" value="csv" id="size_M"/>
+                            <label for="size_M" class="newredio">CSV</label>
+                        </div>
                         @foreach($gatewaylist as $gateway)
-                        <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
-                        <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
+                            <div class="col-md-4">
+                                <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
+                                <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
+                            </div>
                         @endforeach
 
                     </div>
-                </div>
+                <div class="col-md-2"></div>
             </div>
         </div>
 
         <div class="tab-pane" id="tab2-2">
             <input type="hidden" name="importway" value="">
             <div class="row" id="csvimport">
+                <div class="col-md-1"></div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <input type="hidden" name="importfrom" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('uploadtemplate', $UploadTemplate, '' , array("class"=>"select2")) }}
 
-                <div class="form-group">
-                    <input type="hidden" name="importfrom" value="">
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
-                    <div class="col-sm-4">
-                        {{ Form::select('uploadtemplate', $UploadTemplate, '' , array("class"=>"select2")) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                        <div class="col-sm-4">
+                            <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" data-validate="required"/>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Note</label>
+                        <div class="col-sm-8">
+
+                            <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
+                            <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
+
+                            <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+
+                        </div>
 
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
-                    <div class="col-sm-4">
-                        <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" data-validate="required"/>
-
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Note</label>
-                    <div class="col-sm-8">
-
-                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
-                        <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
-
-                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
-
-                    </div>
-
-                </div>
-
+                <div class="col-md-2"></div>
             </div>
 
             <div class="row" id="gatewayimport">
@@ -191,7 +204,7 @@
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">First row:</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <p style="text-align: right;">
@@ -217,111 +230,111 @@
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Account Number</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[AccountName]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
 
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Title</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"select2 small"))}}
                                                 <input type="hidden" class="form-control" name="AccountType" value="1" />
                                                 <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">First Name</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[FirstName]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[FirstName]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
 
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Last Name</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[LastName]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[LastName]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Phone</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Phone]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Phone]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Email]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">BillingEmail</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address1</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Address2</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address3</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">City</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[City]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Post Code</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Country</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Currency]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Currency]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Employee</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Website</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Website]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Website]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Fax</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Fax]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Fax]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Description</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">VatNumber</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[VatNumber]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[VatNumber]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Tags</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[tags]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[tags]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                     </div>
@@ -579,11 +592,8 @@
             });
             $("#mapping select").each(function(i, el){
                 if(el.name !='selection[DateFormat]'){
-                    $(el).data("selectBox-selectBoxIt").remove();
-                    $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                    $.each(data.columns,function(key,value){
-                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                    });
+                    var self = $('#add-template-form [name="'+el.name+'"]');
+                    rebuildSelect2(self,data.columns,'Skip loading');
                 }
             });
             if(data.AccountFileUploadTemplate){
@@ -597,7 +607,7 @@
                             if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                                 $('#add-template-form').find('[name="option['+key+']"]').val(value)
                                 if(key == 'Firstrow'){
-                                    $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                    $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                                 }
                             }
 
@@ -606,7 +616,7 @@
                             if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                                 $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                             }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                                $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                             }
                         });
                     }
@@ -973,7 +983,7 @@
     }
 
     #csvimport{
-        padding: 0 75px;
+        /*padding: 0 75px;*/
     }
     h5{
         font-size: 14px !important;
