@@ -490,9 +490,9 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data);
-                if($DiscountPlanID > 0 || $InboundDiscountPlanID> 0) {
-                    AccountBilling::storeFirstTimeInvoicePeriod($id);
-                    $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                AccountBilling::storeFirstTimeInvoicePeriod($id);
+                $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                     $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
@@ -964,7 +964,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $EmailToCustomer= 0;
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= 0;
         if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
@@ -979,11 +979,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($response->data->UnbilledAmount)){
                 $UnbilledAmount = $response->data->UnbilledAmount;
             }
-            $BalanceAmount +=$UnbilledAmount;
+            if(!empty($response->data->VendorUnbilledAmount)){
+                $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
+            }
+            $BalanceAmount +=($UnbilledAmount-$VendorUnbilledAmount);
             if(!empty($response->data->EmailToCustomer)){
                 $EmailToCustomer = $response->data->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer'));
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount'));
         }else{
             return view_response_api($response);
         }
@@ -1141,7 +1144,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getUnbilledReport (?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
-        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
+
+        $VendorUnbilledResult  =array();
+        $LastInvoiceDate = Account::getVendorLastInvoiceDate($id);
+        if(!empty($LastInvoiceDate) && $account->IsVendor == 1){
+            $query = "call prc_getVendorUnbilledReport (?,?,?,?)";
+            $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+        }
+
+        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
     }
 
     public function activity_pdf_download($id){
