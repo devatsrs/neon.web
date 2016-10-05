@@ -44,6 +44,8 @@ class VendorAnalysisController extends BaseController {
             $query = "call prc_getVendorTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
             $query = "call prc_getVendorGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $query = "call prc_getVendorAccountReportAll ";
         }
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
@@ -136,6 +138,9 @@ class VendorAnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'gateway') {
             $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getVendorGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $query = "call prc_getVendorAccountReportAll ";
         }
         $sort_column = $columns[$data['iSortCol_0']];
 

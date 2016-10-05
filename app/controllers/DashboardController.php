@@ -174,6 +174,7 @@ class DashboardController extends BaseController {
 		$TaskBoard			= 	CRMBoard::getTaskBoard();
         $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
 		$CloseStatus		=	Opportunity::Close;
+		$CrmAllowedReports	=	array();
 		$where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -182,8 +183,15 @@ class DashboardController extends BaseController {
 		  if(!empty($leadOrAccount)){
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
-        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+        $tasktags 						= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		$CompanyCrmDashboardSetting 	= 	CompanyConfiguration::get('CRM_DASHBOARD');
+		if(!empty($CompanyCrmDashboardSetting))
+		{
+			$CrmAllowedReports			=	explode(",",$CompanyCrmDashboardSetting);
+		}
+		
+		
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
 	
 	public function GetUsersTasks(){

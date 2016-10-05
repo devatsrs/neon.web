@@ -451,4 +451,20 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return false;
 
     }
+
+    public static function getEmailByUserName($CompanyID,$Name){
+        $useremail = '';
+        $users = User::where(["CompanyID"=>$CompanyID,"Status"=>'1'])->get();
+        if(count($users)>0){
+            foreach($users as $user){
+                $username = $user->FirstName.' '. $user->LastName;
+                if($username==$Name){
+                    if(!empty($user->EmailAddress)){
+                        $useremail = $user->EmailAddress;
+                    }
+                }
+            }
+        }
+        return $useremail;
+    }
 }

@@ -44,8 +44,7 @@ class CDRController extends BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 if($data["AccountID"] >0 ){
-                   $AccountBilling = AccountBilling::getBilling($data["AccountID"]);
-                    if(AccountBilling::getBillingKey($AccountBilling,'CDRType') == ''){
+                    if(AccountBilling::getCDRType($data["AccountID"]) == ''){
                         return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
                     }
                 }

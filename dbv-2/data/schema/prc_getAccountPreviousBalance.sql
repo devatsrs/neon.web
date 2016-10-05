@@ -1,42 +1,47 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountPreviousBalance`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceID` INT)
 BEGIN
 
-	
-
-	Declare v_PreviousBalance_ decimal(18,6);
-	Declare v_totalpaymentin_ decimal(18,6);
-	Declare v_totalInvoiceOut_ decimal(18,6);
-	Declare v_Cancel_ VARCHAR(50) Default 'cancel';
-	Declare v_InvoiceOut_ int Default 1;
+	DECLARE v_PreviousBalance_ DECIMAL(18,6);
+	DECLARE v_totalpaymentin_ DECIMAL(18,6);
+	DECLARE v_totalpaymentout_ DECIMAL(18,6);
+	DECLARE v_totalInvoiceOut_ DECIMAL(18,6);
+	DECLARE v_totalInvoiceIn_ DECIMAL(18,6);
+	DECLARE v_InvoiceDate_ DATE DEFAULT DATE(NOW());
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	 
-	 
-		SELECT  ifnull(SUM(Amount),0) INTO v_totalpaymentin_ 
-		FROM tblPayment
-        INNER JOIN Ratemanagement3.tblAccount
-            ON tblPayment.AccountID = tblAccount.AccountID
-        WHERE tblPayment.AccountID = p_AccountID 
-		AND tblPayment.Status = 'Approved' 
-		AND tblPayment.Recall = 0
-		AND tblPayment.PaymentType = 'Payment In';
-
-		
-		-- Commited Invoice in total
-		
-		SELECT  ifnull(SUM(GrandTotal),0) INTO v_totalInvoiceOut_ 
-		FROM tblInvoice inv
-		where InvoiceType = v_InvoiceOut_
-			and AccountID = p_AccountID 
-			and CompanyID = p_CompanyID 
-			and InvoiceStatus != v_Cancel_ 
-			and InvoiceID !=  p_InvoiceID;
-		
-
-		set v_PreviousBalance_ = v_totalInvoiceOut_ - v_totalpaymentin_  ;
-
 	
-		select ifnull(v_PreviousBalance_,0) as PreviousBalance;
+	
+	IF p_InvoiceID > 0
+	THEN 
+		SET  v_InvoiceDate_ = (SELECT IssueDate FROM tblInvoice WHERE InvoiceID = p_InvoiceID);
+	END IF;
+	
+	SELECT
+		COALESCE(SUM(IF(PaymentType = 'Payment In',Amount,0)),0) as PaymentIn,
+		COALESCE(SUM(IF(PaymentType = 'Payment Out',Amount,0)),0) as PaymentOut
+	INTO 
+		v_totalpaymentin_,
+		v_totalpaymentout_
+	FROM tblPayment
+	WHERE tblPayment.AccountID = p_AccountID
+	AND tblPayment.Status = 'Approved'
+	AND tblPayment.Recall = 0
+	AND tblPayment.PaymentDate < v_InvoiceDate_;
+
+	SELECT
+		COALESCE(SUM(IF(InvoiceType = 1,GrandTotal,0)),0) as InvoiceInTotal,
+		COALESCE(SUM(IF(InvoiceType = 2,GrandTotal,0)),0) as InvoiceOutTotal
+	INTO
+		v_totalInvoiceOut_,
+		v_totalInvoiceIn_
+	FROM tblInvoice inv
+	WHERE AccountID = p_AccountID 
+	AND CompanyID = p_CompanyID
+	AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft' ) )  )
+	AND IssueDate < v_InvoiceDate_;
+
+	SET v_PreviousBalance_ = (v_totalInvoiceOut_ - v_totalpaymentin_) - (v_totalInvoiceIn_ - v_totalpaymentout_);
+
+	SELECT IFNULL(v_PreviousBalance_,0) as PreviousBalance;
 
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

@@ -47,33 +47,40 @@
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
                         <label class="col-sm-1 control-label">Contact Name</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control" name="contact_name" type="text" >
                         </div>
                         <label class="col-sm-1 control-label">Tag</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control tags" name="tag" type="text" >
+                        </div>
+                        <label class="col-sm-1 control-label">Low Balance</label>
+                        <div class="col-sm-1">
+                            <p class="make-switch switch-small">
+                                <input id="low_balance" name="low_balance" type="checkbox" value="1">
+                            </p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-1 control-label">Customer</label>
+                        <label class="col-sm-1 control-label"  >Customer</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
                             </p>
                         </div>
-                        <label class="col-sm-1 control-label">Vendor</label>
+                        <label class="col-sm-1 control-label"  >Vendor</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
                             </p>
                         </div>
-                        <label class="col-sm-1 control-label">Active</label>
+                        <label class="col-sm-1 control-label"  >Active</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
                             </p>
                         </div>
+
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
                             {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
@@ -239,6 +246,7 @@
 			"account_owners":$("#account_filter [name='account_owners']").val(),			
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
+            "low_balance":$("#account_filter [name='low_balance']").prop("checked"),
 			"account_active":$("#account_filter [name='account_active']").prop("checked"),
 			"SelectedIDs":SelectedIDs,
 			"criteria_ac":criteria_ac,	
@@ -271,6 +279,7 @@
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
 
                 data_table = $("#table-4").dataTable({
@@ -284,9 +293,32 @@
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting"   : [[2, 'asc']],
                       "fnServerParams": function(aoData) {
-                        aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"tag","value":$searchFilter.tag},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"customer_on_off","value":$searchFilter.customer_on_off},{"name":"vendor_on_off","value":$searchFilter.vendor_on_off},{"name":"account_active","value":$searchFilter.account_active},{"name":"verification_status","value":$searchFilter.verification_status},{"name":"account_owners","value":$searchFilter.account_owners});
+                        aoData.push(
+                                {"name":"account_name","value":$searchFilter.account_name},
+                                {"name":"account_number","value":$searchFilter.account_number},
+                                {"name":"tag","value":$searchFilter.tag},
+                                {"name":"contact_name","value":$searchFilter.contact_name},
+                                {"name":"customer_on_off","value":$searchFilter.customer_on_off},
+                                {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
+                                {"name":"low_balance","value":$searchFilter.low_balance},
+                                {"name":"account_active","value":$searchFilter.account_active},
+                                {"name":"verification_status","value":$searchFilter.verification_status},
+                                {"name":"account_owners","value":$searchFilter.account_owners}
+                        );
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"tag","value":$searchFilter.tag},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"customer_on_off","value":$searchFilter.customer_on_off},{"name":"vendor_on_off","value":$searchFilter.vendor_on_off},{"name":"account_active","value":$searchFilter.account_active},{"name":"verification_status","value":$searchFilter.verification_status},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"Export","value":1});
+                        data_table_extra_params.push(
+                                {"name":"account_name","value":$searchFilter.account_name},
+                                {"name":"account_number","value":$searchFilter.account_number},
+                                {"name":"tag","value":$searchFilter.tag},
+                                {"name":"contact_name","value":$searchFilter.contact_name},
+                                {"name":"customer_on_off","value":$searchFilter.customer_on_off},
+                                {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
+                                {"name":"low_balance","value":$searchFilter.low_balance},
+                                {"name":"account_active","value":$searchFilter.account_active},
+                                {"name":"verification_status","value":$searchFilter.verification_status},
+                                {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"Export","value":1}
+                        );
                     },
                     "aoColumns":
                     [
@@ -377,6 +409,9 @@
                                 action +='<input type="hidden" name="country" value="'+full[14]+'"/>';
 								action +='<input type="hidden" name="PostCode" value="'+full[15]+'"/>';
                                 action +='<input type="hidden" name="picture" value="'+full[16]+'"/>';
+                                action +='<input type="hidden" name="UnbilledAmount" value="'+full[17]+'"/>';
+                                action +='<input type="hidden" name="PermanentCredit" value="'+full[18]+'"/>';
+                                action +='<input type="hidden" name="LowBalance" value="'+full[19]+'"/>';
                                 return action;
                             }
                         },
@@ -443,6 +478,11 @@
                 var city = $(temp).find('input[name="city"]').val();
                 var country = $(temp).find('input[name="country"]').val();
 				var PostCode = $(temp).find('input[name="PostCode"]').val();
+
+                var PermanentCredit = $(temp).find('input[name="PermanentCredit"]').val();
+                var UnbilledAmount = $(temp).find('input[name="UnbilledAmount"]').val();
+                var accountid =  $(temp).find('input[name="accountid"]').val();
+                var LowBalance =  $(temp).find('input[name="LowBalance"]').val();
 				
 				
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
@@ -451,10 +491,17 @@
                 city 	 = (city=='null'||city==''?'':city+'<br>');
 				PostCode = (PostCode=='null'||PostCode==''?'':PostCode+'<br>');
                 country  = (country=='null'||country==''?'':country);
+                PermanentCredit = PermanentCredit=='null'||PermanentCredit==''?'':''+PermanentCredit;
+                UnbilledAmount = UnbilledAmount=='null'||UnbilledAmount==''?'':''+UnbilledAmount;
+
                 var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
                 if (checked != '') {
                     select = ' selected';
+                }
+
+                if(LowBalance == 1){
+                    select+= ' low_balance_account'
                 }
 				
 				//col-xl-2 col-md-4 col-sm-6 col-xsm-12 col-lg-3
@@ -489,10 +536,9 @@
                 html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
-                html += '  <div>';
-                html += '     <div class="meta">Outstanding</div>';
-                html += '     <div>' + childrens.eq(5).text() + '</div>';
-                html += '  </div>';
+                html += '  <div><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OS : </div> <div class="pull-left"> ' + childrens.eq(5).text() + ' </div></div>';
+                html += '  <div><div class="meta clear pull-left tooltip-primary" data-original-title="(Unbilled Amount). Click on amount to view breakdown" title="" data-placement="right" data-toggle="tooltip">UA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a> </div></div>';
+                html += '  <div><div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
@@ -602,6 +648,7 @@
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
 
         data_table.fnFilter('', 0);
@@ -753,6 +800,8 @@
             modal.find('.message').wysihtml5({
                 "font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
@@ -965,6 +1014,8 @@
             modal.find('.message').wysihtml5({
                 "font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
@@ -1012,6 +1063,7 @@
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 @include('opportunityboards.opportunitymodal')
+@include('accounts.unbilledreportmodal')
 @stop
 
 @section('footer_ext')

@@ -3,7 +3,7 @@ BEGIN
 
 	DECLARE v_Round_ int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	SELECT cs.Value INTO v_Round_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	SELECT
 		ROUND(SUM(inv.GrandTotal),v_Round_) as total_grand,

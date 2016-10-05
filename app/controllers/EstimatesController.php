@@ -132,10 +132,9 @@ class EstimatesController extends \BaseController {
             $accounts 					= 	 Account::getAccountIDList();
             $products 					= 	 Product::getProductDropdownList();
             $Account 					= 	 Account::where(["AccountID" => $Estimate->AccountID])->select(["AccountName","BillingEmail","CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
-            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $CurrencyID 				= 	 !empty($Estimate->CurrencyID)?$Estimate->CurrencyID:$Account->CurrencyId;
             $RoundChargesAmount 		= 	 get_round_decimal_places($Estimate->AccountID);
-            $EstimateTemplateID 		=	 AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID');
+            $EstimateTemplateID 		=	 AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
             $EstimateNumberPrefix 		= 	 ($EstimateTemplateID>0)?InvoiceTemplate::find($EstimateTemplateID)->EstimateNumberPrefix:'';
             $Currency 					= 	 Currency::find($CurrencyID);
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
@@ -256,7 +255,16 @@ class EstimatesController extends \BaseController {
              
 				
                 $EstimateTaxRates = merge_tax($EstimateTaxRates);
-                DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                $EstimateLogData = array();
+                $EstimateLogData['EstimateID']= $Estimate->EstimateID;
+                $EstimateLogData['Note']= 'Created By '.$CreatedBy;
+                $EstimateLogData['created_at']= date("Y-m-d H:i:s");
+                $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
+                EstimateLog::insert($EstimateLogData);
+                if(!empty($EstimateTaxRates)) {
+                    DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                }
+
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -409,7 +417,9 @@ class EstimatesController extends \BaseController {
                         }
 
                         $EstimateTaxRates = merge_tax($EstimateTaxRates);
-                        DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                        if(!empty($EstimateTaxRates)) {
+                            DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                        }
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -455,7 +465,8 @@ class EstimatesController extends \BaseController {
             $Account = Account::find($AccountID);
             $AccountBilling = AccountBilling::getBilling($AccountID);
             if (!empty($Account)) {
-                $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
+                $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
                 if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
                     $decimal_places = get_round_decimal_places($AccountID);
 
@@ -533,11 +544,10 @@ class EstimatesController extends \BaseController {
         $data = Input::all();
         if (isset($data['account_id']) && $data['account_id'] > 0 )
 		{
-            $fields 			=	["CurrencyId","Address1","Address2","Address3","City","PostCode","Country"];
+            $fields 			=	["CurrencyId","AccountID","Address1","Address2","Address3","City","PostCode","Country"];
             $Account 			= 	Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
-            $AccountBilling = AccountBilling::getBilling($data['account_id']);
             $Currency 			= 	Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
-            $InvoiceTemplateID  = 	AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID');
+            $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
             $CurrencyId 		= 	$Account->CurrencyId;
             $Address 			= 	Account::getFullAddress($Account);			
             $Terms 				= 	$FooterTerm = '';
@@ -610,10 +620,10 @@ class EstimatesController extends \BaseController {
         $Invoice = Invoice::find($id);
         $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
         $Account  = Account::find($Invoice->AccountID);
-        $AccountBilling = AccountBilling::getBilling($id);
         $Currency = Currency::find($Account->CurrencyId);
         $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-        $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
         if(empty($InvoiceTemplate->CompanyLogoUrl)){
             $logo = 'http://placehold.it/250x100';
         }else{
@@ -632,7 +642,28 @@ class EstimatesController extends \BaseController {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
 			$CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
-            return View::make('estimates.estimates_cview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol'));
+            $estimate_status 	= 	 Estimate::get_estimate_status();
+            $EstimateStatus =   $estimate_status[$Estimate->EstimateStatus];
+            $EstimateComments =   EstimateLog::get_comments_count($id);
+            return View::make('estimates.estimates_preview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus','EstimateComments'));
+        }
+    }
+
+    public function estimate_cview($id)
+    {
+
+        $Estimate = Estimate::find($id);
+        if(!empty($Estimate))
+        {
+            $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $id])->get();
+            $Account 			= 	Account::find($Estimate->AccountID);
+            $Currency 			= 	Currency::find($Account->CurrencyId);
+            $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
+            $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
+            $estimate_status 	= 	 Estimate::get_customer_estimate_status($Estimate->CompanyID);
+            $EstimateStatus =   $estimate_status[$Estimate->EstimateStatus];
+            $EstimateComments =   EstimateLog::get_comments_count($id);
+            return View::make('estimates.estimates_cview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus','EstimateComments'));
         }
     }
 
@@ -685,7 +716,7 @@ class EstimatesController extends \BaseController {
                 $estimateloddata['EstimateLogStatus']= EstimateLog::VIEWED;
                 EstimateLog::insert($estimateloddata);
 				
-                return self::estimate_preview($EstimateID);
+                return self::estimate_cview($EstimateID);
             }
         }
         echo "Something Went wrong";
@@ -711,10 +742,10 @@ class EstimatesController extends \BaseController {
             $Estimate 		=	 Estimate::find($id);
             $EstimateDetail = 	 EstimateDetail::where(["EstimateID" => $id])->get();
             $Account = Account::find($Estimate->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $InvoiceTemplate = InvoiceTemplate::find(AccountBilling::getBillingKey($AccountBilling,'InvoiceTemplateID'));
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url = 'http://placehold.it/250x100';
             } else {
@@ -779,13 +810,13 @@ class EstimatesController extends \BaseController {
         if(!empty($Estimate))
 		{
             $Account 	 	= 	Account::find($Estimate->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
             $Currency 	 	= 	Currency::find($Account->CurrencyId);
             $CompanyName 	= 	Company::getName();
             
 			if (!empty($Currency))
 			{
-                $Subject = "New Estimate " . Estimate::getFullEstimateNumber($Estimate,$AccountBilling). ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+                $Subject = "New Estimate " . Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID). ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
                 $RoundChargesAmount = get_round_decimal_places($Estimate->AccountID);
 
                 $data = [
@@ -812,7 +843,7 @@ class EstimatesController extends \BaseController {
             $EstimateGenerationEmail 	= 	CompanySetting::getKeyVal('EstimateGenerationEmail');
             $EstimateGenerationEmail 	= 	($EstimateGenerationEmail =='Invalid Key')?$Company->Email:$EstimateGenerationEmail;
             $emailtoCustomer 			= 	getenv('EmailToCustomer');
-            
+
 			if(intval($emailtoCustomer) == 1)
 			{
                 $CustomerEmail = $data['Email'];
@@ -868,6 +899,14 @@ class EstimatesController extends \BaseController {
 			{
                 $status['status'] 					= "success";
                 $Estimate->update(['EstimateStatus' => Estimate::SEND ]);
+
+                $estimateloddata = array();
+                $estimateloddata['EstimateID']= $Estimate->EstimateID;
+                $estimateloddata['Note']= 'Sent By '.$CreatedBy;
+                $estimateloddata['created_at']= date("Y-m-d H:i:s");
+                $estimateloddata['EstimateLogStatus']= EstimateLog::SENT;
+                EstimateLog::insert($estimateloddata);
+
                 /*
                     Insert email log in account
                 */
@@ -966,7 +1005,6 @@ class EstimatesController extends \BaseController {
 		{
 			if (Estimate::where('EstimateID',$data['EstimateIDs'])->update([ 'ModifiedBy'=>$username,'EstimateStatus' => $data['EstimateStatus']]))
 			{
-				
 				return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));
 			}
 			else
@@ -976,6 +1014,7 @@ class EstimatesController extends \BaseController {
 		}
 		
     }
+
 	
 	public function estimate_change_Status_Bulk()
 	{
@@ -1107,4 +1146,265 @@ class EstimatesController extends \BaseController {
         return EmailTemplate::getTemplateArray($filter);
     }
 
+    public function estimate_comment($id)
+    {
+        $Estimate = Estimate::find($id);
+        if(!empty($Estimate))
+        {
+            $EstimateComments = EstimateLog::get_comments($id);
+            $Comment='';
+            return View::make('estimates.comment', compact('Estimate', 'Comment','EstimateComments'));
+
+        }
+    }
+
+
+    /**
+        call when customer accept estimate
+     */
+    function customer_accept_estimate()
+    {
+
+        $data 				= 	 Input::all();
+        if($data['Type']==2){
+            $modifyby = 'customer';
+        }else{
+            $modifyby = User::get_user_full_name();
+        }
+        $Estimate 		= 	Estimate::find($data['eid']);
+
+        if (Estimate::where('EstimateID',$data['eid'])->update([ 'ModifiedBy'=>$modifyby,'EstimateStatus' => 'accepted']))
+        {
+
+            $estimateloddata = array();
+            if($data['Type']==2) {
+                $estimateloddata['Note'] = 'Accepted By Unknown';
+                if (!empty($data['Email'])) {
+                    $estimateloddata['Note'] = 'Accepted By ' . $data['Email'];
+                }
+            }else{
+                $estimateloddata['Note'] = 'Accepted By ' . $modifyby;
+            }
+
+            $estimateloddata['EstimateID']= $data['eid'];
+            $estimateloddata['created_at']= date("Y-m-d H:i:s");
+            $estimateloddata['EstimateLogStatus']= EstimateLog::ACCEPTED;
+            EstimateLog::insert($estimateloddata);
+
+            if($data['Type']==2){
+                $Account = Account::find($Estimate->AccountID);
+                $CustomerName = $Account->AccountName;
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+                $CompanyID = $Estimate->CompanyID;
+                $CreatedBy = $Estimate->CreatedBy;
+                $Company 					= 	Company::find($CompanyID);
+                $CompanyName 				= 	$Company->CompanyName;
+                $estimatenumber = Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
+                $emaildata['companyID'] = $CompanyID;
+                $emaildata['CompanyName'] 		= 	$CompanyName;
+                $emaildata['AccountName'] 		= 	$CreatedBy;
+                $emaildata['Message'] 		= 	$estimatenumber.' Estimate '.$estimateloddata['Note'];
+                $emaildata['Subject'] 		= 	$estimatenumber.' Estimate Accepted ('.$CustomerName.')';
+                $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
+                if(!empty($Email)){
+                    $emaildata['EmailTo'] = $Email;
+                    $status = $this->sendEstimateMail('emails.estimates.estimatestatus',$emaildata);
+                }
+            }
+
+            return Response::json(array("status" => "success", "message" => "Estimate Successfully Accepted"));
+
+        }
+        else
+        {
+            return Response::json(array("status" => "failed", "message" => "Problem Accepting Estimate."));
+        }
+
+    }
+
+    public function estimate_reject_Status()
+    {
+        $data = Input::all();
+
+        $Estimate 		= 	Estimate::find($data['EstimateIDs']);
+
+        if($data['Type']==2){
+            $modifyby = 'customer';
+        }else{
+            $modifyby = User::get_user_full_name();
+        }
+
+        if (Estimate::where('EstimateID',$data['EstimateIDs'])->update([ 'ModifiedBy'=>$modifyby,'EstimateStatus' => $data['EstimateStatus']]))
+        {
+
+            $estimateloddata = array();
+            if($data['Type']==2) {
+                $estimateloddata['Note'] = 'Rejected By Unknown';
+                if (!empty($data['Email'])) {
+                    $estimateloddata['Note'] = 'Rejected By ' . $data['Email'];
+                }
+            }else{
+                $estimateloddata['Note'] = 'Rejected By ' . $modifyby;
+            }
+
+            $estimateloddata['EstimateID']= $data['EstimateIDs'];
+            $estimateloddata['created_at']= date("Y-m-d H:i:s");
+            $estimateloddata['EstimateLogStatus']= EstimateLog::REJECTED;
+            EstimateLog::insert($estimateloddata);
+
+            if($data['Type']==2){
+                $Account = Account::find($Estimate->AccountID);
+                $CustomerName = $Account->AccountName;
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+                $CompanyID = $Estimate->CompanyID;
+                $CreatedBy = $Estimate->CreatedBy;
+                $Company 					= 	Company::find($CompanyID);
+                $CompanyName 				= 	$Company->CompanyName;
+                $estimatenumber = Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
+                $emaildata['companyID'] = $CompanyID;
+                $emaildata['CompanyName'] 		= 	$CompanyName;
+                $emaildata['AccountName'] 		= 	$CreatedBy;
+                $emaildata['Message'] 		= 	$estimatenumber.' Estimate '.$estimateloddata['Note'];
+                $emaildata['Subject'] 		= 	$estimatenumber.' Estimate Rejected ('.$CustomerName.')';
+                $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
+                if(!empty($Email)){
+                    $emaildata['EmailTo'] = $Email;
+                    $status = $this->sendEstimateMail('emails.estimates.estimatestatus',$emaildata);
+                }
+            }
+
+            return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));
+
+        }
+        else
+        {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Estimate."));
+        }
+    }
+
+    public function create_comment($id){
+        $data = Input::all();
+        $emaildata = array();
+        $Estimate = Estimate::find($id);
+        if($data['Comment']){
+            $estimateloddata = array();
+            if($data['Type']==2) {
+                if (!empty($data['Email'])) {
+                    $Email = $data['Email'];
+                }else{
+                    $Email = 'Unknown';
+                }
+            }else{
+                $Email = User::get_user_full_name();
+            }
+            $Comment = $data['Comment'].' By '.$Email;
+            $estimateloddata['Note'] = $Comment;
+            $estimateloddata['EstimateID']= $id;
+            $estimateloddata['created_at']= date("Y-m-d H:i:s");
+            $estimateloddata['EstimateLogStatus']= EstimateLog::COMMENT;
+            EstimateLog::insert($estimateloddata);
+
+            $Account = Account::find($Estimate->AccountID);
+            $CustomerName = $Account->AccountName;
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+            $CompanyID = $Estimate->CompanyID;
+            $CreatedBy = $Estimate->CreatedBy;
+            $Company 					= 	Company::find($CompanyID);
+            $CompanyName 				= 	$Company->CompanyName;
+            $estimatenumber = Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
+            $emailtoCustomer 			= 	getenv('EmailToCustomer');
+
+            if($data['Type']==2){
+
+                $emaildata['companyID'] = $CompanyID;
+                $emaildata['CompanyName'] 		= 	$CompanyName;
+                $emaildata['AccountName'] 		= 	$CreatedBy;
+                $emaildata['Message'] 		= 	$Comment;
+                $emaildata['EstimateNumber'] 		= 	$estimatenumber;
+                $emaildata['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber.' ('.$CustomerName.')';
+                $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
+                if(!empty($Email)){
+                    $emaildata['EmailTo'] = $Email;
+                    $status = $this->sendEstimateMail('emails.estimates.comment',$emaildata);
+                }
+            }elseif($data['Type']==1){
+                $CustomerEmail = $Account->BillingEmail;
+                if(intval($emailtoCustomer) == 1 && isset($CustomerEmail) && $CustomerEmail != '')
+                {
+                    $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
+                    $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
+                    $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
+                    $data['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber;
+                    $data['Message'] 		= 	$Comment;
+                    $data['EstimateNumber'] = 	$estimatenumber;
+                    $data['CompanyName'] 	= 	$CompanyName;
+
+                    $CustomerEmails 	=	 $data['EmailTo'];
+
+                    foreach($CustomerEmails as $singleemail)
+                    {
+                        $singleemail = trim($singleemail);
+                        if (filter_var($singleemail, FILTER_VALIDATE_EMAIL))
+                        {
+                            $data['EmailTo'] 		= 	$singleemail;
+                            $data['EstimateURL']	= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email='.$singleemail);
+                            $status 				= 	$this->sendEstimateMail('emails.estimates.commentsend',$data);
+                        }
+                    }
+
+                }
+
+            }
+
+            return Response::json(array("status" => "success", "message" => "Estimate Comment Successfully Created"));
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Estimate Comment Successfully"));
+        }
+
+    }
+
+    /**
+        Estimate Log
+     */
+
+    public function estimatelog($id)
+    {
+        $estimate = Estimate::find($id);
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($estimate->AccountID);
+        $estimatenumber = Estimate::getFullEstimateNumber($estimate,$InvoiceTemplateID);
+        return View::make('estimates.estimatelog', compact('estimate','id','estimatenumber'));
+    }
+
+
+    public function ajax_estimatelog_datagrid($id,$type) {
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+
+
+        //$columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
+        $columns = array('Notes','EstimateLogStatus','created_at','EstimateID');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $companyID = User::get_companyID();
+
+        $query = "call prc_GetEstimateLog (".$companyID.",".$id.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
+        //echo $query;exit;
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate Log.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/Estimate Log.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query .=',0)';
+
+        return DataTableSql::of($query,'sqlsrv2')->make();
+    }
 }

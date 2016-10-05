@@ -1446,7 +1446,7 @@ text-align:center;
 		border-radius:10px;
         padding: 5px 5px;
         width:100%;
-		height:23.5em;
+		height:24.5em;
 		overflow:hidden;
     }
     ul.grid li div.selected{
@@ -2268,8 +2268,8 @@ border:1px solid #AC33FF;
 }
 
 .panel-table .panel-heading > .panel-title{
-    padding: 0px;
-    margin-top:-19px;
+    /*padding: 0px;*/
+    /*margin-top:-19px;*/
 }
 
 .panel-body{
@@ -2285,6 +2285,7 @@ label{
     padding-left:0px;
     padding-right:0px;
 }
+
 
 .vendor-icon {
   background-image: url("../images/vendor.png");
@@ -2336,6 +2337,7 @@ background-repeat:no-repeat;
     height: 32px;
     line-height: 29px;
 }
+
 .page-body .select2-container .select2-choice .select2-chosen{
     font-size:13px;
 }
@@ -2350,3 +2352,19 @@ background-repeat:no-repeat;
     color:#7d8086;
     padding: 4px 8px;
 }
+
+.ms-container .ms-list{
+    height: 200px;
+}
+ul.grid li div.low_balance_account:not(.selected){
+    background :#ffc9c9 none repeat scroll 0 0;
+}
+.mail-env{
+background:white none repeat scroll 0 0;
+}
+.shortnamewrap{
+	overflow-wrap:break-word;
+	width:11em;
+}
+.clickable{cursor:pointer;}
+

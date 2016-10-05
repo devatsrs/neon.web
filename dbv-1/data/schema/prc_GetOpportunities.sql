@@ -1,27 +1,16 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunities`(
-	IN `p_CompanyID` INT,
-	IN `p_BoardID` INT,
-	IN `p_OpportunityName` VARCHAR(50),
-	IN `p_Tags` VARCHAR(50),
-	IN `p_OwnerID` VARCHAR(100),
-	IN `p_AccountID` INT,
-	IN `p_Status` VARCHAR(50),
-	IN `p_CurrencyID` INT,
-	IN `p_OpportunityClosed` INT
-)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetOpportunities`(IN `p_CompanyID` INT, IN `p_BoardID` INT, IN `p_OpportunityName` VARCHAR(50), IN `p_Tags` VARCHAR(50), IN `p_OwnerID` VARCHAR(100), IN `p_AccountID` INT, IN `p_Status` VARCHAR(50), IN `p_CurrencyID` INT, IN `p_OpportunityClosed` INT)
 BEGIN
-		
+ 
 	DECLARE v_WorthTotal DECIMAL(18,8);
 	DECLARE v_Round_ int;
 	DECLARE v_CurrencyCode_ VARCHAR(50);
 	DECLARE v_Active_ int;
 	SET v_Active_ = 1;
-	SELECT cs.Value INTO v_Round_ from tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	SELECT cr.Symbol INTO v_CurrencyCode_ from tblCurrency cr where cr.CurrencyId = p_CurrencyID;
 		
  DROP TEMPORARY TABLE IF EXISTS tmp_Oppertunites_;
 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Oppertunites_(
-
 		BoardColumnID int,
 		BoardColumnName varchar(255),
 		Height varchar(10),

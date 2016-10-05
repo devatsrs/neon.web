@@ -43,7 +43,8 @@
             <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
             <li ><a href="#tab2" data-toggle="tab">Prefix</a></li>
             <li ><a href="#tab3" data-toggle="tab">Trunk</a></li>
-            <li ><a href="#tab4" data-toggle="tab">Gateway</a></li>
+            <li ><a href="#tab4" data-toggle="tab">Account</a></li>
+            <li ><a href="#tab5" data-toggle="tab">Gateway</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1" >
@@ -299,6 +300,89 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
+                            <div class="panel-title">Top 10 Accounts - Call Count.</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+
+                            <br />
+
+                            <div class="text-center">
+                                <span class="account-call-count-pie-chart"></span>
+                            </div>
+                            <p class="call_count_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Accounts - Call Cost.</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+
+                            <br />
+
+                            <div class="text-center">
+                                <span class="account-call-cost-pie-chart"></span>
+                            </div>
+                            <p class="call_cost_desc"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
+                            <div class="panel-title">Top 10 Accounts - Call Minutes.</div>
+
+                            {{--<div class="panel-options">
+                                <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>--}}
+                        </div>
+
+                        <!-- panel body -->
+                        <div class="panel-body">
+                            
+                            <br />
+
+                            <div class="text-center">
+                                <span class="account-call-minutes-pie-chart"></span>
+                            </div>
+                            <p class="call_minutes_desc"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab5" >
+                <div class="col-md-4">
+
+                    <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                        <!-- panel head -->
+                        <div class="panel-heading">
                             <div class="panel-title">Top 10 Gateways - Call Count.</div>
 
                             {{--<div class="panel-options">
@@ -365,7 +449,7 @@
 
                         <!-- panel body -->
                         <div class="panel-body">
-                            
+
                             <br />
 
                             <div class="text-center">

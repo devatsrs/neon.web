@@ -1,32 +1,17 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetOpportunityGrid`(
-	IN `p_CompanyID` INT,
-	IN `p_BoardID` INT,
-	IN `p_OpportunityName` VARCHAR(50),
-	IN `p_Tags` VARCHAR(50),
-	IN `p_OwnerID` VARCHAR(100),
-	IN `p_AccountID` INT,
-	IN `p_Status` VARCHAR(50),
-	IN `p_CurrencyID` INT,
-	IN `p_OpportunityClosed` INT,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(50),
-	IN `p_SortOrder` VARCHAR(50)
-)
+CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_GetOpportunityGrid`(IN `p_CompanyID` INT, IN `p_BoardID` INT, IN `p_OpportunityName` VARCHAR(50), IN `p_Tags` VARCHAR(50), IN `p_OwnerID` VARCHAR(100), IN `p_AccountID` INT, IN `p_Status` VARCHAR(50), IN `p_CurrencyID` INT, IN `p_OpportunityClosed` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50))
 BEGIN
 	DECLARE v_OffSet_ int;
-	DECLARE v_Round_ int;
-	
+ 	DECLARE v_Round_ int;
  	DECLARE v_Active_ int;
 	SET v_Active_ = 1;	 	
  
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET SESSION group_concat_max_len = 1024;
-	    
-	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+     
+ 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
 
-	SELECT cs.Value INTO v_Round_ from tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	SELECT 
 	  bc.BoardColumnID,
 	  bc.BoardColumnName,

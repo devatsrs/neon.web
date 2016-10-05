@@ -43,6 +43,8 @@ class ChartDashboardController extends BaseController {
             $query = "call prc_getTrunkReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
         }elseif($data['chart_type'] == 'gateway') {
             $query = "call prc_getGatewayReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+        }elseif($data['chart_type'] == 'account') {
+            $query = "call prc_getAccountReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
         }
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
         $customer = 1;

@@ -174,6 +174,7 @@
                         self.css('position','relative');
                         self.css('margin-top',self.css('margin-left'));
                     });
+					$('.loaderopportunites').hide();
                 }
 		});
 		}
@@ -264,6 +265,7 @@
                         $('#taskGrid_wrapper').removeClass('hidden');
                         $('#taskGrid').removeClass('hidden');
                     }
+					$('#taskGrid').find('#blockOverlay').hide();
                 }
 
             });

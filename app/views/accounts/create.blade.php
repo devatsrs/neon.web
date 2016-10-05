@@ -243,28 +243,9 @@
 
                 <div class="panel-body billing-section">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
+                        <label for="field-1" class="col-sm-2 control-label">Billing Class*</label>
                         <div class="col-sm-4">
-                            {{Form::select('TaxRateId[]', $taxrates, $DefaultTextRate ,array("class"=>"form-control select2",'multiple'))}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
-                        <div class="col-sm-4">
-                            <div class="input-spinner">
-                                <button type="button" class="btn btn-default">-</button>
-                                {{Form::text('PaymentDueInDays', CompanySetting::getKeyVal('PaymentDueInDays') ,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
-                        <div class="col-sm-4">
-                            <div class="input-spinner">
-                                <button type="button" class="btn btn-default">-</button>
-                                {{Form::text('RoundChargesAmount', CompanySetting::getKeyVal('RoundChargesAmount') ,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
+                            {{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"selectboxit form-control1"));}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                         <div class="col-sm-4">
@@ -276,7 +257,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                         <div class="col-sm-4">
-                            {{Form::select('BillingTimezone', $timezones, CompanySetting::getKeyVal('BillingTimezone') ,array("class"=>"form-control select2"))}}
+                            {{Form::select('BillingTimezone', $timezones, '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
                         <div class="col-sm-4">
@@ -286,7 +267,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Billing Cycle*</label>
                         <div class="col-sm-4">
-                            {{Form::select('BillingCycleType', SortBillingType(), CompanySetting::getKeyVal('BillingCycleType') ,array("class"=>"form-control select2"))}}
+                            {{Form::select('BillingCycleType', SortBillingType(), '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                             <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Start of Day*</label>
@@ -299,25 +280,25 @@
                                     "friday"=>"Friday",
                                     "saturday"=>"Saturday",
                                     "sunday"=>"Sunday");?>
-                                {{Form::select('BillingCycleValue',$Days,CompanySetting::getKeyVal('BillingCycleValue')  ,array("class"=>"form-control select2"))}}
+                                {{Form::select('BillingCycleValue',$Days,''  ,array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
                         <label for="field-1" class="col-sm-2 control-label">Billing Cycle - for Days*</label>
                             <div class="col-sm-4">
-                                {{Form::text('BillingCycleValue', CompanySetting::getKeyVal('BillingCycleValue') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                                {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_subscription" class="billing_options" style="display: none">
                         <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Subscription Qty*</label>
                             <div class="col-sm-4">
-                                {{Form::text('BillingCycleValue', CompanySetting::getKeyVal('BillingCycleValue') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
+                                {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
                             <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                             <div class="col-sm-4">
-                                {{Form::text('BillingCycleValue', CompanySetting::getKeyVal('BillingCycleValue') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                             </div>
                         </div>
                     </div>
@@ -334,6 +315,7 @@
                         </div>
 
                 </div>
+
                 <div class="form-group">
 
                     <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
@@ -385,9 +367,7 @@
 
 
         $('select[name="BillingCycleType"]').trigger( "change" );
-        setTimeout(function(){
-            $('select[name="CDRType"]').trigger( "change" );
-        },500);
+
 
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
@@ -395,6 +375,26 @@
             }else{
                 $(".billing-section").hide();
             }
+        });
+        $('[name="BillingClassID"]').on( "change",function(e){
+            if($(this).val()>0) {
+                $.ajax({
+                    url: baseurl+'/billing_class/getInfo/' + $(this).val(),
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $(this).button('reset');
+                        if (response.status == 'success') {
+                            $("[name='BillingTimezone']").select2().select2('val',response.data.BillingTimezone);
+                            $("[name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+                        } else {
+                            $("[name='BillingTimezone']").select2().select2('val','');
+                            $("[name='SendInvoiceSetting']").select2().select2('val','');
+                        }
+                    },
+                });
+            }
+
         });
         $('[name="Billing"]').trigger('change');
 
