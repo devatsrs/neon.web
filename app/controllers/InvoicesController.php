@@ -1045,6 +1045,7 @@ class InvoicesController extends \BaseController {
                     $data['EmailTo'] = $singleemail;
                     $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
                     $status = $this->sendInvoiceMail('emails.invoices.send',$data);
+					$body 	=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
                 }
             }
             if($status['status']==0){
@@ -1063,6 +1064,7 @@ class InvoicesController extends \BaseController {
                 /*
                     Insert email log in account
                 */
+				$data['Message'] = $body;
                 $logData = ['AccountID'=>$Invoice->AccountID,
                     'EmailTo'=>$CustomerEmail,
                     'Subject'=>$data['Subject'],

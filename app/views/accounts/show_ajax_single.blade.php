@@ -12,6 +12,9 @@
             </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
   <div class="cbp_tmlabel normal_tag">  
+  <a email_number="{{$response->AccountEmailLogID}}" action_type="forward" class="pull-right edit-deal email_action" title="Forward"><i class="entypo-forward"></i></a>            
+         <a email_number="{{$response->AccountEmailLogID}}" action_type="reply-all" class=" pull-right edit-deal email_action" title="Reply All"><i class="entypo-reply-all"></i></a>           
+         <a email_number="{{$response->AccountEmailLogID}}" action_type="reply" class="pull-right edit-deal email_action" title="Reply"><i class="entypo-reply"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($response->CreatedBy==$current_user_title) You @else {{$response->CreatedBy}}  @endif <span>sent an email to</span> @if($response->EmailTo==$current_user_title) You @else {{$response->EmailTo}}  @endif <br> <p class="mail_subject">Subject: {{$response->Subject}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
       @if($response->Cc)<p>CC: {{$response->Cc}}</p>@endif
@@ -46,6 +49,7 @@
 	  }
 	   ?>
       <p class="mail_message">Message:<br>{{$response->Message}}. </p>
+      <p><a data_fetch_id="{{$response->AccountEmailLogID}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
     </div>
             </div>
 </li>

@@ -1,6 +1,5 @@
 @extends('layout.main')
 @section('content')
-
 <div class="row">
   <div class="tab-content">
     <div class="tab-pane active" id="customer" >
@@ -33,7 +32,10 @@
     </div>
   </div>
 </div>
-<?php if(User::checkCategoryPermission('CrmDashboardTasks','View')){?>
+<?php 
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardTasks',$CrmAllowedReports))
+	{
+if(User::checkCategoryPermission('CrmDashboardTasks','View')){ ?>
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -62,8 +64,11 @@
     </div>
   </div>
 </div>
-<?php }  ?>
-    <?php if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
+<?php } }  ?>
+    <?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardRecentAccount',$CrmAllowedReports))
+	{
+	 if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
     <div class="row">
     <div class="col-sm-12">
             <div class="panel panel-primary panel-table">
@@ -103,10 +108,14 @@
             </div>
     </div>
     </div>
-    <?php }
+    <?php } }
     ?>
 
 <div class="row">
+<?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesOpportunity',$CrmAllowedReports))
+	{
+ ?>
 @if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
@@ -138,6 +147,11 @@
     </div>
   </div>
   @endif 
+  <?php } ?>
+  <?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardPipeline',$CrmAllowedReports))
+	{
+ ?>
   @if(User::checkCategoryPermission('CrmDashboardPipeline','View'))
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
@@ -156,7 +170,12 @@
     </div>
   </div>
 @endif 
+<?php } ?>
 </div>
+<?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardForecast',$CrmAllowedReports))
+	{
+ ?>
  @if(User::checkCategoryPermission('CrmDashboardForecast','View'))
 <div class="row">
   <div class="col-md-12">
@@ -186,6 +205,10 @@
   </div>
 </div>
 @endif 
+<?php } 
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesRevenue',$CrmAllowedReports))
+	{
+ ?>
  @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
 <div class="row">
 <div class="col-sm-12">
@@ -216,6 +239,10 @@
     </div>
 </div>
 @endif 
+<?php } 
+if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmAllowedReports))
+{
+ ?>
  @if(User::checkCategoryPermission('CrmDashboardOpportunities','View'))
 <div class="row">
   <div class="col-sm-12">
@@ -250,52 +277,54 @@
 </div>
 </div>
 @endif 
+<?php } ?>
 <div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
-@if(User::checkCategoryPermission('Task','Edit')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('Task',$CrmAllowedReports)) && (User::checkCategoryPermission('Task','Edit'))) 
 var task_edit = 1;
 @else 
 var task_edit = 0;
 @endif;
 
-@if(User::checkCategoryPermission('Opportunity','Edit')) 
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('Opportunity',$CrmAllowedReports)) && (User::checkCategoryPermission('Opportunity','Edit')))
 var Opportunity_edit = 1;
 @else 
 var Opportunity_edit = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesOpportunity',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')))
 var CrmDashboardSalesOpportunity = 1;
 @else 
 var CrmDashboardSalesOpportunity = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardPipeline','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardPipeline',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardPipeline','View')))
 var CrmDashboardPipeline = 1;
 @else 
 var CrmDashboardPipeline = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardForecast','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardForecast',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardForecast','View')))
 var CrmDashboardForecast = 1;
 @else 
 var CrmDashboardForecast = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardOpportunities','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardOpportunities','View')))
 var CrmDashboardOpportunities = 1;
 @else 
 var CrmDashboardOpportunities = 0; 
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardRecentAccount','View'))
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardRecentAccount',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardRecentAccount','View')))
 var CrmDashboardAccount = 1;
 @else 
 var CrmDashboardAccount = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardTasks','View'))
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardTasks',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardTasks','View')))
 var CrmDashboardTasks = 1;
 @else 
 var CrmDashboardTasks = 0;
@@ -306,8 +335,8 @@ var CrmDashboardTasks = 0;
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
-var OpportunityClose =  '{{Opportunity::Close}}';
-@if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View')) 
+var OpportunityClose =  '{{Opportunity::Close}}'; 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesRevenue',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardSalesRevenue','View')))
 var RevenueReport = 1;
 @else 
 var RevenueReport = 0;

@@ -238,8 +238,7 @@ class AccountsController extends \BaseController {
 			$data['GUID']               =    GUID::generate();
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
             $RowsPerPage                =    $data['iDisplayLength'];			
-			$message 					= 	 '';
-			
+			$message 					= 	 '';			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
 		/*		echo "<pre>";
 				print_r($response_timeline);		
@@ -360,12 +359,13 @@ class AccountsController extends \BaseController {
 		if(empty($id) || !is_numeric($id)){
 			return '<div>No conversation found.</div>';
 		}
+		 $data 			= 	Input::all();
 		 $data['id']	=	$id;
-		 $response 		= 	 NeonAPI::request('account/GetTicketConversations',$data,true,true); 
+		 $response 		= 	 NeonAPI::request('account/GetConversations',$data,true,true);  
 		  if($response['status']=='failed'){
 			return json_response_api($response,false,true);
 		}else{			
-			return View::make('accounts.conversations', compact("response"));
+			return View::make('accounts.conversations', compact("response","data"));
 		}
 	}
 	 
@@ -1021,7 +1021,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data       =  Input::all();
         $attachment    =  Input::file('emailattachment');
         if(!empty($attachment)) {
-            try {
+            try { 
                 $data['file'] = $attachment;
                 $returnArray = UploadFile::UploadFileLocal($data);
                 return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));

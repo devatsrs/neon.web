@@ -184,7 +184,7 @@
                 </div>
                 <div class="form-Group" style="margin-bottom: 15px;">
                   <label >Email Template</label>
-                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template"))}} </div>
+                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}} </div>
                 <div class="form-group">
                   <label for="subject">Subject *</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
@@ -351,6 +351,9 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
             <div class="cbp_tmlabel normal_tag">
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="forward" class="pull-right edit-deal email_action" title="Forward"><i class="entypo-forward"></i></a>            
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="reply-all" class=" pull-right edit-deal email_action" title="Reply All"><i class="entypo-reply-all"></i></a>           
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="reply" class="pull-right edit-deal email_action" title="Reply"><i class="entypo-reply"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display"> @if($rows['EmailCc'])
                 <p>CC: {{$rows['EmailCc']}}</p>
@@ -390,7 +393,8 @@
 	  }	 
 	   ?>
                 <div class="mail_message">Message:<br>
-                  {{$rows['EmailMessage']}}. </div>
+                  {{$rows['EmailMessage']}}</div><br>
+                    <p><a data_fetch_id="{{$rows['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
               </div>
             </div>
           </li>
@@ -406,7 +410,9 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
-            <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a> <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
+            <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> 
+            <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
+             <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>             
               <h2 class="toggle_open" id_toggle="{{$key}}"> @if($rows['TaskPriority']=='High') <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span> @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span> @else <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> @endif </h2>
@@ -463,7 +469,7 @@
                 <p>Group: {{$rows['TicketGroup']}}</p>
                 <p>Date Created: {{$rows['created_at']}}</p>
                 <p>Description: {{$rows['TicketDescription']}}</p>
-                <p><a ticket_id="{{$rows['TicketID']}}" class="ticket_conversations">View Ticket Conversations</a></p>
+                <p><a data_fetch_id="{{$rows['TicketID']}}" conversations_type="ticket" class="ticket_conversations">View Ticket Conversations</a></p>
               </div>
             </div>
           </li>
@@ -508,6 +514,16 @@
   <input id="info1" type="hidden" name="attachmentsinfo" />
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
+<form id="emai_attachments_reply_form" class="hidden" name="emai_attachments_form">
+  <span class="emai_attachments_span">
+  <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole2">
+  </span>
+  <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
+  <input  hidden="" name="token_attachment" value="{{$random_token}}" />
+  <input id="info3" type="hidden" name="attachmentsinfo" />
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+</form>
+
 @include('includes.submit_note_script',array("controller"=>"accounts")) 
 @include("accounts.taskmodal")
 <?php unset($BoardID); ?>
@@ -528,14 +544,4 @@
             tags:{{$opportunitytags}}
         });
 </script>
-<style>
-#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
-ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
-#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
-.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:100%;top:10px; /*border-color:transparent #f1f1f1 #fff transparent;*/ position:absolute; border-style:solid; border-width:14px;  content: " ";} footer.main{clear:both;} .followup_task {margin-top:-30px;}
-.color-red {margin-left:5px;} .ticket_conversations{cursor:pointer; } .left-padding{padding-left:0px !important;}
-.mail_subject{font-size:14.4px !important;} .mail_message{font-family:"Noto Sans", sans-serif !important;}
-.no-display{overflow-x:scroll;}
-</style>
 @stop

@@ -2170,3 +2170,11 @@ background-repeat:no-repeat;
 ul.grid li div.low_balance_account:not(.selected){
     background :#ffc9c9 none repeat scroll 0 0;
 }
+.mail-env{
+background:white none repeat scroll 0 0;
+}
+.shortnamewrap{
+	overflow-wrap:break-word;
+	width:11em;
+}
+.clickable{cursor:pointer;}

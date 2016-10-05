@@ -80,13 +80,13 @@ class DataTableSql extends \Eloquent {
             return $pdo->query($this->query);
         }
         
-        public function make(){
+        public function make($isjson=true){
             //$query = $this->query->get();
             $this->get_result();
-            return $this->output();
+            return $this->output($isjson);
             
         }
-        protected function output(){
+        protected function output($isjson){
             $output = array(
                 "sEcho" => (int)Input::get('sEcho'),
                 "iTotalRecords" => $this->iTotalRecords,
@@ -98,7 +98,11 @@ class DataTableSql extends \Eloquent {
             if(Config::get('app.debug', false)) {
                 $output['aQueries'] = DB::getQueryLog();
             }
+			if($isjson){
             return Response::json($output);
+			}else{			
+			return $output;
+			}
         }
 
         /*
