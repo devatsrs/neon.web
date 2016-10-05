@@ -357,7 +357,7 @@ class IntegrationController extends \BaseController
 		}
 	
 		$ImapResult =   Imap::CheckConnection($data['EmailTrackingServer'],$data['EmailTrackingEmail'],$data['EmailTrackingPassword']); Log::info(print_r($ImapResult));
-		
-		return json_encode($ImapResult);
+		 
+		return Response::json(array($ImapResult));
 	}
 }
