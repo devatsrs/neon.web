@@ -38,12 +38,11 @@
     <div class="form-group">
       <label for="field-1" class="control-label col-sm-12 bold">From</label>
       <div class="col-sm-12">{{$Emaildata->Emailfrom}}</div>
-    </div>
-    
+    </div>    
     <?php
 	$attachments = unserialize($Emaildata->AttachmentPaths);
 		
-	if(count($attachments)>0)
+	if(count($attachments)>0 && is_array($attachments))
 	{
 	 ?>
     <div class="form-group">

@@ -24,7 +24,7 @@
 	  if($response_data['AttachmentPaths']!='')
 	  {
     		$attachments = unserialize($response_data['AttachmentPaths']);
-			if(count($attachments)>0)
+			if(count($attachments)>0 && is_array($attachments))
 			{
 				 echo "<p>Attachments: ";
 				foreach($attachments as $key => $attachments_data)
