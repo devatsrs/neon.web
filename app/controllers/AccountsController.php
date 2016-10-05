@@ -490,9 +490,9 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data);
-                if($DiscountPlanID > 0 || $InboundDiscountPlanID> 0) {
-                    AccountBilling::storeFirstTimeInvoicePeriod($id);
-                    $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                AccountBilling::storeFirstTimeInvoicePeriod($id);
+                $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                     $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
