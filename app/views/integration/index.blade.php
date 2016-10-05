@@ -439,8 +439,6 @@
       </div>   
       <!-- Outlook calendar end -->    
       
-  </div>
-
       <!-- Amazon end -->
       <!-- Quick Book -->
         <?php
