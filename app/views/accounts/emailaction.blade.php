@@ -7,7 +7,21 @@
     <div class="col-md-12 margin-top">
       <div class="form-group">
         <label for="EmailActionTo">* To:</label>
-        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="@if($action_type!='forward') @if($response_data['EmailCall']=='Send'){{$response_data['EmailTo']}}@else @if(isset($parent_data->EmailTo)){{$parent_data->EmailTo}} @endif @endif @endif" />
+        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="<?php 
+	if($action_type!='forward')
+	{
+		if($response_data['EmailCall']=='Send')
+		{
+			echo $response_data['EmailTo'];
+		}
+		else
+		{ 
+			if(isset($parent_data->EmailTo))
+			{  
+				echo $parent_data->EmailTo;  
+			}  
+		}  
+	} ?>" />
         <div class="field-options"> 
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
