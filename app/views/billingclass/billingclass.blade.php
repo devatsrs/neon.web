@@ -106,7 +106,7 @@
                                                 <tr>
                                                     <th width="5%" ><button type="button" id="payment-add-row" class="btn btn-primary btn-xs ">+</button></th>
                                                     <th width="30%" >Days<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Send reminder based on due dates. ex. send reminder before one day of due date(-1),send reminder after two day of due date(2)" data-original-title="Due Days">?</span></th>
-                                                    <th width="30%" >Account Age<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Reminder will not send if Account Age not less than this" data-original-title="Account Age">?</span></th>
+                                                    <th width="30%" >Account Age<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="System will not send reminder if account age is less then specified no of Days" data-original-title="Account Age">?</span></th>
                                                     <th width="30%" >Template </th>
                                                 </tr>
                                                 </thead>
