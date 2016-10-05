@@ -95,7 +95,7 @@ class CustomersRatesController extends \BaseController {
             $rate_tables =array();
             $rate_table = RateTable::where(["Status" => 1, "CompanyID" => $company_id,'CurrencyID'=>$Account->CurrencyId])->get();
             foreach($rate_table as $row){
-                $rate_tables[$row->TrunkID][$row->CodeDeckId][] = ['text'=>$row->RateTableName,'value'=>$row->RateTableId];
+                $rate_tables[$row->TrunkID][$row->CodeDeckId][] = ['id'=>$row->RateTableId,'text'=>$row->RateTableName];
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);

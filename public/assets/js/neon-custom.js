@@ -652,11 +652,17 @@ toastr_opts = {
                     opts = {
                         allowClear: attrDefault($this, 'allowClear', false)
                     };
-
+                if($this.hasClass('small')){
+                    opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+                }
                 $this.select2(opts);
-                $this.addClass('visible');
-
+                if($this.hasClass('small')){
+                    $this.select2('container').find('.select2-search').addClass ('hidden') ;
+                }
                 //$this.select2("open");
+            }).promise().done(function(){
+                $('.select2').css('visibility','visible');
             });
 
 
@@ -1567,13 +1573,15 @@ function fit_main_content_height()
 
         if (isxs())
         {
-            if (typeof reset_mail_container_height != 'undefined')
-                reset_mail_container_height();
-            return;
+            public_vars.$sidebarMenu.css('display','block');
+            public_vars.$mainContent.css('display','inherit');
 
             if (typeof fit_calendar_container_height != 'undefined')
                 reset_calendar_container_height();
             return;
+        }else{
+            public_vars.$sidebarMenu.css('display','table-cell');
+            public_vars.$mainContent.css('display','table-cell');
         }
 
         var sm_height = public_vars.$sidebarMenu.outerHeight(),
@@ -2598,10 +2606,18 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
-/* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
 $('.modal').on('show.bs.modal', function (e) {
+    if (isxs()) {
+     $('.modal').find('.pull-left,.pull-right').each(function(){
+         $(this).removeClass('pull-left').removeClass('pull-right');
+     });
+    }
+});
+
+/* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
+/*$('.modal').on('show.bs.modal', function (e) {
     $('.modal').css('top', $(document).scrollTop() + 20);
-})
+})*/
 function submit_ajax(fullurl,data,refreshjob){
     $.ajax({
         url:fullurl, //Server script to process data
@@ -2796,6 +2812,28 @@ $(document).ajaxComplete(function(event, xhr, settings) {
             $(elem).bootstrapSwitch();
         }
     });
+    if (isxs()){
+        $('.dataTables_wrapper').each(function(){
+            var self = $(this);
+            setTimeout(function(){
+                var table = self.find('table');
+                var width = 0;
+                if(table.hasClass('hidden')){
+                    table.removeClass('hidden');
+                    width = self.find('table').outerWidth();
+                    table.addClass('hidden');
+                }else{
+                    width = self.find('table').outerWidth();
+                }
+                self.find('div.row').each(function(index,item){
+                    $(item).css('width',width);
+                    $(item).css('margin',0);
+                    $(item).find('.col-xs-6').css('padding',0);
+                }.bind(width));
+            }, 3000,self);
+            self.css('overflow-x','scroll').css('overflow-y','hidden');
+        });
+    }
 });
 $(document).on('click','[redirecto]',function(){
     var url = $(this).attr('redirecto');
@@ -2809,6 +2847,24 @@ function isJson(str) {
         return false;
     }
     return true;
+}
+
+function rebuildSelect2(el,data,defualtText){
+    el.empty();
+    options = [];
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
+        options.push(new Option(value, key, true, true));
+    });
+    if(defualtText.length > 0){
+        options.push(new Option(defualtText, '', true, true));
+    }
+    options.sort();
+    el.append(options);
+    el.trigger('change');
 }
 
 

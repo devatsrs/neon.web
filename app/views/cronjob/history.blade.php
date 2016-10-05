@@ -5,7 +5,7 @@
         <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li>
-        <a href="{{URL::to('cronjobs')}}">Cron Job</a>
+        <a href="{{URL::to('cronjob_monitor')}}">Cron Job</a>
     </li>
     <li class="active">
         <strong>{{$JobTitle}}</strong>
@@ -33,7 +33,7 @@
                         </div>
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('Status', [""=>"Both",1=>"Success",0=>"Failed"], '', array("class"=>"form-control selectboxit")) }}
+                            {{ Form::select('Status', [""=>"Both",1=>"Success",0=>"Failed"], '', array("class"=>"form-control select2 small")) }}
                         </div>
 
                     </div>

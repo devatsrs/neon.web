@@ -1624,7 +1624,8 @@ class InvoicesController extends \BaseController {
      * @param $id
      * @return mixed
      */
-    public function paypal_ipn($id){
+    public function paypal_ipn($id)
+    {
 
         //@TODO: need to merge all payment gateway payment insert entry.
 
@@ -1641,8 +1642,6 @@ class InvoicesController extends \BaseController {
             $Notes = $paypal->get_note();
 
             if ($paypal->success() && count($Invoice) > 0) {
-
-
 
 
                 $Invoice = Invoice::find($Invoice->InvoiceID);
@@ -1715,6 +1714,9 @@ class InvoicesController extends \BaseController {
                 $paypal->log();
 
                 return Response::json(array("status" => "failed", "message" => "Failed to payment."));
+            }
+        }
+    }
 
 
     public function invoice_quickbookpost(){

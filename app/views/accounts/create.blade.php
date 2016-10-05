@@ -160,7 +160,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Verification Status</label>
                         <div class="col-sm-4">
-                            {{Form::select('VerificationStatus', Account::$doc_status,Account::NOT_VERIFIED,array("class"=>"selectboxit",'disabled'=>'disabled'))}}
+                            {{Form::select('VerificationStatus', Account::$doc_status,Account::NOT_VERIFIED,array("class"=>"select2 small",'disabled'=>'disabled'))}}
                              <input type="hidden" class="form-control"  name="VerificationStatus" value="{{Account::NOT_VERIFIED}}">
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
@@ -249,7 +249,7 @@
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                         <div class="col-sm-4">
-                            {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                            {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"select2 small"))}}
                         </div>
 
                     </div>
@@ -302,6 +302,20 @@
                             </div>
                         </div>
                     </div>
+
+
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
+                    <div class="col-sm-4">
+                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates,  CompanySetting::getKeyVal('InvoiceTemplateID') ,array("class"=>"form-control select2"))}}
+                    </div>
+                        <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
+                        <div class="col-sm-4">
+                            {{Form::select('CDRType', Account::$cdr_type, CompanySetting::getKeyVal('CDRType'),array("class"=>"select2 small"))}}
+                        </div>
+
+                </div>
+
                 <div class="form-group">
 
                     <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>

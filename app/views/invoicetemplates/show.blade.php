@@ -201,7 +201,7 @@
 @section('footer_ext')
 @parent
 <div class="modal fade custom-width" id="print-modal-invoice_template">
-    <div class="modal-dialog" style="width: 60%;">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">

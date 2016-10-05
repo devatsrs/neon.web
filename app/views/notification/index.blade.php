@@ -176,9 +176,10 @@
                         $('#notification-form').trigger("reset");
                         $('#modal-notification h4').html('Add Notification');
                         $("#notification-form [name='NotificationEmailAddresses']").val('');
-                        var selectBox = $("#notification-form [name='NotificationType']").data("selectBox-selectBoxIt");
-                        selectBox.selectOption('');
-                        selectBox.enable();
+                        $(".js-example-disabled").prop("disabled", false);
+                        var selectBox = $("#notification-form [name='NotificationType']");
+                        selectBox.val('').trigger("change");
+                        selectBox.prop("disabled", false);
                         $('.tax').removeClass('hidden');
 
                         $('#notification-form').attr("action",notification_add_url);
@@ -194,9 +195,9 @@
                         for(var i = 0 ; i< list_fields.length; i++){
                             $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'NotificationType'){
-                                var selectBox = $("#notification-form [name='"+list_fields[i]+"']").data("selectBox-selectBoxIt");
-                                selectBox.selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                                selectBox.disable();
+                                var selectBox = $("#notification-form [name='"+list_fields[i]+"']");
+                                selectBox.val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                selectBox.prop("disabled", true);
                             }
                             if(list_fields[i] == 'Status') {
                                 if (cur_obj.find("input[name='Status']").val() == 1) {
@@ -254,7 +255,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Type</label>
-                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"selectboxit product_dropdown"))}}
+                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 small product_dropdown"))}}
                                 <input type="hidden" name="NotificationID" />
                             </div>
                         </div>

@@ -21,7 +21,7 @@
             <div class="panel-title"> Filter </div>
             <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
           </div>
-          <div class="panel-body">
+          <div class="panel-body" id="paymentsearch">
             <div class="form-group">
               <label for="field-1" class="col-sm-1 control-label small_label">Account</label>
               <div class="col-sm-2 col-sm-e2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
@@ -30,9 +30,9 @@
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Action</label>
-              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
                      <label class="col-sm-1 control-label">Recalled</label>
               <div class="col-sm-1">
                 <p class="make-switch switch-small">
@@ -62,10 +62,10 @@
             <!--payment date end -->
                        
               <label for="field-1" class="col-sm-1 control-label" style="width: 6%;">Payment Method</label>
-              <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
               
               <label for="field-1" class="col-sm-2 control-label" style="width: 7%;">Currency</label>
-            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}} </div>
+            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}} </div>
        
             </div> 
             <p style="text-align: right;">
@@ -117,7 +117,7 @@
                       <input type="text" class="form-control" name="option[Escape]" value="" />
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">First row:</label>
-                    <div class="col-sm-4"> {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <p style="text-align: right;"> <br />
                     <br />
@@ -133,30 +133,30 @@
                 <div class="panel-body" id="mapping">
                   <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[AccountName]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for="field-1" class="col-sm-2 control-label">Payment Date*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[PaymentDate]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[PaymentDate]', array(),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <div class="form-group"> <br />
                     <br />
                     <label for="field-1" class="col-sm-2 control-label">Payment Method*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[PaymentMethod]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[PaymentMethod]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for="field-1" class="col-sm-2 control-label">Action*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[PaymentType]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[PaymentType]', array(),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <div class="form-group"> <br />
                     <br />
                     <label for="field-1" class="col-sm-2 control-label">Amount*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[Amount]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[Amount]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for="field-1" class="col-sm-2 control-label">Invoice</label>
-                    <div class="col-sm-4"> {{Form::select('selection[InvoiceNo]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[InvoiceNo]', array(),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <div class="form-group"> <br />
                     <br />
                     <label for="field-1" class="col-sm-2 control-label">Note</label>
-                    <div class="col-sm-4"> {{Form::select('selection[Notes]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[Notes]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
-                    <div class="col-sm-4"> {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}} </div>
                   </div>
                 </div>
               </div>
@@ -167,13 +167,15 @@
                 </div>
                 <div class="panel-body">
                   <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
-                  <table class="table table-bordered datatable" id="tablemapping">
-                    <thead>
-                      <tr> </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
+                    <div class="dataTables_wrapper">
+                      <table class="table table-bordered datatable" id="tablemapping">
+                        <thead>
+                          <tr> </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
                 </div>
               </div>
               <p style="text-align: right;">
@@ -470,7 +472,7 @@
                         var select = ['AccountID','PaymentMethod','PaymentType'];
                         for(var i = 0 ; i< list_fields.length; i++){
                             if(select.indexOf(list_fields[i])!=-1){
-                                $("#add-edit-payment-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                $("#add-edit-payment-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                             }else if(list_fields[i] == 'PaymentProof'){
 
                             }else{
@@ -701,8 +703,8 @@
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
                         $("#add-edit-payment-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                        $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
+                        $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
                         $('.file-input-name').text('');
@@ -827,11 +829,8 @@
                         });
                         $("#mapping select").each(function(i, el){
                             if(el.name !='selection[DateFormat]'){
-                                $(el).data("selectBox-selectBoxIt").remove();
-                                $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                                $.each(data.columns,function(key,value){
-                                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                                });
+                                var self = $('#add-template-form [name="'+el.name+'"]');
+                                rebuildSelect2(self,data.columns,'Skip loading');
                             }
                         });
                         if ( data.PaymentUploadTemplate ) {
@@ -845,7 +844,7 @@
                                         if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                                             $('#add-template-form').find('[name="option['+key+']"]').val(value)
                                             if(key == 'Firstrow'){
-                                                $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                                $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                                             }
                                         }
 
@@ -854,7 +853,7 @@
                                         if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                                             $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                                         }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                                            $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                            $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                                         }
                                     });
                                 }
@@ -903,8 +902,14 @@
 						}
 				});	
 		}
+                    if (isxs()) {
+                        $('#paymentsearch').find('.col-sm-2,.col-sm-1').each(function () {
+                            $(this).removeClass('col-sm-e2');
+                            $(this).removeClass('small-date-input');
+                            $(this).removeAttr('style');
 
-
+                        });
+                    }
                 });
 
                 $("#payment-table-search").submit(function(e) {
@@ -1035,12 +1040,12 @@
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Method *</label>
-              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }} </div>
+              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"select2 small")) }} </div>
           </div>
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Action *</label>
-              {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }} </div>
+              {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }} </div>
           </div>
           <div class="col-md-12">
             <div class="form-group">

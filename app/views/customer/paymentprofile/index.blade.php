@@ -50,7 +50,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Card Type*</label>
-                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -65,10 +65,10 @@
                                         <label for="field-5" class="control-label">Expiry Date *</label>
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
                                     </div>
                                 </div>
                             </div>

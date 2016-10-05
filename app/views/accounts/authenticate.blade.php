@@ -57,7 +57,7 @@
 
                         </label>
                         <div class="desc col-sm-4">
-                            {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"selectboxit"))}}
+                            {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"select2 small"))}}
                         </div>
                         <?php
                             $AccountIPList = array();
@@ -204,7 +204,7 @@
 
                         </label>
                         <div class="desc col-sm-4">
-                            {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"selectboxit"))}}
+                            {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"select2 small"))}}
                         </div>
                         <?php
                         $AccountIPList = array();
@@ -651,7 +651,7 @@
 @section('footer_ext')
 @parent
 <div class="modal fade" id="addipcli-modal" >
-    <div class="modal-dialog" style="width: 30%;">
+    <div class="modal-dialog">
         <div class="modal-content">
             <form role="form" id="form-addipcli-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">

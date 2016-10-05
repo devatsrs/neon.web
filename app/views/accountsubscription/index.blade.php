@@ -54,25 +54,27 @@
                                 </div>
         </div>
 
-        <table id="table-subscription" class="table table-bordered datatable">
-            <thead>
-            <tr>
-                <th width="5%">No</th>
-                <th width="5%">Subscription</th>
-                <th width="20%">Invoice Description</th>
-                <th width="5%">Qty</th>
-                <th width="10%">StartDate</th>
-                <th width="10%">EndDate</th>
-                <th width="5%">ActivationFee</th>
-                <th width="5%">DailyFee</th>
-                <th width="5%">WeeklyFee</th>
-                <th width="10%">MonthlyFee</th>
-                <th width="20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="dataTables_wrapper">
+            <table id="table-subscription" class="table table-bordered datatable">
+                <thead>
+                <tr>
+                    <th width="5%">No</th>
+                    <th width="5%">Subscription</th>
+                    <th width="20%">Invoice Description</th>
+                    <th width="5%">Qty</th>
+                    <th width="10%">StartDate</th>
+                    <th width="10%">EndDate</th>
+                    <th width="5%">ActivationFee</th>
+                    <th width="5%">DailyFee</th>
+                    <th width="5%">WeeklyFee</th>
+                    <th width="10%">MonthlyFee</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
         <script type="text/javascript">
             /**
             * JQuery Plugin for dataTable
