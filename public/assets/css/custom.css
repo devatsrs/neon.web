@@ -1428,7 +1428,7 @@ text-align:center;
     ul.grid {
         list-style: outside none none;
         margin: 0 auto;
-        padding-left: 0px;
+        padding: 0px;
         font-size:11px;
     }
     .clearfix {
