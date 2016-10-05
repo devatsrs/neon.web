@@ -43,7 +43,7 @@
 	  {
     		$attachments = unserialize($rows['AttachmentPaths']);
 			
-			if(count($attachments)>0)
+			if(count($attachments)>0 && is_array($attachments))
 			{
 				 echo "<p><span class='underline'>Attachments</span><br>";
 				foreach($attachments as $key_acttachment => $attachments_data)
