@@ -344,7 +344,10 @@
         <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
             <div class="row">
                 <div class="col-md-12">
-                    *Please First save and after click for connect
+                    *Please First save and after click for connect and do following step<br>
+                     Connect->Sign In->Select Company->Click On Authorize<br>
+                    *Connection is need for any task doing regard quickbook and it will expire generally every month.
+
                 </div>
             </div>
             <div class="row">
