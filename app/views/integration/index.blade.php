@@ -414,16 +414,13 @@
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
               <label class="col-sm-4 control-label">Active: </label>
-              <div class="col-sm-8" id="EmailTrackingDiv">
+              <div class="col-sm-3" id="EmailTrackingDiv">
                    <input id="EmailTrackingstatus" class="subcatstatus" Divid="EmailTrackingDiv" name="Status" type="checkbox" value="1" <?php if(isset($EmailTrackingDBData->Status) && $EmailTrackingDBData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
+         <a id="TestImapConnection"  class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>        
+
             </div>
-          </div>   
-          <div class="col-md-6  margin-top pull-left">
-            <div class="form-group">
-              <a id="TestImapConnection"  class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>        
-            </div>
-          </div>       
+          </div> 
         </div>
       </div>   
       <!-- EmailTracking end -->    
