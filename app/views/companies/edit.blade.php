@@ -228,13 +228,6 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
                                     </div>
-                                </div>
-                                <div class="form-group" >
-                                    <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"select2 small"))}}
-                                    </div>
-
                                     <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
                                     <p class="make-switch switch-small">
                                         <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
