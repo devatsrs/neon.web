@@ -19,6 +19,10 @@
     #add-modal-opportunity .btn-xs {
         padding: 0px;
     }
+    
+    #add-modal-opportunity .select2-container {
+        min-width: 298px;
+    }
 
 </style>
 <script>
