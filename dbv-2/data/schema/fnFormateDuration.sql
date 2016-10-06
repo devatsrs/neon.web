@@ -3,7 +3,7 @@ BEGIN
 
 DECLARE v_FormateDuration_ varchar(50);
 
-select Concat( FLOOR(p_Duration  / 60),':' , p_Duration  % 60) into v_FormateDuration_;
+SELECT CONCAT( FLOOR(p_Duration  / 60),':' , p_Duration  % 60) INTO v_FormateDuration_;
 
 RETURN v_FormateDuration_;
 END
