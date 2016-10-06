@@ -23,5 +23,6 @@ CREATE TABLE `tblJob` (
   `ModifiedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `PID` int(11) DEFAULT NULL,
   `LastRunTime` datetime DEFAULT NULL,
-  PRIMARY KEY (`JobID`)
+  PRIMARY KEY (`JobID`),
+  KEY `IX_CompanyID` (`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

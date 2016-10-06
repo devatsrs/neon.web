@@ -219,6 +219,49 @@
         </div>
       </div>
       <!-- authorize.net end -->
+      <!-- paypal start -->
+      <?php 
+		$PaypalDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$paypalSlug);
+		$PaypalData   = isset($PaypalDbData->Settings)?json_decode($PaypalDbData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{$PaypalDbData->Slug}}">        
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Business Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="PaypalEmail" value="{{isset($PaypalData->PaypalEmail)?$PaypalData->PaypalEmail:''}}" />
+              </div>
+            </div>
+          </div>          
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Logo Url:</label>
+              <div class="col-sm-8">
+                <input type="url"  class="form-control" name="PaypalLogoUrl" value="{{isset($PaypalData->PaypalLogoUrl)?$PaypalData->PaypalLogoUrl:''}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Live:</label>
+              <div class="col-sm-8" id="PaypalLiveDiv">
+                   <input id="PaypalLive" class="subcatstatus" Divid="PaypalLiveDiv" name="PaypalLive" type="checkbox" value="1" <?php if(isset($PaypalData->PaypalLive) && $PaypalData->PaypalLive==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active:</label>
+              <div class="col-sm-8" id="paypalStatusDiv">
+                   <input id="PaypalStatus" class="subcatstatus" Divid="paypalStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($PaypalDbData->Status) && $PaypalDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <!-- paypal end -->
       <!-- Mandril start -->
        <?php 
 	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
@@ -357,41 +400,34 @@
                 <input type="email"  class="form-control" name="EmailTrackingEmail" value="{{isset($EmailTrackingData->EmailTrackingEmail)?$EmailTrackingData->EmailTrackingEmail:''}}" />
               </div>
             </div>
-          </div>          
-          <div class="col-md-6  margin-top pull-right">
+          </div> 
+         <div class="col-md-6 margin-top pull-right">
             <div class="form-group">
-              <label for="field-1" class="col-sm-4 control-label">* Name:</label>
+              <label for="field-1" class="col-sm-4 control-label">* Imap Server:</label>
               <div class="col-sm-8">
-                <input type="text"  class="form-control" name="EmailTrackingName" value="{{isset($EmailTrackingData->EmailTrackingName)?$EmailTrackingData->EmailTrackingName:''}}" />
-              </div>
-            </div>
-          </div>          
-          <div class="col-md-6 margin-top pull-left">
-            <div class="form-group">
-              <label for="field-1" class="col-sm-4 control-label">* Inbox Server:</label>
-              <div class="col-sm-8">
-                <input type="text"  class="form-control" name="EmailTrackingServer" value="{{isset($EmailTrackingData->EmailTrackingServer)?$EmailTrackingData->EmailTrackingServer:""}}" />
+                <input type="text"  class="form-control" id="EmailTrackingServer" name="EmailTrackingServer" value="{{isset($EmailTrackingData->EmailTrackingServer)?$EmailTrackingData->EmailTrackingServer:""}}" />
               </div>
             </div>
           </div>
           
-          <div class="col-md-6  margin-top pull-right">
+          <div class="col-md-6  margin-top pull-left">
             <div class="form-group">
               <label for="field-1" class="col-sm-4 control-label">* Password:</label>
               <div class="col-sm-8">
-                <input type="password"  class="form-control" name="EmailTrackingPassword" value="{{isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:''}}" />
+                <input type="password"  class="form-control" id="EmailTrackingPassword" name="EmailTrackingPassword" value="{{isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:''}}" />
               </div>
             </div>
-          </div>          
-                    
-          <div class="col-md-6  margin-top pull-left">
+          </div>    
+          <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
               <label class="col-sm-4 control-label">Active: </label>
-              <div class="col-sm-8" id="EmailTrackingDiv">
+              <div class="col-sm-3" id="EmailTrackingDiv">
                    <input id="EmailTrackingstatus" class="subcatstatus" Divid="EmailTrackingDiv" name="Status" type="checkbox" value="1" <?php if(isset($EmailTrackingDBData->Status) && $EmailTrackingDBData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
+         <a id="TestImapConnection"  class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>        
+
             </div>
-          </div>          
+          </div> 
         </div>
       </div>   
       <!-- EmailTracking end -->    
@@ -658,14 +694,12 @@
 				window.open(baseurl+'/gateway/'+ForeignID, '_blank');
 				return false;
 			 }
-            /*
+
             if(parent_slug=='accounting'){
                 $('#quickbook-connect').show();
-                $('#task-update').hide();
             }else{
                 $('#quickbook-connect').hide();
-                $('#task-update').show();
-            }*/
+            }
 
 			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
                 if($(this).prop('checked') == true)
@@ -724,6 +758,39 @@
                 container.html(make);
                 container.find('.make-switch').bootstrapSwitch();
             }
+			
+		$(document).on("click",'#TestImapConnection',function(e){
+			$(this).button('loading');
+			var email    = 	$('#EmailTrackingEmail').val();
+			var server   = 	$('#EmailTrackingServer').val();
+			var password = 	$('#EmailTrackingPassword').val();
+			
+            e.preventDefault();
+	       var formData = new FormData($('#SubcategoryForm')[0]);
+			
+			 $.ajax({
+                url:"{{URL::to('/integration/checkimapconnection')}}", //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function(){
+                    $('.btn.save').button('loading');
+                },
+                success: function(response) {
+                    $(".save_template").button('reset');
+					$('.test-connection').button('reset');
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);                       
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });		
+		});
     });
     </script> 
 <script type="text/javascript" src="<?php echo URL::to('/'); ?>/assets/js/jquery.bootstrap.wizard.min.js" ></script>
@@ -842,7 +909,7 @@
         <div id="SubcategoryModalContent" class=""></div>
       </div>
       <div class="modal-footer">
-          <a class="btn btn-success btn-sm btn-icon icon-left" onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
+          <a class="btn btn-success btn-sm btn-icon icon-left" id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

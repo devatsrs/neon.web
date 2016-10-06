@@ -48,7 +48,7 @@ BEGIN
 	UPDATE NeonRMDev.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
 		ON  tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
-	SET tblAccountBalance.BalanceAmount = tmp_AccountSOABal.Amount + tblAccountBalance.UnbilledAmount,SOAOffset=tmp_AccountSOABal.Amount;
+	SET tblAccountBalance.BalanceAmount = tmp_AccountSOABal.Amount + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0) ,SOAOffset=tmp_AccountSOABal.Amount;
 	
 	INSERT INTO NeonRMDev.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
 	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0,tmp_AccountSOABal.Amount
