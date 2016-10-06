@@ -339,8 +339,6 @@ class IntegrationController extends \BaseController
 	}
 	
 	function CheckImapConnection(){
-		set_time_limit(0); 
-		ini_set('max_execution_time', 0);
 		$data 			 = 	Input::all();
 		$companyID  	 = 	User::get_companyID();
 		

@@ -258,10 +258,11 @@ protected $server;
 	}	
 	
 	static	function CheckConnection($server,$email,$password){
-		set_time_limit(0); 
-		ini_set('max_execution_time', 0);
+		ini_set('safe_mode',0);
+		set_time_limit(10); 		
 		try{
-			$mbox=imap_open("{".$server."}", $email, $password)  or die("Can't connect to '$server': " . imap_last_error());			
+			$mbox=imap_open("{".$server."}", $email, $password)  or die("Can't connect to '$server': " . imap_last_error());
+			imap_close($mbox);			
 		} catch (\Exception $e) {
 			Log::error("could not connect");
 			Log::error($e);			
