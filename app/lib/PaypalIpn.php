@@ -21,14 +21,20 @@ class PaypalIpn
 
     function __Construct(){
 
-        $paypal_key = "PAYPAL_IPN";
-        $is_paypal = CompanyConfiguration::get($paypal_key);
+        $paypal_key  = "PAYPAL_IPN";
+        //$is_paypal 	 = CompanyConfiguration::get($paypal_key);
+		$is_paypal	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$paypalSlug);
 
         if( !empty($is_paypal) ) {
 
-            $this->paypal_business_email = CompanyConfiguration::getJsonKey($paypal_key,"paypal_business_email");
+           /* $this->paypal_business_email = CompanyConfiguration::getJsonKey($paypal_key,"paypal_business_email");
             $this->is_live  = CompanyConfiguration::getJsonKey($paypal_key,"is_live");
-            $this->logo_url = CompanyConfiguration::getJsonKey($paypal_key,"logo_url");
+            $this->logo_url = CompanyConfiguration::getJsonKey($paypal_key,"logo_url");*/
+			
+			$this->paypal_business_email 	= 	$is_paypal->PaypalEmail;
+            $this->is_live  				= 	$is_paypal->PaypalLive;
+            $this->logo_url 				= 	$is_paypal->PaypalLogoUrl;
+			
 
             if(empty($this->ipn)){
 

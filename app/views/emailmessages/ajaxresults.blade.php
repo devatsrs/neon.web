@@ -42,12 +42,12 @@
       <td><div class="hidden checkbox checkbox-replace">
           <input value="<?php  echo $result_data[0]; ?>" type="checkbox" />
         </div></td>
-      <td class="col-name"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail" class="col-name"><?php if($boxtype=='inbox'){ echo $result_data[1]; }else{echo $AccountName;} ?></a></td>
-      <td class="col-subject"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail">@if($boxtype == 'inbox' && $result_data[5]==0)<span class="label label-info">Unmatched</span> @endif<?php echo $result_data[2]; ?> </a></td>
-      <td class="col-options"><a href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail">
-        <?php if(count($attachments)>0){ ?>
-        <i class="entypo-attach"></i></a>
-        <?php } ?></td>
+      <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail" class="col-name"><?php if($boxtype=='inbox'){ echo $result_data[1]; }else{echo $AccountName;} ?></a></td>
+      <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail">@if($boxtype == 'inbox' && $result_data[5]==0)<span class="label label-info">Unmatched</span> @endif<?php echo $result_data[2]; ?> </a></td>
+       <td class="col-options">
+            <?php if(count($attachments)>0 && is_array($attachments)){ ?>
+            <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail"><i class="entypo-attach"></i></a>              
+              <?php } ?></td>
       <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data[4]))->diffForHumans();  ?></td>
     </tr>
     <?php } }else{?>
