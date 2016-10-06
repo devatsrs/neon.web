@@ -807,6 +807,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $email_data['AccountName'] = $data['AccountName'];
             $email_data['Subject'] = "Customer Panel - Password Set";
             $status = sendMail('emails.admin.accounts.password_set', $email_data);
+			$data['message_id'] 	=  isset($status['message_id'])?$status['message_id']:"";
             $email_data['AccountID'] = $account->AccountID;
             $email_data['message'] = isset($status['body'])?$status['body']:'';
             $email_data['EmailTo'] = $data['BillingEmail'];
