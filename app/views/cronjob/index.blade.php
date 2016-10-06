@@ -39,7 +39,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('Active', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                            {{ Form::select('Active', [""=>"Both",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive"], CronJob::ACTIVE, array("class"=>"form-control select2 small")) }}
                         </div>
                     </div>
                     <p style="text-align: right;">

@@ -2,20 +2,23 @@
 class SiteIntegration{ 
 
  protected $support;
+ protected $TrackingEmail;
  protected $companyID;
  static    $SupportSlug			=	'support';
  static    $PaymentSlug			=	'payment';
  static    $EmailSlug			=	'email';
  static    $StorageSlug			=	'storage';
+ static    $AccountingSlug		=	'accounting';
  static    $AmazoneSlug			=	'amazons3';
  static    $AuthorizeSlug		=	'authorizenet';
  static    $GatewaySlug			=	'billinggateway';
  static    $freshdeskSlug		=	'freshdesk';
  static    $mandrillSlug		=	'mandrill';
- static    $paypalipnSlug		=	'paypalipn';
-
- 
- 
+ static    $emailtrackingSlug   =   'emailtracking';
+ static    $imapSlug      		=   'imap';
+ static    $paypalSlug			=	'paypal';
+ static    $outlookcalenarSlug	=	'outlook';
+ static    $QuickBookSlug		=	'quickbook';
 
  	public function __construct(){
 	
@@ -84,6 +87,35 @@ class SiteIntegration{
 	}
 	
 	/*
+	 * check the connection of tracking mail . return true false
+	 */
+	
+	public function ConnectActiveEmail($view,$data,$companyID,$body){
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$emailtrackingSlug);
+		
+		switch ($config->Slug){
+			case  SiteIntegration::$imapSlug:
+			$config = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$imapSlug);			
+       		 if(Imap::CheckConnection($config->EmailTrackingEmail,$config->EmailTrackingServer,$config->EmailTrackingPassword)){
+			 	$this->TrackingEmail = Imap;
+			 }
+      	  break;
+		}	
+	}
+	
+	public function ReadEmails($view,$data,$companyID,$body){
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$emailtrackingSlug);
+		
+		switch ($config->Slug){
+			case  SiteIntegration::$imapSlug:
+			$config = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$imapSlug);			
+       		return Imap::CheckConnection($config->EmailTrackingEmail,$config->EmailTrackingServer,$config->EmailTrackingPassword);
+      	  break;
+		}	
+	}
+	
+	
+	/*
 	 * get company id using license key from company configuration
 	 */	 
 	
@@ -133,7 +165,7 @@ class SiteIntegration{
 
 		$companyID = SiteIntegration::GetComapnyIdByKey();
 		$companyID = !empty($companyID)?$companyID:User::get_companyID();
-		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
+		$Integration	 =	Integration::where(["CompanyId" => $companyID,"Slug"=>$slug])->first();	
 	
 		if(count($Integration)>0)
 		{						

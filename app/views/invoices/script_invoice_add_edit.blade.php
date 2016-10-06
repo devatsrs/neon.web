@@ -92,7 +92,7 @@ $(document).ready(function(){
                                 $('#add-new-invoice-duration-form .save.btn').button('reset');
                                 if(response.status =='success'){
                                     $('#add-new-modal-invoice-duration').modal('hide');
-                                    $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
+                                    $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
                                     $row.find(".descriptions").val(response.product_description);
                                     $row.find(".Price").val(response.product_amount);
                                     $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -120,7 +120,7 @@ $(document).ready(function(){
                     getCalculateInvoiceBySubscription(selected_product_type,productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
-                            $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
+                            $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
                             $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -144,7 +144,7 @@ $(document).ready(function(){
                     getCalculateInvoiceByProduct('item',productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
-                            $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
+                            $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
                             $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -184,8 +184,8 @@ $(document).ready(function(){
         e.preventDefault();
         $('#InvoiceTable > tbody').append(add_row_html);
 
-        $('select.selectboxit').addClass('visible');
-        $('select.selectboxit').selectBoxIt();
+        /*$('select.selectboxit').addClass('visible');
+        $('select.selectboxit').selectBoxIt();*/
 
         $('select.select2').addClass('visible');
         $('select.select2').select2();

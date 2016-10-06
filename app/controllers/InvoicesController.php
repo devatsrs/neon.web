@@ -1045,6 +1045,7 @@ class InvoicesController extends \BaseController {
                     $data['EmailTo'] = $singleemail;
                     $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
                     $status = $this->sendInvoiceMail('emails.invoices.send',$data);
+					$body 	=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
                 }
             }
             if($status['status']==0){
@@ -1063,6 +1064,7 @@ class InvoicesController extends \BaseController {
                 /*
                     Insert email log in account
                 */
+				$data['Message'] = $body;
                 $logData = ['AccountID'=>$Invoice->AccountID,
                     'EmailTo'=>$CustomerEmail,
                     'Subject'=>$data['Subject'],
@@ -1622,7 +1624,8 @@ class InvoicesController extends \BaseController {
      * @param $id
      * @return mixed
      */
-    public function paypal_ipn($id){
+    public function paypal_ipn($id)
+    {
 
         //@TODO: need to merge all payment gateway payment insert entry.
 
@@ -1639,7 +1642,6 @@ class InvoicesController extends \BaseController {
             $Notes = $paypal->get_note();
 
             if ($paypal->success() && count($Invoice) > 0) {
-
 
 
                 $Invoice = Invoice::find($Invoice->InvoiceID);
@@ -1712,7 +1714,41 @@ class InvoicesController extends \BaseController {
                 $paypal->log();
 
                 return Response::json(array("status" => "failed", "message" => "Failed to payment."));
+            }
+        }
+    }
 
+
+    public function invoice_quickbookpost(){
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+        $CompanyID = User::get_companyID();
+        $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+        if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Invoice Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Creating Invoice Post in Quickbook ."));
             }
         }
 
@@ -1723,4 +1759,5 @@ class InvoicesController extends \BaseController {
         echo "<center>Opps. Payment Canceled, Please try again.</center>";
 
     }
+
 }

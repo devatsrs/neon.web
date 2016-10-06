@@ -127,6 +127,44 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "Authorize.net Settings Successfully Updated"));
 			}
+			
+			if($data['secondcategory']=='Paypal')
+			{
+				$rules = array(
+					'PaypalEmail'	 => 'required|email',
+					'PaypalLogoUrl'	 => 'required',
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 		= 	isset($data['Status'])?1:0;	
+				$data['PaypalLive'] 	= 	isset($data['PaypalLive'])?1:0;	
+				
+				$PaypalData = array(
+					"PaypalEmail"=>$data['PaypalEmail'],
+					"PaypalLogoUrl"=>$data['PaypalLogoUrl'],
+					"PaypalLive"=>$data['PaypalLive']					
+					);
+			
+				$PaypalDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($PaypalDbData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($PaypalData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$PaypalDbData->IntegrationConfigurationID))->update($SaveData);	
+						
+				}
+				else
+				{	
+						$SaveData = array("Settings"=>json_encode($PaypalData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Paypal Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email')
@@ -217,6 +255,158 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "AmazonS3 Settings Successfully Updated"));
 			}
-		}		
+
+		}	
+		
+		if($data['firstcategory']=='emailtracking')
+		{ 
+			if($data['secondcategory']=='IMAP')
+			{
+				$rules = array(
+					'EmailTrackingEmail'	 => 'required|email',
+					//'EmailTrackingName'	 => 'required',					
+					'EmailTrackingServer'	 => 'required',					
+					'EmailTrackingPassword'	 => 'required',				
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 	= 	isset($data['Status'])?1:0;	
+				
+				$TrackingData = array(
+					"EmailTrackingEmail"=>$data['EmailTrackingEmail'],
+					//"EmailTrackingName"=>$data['EmailTrackingName'],					
+					"EmailTrackingServer"=>$data['EmailTrackingServer'],
+					"EmailTrackingPassword"=>$data['EmailTrackingPassword'],
+					);
+				 
+				$TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($TrackingDbData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($TrackingData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$TrackingDbData->IntegrationConfigurationID))->update($SaveData);						
+				}
+				else
+				{	
+						$SaveData = array("Settings"=>json_encode($TrackingData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Tracking Email Settings Successfully Updated"));
+			}
+		}
+
+		if($data['firstcategory']=='calendar')
+		{ 
+			if($data['secondcategory']=='Outlook')
+			{
+				$rules = array(
+					'OutlookCalendarEmail'	 => 'required|email',
+					'OutlookCalendarServer'	 => 'required',					
+					'OutlookCalendarPassword'	 => 'required',					
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 	= 	isset($data['Status'])?1:0;	
+				
+				$outlookcalendarData = array(
+					"OutlookCalendarEmail"=>$data['OutlookCalendarEmail'],
+					"OutlookCalendarServer"=>$data['OutlookCalendarServer'],					
+					"OutlookCalendarPassword"=>$data['OutlookCalendarPassword'],
+					);
+				 
+				$outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($outlookcalendarDBData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$outlookcalendarDBData->IntegrationConfigurationID))->update($SaveData);						
+				}else{	
+						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Outlook Calendar Successfully Updated"));
+
+		}}
+		if($data['firstcategory']=='accounting')
+		{
+
+			if($data['secondcategory']=='QuickBook')
+			{
+				$rules = array(
+					'QuickBookLoginID'	  => 'required',
+					'QuickBookPassqord'	  => 'required',
+					'OauthConsumerKey'	  => 'required',
+					'OauthConsumerSecret' => 'required',
+					'AppToken' => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
+				$data['QuickBookSandbox'] 	= 	isset($data['QuickBookSandbox'])?1:0;
+
+				$QuickBookData = array(
+					"QuickBookLoginID"=>$data['QuickBookLoginID'],
+					"QuickBookPassqord"=>$data['QuickBookPassqord'],
+					"OauthConsumerKey"=>$data['OauthConsumerKey'],
+					"OauthConsumerSecret"=>$data['OauthConsumerSecret'],
+					"AppToken"=>$data['AppToken'],
+					"QuickBookSandbox"=>$data['QuickBookSandbox']
+				);
+
+				$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($QuickBookDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$QuickBookDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "QuickBook Settings Successfully Updated", "quickbookredirect" =>1));
+
+			}
+		}
+	}
+	
+	function CheckImapConnection(){
+		set_time_limit(0); 
+		ini_set('max_execution_time', 0);
+		$data 			 = 	Input::all();
+		$companyID  	 = 	User::get_companyID();
+		
+		$rules = array(
+			'EmailTrackingEmail'	 => 'required|email',
+			'EmailTrackingServer'	 => 'required',					
+			'EmailTrackingPassword'	 => 'required',				
+		);
+
+		$validator = Validator::make($data, $rules);
+	
+		if ($validator->fails()) {
+			return json_validator_response($validator);
+		}
+	
+		$ImapResult =   Imap::CheckConnection($data['EmailTrackingServer'],$data['EmailTrackingEmail'],$data['EmailTrackingPassword']); Log::info(print_r($ImapResult));
+		 
+		return Response::json($ImapResult);
 	}
 }

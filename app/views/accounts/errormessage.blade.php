@@ -12,7 +12,7 @@
         </div>
     </div>
 @endif
-@if(Account::AuthIP($Account))
+@if(Account::AuthIP($Account) && ($Account->IsCustomer==1 || $Account->IsVendor==1))
     <div  class=" toast-container-fix toast-top-full-width">
         <div class="toast toast-warning" style="">
            <!-- <div class="toast-title">Warning Message</div>-->

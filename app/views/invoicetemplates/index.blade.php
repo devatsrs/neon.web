@@ -181,8 +181,8 @@ var postdata;
         $("#add-new-invoice_template-form [name='InvoiceStartNumber']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceStartNumber']").val());
         $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceNumberPrefix']").val());
 		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='EstimateNumberPrefix']").val());
-        $("#add-new-invoice_template-form [name='InvoicePages']").selectBoxIt().data("selectBox-selectBoxIt").selectOption($(this).prev("div.hiddenRowData").find("input[name='InvoicePages']").val());
-        $("#add-new-invoice_template-form [name='DateFormat']").selectBoxIt().data("selectBox-selectBoxIt").selectOption($(this).prev("div.hiddenRowData").find("input[name='DateFormat']").val());
+        $("#add-new-invoice_template-form [name='InvoicePages']").val($(this).prev("div.hiddenRowData").find("input[name='InvoicePages']").val()).trigger("change");
+        $("#add-new-invoice_template-form [name='DateFormat']").val($(this).prev("div.hiddenRowData").find("input[name='DateFormat']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastInvoiceNumber']").val());
 		
 		$("#add-new-invoice_template-form [name='LastEstimateNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastEstimateNumber']").val());
@@ -273,7 +273,7 @@ function ajax_update(fullurl,data){
 @section('footer_ext')
 @parent
 <div class="modal fade custom-width" id="add-new-modal-invoice_template">
-    <div class="modal-dialog" style="width: 60%;">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">
@@ -329,7 +329,7 @@ function ajax_update(fullurl,data){
                             <label class="col-sm-2 control-label">Pages</label>
                             <div class="col-sm-7">
                             <?php  $invoice_page_array =  array(''=>'Select Invoice Pages','single'=>'A single page with totals only','single_with_detail'=>'First page with totals + usage details attached on additional pages')?>
-                              {{Form::select('InvoicePages',$invoice_page_array,'',array("class"=>"selectboxit"))}}
+                              {{Form::select('InvoicePages',$invoice_page_array,'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -361,7 +361,7 @@ function ajax_update(fullurl,data){
                          <div class="form-group">
                             <label class="col-sm-2 control-label">Date Format</label>
                             <div class="col-sm-4">
-                              {{Form::select('DateFormat',InvoiceTemplate::$invoice_date_format,'',array("class"=>"selectboxit"))}}
+                              {{Form::select('DateFormat',InvoiceTemplate::$invoice_date_format,'',array("class"=>"select2 small"))}}
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">Show Billing Period</label>
                             <div class="col-sm-4">

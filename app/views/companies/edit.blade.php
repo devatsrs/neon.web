@@ -106,7 +106,7 @@
                         <label for="field-1" class="col-sm-2 control-label">Default DashBoard</label>
 
                         <div class="col-sm-4">
-                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
@@ -206,7 +206,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -228,6 +228,13 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
                                     </div>
+                                </div>
+                                <div class="form-group" >
+                                    <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
+                                    <div class="col-sm-4">
+                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"select2 small"))}}
+                                    </div>
+
                                     <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
                                     <p class="make-switch switch-small">
                                         <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
@@ -412,7 +419,7 @@
 						  //$('.SmtpResponse').html(Response.response);
 						  $('.model-title-set').html('Test Mail Settings');
 						  
-						},
+						}
 				});	
         
             	

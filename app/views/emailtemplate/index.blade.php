@@ -31,11 +31,11 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Template Privacy</label>
                         <div class="col-sm-2">
-                            {{Form::select('template_privacy',$privacy,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                         </div>
                         <label class="col-sm-2 control-label">Template Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('template_type',$type,'',array("class"=>"selectboxit"))}}
+                            {{Form::select('template_type',$type,'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -189,8 +189,8 @@ var postdata;
         ev.preventDefault();
         $('#add-new-template-form').trigger("reset");
         $("#add-new-template-form [name='TemplateID']").val('');
-        $("#add-new-template-form [name='Email_template_privacy']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(0);
-        $("#add-new-template-form [name='Type']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+        $("#add-new-template-form [name='Email_template_privacy']").val(0).trigger("change");
+        $("#add-new-template-form [name='Type']").val('').trigger("change");
         $('#add-new-modal-template h4').html('Add New template');
         $('#add-new-modal-template').modal('show');
     });
@@ -208,8 +208,8 @@ var postdata;
                 $("#add-new-template-form [name='TemplateName']").val(data['TemplateName']);
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
-                $("#add-new-template-form [name='Type']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(data['Type']);
-                $("#add-new-template-form [name='Email_template_privacy']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(data['Privacy']);
+                $("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
+                $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
                 $('#add-new-modal-template h4').html('Edit template');
 
                 $('#add-new-modal-template').modal('show');
@@ -303,7 +303,7 @@ function ajax_update(fullurl,data){
 @section('footer_ext')
 @parent
 <div class="modal fade" id="add-new-modal-template">
-    <div class="modal-dialog" style="width: 66%;">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="add-new-template-form" method="post">
                 <div class="modal-header">
@@ -325,7 +325,7 @@ function ajax_update(fullurl,data){
                             <br />
                             <label for="field-1" class="control-label col-sm-2">Template Type</label>
                             <div class="col-sm-4">
-                                {{Form::select('Type',$type,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('Type',$type,'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>
@@ -352,7 +352,7 @@ function ajax_update(fullurl,data){
                             <br/>
                             <label class="col-sm-2 control-label">Email Template Privacy</label>
                             <div class="col-sm-4">
-                                {{Form::select('Email_template_privacy',$privacy,'',array("class"=>"selectboxit"))}}
+                                {{Form::select('Email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>

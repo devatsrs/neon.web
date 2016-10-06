@@ -41,11 +41,12 @@
         Verify
     </a>
     @endif
-
+    @if($account->IsCustomer==1 || $account->IsVendor==1)
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Authentication Rule
     </a>
+    @endif
     <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
@@ -193,9 +194,9 @@
                     <label class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control selectboxit",'disabled'))}}
+                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -408,7 +409,7 @@
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"select2 small"))}}
                     </div>
 
                 </div>
@@ -529,6 +530,20 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
+
+                    <div class="col-sm-4">
+                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($AccountBilling->InvoiceTemplateID)?$AccountBilling->InvoiceTemplateID:CompanySetting::getKeyVal('InvoiceTemplateID') ),array("class"=>"form-control select2"))}}
+                    </div>
+                        <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
+                        <div class="col-sm-4">
+                            {{Form::select('CDRType', Account::$cdr_type, ( isset($AccountBilling->CDRType)?$AccountBilling->CDRType:CompanySetting::getKeyVal('CDRType') ),array("class"=>"select2 small"))}}
+                        </div>
+
+                </div>
+
                  <div class="form-group">
                      <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
                      <div class="col-sm-4">
@@ -575,18 +590,13 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <div class="panel-title desc col-sm-6">
-                        Preferred Payment Method
-                    </div>
                     <script>
                         var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";
                     </script>
-                    <div class="col-sm-9" style="float: right;">
-                        @if (is_authorize())
-                            @include('customer.paymentprofile.paymentGrid')
-                        @endif
-                    </div>
-                    <div class="col-sm-3">
+                    <div class="col-md-3">
+
+                        <h4>Preferred Payment Method</h4>
+
                         <ul class="icheck-list">
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
@@ -605,6 +615,11 @@
                                 <label for="minimal-radio-2-11">Other</label>
                             </li>
                         </ul>
+                    </div>
+                    <div class="col-md-9">
+                        @if (is_authorize())
+                            @include('customer.paymentprofile.paymentGrid')
+                        @endif
                     </div>
                 </div>
             </div>

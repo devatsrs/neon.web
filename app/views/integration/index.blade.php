@@ -8,6 +8,12 @@
 <h3>Integration</h3>
 @include('includes.errors')
 @include('includes.success')
+<style>
+    .col-md-4{
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
   <div style="display:none;" class="steps-progress">
@@ -28,26 +34,26 @@
     <div class="tab-pane active" id="tab2-1">
       <div class="row"> </br>
         </br>
-        <div class="col-md-1"></div>
-        <div class="col-md-11">
-          <div class=""> @foreach($categories as $key => $CategoriesData)
+          <div class="col-md-1"></div>
+          <div class="col-md-9"> @foreach($categories as $key => $CategoriesData)
             <?php
 				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID']))->first();
 				if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0){$active['Status'] =1;} 
 			  ?>
+              <div class="col-md-4">
             <input type="radio" name="category" class="category" data-id="{{$CategoriesData['Slug']}}" catid="{{$CategoriesData['IntegrationID']}}" value="{{$CategoriesData['Slug']}}" id="{{$CategoriesData['Slug']}}" @if($key==0) checked @endif />
             <label  for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif   "> 
               {{$CategoriesData['Title']}} </label>
+              </div>
             @endforeach </div>
-        </div>
+          <div class="col-md-1"></div>
       </div>
     </div>
     <div class="tab-pane" id="tab2-2">
       <div class="row"> </br>
         </br>
-        <div class="col-md-1"></div>
-        <div class="col-md-11">
-          <div class="">
+          <div class="col-md-1"></div>
+          <div class="col-md-9">
             <?php
 		  	foreach($categories as $key => $CategoriesData) {
 				if($CategoriesData['Slug']!==SiteIntegration::$GatewaySlug){
@@ -65,7 +71,7 @@
 					} 
 					 
 			  ?>
-            <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
+            <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$subcategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
               <label data-subcatid="{{$subcategoriesData['IntegrationID']}}" data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" for="{{$subcategoriesData['Slug']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
@@ -81,7 +87,7 @@
 			else{ //billing gateway
 			foreach($Gateway as $key => $Gateway_data){
 				?>
-             <div class="subcategoryblock sub{{$CategoriesData['Slug']}}">
+             <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$CategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$Gateway_data['GatewayID']}}" value="{{$Gateway_data['Name']}}" id="{{$Gateway_data['Name']}}" @if($key==0) checked @endif />
               <label data-subcatid="{{$Gateway_data['GatewayID']}}" data-title="{{$Gateway_data['Title']}}" data-id="subcategorycontent{{$Gateway_data['Name']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$Gateway_data['GatewayID']}}"  for="{{$Gateway_data['Name']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
@@ -99,7 +105,7 @@
 			
 			} } ?>
           </div>
-        </div>
+          <div class="col-md-1"></div>
       </div>
     </div>
     <div class="tab-pane" id="tab2-3">
@@ -213,6 +219,49 @@
         </div>
       </div>
       <!-- authorize.net end -->
+      <!-- paypal start -->
+      <?php 
+		$PaypalDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$paypalSlug);
+		$PaypalData   = isset($PaypalDbData->Settings)?json_decode($PaypalDbData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{$PaypalDbData->Slug}}">        
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Business Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="PaypalEmail" value="{{isset($PaypalData->PaypalEmail)?$PaypalData->PaypalEmail:''}}" />
+              </div>
+            </div>
+          </div>          
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Logo Url:</label>
+              <div class="col-sm-8">
+                <input type="url"  class="form-control" name="PaypalLogoUrl" value="{{isset($PaypalData->PaypalLogoUrl)?$PaypalData->PaypalLogoUrl:''}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Live:</label>
+              <div class="col-sm-8" id="PaypalLiveDiv">
+                   <input id="PaypalLive" class="subcatstatus" Divid="PaypalLiveDiv" name="PaypalLive" type="checkbox" value="1" <?php if(isset($PaypalData->PaypalLive) && $PaypalData->PaypalLive==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active:</label>
+              <div class="col-sm-8" id="paypalStatusDiv">
+                   <input id="PaypalStatus" class="subcatstatus" Divid="paypalStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($PaypalDbData->Status) && $PaypalDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <!-- paypal end -->
       <!-- Mandril start -->
        <?php 
 	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
@@ -334,9 +383,180 @@
           </div>          
         </div>
       </div>   
+   
+
+      <!-- Amazon end -->   
+      <!-- EmailTracking start -->
+       <?php 
+		$EmailTrackingDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$imapSlug);
+		$EmailTrackingData   = isset($EmailTrackingDBData->Settings)?json_decode($EmailTrackingDBData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{isset($EmailTrackingDBData->Slug)?$EmailTrackingDBData->Slug:''}}">        
+        <div class="row">
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="EmailTrackingEmail" value="{{isset($EmailTrackingData->EmailTrackingEmail)?$EmailTrackingData->EmailTrackingEmail:''}}" />
+              </div>
+            </div>
+          </div> 
+         <div class="col-md-6 margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Imap Server:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" id="EmailTrackingServer" name="EmailTrackingServer" value="{{isset($EmailTrackingData->EmailTrackingServer)?$EmailTrackingData->EmailTrackingServer:""}}" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+              <div class="col-sm-8">
+                <input type="password"  class="form-control" id="EmailTrackingPassword" name="EmailTrackingPassword" value="{{isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:''}}" />
+              </div>
+            </div>
+          </div>    
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active: </label>
+              <div class="col-sm-3" id="EmailTrackingDiv">
+                   <input id="EmailTrackingstatus" class="subcatstatus" Divid="EmailTrackingDiv" name="Status" type="checkbox" value="1" <?php if(isset($EmailTrackingDBData->Status) && $EmailTrackingDBData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+         <a id="TestImapConnection"  class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>        
+
+            </div>
+          </div> 
+        </div>
+      </div>   
+      <!-- EmailTracking end -->    
+       <!-- Outlook calendar start -->
+       <?php 
+		$outlookcalendarDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$outlookcalenarSlug);
+		$outlookcalendarData   = isset($outlookcalendarDBData->Settings)?json_decode($outlookcalendarDBData->Settings):"";
+		 ?>
+      <div class="subcategorycontent" id="subcategorycontent{{isset($outlookcalendarDBData->Slug)?$outlookcalendarDBData->Slug:''}}">        
+        <div class="row">
+        <div class="col-md-6 margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">*Server:</label>
+              <div class="col-sm-8">
+                <input type="text"  class="form-control" name="OutlookCalendarServer" value="{{isset($outlookcalendarData->OutlookCalendarServer)?$outlookcalendarData->OutlookCalendarServer:""}}" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Email:</label>
+              <div class="col-sm-8">
+                <input type="email"  class="form-control" name="OutlookCalendarEmail" value="{{isset($outlookcalendarData->OutlookCalendarEmail)?$outlookcalendarData->OutlookCalendarEmail:''}}" />
+              </div>
+            </div>
+          </div>  
+          <div class="col-md-6  margin-top pull-left">
+            <div class="form-group">
+              <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+              <div class="col-sm-8">
+                <input type="password"  class="form-control" name="OutlookCalendarPassword" value="{{isset($outlookcalendarData->OutlookCalendarPassword)?$outlookcalendarData->OutlookCalendarPassword:''}}" />
+              </div>
+            </div>
+          </div>          
+                    
+          <div class="col-md-6  margin-top pull-right">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Active: </label>
+              <div class="col-sm-8" id="OutlookCalendarDiv">
+                   <input id="OutlookCalendarstatus" class="subcatstatus" Divid="OutlookCalendarDiv" name="Status" type="checkbox" value="1" <?php if(isset($outlookcalendarDBData->Status) && $outlookcalendarDBData->Status==1){ ?>   checked="checked"<?php } ?> >
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>   
+      <!-- Outlook calendar end -->    
       
-      <!-- Amazon end -->    
+      <!-- Amazon end -->
+      <!-- Quick Book -->
+        <?php
+        $QuickBookDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookSlug);
+        $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-12">
+                    *Please First save and after click for connect and do following step<br>
+                     Connect->Sign In->Select Company->Click On Authorize<br>
+                    *Connection is need for any task doing regard quickbook and it will expire generally every month.
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6  margin-top pull-left">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="QuickBookLoginID" value="{{isset($QuickBookData->QuickBookLoginID)?$QuickBookData->QuickBookLoginID:''}}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 margin-top pull-right">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData->QuickBookPassqord)?$QuickBookData->QuickBookPassqord:""}}" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6  margin-top pull-left">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="OauthConsumerKey" value="{{isset($QuickBookData->OauthConsumerKey)?$QuickBookData->OauthConsumerKey:''}}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 margin-top pull-right">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Secret:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="OauthConsumerSecret" value="{{isset($QuickBookData->OauthConsumerSecret)?$QuickBookData->OauthConsumerSecret:""}}" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 margin-top pull-left">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">* App Token:</label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="AppToken" value="{{isset($QuickBookData->AppToken)?$QuickBookData->AppToken:""}}" />
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-md-6 margin-top pull-right">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">SandBox:</label>
+                        <div class="col-sm-8" id="QuickBookSandboxDiv">
+                            <input id="QuickBookSandbox" class="subcatstatus" Divid="QuickBookSandboxDiv" name="QuickBookSandbox" type="checkbox" value="1" <?php if(isset($QuickBookData->QuickBookSandbox) && $QuickBookData->QuickBookSandbox==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-6  margin-top pull-left">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Active:</label>
+                        <div class="col-sm-8" id="QuickBookStatusDiv">
+                            <input id="QuickBookStatus" class="subcatstatus" Divid="QuickBookStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($QuickBookDbData->Status) && $QuickBookDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- Quick Book End-->
     </div>
+
   <ul class="pager wizard">
     <li class="previous"> <a href="#"><i class="entypo-left-open"></i> Previous</a> </li>
     <li class="next"> <a href="#">Next <i class="entypo-right-open"></i></a> </li>
@@ -401,7 +621,7 @@
  					 var subcatid    = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
 					 var parent_id   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_id');
 					 var ForeignID   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
-					 
+
 					 console.log(importcat+' '+subcatid+' '+parent_id);
 					 if(parent_id==5 && ForeignID!=0){ ///gateway 
 					 	//window.location = baseurl+'/gateway?id='+ForeignID;	
@@ -425,6 +645,7 @@
         $("#SubcategoryForm").submit(function(e){
             e.preventDefault();
 	       var formData = new FormData($(this)[0]);
+            var redirecturl = baseurl+ "/quickbook";
             console.log(formData);
             $.ajax({
                 url:"{{URL::to('/integration/update')}}", //Server script to process data
@@ -438,7 +659,12 @@
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         reloadJobsDrodown(0);
-                        location.reload();
+                        if(response.quickbookredirect == '1'){
+                            //location.href=redirecturl;
+                        }else{
+                            location.reload();
+                        }
+                        //location.reload();
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
@@ -467,9 +693,14 @@
 			 if(parent_slug=='billinggateway' && ForeignID!=0){ ///gateway 
 				window.open(baseurl+'/gateway/'+ForeignID, '_blank');
 				return false;
-			 }		
-			
-			
+			 }
+
+            if(parent_slug=='accounting'){
+                $('#quickbook-connect').show();
+            }else{
+                $('#quickbook-connect').hide();
+            }
+
 			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
                 if($(this).prop('checked') == true)
 			    {
@@ -527,9 +758,49 @@
                 container.html(make);
                 container.find('.make-switch').bootstrapSwitch();
             }
+			
+		$(document).on("click",'#TestImapConnection',function(e){
+			$(this).button('loading');
+			var email    = 	$('#EmailTrackingEmail').val();
+			var server   = 	$('#EmailTrackingServer').val();
+			var password = 	$('#EmailTrackingPassword').val();
+			
+            e.preventDefault();
+	       var formData = new FormData($('#SubcategoryForm')[0]);
+			
+			 $.ajax({
+                url:"{{URL::to('/integration/checkimapconnection')}}", //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function(){
+                    $('.btn.save').button('loading');
+                },
+                success: function(response) {
+                    $(".save_template").button('reset');
+					$('.test-connection').button('reset');
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);                       
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });		
+		});
     });
     </script> 
 <script type="text/javascript" src="<?php echo URL::to('/'); ?>/assets/js/jquery.bootstrap.wizard.min.js" ></script>
+<script type="text/javascript" src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js"></script>
+<script type="text/javascript">
+    intuit.ipp.anywhere.setup({
+        menuProxy: '{{ URL::to('/quickbook')}}',
+        grantUrl: '{{ URL::to('/quickbook/oauth')}}'
+    });
+</script>
 <style>
     .dataTables_filter label{
         display:none !important;
@@ -620,6 +891,7 @@
 	.subcategoryblock, .subcategorycontent{display:none;}
 	.secondstep{padding-left:0px !important; padding-bottom:19px !important; padding-top:19px !important; }
 	.integrationimage{height:40px !important;}
+    #quickbook-connect{display: none;}
 </style>
 @stop
 
@@ -637,6 +909,7 @@
         <div id="SubcategoryModalContent" class=""></div>
       </div>
       <div class="modal-footer">
+          <a class="btn btn-success btn-sm btn-icon icon-left" id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
