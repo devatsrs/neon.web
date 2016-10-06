@@ -694,14 +694,12 @@
 				window.open(baseurl+'/gateway/'+ForeignID, '_blank');
 				return false;
 			 }
-            /*
+
             if(parent_slug=='accounting'){
                 $('#quickbook-connect').show();
-                $('#task-update').hide();
             }else{
                 $('#quickbook-connect').hide();
-                $('#task-update').show();
-            }*/
+            }
 
 			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
                 if($(this).prop('checked') == true)
@@ -911,7 +909,7 @@
         <div id="SubcategoryModalContent" class=""></div>
       </div>
       <div class="modal-footer">
-          <a class="btn btn-success btn-sm btn-icon icon-left" onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
+          <a class="btn btn-success btn-sm btn-icon icon-left" id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
