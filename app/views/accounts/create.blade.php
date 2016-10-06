@@ -302,20 +302,6 @@
                             </div>
                         </div>
                     </div>
-
-
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
-                    <div class="col-sm-4">
-                        {{Form::select('InvoiceTemplateID', $InvoiceTemplates,  CompanySetting::getKeyVal('InvoiceTemplateID') ,array("class"=>"form-control select2"))}}
-                    </div>
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
-                        <div class="col-sm-4">
-                            {{Form::select('CDRType', Account::$cdr_type, CompanySetting::getKeyVal('CDRType'),array("class"=>"select2 small"))}}
-                        </div>
-
-                </div>
-
                 <div class="form-group">
 
                     <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
