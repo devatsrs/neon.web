@@ -133,7 +133,8 @@ class AccountActivityController extends \BaseController {
         try{
             $status = sendMail('emails.account.AccountEmailSend',$data);
             if($status['status'] == 1){
-                $data['AccountID'] = $account->AccountID;
+                $data['AccountID'] 		=  $account->AccountID;
+				$data['message_id'] 	=  isset($status['message_id'])?$status['message_id']:"";
                 email_log($data);
                 return Response::json(array("status" => "success", "message" => "Email sent Successfully"));
             } else {
