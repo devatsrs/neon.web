@@ -12,6 +12,7 @@ CREATE TABLE `tblAccountBilling` (
   `NextInvoiceDate` date DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `BillingClassID` int(11) DEFAULT NULL,
   PRIMARY KEY (`AccountBillingID`),
   UNIQUE KEY `AccountID` (`AccountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
