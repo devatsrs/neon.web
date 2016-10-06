@@ -1,7 +1,7 @@
  <a href="#" class="dropdown-toggle msgs" data-toggle="dropdown" data-hover="dropdown" data-close-others="true"> <i class="entypo-mail"></i> @if($dropdownData['data']['totalNonVisitedJobs'][0]->totalNonVisitedJobs > 0)<span class="badge badge-warning">{{$dropdownData['data']['totalNonVisitedJobs'][0]->totalNonVisitedJobs;}}</span>@endif </a>
 <ul class="dropdown-menu">
   <li class="top">
-    <p>You have {{count($dropdownData['data']['jobs'])}}  unread Message(s)</p>
+    <p>You have {{$dropdownData['data']['totalNonVisitedJobs'][0]->totalNonVisitedJobs}}  unread Message(s)</p>
   </li>
   <li>
     <ul class="dropdown-menu-list scroller">
