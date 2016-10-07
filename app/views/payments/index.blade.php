@@ -1023,31 +1023,39 @@
         <h4 class="modal-title">Add New payment Request</h4>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
               {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
               <input type="hidden" name="AccountName" />
             </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Date *</label>
               <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
             </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Method *</label>
               {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"select2 small")) }} </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Action *</label>
               {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }} </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Amount *</label>
               <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
@@ -1055,19 +1063,25 @@
               <input type="hidden" name="Currency" >
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice</label>
               <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
             </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Notes</label>
               <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
               <input type="hidden" name="PaymentID" >
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="PaymentProof" class="control-label">Upload (.pdf, .jpg, .png, .gif)</label>
@@ -1082,8 +1096,8 @@
         <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
       </div>
-      </div>
     </form>
+    </div>
   </div>
 </div>
 <div class="modal fade" id="view-modal-payment">
