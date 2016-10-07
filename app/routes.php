@@ -91,6 +91,7 @@ Route::group(array('before' => 'auth'), function () {
 	//DashBoard
     Route::get('/process_redirect',"HomeController@process_redirect");
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
+	Route::get('/rmdashboard', "DashboardController@rmdashboard");
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
