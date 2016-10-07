@@ -21,7 +21,7 @@
     }
     
     #add-modal-opportunity .select2-container {
-        min-width: 298px;
+        min-width: 245px;
     }
 
 </style>
