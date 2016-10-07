@@ -261,6 +261,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/ajax_get_missing_gatewayaccounts',  'ImportsController@ajax_get_missing_gatewayaccounts');
 	Route::any('/import/account/download_sample_excel_file',  'ImportsController@download_sample_excel_file');
 	Route::any('/import/account/add_missing_gatewayaccounts',  'ImportsController@add_missing_gatewayaccounts');
+	Route::any('/import/account/getAccountInfoFromQuickbook',  'ImportsController@getAccountInfoFromQuickbook');
+	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
+	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
