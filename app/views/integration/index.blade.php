@@ -442,7 +442,7 @@
             <div class="form-group">
               <label for="field-1" class="col-sm-4 control-label">*Server:</label>
               <div class="col-sm-8">
-                <input type="text"  class="form-control" name="OutlookCalendarServer" value="{{isset($outlookcalendarData->OutlookCalendarServer)?$outlookcalendarData->OutlookCalendarServer:""}}" />
+                <input type="text"  class="form-control" name="OutlookCalendarServer" value="{{isset($outlookcalendarData->OutlookCalendarServer)?$outlookcalendarData->OutlookCalendarServer:"pod51036.outlook.com/ews/services.wsdl"}}" />
               </div>
             </div>
           </div>
