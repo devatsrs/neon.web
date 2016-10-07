@@ -8,7 +8,7 @@
             <a href="{{URL::to('billing_class')}}">Billing Class</a>
         </li>
         <li>
-            {{Form::select('BillingClassList', $BillingClassList, $BillingClass->BillingClassID ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));}}
+            {{Form::select('BillingClassList', $BillingClassList, $BillingClass->BillingClassID ,array("id"=>"drp_customers_jump" ,"class"=>"select2 small1 form-control1"));}}
         </li>
         <li class="active">
             <strong>Edit Billing Class ({{$BillingClass->Name}})</strong>
