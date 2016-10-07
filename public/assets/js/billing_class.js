@@ -9,9 +9,6 @@ $('#payment-add-row').on('click', function(e){
     e.preventDefault();
     $('#PaymentReminderTable > tbody').append(add_row_html_payment);
 
-    $('select.selectboxit').addClass('visible');
-    $('select.selectboxit').selectBoxIt();
-
     $('select.select2').addClass('visible');
     $('select.select2').select2();
     rebind();
@@ -78,37 +75,46 @@ function populateInterval(jobtype,form){
 
     //console.log("in populateJonInterval ");
     $("#billing-form [name='"+form+"[Interval]']").addClass('visible');
-    var selectBox = $("#billing-form [name='"+form+"[Interval]']").selectBoxIt().data("selectBox-selectBoxIt");
-    var selectBoxStartDay = $("#billing-form [name='"+form+"[StartDay]']").selectBoxIt().data("selectBox-selectBoxIt");
+    var selectBox = $("#billing-form [name='"+form+"[Interval]']");
+    var selectBoxStartDay = $("#billing-form [name='"+form+"[StartDay]']");
     $("#billing-form ."+form+"Day").hide();
     var starttime = $("#billing-form .starttime");
     if(selectBox){
-        selectBox.remove();
+        selectBox.empty();
+        selectBoxStartDay.empty();
+        options = [];
+        option = [];
         // console.log("jobtype" + jobtype);
         if(jobtype == 'HOUR'){
             for(var i=1;i<'24';i++){
-                selectBox.add({ value: i, text: i+" Hour"})
+                options.push(new Option(i+" Hour", i, true, true));
             }
             starttime.show();
         }else if(jobtype == 'MINUTE'){
             for(var i=1;i<60;i++){
-                selectBox.add({ value: i, text: i+" Minute"})
+                options.push(new Option(i+" Minute", i, true, true));
             }
             starttime.hide();
             starttime.val('');
         }else if(jobtype == 'DAILY'){
             for(var i=1;i<'32';i++){
-                selectBox.add({ value: i, text: i+" Day"})
+                options.push(new Option(i+" Day", i, true, true));
             }
             //console.log("jobtype" + jobtype);
             starttime.show();
         }else if(jobtype == 'MONTHLY'){
             for(var i=1;i<13;i++){
-                selectBox.add({ value: i, text: i+" Month"})
+                options.push(new Option(i+" Month", i, true, true));
             }
             for(var i=1;i<'32';i++){
-                selectBoxStartDay.add({ value: i, text: i+" Day"})
+                option.push(new Option(i+" Day", i, true, true));
             }
+            option.sort();
+            selectBoxStartDay.append(option);
+            selectBoxStartDay.val(1).trigger('change');
+            options.sort();
+            selectBox.append(options);
+            selectBox.val(1).trigger('change');
             $("#billing-form ."+form+"Day").show();
             starttime.show();
         }
