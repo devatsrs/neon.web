@@ -51,23 +51,25 @@
                                     </div>
                                 </div>
         </div>
-        <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
-            <thead>
-            <tr>
-                <th width="20%">Item</th>
-                <th width="20%">Description</th>
-                <th width="2%">Quantity</th>
-                <th width="5%">Price</th>
-                <th width="10%">Date</th>
-                <th width="2%">Tax Amount</th>
-                <th width="5%">Created Date</th>
-                <th width="15%">Created By</th>
-                <th width="20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="dataTables_wrapper">
+            <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
+                <thead>
+                <tr>
+                    <th width="20%">Item</th>
+                    <th width="20%">Description</th>
+                    <th width="2%">Quantity</th>
+                    <th width="5%">Price</th>
+                    <th width="10%">Date</th>
+                    <th width="2%">Tax Amount</th>
+                    <th width="5%">Created Date</th>
+                    <th width="15%">Created By</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -189,7 +191,7 @@
                 $('#oneofcharge-form').trigger("reset");
                 $('#modal-oneofcharge h4').html('Add Additional Charge');
                 $("#oneofcharge-form [name=ProductID]").select2().select2('val',"");
-                $("#oneofcharge-form [name='TaxRateID']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('0');
+                $("#oneofcharge-form [name='TaxRateID']").val(0).trigger("change");
                 $('.tax').removeClass('hidden');
 
                 $('#oneofcharge-form').attr("action",oneofcharge_add_url);
@@ -207,7 +209,7 @@
                     if(list_fields[i] == 'ProductID'){
                         $("#oneofcharge-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }else if(list_fields[i] == 'TaxRateID'){
-                        $("#oneofcharge-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                        $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                     }
                 }
                 $('#modal-oneofcharge').modal('show');
@@ -328,7 +330,7 @@
                                         "data-value1"=>"Amount",
                                         "data-title2"=>"data-status",
                                         "data-value2"=>"FlatStatus",
-                                        "class" =>"selectboxit TaxRateID",
+                                        "class" =>"select2 small TaxRateID",
                                         ]
                                 )}}
                         </div>

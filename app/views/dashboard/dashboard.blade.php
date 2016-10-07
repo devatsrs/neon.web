@@ -1,5 +1,14 @@
 @extends('layout.main')
 @section('content')
+    <style>
+        .panel-title{
+            float:none;
+        }
+        .nav{
+            margin-bottom: 8.5px;
+            padding-left: 16px;
+        }
+    </style>
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
             setInterval(function(){

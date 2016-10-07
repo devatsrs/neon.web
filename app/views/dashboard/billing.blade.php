@@ -711,7 +711,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="modal-Payment">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -749,7 +749,7 @@
     </div>
 
     <div class="modal fade" id="modal-invoice">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="TestMail-form" method="post" action="">
                     <div class="modal-header">

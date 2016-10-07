@@ -35,12 +35,12 @@
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Action</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('type', $action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                                        {{ Form::select('type', $action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
 
                                     <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                                        {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
                                 </div>
 
@@ -292,8 +292,8 @@
                     $('#add-new-payment').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
-                        $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                        $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
+                        $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
                         $('#add-edit-modal-payment').modal('show');
@@ -539,13 +539,13 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', $action, '', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('PaymentType', $action, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">

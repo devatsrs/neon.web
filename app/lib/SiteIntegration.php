@@ -8,6 +8,7 @@ class SiteIntegration{
  static    $PaymentSlug			=	'payment';
  static    $EmailSlug			=	'email';
  static    $StorageSlug			=	'storage';
+ static    $AccountingSlug		=	'accounting';
  static    $AmazoneSlug			=	'amazons3';
  static    $AuthorizeSlug		=	'authorizenet';
  static    $GatewaySlug			=	'billinggateway';
@@ -17,7 +18,7 @@ class SiteIntegration{
  static    $imapSlug      		=   'imap';
  static    $paypalSlug			=	'paypal';
  static    $outlookcalenarSlug	=	'outlook';
-
+ static    $QuickBookSlug		=	'quickbook';
 
  	public function __construct(){
 	

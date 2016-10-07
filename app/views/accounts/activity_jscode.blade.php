@@ -242,8 +242,8 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 								account_id = $(this).attr("value");
 							}
 						});
-						$('#edit-task-form  [name="TaskStatus"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(status_id);
-						$('#edit-task-form [name="UsersIDs"]').select2('val', account_id);
+						$('#edit-task-form  [name="TaskStatus"]').val(status_id).trigger("change");
+						$('#edit-task-form [name="UsersIDs"]').val(account_id).trigger("change");
 						$('#edit-task-form #TaskID').val(edit_task_id);
 						$('#edit-task-form #KeyID').val(edit_key_id);
 						$('#edit-modal-task').modal('show');												

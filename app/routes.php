@@ -91,6 +91,7 @@ Route::group(array('before' => 'auth'), function () {
 	//DashBoard
     Route::get('/process_redirect',"HomeController@process_redirect");
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
+	Route::get('/rmdashboard', "DashboardController@rmdashboard");
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
@@ -260,6 +261,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/ajax_get_missing_gatewayaccounts',  'ImportsController@ajax_get_missing_gatewayaccounts');
 	Route::any('/import/account/download_sample_excel_file',  'ImportsController@download_sample_excel_file');
 	Route::any('/import/account/add_missing_gatewayaccounts',  'ImportsController@add_missing_gatewayaccounts');
+	Route::any('/import/account/getAccountInfoFromQuickbook',  'ImportsController@getAccountInfoFromQuickbook');
+	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
+	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
@@ -732,6 +736,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
+	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
 
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
@@ -980,6 +985,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
 	Route::any('/billing_class/delete/{id}','BillingClassController@delete');
 	Route::any('/billing_class/getInfo/{id}','BillingClassController@getInfo');
+
+	Route::any('/quickbook', 'QuickBookController@index');
+	Route::any('/quickbook/disconnect', 'QuickBookController@disconnect');
+	Route::any('/quickbook/addcustomer', 'QuickBookController@addCustomer');
+	Route::any('/quickbook/oauth', 'QuickBookController@quickbookoauth');
+	Route::any('/quickbook/success', 'QuickBookController@success');
+	Route::any('/quickbook/customers', 'QuickBookController@getAllCustomer');
+	Route::any('/quickbook/items', 'QuickBookController@getAllItems');
+	Route::any('/quickbook/createitem', 'QuickBookController@createItem');
 
 });
 

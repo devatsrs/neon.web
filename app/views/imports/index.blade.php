@@ -23,6 +23,12 @@
 
 @include('includes.errors')
 @include('includes.success')
+<style>
+    .col-md-4{
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
     <div class="steps-progress" style="display:none">
@@ -50,57 +56,70 @@
 
                 </br></br>
                 <div class="col-md-1"></div>
-                <div class="col-md-11">
-                    <div class="">
-                        <input type="radio" name="size" data-id="" value="excel" id="size_S" checked />
-                        <label for="size_S" class="newredio active">EXCEL</label>
-                        <input type="radio" name="size" data-id="" value="csv" id="size_M"/>
-                        <label for="size_M" class="newredio">CSV</label>
+                    <div class="col-md-9">
+                        <div class="col-md-4">
+                            <input type="radio" name="size" data-id="" value="excel" id="size_S" checked />
+                            <label for="size_S" class="newredio active">EXCEL</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="radio" name="size" data-id="" value="csv" id="size_M"/>
+                            <label for="size_M" class="newredio">CSV</label>
+                        </div>
                         @foreach($gatewaylist as $gateway)
-                        <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
-                        <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
+                            <div class="col-md-4">
+                                <input type="radio" name="size" data-id="{{$gateway['CompanyGatewayID']}}" data-name="{{$gateway['Title']}}" data-gateway="{{$gateway['Gateway']}}" value="{{$gateway['Gateway']}}" id="size_{{$gateway['CompanyGatewayID']}}"/>
+                                <label for="size_{{$gateway['CompanyGatewayID']}}" class="newredio">{{$gateway['Title']}}</label>
+                            </div>
                         @endforeach
+                        @if(!empty($check_quickbook))
+                        <div class="col-md-4">
+                            <input type="radio" name="size" data-id="" value="quickbook" id="size_Q"/>
+                            <label for="size_Q" class="newredio">Quickbook</label>
+                        </div>
+                        @endif
 
                     </div>
-                </div>
+                <div class="col-md-2"></div>
             </div>
         </div>
 
         <div class="tab-pane" id="tab2-2">
             <input type="hidden" name="importway" value="">
             <div class="row" id="csvimport">
+                <div class="col-md-1"></div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <input type="hidden" name="importfrom" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('uploadtemplate', $UploadTemplate, '' , array("class"=>"select2")) }}
 
-                <div class="form-group">
-                    <input type="hidden" name="importfrom" value="">
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
-                    <div class="col-sm-4">
-                        {{ Form::select('uploadtemplate', $UploadTemplate, '' , array("class"=>"select2")) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                        <div class="col-sm-4">
+                            <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" data-validate="required"/>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Note</label>
+                        <div class="col-sm-8">
+
+                            <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
+                            <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
+
+                            <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+
+                        </div>
 
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
-                    <div class="col-sm-4">
-                        <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" data-validate="required"/>
-
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Note</label>
-                    <div class="col-sm-8">
-
-                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
-                        <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" 			class="label label-info">Format</span></p>
-
-                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('/import/account/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
-
-                    </div>
-
-                </div>
-
+                <div class="col-md-2"></div>
             </div>
 
             <div class="row" id="gatewayimport">
@@ -121,6 +140,37 @@
                             <thead>
                             <tr>
                                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                                <th width="15%" >Account Name</th>
+                                <th width="15%" >First Name</th>
+                                <th width="15%" >Last Name</th>
+                                <th width="15%" >Email</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="quickbookimport">
+                <!--<input type="hidden" name="gateway" value="">
+                <input type="hidden" name="CompanyGatewayID" value="">-->
+                <input type="hidden" name="quickbookimportprocessid" value="">
+                <input type="hidden" name="importaccountsuccess" value="">
+                <span id="quickbook_filter"></span>
+                <span id="get_quickbookaccount"></span>
+                <span class="quickbookloading">Retrieving Accounts ... </span>
+                <p style="float: right">
+                    <button type="button" id="uploadaccount1"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
+                </p>
+                <div class="clear"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered datatable" id="table-6">
+                            <thead>
+                            <tr>
+                                <th width="5%"><input type="checkbox" id="selectall1" name="checkbox[]" class="" /></th>
                                 <th width="15%" >Account Name</th>
                                 <th width="15%" >First Name</th>
                                 <th width="15%" >Last Name</th>
@@ -191,7 +241,7 @@
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">First row:</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <p style="text-align: right;">
@@ -217,111 +267,111 @@
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Account Number</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[AccountName]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
 
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Title</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"select2 small"))}}
                                                 <input type="hidden" class="form-control" name="AccountType" value="1" />
                                                 <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">First Name</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[FirstName]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[FirstName]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
 
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Last Name</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[LastName]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[LastName]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Phone</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Phone]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Phone]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Email</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Email]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Email]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">BillingEmail</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address1</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Address2</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Address3</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">City</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[City]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[City]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Post Code</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Country</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Country]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Currency]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Currency]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Employee</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Website</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Website]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Website]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">Fax</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Fax]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Fax]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Description</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[Description]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-2 control-label">VatNumber</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[VatNumber]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[VatNumber]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-2 control-label">Tags</label>
                                             <div class="col-sm-4">
-                                                {{Form::select('selection[tags]', array(),'',array("class"=>"selectboxit"))}}
+                                                {{Form::select('selection[tags]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
                                         </div>
                                     </div>
@@ -419,6 +469,8 @@
         $('#gatewayimport').hide();
         $('#pbxactive').hide();
         $('#uploadaccount').hide();
+        $('#uploadaccount1').hide();
+        $('#quickbookimport').hide();
         var activetab = '';
         var element= $("#rootwizard-2");
         var progress = element.find(".steps-progress div");
@@ -475,6 +527,20 @@
                         $("#gatewayimport").find(".gatewayname").html(cgname);
                         $('#gatewayimport').show();
                         $('#gateway_filter').trigger('click');
+
+                    }else if(importfrom=='quickbook'){
+                        $('#st3').remove();
+                        $("#st2 h5.test").html('Select Accounts');
+                        $("#st3 h5.test").html('Import Accounts');
+                        var cgid = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
+                        var cgname = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
+                        $('#csvimport').hide();
+                        $("#quickbookimport").find("input[name='gateway']").val(importfrom);
+                        $("#rootwizard-2").find("input[name='importway']").val(importfrom);
+                        $("#rootwizard-2").find("input[name='CompanyGatewayID']").val(cgid);
+                        $("#quickbookimport").find(".gatewayname").html(cgname);
+                        $('#quickbookimport').show();
+                        $('#quickbook_filter').trigger('click');
 
                     }
 
@@ -579,11 +645,8 @@
             });
             $("#mapping select").each(function(i, el){
                 if(el.name !='selection[DateFormat]'){
-                    $(el).data("selectBox-selectBoxIt").remove();
-                    $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                    $.each(data.columns,function(key,value){
-                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                    });
+                    var self = $('#add-template-form [name="'+el.name+'"]');
+                    rebuildSelect2(self,data.columns,'Skip loading');
                 }
             });
             if(data.AccountFileUploadTemplate){
@@ -597,7 +660,7 @@
                             if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                                 $('#add-template-form').find('[name="option['+key+']"]').val(value)
                                 if(key == 'Firstrow'){
-                                    $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                    $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                                 }
                             }
 
@@ -606,7 +669,7 @@
                             if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                                 $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                             }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                                $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                             }
                         });
                     }
@@ -701,6 +764,34 @@
             });
         });
         $('#table-5 tbody').on('click', 'tr', function() {
+            if (checked =='') {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
+            }
+        });
+
+        /*quickbook */
+        $("#selectall1").click(function(ev) {
+            var is_checked = $(this).is(':checked');
+            $('#table-6 tbody tr').each(function(i, el) {
+                if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                }
+            });
+        });
+        $('#table-6 tbody').on('click', 'tr', function() {
             if (checked =='') {
                 if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                     $(this).toggleClass('selected');
@@ -895,6 +986,176 @@
         });
 
 
+        /*QuickBook Import*/
+
+        $("#quickbook_filter").click(function(e) {
+            $.ajax({
+                url: baseurl + '/import/account/getAccountInfoFromQuickbook',
+                type: 'POST',
+                datatype: 'json',
+                data: 'gateway=quickbook',
+                beforeSend: function(){
+                    $(".quickbookloading").show();
+                },
+                success: function (response) {
+                    //$('#importaccount').button('reset');
+                    $('.quickbookloading').hide();
+                    if (response.status == 'success') {
+                        //$('#importaccount').hide();
+                        $("#quickbookimport input[name='importaccountsuccess']").val('1');
+                        $("#quickbookimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
+                        $("#quickbookimport input[name='quickbookimportprocessid']").val(response.processid);
+                        //toastr.success(response.message, "Success", toastr_opts);
+                        $('#get_quickbookaccount').trigger('click');
+                        $('#uploadaccount1').show();
+                        $('.pager li .next').addClass('disabled');
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                        $('#get_quickbookaccount').trigger('click');
+                        $('#uploadaccount1').show();
+                        $('.pager li .next').addClass('disabled');
+                    }
+                }
+            });
+
+        });
+
+        $("#get_quickbookaccount").click(function(e) {
+            e.preventDefault();
+            //var CGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
+            var cprocessid=$("#quickbookimport input[name='quickbookimportprocessid']").val();
+            data_table = $("#table-6").dataTable({
+                "bProcessing":true,
+                "bDestroy": true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/import/account/ajax_get_missing_quickbookaccounts",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "fnServerParams": function(aoData) {
+                    aoData.push({"name":"quickbookimportprocessid","value":cprocessid});
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push({"name":"quickbookimportprocessid","value":cprocessid},{"name":"Export","value":1});
+                },
+                "sPaginationType": "bootstrap",
+                "aaSorting"   : [[1, 'asc']],
+                "oTableTools":
+                {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "Export Data",
+                            "sUrl": baseurl + "/import/account/ajax_get_missing_quickbookaccounts",
+                            sButtonClass: "save-collection"
+                        }
+                    ]
+                },
+                "aoColumns":
+                        [
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                }
+                            }, //0Checkbox
+                            { "bSortable": true },//account name
+                            { "bSortable": true },//first name
+                            { "bSortable": true },// last name
+                            { "bSortable": true }  // email,
+
+                        ],
+                "fnDrawCallback": function() {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                    $('#table-6 tbody tr').each(function(i, el) {
+                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (checked != '') {
+                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                $(this).addClass('selected');
+                                $('#selectallbutton').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                $(this).removeClass('selected');
+                            }
+                        }
+                    });
+                    $('#selectallbutton1').click(function(ev) {
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall1").prop("checked", true).prop('disabled', true);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-6 tbody tr').each(function(i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                });
+                            }
+                        }else{
+                            checked = '';
+                            $("#selectall1").prop("checked", false).prop('disabled', false);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-6 tbody tr').each(function(i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton1" name="checkboxselect[]" class="" title="Select All Found Records" />');
+        });
+        //ajax search over
+
+
+        // import account in system from gateway
+        $("#uploadaccount1").click(function(ev) {
+            var criteria = '';
+            var AccountIDs = [];
+            //var gatewayid = $("#rootwizard-2 input[name='CompanyGatewayID']").val();
+            var quickbookimportprocessid = $("#rootwizard-2 input[name='quickbookimportprocessid']").val();
+
+            if($('#selectallbutton1').is(':checked')){
+                //criteria = JSON.stringify($searchFilter);
+                criteria = 1;
+            }else{
+                var i = 0;
+                $('#table-6 tr .rowcheckbox:checked').each(function(i, el) {
+                    //console.log($(this).val());
+                    AccountID = $(this).val();
+                    if(typeof AccountID != 'undefined' && AccountID != null && AccountID != 'null'){
+                        AccountIDs[i++] = AccountID;
+                    }
+                });
+            }
+            if(AccountIDs.length || criteria==1 ){
+                if(criteria==''){
+                    AccountIDs=AccountIDs.join(",");
+                }
+                if (!confirm('Are you sure you want to import selected gateway account?')) {
+                    return;
+                }
+                $.ajax({
+                    url: baseurl + '/import/account/add_missing_quickbookaccounts',
+                    data: 'TempAccountIDs='+AccountIDs+'&criteria='+criteria+'&gateway=quickbook&quickbookimportprocessid='+quickbookimportprocessid,
+                    error: function () {
+                        toastr.error("error", "Error", toastr_opts);
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            reloadJobsDrodown(0);
+                            location.reload();
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    type: 'POST'
+                });
+
+            }
+        });
+
+
         });
     </script>
 <script type="text/javascript" src="<?php echo URL::to('/').'/assets/js/jquery.bootstrap.wizard.min.js'; ?>" ></script>
@@ -953,7 +1214,7 @@
 
         color : #ffffff !important;
     }
-    .gatewayloading{
+    .gatewayloading, .quickbookloading{
         display:none;
         color: #ffffff;
         background: #303641;
@@ -973,7 +1234,7 @@
     }
 
     #csvimport{
-        padding: 0 75px;
+        /*padding: 0 75px;*/
     }
     h5{
         font-size: 14px !important;

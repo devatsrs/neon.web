@@ -106,7 +106,7 @@
                         <label for="field-1" class="col-sm-2 control-label">Default DashBoard</label>
 
                         <div class="col-sm-4">
-                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
@@ -206,7 +206,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -412,7 +412,7 @@
 						  //$('.SmtpResponse').html(Response.response);
 						  $('.model-title-set').html('Test Mail Settings');
 						  
-						},
+						}
 				});	
         
             	
