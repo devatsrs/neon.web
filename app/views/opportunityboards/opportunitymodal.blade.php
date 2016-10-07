@@ -370,7 +370,7 @@
                                         <div class="input-group" style="width: 100%;">
                                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                                 <?php $NamePrefix_array = array("" => "-None-", "Mr" => "Mr", "Miss" => "Miss", "Mrs" => "Mrs"); ?>
-                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}}
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small",'style'=>'min-width:75px;'))}}
                                             </div>
                                             <input type="text" name="FirstName" class="form-control" id="field-5">
                                         </div>
