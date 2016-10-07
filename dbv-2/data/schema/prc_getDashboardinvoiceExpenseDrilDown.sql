@@ -112,7 +112,6 @@ BEGIN
             PaymentDate,
             CreatedBy,
             InvoiceNo,
-            PaymentMethod,
             Notes
 				FROM tmp_Payment_
 				where (PaymentDate BETWEEN p_StartDate AND p_EndDate); 

@@ -78,10 +78,15 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				$('#EmailAction-model .modal-content').html('');
 				$('#EmailAction-model .modal-content').html(response);				
 					var mod =  $(document).find('.EmailAction_box');
-				 	mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        			mod.find('.message').show();
-					
-				 	mod.find('.message').wysihtml5({
+					$('#EmailAction-model').modal('show');
+				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        			//mod.find('.message').show();
+				mod.find("select").select2({
+                    minimumResultsForSearch: -1
+                });
+				mod.find('.select2-container').css('visibility','visible');
+				setTimeout(function(){ 
+				mod.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":true,
@@ -92,14 +97,13 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 						"image": true,
 						"color": false,
 						parser: function(html) {
+							console.log(html);
+							console.log(html);
 							return html;
 						}
 				});
-				mod.find("select").select2({
-                    minimumResultsForSearch: -1
-                });
-				mod.find('.select2-container').css('visibility','visible');
-				$('#EmailAction-model').modal('show');
+				 }, 500);
+				
 		    
 			},
 		});

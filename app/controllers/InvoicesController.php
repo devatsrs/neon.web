@@ -1065,10 +1065,13 @@ class InvoicesController extends \BaseController {
                     Insert email log in account
                 */
 				$data['Message'] = $body;
+				$message_id 	=  isset($status['message_id'])?$status['message_id']:"";
                 $logData = ['AccountID'=>$Invoice->AccountID,
                     'EmailTo'=>$CustomerEmail,
                     'Subject'=>$data['Subject'],
-                    'Message'=>$data['Message']];
+                    'Message'=>$data['Message'],
+					"message_id"=>$message_id
+					];
                 email_log($logData);
             }
             /*
@@ -1103,14 +1106,7 @@ class InvoicesController extends \BaseController {
     
 	    if(is_array($data['EmailTo']))
 		{
-            foreach((array)$data['EmailTo'] as $email_address)
-			{
-                if(!empty($email_address))
-				{
-					$data['EmailTo'] 	= 	trim($email_address);
-					$status 			= 	sendMail($view,$data);
-                }
-            }
+            $status 			= 	sendMail($view,$data);
         }
 		else
 		{ 
