@@ -112,11 +112,12 @@ function populateInterval(jobtype,form){
             option.sort();
             selectBoxStartDay.append(option);
             selectBoxStartDay.val(1).trigger('change');
-            options.sort();
-            selectBox.append(options);
-            selectBox.val(1).trigger('change');
+
             $("#billing-form ."+form+"Day").show();
             starttime.show();
         }
+        options.sort();
+        selectBox.append(options);
+        selectBox.val(1).trigger('change');
     }
 }
