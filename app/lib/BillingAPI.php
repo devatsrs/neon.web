@@ -506,4 +506,14 @@ class BillingAPI {
 		}
 		return false;
 	}
+
+	public function getAccountsDetail($addparams=array()){
+		/* Check Connection default return Company Info */
+		if($this->quickbooks_is_connected){
+			/* check Authantication and connect api */
+
+			return $this->request->getAccountsDetail($addparams);
+		}
+		return false;
+	}
 }
