@@ -43,7 +43,7 @@
                             <input class="form-control" name="account_name"  type="text" >
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Number</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
                         <label class="col-sm-1 control-label">Contact Name</label>

@@ -647,4 +647,176 @@ class QuickBook {
 		Log::info(print_r($response,true));
 		exit;
 	}
+
+	/* Account Get From QuickBook And Insert Temp Account For Account Import*/
+
+	public function getAccountsDetail($addparams=array()){
+		$response = array();
+		if ($this->is_quickbook()) {
+			if ($this->quickbooks_is_connected) {
+
+				$Context = $this->Context;
+
+				$realm = $this->realm;
+
+				$allcustomer = array();
+
+
+				$CustomerService = new QuickBooks_IPP_Service_Customer();
+
+				$customers = $CustomerService->query($Context, $realm, "SELECT * FROM Customer MAXRESULTS 1000");
+				$count = $CustomerService->query($Context, $realm, "SELECT COUNT(*) FROM Customer  ");
+				//echo $count;exit;
+
+				log::info('---count customer---'.$count);
+
+				if(!empty($customers) && $count>0 && count($addparams)>0){
+
+					$tempItemData = array();
+
+					$batch_insert_array = array();
+					$CompanyID = $addparams['CompanyID'];
+					$ProcessID = $addparams['ProcessID'];
+					$FirstName = $LastName = '';
+					$Address1 = $Address2 = $Address3 = $City = $Postcode = $Country = '';
+					$Email = $Phone1 = $Phone2 = $Fax = '';
+
+					foreach ((array)$customers as $Customer){
+						//print('Customer Id=' . $Customer->getId() . ' is named: ' . $Customer->getFullyQualifiedName() . '<br>');
+
+						if(!empty($Customer->getId())){
+
+							$id = $Customer->getId();
+							$id = str_replace('{-','',$id);
+							$id = str_replace('}','',$id);
+
+							//$allcustomer = $allcustomer[];
+							$FirstName = $Customer->getGivenName();
+							$LastName = $Customer->getFamilyName();
+							$Phone = $Customer->getPrimaryPhone();
+							if(!empty($Phone) && count($Phone)>0){
+								$Phone1 = $Phone->getFreeFormNumber();
+							}
+							$Email = $Customer->getPrimaryEmailAddr();
+							if(!empty($Email) && count($Email)>0){
+								$Email = $Email->getAddress();
+							}
+							$BillAddr = $Customer->getBillAddr();
+							if(!empty($BillAddr) && count($BillAddr)>0){
+								$Address1 = $BillAddr->getLine1();
+								$Address2 = $BillAddr->getLine2();
+								$City = $BillAddr->getCity();
+								$PostCode = $BillAddr->getPostalCode();
+								$Country = $BillAddr->getCountry();
+							}
+
+							$tempItemData['AccountName'] = $Customer->getDisplayName();
+							if(!empty($FirstName)){
+								$tempItemData['FirstName'] = $FirstName;
+							}else{
+								$tempItemData['FirstName'] = '';
+							}
+
+							if(!empty($LastName)){
+								$tempItemData['LastName'] = $LastName;
+							}else{
+								$tempItemData['LastName'] = '';
+							}
+
+							if(!empty($Email)){
+								$tempItemData['Email'] = $Email;
+							}else{
+								$tempItemData['Email'] ='';
+							}
+
+							if(!empty($Address1)){
+								$tempItemData['Address1'] = $Address1;
+							}else{
+								$tempItemData['Address1'] = '';
+							}
+							if(!empty($Address2)){
+								$tempItemData['Address2'] = $Address2;
+							}else{
+								$tempItemData['Address2'] = '';
+							}
+							if(!empty($City)){
+								$tempItemData['City'] = $City;
+							}else{
+								$tempItemData['City'] ='';
+							}
+							if(!empty($Postcode)){
+								$tempItemData['PostCode'] = $Postcode;
+							}else{
+								$tempItemData['PostCode'] = '';
+							}
+							if(!empty($Country)){
+								$checkCountry=strtoupper($Country);
+								if($checkCountry=='UK'){
+									$checkCountry = 'UNITED KINGDOM';
+								}
+								$count = DB::table('tblCountry')->where(["Country" => $checkCountry])->count();
+								if($count>0){
+									$tempItemData['Country'] = $checkCountry;
+								}else{
+									$tempItemData['Country'] = '';
+								}
+							}else{
+								$tempItemData['Country'] = '';
+							}
+							if(!empty($Phone1)){
+								$tempItemData['Phone'] = $Phone1;
+							}else{
+								$tempItemData['Phone'] = '';
+							}
+							$tempItemData['AccountType'] = 1;
+							$tempItemData['CompanyId'] = $CompanyID;
+							$tempItemData['Status'] = 1;
+							$tempItemData['LeadSource'] = 'QuickbookImport';
+							$tempItemData['ProcessID'] = $ProcessID;
+							$tempItemData['created_at'] = date('Y-m-d H:i:s.000');
+							$tempItemData['created_by'] = 'Imported';
+
+							if(!empty($tempItemData['AccountName'])){
+								$count = DB::table('tblAccount')->where(["AccountName" => $tempItemData['AccountName'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+								if($count==0){
+									$batch_insert_array[] = $tempItemData;
+								}
+							}
+
+						}
+					}// get data from quickbook
+
+					if (!empty($batch_insert_array)) {
+						//Log::info('insertion start');
+						try{
+							if(DB::table('tblTempAccount')->insert($batch_insert_array)){
+								$response['result'] = 'OK';
+							}
+						}catch(Exception $err){
+							$response['error'] =  'Failed to connect QuickBook.';
+							//$response['faultString'] =  $err->getMessage();
+							//$response['faultCode'] =  $err->getCode();
+							Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $err->getCode(). ", Reason: " . $err->getMessage());
+							//throw new Exception($err->getMessage());
+						}
+						//Log::info('insertion end');
+					}else{
+						$response['result'] = 'OK';
+					}
+
+					//log::info(print_r($batch_insert_array,true));
+				}  // insert into temp account
+				else{
+					$response['result'] = 'OK';
+				}
+
+			}else{
+				$response['error'] =  'Failed to connect QuickBook.';
+			}
+		}else{
+			$response['error'] =  'Failed to connect QuickBook.';
+		}
+
+		return $response;
+	}
 }
