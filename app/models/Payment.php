@@ -7,9 +7,9 @@ class Payment extends \Eloquent {
     protected $table = 'tblPayment';
     protected  $primaryKey = "PaymentID";
 
-    public static $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT','PAYPAL_IPN'=>"PAYPAL");
-    public static $action = array(''=>'Select Action','Payment In'=>'Payment In','Payment Out'=>'Payment Out');
-    public static $status = array(''=>'Select Status','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+    public static $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT','PAYPAL_IPN'=>"PAYPAL");
+    public static $action = array(''=>'Select ','Payment In'=>'Payment In','Payment Out'=>'Payment Out');
+    public static $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
     //public $timestamps = false; // no created_at and updated_at
 
     public static $credit_card_type = array(

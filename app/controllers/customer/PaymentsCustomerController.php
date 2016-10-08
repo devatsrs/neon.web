@@ -80,9 +80,9 @@ class PaymentsCustomerController extends \BaseController {
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
         $AccountID = User::get_userID();
-        $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
-        $action = array(''=>'Select Action','Payment In'=>'Payment out','Payment Out'=>'Payment In');
-        $status = array(''=>'Select Status','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+        $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
+        $action = array(''=>'Select ','Payment In'=>'Payment out','Payment Out'=>'Payment In');
+        $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
         return View::make('customer.payments.index', compact('id','currency','method','type','status','action','AccountID'));
 	}
 
