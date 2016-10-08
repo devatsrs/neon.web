@@ -1038,6 +1038,7 @@ class InvoicesController extends \BaseController {
              * */
             //$status = sendMail('emails.invoices.send',$data);
             $status = 0;
+            $body = '';
             $CustomerEmails = $data['EmailTo'];
             foreach($CustomerEmails as $singleemail){
                 $singleemail = trim($singleemail);
@@ -1064,12 +1065,12 @@ class InvoicesController extends \BaseController {
                 /*
                     Insert email log in account
                 */
-				$data['Message'] = $body;
+				//$data['Message'] = $body;
 				$message_id 	=  isset($status['message_id'])?$status['message_id']:"";
                 $logData = ['AccountID'=>$Invoice->AccountID,
                     'EmailTo'=>$CustomerEmail,
                     'Subject'=>$data['Subject'],
-                    'Message'=>$data['Message'],
+                    'Message'=>$body,
 					"message_id"=>$message_id
 					];
                 email_log($logData);
