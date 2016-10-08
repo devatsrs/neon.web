@@ -52,7 +52,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                                    {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 small"))}}
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email*</label>
                                 <div class="col-sm-4">
@@ -62,7 +62,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('CDRType', Account::$cdr_type, ( isset($BillingClass->CDRType)?$BillingClass->CDRType:'' ),array('id'=>'billing_type',"class"=>"selectboxit"))}}
+                                    {{Form::select('CDRType', Account::$cdr_type, ( isset($BillingClass->CDRType)?$BillingClass->CDRType:'' ),array('id'=>'billing_type',"class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
 
                                                             </td>
                                                             <td>
-                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"selectboxit form-control"))}}
+                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 small form-control"))}}
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -169,18 +169,18 @@
                                         </div>
                                         <label class="col-sm-2 control-label">Template</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
+                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 small form-control"))}}
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="field-5" class="col-sm-2 control-label">Time</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($PaymentReminders->Time)?$PaymentReminders->Time:''),array( "class"=>"selectboxit"))}}
+                                            {{Form::select('PaymentReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($PaymentReminders->Time)?$PaymentReminders->Time:''),array( "class"=>"select2 small"))}}
                                         </div>
 
                                         <label for="field-5" class="col-sm-2 control-label">Interval</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[Interval]',array(),'',array( "class"=>"selectboxit"))}}
+                                            {{Form::select('PaymentReminder[Interval]',array(),'',array( "class"=>"select2 small"))}}
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -197,7 +197,7 @@
                                     <div class="form-group PaymentReminderDay">
                                         <label for="field-5" class="col-sm-2 control-label">Start Day</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[StartDay]',array(),'',array( "class"=>"selectboxit"))}}
+                                            {{Form::select('PaymentReminder[StartDay]',array(),'',array( "class"=>"select2 small"))}}
                                         </div>
                                     </div>
                                 </div>
@@ -230,18 +230,18 @@
                                 </div>
                                 <label class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
+                                    {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 small form-control"))}}
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Time</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"selectboxit"))}}
+                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"select2 small"))}}
                                 </div>
 
                                 <label for="field-5" class="col-sm-2 control-label">Interval</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[Interval]',array(),'',array( "class"=>"selectboxit"))}}
+                                    {{Form::select('LowBalanceReminder[Interval]',array(),'',array( "class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -258,7 +258,7 @@
                             <div class="form-group LowBalanceReminderDay">
                                 <label for="field-5" class="col-sm-2 control-label">Start Day</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[StartDay]',array(),'',array( "class"=>"selectboxit"))}}
+                                    {{Form::select('LowBalanceReminder[StartDay]',array(),'',array( "class"=>"select2 small"))}}
                                 </div>
                             </div>
 
@@ -293,16 +293,16 @@
 <script>
     var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
     add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td>{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"selectboxit form-control"))}}</td><tr>';
+    add_row_html_payment += '<td>{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 small form-control"))}}</td><tr>';
     jQuery(document).ready(function ($) {
         $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
         $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
             setTimeout(function(){
                 @if(isset($PaymentReminders->Interval))
-                $("#billing-form [name='PaymentReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('{{$PaymentReminders->Interval}}');
+                $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
                 @if(isset($LowBalanceReminder->Interval))
-                $("#billing-form [name='LowBalanceReminder[Interval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('{{$LowBalanceReminder->Interval}}');
+                $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
             },5);
 
