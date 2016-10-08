@@ -405,7 +405,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Billing Class*</label>
                     <div class="col-sm-4">
-                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"selectboxit form-control1"));}}
+                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
                     <div class="col-sm-4">

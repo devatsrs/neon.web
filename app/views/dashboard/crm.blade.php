@@ -3,7 +3,7 @@
 
     <div class="row">
         <div id="customer" class="col-sm-12">
-            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="crm_dashboard">
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="crm_dashboard">
                 <div data-collapsed="0" class="panel panel-primary">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -286,14 +286,15 @@ if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmA
 <div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
-@if(((count($CrmAllowedReports)==0) ||  in_array('Task',$CrmAllowedReports)) && (User::checkCategoryPermission('Task','Edit'))) 
+
+@if(User::checkCategoryPermission('Task','Edit'))
 var task_edit = 1;
 @else 
 var task_edit = 0;
 @endif;
 
 
-@if(((count($CrmAllowedReports)==0) ||  in_array('Opportunity',$CrmAllowedReports)) && (User::checkCategoryPermission('Opportunity','Edit')))
+@if(User::checkCategoryPermission('Opportunity','Edit'))
 var Opportunity_edit = 1;
 @else 
 var Opportunity_edit = 0;

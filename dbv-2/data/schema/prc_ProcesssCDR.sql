@@ -47,9 +47,9 @@ BEGIN
 	SET @stm = CONCAT('
 	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
 	INNER JOIN tblGatewayAccount ga
-		ON ga.GatewayAccountID = uh.GatewayAccountID
-		AND ga.CompanyID = uh.CompanyID
+		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.GatewayAccountID = uh.GatewayAccountID
 	SET uh.AccountID = ga.AccountID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
@@ -63,9 +63,9 @@ BEGIN
 	/* update header cdr account */
 	UPDATE NeonCDRDev.tblUsageHeader uh
 	INNER JOIN tblGatewayAccount ga
-		ON ga.GatewayAccountID = uh.GatewayAccountID
-		AND ga.CompanyID = uh.CompanyID
+		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.GatewayAccountID = uh.GatewayAccountID
 	SET uh.AccountID = ga.AccountID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
