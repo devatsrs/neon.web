@@ -622,6 +622,11 @@ function email_log($data){
     {
         $data['bcc'] = array();
     }
+	
+	if(!isset($data['message_id']))
+	{
+		$data['message_id'] = '';
+	}
 
     $logData = ['EmailFrom'=>User::get_user_email(),
         'EmailTo'=>$data['EmailTo'],
@@ -632,7 +637,8 @@ function email_log($data){
         'UserID'=>User::get_userID(),
         'CreatedBy'=>User::get_user_full_name(),
         'Cc'=>implode(",",$data['cc']),
-        'Bcc'=>implode(",",$data['bcc'])];
+        'Bcc'=>implode(",",$data['bcc']),
+		"MessageID"=>$data['message_id']];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;
     }

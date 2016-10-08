@@ -36,7 +36,7 @@
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
+                                        {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">Country</label>
                                     <div class="col-sm-2">
@@ -86,8 +86,6 @@
                     <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                     <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
                     <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
-                    <li ><a href="#account" data-toggle="tab">Account</a></li>
-                    <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="destination" >
@@ -101,14 +99,6 @@
                     <div class="tab-pane" id="trunk" >
                         @include('vendoranalysis.trunk')
                         @include('vendoranalysis.trunk_grid')
-                    </div>
-                    <div class="tab-pane" id="account" >
-                        @include('vendoranalysis.account')
-                        @include('vendoranalysis.account_grid')
-                    </div>
-                    <div class="tab-pane" id="gateway" >
-                        @include('vendoranalysis.gateway')
-                        @include('vendoranalysis.gateway_grid')
                     </div>
                 </div>
             </div>

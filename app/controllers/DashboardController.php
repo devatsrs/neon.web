@@ -10,6 +10,9 @@ class DashboardController extends BaseController {
     public function home() {
         return Redirect::to('/process_redirect');
     }
+    public function rmdashboard() {
+        return View::make('dashboard.index');
+    }
     public function salesdashboard(){
 
             $companyID = User::get_companyID();

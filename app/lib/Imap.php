@@ -12,7 +12,7 @@ protected $server;
 		 }		 		 
 	 }
 	 
-	 function ReadEmails($CompanyID){
+	 function ReadEmails(){
 		 
 		$email 		= 	$this->email;
 		$password 	= 	$this->password;		
@@ -67,7 +67,7 @@ protected $server;
 				$MatchID	 		  =	    $MatchArray['MatchID'];
 				$AccountTitle		  =	    !empty($MatchArray['AccountTitle'])?$MatchArray['AccountTitle']:$this->GetNametxt($overview[0]->from);		
 				
-				$attachmentsDB 		  =		$this->ReadAttachments($structure,$inbox,$email_number,$CompanyID); //saving attachments				
+				$attachmentsDB 		  =		$this->ReadAttachments($structure,$inbox,$email_number); //saving attachments				
 				
 				if(isset($attachmentsDB) && count($attachmentsDB)>0){
 					$AttachmentPaths  =		serialize($attachmentsDB);
@@ -84,7 +84,7 @@ protected $server;
 				"EmailfromName"=>!empty($AccountTitle)?$AccountTitle:$this->GetNametxt($overview[0]->from),
 				'Subject'=>$overview[0]->subject,
 				'Message'=>$message,
-				'CompanyID'=>$CompanyID,
+				'CompanyID'=>User::get_companyID(),
 				"MessageID"=>$message_id,
 				"EmailParent" => $parent,
 				"AccountID" => $parent_account,				
@@ -102,7 +102,7 @@ protected $server;
 				$title = "Received from ".$AccountTitle." (".$from." )";
 				
 					 $data   = array(
-						"CompanyID"=>$CompanyID,
+						"CompanyID"=>User::get_companyID(),
 						"AccountID"=> $parent_account,
 						"Title"=>$title,
 						"MsgLoggedUserID"=>$parent_UserID,
@@ -121,7 +121,7 @@ protected $server;
 		imap_close($inbox);
 	}
 	
-	function ReadAttachments($structure,$inbox,$email_number,$CompanyID)
+	function ReadAttachments($structure,$inbox,$email_number)
 	{
 		$attachments   = array();
 		$attachmentsDB = array();
@@ -190,7 +190,7 @@ protected $server;
 				if(empty($filename)) $filename = time() . ".dat";
 				
 				$file_name 		=  \Webpatser\Uuid\Uuid::generate()."_".basename($filename);
-				$amazonPath 	= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'',$CompanyID);
+				$amazonPath 	= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'');
 				
 				if(!is_dir(getenv("UPLOAD_PATH").'/'.$amazonPath)){
 					 mkdir(getenv("UPLOAD_PATH").'/'.$amazonPath, 0777, true);
@@ -202,8 +202,8 @@ protected $server;
 				fwrite($fp, $attachment['attachment']);
 				fclose($fp);
 				
-				if(is_amazon($CompanyID)){
-					if (!AmazonS3::upload($filepath, $amazonPath,$CompanyID)) {
+				if(is_amazon()){
+					if (!AmazonS3::upload($filepath, $amazonPath)) {
 						throw new \Exception('Error in Amazon upload');	
 					}					
 				}
@@ -258,10 +258,11 @@ protected $server;
 	}	
 	
 	static	function CheckConnection($server,$email,$password){
-		set_time_limit(0); 
-		ini_set('max_execution_time', 0);
+		ini_set('safe_mode',0);
+		set_time_limit(10); 		
 		try{
-			$mbox=imap_open("{".$server."}", $email, $password)  or die("Can't connect to '$server': " . imap_last_error());			
+			$mbox=imap_open("{".$server."}", $email, $password)  or die("Can't connect to '$server': " . imap_last_error());
+			imap_close($mbox);			
 		} catch (\Exception $e) {
 			Log::error("could not connect");
 			Log::error($e);			
