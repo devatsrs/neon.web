@@ -1086,7 +1086,7 @@ class InvoicesController extends \BaseController {
             }
             $sendTo = explode(",",$InvoiceCopy);
             //$sendTo[] = User::get_user_email();
-            $data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
+            //$data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
             $data['EmailTo'] = $sendTo;
             $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
             //$StaffStatus = sendMail('emails.invoices.send',$data);
