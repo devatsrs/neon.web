@@ -2,9 +2,6 @@
 
 @section('content')
     <style>
-        #ServerInfoTab {
-            margin:0 0 1px -11px;
-        }
         #ServerInfoTab li a{
             padding: 10px;
         }
