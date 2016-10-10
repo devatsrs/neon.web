@@ -69,7 +69,7 @@ function set_search_parameter(submit_form){
     $searchFilter.Admin   = $(submit_form).find("input[name='Admin']").val();
     $searchFilter.chart_type   = $(submit_form).find("input[name='chart_type']").val();
     $searchFilter.AccountID = $(submit_form).find("[name='AccountID']").val();
-    $searchFilter.CompanyGatewayID = $(submit_form).find("select[name='CompanyGatewayID']").val();
+    $searchFilter.CompanyGatewayID = $(submit_form).find("[name='CompanyGatewayID']").val();
     $searchFilter.CountryID = $(submit_form).find("[name='CountryID']").val();
     $searchFilter.Prefix = $(submit_form).find("input[name='Prefix']").val();
     $searchFilter.TrunkID = $(submit_form).find("[name='TrunkID']").val();
