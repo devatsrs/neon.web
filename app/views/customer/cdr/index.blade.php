@@ -81,7 +81,7 @@
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">None Zero Cost</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
