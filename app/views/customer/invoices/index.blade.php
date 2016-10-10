@@ -39,7 +39,7 @@
                         <div class="col-sm-2">
                             {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">Zero Value</label>
+                        <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
