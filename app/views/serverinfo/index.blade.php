@@ -181,18 +181,22 @@
                     <h4 class="modal-title">Add Server Info</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Name</label>
-                            <input type="text" name="ServerInfoTitle" class="form-control" value="" />
-                            <input type="hidden" name="ServerInfoID" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Name</label>
+                                <input type="text" name="ServerInfoTitle" class="form-control" value="" />
+                                <input type="hidden" name="ServerInfoID" />
+                            </div>
                         </div>
                     </div>
+                    <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Server URL</label>
                             <input type="text" name="ServerInfoUrl" class="form-control" value="" />
                         </div>
+                    </div>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -34,10 +34,12 @@
                                 <div class="col-sm-2">
                                     <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                 </div>
+                                @if(Session::get('customer') != 1)
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
                                     {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                                 </div>
+                                @endif
                                 <label class="col-sm-1 control-label" for="field-1">Country</label>
                                 <div class="col-sm-2">
                                     {{ Form::select('CountryID',$Country,'', array("class"=>"select2")) }}
@@ -55,6 +57,7 @@
                                 @if(Session::get('customer') == 1)
                                     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
                                     <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
+                                    <input type="hidden" name="CompanyGatewayID" value="0">
                                 @else
 
                                     <label class="col-sm-1 control-label" for="field-1">Account</label>
@@ -88,8 +91,6 @@
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
-        <li ><a href="#account" data-toggle="tab">Account</a></li>
-        <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="destination" >
@@ -103,14 +104,6 @@
         <div class="tab-pane" id="trunk" >
             @include('analysis.trunk')
             @include('analysis.trunk_grid')
-        </div>
-        <div class="tab-pane" id="account" >
-            @include('analysis.account')
-            @include('analysis.account_grid')
-        </div>
-        <div class="tab-pane" id="gateway" >
-            @include('analysis.gateway')
-            @include('analysis.gateway_grid')
         </div>
     </div>
         </div>

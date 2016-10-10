@@ -311,12 +311,16 @@ var postdata;
                                 <input type="text" name="Key" class="form-control" id="field-5" placeholder="">
                              </div>
                         </div>
+                    </div>
+                    <div class="row">
                          <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Message</label>
                                 <input type="text" name="Infomsg" class="form-control" id="field-5" placeholder="">
                              </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
@@ -329,13 +333,16 @@ var postdata;
                                 {{Form::select('AccountType', AccountApproval::$account_type, '',array('id'=>'account_type',"class"=>"select2 small"))}}
                              </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Billing Type</label>
                                 {{Form::select('BillingType', AccountApproval::$billing_type_1, '',array('id'=>'billing_type',"class"=>"select2 small"))}}
                              </div>
                         </div>
-
+                    </div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                             <div class="row">
@@ -357,6 +364,8 @@ var postdata;
                             </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Attachment</label>
