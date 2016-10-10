@@ -12,9 +12,6 @@
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
-        <li>
-            <a href="{{URL::to('cronjob_monitor')}}">Cron Job</a>
-        </li>
         <li class="active">
             <strong>Cron Job</strong>
         </li>
