@@ -5,7 +5,6 @@
             float:none;
         }
         .nav{
-            margin-bottom: 8.5px;
             padding-left: 16px;
         }
     </style>
