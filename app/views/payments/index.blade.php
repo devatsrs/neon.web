@@ -1108,68 +1108,86 @@
         <h4 class="modal-title">View Payment</h4>
       </div>
       <div class="modal-body">
-        <div class="row">
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name</label>
-              <div class="col-sm-12" name="AccountName"></div>
+              <div name="AccountName"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Currency</label>
-              <div class="col-sm-12" name="Currency"></div>
+              <div name="Currency"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice</label>
-              <div class="col-sm-12" name="InvoiceNo"></div>
+              <div name="InvoiceNo"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Date</label>
-              <div class="col-sm-12" name="PaymentDate"></div>
+              <div name="PaymentDate"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Method</label>
-              <div class="col-sm-12" name="PaymentMethod"></div>
+              <div name="PaymentMethod"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Action</label>
-              <div class="col-sm-12" name="PaymentType"></div>
+              <div name="PaymentType"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Amount</label>
-              <div class="col-sm-12" name="Amount"></div>
+              <div name="Amount"></div>
               <input type="hidden" name="PaymentID" >
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Notes</label>
-              <div class="col-sm-12" name="Notes"></div>
+              <div name="Notes"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Recall Reasoan</label>
-              <div class="col-sm-12" name="RecallReasoan"></div>
+              <div name="RecallReasoan"></div>
             </div>
           </div>
-          <div class="col-md-12">
-            <div class="form-group">
-              <label for="field-5" class="control-label">Recall By</label>
-              <div class="col-sm-12" name="RecallBy"></div>
-            </div>
           </div>
+          <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="field-5" class="control-label">Recall By</label>
+                  <div name="RecallBy"></div>
+                </div>
+              </div>
         </div>
       </div>
     </div>
