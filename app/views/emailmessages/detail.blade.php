@@ -39,10 +39,11 @@
         @foreach($attachments as $attachments_data)
         <?php 
    		$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
+		$Filename		=	$attachments_data['filepath'];
    	    ?>
         <li>
           
-          <a href="{{$FilePath}}" class="thumb download"> <img width="175"  src="{{getimageicons($FilePath)}}" class="img-rounded" /> </a>          
+          <a href="{{$FilePath}}" class="thumb download"> <img width="175"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a>          
           <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$FilePath}}">Download</a> </div>
         </li>
