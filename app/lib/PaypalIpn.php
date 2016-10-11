@@ -194,7 +194,7 @@ class PaypalIpn
             $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
         } else {
             $paypal_url  = 'https://www.paypal.com/cgi-bin/webscr';
-            $paypal_email =  $this->business_email;
+            $paypal_email =  $this->paypal_business_email;
 
         }
         $this->amount = number_format($this->amount,2,'.','') ;// paypal gives error if more than 2 decimal placesrequies 2 decimal points
