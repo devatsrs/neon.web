@@ -58,11 +58,12 @@
         <tbody>
           <?php
 		   if(count($result)>0){
-		 foreach($result as $result_data){ 
+		 foreach($result as $result_data){   
 			$attachments  =  unserialize($result_data[3]);
-			$AccountName  =  Account::where(array('AccountID'=>$result_data[5]))->pluck('AccountName');   
+			//$AccountName  =  Account::where(array('AccountID'=>$result_data[6]))->pluck('AccountName');   
+			$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data[7]);
 			 ?>
-          <tr class="<?php if($result_data[5]==0){echo "unread";} ?>"><!-- new email class: unread -->
+          <tr><!-- new email class: unread -->
             <td><div class="hidden checkbox checkbox-replace">
                 <input value="<?php  echo $result_data[0]; ?>" type="checkbox" />
               </div></td>

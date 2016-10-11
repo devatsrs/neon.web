@@ -40,7 +40,7 @@ class IntegrationController extends \BaseController
 		{ 
 
 			if($data['secondcategory']=='freshdesk')
-			{			
+			{	
 				$rules = array(
 					'FreshdeskDomain'	 => 'required',
 					'FreshdeskEmail'	 => 'required|email',
@@ -105,6 +105,11 @@ class IntegrationController extends \BaseController
 				$data['Status'] 				= 	isset($data['Status'])?1:0;	
 				$data['AuthorizeTestAccount'] 	= 	isset($data['AuthorizeTestAccount'])?1:0;	
 				
+				 if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+		  		 }
+				
 				$AuthorizeData = array(
 					"AuthorizeLoginID"=>$data['AuthorizeLoginID'],
 					"AuthorizeTransactionKey"=>$data['AuthorizeTransactionKey'],
@@ -132,7 +137,7 @@ class IntegrationController extends \BaseController
 			{
 				$rules = array(
 					'PaypalEmail'	 => 'required|email',
-					'PaypalLogoUrl'	 => 'required',
+					//'PaypalLogoUrl'	 => 'required',
 				);
 		
 				$validator = Validator::make($data, $rules);
@@ -143,6 +148,11 @@ class IntegrationController extends \BaseController
 				
 				$data['Status'] 		= 	isset($data['Status'])?1:0;	
 				$data['PaypalLive'] 	= 	isset($data['PaypalLive'])?1:0;	
+				
+				 if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+		  		 }
 				
 				$PaypalData = array(
 					"PaypalEmail"=>$data['PaypalEmail'],
@@ -302,7 +312,7 @@ class IntegrationController extends \BaseController
 
 		if($data['firstcategory']=='calendar')
 		{ 
-			if($data['secondcategory']=='Outlook')
+			if($data['secondcategory']=='Exchange')
 			{
 				$rules = array(
 					'OutlookCalendarEmail'	 => 'required|email',

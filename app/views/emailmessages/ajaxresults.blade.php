@@ -36,7 +36,10 @@
 		if(count($result)>0){
 		 foreach($result as $result_data){ 
 			$attachments  =  unserialize($result_data[3]);
-			$AccountName  =  Account::where(array('AccountID'=>$result_data[5]))->pluck('AccountName');   
+			//$AccountName  =  Account::where(array('AccountID'=>$result_data[5]))->pluck('AccountName');   
+			if(isset($result_data[7])){ //sentbox
+				$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data[7]);
+			}
 			 ?>
     <tr class="<?php if(isset($result_data[6]) && $result_data[6]==0){echo "unread";} ?>"><!-- new email class: unread -->
       <td><div class="hidden checkbox checkbox-replace">
