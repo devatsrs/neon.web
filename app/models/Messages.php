@@ -52,5 +52,30 @@ class Messages extends \Eloquent {
         return $dropdownData;
 
     }
+	
+	public static function GetAccountTtitlesFromEmail($Emails)
+	{
+		$AccountName = array();	
+		if(count($Emails)>0)
+		{
+			$Imap = new Imap();
+			if(!is_array($Emails)){
+				$email_addresses = explode(",",$Emails);
+			}
+			else{
+				$email_addresses = $Emails;
+			}
+	
+			if(count($email_addresses)>0){
+				foreach($email_addresses as $email_address){
+					$EmailData      =  $Imap->findEmailAddress($email_address);
+					$AccountName[]  =  !empty($EmailData['AccountTitle'])?$EmailData['AccountTitle']:$email_address; 					  
+				}
+			}
+		}
+		return implode(",",$AccountName);
+	
+    }
+	
 
 }

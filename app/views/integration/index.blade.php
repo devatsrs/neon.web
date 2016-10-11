@@ -37,7 +37,7 @@
           <div class="col-md-1"></div>
           <div class="col-md-9"> @foreach($categories as $key => $CategoriesData)
             <?php
-				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID']))->first();
+				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID'],"status"=>1))->first();
 				if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0){$active['Status'] =1;} 
 			  ?>
               <div class="col-md-4">
@@ -60,15 +60,7 @@
 				
 		  	 $subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
 			 	foreach($subcategories as $key => $subcategoriesData){
-					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();
-					if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0)
-					{
-						$SubGatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration($subcategoriesData['ForeignID']);	
-						if($SubGatewayConfiguration>0)
-						{
-							$active['Status'] = 1;
-						}
-					} 
+					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();				
 					 
 			  ?>
             <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
@@ -100,7 +92,6 @@
               </label>
             </div>
                 <?php
-				
 			}
 			
 			} } ?>
@@ -210,7 +201,9 @@
           </div>          
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
-              <label class="col-sm-4 control-label">Active:</label>
+              <label class="col-sm-4 control-label">Active:
+              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Support categories" data-original-title="Status" class="label label-info popover-primary">?</span>
+              </label>
               <div class="col-sm-8" id="AuthorizeStatusDiv">
                    <input id="AuthorizeStatus" class="subcatstatus" Divid="AuthorizeStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($AuthorizeDbData->Status) && $AuthorizeDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
@@ -236,7 +229,7 @@
           </div>          
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
-              <label for="field-1" class="col-sm-4 control-label">* Logo Url:</label>
+              <label for="field-1" class="col-sm-4 control-label">Logo Url:</label>
               <div class="col-sm-8">
                 <input type="url"  class="form-control" name="PaypalLogoUrl" value="{{isset($PaypalData->PaypalLogoUrl)?$PaypalData->PaypalLogoUrl:''}}" />
               </div>
@@ -253,7 +246,9 @@
           </div>
           <div class="col-md-6  margin-top pull-right">
             <div class="form-group">
-              <label class="col-sm-4 control-label">Active:</label>
+              <label class="col-sm-4 control-label">Active:
+              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
+              </label>
               <div class="col-sm-8" id="paypalStatusDiv">
                    <input id="PaypalStatus" class="subcatstatus" Divid="paypalStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($PaypalDbData->Status) && $PaypalDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>

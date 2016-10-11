@@ -27,7 +27,7 @@
       <div class="mail-links hidden"> <a href="#" class="btn btn-default"> <i class="entypo-print"></i> </a> <a href="#" class="btn btn-default"> <i class="entypo-trash"></i> </a> <a class="btn btn-primary btn-icon"> Reply <i class="entypo-reply"></i> </a> </div>
     </div>
     <div class="mail-info">
-      <div class="mail-sender"> <a class="href"> <span>{{$Emaildata->EmailfromName}}</span> ({{$Emaildata->Emailfrom}}) to <span>me</span> </a>        
+      <div class="mail-sender"> <a class="href"> <span>{{$from}}</span> ({{$Emaildata->Emailfrom}}) to <span>{{$to}}</span> </a>        
       </div>
       <div class="mail-date"> {{date('H:i A',strtotime($Emaildata->created_at))}} - {{date('d M',strtotime($Emaildata->created_at))}} </div>
     </div>
@@ -65,4 +65,7 @@
   <!-- Sidebar -->
   @include("emailmessages.mail_sidebar")
 </div>
+<style>
+.mail-sender{width:60% !important;}
+</style>
 @stop 

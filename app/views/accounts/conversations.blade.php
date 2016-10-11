@@ -29,8 +29,8 @@
          <a email_number="{{$rows['AccountEmailLogID']}}" action_type="forward" class="email_action" title="Forward"><i class="entypo-forward"></i></a>
        </div>
             	<p><h3>{{$rows['Subject']}}</h3> </p>
-                @if($rows['EmailCall']=='Send' &&  $rows['EmailTo']!='')<p>To: {{$rows['EmailTo']}}</p> @endif
-                @if($rows['EmailCall']=='Received' && $rows['Emailfrom']!='')<p>From: {{$rows['Emailfrom']}}</p> @endif
+                @if($rows['EmailCall']==Messages::Sent &&  $rows['EmailTo']!='')<p>To: {{$rows['EmailTo']}}</p> @endif
+                @if($rows['EmailCall']==Messages::Received && $rows['Emailfrom']!='')<p>From: {{$rows['Emailfrom']}}</p> @endif
             	<div class="replyboxhidden">
              <p>Message:<br> {{$rows['Message']}}</p>
               </p>
