@@ -419,6 +419,11 @@ toastr_opts = {
         $("body").tooltip({
             selector: '[data-toggle="tooltip"]'
         });
+		$('[data-toggle="tooltip"]').click(function() {
+            $('.tooltip').fadeOut('fast', function() {
+                $('.tooltip').remove();
+            });
+        });
         $('[data-toggle="tooltip"]').each(function(i, el)
         {
             var $this = $(el),

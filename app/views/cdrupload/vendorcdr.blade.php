@@ -94,9 +94,9 @@
                     <div class="col-sm-2">
                         {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
-                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Hide Zero Cost</label>
+                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">None Zero Cost</label>
                     <div class="col-sm-2">
-                        <?php $options = [0=>'All',1=>'Zero Cost Only',2=>'Hide Zero Cost'] ?>
+                        <?php $options = [0=>'All',1=>'Zero Cost',2=>'None Zero Cost'] ?>
                         {{ Form::select('zerovaluebuyingcost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
                 </div>

@@ -100,6 +100,27 @@ body {
     text-align: right;
 }
 
+/*Abubakar */
+.newredio.js{
+    width:100% !important;
+}
+
+
+.pull-right-xs .dropdown-menu{
+    width:280px !important;
+}
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter{
+    min-height: 58px;
+}
+.pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus {
+    z-index: 2;
+    color: #ffffff;
+    background-color: #303641;
+    border-color: #303641;
+    cursor: default;
+}
+/*Abubakar End*/
+
 
 /* Dev Edited */
 .dataTables_processing{
@@ -118,14 +139,6 @@ body {
     clear: both;
 }
 
-.newredio.js{
-    width:100% !important;
-}
-
-
-.pull-right-xs .dropdown-menu{
-    width:280px !important;
-}
 
 .datepicker-dropdown{z-index:99999 !important }
 .task.bold{ font-weight: bold; color:#000000; }
