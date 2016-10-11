@@ -29,7 +29,7 @@
     <div class="mail-info">
       <div class="mail-sender"> <a class="href"> <span>{{$from}}</span> ({{$Emaildata->Emailfrom}}) to <span>{{$to}}</span> </a>        
       </div>
-      <div class="mail-date"> {{date('H:i A',strtotime($Emaildata->created_at))}} - {{date('d M',strtotime($Emaildata->created_at))}} </div>
+      <div class="mail-date"> <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($Emaildata->created_at))->diffForHumans();  ?> </div>
     </div>
     <div class="mail-text">{{$Emaildata->Message}}</div>
     @if(count($attachments)>0 && is_array($attachments))
@@ -39,10 +39,11 @@
         @foreach($attachments as $attachments_data)
         <?php 
    		$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
+		$Filename		=	$attachments_data['filepath'];
    	    ?>
         <li>
           
-          <a href="{{$FilePath}}" class="thumb download"> <img width="175"  src="{{getimageicons($FilePath)}}" class="img-rounded" /> </a>          
+          <a href="{{$FilePath}}" class="thumb download"> <img width="175"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a>          
           <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$FilePath}}">Download</a> </div>
         </li>
