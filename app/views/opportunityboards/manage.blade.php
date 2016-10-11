@@ -1115,21 +1115,18 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-11"></div>
-                                <div class="col-md-1">
-                                    <p class="comment-box-options">
-                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
-                                            <i class="entypo-attach"></i>
-                                        </a>
-                                    </p>
-                                </div>
-                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
+                                <div class="col-md-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">
                                     </span>
                                 </div>
-                                <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
+                                <div class="col-md-6 pull-right end-buttons" style="text-align: right;">
+                                    <p class="comment-box-options">
+                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
+                                            <i class="entypo-attach"></i>
+                                        </a>
+                                    </p>
                                     <input type="hidden" name="OpportunityID" >
                                     <input type="hidden" name="AccountID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">

@@ -1043,9 +1043,6 @@ background-color:#f1f1f1;
     color:#333;
     font-size:13px;
 }
-.end-buttons {
-    margin:-50px 0px 0px 0px;
-}
 .placeholder {
 	background-color: #e9eced;
 	border: 1px dashed #666;
@@ -1926,6 +1923,7 @@ cursor:pointer;
     position: relative;
     top:-35px;
     right:5px;
+    height: 1px;
 }
 /*#card-features-details .modal-body div{
     padding-left: 0px;
