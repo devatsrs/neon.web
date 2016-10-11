@@ -38,16 +38,11 @@
       <ul>
         @foreach($attachments as $attachments_data)
         <?php 
-			   		$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
-			   		$ext			= 	pathinfo($attachments_data['filename'], PATHINFO_EXTENSION);
-					$extimage		=	array("jpg","png","bmp","gif");
-				    ?>
+   		$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
+   	    ?>
         <li>
-          <?php if(in_array($ext,$extimage)){ ?>
-          <a href="{{$FilePath}}" class="thumb download"> <img width="175"  src="{{$FilePath}}" class="img-rounded" /> </a>
-          <?php }else{ ?>
-          <a href="{{$FilePath}}" class="thumb download"> <img width="175"  src="{{URL::to('/')}}/assets/images/attach-1.png" class="img-rounded" /> </a>
-          <?php } ?>
+          
+          <a href="{{$FilePath}}" class="thumb download"> <img width="175"  src="{{getimageicons($FilePath)}}" class="img-rounded" /> </a>          
           <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$FilePath}}">Download</a> </div>
         </li>
