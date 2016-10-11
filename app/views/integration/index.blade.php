@@ -419,7 +419,7 @@
               <div class="col-sm-3" id="EmailTrackingDiv">
                    <input id="EmailTrackingstatus" class="subcatstatus" Divid="EmailTrackingDiv" name="Status" type="checkbox" value="1" <?php if(isset($EmailTrackingDBData->Status) && $EmailTrackingDBData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
-         <a id="TestImapConnection"  class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>        
+         <!--<a id="TestImapConnection"  class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>-->        
 
             </div>
           </div> 
