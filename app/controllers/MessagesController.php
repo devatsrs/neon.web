@@ -111,7 +111,17 @@ class MessagesController extends \BaseController {
     }
 	
 	function detail($id){
+	
 		 $Emaildata   				= 	AccountEmailLog::find($id);
+		 $isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
+		 if(!User::is_admin())
+		 {
+		 	if(!$Emaildata->UserID=$User::get_userID())	
+			{
+				Redirect::to('/emailmessages');	
+			}
+		 }
+		 
 	     Messages::where(['EmailID'=>$id])->update(["HasRead"=>1]);	 //update read status	
 		 $attachments 				= 	unserialize($Emaildata->AttachmentPaths);		
 		 $data['EmailCall'] 		= 	Messages::Received;
