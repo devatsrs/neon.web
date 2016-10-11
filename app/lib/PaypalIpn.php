@@ -193,7 +193,7 @@ class PaypalIpn
             $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
             $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
         } else {
-            $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+            $paypal_url  = 'https://www.paypal.com/cgi-bin/webscr';
             $paypal_email =  $this->business_email;
 
         }
