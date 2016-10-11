@@ -210,7 +210,7 @@ class PaypalIpn
         <input type="hidden" name="amount" value="' . $this->amount  .  '"/>
         <input type="hidden" name="custom" value=""/>
         <input type="hidden" name="currency_code" value="' . $this->curreny_code  .  '"/>
-        <input type="hidden" name="image_url" value=""/>
+        <input type="hidden" name="image_url" value="'. $this->logo_url .'"/>
         <input type="hidden" name="rm" value="2"/>
         <input type="hidden" name="cmd" value="_xclick"/>
         <button type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now With Paypal</button>
