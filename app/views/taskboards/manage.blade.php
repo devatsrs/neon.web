@@ -993,10 +993,15 @@
                         <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
                         <br>
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
-                        <div id="allComments" class="form-group">
-
+                        <div class="row">
+                            <div class="co-md-12">
+                                <div id="allComments" class="form-group"></div>
+                            </div>
                         </div>
-                        <div id="attachments" class="form-group">
+                        <div class="row">
+                            <div class="co-md-12">
+                                <div id="attachments" class="form-group"></div>
+                            </div>
                         </div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
                             <div class="col-md-8"></div>

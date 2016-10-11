@@ -252,26 +252,32 @@
                         <h4 class="modal-title">Additional Charges</h4>
                     </div>
                     <div class="modal-body">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Type</label>
-                                {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 small product_dropdown"))}}
-                                <input type="hidden" name="NotificationID" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Type</label>
+                                    {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 small product_dropdown"))}}
+                                    <input type="hidden" name="NotificationID" />
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Email Addresses</label>
-                                <input type="text" name="EmailAddresses" class="form-control" value="" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Email Addresses</label>
+                                    <input type="text" name="EmailAddresses" class="form-control" value="" />
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Active</label>
-                                <div class="clear">
-                                    <p class="make-switch switch-small">
-                                        <input type="checkbox" checked=""  name="Status" value="0">
-                                    </p>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Active</label>
+                                    <div class="clear">
+                                        <p class="make-switch switch-small">
+                                            <input type="checkbox" checked=""  name="Status" value="0">
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
