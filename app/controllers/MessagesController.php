@@ -131,8 +131,13 @@ class MessagesController extends \BaseController {
 		 $resultdata   				=   $array['resultdata'];	
 		 $resultpage  				=   $array['resultpage'];		
 		 $TotalUnreads				=	$resultdata->data['TotalUnreads'][0]->totalcount;	
-		 $user 						=   User::find($Emaildata->UserID);  		 
-		 $to  						=	isset($Emaildata->EmailTo)?Messages::GetAccountTtitlesFromEmail($Emaildata->EmailTo):$user->FirstName.' '.$user->LastName; 
+		 $user 						=   User::find($Emaildata->UserID);  	
+		 if($user)	{
+			$ToName					=	$user->FirstName.' '.$user->LastName; 
+		 } else{
+			 $ToName				=	'';
+			}
+		 $to  						=	isset($Emaildata->EmailTo)?Messages::GetAccountTtitlesFromEmail($Emaildata->EmailTo):$ToName; 
 		 $fromUser 					=	User::where(["EmailAddress" => $Emaildata->Emailfrom])->first(); 
 		 $from						=	!empty($Emaildata->EmailfromName)?$Emaildata->EmailfromName:$fromUser->FirstName.' '.$fromUser->LastName;
 		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from'));

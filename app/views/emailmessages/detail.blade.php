@@ -67,5 +67,12 @@
 </div>
 <style>
 .mail-sender{width:60% !important;}
+p{   
+	-webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+	-webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    
+}
 </style>
 @stop 
