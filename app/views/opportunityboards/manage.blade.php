@@ -1146,7 +1146,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
-                                <div id="allComments" class="form-group"></div>
+                                <div id="allComments"></div>
                             </div>
                         </div>
                         <div class="row">
