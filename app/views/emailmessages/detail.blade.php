@@ -29,7 +29,7 @@
     <div class="mail-info">
       <div class="mail-sender"> <a class="href"> <span>{{$from}}</span> ({{$Emaildata->Emailfrom}}) to <span>{{$to}}</span> </a>        
       </div>
-      <div class="mail-date"> {{date('H:i A',strtotime($Emaildata->created_at))}} - {{date('d M',strtotime($Emaildata->created_at))}} </div>
+      <div class="mail-date"> <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($Emaildata->created_at))->diffForHumans();  ?> </div>
     </div>
     <div class="mail-text">{{$Emaildata->Message}}</div>
     @if(count($attachments)>0 && is_array($attachments))
