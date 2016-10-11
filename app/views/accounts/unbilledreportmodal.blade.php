@@ -29,7 +29,7 @@
 
 @section('footer_ext')@parent
 <div class="modal fade" id="unbilledreport-modal">
-  <div class="modal-dialog" style="width: 70%;">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form id="add-unbilledreport-form" method="post">
         <div class="modal-header">
