@@ -49,7 +49,8 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="lefttab1">
-                            <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="form-group">
                                 <div class="col-sm-6">
                                     <input type="text" name="txtleftuser" class="form-control" placeholder="User Search" value="">
                                 </div>
@@ -80,6 +81,7 @@
                                     @endif
                                     </tbody>
                                 </table>
+                            </div>
                             </div>
                             </div>
                         </div>
@@ -155,7 +157,6 @@
                                         </table>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
