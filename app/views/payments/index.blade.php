@@ -1111,7 +1111,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Account Name</label>
+              <label for="field-5" class="control-label text-left bold">Account Name</label>
               <div name="AccountName"></div>
             </div>
           </div>
@@ -1119,7 +1119,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Currency</label>
+              <label for="field-5" class="control-label text-left bold">Currency</label>
               <div name="Currency"></div>
             </div>
           </div>
@@ -1127,7 +1127,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Invoice</label>
+              <label for="field-5" class="control-label text-left bold">Invoice</label>
               <div name="InvoiceNo"></div>
             </div>
           </div>
@@ -1135,7 +1135,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Payment Date</label>
+              <label for="field-5" class="control-label text-left bold">Payment Date</label>
               <div name="PaymentDate"></div>
             </div>
           </div>
@@ -1143,7 +1143,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Payment Method</label>
+              <label for="field-5" class="control-label text-left bold">Payment Method</label>
               <div name="PaymentMethod"></div>
             </div>
           </div>
@@ -1151,7 +1151,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Action</label>
+              <label for="field-5" class="control-label text-left bold">Action</label>
               <div name="PaymentType"></div>
             </div>
           </div>
@@ -1159,7 +1159,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Amount</label>
+              <label for="field-5" class="control-label text-left bold">Amount</label>
               <div name="Amount"></div>
               <input type="hidden" name="PaymentID" >
             </div>
@@ -1168,7 +1168,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Notes</label>
+              <label for="field-5" class="control-label text-left bold">Notes</label>
               <div name="Notes"></div>
             </div>
           </div>
@@ -1176,7 +1176,7 @@
           <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Recall Reasoan</label>
+              <label for="field-5" class="control-label text-left bold">Recall Reasoan</label>
               <div name="RecallReasoan"></div>
             </div>
           </div>
@@ -1184,7 +1184,7 @@
           <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="field-5" class="control-label">Recall By</label>
+                  <label for="field-5" class="control-label text-left bold">Recall By</label>
                   <div name="RecallBy"></div>
                 </div>
               </div>
