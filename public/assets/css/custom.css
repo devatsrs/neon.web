@@ -100,6 +100,20 @@ body {
     text-align: right;
 }
 
+/*Abubakar */
+.newredio.js{
+    width:100% !important;
+}
+
+
+.pull-right-xs .dropdown-menu{
+    width:280px !important;
+}
+ul.nav-tabs{
+    margin-left:16px;
+}
+/*Abubakar End*/
+
 
 /* Dev Edited */
 .dataTables_processing{
@@ -118,14 +132,6 @@ body {
     clear: both;
 }
 
-.newredio.js{
-    width:100% !important;
-}
-
-
-.pull-right-xs .dropdown-menu{
-    width:280px !important;
-}
 
 .datepicker-dropdown{z-index:99999 !important }
 .task.bold{ font-weight: bold; color:#000000; }

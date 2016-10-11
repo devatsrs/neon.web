@@ -4,9 +4,6 @@
         .panel-title{
             float:none;
         }
-        .nav{
-            padding-left: 16px;
-        }
     </style>
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
