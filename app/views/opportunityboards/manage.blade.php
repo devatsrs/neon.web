@@ -1136,7 +1136,6 @@
                                         <i class="entypo-floppy"></i>
                                         Add Comment
                                     </button>
-                                    <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
                                         <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
@@ -1147,7 +1146,6 @@
                             </div>
                         </form>
                         @endif
-                        <br>
                         <div class="row">
                             <div class="col-md-12">
                                 <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
