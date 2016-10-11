@@ -590,6 +590,8 @@ display:none;
 /*Time line settings go here*/
 .page-body .main-content #account-timeline .cbp_tmtimeline > li .cbp_tmlabel:after {
 border-right-color:#fff;
+    left:-19px;
+    top:5px;
 }
 
 .show-less {
