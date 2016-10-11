@@ -2262,6 +2262,10 @@ border:1px solid #AC33FF;
     margin-bottom: 0px;
 }
 
+.panel-default .panel-heading{
+    min-height:40px;
+}
+
 .panel-primary{
     border-color:#ebebeb;
 }
