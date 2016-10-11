@@ -116,9 +116,9 @@ class MessagesController extends \BaseController {
 		 $isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
 		 if(!User::is_admin())
 		 {
-		 	if(!$Emaildata->UserID=User::get_userID())	
+		 	if($Emaildata->UserID!=User::get_userID())	
 			{
-				Redirect::to('/emailmessages');	
+				return Redirect::to('/emailmessages');	 
 			}
 		 }
 		 
