@@ -23,22 +23,70 @@
 
 <div class="tab-content">
     <div class="row">
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#tab1" data-toggle="tab">Bulk Vendor Update</a></li>
-            <li ><a href="#tab2" data-toggle="tab">Vendor Blocking</a></li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="tab1" >
-                <div class="col-md-6">
-                    <h4>Vendor Active</h4>
-                        <form id="active-vendor-form" method="post">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab1" data-toggle="tab">Bulk Vendor Update</a></li>
+                <li ><a href="#tab2" data-toggle="tab">Vendor Blocking</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1" >
+                    <div class="col-md-6">
+                        <h4>Vendor Active</h4>
+                            <form id="active-vendor-form" method="post">
 
-                            <div class="form-group">
-                                <div class="col-sm-6">
-                                    <input type="text" name="txtleftbulkvendor" class="form-control" placeholder="Vendor Active Search" value="">
+                                <div class="form-group">
+                                    <div class="col-sm-6">
+                                        <input type="text" name="txtleftbulkvendor" class="form-control" placeholder="Vendor Active Search" value="">
+                                    </div>
+                                    <div class="col-sm-10 scroll" >
+                                        <table class="clear table table-bordered datatable controle vendoractive">
+                                            <thead>
+                                            <tr>
+                                                <th width="10%">
+                                                    <div class="checkbox">
+                                                        <input type="checkbox" name="checkbox[]" class="selectall">
+                                                    </div>
+                                                </th>
+                                                <th width="90%">Vendors</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @if(count($active_vendor))
+                                                @foreach($active_vendor as $index=>$active)
+                                                    <tr class="draggable" search="{{strtolower($active)}}">
+                                                        <td>
+                                                            <div class="checkbox">
+                                                                {{Form::checkbox("AccountID[]" , $index ) }}
+                                                            </div>
+                                                        </td>
+                                                        <td>{{$active}}</td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
+                                            </tbody>
+                                         </table>
+                                    </div>
+                                    <div class="col-sm-10">
+                                    <p style="text-align: right;">
+                                        <button type="submit" id="vendor-deactive"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                            <i class="entypo-floppy"></i>
+                                            Deactivte
+                                        </button>
+                                        <input value="deactivate" name="action" type="hidden">
+                                    </p>
+                                    </div>
                                 </div>
-                                <div class="col-sm-10 scroll" >
-                                    <table class="clear table table-bordered datatable controle vendoractive">
+                            </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Vendor DeActive</h4>
+                            <form id="deactive-vendor-form" method="post">
+                                <div class="form-group">
+                                <div class="col-sm-6">
+                                    <input type="text" name="txtrightbulkvendor" class="form-control" placeholder="Vendor Deactive Search" value="">
+                                </div>
+                                <div class="col-sm-10 scroll">
+                                    <table class="clear table table-bordered datatable controle vendordeactive">
                                         <thead>
                                         <tr>
                                             <th width="10%">
@@ -50,9 +98,9 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @if(count($active_vendor))
-                                            @foreach($active_vendor as $index=>$active)
-                                                <tr class="draggable" search="{{strtolower($active)}}">
+                                        @if(count($inactive_vendor))
+                                            @foreach($inactive_vendor as $index=>$active)
+                                                <tr search="{{strtolower($active)}}">
                                                     <td>
                                                         <div class="checkbox">
                                                             {{Form::checkbox("AccountID[]" , $index ) }}
@@ -63,166 +111,120 @@
                                             @endforeach
                                         @endif
                                         </tbody>
-                                     </table>
+                                    </table>
                                 </div>
                                 <div class="col-sm-10">
-                                <p style="text-align: right;">
-                                    <button type="submit" id="vendor-deactive"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                        <i class="entypo-floppy"></i>
-                                        Deactivte
-                                    </button>
-                                    <input value="deactivate" name="action" type="hidden">
-                                </p>
+                                    <p style="text-align: right;">
+                                        <button type="submit" id="role-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                            <i class="entypo-floppy"></i>
+                                            Activate
+                                        </button>
+                                        <input value="activate" name="action" type="hidden">
+                                    </p>
                                 </div>
                             </div>
-                        </form>
-                </div>
-                <div class="col-md-6">
-                    <h4>Vendor DeActive</h4>
-                        <form id="deactive-vendor-form" method="post">
-                            <div class="form-group">
-							<div class="col-sm-6">
-								<input type="text" name="txtrightbulkvendor" class="form-control" placeholder="Vendor Deactive Search" value="">
-							</div>
-							<div class="col-sm-10 scroll">
-								<table class="clear table table-bordered datatable controle vendordeactive">
-									<thead>
-									<tr>
-										<th width="10%">
-											<div class="checkbox">
-												<input type="checkbox" name="checkbox[]" class="selectall">
-											</div>
-										</th>
-										<th width="90%">Vendors</th>
-									</tr>
-									</thead>
-									<tbody>
-									@if(count($inactive_vendor))
-										@foreach($inactive_vendor as $index=>$active)
-											<tr search="{{strtolower($active)}}">
-												<td>
-													<div class="checkbox">
-														{{Form::checkbox("AccountID[]" , $index ) }}
-													</div>
-												</td>
-												<td>{{$active}}</td>
-											</tr>
-										@endforeach
-									@endif
-									</tbody>
-								</table>
-							</div>
-							<div class="col-sm-10">
-								<p style="text-align: right;">
-									<button type="submit" id="role-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-										<i class="entypo-floppy"></i>
-										Activate
-									</button>
-									<input value="activate" name="action" type="hidden">
-								</p>
-							</div>
-						</div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class="tab-pane " id="tab2" >
-                    <form id="block_by_country_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                        <div class="panel panel-primary" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    Block by Country
+                    <div class="tab-pane " id="tab2" >
+                        <form id="block_by_country_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                            <div class="panel panel-primary" data-collapsed="0">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        Block by Country
+                                    </div>
+                                    <div class="panel-options">
+                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    </div>
                                 </div>
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-1 control-label">Country</label>
+                                        <div class="col-sm-2">
+                                            {{ Form::select('Country', $countries, '' , array("class"=>"select2","multiple")) }}
+                                            <input type="hidden" name="Code" value="" />
+                                        </div>
+                                        <label class="col-sm-1 control-label">Trunk</label>
+                                        <div class="col-sm-2">
+                                            {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Country</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('Country', $countries, '' , array("class"=>"select2","multiple")) }}
-                                        <input type="hidden" name="Code" value="" />
-                                    </div>
-                                    <label class="col-sm-1 control-label">Trunk</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </form>
-                <div style="text-align: right;padding:10px 0 ">
-                    <button id="blockSelectedCountry" class="btn btn-primary btn-sm btn-icon icon-left"   data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        Block
-                    </button>
-                    <button id="unblockSelectedCountry" class="btn btn-danger btn-sm btn-icon icon-left"   data-loading-text="Loading...">
-                        <i class="entypo-cancel"></i>
-                        Unblock
-                    </button>
-                </div>
-                    <form id="block_by_code_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                        <div class="panel panel-primary" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    Block by Code
-                                </div>
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Code</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" value="" placeholder="Code" id="field-1" class="form-control" name="Code">
-                                    </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Country</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('Country', $countriesCode, '' , array("class"=>"select2","multiple")) }}
-                                    </div>
-                                    <label class="col-sm-1 control-label">Trunk</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
-                                    </div>
-                                </div>
-
-                                <p style="text-align: right" >
-                                    <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left">
-                                        <i class="entypo-search"></i>
-                                        Search
-                                    </button>
-                                </p>
-                            </div>
-                        </div>
                     </form>
                     <div style="text-align: right;padding:10px 0 ">
-                        <button id="blockSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left"   data-loading-text="Loading...">
+                        <button id="blockSelectedCountry" class="btn btn-primary btn-sm btn-icon icon-left"   data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Block
                         </button>
-                        <button id="unblockSelectedCode" class="btn btn-danger btn-sm btn-icon icon-left"   data-loading-text="Loading...">
+                        <button id="unblockSelectedCountry" class="btn btn-danger btn-sm btn-icon icon-left"   data-loading-text="Loading...">
                             <i class="entypo-cancel"></i>
                             Unblock
                         </button>
                     </div>
-                    <table class="table table-bordered datatable" id="table-4">
-                        <thead>
-                        <tr>
-                            <th>
-                                <div class="checkbox ">
-                                    <input type="checkbox" id="selectall" name="checkbox[]" class="">
+                        <form id="block_by_code_form" method="post"  class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                            <div class="panel panel-primary" data-collapsed="0">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        Block by Code
+                                    </div>
+                                    <div class="panel-options">
+                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    </div>
                                 </div>
-                            </th>
-                            <th>Code</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-1 control-label">Code</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" value="" placeholder="Code" id="field-1" class="form-control" name="Code">
+                                        </div>
+                                        <label for="field-1" class="col-sm-1 control-label">Country</label>
+                                        <div class="col-sm-2">
+                                            {{ Form::select('Country', $countriesCode, '' , array("class"=>"select2","multiple")) }}
+                                        </div>
+                                        <label class="col-sm-1 control-label">Trunk</label>
+                                        <div class="col-sm-2">
+                                            {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                                        </div>
+                                    </div>
+
+                                    <p style="text-align: right" >
+                                        <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left">
+                                            <i class="entypo-search"></i>
+                                            Search
+                                        </button>
+                                    </p>
+                                </div>
+                            </div>
+                        </form>
+                        <div style="text-align: right;padding:10px 0 ">
+                            <button id="blockSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left"   data-loading-text="Loading...">
+                                <i class="entypo-floppy"></i>
+                                Block
+                            </button>
+                            <button id="unblockSelectedCode" class="btn btn-danger btn-sm btn-icon icon-left"   data-loading-text="Loading...">
+                                <i class="entypo-cancel"></i>
+                                Unblock
+                            </button>
+                        </div>
+                        <table class="table table-bordered datatable" id="table-4">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <div class="checkbox ">
+                                        <input type="checkbox" id="selectall" name="checkbox[]" class="">
+                                    </div>
+                                </th>
+                                <th>Code</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
         </div>
+    </div>
 </div>
 <script>
 	var action_click;
