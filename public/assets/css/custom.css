@@ -112,6 +112,9 @@ body {
 ul.nav-tabs{
     margin-left:16px;
 }
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter{
+    min-height: 58px;
+}
 /*Abubakar End*/
 
 
