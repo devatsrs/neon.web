@@ -37,10 +37,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             $auth = Auth::createEloquentDriver();
             Auth::setProvider($auth->getProvider());
             $customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
-            if(Hash::check($data["password"], $customer->password)){
-                Auth::login($customer);
-                Session::set("customer", 1 );
-                return true;
+            if($customer) {
+                if (Hash::check($data["password"], $customer->password)) {
+                    Auth::login($customer);
+                    Session::set("customer", 1);
+                    return true;
+                }
             }
             /*if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
                 Session::set("customer", 1 );

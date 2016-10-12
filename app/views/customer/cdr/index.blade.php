@@ -69,19 +69,19 @@
                             <div class="form-group">
                                 <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
                                 <div class="col-sm-2" style="padding-right: 0px; width: 9%;">
-                                    <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                    <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?Input::get('StartDate'):'' }}" data-enddate="{{Input::get('StartDate')!=null?Input::get('StartDate'):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
                                 <div class="col-sm-2" style="padding-right: 0px; width: 9%; padding-left: 0px;">
-                                    <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                                    <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?Input::get('EndDate'):'' }}" data-enddate="{{Input::get('EndDate')!=null?Input::get('EndDate'):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">None Zero Cost</label>
                                 <div class="col-sm-1">
                                     <p class="make-switch switch-small">
                                         <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
