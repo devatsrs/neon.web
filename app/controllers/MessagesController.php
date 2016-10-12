@@ -111,7 +111,17 @@ class MessagesController extends \BaseController {
     }
 	
 	function detail($id){
+	
 		 $Emaildata   				= 	AccountEmailLog::find($id);
+		 $isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
+		 if(!User::is_admin())
+		 {
+		 	if($Emaildata->UserID!=User::get_userID())	
+			{
+				return Redirect::to('/emailmessages');	 
+			}
+		 }
+		 
 	     Messages::where(['EmailID'=>$id])->update(["HasRead"=>1]);	 //update read status	
 		 $attachments 				= 	unserialize($Emaildata->AttachmentPaths);		
 		 $data['EmailCall'] 		= 	Messages::Received;
@@ -120,21 +130,108 @@ class MessagesController extends \BaseController {
 		 $array						=   $this->GetResult($data);
 		 $resultdata   				=   $array['resultdata'];	
 		 $resultpage  				=   $array['resultpage'];		
-		 $TotalUnreads				=	$resultdata->data['TotalUnreads'][0]->totalcount;		 
-		 
-		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads"));
+		 $TotalUnreads				=	$resultdata->data['TotalUnreads'][0]->totalcount;	
+		 $user 						=   User::find($Emaildata->UserID);  	
+		 if($user)	{
+			$ToName					=	$user->FirstName.' '.$user->LastName; 
+		 } else{
+			 $ToName				=	'';
+			}
+		 $to  						=	isset($Emaildata->EmailTo)?Messages::GetAccountTtitlesFromEmail($Emaildata->EmailTo):$ToName; 
+		 $fromUser 					=	User::where(["EmailAddress" => $Emaildata->Emailfrom])->first(); 
+		 $from						=	!empty($Emaildata->EmailfromName)?$Emaildata->EmailfromName:$fromUser->FirstName.' '.$fromUser->LastName;
+		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from'));
 	}
+		
+	public function Compose(){
+		$data 						= 		Input::all();
+		$array						=		$this->GetDefaultCounterData(); //get default data for email side bar
+		$random_token				=	 	get_random_number();
+		$response_api_extensions 	=   	Get_Api_file_extentsions();
+		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
+		$max_file_size				=		get_max_file_size();
+		list($resultdata,$TotalUnreads,$iDisplayLength,$totalResults)   =  $array;		
+		return View::make('emailmessages.compose', compact('data','TotalUnreads','iDisplayLength','totalResults','random_token','response_extensions','max_file_size'));
+	}
+	
+	function SendMail(){
 
+        $data = Input::all(); 
+        $rules = array(
+            'Subject'=>'required',
+            'Message'=>'required'
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $attachmentsinfo        =	$data['attachmentsinfo']; 
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
 
+        if(!empty($files_array) && count($files_array)>0)
+		{
+            $FilesArray = array();
+			
+            foreach($files_array as $key=> $array_file_data)
+			{
+                $file_name  		= 	basename($array_file_data['filepath']); 
+                $amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
+                $destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath))
+				{
+                    mkdir($destinationPath, 0777, true);
+                }
+                
+				copy($array_file_data['filepath'], $destinationPath . $file_name);
+				
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath))
+				{
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+				
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                unlink($array_file_data['filepath']);
+            }
+            $data['file']		=	json_encode($FilesArray);
+		} 
+		
+		 $data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
+		
+		 $data['address']		=    Auth::user()->EmailAddress; 
+	   
+		 $response 				= 	NeonAPI::request('email/sendemail',$data,true,false,true);		
+		if($response->status=='failed'){
+				return  json_response_api($response);
+		}
+		else
+		{										
+				//$response 		 = 	$response->data;
+				//$response->type  = 	Task::Mail;			
+				//$response->LogID = 	$response->AccountEmailLogID;
+				return Response::json(array("status" => "success", "message" =>$response->data->message_sent));
+		}
+	}
+	
+	protected function GetDefaultCounterData(){		
+		$data['EmailCall']			=	Messages::Received;
+		$data['iDisplayStart']  	= 	 0;
+		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+		$array						= 	 $this->GetResult($data);
+		$resultdata   				= 	 $array['resultdata'];
+		$TotalUnreads				=	 $resultdata->data['TotalUnreads'][0]->totalcount;
+		$iDisplayLength 			= 	 Config::get('app.pageSize');
+		$totalResults 				=    $resultdata->data['TotalResults'][0]->totalcount;
+		return array("0"=>$resultdata,"1"=>$TotalUnreads,"2"=>$iDisplayLength,"3"=>$totalResults);
+	}
    
-	public function loadDashboardMsgsDropDown(){ 
+	public function loadDashboardMsgsDropDown(){  
         $reset 		  =  Input::get('reset');
         $dropdownData =  Messages::getMsgDropDown($reset);
         return View::make('emailmessages.dashboard_top_msgs', compact('dropdownData'));
     }
-	
-	
-
     /*
      * Ajax : When New Job Counter Reset
      * */

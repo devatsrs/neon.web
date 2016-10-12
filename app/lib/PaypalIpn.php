@@ -193,8 +193,8 @@ class PaypalIpn
             $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
             $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
         } else {
-            $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
-            $paypal_email =  $this->business_email;
+            $paypal_url  = 'https://www.paypal.com/cgi-bin/webscr';
+            $paypal_email =  $this->paypal_business_email;
 
         }
         $this->amount = number_format($this->amount,2,'.','') ;// paypal gives error if more than 2 decimal placesrequies 2 decimal points
@@ -210,7 +210,7 @@ class PaypalIpn
         <input type="hidden" name="amount" value="' . $this->amount  .  '"/>
         <input type="hidden" name="custom" value=""/>
         <input type="hidden" name="currency_code" value="' . $this->curreny_code  .  '"/>
-        <input type="hidden" name="image_url" value=""/>
+        <input type="hidden" name="image_url" value="'. $this->logo_url .'"/>
         <input type="hidden" name="rm" value="2"/>
         <input type="hidden" name="cmd" value="_xclick"/>
         <button type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now With Paypal</button>
