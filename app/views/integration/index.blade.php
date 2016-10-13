@@ -445,7 +445,7 @@
             <div class="form-group">
               <label for="field-1" class="col-sm-4 control-label">* Email:</label>
               <div class="col-sm-8">
-                <input type="email"  class="form-control" name="OutlookCalendarEmail" value="{{isset($outlookcalendarData->OutlookCalendarEmail)?$outlookcalendarData->OutlookCalendarEmail:''}}" />
+                <input type="email" class="form-control" name="OutlookCalendarEmail" value="{{isset($outlookcalendarData->OutlookCalendarEmail)?$outlookcalendarData->OutlookCalendarEmail:''}}" />
               </div>
             </div>
           </div>  
