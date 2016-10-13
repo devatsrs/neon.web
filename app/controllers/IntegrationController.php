@@ -47,8 +47,16 @@ class IntegrationController extends \BaseController
 					'FreshdeskPassword'  => 'required',
 					'Freshdeskkey'		 => 'required',
 				);
+				
+					$messages = [
+				 "FreshdeskDomain.required" => "The Domain field is required",
+				 "FreshdeskEmail.required" => "The email field is required",
+				 "FreshdeskPassword.required" => "The password field is required",
+				 "Freshdeskkey.required" => "The key field is required",
+				 
+				];
 		
-				$validator = Validator::make($data, $rules);
+				$validator = Validator::make($data, $rules,$messages);
 		
 				if ($validator->fails()) {
 					return json_validator_response($validator);

@@ -197,14 +197,18 @@
 		 ?>
       <div class="subcategorycontent" id="subcategorycontent{{$FreshDeskDbData->Slug}}">
         <div class="row">
-          <div class="col-md-6">
+        <div class="col-md-6">
             <div class="form-group">
               <label for="field-1" class="control-label">* Domain:
-                  <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Name example cdpk" data-original-title="FreshDesk Domain" class="label label-info popover-primary">?</span>
+                  <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Only Domain Name. e.g. abc.freshdesk.com then type just abc" data-original-title="FreshDesk Domain" class="label label-info popover-primary">?</span>
               </label>
-                <input type="text"  class="form-control" name="FreshdeskDomain" value="{{isset($FreshdeskData->FreshdeskDomain)?$FreshdeskData->FreshdeskDomain:''}}" />
+              <div >
+                <input type="text"  class="form-control" name="FreshdeskDomain" value="{{isset($FreshdeskData->FreshdeskDomain)?$FreshdeskData->FreshdeskDomain:''}}" /> 
+                <span >.freshdesk.com</span>
+                </div>
             </div>
           </div>
+                     
           <div class="col-md-6">
             <div class="form-group">
               <label for="field-1" class="control-label">* Email:</label>
