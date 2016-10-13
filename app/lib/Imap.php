@@ -280,7 +280,7 @@ protected $server;
 		
 		//find in account(email,billing email), Email
 		$AccountSearch1  =  DB::table('tblAccount')->whereRaw("find_in_set('".$email."',Email) OR find_in_set('".$email."',BillingEmail)")->get(array("AccountID","AccountName","AccountType"));
-		$ContactSearch 	 =  DB::table('tblContact')->whereRaw("find_in_set('".$email."',Email)")->get(array("AccountID","FirstName","LastName"));		
+		$ContactSearch 	 =  DB::table('tblContact')->whereRaw("find_in_set('".$email."',Email)")->get(array("Owner","ContactID","FirstName","LastName"));		
 		
 		if(count($AccountSearch1)>0)													
 		{
@@ -300,10 +300,10 @@ protected $server;
 		}
 		
 		if(count($ContactSearch)>0 || count($ContactSearch)>0)													
-		{	
+		{		Log::info(print_r($ContactSearch,true));
 				$MatchType	  =   'Contact';
 				$MatchID	  =	 $ContactSearch[0]->ContactID;					
-				$AccountID	  =  $ContactSearch[0]->AccountID;
+				$AccountID	  =  $ContactSearch[0]->Owner;
 				//$Accountdata  =  
 				$Accountdata  =   DB::table('tblAccount')->where(["AccountID" => $AccountID])->get(array("AccountName"));
 				$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName.' ('. $Accountdata[0]->AccountName .')';							
