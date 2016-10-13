@@ -714,6 +714,7 @@
 		
 		
 		$('.manageSubcat').click(function(e) {
+            $('#SubcategoryModal .modal-dialog').removeClass('modal-lg');
 			$('#SubcategoryModalContent').html('');
             var SubCatID		 = 	$(this).attr('data-id');
 			var DataTitle		 = 	$(this).attr('data-title');	
@@ -730,7 +731,8 @@
 				return false;
 			 }
 
-            if(parent_slug=='accounting'){
+            if(parent_slug=='accounting' || parent_slug=='storage'){
+                $('#SubcategoryModal .modal-dialog').addClass('modal-lg');
                 $('#quickbook-connect').show();
             }else{
                 $('#quickbook-connect').hide();
@@ -841,7 +843,7 @@
 @section('footer_ext')
     @parent
 <div class="modal fade" id="SubcategoryModal" data-backdrop="static">
-  <div  class="modal-dialog modal-lg">
+  <div  class="modal-dialog">
   <form id="SubcategoryForm">
     <div class="modal-content">
       <div class="modal-header">
