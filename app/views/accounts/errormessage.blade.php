@@ -12,12 +12,14 @@
         </div>
     </div>
 @endif
-@if(Account::AuthIP($Account) && ($Account->IsCustomer==1 || $Account->IsVendor==1))
+@if(Account::AuthIP($Account))
     <div  class=" toast-container-fix toast-top-full-width">
         <div class="toast toast-warning" style="">
            <!-- <div class="toast-title">Warning Message</div>-->
             <div class="toast-message">
-                No IPs are setup under authentication rule.
+                @if(($Account->IsCustomer==1 || $Account->IsVendor==1))
+                    No IPs are setup under authentication rule.
+                 @enfif
             </div>
         </div>
     </div>
