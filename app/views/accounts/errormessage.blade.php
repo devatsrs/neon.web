@@ -17,9 +17,9 @@
         <div class="toast toast-warning" style="">
            <!-- <div class="toast-title">Warning Message</div>-->
             <div class="toast-message">
-                @if(($Account->IsCustomer==1 || $Account->IsVendor==1))
+                <?php if($Account->IsCustomer==1 || $Account->IsVendor==1){ ?>
                     No IPs are setup under authentication rule.
-                 @enfif
+                 <?php } ?>
             </div>
         </div>
     </div>
