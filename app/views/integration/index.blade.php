@@ -111,11 +111,12 @@
           <div class="col-md-6  margin-top pull-left">
             <div class="form-group">
               <label for="field-1" class="col-sm-4 control-label">* Domain:
-                  <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Name example cdpk" data-original-title="FreshDesk Domain" class="label label-info popover-primary">?</span>
+                  <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Only Domain name. e.g. abc.freshdesk.com then just abc" data-original-title="FreshDesk Domain" class="label label-info popover-primary">?</span>
               </label>
-              <div class="col-sm-8">
+              <div class="col-sm-4 pull-left">
                 <input type="text"  class="form-control" name="FreshdeskDomain" value="{{isset($FreshdeskData->FreshdeskDomain)?$FreshdeskData->FreshdeskDomain:''}}" />
               </div>
+              <span style="padding-left:0px; padding-top:5px;" class="col-sm-4 pull-left">.freshdesk.com</span>
             </div>
           </div>
           <div class="col-md-6 margin-top pull-right">
