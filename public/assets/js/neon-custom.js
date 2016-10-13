@@ -2825,7 +2825,7 @@ $(document).ajaxComplete(function(event, xhr, settings) {
         });
     }
 });
-function resetWidth(){
+function resetWidth(self){
     var table = self.find('table');
     var width = 0;
     if(table.hasClass('hidden')){
