@@ -61,7 +61,7 @@
 		 foreach($result as $result_data){   
 			$attachments  =  unserialize($result_data[3]);
 			//$AccountName  =  Account::where(array('AccountID'=>$result_data[6]))->pluck('AccountName');   
-			$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data[7]);
+			$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data[7]);			
 			 ?>
           <tr><!-- new email class: unread -->
             <td><div class="hidden checkbox checkbox-replace">
