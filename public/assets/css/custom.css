@@ -1366,7 +1366,7 @@ text-align:center;
     border-radius: 2px;*/
 }
 .input-group{
-    top:-5px;
+    /*top:-5px;*/
 }
 @media (max-width: 767px) {
     dialog {
