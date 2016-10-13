@@ -2820,26 +2820,27 @@ $(document).ajaxComplete(function(event, xhr, settings) {
     if (isxs()){
         $('.dataTables_wrapper').each(function(){
             var self = $(this);
-            setTimeout(function(){
-                var table = self.find('table');
-                var width = 0;
-                if(table.hasClass('hidden')){
-                    table.removeClass('hidden');
-                    width = self.find('table').outerWidth();
-                    table.addClass('hidden');
-                }else{
-                    width = self.find('table').outerWidth();
-                }
-                self.find('div.row').each(function(index,item){
-                    $(item).css('width',width);
-                    $(item).css('margin',0);
-                    $(item).find('.col-xs-6').css('padding',0);
-                }.bind(width));
-            }, 3000,self);
+            setTimeout(resetWidth, 3000,self);
             self.css('overflow-x','scroll').css('overflow-y','hidden');
         });
     }
 });
+function resetWidth(self){
+    var table = self.find('table');
+    var width = 0;
+    if(table.hasClass('hidden')){
+        table.removeClass('hidden');
+        width = self.find('table').outerWidth();
+        table.addClass('hidden');
+    }else{
+        width = self.find('table').outerWidth();
+    }
+    self.find('div.row').each(function(index,item){
+        $(item).css('width',width);
+        $(item).css('margin',0);
+        $(item).find('.col-xs-6').css('padding',0);
+    }.bind(width));
+}
 $(document).on('click','[redirecto]',function(){
     var url = $(this).attr('redirecto');
     window.location.href=url;
