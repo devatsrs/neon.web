@@ -25,7 +25,7 @@ class UploadFile{
         } 
 		if(isset($data['add_type'])){$class="reply_del_attachment";}else{$class='del_attachment';}
         foreach($filesArray as $key=> $fileData) {
-            $returnText  .= '<span class="file_upload_span imgspan_filecontrole">'.$fileData['filename'].'<a  del_file_name="'.$fileData['filename'].'" class="'.$class.'"> X </a><br></span>';
+            $returnText  .= '<span class="file_upload_span imgspan_filecontrole">'.$fileData['filename'].'<a  del_file_name="'.$fileData['filename'].'" class="clickable '.$class.'"> X </a><br></span>';
         }
         return ['text'=>$returnText,'attachmentsinfo'=>$filesArray];
     }
