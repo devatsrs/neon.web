@@ -659,11 +659,15 @@
                     <h4 class="modal-title">Add IP</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
                         <label class="col-sm-3 control-label">Account IP</label>
                         <div class="col-sm-9">
                             <textarea name="AccountIPCLI" class="form-control autogrow"></textarea>
                             *Adding multiple IPS or CLIs ,Add one IP or CLI in each line.
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
