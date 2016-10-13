@@ -590,6 +590,8 @@ display:none;
 /*Time line settings go here*/
 .page-body .main-content #account-timeline .cbp_tmtimeline > li .cbp_tmlabel:after {
 border-right-color:#fff;
+    left:-19px;
+    top:5px;
 }
 
 .show-less {
@@ -1041,9 +1043,6 @@ background-color:#f1f1f1;
     color:#333;
     font-size:13px;
 }
-.end-buttons {
-    margin:-15px 0px 15px 0px;
-}
 .placeholder {
 	background-color: #e9eced;
 	border: 1px dashed #666;
@@ -1057,6 +1056,11 @@ min-height: 100px;
 .margin-top-15 {
 margin-top:15px;
 }
+
+#attachments .attachment{
+    padding: 5px;
+}
+
 #manage-board .placeholder {
 	background-color: #e9eced;
 	border: 1px dashed #666;
@@ -1917,8 +1921,9 @@ cursor:pointer;
 #card-features-details .comment-box-options{
     text-align: right;
     position: relative;
-    top:-20px;
-    right:3px;
+    top:-35px;
+    right:5px;
+    height: 1px;
 }
 /*#card-features-details .modal-body div{
     padding-left: 0px;
@@ -2255,6 +2260,10 @@ border:1px solid #AC33FF;
 }
 .filter p{
     margin-bottom: 0px;
+}
+
+.panel-default .panel-heading{
+    min-height:40px;
 }
 
 .panel-primary{

@@ -9,7 +9,8 @@
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >
-            <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
                 <form novalidate="novalidate" class="form-horizontal form-groups-bordered filter validate" method="post" id="customer_analysis">
                     <div data-collapsed="0" class="panel panel-primary">
                         <div class="panel-heading">
@@ -79,7 +80,8 @@
                     </div>
                 </form>
             </div>
-            <div class="clear"></div>
+                <div class="clear"></div>
+            </div>
     <ul class="nav nav-tabs">
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>

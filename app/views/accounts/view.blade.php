@@ -297,7 +297,7 @@
       <!-- --> 
       <!-- --> 
       <!--<div class="timeline col-md-11 col-sm-12 col-xs-12">-->
-      <div class="timeline timeline_start col-md-9 col-sm-10 col-xs-10 big-col pull-right"> @if(count($response_timeline)>0 && $message=='')
+      <div class="timeline timeline_start col-md-9 col-sm-12 col-xs-12 big-col pull-right"> @if(count($response_timeline)>0 && $message=='')
         <div class="row" style="padding:9px 7px 0;">
           <div class="col-sm-12">
             <ul class="icheck-list">
