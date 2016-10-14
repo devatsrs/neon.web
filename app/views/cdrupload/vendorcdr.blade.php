@@ -91,7 +91,7 @@
                         $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
                     }
                     ?>
-                    <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">Prefix</label>
+                    <label class="col-sm-1 control-label" for="field-1">Prefix</label>
                     <div class="col-sm-2" style="width: 10%;">
                         <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                     </div>
