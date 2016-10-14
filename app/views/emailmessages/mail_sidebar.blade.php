@@ -1,7 +1,7 @@
 <div class="mail-sidebar"> 
   <!-- compose new email button -->
   <div>
-    <div  style="display:none !important;" class="mail-sidebar-row hidden hidden-xs"> <a href="{{URL::to('/emailmessages/compose')}}" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
+    <div  class="mail-sidebar-row hidden-xs"> <a href="{{URL::to('/emailmessages/compose')}}" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
   </div>
   <!-- menu -->
   <ul class="mail-menu">

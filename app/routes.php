@@ -440,7 +440,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
 	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
 	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
-	Route::any('/emailmessages/sent','MessagesController@SentBox');
+	Route::any('/emailmessages/sent','MessagesController@SentBox');	
+	Route::any('/emailmessages/compose','MessagesController@Compose');
+	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
 	
 	
 	

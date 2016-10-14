@@ -97,8 +97,6 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 						"image": true,
 						"color": false,
 						parser: function(html) {
-							console.log(html);
-							console.log(html);
 							return html;
 						}
 				});
