@@ -516,4 +516,13 @@ class BillingAPI {
 		}
 		return false;
 	}
+
+	public function createJournal(){
+		if($this->quickbooks_is_connected){
+			/* Get All Items */
+
+			return $this->request->createJournal();
+		}
+		return false;
+	}
 }
