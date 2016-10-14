@@ -219,16 +219,20 @@
                         <h4 class="modal-title">Add Destination Group Set</h4>
                     </div>
                     <div class="modal-body">
-                        <div class="col-md-12 non-editable">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Codedeck</label>
-                                {{ Form::select('CodedeckID', $CodedeckList , '' , array("class"=>"select2")) }}
+                        <div class="row">
+                            <div class="col-md-12 non-editable">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Codedeck</label>
+                                    {{ Form::select('CodedeckID', $CodedeckList , '' , array("class"=>"select2")) }}
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Destination Group Set Name</label>
-                                <input type="text" name="Name" class="form-control" value="" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Destination Group Set Name</label>
+                                    <input type="text" name="Name" class="form-control" value="" />
+                                </div>
                             </div>
                         </div>
                     </div>

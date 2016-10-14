@@ -951,22 +951,19 @@
                     </div>
                     <div class="modal-body">
                         <form id="add-task-comments-form" method="post" enctype="multipart/form-data">
-                            <div class="form-group">
+                            <div class="row">
                                 <div class="col-md-12 text-left">
                                     <h4>Add Comment</h4>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-12">
-                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <div class="form-group">
+                                        <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    </div>
                                 </div>
-                                <div class="col-md-11">
-                                </div>
-                                <div class="col-md-1">
-                                    <p class="comment-box-options">
-                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
-                                            <i class="entypo-attach"></i>
-                                        </a>
-                                    </p>
-                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
@@ -974,6 +971,11 @@
                                     </span>
                                 </div>
                                 <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
+                                    <p class="comment-box-options">
+                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
+                                            <i class="entypo-attach"></i>
+                                        </a>
+                                    </p>
                                     <input type="hidden" name="TaskID" >
                                     <input type="hidden" name="AccountID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
@@ -990,12 +992,11 @@
                                 </div>
                             </div>
                         </form>
-                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
-                        <br>
-                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <div class="row">
                             <div class="co-md-12">
-                                <div id="allComments" class="form-group"></div>
+                                <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
+                                <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
+                                <div id="allComments"></div>
                             </div>
                         </div>
                         <div class="row">
@@ -1004,10 +1005,12 @@
                             </div>
                         </div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-8"></div>
-                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
-                                <input type="hidden" name="TaskID" >
+                            <div class="row">
+                                <div class="col-md-8"></div>
+                                <div class="col-md-4" id="addattachmentop" style="text-align: right;">
+                                    <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                    <input type="hidden" name="TaskID" >
+                                </div>
                             </div>
                         </form>
                     </div>

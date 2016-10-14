@@ -12,8 +12,11 @@
   
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
-  
-  <!-- Mail Body -->
+
+    <!-- Sidebar -->
+    @include("emailmessages.mail_sidebar")
+
+    <!-- Mail Body -->
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
@@ -98,9 +101,7 @@
         </tfoot>
       </table>
     </div>
-  </div>  
-  <!-- Sidebar -->
-  @include("emailmessages.mail_sidebar") 
+  </div>
 </div>
 <script>
 $(document).ready(function(e) {
