@@ -1,8 +1,7 @@
 @if(AccountApprovalList::isVerfiable($Account->AccountID) == false || $Account->VerificationStatus != Account::VERIFIED)
-    <div  class=" toast-container-fix toast-top-full-width">
-        <div class="toast toast-error" style="">
-           <!-- <div class="toast-title">Error</div>-->
-            <div class="toast-message">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
                 @if($Account->VerificationStatus == Account::VERIFIED)
                     Awaiting Account Verification Documents Upload.
                 @elseif($Account->VerificationStatus == Account::NOT_VERIFIED )
@@ -13,10 +12,9 @@
     </div>
 @endif
 @if(Account::AuthIP($Account) && ($Account->IsCustomer==1 || $Account->IsVendor==1))
-    <div  class=" toast-container-fix toast-top-full-width">
-        <div class="toast toast-warning" style="">
-           <!-- <div class="toast-title">Warning Message</div>-->
-            <div class="toast-message">
+    <div  class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
                 No IPs are setup under authentication rule.
             </div>
         </div>
