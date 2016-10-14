@@ -66,4 +66,11 @@ class QuickBookController extends \BaseController {
         print_r($response);
         exit;
     }
+
+    public function createJournal(){
+        $QuickBook = new BillingAPI();
+        $response = $QuickBook->createJournal();
+        print_r($response);
+        exit;
+    }
 }

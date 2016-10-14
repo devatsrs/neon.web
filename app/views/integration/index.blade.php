@@ -478,15 +478,7 @@
         ?>
         <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
             <div class="row">
-                <div class="col-md-12">
-                    *Please First save and after click for connect and do following step<br>
-                     Connect->Sign In->Select Company->Click On Authorize<br>
-                    *Connection is need for any task doing regard quickbook and it will expire generally every month.
-
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6  margin-top pull-left">
+                <div class="col-md-6  margin-top">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
                         <div class="col-sm-8">
@@ -494,16 +486,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 margin-top pull-right">
+                <div class="col-md-6 margin-top">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* Password:</label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData->QuickBookPassqord)?$QuickBookData->QuickBookPassqord:""}}" />
+                            <input type="password"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData->QuickBookPassqord)?$QuickBookData->QuickBookPassqord:""}}" />
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-6  margin-top pull-left">
+                <div class="clear"></div>
+                <div class="col-md-6  margin-top">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
                         <div class="col-sm-8">
@@ -511,7 +503,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 margin-top pull-right">
+                <div class="col-md-6 margin-top">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Secret:</label>
                         <div class="col-sm-8">
@@ -519,8 +511,46 @@
                         </div>
                     </div>
                 </div>
+                <div class="clear"></div>
+                <div class="col-md-6  margin-top">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">Invoice Account: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Invoice Post to which QuickBook Account." data-original-title="Invoice Account">?</span></label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($QuickBookData->InvoiceAccount)?$QuickBookData->InvoiceAccount:""}}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 margin-top">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-4 control-label">Payment Account: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Payment Post to which QuickBook Account." data-original-title="Payment Account">?</span></label>
+                        <div class="col-sm-8">
+                            <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($QuickBookData->PaymentAccount)?$QuickBookData->PaymentAccount:""}}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <?php $count=0; ?>
+                @if(!empty($TaxLists)&& count($TaxLists)>0)
+                @foreach($TaxLists as $TaxList)
+                    <?php
+                        $Title = str_replace(' ','',$TaxList->Title);
+                    ?>
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">{{$TaxList->Title}}: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{$TaxList->Title}} Post to which QuickBook Account." data-original-title="{{$TaxList->Title}}">?</span></label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="{{$Title}}" value="{{isset($QuickBookData->$Title)?$QuickBookData->$Title:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                        <?php $count++; ?>
+                        @if($count%2 == 0)
+                            <div class="clear"></div>
+                        @endif
+                @endforeach
+                @endif
 
-                <div class="col-md-6 margin-top pull-left">
+                <div class="col-md-6 margin-top">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* App Token:</label>
                         <div class="col-sm-8">
@@ -530,7 +560,12 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 margin-top pull-right">
+                <?php $count++; ?>
+                @if($count%2 == 0)
+                    <div class="clear"></div>
+                @endif
+
+                <div class="col-md-6 margin-top">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">SandBox:</label>
                         <div class="col-sm-8" id="QuickBookSandboxDiv">
@@ -539,7 +574,11 @@
 
                     </div>
                 </div>
-                <div class="col-md-6  margin-top pull-left">
+                <?php $count++; ?>
+                @if($count%2 == 0)
+                    <div class="clear"></div>
+                @endif
+                <div class="col-md-6  margin-top">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Active:</label>
                         <div class="col-sm-8" id="QuickBookStatusDiv">
@@ -904,7 +943,8 @@
         <div id="SubcategoryModalContent" class=""></div>
       </div>
       <div class="modal-footer">
-          <a class="btn btn-success btn-sm btn-icon icon-left" id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Connect</a>
+          <button type="button" class="btn btn-success btn-sm btn-icon icon-left" data-original-title="QuickBook Authorize"
+                  data-content="Please First save and after click for Connect Neon to QuickBook" data-placement="top" data-trigger="hover" data-toggle="popover"  id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Authorize</button>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
