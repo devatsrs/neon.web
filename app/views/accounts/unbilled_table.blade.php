@@ -1,8 +1,6 @@
 <ul class="nav nav-tabs">
     <li class="active"><a href="#customer" data-toggle="tab">Customer</a></li>
-    @if($account->IsVendor == 1)
-        <li ><a href="#vendor" data-toggle="tab">Vendor</a></li>
-    @endif
+    <li ><a href="#vendor" data-toggle="tab">Vendor</a></li>
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="customer" >
@@ -47,7 +45,7 @@
         </div>
         </div>
     </div>
-    @if($account->IsVendor == 1)
+
     <div class="tab-pane" id="vendor" >
         <div class="row">
             <div class="col-md-12">
@@ -90,5 +88,5 @@
         </div>
         </div>
     </div>
-    @endif
+    
 </div>
