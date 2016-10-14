@@ -1727,6 +1727,7 @@ class InvoicesController extends \BaseController {
         else{
             unset($data['criteria']);
         }
+        $data['type'] = 'journal';
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {

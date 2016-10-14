@@ -819,4 +819,131 @@ class QuickBook {
 
 		return $response;
 	}
+
+	public function createJournal(){
+		//$this->getAllAccountPrefrences();
+		//$this->getAllJournal();
+		$response = array();
+		if ($this->is_quickbook()){
+			if ($this->quickbooks_is_connected) {
+
+				$Context = $this->Context;
+
+				$realm = $this->realm;
+
+				$JournalEntryService = new QuickBooks_IPP_Service_JournalEntry();
+
+				// Main journal entry object
+				$JournalEntry = new QuickBooks_IPP_Object_JournalEntry();
+				$JournalEntry->setDocNumber('1240');
+				$JournalEntry->setTxnDate(date('Y-m-d'));
+
+				// Debit line
+				$Line1 = new QuickBooks_IPP_Object_Line();
+				$Line1->setDescription('Line 1 description');
+				$Line1->setAmount(100);
+				$Line1->setDetailType('JournalEntryLineDetail');
+
+				$Detail1 = new QuickBooks_IPP_Object_JournalEntryLineDetail();
+				$Detail1->setPostingType('Debit');
+				$Detail1->setAccountRef(131);
+
+				$customer = new QuickBooks_IPP_Object_Entity();
+				$customer->setEntityRef('73');
+
+				$Detail1->setEntity($customer);
+
+
+				$Line1->addJournalEntryLineDetail($Detail1);
+				$JournalEntry->addLine($Line1);
+
+
+				// Credit line
+
+				$Line2 = new QuickBooks_IPP_Object_Line();
+				$Line2->setDescription('Line 2 description');
+				$Line2->setAmount(100);
+				$Line2->setDetailType('JournalEntryLineDetail');
+
+				$Detail2 = new QuickBooks_IPP_Object_JournalEntryLineDetail();
+				$Detail2->setPostingType('Credit');
+				$Detail2->setAccountRef(131);
+
+				$customer1 = new QuickBooks_IPP_Object_Entity();
+				$customer1->setEntityRef('73');
+
+				$Detail2->setEntity($customer1);
+
+				$Line2->addJournalEntryLineDetail($Detail2);
+				$JournalEntry->addLine($Line2);
+
+				if ($resp = $JournalEntryService->add($Context, $realm, $JournalEntry))
+				{
+					if(!empty($resp)){
+						$resp = str_replace('{-','',$resp);
+						$resp = str_replace('}','',$resp);
+					}
+					$response['response'] = $resp;
+				}
+				else
+				{
+					$response['error'] = $JournalEntryService->lastError($Context);
+				}
+
+			}
+		}else{
+			$response['error'] = 'quickbook not setup';
+		}
+		log::info(print_r($response,true));
+		return $response;
+	}
+
+	public function getAllJournal(){
+		$journal = array();
+		if ($this->is_quickbook()){
+			if ($this->quickbooks_is_connected) {
+
+				$Context = $this->Context;
+
+				$realm = $this->realm;
+
+				$the_payment_to_delete = '{-207}';
+
+				$JournalEntryService = new QuickBooks_IPP_Service_JournalEntry();
+
+				//$journal = $JournalEntryService->delete($Context, $realm, $the_payment_to_delete);
+
+				$journal = $JournalEntryService->query($Context, $realm, "SELECT * FROM JournalEntry WHERE TxnDate < '2016-10-09'");
+
+			}
+		}
+
+		log::info(print_r($journal,true));
+
+		//return $journal;
+		exit;
+	}
+
+	public function getAllAccountPrefrences(){
+		$AccountPrefrences = array();
+		if ($this->is_quickbook()){
+			if ($this->quickbooks_is_connected) {
+
+				$Context = $this->Context;
+
+				$realm = $this->realm;
+
+				$AccountService = new QuickBooks_IPP_Service_Account();
+
+				$AccountPrefrences = $AccountService->query($Context, $realm, "SELECT * FROM Account");
+
+
+			}
+		}
+
+		log::info(print_r($AccountPrefrences,true));
+
+		//return $journal;
+		exit;
+	}
 }
