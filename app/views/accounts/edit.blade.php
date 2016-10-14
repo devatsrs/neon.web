@@ -754,6 +754,7 @@
                 $(".billing-section").show();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',0);
                 $(".billing-section-hide").nextAll('.panel').find('.panel-body').show();
+                $('.billing-section .select2-container').css('visibility','visible');
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);

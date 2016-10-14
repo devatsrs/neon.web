@@ -358,6 +358,7 @@
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
                 $(".billing-section").show();
+                $('.billing-section .select2-container').css('visibility','visible');
             }else{
                 $(".billing-section").hide();
             }
