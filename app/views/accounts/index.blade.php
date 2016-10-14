@@ -174,9 +174,11 @@
         <th width="15%" >Name</th>
         <th width="10%" >Owner</th>
         <th width="10%">Phone</th>
-        <th width="10%">OS</th>
-        <th width="10%">Email</th>
-        <th width="30%">Actions</th>
+        <th width="8%">OS</th>
+        <th width="5%">UA</th>
+        <th width="5%">CL</th>
+        <th width="7%">Email</th>
+        <th width="25%">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -333,6 +335,8 @@
                         { "bSortable": true},
                         { "bSortable": true},
                         { "bSortable": true},
+						{ "bSortable": true},
+                        { "bSortable": true},
                         {
                             "bSortable": false,
                             mRender: function ( id, type, full ) {
@@ -390,27 +394,27 @@
                                  action += '</select>';*/
                                 <?php } ?>
 
-                                if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
+                                if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
                                         action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-xs"><i class="entypo-user"></i></a>';
                                     <?php } ?>
                                 }
 
-                                if(full[8]==1 && full[9]=='{{Account::VERIFIED}}'){
+                                if(full[10]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
                                     <?php } ?>
                                 }
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
-                                action +='<input type="hidden" name="address1" value="'+full[10]+'"/>';
-                                action +='<input type="hidden" name="address2" value="'+full[11]+'"/>';
-                                action +='<input type="hidden" name="address3" value="'+full[12]+'"/>';
-                                action +='<input type="hidden" name="city" value="'+full[13]+'"/>';
-                                action +='<input type="hidden" name="country" value="'+full[14]+'"/>';
-								action +='<input type="hidden" name="PostCode" value="'+full[15]+'"/>';
-                                action +='<input type="hidden" name="picture" value="'+full[16]+'"/>';
-                                action +='<input type="hidden" name="UnbilledAmount" value="'+full[17]+'"/>';
-                                action +='<input type="hidden" name="PermanentCredit" value="'+full[18]+'"/>';
+                                action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';
+                                action +='<input type="hidden" name="address2" value="'+full[13]+'"/>';
+                                action +='<input type="hidden" name="address3" value="'+full[14]+'"/>';
+                                action +='<input type="hidden" name="city" value="'+full[15]+'"/>';
+                                action +='<input type="hidden" name="country" value="'+full[16]+'"/>';
+								action +='<input type="hidden" name="PostCode" value="'+full[17]+'"/>';
+                                action +='<input type="hidden" name="picture" value="'+full[18]+'"/>';
+                                action +='<input type="hidden" name="UnbilledAmount" value="'+full[6]+'"/>';
+                                action +='<input type="hidden" name="PermanentCredit" value="'+full[7]+'"/>';
                                 action +='<input type="hidden" name="LowBalance" value="'+full[19]+'"/>';
                                 return action;
                             }
@@ -463,7 +467,7 @@
                 if(childrens.eq(0).hasClass('dataTables_empty')){
                     return true;
                 }
-                var temp = childrens.eq(7).clone();
+                var temp = childrens.eq(9).clone();
                 $(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
@@ -530,7 +534,7 @@
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Email</div>';
-                html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(6).text() + '</a></div>';
+                html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(8).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div class="cellNo">';
                 html += '     <div class="meta">Phone</div>';

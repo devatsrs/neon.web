@@ -57,9 +57,10 @@
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Customer Unbilled Amount</label>
-                        <div class="desc col-sm-2 ">
-                            <input type="text" class="form-control" readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
+                        <div class="desc col-sm-2">
+                            <input type="text" class="form-control " readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
                         </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Vendor Unbilled Amount</label>
                         <div class="desc col-sm-2 ">
                             <input type="text" class="form-control" readonly name="VendorUnbilledAmount" value="{{$VendorUnbilledAmount}}" >
