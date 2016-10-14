@@ -78,7 +78,7 @@
                     <div class="col-sm-2" style="width: 10%;" >
                         <input type="text" name="CLD" class="form-control "  value=""  />
                     </div>
-                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Show</label>
+                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 4%;">Show</label>
                     <div class="col-sm-2">
                         <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
                         {{ Form::select('zerovaluebuyingcost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
