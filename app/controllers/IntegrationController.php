@@ -16,10 +16,11 @@ class IntegrationController extends \BaseController
     public function index()
 	{
 		$companyID  			= 	User::get_companyID();
-	    $GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
-		$Gateway 				= 	Gateway::getGatWayList();		
+		$GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
+		$Gateway 				= 	Gateway::getGatWayList();
 		$categories 			= 	Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway"));
+		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
     }
 	
 	function Update(){
@@ -383,15 +384,33 @@ class IntegrationController extends \BaseController
 
 				$data['Status'] 				= 	isset($data['Status'])?1:0;
 				$data['QuickBookSandbox'] 	= 	isset($data['QuickBookSandbox'])?1:0;
+				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
+				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
 
+
+				/*
 				$QuickBookData = array(
 					"QuickBookLoginID"=>$data['QuickBookLoginID'],
 					"QuickBookPassqord"=>$data['QuickBookPassqord'],
 					"OauthConsumerKey"=>$data['OauthConsumerKey'],
 					"OauthConsumerSecret"=>$data['OauthConsumerSecret'],
 					"AppToken"=>$data['AppToken'],
-					"QuickBookSandbox"=>$data['QuickBookSandbox']
-				);
+					"QuickBookSandbox"=>$data['QuickBookSandbox'],
+					"InvoiceAccount"=>$data['InvoiceAccount'],
+					"PaymentAccount"=>$data['PaymentAccount'],
+					"ExtraTax"=>$data['ExtraTax'],
+					"GST"=>$data['GST'],
+					"ItemTax"=>$data['ItemTax'],
+					"TestTax"=>$data['TestTax']
+				); */
+
+				$QuickBookData = array();
+				$QuickBookData = $data;
+				unset($QuickBookData['firstcategory']);
+				unset($QuickBookData['secondcategory']);
+				unset($QuickBookData['firstcategoryid']);
+				unset($QuickBookData['secondcategoryid']);
+				unset($QuickBookData['Status']);
 
 				$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 

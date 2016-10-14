@@ -81,11 +81,10 @@
                                 <div class="col-sm-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">None Zero Cost</label>
+                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Show</label>
                                 <div class="col-sm-1">
-                                    <p class="make-switch switch-small">
-                                        <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
-                                    </p>
+                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'None Zero Cost'] ?>
+                                    {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
                                 <div class="col-sm-2 col-sm-e1" style="width: 10%;">
@@ -192,7 +191,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
-			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
+			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
             $searchFilter.CurrencyID 			= 		'{{$CurrencyID}}';
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();

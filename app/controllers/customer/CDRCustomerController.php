@@ -40,7 +40,6 @@ class CDRCustomerController extends BaseController {
         $companyID 					 =	 User::get_companyID();
         $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
-		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
         $data['AccountID']           = User::get_userID();
         $account                     = Account::find($data['AccountID']);
         $CurrencyId                  = $account->CurrencyId;

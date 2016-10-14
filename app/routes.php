@@ -996,6 +996,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/quickbook/customers', 'QuickBookController@getAllCustomer');
 	Route::any('/quickbook/items', 'QuickBookController@getAllItems');
 	Route::any('/quickbook/createitem', 'QuickBookController@createItem');
+	Route::any('/quickbook/createJournal', 'QuickBookController@createJournal');
 
 });
 
