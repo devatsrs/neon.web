@@ -175,6 +175,8 @@
         <th width="10%" >Owner</th>
         <th width="10%">Phone</th>
         <th width="10%">OS</th>
+        <th width="10%">UA</th>
+        <th width="10%">CL</th>
         <th width="10%">Email</th>
         <th width="30%">Actions</th>
     </tr>
@@ -333,6 +335,14 @@
                         { "bSortable": true},
                         { "bSortable": true},
                         { "bSortable": true},
+                        { "bSortable": true,mRender: function(id, type, full) {
+                            return full[17];
+                            }
+                        },
+                        { "bSortable": true,mRender: function(id, type, full) {
+                            return full[18];
+                            }
+                        },
                         {
                             "bSortable": false,
                             mRender: function ( id, type, full ) {
