@@ -302,7 +302,7 @@
                 $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
                 @if(isset($LowBalanceReminder->Interval))
-                $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
+                $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
                 @endif
             },5);
 
