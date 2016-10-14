@@ -83,7 +83,7 @@
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Show</label>
                                 <div class="col-sm-1">
-                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'None Zero Cost'] ?>
+                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
                                     {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
