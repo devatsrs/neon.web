@@ -57,7 +57,7 @@
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Customer Unbilled Amount</label>
-                        <div class="desc {{ $account->IsVendor == 1 ? 'col-sm-2':'col-sm-4' }}col-sm-2 ">
+                        <div class="desc {{ $account->IsVendor == 1 ? 'col-sm-2':'col-sm-4' }}">
                             <input type="text" class="form-control" readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
                         </div>
                         @if($account->IsVendor == 1)
