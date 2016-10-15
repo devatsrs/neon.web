@@ -474,7 +474,7 @@
       <!-- Quick Book -->
         <?php
         $QuickBookDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookSlug);
-        $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings):"";
+        $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings,true):"";
         ?>
         <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
             <div class="row">
@@ -482,7 +482,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="QuickBookLoginID" value="{{isset($QuickBookData->QuickBookLoginID)?$QuickBookData->QuickBookLoginID:''}}" />
+                            <input type="text"  class="form-control" name="QuickBookLoginID" value="{{isset($QuickBookData['QuickBookLoginID'])?$QuickBookData['QuickBookLoginID']:''}}" />
                         </div>
                     </div>
                 </div>
@@ -490,7 +490,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* Password:</label>
                         <div class="col-sm-8">
-                            <input type="password"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData->QuickBookPassqord)?$QuickBookData->QuickBookPassqord:""}}" />
+                            <input type="password"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData['QuickBookPassqord'])?$QuickBookData['QuickBookPassqord']:""}}" />
                         </div>
                     </div>
                 </div>
@@ -499,7 +499,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="OauthConsumerKey" value="{{isset($QuickBookData->OauthConsumerKey)?$QuickBookData->OauthConsumerKey:''}}" />
+                            <input type="text"  class="form-control" name="OauthConsumerKey" value="{{isset($QuickBookData['OauthConsumerKey'])?$QuickBookData['OauthConsumerKey']:''}}" />
                         </div>
                     </div>
                 </div>
@@ -507,7 +507,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Secret:</label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="OauthConsumerSecret" value="{{isset($QuickBookData->OauthConsumerSecret)?$QuickBookData->OauthConsumerSecret:""}}" />
+                            <input type="text"  class="form-control" name="OauthConsumerSecret" value="{{isset($QuickBookData['OauthConsumerSecret'])?$QuickBookData['OauthConsumerSecret']:""}}" />
                         </div>
                     </div>
                 </div>
@@ -516,7 +516,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">Invoice Account: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Invoice Post to which QuickBook Account." data-original-title="Invoice Account">?</span></label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($QuickBookData->InvoiceAccount)?$QuickBookData->InvoiceAccount:""}}" />
+                            <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($QuickBookData['InvoiceAccount'])?$QuickBookData['InvoiceAccount']:""}}" />
                         </div>
                     </div>
                 </div>
@@ -524,7 +524,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">Payment Account: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Payment Post to which QuickBook Account." data-original-title="Payment Account">?</span></label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($QuickBookData->PaymentAccount)?$QuickBookData->PaymentAccount:""}}" />
+                            <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($QuickBookData['PaymentAccount'])?$QuickBookData['PaymentAccount']:""}}" />
                         </div>
                     </div>
                 </div>
@@ -539,7 +539,7 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-4 control-label">{{$TaxList->Title}}: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{$TaxList->Title}} Post to which QuickBook Account." data-original-title="{{$TaxList->Title}}">?</span></label>
                             <div class="col-sm-8">
-                                <input type="text"  class="form-control" name="{{$Title}}" value="{{isset($QuickBookData->$Title)?$QuickBookData->$Title:""}}" />
+                                <input type="text"  class="form-control" name="Tax[{{$TaxList->TaxRateId}}]" value="{{isset($QuickBookData['Tax'][$TaxList->TaxRateId])?$QuickBookData['Tax'][$TaxList->TaxRateId]:""}}" />
                             </div>
                         </div>
                     </div>
@@ -554,7 +554,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">* App Token:</label>
                         <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="AppToken" value="{{isset($QuickBookData->AppToken)?$QuickBookData->AppToken:""}}" />
+                            <input type="text"  class="form-control" name="AppToken" value="{{isset($QuickBookData['AppToken'])?$QuickBookData['AppToken']:""}}" />
                         </div>
 
                     </div>
@@ -569,7 +569,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-4 control-label">SandBox:</label>
                         <div class="col-sm-8" id="QuickBookSandboxDiv">
-                            <input id="QuickBookSandbox" class="subcatstatus" Divid="QuickBookSandboxDiv" name="QuickBookSandbox" type="checkbox" value="1" <?php if(isset($QuickBookData->QuickBookSandbox) && $QuickBookData->QuickBookSandbox==1){ ?>   checked="checked"<?php } ?> >
+                            <input id="QuickBookSandbox" class="subcatstatus" Divid="QuickBookSandboxDiv" name="QuickBookSandbox" type="checkbox" value="1" <?php if(isset($QuickBookData['QuickBookSandbox']) && $QuickBookData['QuickBookSandbox']==1){ ?>   checked="checked"<?php } ?> >
                         </div>
 
                     </div>
