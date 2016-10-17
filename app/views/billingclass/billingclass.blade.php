@@ -24,7 +24,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('TaxRateID[]', $taxrates, (isset($BillingClass->TaxRateId)? explode(',',$BillingClass->TaxRateId) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
+                                    {{Form::select('TaxRateID[]', $taxrates, (isset($BillingClass->TaxRateID)? explode(',',$BillingClass->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)*</label>
                                 <div class="col-sm-4">
@@ -302,7 +302,7 @@
                 $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
                 @if(isset($LowBalanceReminder->Interval))
-                $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
+                $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
                 @endif
             },5);
 

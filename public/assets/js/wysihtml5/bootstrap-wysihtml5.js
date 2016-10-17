@@ -20,10 +20,10 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutStandingExcludeUnbilledAmount + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingIncludeUnbilledAmount}}'>" + locale.leadoptions.OutStandingIncludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.leadoptions.Currency+ "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.leadoptions.BalanceThreshold + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CurrencySymbol}}'>" + locale.leadoptions.CurrencySymbol + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
                 "</ul>" +
                 "</li>";
@@ -45,13 +45,13 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.invoiceoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.invoiceoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.invoiceoptions.Country + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.invoiceoptions.Currency + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.invoiceoptions.InvoiceNumber + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{GrandTotal}}'>" + locale.invoiceoptions.GrandTotal + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutStanding}}'>" + locale.invoiceoptions.InvoiceOutStanding + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingExcludeUnbilledAmount}}'>" + locale.invoiceoptions.OutStandingExcludeUnbilledAmount + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutStandingIncludeUnbilledAmount}}'>" + locale.invoiceoptions.OutStandingIncludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceGrandTotal}}'>" + locale.invoiceoptions.InvoiceGrandTotal + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.invoiceoptions.InvoiceOutstanding + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.invoiceoptions.BalanceThreshold + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CurrencySymbol}}'>" + locale.invoiceoptions.CurrencySymbol + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.invoiceoptions.Signature + "</a></li>" +
                 "</ul>" +
                 "</li>";
@@ -1089,11 +1089,12 @@
                 State:"State",
                 PostCode:"PostCode",
                 Country:"Country",
+                Currency:"Currency",
                 Signature:"Signature",
-                OutStandingExcludeUnbilledAmount:"OutStandingExcludeUnbilledAmount",
-                OutStandingIncludeUnbilledAmount:"OutStandingIncludeUnbilledAmount",
-                BalanceThreshold:"BalanceThreshold",
-                CurrencySymbol:"CurrencySymbol"
+                OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
+                OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
+                BalanceThreshold:"BalanceThreshold"
+
             },
             invoiceoptions:{
                 FirstName:"FirstName",
@@ -1106,14 +1107,14 @@
                 State:"State",
                 PostCode:"PostCode",
                 Country:"Country",
+                Currency:"Currency",
                 InvoiceNumber:"InvoiceNumber",
-                GrandTotal:"GrandTotal",
-                InvoiceOutStanding:"InvoiceOutStanding",
-                OutStandingExcludeUnbilledAmount:"OutStandingExcludeUnbilledAmount",
-                Signature:"Signature",
-                OutStandingIncludeUnbilledAmount:"OutStandingIncludeUnbilledAmount",
+                InvoiceGrandTotal:"InvoiceGrandTotal",
+                InvoiceOutstanding:"InvoiceOutstanding",
+                OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
+                OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
                 BalanceThreshold:"BalanceThreshold",
-                CurrencySymbol:"CurrencySymbol"
+                Signature:"Signature",
             },
 			Crm:{				
                 FirstName:"FirstName",

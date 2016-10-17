@@ -40,7 +40,7 @@ class IntegrationController extends \BaseController
 		if($data['firstcategory']=='support')
 		{ 
 
-			if($data['secondcategory']=='freshdesk')
+			if($data['secondcategory']=='FreshDesk')
 			{	
 				$rules = array(
 					'FreshdeskDomain'	 => 'required',
@@ -48,13 +48,21 @@ class IntegrationController extends \BaseController
 					'FreshdeskPassword'  => 'required',
 					'Freshdeskkey'		 => 'required',
 				);
+				
+					$messages = [
+				 "FreshdeskDomain.required" => "The Domain field is required",
+				 "FreshdeskEmail.required" => "The email field is required",
+				 "FreshdeskPassword.required" => "The password field is required",
+				 "Freshdeskkey.required" => "The key field is required",
+				 
+				];
 		
-				$validator = Validator::make($data, $rules);
+				$validator = Validator::make($data, $rules,$messages);
 		
 				if ($validator->fails()) {
 					return json_validator_response($validator);
 				}
-			}
+			
 			
 			$FreshdeskData = array(
 					"FreshdeskDomain"=>$data['FreshdeskDomain'],
@@ -85,6 +93,7 @@ class IntegrationController extends \BaseController
 			 	IntegrationConfiguration::create($SaveData);
 			}
 			 return Response::json(array("status" => "success", "message" => "FreshDesk Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='payment')
@@ -320,8 +329,14 @@ class IntegrationController extends \BaseController
 					'OutlookCalendarServer'	 => 'required',					
 					'OutlookCalendarPassword'	 => 'required',					
 				);
-		
-				$validator = Validator::make($data, $rules);
+
+				$messages = [
+							 "OutlookCalendarEmail.required" => "The exchange email field is required",
+							 "OutlookCalendarServer.required" => "The exchange server field is required",
+							 "OutlookCalendarPassword.required" => "The exchange password field is required"
+							];
+					
+				$validator = Validator::make($data, $rules,$messages);
 		
 				if ($validator->fails()) {
 					return json_validator_response($validator);
@@ -345,7 +360,7 @@ class IntegrationController extends \BaseController
 						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
 						IntegrationConfiguration::create($SaveData);
 				}
-				 return Response::json(array("status" => "success", "message" => "Outlook Calendar Successfully Updated"));
+				 return Response::json(array("status" => "success", "message" => "Exchange Calendar Successfully Updated"));
 
 		}}
 		if($data['firstcategory']=='accounting')

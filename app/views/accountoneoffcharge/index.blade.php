@@ -283,7 +283,8 @@
                     <h4 class="modal-title">Additional Charges</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">One of charge</label>
                             {{Form::select('ProductID',$products,'',array("class"=>"select2 product_dropdown"))}}
@@ -292,31 +293,41 @@
                             <input type="hidden" name="TaxAmount" />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Description</label>
                             <input type="text" name="Description" class="form-control" value="" />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Qty</label>
                             <input type="text" name="Qty" class="form-control" value="1" data-mask="decimal" data-min="1" />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Date</label>
                             <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Price</label>
                             <input type="text" name="Price" class="form-control" value="0"   />
                         </div>
                     </div>
-                    <div class="col-md-12 tax">
+                    </div>
+                    <div class="row tax">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Tax Rate </label>
                             {{Form::SelectExt(
@@ -334,6 +345,7 @@
                                         ]
                                 )}}
                         </div>
+                    </div>
                     </div>
                 </div>
                 <div class="modal-footer">
