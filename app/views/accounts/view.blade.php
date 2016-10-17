@@ -2,6 +2,11 @@
 
 @extends('layout.main')
 @section('content')
+    <style>
+        ul.grid li div.box{
+            min-height:16.5em;
+        }
+    </style>
 <div  style="min-height: 1050px;">
   <ol class="breadcrumb bc-3">
     @if($leadOrAccountCheck=='account')
