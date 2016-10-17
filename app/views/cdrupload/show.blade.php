@@ -535,9 +535,13 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
         });
 
 
-        if (isxs()) {
-            $('#cdrfilter').find('.col-sm-1,.col-sm-2').each(function () {
+        if (isxs()|| is('tabletscreen')) {
+            $('#cdrfilter').find('.col-md-1,.col-md-2').each(function () {
                 $(this).removeAttr('style');
+                $(this).removeClass("small_label");
+            });
+            $('#cdrfilter').find('.small_fld').each(function () {
+                $(this).removeClass("small_fld");
             });
         }
 

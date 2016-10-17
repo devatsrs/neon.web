@@ -56,7 +56,7 @@
         <div class="row">
             <div class="col-md-12">
                 <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-                    <div data-collapsed="0" class="panel panel-primary">
+                    <div id="cdrfilter" data-collapsed="0" class="panel panel-primary">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Filter
@@ -67,8 +67,8 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-md-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-md-2" style="padding-right: 0px; width: 9%;">
+                                <label class="col-md-1 control-label small_label" style="width: 8%;" for="field-1">Start Date</label>
+                                <div class="col-md-2" style="padding-right: 0px; width: 10%;">
                                     <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?Input::get('StartDate'):'' }}" data-enddate="{{Input::get('StartDate')!=null?Input::get('StartDate'):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-md-1" style="padding: 0px; width: 9%;">
@@ -325,7 +325,15 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 });
             });
 
-
+            if (isxs()|| is('tabletscreen')) {
+                $('#cdrfilter').find('.col-md-1,.col-md-2').each(function () {
+                    $(this).removeAttr('style');
+                    $(this).removeClass("small_label");
+                });
+                $('#cdrfilter').find('.small_fld').each(function () {
+                    $(this).removeClass("small_fld");
+                });
+            }
 
             });
 
