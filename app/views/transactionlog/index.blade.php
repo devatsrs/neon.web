@@ -84,7 +84,6 @@
         <table class="table table-bordered datatable" id="table-3">
             <thead>
             <tr>
-                <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                 <th width="9%">Amount</th>
                 <th width="8%">Type</th>
                 <th width="10%">Payment Date</th>
@@ -230,13 +229,41 @@
             "aaSorting": [[3, "desc"]],
             "aoColumns":
                     [
-                        {}, //0 Amount
-                        {}, //1 PaymentType
-                        {}, //2 PaymentDate
-                        {},//3 Date
-                        {},//4 Status
-                        {}, //5CreatedBy
-                        {}, //Notes
+                        {
+                            mRender: function(status, type, full) {
+                                return fll[3];
+                            }
+                        }, //0 Amount
+                        {
+                            mRender: function(status, type, full) {
+                                return fll[4];
+                            }
+                        }, //1 PaymentType
+                        {
+                            mRender: function(status, type, full) {
+                                return fll[6];
+                            }
+                        }, //2 PaymentDate
+                        {
+                            mRender: function(status, type, full) {
+                                return fll[7];
+                            }
+                        },//4 Status
+                        {
+                            mRender: function(status, type, full) {
+                                return fll[8];
+                            }
+                        }, //5CreatedBy
+                        {
+                            mRender: function(status, type, full) {
+                                return fll[12];
+                            }
+                        }, //Notes
+                        {
+                            mRender: function(status, type, full) {
+                                return 'Action';
+                            }
+                        }, //Notes
 
                     ],
             "oTableTools":
