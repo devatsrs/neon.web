@@ -808,7 +808,7 @@
 				return false;
 			 }
 
-            if(parent_slug=='accounting' || parent_slug=='storage'){
+            if(parent_slug=='accounting'){
                 $('#SubcategoryModal .modal-dialog').addClass('modal-lg');
                 $('#quickbook-connect').show();
             }else{
