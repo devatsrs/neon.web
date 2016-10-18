@@ -98,7 +98,7 @@ class TransactionLogController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_getPayments (".$companyID.",0,".$id.",null,null,null,0,".$invoice->CurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,null,null";
+        $query = "call prc_getPayments (".$companyID.",0,'".$id."',null,null,null,0,".$invoice->CurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,null,null";
 
         //echo $query;exit;
         if(isset($data['Export']) && $data['Export'] == 1) {
