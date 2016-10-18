@@ -5,6 +5,7 @@ BEGIN
     DECLARE   v_CodeDeckId_ INT;
     DECLARE errormessage longtext;
 	 DECLARE errorheader longtext;
+	 DECLARE countrycount INT DEFAULT 0;
     
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     
@@ -21,6 +22,10 @@ BEGIN
 		AND  n1.Code = n2.Code
 		AND  n1.ProcessId = n2.ProcessId
  		AND  n1.ProcessId = p_processId and n2.ProcessId = p_processId;
+ 		
+ 	
+	 SELECT COUNT(*) INTO countrycount FROM tblTempCodeDeck WHERE ProcessId = p_processId AND Country !='';
+	  
  
     UPDATE tblTempCodeDeck
     SET  
@@ -56,47 +61,15 @@ BEGIN
     WHERE tblTempCodeDeck.ProcessId = p_processId;
   
     UPDATE tblTempCodeDeck t
-    
-  /*  INNER JOIN (
-        SELECT DISTINCT
-            tblTempCodeDeck.Code,
-            tblCountry.CountryID
-        FROM tblCountry
-        LEFT OUTER JOIN (
-            SELECT
-                Prefix
-            FROM tblCountry
-            GROUP BY Prefix
-            HAVING COUNT(*) > 1) d
-            ON tblCountry.Prefix = d.Prefix
-        INNER JOIN tblTempCodeDeck
-            ON 
-                tblTempCodeDeck.Country IS NOT NULL
-            AND (tblTempCodeDeck.Code LIKE CONCAT(tblCountry.Prefix , '%') AND d.Prefix IS NULL)
-                OR (tblTempCodeDeck.Code LIKE CONCAT(tblCountry.Prefix , '%') AND d.Prefix IS NOT NULL AND 
-                (tblTempCodeDeck.Country LIKE Concat('%' , tblCountry.Country , '%') OR tblTempCodeDeck.Description LIKE Concat('%' , tblCountry.Country , '%')) )
-         */       
-            
-    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Country) 
-	  WHERE t.ProcessId = p_processId ;
+	    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Country) 
+	 WHERE t.ProcessId = p_processId ;
   
-       /*   IF ( SELECT COUNT(*)
-                 FROM   tblTempCodeDeck
-                 WHERE  tblTempCodeDeck.ProcessId = p_processId
-                        AND CountryId IS NULL
-               ) > 0
-            THEN
-                
-        INSERT INTO tmp_JobLog_  (Message)
-        SELECT DISTINCT CONCAT(CODE , ' INVALID CODE - COUNTRY NOT FOUND ')
-        FROM tblTempCodeDeck 
-        WHERE tblTempCodeDeck.ProcessId = p_processId 
-        AND CountryId IS NULL AND Country IS NOT NULL;
-        
-        
-            
-            END IF;   */
-
+   IF countrycount > 0
+   THEN
+	  	UPDATE tblTempCodeDeck t
+		    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Description) 
+		 WHERE t.ProcessId = p_processId AND  t.CountryId IS NULL;
+	END IF;	 
 
  IF ( SELECT COUNT(*)
                  FROM   tblTempCodeDeck
@@ -146,7 +119,6 @@ BEGIN
       
       UPDATE  tblRate
       JOIN tblTempCodeDeck ON tblRate.Code = tblTempCodeDeck.Code
-      		AND tblRate.CountryID = tblTempCodeDeck.CountryId
             AND tblTempCodeDeck.ProcessId = p_processId
             AND tblRate.CompanyID = p_companyId
             AND tblRate.CodeDeckId = v_CodeDeckId_
@@ -155,6 +127,18 @@ BEGIN
             tblRate.Interval1 = tblTempCodeDeck.Interval1,
             tblRate.IntervalN = tblTempCodeDeck.IntervalN;
   
+  		IF countrycount > 0
+  		THEN
+  		
+	  		UPDATE  tblRate
+	      JOIN tblTempCodeDeck ON tblRate.Code = tblTempCodeDeck.Code
+	            AND tblTempCodeDeck.ProcessId = p_processId
+	            AND tblRate.CompanyID = p_companyId
+	            AND tblRate.CodeDeckId = v_CodeDeckId_
+	            AND tblTempCodeDeck.Action != 'D'
+			SET   tblRate.CountryID = tblTempCodeDeck.CountryId;
+		
+		END IF;
       
       SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
       
