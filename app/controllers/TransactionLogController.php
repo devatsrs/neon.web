@@ -11,6 +11,7 @@ class TransactionLogController extends \BaseController {
 	public function log($id)
 	{
         $invoice = Invoice::find($id);
+        //echo '<pre>';print_r($invoice);exit();
 		return View::make('transactionlog.index', compact('invoice','id'));
 	}
 
@@ -19,7 +20,7 @@ class TransactionLogController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
 
-        $columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
+        $columns = array('Transaction','Notes','Amount','Status','created_at','InvoiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
@@ -56,7 +57,7 @@ class TransactionLogController extends \BaseController {
 
 
         //$columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
-		$columns = array('InvoiceNumber','Notes','Status','created_at','InvoiceID');
+		$columns = array('Notes','Status','created_at','InvoiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
@@ -82,6 +83,37 @@ class TransactionLogController extends \BaseController {
                     $sheet->fromArray($excel_data);
                 });
             })->download('xls');*/
+        }
+        $query .=',0)';
+
+        return DataTableSql::of($query,'sqlsrv2')->make();
+    }
+
+    public function ajax_payments_datagrid($id,$type) {
+        $data = Input::all();
+        $invoice = Invoice::find($id);
+        $data['iDisplayStart'] +=1;
+
+        $columns = array('Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $companyID = User::get_companyID();
+
+        $query = "call prc_getPayments (".$companyID.",0,".$id.",'','','',0,".$invoice->CurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,null,null";
+
+        //echo $query;exit;
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($type=='csv'){
+                $file_path = getenv('UPLOAD_PATH') .'/invoice_'.$invoice->InvoiceNumber.'_payments.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = getenv('UPLOAD_PATH') .'/invoice_'.$invoice->InvoiceNumber.'_payments.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
         }
         $query .=',0)';
 
