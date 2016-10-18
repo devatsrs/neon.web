@@ -12,7 +12,8 @@ class TransactionLogController extends \BaseController {
 	{
         $invoice = Invoice::find($id);
         //echo '<pre>';print_r($invoice);exit();
-		return View::make('transactionlog.index', compact('invoice','id'));
+        $currency_ids = json_encode(Currency::getCurrencyDropdownIDList());
+		return View::make('transactionlog.index', compact('invoice','id','currency_ids'));
 	}
 
     public function ajax_datagrid($id,$type) {

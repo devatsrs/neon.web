@@ -101,7 +101,9 @@
 
 <script type="text/javascript">
     var $searchFilter = {};
+    var currency_signs = {{$currency_ids}};
     var list_fields  = ['InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID'];
+    var list_fields_payments  = ['PaymentID','AccountName','AccountID','Amount','PaymentType','Currency','PaymentDate','Status','CreatedBy','PaymentProof','InvoiceNo','PaymentMethod','Notes','Recall','RecallReasoan','RecallBy','AmountWithSymbol'];
     var data_table_invoice_log;
     var invoicelogstatus = {{json_encode(InVoiceLog::$log_status)}};
     jQuery(document).ready(function($) {
@@ -229,41 +231,77 @@
             "aaSorting": [[3, "desc"]],
             "aoColumns":
                     [
-                        {
+                        {   //0 Amount
+                            "bSortable": true,
                             mRender: function(status, type, full) {
-                                return fll[3];
+                                return full[3];
                             }
-                        }, //0 Amount
-                        {
+                        },
+                        {   //1 PaymentType
+                            "bSortable": true,
                             mRender: function(status, type, full) {
-                                return fll[4];
+                                return full[4];
                             }
-                        }, //1 PaymentType
-                        {
+                        },
+                        {   //2 PaymentDate
+                            "bSortable": true,
                             mRender: function(status, type, full) {
-                                return fll[6];
+                                return full[6];
                             }
-                        }, //2 PaymentDate
-                        {
+                        },
+                        {   //4 Status
+                            "bSortable": true,
                             mRender: function(status, type, full) {
-                                return fll[7];
+                                return full[7];
                             }
-                        },//4 Status
-                        {
+                        },
+                        {   //5CreatedBy
+                            "bSortable": true,
                             mRender: function(status, type, full) {
-                                return fll[8];
+                                return full[8];
                             }
-                        }, //5CreatedBy
-                        {
+                        },
+                        {   //Notes
+                            "bSortable": true,
                             mRender: function(status, type, full) {
-                                return fll[12];
+                                return full[12];
                             }
-                        }, //Notes
-                        {
-                            mRender: function(status, type, full) {
-                                return 'Action';
+                        },
+                        {   //Action
+                            "bSortable": false,
+                            mRender: function (id, type, full) {
+                                var action, edit_, show_, recall_;
+                                var Approve_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/approve')}}";
+                                var Reject_Payment = "{{ URL::to('payments/{id}/payment_approve_reject/reject')}}";
+                                var recall_ = "{{ URL::to('payments/{id}/recall')}}";
+                                Approve_Payment = Approve_Payment.replace('{id}', full[0]);
+                                Reject_Payment = Reject_Payment.replace('{id}', full[0]);
+                                recall_ = recall_.replace('{id}', full[0]);
+                                action = '<div class = "hiddenRowData" >';
+                                for (var i = 0; i < list_fields_payments.length; i++) {
+                                    action += '<input type = "hidden"  name = "' + list_fields_payments[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                                }
+                                action += '</div>';
+                                action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                @if(User::is('BillingAdmin') || User::is_admin())
+                                if (full[7] != "Approved") {
+                                    action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
+                                    action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment + '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                }
+                                @endif
+
+                                //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
+                                if (full[13] == 0 && full[7] != 'Rejected') {
+                                    action += '<a href="' + recall_ + '" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
+                                }
+                                <?php } ?>
+                                if (full[9] != null) {
+                                    action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/' + full[0] + '" title="" ><i class="entypo-down"></i>Download</a></span>'
+                                }
+                                return action;
                             }
-                        }, //Notes
+                        }
 
                     ],
             "oTableTools":
@@ -295,7 +333,194 @@
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
         });
+
+        $('table tbody').on('click', '.view-payment', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            $('#view-modal-payment').trigger("reset");
+            var cur_obj = $(this).prev("div.hiddenRowData");
+            for(var i = 0 ; i< list_fields_payments.length; i++){
+                if(list_fields_payments[i] == 'AmountWithSymbol'){
+                    $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
+                }else if(list_fields_payments[i] == 'Currency'){
+                    var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields_payments[i] + "']").val()];
+                    if(currency_sign_show!='Select a Currency'){
+                        $("#view-modal-payment [name='" + list_fields_payments[i] + "']").text(currency_sign_show);
+                    }else{
+                        $("#view-modal-payment [name='" + list_fields_payments[i] + "']").text("Currency Not Found");
+                    }
+                }else {
+                    $("#view-modal-payment [name='" + list_fields_payments[i] + "']").text(cur_obj.find("input[name='" + list_fields_payments[i] + "']").val());
+                }
+            }
+
+            $('#view-modal-payment h4').html('View Payment');
+            $('#view-modal-payment').modal('show');
+        });
+
+        $('body').on('click', '.btn.recall,.recall', function (e) {
+            e.preventDefault();
+            $('#recall-payment-form').trigger("reset");
+            if($(this).hasClass('btn')){
+                $('#recall-payment-form').attr("action",$(this).attr('href'));
+            }else{
+                var PaymentIDs = getselectedIDs();
+                $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+            }
+            $('#recall-modal-payment').modal('show');
+        });
+
+        $('#recall-payment-form').submit(function(e){
+            e.preventDefault();
+            var formData = new FormData($('#recall-payment-form')[0]);
+            $.ajax({
+                url: $(this).attr("action"),
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    $(".btn.save").button('reset');
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('#recall-modal-payment').modal('hide');
+                        data_table.fnFilter('', 0);
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                // Form data
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
     });
 
 </script>
+@stop
+@section('footer_ext')
+    @parent
+    <div class="modal fade" id="view-modal-payment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">View Payment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Account Name</label>
+                                <div name="AccountName"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Currency</label>
+                                <div name="Currency"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Invoice</label>
+                                <div name="InvoiceNo"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Payment Date</label>
+                                <div name="PaymentDate"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Payment Method</label>
+                                <div name="PaymentMethod"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Action</label>
+                                <div name="PaymentType"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Amount</label>
+                                <div name="Amount"></div>
+                                <input type="hidden" name="PaymentID" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Notes</label>
+                                <div name="Notes"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Recall Reasoan</label>
+                                <div name="RecallReasoan"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label text-left bold">Recall By</label>
+                                <div name="RecallBy"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="recall-modal-payment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="recall-payment-form" action="{{URL::to('payments/0/recall')}}" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Recall Payment</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="form-Group"> <br />
+                                <label for="field-1" class="col-sm-12 control-label">Recall Reason</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control message" name="RecallReasoan"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="PaymentIDs" />
+                        <button type="submit" id="payment-recall"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Recall </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @stop
