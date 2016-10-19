@@ -43,13 +43,24 @@
     <div class="mail-attachments">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
-        @foreach($attachments as $attachments_data)
+        @foreach($attachments as $key_acttachment => $attachments_data)
         <?php 
-   		$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
+   		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
+		
+		if(is_amazon() == true)
+		{
+			$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
+		}
+		else
+		{
+			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
+		}
+		$Attachmenturl = URL::to('emails/'.$Emaildata->AccountEmailLogID.'/getattachment/'.$key_acttachment);
+		
    	    ?>
-        <li> <a href="{{$FilePath}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
-          <div class="links"><a href="{{$FilePath}}">Download</a> </div>
+        <li> <a href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a href="{{Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+          <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
         </li>
         @endforeach
       </ul>
