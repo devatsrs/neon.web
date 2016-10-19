@@ -6,8 +6,12 @@
         </div>
       </th>
       <th colspan="4"> <?php if(count($result)>0){ ?>
-        <div class="mail-select-options">@if($boxtype == 'inbox') Mark as Read @elseif($boxtype == 'draftbox') Mark to Delete @endif</div>
-        <div class="mail-pagination"> <strong>
+        <div class="hidden mail-select-options">@if($boxtype == 'inbox') Mark as Read @elseif($boxtype == 'draftbox') Mark to Delete @endif</div>
+        <div class="mail-pagination">
+      @if($boxtype == 'inbox')  <a class="btn-apply mailaction btn btn-default">Apply</a> @endif
+      @if($boxtype == 'draftbox')  <a action_type="Delete" action_value="1"  class="btn-apply mailaction btn btn-default">Delete</a> @endif
+      
+         <strong>
           <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
           -
           <?php  echo $current+count($result); ?>
@@ -20,24 +24,21 @@
             <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
             <?php } ?>
             <?php if($data['clicktype']=='next'){ ?>
+            <?php if(($current+1)>1){ ?>
              <a  movetype="back" class="move_mail back btn btn-sm btn-white"><i class="entypo-left-open"></i></a>
-              <?php  if($totalResults!=($current+count($result))){ ?>           
+              <?php }  if($totalResults!=($current+count($result))){ ?>           
             <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
             <?php } } ?>
           </div>
         </div>
-        @if($boxtype == 'inbox' || $boxtype == 'draftbox')
-        <div class="mail-pagination margin-left-mail dropdown">
-          <button type="submit" data-toggle="dropdown" data-loading-text="Loading..." submit_value="{{Messages::Sent}}" class="btn btn-success submit_btn btn-icon dropdown-toggle"> Options <i class="entypo-mail"></i> </button>
-          <ul class="dropdown-menu dropdown-red">
-          @if($boxtype == 'inbox')
-            <li> <a action_type="HasRead" action_value="1" class="clickable mailaction"> Mark as Read </a> </li>
-            <li> <a action_type="HasRead" action_value="0" class="clickable mailaction" > Mark as Unread </a> </li>
-            @elseif($boxtype == 'draftbox')
-            <li> <a action_type="Delete" action_value="1" class="clickable mailaction" > Delete </a> </li>
-            @endif
-          </ul>
-        </div>
+        @if($boxtype == 'inbox')
+         <div class="mail-pagination margin-left-mail">
+                  <select id="selectmailaction" name="selectmailaction" action_type="HasRead" class="select2 selectmailaction">
+                  <option value="">Select</option>
+                  <option value="1">Mark as Read</option>
+                  <option value="0">Mark as Unread</option>
+                  </select> 
+               </div> 
          @endif
         <?php } ?>
       </th>
@@ -93,8 +94,9 @@
             <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
             <?php } ?>
             <?php if($data['clicktype']=='next'){ ?>
+            <?php if(($current+1)>1){ ?>
              <a  movetype="back" class="move_mail back btn btn-sm btn-white"><i class="entypo-left-open"></i></a>
-              <?php  if($totalResults!=($current+count($result))){ ?>           
+              <?php }  if($totalResults!=($current+count($result))){ ?>           
             <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
             <?php } } ?>
           </div>

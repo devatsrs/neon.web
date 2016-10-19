@@ -155,10 +155,11 @@ class MessagesController extends \BaseController {
 		 $fromUser 					=	User::where(["EmailAddress" => $Emaildata->Emailfrom])->first(); 
 		 $from						=	!empty($Emaildata->EmailfromName)?$Emaildata->EmailfromName:$fromUser->FirstName.' '.$fromUser->LastName;
 		 
-		  $response_api_extensions 	=   Get_Api_file_extentsions();
-		  $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']);
+		  $response_api_extensions 	=    Get_Api_file_extentsions();
+		  $response_extensions		=	 json_encode($response_api_extensions['allowed_extensions']);
 		  $random_token				=	 get_random_number();
-		  $max_file_size			=	get_max_file_size();			
+		  $max_file_size			=	 get_max_file_size();		
+		
 		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size'));
 	}
 		

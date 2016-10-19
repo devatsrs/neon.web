@@ -44,8 +44,13 @@ class UploadFile{
         $filesArray = unserialize($attachmentsinfo); 
        
         foreach ($filesArray as $file){
-			$FileNewPath   =  getenv('TEMP_PATH').'/'.$file['filepath']; 
-			$Attachmenturl =  AmazonS3::unSignedUrl($file['filepath']); 
+			$FileNewPath    =  getenv('TEMP_PATH').'/'.$file['filepath']; 
+			$dirpath 		=  dirname($FileNewPath);
+			
+			if (!file_exists($dirpath)){
+                    mkdir($dirpath, 0777, true);
+             }
+			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']); 
 			file_put_contents($FileNewPath,file_get_contents($Attachmenturl));
 			$filesArrayreturn[]	=	array("filename"=>$file['filename'],"filepath"=>$FileNewPath);
 		}

@@ -16,8 +16,8 @@
   
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
-    <!-- Sidebar -->
-  @include("emailmessages.mail_sidebar")
+  <!-- Sidebar --> 
+  @include("emailmessages.mail_sidebar") 
   <!-- Mail Body -->
   <div class="mail-body">
     <div class="mail-header"> 
@@ -25,10 +25,16 @@
       <div class="mail-title"> {{$Emaildata->Subject}} <span class="label label-warning hidden">Friends</span> <span class="label label-info hidden">Sport</span> </div>
       
       <!-- links -->
-      <div class="mail-links hidden"> <a href="#" class="btn btn-default"> <i class="entypo-print"></i> </a> <a href="#" class="btn btn-default"> <i class="entypo-trash"></i> </a> <a class="btn btn-primary btn-icon"> Reply <i class="entypo-reply"></i> </a> </div>
+      <div class="mail-links"> <a action_type="reply" email_number="{{$Emaildata->AccountEmailLogID}}" class="btn btn-primary btn-icon email_action"> Reply <i class="entypo-reply"></i> </a> <a action_type="forward" email_number="{{$Emaildata->AccountEmailLogID}}" class="btn btn-default btn-icon email_action"> Forward <i class="entypo-forward"></i> </a> </div>
     </div>
     <div class="mail-info">
-      <div class="mail-sender"> <a class="href"> <span>{{$from}}</span> ({{$Emaildata->Emailfrom}}) to <span>{{$to}}</span> </a>        
+      <div class="mail-sender dropdown"> <a class="dropdown-toggle clickable" data-toggle="dropdown" href=""> <span>{{$from}}</span> ({{$Emaildata->Emailfrom}}) to <span>{{$to}}</span> </a>
+      @if($Emaildata->AccountID==0 && $Emaildata->EmailCall==Messages::Received) 
+        <ul class="dropdown-menu dropdown-red">
+          <li> <a class="unknownemailaction" unknown_action_type="leads" firstname="{{$Emaildata->EmailfromName}}" emailaddress="{{$Emaildata->Emailfrom}}" href="#">&nbsp;<i class="fa fa-building"></i>&nbsp;&nbsp; Add as Lead </a> </li>
+          <li> <a class="unknownemailaction" unknown_action_type="contacts" firstname="{{$Emaildata->EmailfromName}}" emailaddress="{{$Emaildata->Emailfrom}}" href="#"> <i class="entypo-user"></i> &nbsp;Add as Contact</a> </li>
+        </ul>
+        @endif
       </div>
       <div class="mail-date"> <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($Emaildata->created_at))->diffForHumans();  ?> </div>
     </div>
@@ -42,10 +48,7 @@
    		$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
    	    ?>
-        <li>
-          
-          <a href="{{$FilePath}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a>          
-          <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+        <li> <a href="{{$FilePath}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a href="{{$FilePath}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$FilePath}}">Download</a> </div>
         </li>
         @endforeach
@@ -60,12 +63,11 @@
   </div>
 </div>
 <div class="modal fade " id="EmailAction-model">
-     <form id="EmailActionform" method="post">     
-  <div class="modal-dialog EmailAction_box"  style="width: 70%;">
-    <div class="modal-content">     
+  <form id="EmailActionform" method="post">
+    <div class="modal-dialog EmailAction_box"  style="width: 70%;">
+      <div class="modal-content"> </div>
     </div>
-  </div>
-   </form>
+  </form>
 </div>
 <form id="emai_attachments_reply_form" class="hidden" name="emai_attachments_form">
   <span class="emai_attachments_span">
@@ -84,6 +86,18 @@ p{
 	-webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
     
+}
+.dropdown-menu.dropdown-red
+{
+background-color: #d42020;
+border-color: #b51b1b;
+}
+.dropdown-menu.dropdown-red > li > a {
+    color: #ffffff;
+}
+.dropdown-menu.dropdown-red > li:hover a {
+    background-color: #be1d1d;
+    color: #ffffff;
 }
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
@@ -356,6 +370,13 @@ function bytesToSize(filesize) {
                     }
                 });
             });
+			
+		$('.unknownemailaction').click(function(e) {
+            var unknown_action_type 	= 	$(this).attr('unknown_action_type');
+			var firstname 				= 	$(this).attr('firstname');
+			var emailaddress 			= 	$(this).attr('emailaddress');
+			window.location = baseurl+'/'+unknown_action_type+'/create?email='+emailaddress+'&name='+firstname;
+        });
 });
-</script>
+</script> 
 @stop 

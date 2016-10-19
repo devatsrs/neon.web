@@ -42,9 +42,10 @@
                 <input class="mail_select_checkbox" type="checkbox" />
               </div>
             </th>
-            <th colspan="4"> <div class="mail-select-options">Mark as Read</div>           
+            <th colspan="4"> <div class="hidden mail-select-options">Mark as Read</div>           
                <?php if(count($result)>0){ ?>
-              <div class="mail-pagination"> <strong>
+              <div class="mail-pagination"> <a class="btn-apply mailaction btn btn-default">Apply</a>
+              <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
                 <?php  echo $current+count($result); ?>
@@ -55,13 +56,13 @@
                   <?php } ?>
                 </div>
               </div>
-              <div class="mail-pagination margin-left-mail dropdown">
-                <button type="submit" data-toggle="dropdown" data-loading-text="Loading..." submit_value="{{Messages::Sent}}" class="btn btn-success submit_btn btn-icon dropdown-toggle"> Options <i class="entypo-mail"></i> </button>
-                <ul class="dropdown-menu dropdown-red">
-                  <li> <a action_type="HasRead" action_value="1" class="clickable mailaction"> Mark as Read </a> </li>
-                  <li> <a action_type="HasRead" action_value="0" class="clickable mailaction" > Mark as Unread </a> </li>
-                </ul>
-              </div>
+              <div class="mail-pagination margin-left-mail">
+                  <select id="selectmailaction" name="selectmailaction" action_type="HasRead" class="select2 selectmailaction">
+                  <option value="">Select</option>
+                  <option value="1">Mark as Read</option>
+                  <option value="0">Mark as Unread</option>
+                  </select> 
+               </div>              
               <?php } ?>
             </th>
           </tr>
@@ -116,7 +117,7 @@
   </div>
 </div>
 <style>
-.margin-left-mail{margin-right:15px;}
+.margin-left-mail{margin-right:15px;width:21%; }.btn-apply{margin-right:10px;}
 </style>
 <script>
 $(document).ready(function(e) {
@@ -189,6 +190,8 @@ $(document).ready(function(e) {
 								currentpage =  currentpage-1;
 							 } 		 console.log(currentpage);			 	
 							 replaceCheckboxes();
+							 $(".select2").select2();
+							 $(".select2-container").css('visibility','visible');
 						}
 						else
 						{ 					
@@ -208,13 +211,17 @@ $(document).ready(function(e) {
 	
 	$(document).on('click','.mailaction',function(e){
         e.preventDefault();
+		var selectmailaction = 	$('#selectmailaction').val(); 
 		 var allVals = [];
    	  $('.mailcheckboxes:checked').each(function() {		
        allVals.push($(this).val());
      });
-    
-	var action_type   =  $(this).attr('action_type');
-	var action_value  =  $(this).attr('action_value');
+	 
+	 if(allVals.length<1){return false;}
+    if(selectmailaction==''){return false;}
+	
+	var action_type   =  $('#selectmailaction').attr('action_type');
+	var action_value  =  selectmailaction;
 	var ajax_url	  =  baseurl+'/emailmessages/ajax_action';
 	
 	if(action_type!='' && action_value!='' ){

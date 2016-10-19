@@ -40,8 +40,8 @@
             </th>
             <th colspan="4"> 
              <?php if(count($result)>0){ ?>
-             <div class="mail-select-options">Mark to Delete</div>
-              <div class="mail-pagination" colspan="2"> <strong>
+             <div class="hidden mail-select-options">Mark to Delete</div>
+              <div class="mail-pagination" colspan="2"><a action_type="Delete" action_value="1"  class="btn-apply mailaction btn btn-default">Delete</a> <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
                 <?php  echo $current+count($result); ?>
@@ -50,13 +50,7 @@
               <?php if(count($result)>=$iDisplayLength){ ?>  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a> <?php } ?>
                  </div>
               </div>
-              <div class="mail-pagination margin-left-mail dropdown">
-                <button type="submit" data-toggle="dropdown" data-loading-text="Loading..." submit_value="{{Messages::Sent}}" class="btn btn-success submit_btn btn-icon dropdown-toggle"> Options <i class="entypo-mail"></i> </button>
-                <ul class="dropdown-menu dropdown-red">
-                 <li> <a action_type="Delete" action_value="1" class="clickable mailaction" > Delete </a> </li>
-                </ul>
-              </div>
-              <?php } ?>
+             <?php } ?>
             </th>
           </tr>
         </thead>
@@ -113,7 +107,7 @@
 
 </div>
 <style>
-.margin-left-mail{margin-right:15px;}
+.margin-left-mail{margin-right:15px;width:21%; }.btn-apply{margin-right:10px;}
 </style>
 <script>
 $(document).ready(function(e) {
@@ -216,7 +210,8 @@ $(document).ready(function(e) {
    	  $('.mailcheckboxes:checked').each(function() {		
        allVals.push($(this).val());
      });
-    
+     if(allVals.length<1){return false;}
+	
 	var action_type   =  $(this).attr('action_type');
 	var action_value  =  $(this).attr('action_value');
 	var ajax_url	  =  baseurl+'/emailmessages/ajax_action';
