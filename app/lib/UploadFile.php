@@ -42,7 +42,7 @@ class UploadFile{
         $returnText	='';
      
         $filesArray = unserialize($attachmentsinfo); 
-       
+       if(!is_array($filesArray)){return array();}
         foreach ($filesArray as $file){
 			$FileNewPath    =  getenv('TEMP_PATH').'/'.$file['filepath']; 
 			$dirpath 		=  dirname($FileNewPath);
