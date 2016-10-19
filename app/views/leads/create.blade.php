@@ -64,7 +64,7 @@
                         <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
                         {{Form::select('Title', $NamePrefix_array, Input::old('Title') ,array("class"=>"select2 small"))}}
                     </div>
-                    <input type="text" name="FirstName" class="form-control" value="{{Input::old('FirstName')}}"/>
+                    <input type="text" name="FirstName" class="form-control" value="@if(Input::old('FirstName')!=''){{Input::old('FirstName')}}@elseif(Input::get('name')!=''){{Input::get('name')}}@endif"/>
                 </div>
             </div>
 
@@ -81,7 +81,7 @@
 
             <label for="field-1" class="col-sm-2 control-label">Email</label>
             <div class="col-sm-4">
-                <input type="text" name="Email" class="form-control" id="field-1" placeholder="" value="{{Input::old('Email')}}"/>
+                <input type="text" name="Email" class="form-control" id="field-1" placeholder="" value="@if(Input::old('Email')!=''){{Input::old('Email')}}@elseif(Input::get('email')!=''){{Input::get('email')}}@endif"/>
             </div>
 
         </div>

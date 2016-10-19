@@ -34,8 +34,8 @@
         <!-- mail table header -->
         <thead>
           <tr>
-            <th width="5%"> <div class="hidden checkbox checkbox-replace">
-                <input  type="checkbox" />
+            <th class="" width="5%"> <div class="checkbox hidden checkbox-replace">
+                <input class="mail_select_checkbox" type="checkbox" />
               </div>
             </th>
             <th colspan="4"> <div class="hidden mail-select-options">Mark as Read</div>
@@ -59,21 +59,21 @@
           <?php
 		   if(count($result)>0){
 		 foreach($result as $result_data){   
-			$attachments  =  unserialize($result_data[3]);
+			$attachments  =  !empty($result_data->AttachmentPaths)?unserialize($result_data->AttachmentPaths):array();
 			//$AccountName  =  Account::where(array('AccountID'=>$result_data[6]))->pluck('AccountName');   
-			$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data[7]);			
+			$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data->EmailTo);			
 			 ?>
-          <tr><!-- new email class: unread -->
-            <td><div class="hidden checkbox checkbox-replace">
-                <input value="<?php  echo $result_data[0]; ?>" type="checkbox" />
+          <tr>
+            <td><div class="checkbox hidden checkbox-replace">
+                <input value="<?php  echo $result_data->AccountEmailLogID; ?>" type="checkbox" />
               </div></td>
-            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail" class="col-name"><?php echo $AccountName; ?></a></td>
-            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail"> <?php echo $result_data[2]; ?> </a></td>
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail" class="col-name"><?php echo ShortName($AccountName,20); ?></a></td>
+            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail"> <?php echo ShortName($result_data->Subject,40); ?> </a></td>
             <td class="col-options">
             <?php if(count($attachments)>0 && is_array($attachments)){ ?>
-            <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail"><i class="entypo-attach"></i></a>              
+            <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail"><i class="entypo-attach"></i></a>              
               <?php } ?></td>
-            <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data[4]))->diffForHumans();  ?></td>
+            <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></td>
           </tr>
           <?php } }else{ ?>
           <tr><td align="center" colspan="5">No Result Found.</td></tr>
@@ -84,7 +84,7 @@
         <tfoot>
           <tr>
             <th width="5%"> <div class="hidden checkbox checkbox-replace">
-                <input type="checkbox" />
+                <input class="mail_select_checkbox" type="checkbox" />
               </div>
             </th>
             <th colspan="4">
