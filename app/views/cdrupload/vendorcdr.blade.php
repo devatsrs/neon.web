@@ -78,9 +78,10 @@
                     <div class="col-sm-2" style="width: 10%;" >
                         <input type="text" name="CLD" class="form-control "  value=""  />
                     </div>
-                    <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">Prefix</label>
-                    <div class="col-sm-2" style="width: 10%;">
-                        <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 4%;">Show</label>
+                    <div class="col-sm-2">
+                        <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
+                        {{ Form::select('zerovaluebuyingcost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
                 </div>
                 <div class="form-group">
@@ -90,15 +91,15 @@
                         $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
                     }
                     ?>
+                    <label class="col-sm-1 control-label" for="field-1">Prefix</label>
+                    <div class="col-sm-2" style="width: 10%;">
+                        <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                    </div>
                     <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                     <div class="col-sm-2">
                         {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
-                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">None Zero Cost</label>
-                    <div class="col-sm-2">
-                        <?php $options = [0=>'All',1=>'Zero Cost',2=>'None Zero Cost'] ?>
-                        {{ Form::select('zerovaluebuyingcost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                    </div>
+
                 </div>
               <p style="text-align: right;">
                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>

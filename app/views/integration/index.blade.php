@@ -530,119 +530,141 @@
       <!-- Quick Book -->
         <?php
         $QuickBookDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookSlug);
-        $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings):"";
+        $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings,true):"";
         ?>
         <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
-            <div class="row">
-                <div class="col-md-6  margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
-                        <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="QuickBookLoginID" value="{{isset($QuickBookData->QuickBookLoginID)?$QuickBookData->QuickBookLoginID:''}}" />
-                        </div>
+            <!-- quickbook form start-->
+
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Details
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     </div>
                 </div>
-                <div class="col-md-6 margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">* Password:</label>
-                        <div class="col-sm-8">
-                            <input type="password"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData->QuickBookPassqord)?$QuickBookData->QuickBookPassqord:""}}" />
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="QuickBookLoginID" value="{{isset($QuickBookData['QuickBookLoginID'])?$QuickBookData['QuickBookLoginID']:''}}" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="clear"></div>
-                <div class="col-md-6  margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
-                        <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="OauthConsumerKey" value="{{isset($QuickBookData->OauthConsumerKey)?$QuickBookData->OauthConsumerKey:''}}" />
+                        <div class="col-md-6 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+                                <div class="col-sm-8">
+                                    <input type="password"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData['QuickBookPassqord'])?$QuickBookData['QuickBookPassqord']:""}}" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-6 margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Secret:</label>
-                        <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="OauthConsumerSecret" value="{{isset($QuickBookData->OauthConsumerSecret)?$QuickBookData->OauthConsumerSecret:""}}" />
+                        <div class="clear"></div>
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="OauthConsumerKey" value="{{isset($QuickBookData['OauthConsumerKey'])?$QuickBookData['OauthConsumerKey']:''}}" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="clear"></div>
-                <div class="col-md-6  margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">Invoice Account: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Invoice Post to which QuickBook Account." data-original-title="Invoice Account">?</span></label>
-                        <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($QuickBookData->InvoiceAccount)?$QuickBookData->InvoiceAccount:""}}" />
+                        <div class="col-md-6 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Secret:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="OauthConsumerSecret" value="{{isset($QuickBookData['OauthConsumerSecret'])?$QuickBookData['OauthConsumerSecret']:""}}" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-6 margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">Payment Account: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Payment Post to which QuickBook Account." data-original-title="Payment Account">?</span></label>
-                        <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($QuickBookData->PaymentAccount)?$QuickBookData->PaymentAccount:""}}" />
+                        <div class="clear"></div>
+
+                        <div class="col-md-6 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* App Token:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="AppToken" value="{{isset($QuickBookData['AppToken'])?$QuickBookData['AppToken']:""}}" />
+                                </div>
+
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="clear"></div>
-                <?php $count=0; ?>
-                @if(!empty($TaxLists)&& count($TaxLists)>0)
-                @foreach($TaxLists as $TaxList)
-                    <?php
-                        $Title = str_replace(' ','',$TaxList->Title);
-                    ?>
-                    <div class="col-md-6  margin-top">
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-4 control-label">{{$TaxList->Title}}: <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{$TaxList->Title}} Post to which QuickBook Account." data-original-title="{{$TaxList->Title}}">?</span></label>
-                            <div class="col-sm-8">
-                                <input type="text"  class="form-control" name="{{$Title}}" value="{{isset($QuickBookData->$Title)?$QuickBookData->$Title:""}}" />
+
+                        <div class="col-md-6 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">SandBox:</label>
+                                <div class="col-sm-8" id="QuickBookSandboxDiv">
+                                    <input id="QuickBookSandbox" class="subcatstatus" Divid="QuickBookSandboxDiv" name="QuickBookSandbox" type="checkbox" value="1" <?php if(isset($QuickBookData['QuickBookSandbox']) && $QuickBookData['QuickBookSandbox']==1){ ?>   checked="checked"<?php } ?> >
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Active:</label>
+                                <div class="col-sm-8" id="QuickBookStatusDiv">
+                                    <input id="QuickBookStatus" class="subcatstatus" Divid="QuickBookStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($QuickBookDbData->Status) && $QuickBookDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                </div>
                             </div>
                         </div>
                     </div>
-                        <?php $count++; ?>
-                        @if($count%2 == 0)
-                            <div class="clear"></div>
-                        @endif
-                @endforeach
-                @endif
 
-                <div class="col-md-6 margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">* App Token:</label>
-                        <div class="col-sm-8">
-                            <input type="text"  class="form-control" name="AppToken" value="{{isset($QuickBookData->AppToken)?$QuickBookData->AppToken:""}}" />
-                        </div>
-
-                    </div>
-                </div>
-
-                <?php $count++; ?>
-                @if($count%2 == 0)
-                    <div class="clear"></div>
-                @endif
-
-                <div class="col-md-6 margin-top">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-4 control-label">SandBox:</label>
-                        <div class="col-sm-8" id="QuickBookSandboxDiv">
-                            <input id="QuickBookSandbox" class="subcatstatus" Divid="QuickBookSandboxDiv" name="QuickBookSandbox" type="checkbox" value="1" <?php if(isset($QuickBookData->QuickBookSandbox) && $QuickBookData->QuickBookSandbox==1){ ?>   checked="checked"<?php } ?> >
-                        </div>
-
-                    </div>
-                </div>
-                <?php $count++; ?>
-                @if($count%2 == 0)
-                    <div class="clear"></div>
-                @endif
-                <div class="col-md-6  margin-top">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Active:</label>
-                        <div class="col-sm-8" id="QuickBookStatusDiv">
-                            <input id="QuickBookStatus" class="subcatstatus" Divid="QuickBookStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($QuickBookDbData->Status) && $QuickBookDbData->Status==1){ ?>   checked="checked"<?php } ?> >
-                        </div>
-                    </div>
                 </div>
             </div>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Charts of Accounts Mapping
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">Invoice:</label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($QuickBookData['InvoiceAccount'])?$QuickBookData['InvoiceAccount']:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">Payment:</label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($QuickBookData['PaymentAccount'])?$QuickBookData['PaymentAccount']:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                    <?php $count=0; ?>
+                    @if(!empty($TaxLists)&& count($TaxLists)>0)
+                        @foreach($TaxLists as $TaxList)
+                            <div class="col-md-6  margin-top">
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-4 control-label">{{$TaxList->Title}}:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text"  class="form-control" name="Tax[{{$TaxList->TaxRateId}}]" value="{{isset($QuickBookData['Tax'][$TaxList->TaxRateId])?$QuickBookData['Tax'][$TaxList->TaxRateId]:""}}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <?php $count++; ?>
+                            @if($count%2 == 0)
+                                <div class="clear"></div>
+                            @endif
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <!-- quickbook form end-->
         </div>
       <!-- Quick Book End-->
     </div>
@@ -786,7 +808,7 @@
 				return false;
 			 }
 
-            if(parent_slug=='accounting' || parent_slug=='storage'){
+            if(parent_slug=='accounting'){
                 $('#SubcategoryModal .modal-dialog').addClass('modal-lg');
                 $('#quickbook-connect').show();
             }else{
@@ -909,7 +931,7 @@
       </div>
       <div class="modal-footer">
           <button type="button" class="btn btn-success btn-sm btn-icon icon-left" data-original-title="QuickBook Authorize"
-                  data-content="Please First save and after click for Connect Neon to QuickBook" data-placement="top" data-trigger="hover" data-toggle="popover"  id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="entypo-floppy"></i>Authorize</button>
+                  data-content="Please First save and after click for Connect Neon to QuickBook" data-placement="top" data-trigger="hover" data-toggle="popover"  id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="fa fa-lock"></i>Authorize</button>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

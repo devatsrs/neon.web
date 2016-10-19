@@ -77,8 +77,8 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Account Owner</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Account Owner</label>
+                    <div class="col-md-4">
                     <?php
                     $disable = '';
                     if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager')){
@@ -91,88 +91,88 @@
                         @endif
                     </div>
 
-                    <label class="col-sm-2 control-label">Ownership</label>
-                    <div class="col-sm-4">
+                    <label class="col-md-2 control-label">Ownership</label>
+                    <div class="col-md-4">
                         <?php $ownership_array = array( ""=>"None", "Private"=>"Private" , "Public"=>"Public" ,"Subsidiary"=>"Subsidiary","Other"=>"Other" ); ?>
                         {{Form::select('Ownership', $ownership_array, $account->Ownership ,array("class"=>"form-control select2"))}}
                     </div>
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">First Name</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">First Name</label>
+                    <div class="col-md-4">
                         <input type="text" name="FirstName" class="form-control" id="field-1" placeholder="" value="{{$account->FirstName}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Last Name</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Last Name</label>
+                    <div class="col-md-4">
                         <input type="text" name="LastName" class="form-control" id="field-1" placeholder="" value="{{$account->LastName}}" />
                     </div>
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Account Number</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Account Number</label>
+                    <div class="col-md-4">
                         <input type="text" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{$account->Number}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Website</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Website</label>
+                    <div class="col-md-4">
                         <input type="text" name="Website" class="form-control" id="field-1" placeholder="" value="{{$account->Website}}" />
                     </div>
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">*Account Name</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">*Account Name</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder=""  value="{{$account->AccountName}}"/>
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Phone</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Phone</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control"  name="Phone" id="field-1" placeholder="" value="{{$account->Phone}}" />
                     </div>
 
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Vendor</label>
-                    <div class="col-sm-4">
+                    <label class="col-md-2 control-label">Vendor</label>
+                    <div class="col-md-4">
                         <div class="make-switch switch-small">
                             <input type="checkbox" name="IsVendor"  @if($account->IsVendor == 1 )checked=""@endif value="1">
                         </div>
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Fax</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Fax</label>
+                    <div class="col-md-4">
                         <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{$account->Fax}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Customer</label>
-                    <div class="col-sm-4">
+                    <label class="col-md-2 control-label">Customer</label>
+                    <div class="col-md-4">
                         <div class="make-switch switch-small">
                             <input type="checkbox" @if($account->IsCustomer == 1 )checked="" @endif name="IsCustomer" value="1">
                         </div>
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Employee</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Employee</label>
+                    <div class="col-md-4">
                         <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Email</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Email</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$account->Email}}" />
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Billing Email</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Email</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{$account->BillingEmail}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Active</label>
-                    <div class="col-sm-4">
+                    <label class="col-md-2 control-label">Active</label>
+                    <div class="col-md-4">
                         <div class="make-switch switch-small">
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
@@ -180,19 +180,19 @@
  
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Account Tags</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Account Tags</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
                     
-                     <label for="field-1" class="col-sm-2 control-label">VAT Number</label>
-                    <div class="col-sm-4">
+                     <label for="field-1" class="col-md-2 control-label">VAT Number</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Currency</label>
-                    <div class="col-sm-4">
+                    <label class="col-md-2 control-label">Currency</label>
+                    <div class="col-md-4">
                             @if($invoice_count == 0)
                             {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}
                             @else
@@ -201,19 +201,19 @@
                             @endif
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Timezone</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Timezone</label>
+                    <div class="col-md-4">
                         {{Form::select('Timezone', $timezones, $account->TimeZone ,array("class"=>"form-control select2"))}}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Verification Status</label>
-                    <div class="col-sm-4">
+                    <label class="col-md-2 control-label">Verification Status</label>
+                    <div class="col-md-4">
                         {{Account::$doc_status[$account->VerificationStatus]}}
                     </div>
- <label for="NominalAnalysisNominalAccountNumber" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
+ <label for="NominalAnalysisNominalAccountNumber" class="col-md-2 control-label">Nominal Code</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
 
@@ -224,8 +224,8 @@
                     });
                 </script>
                 <div class="form-group">
-                                   <label for="field-1" class="col-sm-2 control-label">Nominal Code</label>
-                    <div class="col-sm-4">
+                                   <label for="field-1" class="col-md-2 control-label">Nominal Code</label>
+                    <div class="col-md-4">
                         <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                     </div>
                 </div>
@@ -234,14 +234,14 @@
                     Description
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-12">
+                    <div class="col-md-12">
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
                 </div>
                 
                             <div class="form-group">            
-                    <label for="CustomerPassword" class="col-sm-2 control-label">Customer Panel Password</label>
-                    <div class="col-sm-4">
+                    <label for="CustomerPassword" class="col-md-2 control-label">Customer Panel Password</label>
+                    <div class="col-md-4">
         <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
                             <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
                     </div>  
@@ -261,13 +261,13 @@
                         <div class="panel-body">
                         @foreach($AccountApproval as $row)
                             <div class="form-group ">
-                                <div class="panel-title desc col-sm-3 ">
+                                <div class="panel-title desc col-md-3 ">
                                     @if($row->Required == 1)
                                     *
                                     @endif
                                     {{$row->Key}}
                                 </div>
-                                <div class="panel-title desc col-sm-4 table_{{$row->AccountApprovalID}}" >
+                                <div class="panel-title desc col-md-4 table_{{$row->AccountApprovalID}}" >
                                 <?php
                                  $AccountApprovalList = AccountApprovalList::select('AccountApprovalID','AccountApprovalListID','FileName')->where(["AccountID"=> $account->AccountID,'AccountApprovalID'=>$row->AccountApprovalID])->get();
                                  ?>
@@ -300,7 +300,7 @@
 
 
                                 </div>
-                                <div class="col-sm-5">
+                                <div class="col-md-5">
                                     <ul class="icheck-list">
                                         <li>
                                         <a class="btn btn-primary upload-doc" data-title="{{$row->Key}}" data-id="{{$row->AccountApprovalID}}"  href="javascript:;">
@@ -334,35 +334,35 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Address Line 1</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Address Line 1</label>
+                    <div class="col-md-4">
                         <input type="text" name="Address1" class="form-control" id="field-1" placeholder="" value="{{$account->Address1}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">City</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">City</label>
+                    <div class="col-md-4">
                         <input type="text" name="City" class="form-control" id="field-1" placeholder="" value="{{$account->City}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Address Line 2</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Address Line 2</label>
+                    <div class="col-md-4">
                         <input type="text" name="Address2" class="form-control" id="field-1" placeholder="" value="{{$account->Address2}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Post/Zip Code</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Post/Zip Code</label>
+                    <div class="col-md-4">
                         <input type="text" name="PostCode" class="form-control" id="field-1" placeholder="" value="{{$account->PostCode}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Address Line 3</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Address Line 3</label>
+                    <div class="col-md-4">
                         <input type="text" name="Address3" class="form-control" id="field-1" placeholder="" value="{{$account->Address3}}" />
                     </div>
 
-                    <label for=" field-1" class="col-sm-2 control-label">*Country</label>
-                    <div class="col-sm-4">
+                    <label for=" field-1" class="col-md-2 control-label">*Country</label>
+                    <div class="col-md-4">
 
                     {{Form::select('Country', $countries, $account->Country ,array("class"=>"form-control select2"))}}
                     </div>
@@ -403,20 +403,20 @@
 
             <div class="panel-body billing-section">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Billing Class*</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
+                    <div class="col-md-4">
                         {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Billing Type*</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
+                    <div class="col-md-4">
                         {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"select2 small"))}}
                     </div>
 
                 </div>
                 <div class="form-group">
 
-                    <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Timezone*</label>
+                    <div class="col-md-4">
                         {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:'' ),array("class"=>"form-control select2",$billing_disable))}}
                         @if($billing_disable)
                             <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:''}}" name="BillingTimezone">
@@ -431,8 +431,8 @@
                         $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
                     }*/
                     ?>
-                    <label for="field-1" class="col-sm-2 control-label">Billing Start Date*</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
+                    <div class="col-md-4">
                         @if($hiden_class == '')
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
@@ -450,15 +450,15 @@
                     }
                     ?>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Current Billing Cycle</label>
-                        <div class="col-sm-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
-                        <label for="field-1" class="col-sm-2 control-label">New Billing Cycle Effective From</label>
-                        <div class="col-sm-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
+                        <label for="field-1" class="col-md-2 control-label">Current Billing Cycle</label>
+                        <div class="col-md-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
+                        <label for="field-1" class="col-md-2 control-label">New Billing Cycle Effective From</label>
+                        <div class="col-md-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
-                    <div class="col-sm-3">
+                    <label for="field-1" class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
+                    <div class="col-md-3">
                         <?php
                         if(!empty($AccountNextBilling)){
                             $BillingCycleType = $AccountNextBilling->BillingCycleType;
@@ -472,10 +472,10 @@
                             <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
                         @endif
 
-                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>$hiden_class." form-control select2"))}}
+                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>" form-control select2 ".$hiden_class))}}
 
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-md-1">
                         @if($hiden_class != '')
                         <button class="btn btn-sm btn-primary tooltip-primary" id="billing_edit" data-original-title="Edit Billing Cycle" title="" data-placement="top" data-toggle="tooltip">
                             <i class="fa fa-pencil"></i>
@@ -492,8 +492,8 @@
                     }
                     ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
-                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Start of Day*</label>
-                        <div class="col-sm-4">
+                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
+                        <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='weekly' )
                                 <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
                             @endif
@@ -503,8 +503,8 @@
                         </div>
                     </div>
                     <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                    <label for="field-1" class="col-sm-2 control-label">Billing Cycle - for Days*</label>
-                        <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days*</label>
+                        <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='in_specific_days' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
                             @endif
@@ -512,8 +512,8 @@
                         </div>
                     </div>
                     <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                    <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Subscription Qty</label>
-                        <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - Subscription Qty</label>
+                        <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='subscription' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
                             @endif
@@ -521,8 +521,8 @@
                         </div>
                     </div>
                     <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-sm-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
-                        <div class="col-sm-4">
+                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
+                        <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='monthly_anniversary' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
                             @endif
@@ -531,8 +531,8 @@
                     </div>
                 </div>
                  <div class="form-group">
-                     <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email</label>
-                     <div class="col-sm-4">
+                     <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
+                     <div class="col-md-4">
                          <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
                          {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
                      </div>
@@ -540,16 +540,16 @@
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Last Invoice Date</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Last Invoice Date</label>
+                    <div class="col-md-4">
                         <?php
                         $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
                         ?>
                         {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
                         {{$LastInvoiceDate}}
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Next Invoice Date</label>
-                    <div class="col-sm-4">
+                    <label for="field-1" class="col-md-2 control-label">Next Invoice Date</label>
+                    <div class="col-md-4">
                         <?php
                         $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:''; ?>
                         {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
@@ -754,6 +754,7 @@
                 $(".billing-section").show();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',0);
                 $(".billing-section-hide").nextAll('.panel').find('.panel-body').show();
+                $('.billing-section .select2-container').css('visibility','visible');
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
@@ -891,8 +892,8 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">File Select</label>
-                    <div class="col-sm-5">
+                    <label class="col-md-3 control-label">File Select</label>
+                    <div class="col-md-5">
                         <input type="file" id="excel" name="excel" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                         <input name="AccountApprovalID" value="" type="hidden" >
                     </div>
@@ -923,8 +924,8 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">CLI</label>
-                    <div class="col-sm-9">
+                    <label class="col-md-3 control-label">CLI</label>
+                    <div class="col-md-9">
                         <textarea name="CustomerCLI" class="form-control autogrow"></textarea>
                         *Adding multiple CLIs ,Add one CLI in each line.
                     </div>

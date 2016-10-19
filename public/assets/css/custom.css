@@ -107,7 +107,8 @@ body {
 
 
 .pull-right-xs .dropdown-menu{
-    width:280px !important;
+    width:333px !important;
+    right:-16px;
 }
 .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter{
     min-height: 58px;
