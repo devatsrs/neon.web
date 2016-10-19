@@ -655,12 +655,22 @@ toastr_opts = {
             {
                 var $this = $(el),
                     opts = {
-                        allowClear: attrDefault($this, 'allowClear', false)
+                        allowClear: attrDefault($this, 'allowClear', false),
+                        formatResult: function(item) {
+                            if(item.id=='select2-add'){
+                                return '<span class="select2-add" data-parent="'+$(item).attr('name')+'"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
+                            }
+                            return '<span class="select2-match"></span>'+ item.text ;
+                        }
                     };
                 if($this.hasClass('small')){
                     opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
-                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search');
                 }
+                if($this.hasClass('select2add')){
+                    $this.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+                }
+
                 $this.select2(opts);
                 if($this.hasClass('small')){
                     $this.select2('container').find('.select2-search').addClass ('hidden') ;
@@ -669,6 +679,22 @@ toastr_opts = {
             }).promise().done(function(){
                 $('.select2').css('visibility','visible');
             });
+
+            /*select2.onSelect = (function(fn) {
+                return function(data, options) {
+                    var target;
+
+                    if (options != null) {
+                        target = $(options.target);
+                    }
+
+                    if (target && target.hasClass('select2-add')) {
+                        alert('click!');
+                    } else {
+                        return fn.apply(this, arguments);
+                    }
+                }
+            })(select2.onSelect);*/
 
 
             if ($.isFunction($.fn.perfectScrollbar))
@@ -679,8 +705,33 @@ toastr_opts = {
                     railpadding: {right: 3}
                 });
             }
+
         }
 
+        function formatState (state) {
+            console.log(state);
+            if (!state.id) { return state.text; }
+            var $state = $(
+                '<span><img src="vendor/images/flags/' + state.element.value.toLowerCase() + '.png" class="img-flag" /> ' + state.text + '</span>'
+            );
+            return $state;
+        };
+
+        function addUserPic (opt) {
+            console.log(opt);
+            if (!opt.id) {
+                return opt.text;
+            }
+            var optimage = $(opt.element).data('image');
+            if(!optimage){
+                return opt.text;
+            } else {
+                var $opt = $(
+                    '<span class="userName"><i class="entypo-plus"></i>' + $(opt.element).text() + '</span>'
+                );
+                return $opt;1
+            }
+        };
 
 
 

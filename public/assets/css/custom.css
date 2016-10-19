@@ -120,6 +120,15 @@ body {
     border-color: #303641;
     cursor: default;
 }
+
+.select2-results .select2-add{
+    margin-left:-5px;
+}
+.select2-results .select2-add .entypo-plus-circled{
+    font-size: 15px;
+    color:green;
+}
+
 /*Abubakar End*/
 
 

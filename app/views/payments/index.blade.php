@@ -910,6 +910,13 @@
 
                         });
                     }
+
+                    $('[name="Status"]').on('select2-open', function() {
+                        $('.select2-results .select2-add').on('click', function(e) {
+                            e.stopPropagation();
+                        });
+                    });
+
                 });
 
                 $("#payment-table-search").submit(function(e) {
