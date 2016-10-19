@@ -8,7 +8,6 @@
 @include('includes.errors')
 @include('includes.success')
 <div class="mail-env"> 
-  
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
   
@@ -19,8 +18,7 @@
       <div class="mail-title"> Compose Mail <i class="entypo-pencil"></i> </div>
       
       <!-- links -->
-      <div class="mail-links">
-        <button type="submit" data-loading-text="Loading..." href="#" class="btn btn-default"> <i class="entypo-cancel"></i> </button>
+      <div class="mail-links">        
         <button type="submit" data-loading-text="Loading..." href="#" submit_value="{{Messages::Draft}}" class="btn btn-default btn-icon submit_btn"> Draft <i class="entypo-tag"></i></button>
         <button type="submit" data-loading-text="Loading..." submit_value="{{Messages::Sent}}" class="btn btn-success submit_btn btn-icon"> Send <i class="entypo-mail"></i> </button>
       </div>
@@ -29,32 +27,36 @@
       <form  id="MailBoxCompose" name="MailBoxCompose">
         <div class="form-group">
           <label for="to">To:</label>
-          <input type="text" class="form-control"  id="email-to" name="email-to" tabindex="1" />
-          <div class="field-options"> <a href="javascript:;" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </div>
+          <input class="form-control useremails" id="email-to" name="email-to" value="@if($Emaildata){{$Emaildata->EmailTo}}@endif" type="text" >
+          <div class="field-options">
+						<a href="javascript:;" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a>
+						<a href="javascript:;" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a>
+					</div>
         </div>
         <div class="form-group hidden">
           <label for="cc">CC:</label>
-          <input type="text" class="form-control" id="cc" name="cc" tabindex="2" />
+          <input type="text" class="form-control useremails" id="cc" name="cc" value="@if($Emaildata){{$Emaildata->Cc}}@endif" tabindex="2" />
         </div>
         <div class="form-group hidden">
           <label for="bcc">BCC:</label>
-          <input type="text" class="form-control" id="bcc" name="bcc" tabindex="2" />
+          <input type="text" class="form-control useremails" id="bcc" name="bcc" value="@if($Emaildata){{$Emaildata->Bcc}}@endif" tabindex="2" />
         </div>
         <div class="form-group">
           <label for="subject">Subject:</label>
-          <input type="text" class="form-control" id="subject" name="Subject" tabindex="1" />
+          <input type="text" class="form-control" id="subject" name="Subject" value="@if($Emaildata){{$Emaildata->Subject}}@endif" tabindex="1" />
         </div>
         <div class="compose-message-editor">
-          <textarea id="Message" name="Message" class="form-control wysihtml5" ></textarea>
+          <textarea id="Message" name="Message" class="form-control wysihtml5box" >@if($Emaildata){{$Emaildata->Message}}@endif</textarea>
         </div>
         <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
         <div class="form-group email_attachment">
           <input type="hidden" value="1" name="email_send" id="email_send"  />
           <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
-          <input id="info2" type="hidden" name="attachmentsinfo" />
-          <span class="file-input-names"></span> </div>
+          <input id="info2" type="hidden" name="attachmentsinfo"  />
+          <span class="file-input-names">@if(isset($data['uploadtext'])){{$data['uploadtext']['text']}}@endif</span> </div>
         <input type="submit" class="hidden" value=""  />
         <input type="hidden" class="EmailCall" value="{{Messages::Sent}}" name="EmailCall" />
+        <input type="hidden" value="@if($Emaildata){{$Emaildata->AccountEmailLogID}}@endif" id="AccountEmailLogID" name="AccountEmailLogID" />
       </form>
     </div>
   </div>
@@ -65,25 +67,42 @@
     <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole1">
     </span>
     <input  hidden="" name="token_attachment" value="{{$random_token}}" />
-    <input id="info1" type="hidden" name="attachmentsinfo" />
+    <input id="info1" type="hidden" name="attachmentsinfo"  />
     <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
   </form>
 </div>
 <style>
 .mail-env .mail-body .mail-header .mail-title{width:70% !important;}
 .mail-env .mail-body .mail-header .mail-search, .mail-env .mail-body .mail-header .mail-links{width:30% !important;}
+.select2-container,#s2id_email-to{padding-left:30px !important;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script>
+
 $(document).ready(function(e) {
+	 $('.useremails').select2({
+            tags:{{$AllEmails}}
+        });
+	
 	var ajax_url 		   = 	baseurl+'/emailmessages/SendMail';
 	var file_count 		   =  	0;
 	var allow_extensions   = 	{{$response_extensions}};
 	var emailFileList	   =  	new Array();
 	var max_file_size_txt  =	'{{$max_file_size}}';
 	var max_file_size	   =	'{{str_replace("M","",$max_file_size)}}';
+	@if(isset($data['uploadtext']['attachmentsinfo']))
+	var img_array		   =    '{{$data['uploadtext']['attachmentsinfo']}}';
+	
+	$('#info1').val(img_array);
+    $('#info2').val(img_array);
+	var img_array_final = jQuery.parseJSON(img_array);
+	for (var i = 0, len = img_array_final.length; i < len; ++i) {
+   	 emailFileList.push(img_array_final[i].filename);	
+ }
+	@endif
+	
 
 	$('.submit_btn').click(function(e) {
         $('.EmailCall').val($(this).attr('submit_value'));
@@ -108,8 +127,12 @@ $(document).ready(function(e) {
 				data:formData,
 				success: function(response) {
 				   if(response.status =='success'){
+					   if($('#AccountEmailLogID').val()>0){
+						window.location.href = "{{URL::to('/')}}/emailmessages/draft";  
+						}
 						ShowToastr("success",response.message); 			
-						document.getElementById('MailBoxCompose').reset();		 
+						document.getElementById('MailBoxCompose').reset();		
+						$('.select2-search-choice-close').click();
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   
@@ -119,10 +142,10 @@ $(document).ready(function(e) {
 				});	
 		return false;		
     });		
-	$('.wysihtml5').wysihtml5({
+	$('.wysihtml5box').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Crm":true,
+						"Crm":false,
 						"emphasis": true,
 						"lists": true,
 						"html": true,

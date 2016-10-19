@@ -12,15 +12,16 @@
   
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
-
-    <!-- Sidebar -->
-    @include("emailmessages.mail_sidebar")
-
-    <!-- Mail Body -->
+  
+  <!-- Sidebar --> 
+  @include("emailmessages.mail_sidebar") 
+  
+  <!-- Mail Body -->
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <h3 class="mail-title"> Inbox <span class="count">({{$TotalUnreads}})</span> </h3>
+      <h3 class="mail-title"> Inbox <span class="count">({{$TotalUnreads}})</span><br>
+      </h3>
       
       <!-- search -->
       <form method="get" role="form" id="mail-search" class="mail-search">
@@ -37,62 +38,73 @@
         <!-- mail table header -->
         <thead>
           <tr>
-            <th width="5%"> <div class="hidden checkbox checkbox-replace">
-                <input  type="checkbox" />
+            <th width="5%"> <div class="checkbox checkbox-replace">
+                <input class="mail_select_checkbox" type="checkbox" />
               </div>
             </th>
-            <th colspan="4"> <div class="hidden mail-select-options">Mark as Read</div>
-             <?php if(count($result)>0){ ?>
-              <div class="mail-pagination" colspan="2"> <strong>
+            <th colspan="4"> <div class="mail-select-options">Mark as Read</div>           
+               <?php if(count($result)>0){ ?>
+              <div class="mail-pagination"> <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
                 <?php  echo $current+count($result); ?>
                 </strong> <span>of {{$totalResults}}</span>
-                <div class="btn-group">              
-              <?php if(count($result)>=$iDisplayLength){ ?>  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a> <?php } ?>
-                 </div>
+                <div class="btn-group">
+                  <?php if(count($result)>=$iDisplayLength){ ?>                   
+                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
+                  <?php } ?>
+                </div>
+              </div>
+              <div class="mail-pagination margin-left-mail dropdown">
+                <button type="submit" data-toggle="dropdown" data-loading-text="Loading..." submit_value="{{Messages::Sent}}" class="btn btn-success submit_btn btn-icon dropdown-toggle"> Options <i class="entypo-mail"></i> </button>
+                <ul class="dropdown-menu dropdown-red">
+                  <li> <a action_type="HasRead" action_value="1" class="clickable mailaction"> Mark as Read </a> </li>
+                  <li> <a action_type="HasRead" action_value="0" class="clickable mailaction" > Mark as Unread </a> </li>
+                </ul>
               </div>
               <?php } ?>
             </th>
           </tr>
-        </thead>        
+        </thead>
         <!-- email list -->
         <tbody>
           <?php
 		  if(count($result)>0){
 		 foreach($result as $result_data){ 
-			$attachments  =  unserialize($result_data[3]);
+			$attachments  =  !empty($result_data->AttachmentPaths)?unserialize($result_data->AttachmentPaths):array();
 			 ?>
-          <tr class="<?php if($result_data[6]==0){echo "unread";} ?>"><!-- new email class: unread -->
-            <td><div class="hidden checkbox checkbox-replace">
-                <input value="<?php  echo $result_data[0]; ?>" type="checkbox" />
+          <tr class="<?php if($result_data->HasRead==0){echo "unread";} ?>"><!-- new email class: unread -->
+            <td><div class="checkbox checkbox-replace">
+                <input value="<?php  echo $result_data->AccountEmailLogID; ?>" class="mailcheckboxes" type="checkbox" />
               </div></td>
-            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail" class="col-name"><?php echo $result_data[1]; ?></a></td>
-            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail">@if($result_data[5]==0)<span class="label label-info">Not matched</span> @endif <?php echo $result_data[2]; ?> </a></td>
-            <td class="col-options">
-            <?php if(count($attachments)>0 && is_array($attachments)){ ?>
-            <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data[0]}}/detail"><i class="entypo-attach"></i></a>              
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail" class="col-name"><?php echo ShortName($result_data->EmailfromName,20); ?></a></td>
+            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail">@if($result_data->AccountID==0)<span class="label label-info">Not matched</span> @endif <?php echo ShortName($result_data->Subject,40); ?> </a></td>
+            <td class="col-options"><?php if(count($attachments)>0 && is_array($attachments)){ ?>
+              <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail"><i class="entypo-attach"></i></a>
               <?php } ?></td>
-            <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data[4]))->diffForHumans();  ?></td>
+            <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></td>
           </tr>
           <?php } }else{ ?>
-           <tr><td align="center" colspan="5">No Result Found.</td></tr>
+          <tr>
+            <td align="center" colspan="5">No Result Found.</td>
+          </tr>
           <?php } ?>
-        </tbody>        
+        </tbody>
         <!-- mail table footer -->
         <tfoot>
           <tr>
             <th width="5%"> <div class="hidden checkbox checkbox-replace">
-                <input type="checkbox" />
+                <input class="mail_select_checkbox" type="checkbox" />
               </div>
             </th>
-            <th colspan="4">
-            <?php if(count($result)>0){ ?>
-             <div class="mail-pagination" colspan="2"> <?php echo $current+1; ?>-
+            <th colspan="4"> <?php if(count($result)>0){ ?>
+              <div class="mail-pagination" colspan="2"> <?php echo $current+1; ?>-
                 <?php  echo $current+count($result); ?>
                 <span>of {{$totalResults}}</span>
                 <div class="btn-group">
-			 <?php if(count($result)>=$iDisplayLength){ ?>  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a> <?php } ?>
+                  <?php if(count($result)>=$iDisplayLength){ ?>
+                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
+                  <?php } ?>
                 </div>
               </div>
               <?php } ?>
@@ -103,6 +115,9 @@
     </div>
   </div>
 </div>
+<style>
+.margin-left-mail{margin-right:15px;}
+</style>
 <script>
 $(document).ready(function(e) {
 	var currentpage 	= 	0;
@@ -190,6 +205,64 @@ $(document).ready(function(e) {
 					}
 				});	
 	}
+	
+	$(document).on('click','.mailaction',function(e){
+        e.preventDefault();
+		 var allVals = [];
+   	  $('.mailcheckboxes:checked').each(function() {		
+       allVals.push($(this).val());
+     });
+    
+	var action_type   =  $(this).attr('action_type');
+	var action_value  =  $(this).attr('action_value');
+	var ajax_url	  =  baseurl+'/emailmessages/ajax_action';
+	
+	if(action_type!='' && action_value!='' ){
+			$.ajax({
+				url: ajax_url,
+				type: 'POST',
+				dataType: 'json',
+				async :false,
+				data:{allVals:allVals,action_type:action_type,action_value:action_value},
+				success: function(response) {
+					 if(response.status =='success'){
+						ShowToastr("success",response.message); 		 
+						currentpage = currentpage-1;
+						ShowResult('next');
+					 }
+					 else{
+						toastr.error(response.message, "Error", toastr_opts);
+					}  
+				}
+			});	
+	}
+	 
+    });
+	
+	/*$("#checkall").click(function(){
+    $('.mailcheckbox').prop('checked', $(this).prop("checked"));
+	if($(this).prop("checked")==true){
+		$('.checkbox-replace').addClass('checked');
+	}
+	else
+	{
+		$('.checkbox-replace').removeClass('checked');
+	}
+	//$('.checkbox-replace').toggleClass('checked');
+});*/
+
+	$(document).on('click','.mail_select_checkbox',function(e){
+		var $cb = $(document).find('table thead input[type="checkbox"], table tfoot input[type="checkbox"]');
+		$cb.attr('checked', this.checked).trigger('change');
+		mail_toggle_checkbox_status(this.checked);
+		$('#table-4 tbody').find('tr')[this.checked ? 'addClass' : 'removeClass']('highlight');
+	});		
+	$(document).on('change','.mailcheckboxes', function()
+	{
+		$(this).closest('tr')[this.checked ? 'addClass' : 'removeClass']('highlight');
+	});
+	
 });
 </script> 
+<script src="<?php echo URL::to('/'); ?>/assets/js/neon-mail.js"></script> 
 @stop 

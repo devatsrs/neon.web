@@ -1367,10 +1367,10 @@ function getdaysdiff($date1,$date2){
     return $date2->diff($date1)->format("%R%a");
 }
 
-function ShortName($title){
-	if(strlen($title)>8)
+function ShortName($title,$length=8){
+	if(strlen($title)>$length)
 	{
-		return substr($title,0,8).'..';
+		return substr($title,0,$length).'..';
 	}else{
 		return $title;
 	}

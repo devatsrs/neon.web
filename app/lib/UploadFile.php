@@ -11,7 +11,7 @@ class UploadFile{
         if(!empty($attachmentsinfo)){
             $filesArray = json_decode($attachmentsinfo,true);
         }
-        foreach ($files as $file){
+        foreach ($files as $file){ 
             $uploadPath = getenv('TEMP_PATH');
             $fileNameWithoutExtension = GUID::generate();
             $fileName = $fileNameWithoutExtension . '.' . $file->getClientOriginalExtension();
@@ -23,6 +23,7 @@ class UploadFile{
         } else {
             $filesArray	=	$uploadedFile;
         } 
+		
 		if(isset($data['add_type'])){$class="reply_del_attachment";}else{$class='del_attachment';}
         foreach($filesArray as $key=> $fileData) {
             $returnText  .= '<span class="file_upload_span imgspan_filecontrole">'.$fileData['filename'].'<a  del_file_name="'.$fileData['filename'].'" class="clickable '.$class.'"> X </a><br></span>';
@@ -34,4 +35,28 @@ class UploadFile{
         $file = $data['file'];
         unlink($file['filepath']);
     }
+	
+	  public static function DownloadFileLocal($attachmentsinfo,$add_type=''){
+        $filesArrayreturn = [];
+        $uploadedFile = [];
+        $returnText	='';
+     
+        $filesArray = unserialize($attachmentsinfo); 
+       
+        foreach ($filesArray as $file){
+			$FileNewPath   =  getenv('TEMP_PATH').'/'.$file['filepath']; 
+			$Attachmenturl =  AmazonS3::unSignedUrl($file['filepath']); 
+			file_put_contents($FileNewPath,file_get_contents($Attachmenturl));
+			$filesArrayreturn[]	=	array("filename"=>$file['filename'],"filepath"=>$FileNewPath);
+		}
+        
+       if($add_type!=''){$class="reply_del_attachment";}else{$class='del_attachment';}
+        foreach($filesArray as $key=> $fileData) {
+            $returnText  .= '<span class="file_upload_span imgspan_filecontrole">'.$fileData['filename'].'<a  del_file_name="'.$fileData['filename'].'" class="clickable '.$class.'"> X </a><br></span>';
+        }
+        return ['text'=>$returnText,'attachmentsinfo'=>json_encode($filesArrayreturn)];
+    }
+
+	
+	
 }
