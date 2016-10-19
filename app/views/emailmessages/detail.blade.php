@@ -59,7 +59,7 @@
 		$Attachmenturl = URL::to('emails/'.$Emaildata->AccountEmailLogID.'/getattachment/'.$key_acttachment);
 		
    	    ?>
-        <li> <a href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a href="{{Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+        <li> <a href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
         </li>
         @endforeach
