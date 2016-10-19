@@ -333,8 +333,32 @@
                         { "bSortable": true},
                         { "bSortable": true},
                         { "bSortable": true},
-                        { "bSortable": true},
-                        { "bSortable": true},
+                        { "bSortable": true,
+                            mRender:function(id, type, full){
+                                if(id !== null) {
+                                    popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + id + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[20] !== null ? full[20] : '')  + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
+
+                                    return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="" data-content="'+popup_html+'">' +id+ '</div>';
+                                }else{
+                                    return '';
+                                }
+                            }
+                        },
+						{ "bSortable": true,
+                            mRender:function(id, type, full){
+                                if(id !== null) {
+                                    return '<a class="unbilled_report" data-id="' + full[0] + '">' + id + '</a>';
+                                }else{
+                                    return '';
+                                }
+
+                            }
+                        },
 						{ "bSortable": true},
                         { "bSortable": true},
                         {
@@ -416,6 +440,11 @@
                                 action +='<input type="hidden" name="UnbilledAmount" value="'+full[6]+'"/>';
                                 action +='<input type="hidden" name="PermanentCredit" value="'+full[7]+'"/>';
                                 action +='<input type="hidden" name="LowBalance" value="'+full[19]+'"/>';
+                                action +='<input type="hidden" name="CUA" value="'+full[20]+'"/>';
+                                action +='<input type="hidden" name="VUA" value="'+full[21]+'"/>';
+                                action +='<input type="hidden" name="AE" value="'+full[22]+'"/>';
+                                action +='<input type="hidden" name="ACL" value="'+full[23]+'"/>';
+                                action +='<input type="hidden" name="BalanceThreshold" value="'+full[24]+'"/>';
                                 return action;
                             }
                         },
@@ -487,7 +516,12 @@
                 var UnbilledAmount = $(temp).find('input[name="UnbilledAmount"]').val();
                 var accountid =  $(temp).find('input[name="accountid"]').val();
                 var LowBalance =  $(temp).find('input[name="LowBalance"]').val();
-				
+                var CUA =  $(temp).find('input[name="CUA"]').val();
+                var VUA =  $(temp).find('input[name="VUA"]').val();
+                var AE =  $(temp).find('input[name="AE"]').val();
+                var ACL =  $(temp).find('input[name="ACL"]').val();
+                var BalanceThreshold =  $(temp).find('input[name="BalanceThreshold"]').val();
+
 				
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
                 address2 = (address2=='null'||address2==''?'':address2+'<br>');
@@ -497,6 +531,11 @@
                 country  = (country=='null'||country==''?'':country);
                 PermanentCredit = PermanentCredit=='null'||PermanentCredit==''?'':''+PermanentCredit;
                 UnbilledAmount = UnbilledAmount=='null'||UnbilledAmount==''?'':''+UnbilledAmount;
+                CUA = CUA=='null'||CUA==''?'':''+CUA;
+                VUA = VUA=='null'||VUA==''?'':''+VUA;
+                AE = AE=='null'||AE==''?'':''+AE;
+                ACL = ACL=='null'||ACL==''?'':''+ACL;
+                BalanceThreshold = BalanceThreshold=='null'||BalanceThreshold==''?'':''+BalanceThreshold;
 
                 var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
@@ -527,6 +566,14 @@
 				if(account_name.length>40){
 					account_name  = account_name.substring(0,40)+"...";	
 				}
+
+                popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + childrens.eq(5).text() + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + CUA + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + VUA + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + AE + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + ACL + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + BalanceThreshold + "</div>";
+
                 html += '  <div class="box clearfix ' + select + '">';
                // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
                 html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
@@ -540,7 +587,7 @@
                 html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
-                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OS : </div> <div class="pull-left"> ' + childrens.eq(5).text() + ' </div>';
+                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice Outstanding" title="" data-placement="right" data-toggle="tooltip">OS : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title="" data-content="'+popup_html+'"> ' + childrens.eq(5).text() + ' </div>';
                 html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="(Unbilled Amount). Click on amount to view breakdown" title="" data-placement="right" data-toggle="tooltip">UA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a> </div>';
                 html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
@@ -637,6 +684,13 @@
                         });
                     //}
                 }
+            });
+            $("body").popover({
+                selector: '[data-toggle="popover"]',
+                trigger:'hover',
+                html:true,
+                template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+                //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
             });
 
         }
