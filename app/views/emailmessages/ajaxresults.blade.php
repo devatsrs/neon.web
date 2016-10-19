@@ -64,9 +64,9 @@
           <input value="<?php  echo $result_data->AccountEmailLogID; ?>" class="mailcheckboxes" type="checkbox" />
         </div></td>
       <td class="col-name"><a target="_blank" href="{{$url}}" class="col-name">
-        <?php if($boxtype=='inbox'){ echo ShortName($result_data->EmailfromName,20); }else{echo ShortName($AccountName,20);} ?>
+        <?php if($boxtype=='inbox'){ echo ShortName($result_data->EmailfromName,30); }else{echo ShortName($AccountName,30);} ?>
         </a></td>
-      <td class="col-subject"><a target="_blank" href="{{$url}}">@if($boxtype == 'inbox' && $result_data->AccountID==0)<span class="label label-info">Unmatched</span> @endif<?php echo ShortName($result_data->Subject,40); ?> </a></td>
+      <td class="col-subject"><a target="_blank" href="{{$url}}">@if($boxtype == 'inbox' && $result_data->AccountID==0)<span class="label label-info">Unmatched</span> @endif<?php echo ShortName($result_data->Subject,50); ?> </a></td>
       <td class="col-options"><?php if(count($attachments)>0 && is_array($attachments)){ ?>
         <a target="_blank" href="{{$url}}"><i class="entypo-attach"></i></a>
         <?php } ?></td>

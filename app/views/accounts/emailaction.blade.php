@@ -56,7 +56,7 @@ To: <?php if($response_data['EmailCall']=='Send'){echo $response_data['EmailTo']
         <input type="hidden" value="1" name="email_send" id="email_send"  />
         <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
         <input id="info4" type="hidden" name="attachmentsinfo" />
-        <span class="file-input-names">@if(isset($data['uploadtext'])){{$data['uploadtext']['text']}}@endif</span> </div>
+        <span class="file-input-names">@if(isset($data['uploadtext']['text'])){{$data['uploadtext']['text']}}@endif</span> </div>
     </div>
   </div>
 </div>

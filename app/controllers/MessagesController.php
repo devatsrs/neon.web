@@ -153,7 +153,7 @@ class MessagesController extends \BaseController {
 			}
 		 $to  						=	isset($Emaildata->EmailTo)?Messages::GetAccountTtitlesFromEmail($Emaildata->EmailTo):$ToName; 
 		 $fromUser 					=	User::where(["EmailAddress" => $Emaildata->Emailfrom])->first(); 
-		 $from						=	!empty($Emaildata->EmailfromName)?$Emaildata->EmailfromName:$fromUser->FirstName.' '.$fromUser->LastName;
+		 $from						=	!empty($Emaildata->EmailfromName)?$Emaildata->EmailfromName:isset($fromUser->FirstName)?$fromUser->FirstName.' '.$fromUser->LastName:$Emaildata->Emailfrom;
 		 
 		  $response_api_extensions 	=    Get_Api_file_extentsions();
 		  $response_extensions		=	 json_encode($response_api_extensions['allowed_extensions']);

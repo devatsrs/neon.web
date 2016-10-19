@@ -78,8 +78,8 @@
             <td><div class="checkbox checkbox-replace">
                 <input value="<?php  echo $result_data->AccountEmailLogID; ?>" class="mailcheckboxes" type="checkbox" />
               </div></td>
-            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail" class="col-name"><?php echo ShortName($result_data->EmailfromName,20); ?></a></td>
-            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail">@if($result_data->AccountID==0)<span class="label label-info">Not matched</span> @endif <?php echo ShortName($result_data->Subject,40); ?> </a></td>
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail" class="col-name"><?php echo ShortName($result_data->EmailfromName,30); ?></a></td>
+            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail">@if($result_data->AccountID==0)<span class="label label-info">Not matched</span> @endif <?php echo ShortName($result_data->Subject,50); ?> </a></td>
             <td class="col-options"><?php if(count($attachments)>0 && is_array($attachments)){ ?>
               <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail"><i class="entypo-attach"></i></a>
               <?php } ?></td>
