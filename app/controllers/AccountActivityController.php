@@ -180,7 +180,7 @@ class AccountActivityController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
-                @unlink($array_file_data['filepath']);
+                unlink($array_file_data['filepath']);
             }
             $data['file']		=	json_encode($FilesArray);
 		} 
