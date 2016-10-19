@@ -337,9 +337,11 @@
                             mRender:function(id, type, full){
                                 if(id !== null) {
                                     popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + id + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + full[20] + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + full[21] + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + full[22] + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[20] !== null ? full[20] : '')  + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
 
                                     return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="" data-content="'+popup_html+'">' +id+ '</div>';
                                 }else{
@@ -441,6 +443,8 @@
                                 action +='<input type="hidden" name="CUA" value="'+full[20]+'"/>';
                                 action +='<input type="hidden" name="VUA" value="'+full[21]+'"/>';
                                 action +='<input type="hidden" name="AE" value="'+full[22]+'"/>';
+                                action +='<input type="hidden" name="ACL" value="'+full[23]+'"/>';
+                                action +='<input type="hidden" name="BalanceThreshold" value="'+full[24]+'"/>';
                                 return action;
                             }
                         },
@@ -515,7 +519,9 @@
                 var CUA =  $(temp).find('input[name="CUA"]').val();
                 var VUA =  $(temp).find('input[name="VUA"]').val();
                 var AE =  $(temp).find('input[name="AE"]').val();
-				
+                var ACL =  $(temp).find('input[name="ACL"]').val();
+                var BalanceThreshold =  $(temp).find('input[name="BalanceThreshold"]').val();
+
 				
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
                 address2 = (address2=='null'||address2==''?'':address2+'<br>');
@@ -528,6 +534,8 @@
                 CUA = CUA=='null'||CUA==''?'':''+CUA;
                 VUA = VUA=='null'||VUA==''?'':''+VUA;
                 AE = AE=='null'||AE==''?'':''+AE;
+                ACL = ACL=='null'||ACL==''?'':''+ACL;
+                BalanceThreshold = BalanceThreshold=='null'||BalanceThreshold==''?'':''+BalanceThreshold;
 
                 var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
@@ -563,6 +571,8 @@
                 popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + CUA + "</div>";
                 popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + VUA + "</div>";
                 popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + AE + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + ACL + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + BalanceThreshold + "</div>";
 
                 html += '  <div class="box clearfix ' + select + '">';
                // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
