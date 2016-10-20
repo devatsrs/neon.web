@@ -1,12 +1,3 @@
-<br/>
-@if(User::checkCategoryPermission('Notification','Add'))
-    <p style="text-align: right;">
-        <a href="{{URL::to('notification/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
-            <i class="entypo-plus"></i>
-            Add Notification
-        </a>
-    </p>
-@endif
 <div class="row">
     <div class="col-md-12">
         <form id="notification_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
@@ -37,6 +28,14 @@
         </form>
     </div>
 </div>
+@if(User::checkCategoryPermission('Notification','Add'))
+    <p style="text-align: right;">
+        <a href="{{URL::to('notification/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
+            <i class="entypo-plus"></i>
+            Add Notification
+        </a>
+    </p>
+@endif
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
