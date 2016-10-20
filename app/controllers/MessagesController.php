@@ -55,7 +55,7 @@ class MessagesController extends \BaseController {
     public function index() {        //inbox       
 		$data['EmailCall'] 			= 	 Messages::Received;
 		$data['iDisplayStart']  	= 	 0;
-		$data['iDisplayLength'] 	= 	 5;
+		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
 		$companyID 					= 	 User::get_companyID();
 		$array						= 	 $this->GetResult($data);
 		$resultdata   				= 	 $array['resultdata'];	
