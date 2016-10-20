@@ -965,7 +965,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= 0;
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= $SOA_Amount = 0;
         if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
@@ -976,18 +976,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($response->data->BalanceThreshold)){
                 $BalanceThreshold = $response->data->BalanceThreshold;
             }
-            $BalanceAmount = AccountBalance::getAccountSOA($CompanyID, $id);
+            $SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
             if(!empty($response->data->UnbilledAmount)){
                 $UnbilledAmount = $response->data->UnbilledAmount;
             }
             if(!empty($response->data->VendorUnbilledAmount)){
                 $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
             }
-            $BalanceAmount +=($UnbilledAmount-$VendorUnbilledAmount);
+            $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
             if(!empty($response->data->EmailToCustomer)){
                 $EmailToCustomer = $response->data->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount'));
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
         }else{
             return view_response_api($response);
         }

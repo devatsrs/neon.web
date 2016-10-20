@@ -12,17 +12,13 @@
   
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
-  
-  <!-- Sidebar --> 
-  @include("emailmessages.mail_sidebar") 
-  
+  <!-- Sidebar -->
+  @include("emailmessages.mail_sidebar")   
   <!-- Mail Body -->
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <h3 class="mail-title"> Inbox <span class="count">({{$TotalUnreads}})</span><br>
-      </h3>
-      
+      <h3 class="mail-title"> Draft Mail</h3>      
       <!-- search -->
       <form method="get" role="form" id="mail-search" class="mail-search">
         <div class="input-group">
@@ -33,79 +29,71 @@
     </div>
     
     <!-- mail table -->
-    <div class="inbox">
+    <div class="sentbox">
       <table id="table-4" class="table mail-table">
         <!-- mail table header -->
         <thead>
           <tr>
-            <th width="5%"> <div class="checkbox checkbox-replace">
+            <th width="5%"><?php if(count($result)>0){ ?> <div class="checkbox checkbox-replace">
                 <input class="mail_select_checkbox" type="checkbox" />
-              </div>
+              </div><?php } ?>
             </th>
-            <th colspan="4"> <div class="hidden mail-select-options">Mark as Read</div>           
-               <?php if(count($result)>0){ ?>
-              <div class="mail-pagination"> <a class="btn-apply mailaction btn btn-default">Apply</a>
-              <strong>
+            <th colspan="4"> 
+             <?php if(count($result)>0){ ?>
+             <div class="hidden mail-select-options">Mark to Delete</div>
+              <div class="mail-pagination" colspan="2"><a action_type="Delete" action_value="1"  class="btn-apply mailaction btn btn-default">Delete</a> <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
                 <?php  echo $current+count($result); ?>
                 </strong> <span>of {{$totalResults}}</span>
-                <div class="btn-group">
-                  <?php if(count($result)>=$iDisplayLength){ ?>                   
-                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                  <?php } ?>
-                </div>
+                <div class="btn-group">              
+              <?php if(count($result)>=$iDisplayLength){ ?>  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a> <?php } ?>
+                 </div>
               </div>
-              <div class="mail-pagination margin-left-mail">
-                  <select id="selectmailaction" name="selectmailaction" action_type="HasRead" class="select2 selectmailaction">
-                  <option value="">Select</option>
-                  <option value="1">Mark as Read</option>
-                  <option value="0">Mark as Unread</option>
-                  </select> 
-               </div>              
-              <?php } ?>
+             <?php } ?>
             </th>
           </tr>
         </thead>
+        
         <!-- email list -->
         <tbody>
           <?php
-		  if(count($result)>0){
-		 foreach($result as $result_data){ 
+		   if(count($result)>0){
+		 foreach($result as $result_data){   
 			$attachments  =  !empty($result_data->AttachmentPaths)?unserialize($result_data->AttachmentPaths):array();
+			$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data->EmailTo);			
 			 ?>
-          <tr class="<?php if($result_data->HasRead==0){echo "unread";} ?>"><!-- new email class: unread -->
-            <td><div class="checkbox checkbox-replace">
+          <tr><!-- new email class: unread -->
+            <td> <div class="checkbox checkbox-replace">
                 <input value="<?php  echo $result_data->AccountEmailLogID; ?>" class="mailcheckboxes" type="checkbox" />
               </div></td>
-            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail" class="col-name"><?php echo ShortName($result_data->EmailfromName,30); ?></a></td>
-            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail">@if($result_data->AccountID==0)<span class="label label-info">Not matched</span> @endif <?php echo ShortName($result_data->Subject,50); ?> </a></td>
-            <td class="col-options"><?php if(count($attachments)>0 && is_array($attachments)){ ?>
-              <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/detail"><i class="entypo-attach"></i></a>
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/compose" class="col-name"><?php echo ShortName($AccountName,30); ?></a></td>
+            <td class="col-subject"><a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/compose"> <?php echo ShortName($result_data->Subject,50); ?> </a></td>
+            <td class="col-options">
+            <?php if(count($attachments)>0 && is_array($attachments)){ ?>
+            <a target="_blank" href="{{URL::to('/')}}/emailmessages/{{$result_data->AccountEmailLogID}}/compose"><i class="entypo-attach"></i></a>              
               <?php } ?></td>
             <td class="col-time"><?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></td>
           </tr>
           <?php } }else{ ?>
-          <tr>
-            <td align="center" colspan="5">No Result Found.</td>
-          </tr>
+          <tr><td align="center" colspan="5">No Result Found.</td></tr>
           <?php } ?>
         </tbody>
+        
         <!-- mail table footer -->
         <tfoot>
           <tr>
-            <th width="5%"> <div class="hidden checkbox checkbox-replace">
+            <th width="5%">  <?php if(count($result)>0){ ?><div class="hidden checkbox checkbox-replace">
                 <input class="mail_select_checkbox" type="checkbox" />
-              </div>
+              </div><?php } ?>
             </th>
-            <th colspan="4"> <?php if(count($result)>0){ ?>
-              <div class="mail-pagination" colspan="2"> <?php echo $current+1; ?>-
+            <th colspan="4">
+            <?php if(count($result)>0){ ?>
+             <div class="mail-pagination" colspan="2"> <?php echo $current+1; ?>-
                 <?php  echo $current+count($result); ?>
                 <span>of {{$totalResults}}</span>
                 <div class="btn-group">
-                  <?php if(count($result)>=$iDisplayLength){ ?>
-                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                  <?php } ?>
+			 <?php if(count($result)>=$iDisplayLength){ ?>  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a> <?php } ?>
                 </div>
               </div>
               <?php } ?>
@@ -115,6 +103,8 @@
       </table>
     </div>
   </div>
+  
+
 </div>
 <style>
 .margin-left-mail{margin-right:15px;width:21%; }.btn-apply{margin-right:10px;}
@@ -128,9 +118,10 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/emailmessages/ajex_result';
-	var boxtype			=	'inbox';
-	var EmailCall		=	"{{Messages::Received}}";
+	var boxtype			=	'draftbox';
+	var EmailCall		=	"{{Messages::Draft}}";
 	var SearchStr		=	'';
+	var actionbtn		=	 0;
 	$(document).on('click','.move_mail',function(){
 		var clicktype = $(this).attr('movetype');	
         ShowResult(clicktype);
@@ -171,7 +162,7 @@ $(document).ready(function(e) {
 								 {
 									$('.next').addClass('disabled');
 								 }
-								 else
+								 else if(clicktype=='back')
 								 {
 									$('.back').addClass('disabled');
 								 }
@@ -179,27 +170,31 @@ $(document).ready(function(e) {
 								return false;
 							}
 							
-							 $('.inbox').html('');
-							 $('.inbox').html(response);	
+							 $('.sentbox').html('');
+							 $('.sentbox').html(response);	
 							 if(clicktype=='next')
 							 {
 								currentpage =  currentpage+1;
 							 }
-							 else
+							 else if(clicktype=='back')
 							 {
 								currentpage =  currentpage-1;
 							 } 		 console.log(currentpage);			 	
 							 replaceCheckboxes();
-							 $(".select2").select2();
-							 $(".select2-container").css('visibility','visible');
 						}
 						else
-						{ 					
+						{  
+							if(actionbtn==1)
+							{
+								$('#table-4 thead').hide();
+								$('#table-4 tfoot').hide();
+								$('#table-4 tbody').html('<tr><td align="center" colspan="5">No Result Found.</td></tr>');
+							}
 							if(clicktype=='next')
 							 {
 								$('.next').addClass('disabled');
 							 }
-							 else
+							 else if(clicktype=='back')
 							 {
 								$('.back').addClass('disabled');
 							 }						
@@ -211,17 +206,14 @@ $(document).ready(function(e) {
 	
 	$(document).on('click','.mailaction',function(e){
         e.preventDefault();
-		var selectmailaction = 	$('#selectmailaction').val(); 
 		 var allVals = [];
    	  $('.mailcheckboxes:checked').each(function() {		
        allVals.push($(this).val());
      });
-	 
-	 if(allVals.length<1){return false;}
-    if(selectmailaction==''){return false;}
+     if(allVals.length<1){return false;}
 	
-	var action_type   =  $('#selectmailaction').attr('action_type');
-	var action_value  =  selectmailaction;
+	var action_type   =  $(this).attr('action_type');
+	var action_value  =  $(this).attr('action_value');
 	var ajax_url	  =  baseurl+'/emailmessages/ajax_action';
 	
 	if(action_type!='' && action_value!='' ){
@@ -233,8 +225,14 @@ $(document).ready(function(e) {
 				data:{allVals:allVals,action_type:action_type,action_value:action_value},
 				success: function(response) {
 					 if(response.status =='success'){
-						ShowToastr("success",response.message); 		 
-						currentpage = currentpage-1;
+						ShowToastr("success",response.message); 
+						if(currentpage==0){		 
+							currentpage = -1;
+						}else{
+							currentpage = currentpage -2;
+						}
+						//if(currentpage<0){currentpage = 0;}
+						actionbtn=1;
 						ShowResult('next');
 					 }
 					 else{
@@ -246,18 +244,6 @@ $(document).ready(function(e) {
 	 
     });
 	
-	/*$("#checkall").click(function(){
-    $('.mailcheckbox').prop('checked', $(this).prop("checked"));
-	if($(this).prop("checked")==true){
-		$('.checkbox-replace').addClass('checked');
-	}
-	else
-	{
-		$('.checkbox-replace').removeClass('checked');
-	}
-	//$('.checkbox-replace').toggleClass('checked');
-});*/
-
 	$(document).on('click','.mail_select_checkbox',function(e){
 		var $cb = $(document).find('table thead input[type="checkbox"], table tfoot input[type="checkbox"]');
 		$cb.attr('checked', this.checked).trigger('change');
