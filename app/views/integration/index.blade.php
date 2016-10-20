@@ -931,7 +931,7 @@
       </div>
       <div class="modal-footer">
           <button type="button" class="btn btn-success btn-sm btn-icon icon-left" data-original-title="QuickBook Authorize"
-                  data-content="Please First save and after click for Connect Neon to QuickBook" data-placement="top" data-trigger="hover" data-toggle="popover"  id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="fa fa-lock"></i>Authorize</button>
+                  data-content="Click to Authorize Neon to connect to Quickbook. Please click on save first." data-placement="top" data-trigger="hover" data-toggle="popover"  id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="fa fa-lock"></i>Authorize</button>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
