@@ -135,6 +135,7 @@
                 <p>Group: {{$rows['TicketGroup']}}</p>
                 <p>Date Created: {{$rows['created_at']}}</p>
                 <p>Description: {{$rows['TicketDescription']}}</p>
+                <p><a data_fetch_id="{{$rows['TicketID']}}" conversations_type="ticket" class="ticket_conversations">View Ticket Conversations</a></p>
               </div>
             </div>
           </li>
