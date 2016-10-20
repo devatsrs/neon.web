@@ -995,6 +995,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/quickbook/items', 'QuickBookController@getAllItems');
 	Route::any('/quickbook/createitem', 'QuickBookController@createItem');
 
+	// all alert
+	Route::any('/alert/ajax_datagrid/{type}','NotificationController@qos_ajax_datagrid');
+	Route::any('/alert/store','NotificationController@qos_store');
+	Route::any('/alert/update/{id}','NotificationController@qos_update');
+	Route::any('/alert/delete/{id}','NotificationController@qos_delete');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
