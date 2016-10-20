@@ -12,5 +12,5 @@ CREATE TABLE `tblRateTable` (
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CurrencyID` int(11) DEFAULT NULL,
   PRIMARY KEY (`RateTableId`),
-  KEY `Index 2` (`CompanyId`,`CodeDeckId`)
+  KEY `CompanyCodedeck` (`CompanyId`,`CodeDeckId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

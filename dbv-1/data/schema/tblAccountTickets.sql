@@ -1,0 +1,22 @@
+CREATE TABLE `tblAccountTickets` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT NULL,
+  `AccountID` int(11) DEFAULT NULL,
+  `TicketID` int(11) DEFAULT NULL,
+  `Subject` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `Description` text COLLATE utf8_unicode_ci NOT NULL,
+  `Priority` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Status` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Type` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `GUID` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Group` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `to_emails` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RequestEmail` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ApiCreatedDate` datetime DEFAULT NULL,
+  `ApiUpdateDate` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Fresh desk tickets will save  here temporarily\r\nprc_getAccountTimeLine will use it'

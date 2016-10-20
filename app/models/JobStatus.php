@@ -9,7 +9,7 @@ class JobStatus extends \Eloquent {
     public static function getJobStatusIDList(){
         $row = JobStatus::lists( 'Title','JobStatusID');
         if(!empty($row)){
-            $row = array(""=> "Select a Status")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
 
@@ -17,7 +17,7 @@ class JobStatus extends \Eloquent {
     public static function getJobStatusPendingFailed(){
         $row = JobStatus::whereIn('Code',array('P','F'))->lists( 'Title','JobStatusID');
         if(!empty($row)){
-            $row = array(""=> "Select a Status")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }

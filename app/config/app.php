@@ -168,6 +168,9 @@ return array(
         //Agent
         'Jenssegers\Agent\AgentServiceProvider',
 
+        //Tracker
+        'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider',
+
     ),
 
     /*
@@ -242,6 +245,7 @@ return array(
         'Image' => 'Intervention\Image\Facades\Image',
         'CreditCard'      => 'Inacho\CreditCard',
         'Agent' => 'Jenssegers\Agent\Facades\Agent',
+        'Tracker' => 'PragmaRX\Tracker\Vendor\Laravel\Facade',
     )
 
 

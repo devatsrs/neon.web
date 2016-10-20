@@ -42,12 +42,27 @@ class AmazonS3 {
 
     // Instantiate an S3 client
     public static function getS3Client(){
+		     	
+	 	$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+		
+		if(!$AmazonData){
+            return 'NoAmazon';
+		}else{
+			return $s3Client = S3Client::factory(array(
+				'region' => $AmazonData->AmazonAwsRegion,
+				'credentials' => array(
+					'key' => $AmazonData->AmazonKey,
+					'secret' => $AmazonData->AmazonSecret
+				),
+			));
+		}
 
-        $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
+       /*
+	      $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
         $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
         $AWS_REGION = getenv("AWS_REGION");
-
-        if(empty($AMAZONS3_KEY) || empty($AMAZONS3_SECRET) || empty($AWS_REGION) ){
+	
+	    if(empty($AMAZONS3_KEY) || empty($AMAZONS3_SECRET) || empty($AWS_REGION) ){
             return 'NoAmazon';
         }else {
 
@@ -58,7 +73,18 @@ class AmazonS3 {
                     'secret' => $AMAZONS3_SECRET
                 ),
             ));
-        }
+        }*/
+    }
+	
+	 public static function getAmazonSettings(){     
+		$amazon 		= 	array();
+		$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+		
+		if($AmazonData){
+			$amazon 	=	 array("AWS_BUCKET"=>$AmazonData->AmazonAwsBucket,"AMAZONS3_KEY"=>$AmazonData->AmazonKey,"AMAZONS3_SECRET"=>$AmazonData->AmazonSecret,"AWS_REGION"=>$AmazonData->AmazonAwsRegion);	
+		}
+		
+        return $amazon;
     }
 
     /*
@@ -88,7 +114,9 @@ class AmazonS3 {
         $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
         $dir = getenv('UPLOAD_PATH') . '/'. $path;
         if (!file_exists($dir)) {
-            mkdir($dir, 0777, TRUE);
+            RemoteSSH::run("mkdir -p " . $dir);
+            RemoteSSH::run("chmod -R 777 " . $dir);
+            @mkdir($dir, 0777, TRUE);
         }
 
         return $path;
@@ -103,8 +131,9 @@ class AmazonS3 {
         if($s3 == 'NoAmazon'){
             return true;
         }
-
-        $bucket = getenv('AWS_BUCKET');
+		
+		$AmazonSettings  = self::getAmazonSettings();		
+        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         // Upload a publicly accessible file. The file size, file type, and MD5 hash
         // are automatically calculated by the SDK.
         try {
@@ -132,7 +161,8 @@ class AmazonS3 {
         }
 
 
-        $bucket = getenv('AWS_BUCKET');
+        $AmazonSettings  = self::getAmazonSettings();		
+        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
 
         // Get a command object from the client and pass in any options
         // available in the GetObject command (e.g. ResponseContentDisposition)
@@ -158,7 +188,8 @@ class AmazonS3 {
             return  self::preSignedUrl($key);
         }
 
-        $bucket = getenv('AWS_BUCKET');
+        $AmazonSettings  = self::getAmazonSettings();		
+        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         $unsignedUrl = '';
         if(!empty($key)){
            $unsignedUrl = $s3->getObjectUrl($bucket, $key);
@@ -200,7 +231,8 @@ class AmazonS3 {
                 }
             }
 
-            $bucket = getenv('AWS_BUCKET');
+             $AmazonSettings  = self::getAmazonSettings();		
+       		 $bucket 		 = $AmazonSettings['AWS_BUCKET'];
             // Upload a publicly accessible file. The file size, file type, and MD5 hash
             // are automatically calculated by the SDK.
             try {

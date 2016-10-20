@@ -14,7 +14,7 @@ class Company extends \Eloquent {
     const LICENCE_BILLING = 2;
     const LICENCE_RM = 1;
 
-    public static $billing_time = array(''=>'select a time',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time');
+    public static $billing_time = array(''=>'Select',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time');
     public static $BillingCycleType =
         array(
              ""=>"Please Select an Option",
@@ -30,7 +30,7 @@ class Company extends \Eloquent {
     // CDR Rerate Based on Charge code or Prefix
     const CHARGECODE =1;
     const PREFIX =2;
-    public static $rerate_format = array(''=>'Select a Rerate Format',self::CHARGECODE=>'Charge Code',self::PREFIX=>'Prefix');
+    public static $rerate_format = array(''=>'Select',self::CHARGECODE=>'Charge Code',self::PREFIX=>'Prefix');
 
     public static $date_format = array( 'd-m-Y'=>'dd-mm-yyyy (31-12-2015)',
                                         'm-d-Y'=>'mm-dd-yyyy (12-31-2015)',
@@ -51,7 +51,7 @@ class Company extends \Eloquent {
                                         'F-d-y'=>'mmmm-dd-yy (DECEMBER-31-15)',
                                         'y-F-d'=>'yy-mmmm-dd (15-DECEMBER-31)',
                                       );
-
+    public static $dialcode_separator = array(''=>'Skip loading',' '=>'Space',';'=>'SemiColon(;)');
 
     public static function getName($companyID=0){
         if($companyID>0){

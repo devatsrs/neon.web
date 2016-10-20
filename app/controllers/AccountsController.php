@@ -21,13 +21,14 @@ class AccountsController extends \BaseController {
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
+        $data['low_balance'] = $data['low_balance']== 'true'?1:0;
         //$data['account_name'] = $data['account_name']!= ''?$data['account_name']:'';
         //$data['tag'] = $data['tag']!= ''?$data['tag']:'null';
         //$data['account_number'] = $data['account_number']!= ''?$data['account_number']:0;
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
-        $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','Email','AccountID');
+        $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -120,18 +121,16 @@ class AccountsController extends \BaseController {
             $countries = $this->countries;
 
             $currencies = Currency::getCurrencyDropdownIDList();
-            $taxrates = TaxRate::getTaxRateDropdownIDList();
-            $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
-            if(isset($taxrates[""])){unset($taxrates[""]);}
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
             $BillingStartDate=date('Y-m-d');
             $LastAccountNo =  '';
             $doc_status = Account::$doc_status;
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','taxrates','timezones','InvoiceTemplates','BillingStartDate','DefaultTextRate'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass'));
     }
 
     /**
@@ -147,6 +146,7 @@ class AccountsController extends \BaseController {
             $data['AccountType'] = 1;
             $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
             $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+            $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
@@ -163,10 +163,14 @@ class AccountsController extends \BaseController {
             }
             $data['Number'] = trim($data['Number']);
         unset($data['DataTables_Table_0_length']);
-        if(Company::isBillingLicence()) {
+        if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            //Account::$rules['InvoiceTemplateID'] = 'required';
+            Account::$rules['BillingCycleType'] = 'required';
+            Account::$rules['BillingStartDate'] = 'required';
+            if(isset($data['BillingCycleValue'])){
+                Account::$rules['BillingCycleValue'] = 'required';
+            }
         }
 
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
@@ -179,10 +183,14 @@ class AccountsController extends \BaseController {
             }
 
             if ($account = Account::create($data)) {
+                if($data['Billing'] == 1) {
+                    AccountBilling::insertUpdateBilling($account->AccountID, $data);
+                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID);
+                }
+
                 if (trim(Input::get('Number')) == '') {
                     CompanySetting::setKeyVal('LastAccountNo', $account->Number);
                 }
-                $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($account->AccountID);
                 $account->update($data);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
@@ -203,38 +211,39 @@ class AccountsController extends \BaseController {
     public function show_old($id) {
 
             $account = Account::find($id);
+        $AccountBilling = AccountBilling::getBilling($id);
             $companyID = User::get_companyID();
             $account_owner = User::find($account->Owner);
             $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
             $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
             $verificationflag = AccountApprovalList::isVerfiable($id);
-            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
             $currency = Currency::getCurrencySymbol($account->CurrencyId);
             $activity_type = AccountActivity::$activity_type;
             $activity_status = [1 => 'Open', 2 => 'Closed'];
-            return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status'));
+            return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','AccountBilling'));
     }
 
 	
 		public function show($id) {
-		
-		
-		
             $account 					= 	 Account::find($id);
             $companyID 					= 	 User::get_companyID();
-			
+		
 			//get account contacts
 		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
-			
 			//get account time line data
             $data['iDisplayStart'] 	    =	 0;
             $data['iDisplayLength']     =    10;
             $data['AccountID']          =    $id;
+			$data['GUID']               =    GUID::generate();
             $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
-            $RowsPerPage                =    $data['iDisplayLength'];
-			$message 					= 	 '';
+            $RowsPerPage                =    $data['iDisplayLength'];			
+			$message 					= 	 '';			
             $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
-			
+		/*		echo "<pre>";
+				print_r($response_timeline);		
+				exit;*/
+	
 			if($response_timeline['status']!='failed'){
 				if(isset($response_timeline['data']))
 				{
@@ -242,19 +251,23 @@ class AccountsController extends \BaseController {
 				}else{
 					$response_timeline = array();
 				}
-			}else{
-				$message = json_response_api($response_timeline,false,true);
+			}else{ 	
+				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
+					return	Redirect::to('/logout'); 	
+				}		
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				$message = json_response_api($response_timeline,false,false);
 			}
 			
 			$vendor   = $account->IsVendor?1:0;
 			$Customer = $account->IsCustomer?1:0;
 			
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
-			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, $account->RoundChargesAmount);
+			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
             $account_owners 			= 	 User::getUserIDList();
 			//$Board 						=	 CRMBoard::getTaskBoard();
 			
@@ -264,17 +277,9 @@ class AccountsController extends \BaseController {
 			$random_token				=	 get_random_number();
             
 			//Backup code for getting extensions from api
-           $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
-		   $response_extensions 	=  [];
-		
-			if($response->status=='failed'){
-				 $message = json_response_api($response,false,true);
-			 }else{
-				$response_extensions = json_response_api($response,true,true);
-			}
-	        
-		
-
+		   $response_api_extensions 	=   Get_Api_file_extentsions();
+		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
+		   
            //all users email address
 			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
 	 		$users						=	 json_encode(array_merge(array(""),$users));
@@ -293,24 +298,24 @@ class AccountsController extends \BaseController {
     	    $leadOrAccountCheck 		= 	 'account';
 			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 			
-				$array = json_decode(json_encode($response), True); 
-			 if (isset($response->status) && $response->status != 'failed') {			
+			/* if (isset($response->status) && $response->status != 'failed') {			
 				$response = $response->data;
 			}else{		
-				if(isset($response->Code) && $response->Code==400){
+				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
 					return	Redirect::to('/logout'); 	
 				}
-				else{
+				else{  
 					$message	    =	$response->message['error'][0]; 
 			 		Session::set('error_message',$message);
 				}
-			}			
+			}			*/
 			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
 
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data')); 	
+	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets')); 	
 		}
 	
 	
@@ -349,6 +354,20 @@ class AccountsController extends \BaseController {
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
 	}
+	
+	function AjaxConversations($id){ 
+		if(empty($id) || !is_numeric($id)){
+			return '<div>No conversation found.</div>';
+		}
+		 $data 			= 	Input::all();
+		 $data['id']	=	$id;
+		 $response 		= 	 NeonAPI::request('account/GetConversations',$data,true,true);  
+		  if($response['status']=='failed'){
+			return json_response_api($response,false,true);
+		}else{			
+			return View::make('accounts.conversations', compact("response","data"));
+		}
+	}
 	 
     public function edit($id) {
         $account = Account::find($id);
@@ -359,11 +378,9 @@ class AccountsController extends \BaseController {
         $products = Product::getProductDropdownList();
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
         $currencies = Currency::getCurrencyDropdownIDList();
-        $taxrates = TaxRate::getTaxRateDropdownIDList();
-        if(isset($taxrates[""])){unset($taxrates[""]);}
-        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
 
         $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
@@ -380,7 +397,13 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DefaultTextRate'));
+        $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND))->pluck('DiscountPlanID');
+        $AccountBilling =  AccountBilling::getBilling($id);
+        $AccountNextBilling =  AccountNextBilling::getBilling($id);
+
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass'));
     }
 
     /**
@@ -394,11 +417,14 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $account = Account::find($id);
         Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        $DiscountPlanID = $data['DiscountPlanID'];
+        $InboundDiscountPlanID = $data['InboundDiscountPlanID'];
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
 
@@ -412,6 +438,8 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
+        unset($data['DiscountPlanID']);
+        unset($data['InboundDiscountPlanID']);
         unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
@@ -436,12 +464,13 @@ class AccountsController extends \BaseController {
         }
         $data['Number'] = trim($data['Number']);
 
-        if(Company::isBillingLicence()) {
+        if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
-            $icount = Invoice::where(["AccountID" => $id])->count();
-            if($icount>0){
-                Account::$rules['InvoiceTemplateID'] = 'required';
+            Account::$rules['BillingCycleType'] = 'required';
+            Account::$rules['BillingStartDate'] = 'required';
+            if(isset($data['BillingCycleValue'])){
+                Account::$rules['BillingCycleValue'] = 'required';
             }
         }
 
@@ -454,20 +483,31 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        
+        $invoice_count = Account::getInvoiceCount($id);
+        if($invoice_count == 0){
+            $data['LastInvoiceDate'] = $data['BillingStartDate'];
+        }
         if ($account->update($data)) {
-            $data['NextInvoiceDate'] = Invoice::getNextInvoiceDate($id);
-            $invoice_count = Account::getInvoiceCount($id);
-            if($invoice_count == 0){
-                $data['LastInvoiceDate'] = $data['BillingStartDate'];
+            if($data['Billing'] == 1) {
+                AccountBilling::insertUpdateBilling($id, $data);
+                AccountBilling::storeFirstTimeInvoicePeriod($id);
+                $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                if(!empty($AccountPeriod)) {
+                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $DiscountPlanID, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlanID, AccountDiscountPlan::INBOUND, $billdays, $DayDiff);
+                }
             }
-            $account->update($data);
+
             if(trim(Input::get('Number')) == ''){
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }
             if(isset($data['password'])) {
                // $this->sendPasswordEmail($account, $password, $data);
             }
+			
             $PaymentGatewayID = PaymentGateway::where(['Title'=>PaymentGateway::$gateways['Authorize']])
                 ->where(['CompanyID'=>$companyID])
                 ->pluck('PaymentGatewayID');
@@ -481,11 +521,13 @@ class AccountsController extends \BaseController {
                 $ShippingProfileID = $options->ShippingProfileID;
 
                 //If using Authorize.net
-                $isAuthorizedNet = getenv('AMAZONS3_KEY');
-                if(!empty($isAuthorizedNet)) {
+				$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+				if($isAuthorizedNet){
                     $AuthorizeNet = new AuthorizeNet();
                     $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
-                }
+                }else{
+					return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+				}
             }
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
@@ -765,6 +807,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $email_data['AccountName'] = $data['AccountName'];
             $email_data['Subject'] = "Customer Panel - Password Set";
             $status = sendMail('emails.admin.accounts.password_set', $email_data);
+			$email_data['message_id'] 	=  isset($status['message_id'])?$status['message_id']:"";
             $email_data['AccountID'] = $account->AccountID;
             $email_data['message'] = isset($status['body'])?$status['body']:'';
             $email_data['EmailTo'] = $data['BillingEmail'];
@@ -782,7 +825,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $account = Account::find($id);
             $companyID = User::get_companyID();
             $Invoiceids = $data['InvoiceIDs'];
-            $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, $account->RoundChargesAmount);
+            $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, get_round_decimal_places($account->AccountID));
             $currency = Currency::getCurrencySymbol($account->CurrencyId);
             $outstandingtext = $currency.$outstanding;
             echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
@@ -922,7 +965,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($id);
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $EmailToCustomer= 0;
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= $SOA_Amount = 0;
         if(!empty($response) && $response->status == 'success' ){
             if(!empty($response->data->PermanentCredit)){
                 $PermanentCredit = $response->data->PermanentCredit;
@@ -933,15 +976,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($response->data->BalanceThreshold)){
                 $BalanceThreshold = $response->data->BalanceThreshold;
             }
-            $BalanceAmount = AccountBalance::getAccountSOA($CompanyID, $id);
+            $SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
             if(!empty($response->data->UnbilledAmount)){
                 $UnbilledAmount = $response->data->UnbilledAmount;
             }
-            $BalanceAmount +=$UnbilledAmount;
+            if(!empty($response->data->VendorUnbilledAmount)){
+                $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
+            }
+            $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
             if(!empty($response->data->EmailToCustomer)){
                 $EmailToCustomer = $response->data->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer'));
+            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
         }else{
             return view_response_api($response);
         }
@@ -976,7 +1022,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data       =  Input::all();
         $attachment    =  Input::file('emailattachment');
         if(!empty($attachment)) {
-            try {
+            try { 
                 $data['file'] = $attachment;
                 $returnArray = UploadFile::UploadFileLocal($data);
                 return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
@@ -1048,8 +1094,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 			}
 			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
 			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
-		
-		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['status_set']."')";
+			$data['low_balance'] = $data['low_balance']== 'true'?1:0;
+
+		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
 		 
 		 	$result  			= 	DB::select($query);	
 			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				
@@ -1084,19 +1131,29 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function unbilledreport($id){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $LastInvoiceDate = Invoice::getLastInvoiceDate($id);
+        $AccountBilling = AccountBilling::getBilling($id);
         $account = Account::find($id);
-        if(empty($LastInvoiceDate)){
-            if(!empty($account->BillingStartDate)) {
-                $LastInvoiceDate = $account->BillingStartDate;
+        if(empty($AccountBilling->LastInvoiceDate)){
+            if(!empty($AccountBilling->BillingStartDate)) {
+                $LastInvoiceDate = $AccountBilling->BillingStartDate;
             }else{
                 $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
             }
+        }else{
+            $LastInvoiceDate = $AccountBilling->LastInvoiceDate;
         }
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getUnbilledReport (?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
-        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol'));
+
+        $VendorUnbilledResult  =array();
+        $LastInvoiceDate = Account::getVendorLastInvoiceDate($id);
+        if(!empty($LastInvoiceDate) && $account->IsVendor == 1){
+            $query = "call prc_getVendorUnbilledReport (?,?,?,?)";
+            $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+        }
+
+        return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
     }
 
     public function activity_pdf_download($id){
@@ -1113,7 +1170,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if (!file_exists($destination_dir)) {
             mkdir($destination_dir, 0777, true);
         }
-        RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
+        RemoteSSH::run("chmod -R 777 " . $destination_dir);
         $file_name = $account->AccountName.' Account Activity Chart '. date('d-m-Y') . '.pdf';
         $htmlfile_name = $account->AccountName. ' Account Activity Chart ' . date('d-m-Y') . '.html';
 

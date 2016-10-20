@@ -7,9 +7,9 @@ class Payment extends \Eloquent {
     protected $table = 'tblPayment';
     protected  $primaryKey = "PaymentID";
 
-    public static $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT');
-    public static $action = array(''=>'Select Action','Payment In'=>'Payment In','Payment Out'=>'Payment Out');
-    public static $status = array(''=>'Select Status','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+    public static $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT','PAYPAL_IPN'=>"PAYPAL");
+    public static $action = array(''=>'Select ','Payment In'=>'Payment In','Payment Out'=>'Payment Out');
+    public static $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
     //public $timestamps = false; // no created_at and updated_at
 
     public static $credit_card_type = array(
@@ -108,13 +108,13 @@ class Payment extends \Eloquent {
         }
 
         if($id==0){
-            $today = date('Y-m-d');
+            $today = date('Y-m-d H:i:s');
             $data['CreatedBy'] = User::get_user_full_name();
             $data['created_at'] =  $today;
             $data['ModifyBy'] = '';
             $data['updated_at'] =  '';
         }else{
-            $today = date('Y-m-d');
+            $today = date('Y-m-d H:i:s');
             $data['ModifyBy'] = User::get_user_full_name();
             $data['updated_at'] =  $today;
         }
@@ -222,6 +222,7 @@ class Payment extends \Eloquent {
 
                         if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
                             $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
+                            $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
                         }
 
                         if(isset($selection['Notes']) && !empty($selection['Notes']) ) {

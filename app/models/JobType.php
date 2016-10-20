@@ -10,7 +10,7 @@ class JobType extends \Eloquent {
     public static function getJobTypeIDList(){
         $row = JobType::orderBy('Title', 'ASC')->lists( 'Title','JobTypeID');
         if(!empty($row)){
-            $row = array(""=> "Select a Type")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
 

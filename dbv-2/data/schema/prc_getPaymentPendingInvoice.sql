@@ -6,19 +6,21 @@ BEGIN
 		MAX(i.InvoiceID) AS InvoiceID,
 		(IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) AS RemaingAmount
 	FROM tblInvoice i
-	LEFT JOIN Ratemanagement3.tblAccount a
+	INNER JOIN NeonRMDev.tblAccount a
 		ON i.AccountID = a.AccountID
-	LEFT JOIN tblInvoiceTemplate it 
-		ON a.InvoiceTemplateID = it.InvoiceTemplateID
+	INNER JOIN NeonRMDev.tblAccountBilling ab 
+		ON ab.AccountID = a.AccountID
+	INNER JOIN NeonRMDev.tblBillingClass b
+		ON b.BillingClassID = ab.BillingClassID
 	LEFT JOIN tblPayment p
 		ON p.AccountID = i.AccountID
-		AND REPLACE(p.InvoiceNo,'-','') = (CONCAT( ltrim(rtrim(REPLACE(it.InvoiceNumberPrefix,'-',''))), ltrim(rtrim(i.InvoiceNumber)) )) AND p.Status = 'Approved' AND p.AccountID = i.AccountID
+		AND p.InvoiceID = i.InvoiceID AND p.Status = 'Approved' AND p.AccountID = i.AccountID
 		AND p.Status = 'Approved'
 		AND p.Recall = 0
 	WHERE i.CompanyID = p_CompanyID
 	AND i.InvoiceStatus != 'cancel'
 	AND i.AccountID = p_AccountID
-	AND (p_PaymentDueInDays =0  OR (p_PaymentDueInDays =1 AND TIMESTAMPDIFF(DAY, i.IssueDate, NOW()) >= PaymentDueInDays) )
+	AND (p_PaymentDueInDays =0  OR (p_PaymentDueInDays =1 AND TIMESTAMPDIFF(DAY, i.IssueDate, NOW()) >= IFNULL(b.PaymentDueInDays,0) ) )
 
 	GROUP BY i.InvoiceID,
 			 p.AccountID

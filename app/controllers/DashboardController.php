@@ -7,13 +7,10 @@ class DashboardController extends BaseController {
 
     }
 
-
     public function home() {
-
-        if(Company::isBillingLicence(1)){
-            return Redirect::to('billingdashboard');
-        }
- 
+        return Redirect::to('/process_redirect');
+    }
+    public function rmdashboard() {
         return View::make('dashboard.index');
     }
     public function salesdashboard(){
@@ -137,7 +134,8 @@ class DashboardController extends BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway'));
+        $invoice_status_json = json_encode(Invoice::get_invoice_status());
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json'));
 
     }
     public function monitor_dashboard(){
@@ -179,6 +177,7 @@ class DashboardController extends BaseController {
 		$TaskBoard			= 	CRMBoard::getTaskBoard();
         $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
 		$CloseStatus		=	Opportunity::Close;
+		$CrmAllowedReports	=	array();
 		$where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -187,8 +186,15 @@ class DashboardController extends BaseController {
 		  if(!empty($leadOrAccount)){
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
-        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+        $tasktags 						= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		$CompanyCrmDashboardSetting 	= 	CompanyConfiguration::get('CRM_DASHBOARD');
+		if(!empty($CompanyCrmDashboardSetting))
+		{
+			$CrmAllowedReports			=	explode(",",$CompanyCrmDashboardSetting);
+		}
+		
+		
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
 	
 	public function GetUsersTasks(){
@@ -213,7 +219,7 @@ class DashboardController extends BaseController {
      }
 	
 	public function getSalesdata(){ //crm dashboard
-		 $data 			= 	 Input::all();			
+		 $data 			= 	 Input::all();
 		 $response 		= 	 NeonAPI::request('dashboard/GetSalesdata',$data,true);
 		  if($response->status=='failed'){
 			return json_response_api($response,false,true);
@@ -221,6 +227,28 @@ class DashboardController extends BaseController {
 			return $response->data;
 		}
 	}
+	
+	function CrmDashboardSalesRevenue(){		
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/CrmDashboardSalesRevenue',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			return $response->data;
+		}
+	}
+	
+	function GetRevenueDrillDown(){
+		 $data 			= 	 Input::all();			
+		 $response 		= 	 NeonAPI::request('dashboard/CrmDashboardUserRevenue',$data,true);
+		  if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			$data = json_decode($response->data);
+            return View::make('dashboard.RevenueDrillDown', compact('data'));
+		}
+	}
+	
 	
 	public function GetForecastData(){ //crm dashboard
 		 $data 			= 	 Input::all();			
@@ -235,7 +263,7 @@ class DashboardController extends BaseController {
 	
 	
 	 public function GetOpportunites(){
-        $data = Input::all();  
+        $data = Input::all();   
         $data['iDisplayStart'] +=1;
         if(User::is('AccountManager')){
             $data['AccountOwner'] = User::get_userID();
@@ -318,13 +346,14 @@ class DashboardController extends BaseController {
     }
 
     public function ajax_get_recent_accounts(){
-        $companyID = User::get_companyID();
-        $userID = User::get_userID();
-        $AccountManager = 0;
+        $companyID 			= 	 User::get_companyID();        
+		$data 				= 	 Input::all();	
+		$UserID				=	(isset($data['UsersID']) && is_array($data['UsersID']))?implode(",",array_filter($data['UsersID'])):0;
+        $AccountManager 	= 	 0;
         if (User::is('AccountManager')) { // Account Manager
             $AccountManager = 1;
         }
-        $query = "call prc_GetDashboardRecentAccounts (".$companyID.','.$userID.','.$AccountManager.")";
+        $query = "call prc_GetDashboardRecentAccounts ('".$companyID."','".$UserID."','".$AccountManager."')"; 
         $accountResult = DataTableSql::of($query)->getProcResult(array('getRecentAccounts'));
         $accounts = [];
         $jsondata['accounts'] = '';

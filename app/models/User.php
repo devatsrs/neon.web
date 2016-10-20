@@ -36,7 +36,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             Config::set('auth.table', 'tblAccount');
             $auth = Auth::createEloquentDriver();
             Auth::setProvider($auth->getProvider());
-            if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
+            $customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+            if($customer) {
+                if (Hash::check($data["password"], $customer->password)) {
+                    Auth::login($customer);
+                    Session::set("customer", 1);
+                    return true;
+                }
+            }
+            /*if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
                 Session::set("customer", 1 );
                 return true;
             }
@@ -310,7 +318,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
         if(!empty($row) & $select==1){
-            $row = array(""=> "Select a User")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -321,7 +329,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         
         $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
         if(!empty($row) & $select==1){
-            $row = array(""=> "Select a User")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -444,5 +452,21 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         return false;
 
+    }
+
+    public static function getEmailByUserName($CompanyID,$Name){
+        $useremail = '';
+        $users = User::where(["CompanyID"=>$CompanyID,"Status"=>'1'])->get();
+        if(count($users)>0){
+            foreach($users as $user){
+                $username = $user->FirstName.' '. $user->LastName;
+                if($username==$Name){
+                    if(!empty($user->EmailAddress)){
+                        $useremail = $user->EmailAddress;
+                    }
+                }
+            }
+        }
+        return $useremail;
     }
 }

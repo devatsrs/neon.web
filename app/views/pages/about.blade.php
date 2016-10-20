@@ -13,13 +13,69 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.04</h1>
+    <h1>NEON - 4.06</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.04</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.06</strong></div>
 </p>
+</div>
+
+<h2>
+    <span class="label label-success">4.06</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>06-09-2016</h4>
+                    01 .Added new feature ‘Discount Plans’.<br>
+                    02 .Added ISO code to Code deck.<br>
+                    03. Added Billing Enable option on Accounts.<br>
+                    04. Added Overdue invoices filter under Invoices.<br>
+                    05. Added Drill down option on Analysis and Monitor dashboard.<br>
+                    06. Added new functionality to setup Data and File Retention.<br>
+                    07. Added Integration section to setup third party integrations.<br>
+                    08. Integration with Fresh desk.<br>
+                    09. Integration with MS Exchange calendar.<br>
+                    10. Added Recent accounts widget on CRM dashboard.<br>
+                    11. Added Notification option under Admin to setup email notifications.<br>
+                    12. Added option to setup multiple servers under Server Monitor.<br>
+                    13. Added new column in porta sheet ‘Discontinued’.<br>
+                    14. Added No against subscription under account. Subscriptions will be displayed in ‘No’ order on the invoice.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<h2>
+    <span class="label label-success">4.05</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>27-07-2016</h4>
+                    1. Added an option to bulk edit Rate Table.<br>
+                    2. Status of paid and partially paid invoices won't be changed to send when click on Send.<br>
+                    3. Added credit control option against account.<br>
+                    4. Improved Cron Job monitoring.<br>
+                    5. Added an option to restart failed jobs and terminate In Progress jobs.<br>
+                    6. Added new CRM Dashboard.<br>
+                    7. Fixed issue with cancel invoices, they will be excluded from total now.<br>
+                    8. Regenerate invoice will ignore cancel invoices.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 

@@ -216,9 +216,7 @@
                     $(this).parent().parent('tr').remove();
                 }
             });
-            setTimeout(function(){
-                $('select[name="CDRType"]').trigger( "change" );
-            },500)
+
 
             @if ($account->VerificationStatus == Account::NOT_VERIFIED)
                 $(".btn-toolbar .btn").first().button("toggle");

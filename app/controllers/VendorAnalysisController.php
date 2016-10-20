@@ -44,8 +44,10 @@ class VendorAnalysisController extends BaseController {
             $query = "call prc_getVendorTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
             $query = "call prc_getVendorGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $query = "call prc_getVendorAccountReportAll ";
         }
-        $query .= "('" . $companyID . "','".intval($data['GatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
 
@@ -96,7 +98,7 @@ class VendorAnalysisController extends BaseController {
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $reponse = array();
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
-        $query = "call prc_getVendorReportByTime ('" . $companyID . "','".intval($data['GatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
+        $query = "call prc_getVendorReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
         $category = $counts = $minutes = $cost = array();
         $cat_index = 0;
@@ -136,10 +138,13 @@ class VendorAnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'gateway') {
             $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getVendorGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $query = "call prc_getVendorAccountReportAll ";
         }
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query .= "('" . $companyID . "','".intval($data['GatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('neon_report')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

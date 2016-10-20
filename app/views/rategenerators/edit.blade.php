@@ -135,69 +135,68 @@
                             
                             
                             
-                            <div class="float-right  ">
+                            <div class="pull-right">
                                 <button type="submit"  class="btn addnew btn-primary btn-sm btn-icon icon-left" >
                                     <i class="entypo-floppy"></i>
                                     Add New
                                 </button>
                                 <br><br>
                             </div>
-                
-                
 
                     @if(count($rategenerator_rules))
-                    <table class="table table-bordered datatable" id="table-4">
-                        <thead>
-                            <tr>
-                                <th>Rate Filter
-                                </th>
-                                <th>Sources</th>
-                                <th>Margins</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        @foreach($rategenerator_rules as $rategenerator_rule)
-                        <tbody>
-                            <tr class="odd gradeX">
-                                <td>
-                                    {{$rategenerator_rule->Code}} 
-                                </td>
-                                <td>
-                                    @if(count($rategenerator_rule['RateRuleSource']))
-                                    @foreach($rategenerator_rule['RateRuleSource'] as $rateruleSource )
-                                    {{Account::getCompanyNameByID($rateruleSource->AccountId);}}<br>
-                                    @endforeach
-                                    @endif
+                        <div class="dataTables_wrapper clear-both">
+                            <table class="table table-bordered datatable" id="table-4">
+                                <thead>
+                                    <tr>
+                                        <th>Rate Filter
+                                        </th>
+                                        <th>Sources</th>
+                                        <th>Margins</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                @foreach($rategenerator_rules as $rategenerator_rule)
+                                <tbody>
+                                    <tr class="odd gradeX">
+                                        <td>
+                                            {{$rategenerator_rule->Code}}
+                                        </td>
+                                        <td>
+                                            @if(count($rategenerator_rule['RateRuleSource']))
+                                            @foreach($rategenerator_rule['RateRuleSource'] as $rateruleSource )
+                                            {{Account::getCompanyNameByID($rateruleSource->AccountId);}}<br>
+                                            @endforeach
+                                            @endif
 
-                                </td>
-                                <td>
+                                        </td>
+                                        <td>
 
-                                    @if(count($rategenerator_rule['RateRuleMargin']))
-                                    @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                        {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
-                                    @endforeach
-                                    @endif
+                                            @if(count($rategenerator_rule['RateRuleMargin']))
+                                            @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
+                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
+                                            @endforeach
+                                            @endif
 
 
 
-                                </td>
-                                <td>
-                                    <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm btn-icon icon-left">
-                                        <i class="entypo-floppy"></i>
-                                        Edit
-                                    </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm btn-icon icon-left">
+                                                <i class="entypo-floppy"></i>
+                                                Edit
+                                            </a>
 
-                                    <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm btn-icon icon-left">
-                                        <i class="entypo-cancel"></i>
-                                        Delete
-                                    </a>
-                                </td>
-                            </tr>
+                                            <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm btn-icon icon-left">
+                                                <i class="entypo-cancel"></i>
+                                                Delete
+                                            </a>
+                                        </td>
+                                    </tr>
 
-                        </tbody>
-                        @endforeach
-                    </table>
-
+                                </tbody>
+                                @endforeach
+                            </table>
+                        </div>
 
                     @endif
 

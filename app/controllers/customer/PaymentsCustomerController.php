@@ -80,9 +80,9 @@ class PaymentsCustomerController extends \BaseController {
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
         $AccountID = User::get_userID();
-        $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
-        $action = array(''=>'Select Action','Payment In'=>'Payment out','Payment Out'=>'Payment In');
-        $status = array(''=>'Select Status','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+        $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
+        $action = array(''=>'Select ','Payment In'=>'Payment out','Payment Out'=>'Payment In');
+        $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
         return View::make('customer.payments.index', compact('id','currency','method','type','status','action','AccountID'));
 	}
 
@@ -99,11 +99,15 @@ class PaymentsCustomerController extends \BaseController {
             $save = $isvalid['data'];
             unset($save['Currency']);
             $save['Status'] = 'Pending Approval';
+            if(isset($save['InvoiceNo'])) {
+                $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+            }
             if (Payment::create($save)) {
                 $companyID = User::get_companyID();
-                $result = Company::select('PaymentRequestEmail','CompanyName')->where("CompanyID", '=', $companyID)->first();
-                $PaymentRequestEmail =explode(',',$result->PaymentRequestEmail);
-                $data['EmailToName'] = $result->CompanyName;
+                $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);
+
+                $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
+                $data['EmailToName'] = Company::getName();
                 $data['Subject']= 'Payment verification';
                 $save['AccountName'] = User::get_user_full_name();
                 $data['data'] = $save;
@@ -123,7 +127,7 @@ class PaymentsCustomerController extends \BaseController {
                 }
                 $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
 
-                foreach($PaymentRequestEmail as $billingemail){
+                foreach($PendingApprovalPayment as $billingemail){
                     if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingemail;
                         $status = sendMail('emails.admin.payment', $data);

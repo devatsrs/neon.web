@@ -204,7 +204,7 @@
                             show_ = show_.replace('{id}', id);
                             action = '';
                             <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="entypo-ticket"></i> </button>';
+                            action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
                             action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
@@ -525,6 +525,8 @@
             modal.find('.message').wysihtml5({
                 "font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
@@ -543,9 +545,9 @@
         });
 
         $(document).on('click','.sendemail',function(){
-            $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $('#BulkMail-form [name="email_template_privacy"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(0);
+            $("#BulkMail-form [name='email_template']").val('').trigger("change");
+            $("#BulkMail-form [name='template_option']").val('').trigger("change");
+            $("#BulkMail-form [name='email_template_privacy']").val(0).trigger("change");
             $("#BulkMail-form")[0].reset();
             $("#modal-BulkMail").modal({
                 show: true
@@ -681,11 +683,7 @@
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
-                    $(el).data("selectBox-selectBoxIt").remove();
-                    $.each(data,function(key,value){
-                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                    });
-                    $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    rebuildSelect2(el,data,'');
                 } else {
                     toastr.error(status, "Error", toastr_opts);
                 }
@@ -707,6 +705,8 @@
             modal.find('.message').wysihtml5({
                 "font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
@@ -757,8 +757,104 @@
 
 @section('footer_ext')
     @parent
+
     <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog" style="width: 80%;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Bulk Send Email</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Show Template</label>
+                                {{Form::select('email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-3" class="control-label">Email Template</label>
+                                {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Subject</label>
+                                <input type="text" class="form-control" id="subject" name="subject" />
+                                <input type="hidden" name="SelectedIDs" />
+                                <input type="hidden" name="criteria" />
+                                <input type="hidden" name="Type" value="{{EmailTemplate::ACCOUNT_TEMPLATE}}" />
+                                <input type="hidden" name="type" value="BAE" />
+                                <input type="hidden" name="ratesheetmail" value="0" />
+                                <input type="hidden" name="test" value="0" />
+                                <input type="hidden" name="testEmail" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Message</label>
+                                <textarea class="form-control message" rows="18" name="message"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-6" class="control-label">Attchament</label>
+                                <input type="file" id="attachment"  name="attachment" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-7" class="control-label">Template Option</label>
+                                {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div id="templatename" class="col-md-6 hidden">
+                            <div class="form-group">
+                                <label for="field-7" class="control-label">New Template Name</label>
+                                <input type="text" name="template_name" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button id="bull-email-account" type="submit" id="mail-send"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Send
+                    </button>
+                    <button id="test"  class="savetest btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Send Test mail
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="modal-BulkMailtemp">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -769,9 +865,9 @@
                         <div class="row">
                             <div class="form-Group">
                                 <br />
-                                <label for="field-1" class="col-sm-2 control-label">Show Template</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"selectboxit"))}}
+                                <label for="field-1" class="col-md-2 control-label">Show Template</label>
+                                <div class="col-md-2">
+                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -780,7 +876,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -797,7 +893,7 @@
                                             <input type="hidden" name="ratesheetmail" value="0" />
                                             <input type="hidden" name="test" value="0" />
                                             <input type="hidden" name="testEmail" value="" />
-                                        </div>
+                                    </div>
                             </div>
                         </div>
                         <div class="row">
@@ -824,7 +920,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Template Option</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -881,7 +977,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>

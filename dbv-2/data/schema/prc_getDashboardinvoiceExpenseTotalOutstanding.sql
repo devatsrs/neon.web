@@ -7,12 +7,9 @@ DECLARE v_Round_ int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
-	SELECT cs.Value INTO v_Round_ 
-	FROM LocalRatemanagement.tblCompanySetting cs 
-	WHERE cs.`Key` = 'RoundChargesAmount' 
-		AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
-	SELECT SUM(IFNULL(GrandTotal,0)) INTO v_TotalInvoice_
+	SELECT IFNULL(SUM(GrandTotal),0) INTO v_TotalInvoice_
 	FROM tblInvoice 
 	WHERE 
 		CompanyID = p_CompanyID
@@ -21,9 +18,9 @@ DECLARE v_Round_ int;
 		AND InvoiceStatus NOT IN ( 'cancel' , 'draft' )
 		AND (p_AccountID = 0 or AccountID = p_AccountID);
 		
-	SELECT SUM(IFNULL(p.Amount,0)) INTO v_TotalPayment_
+	SELECT IFNULL(SUM(p.Amount),0) INTO v_TotalPayment_
 		FROM tblPayment p 
-	INNER JOIN LocalRatemanagement.tblAccount ac 
+	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
 	WHERE 
 		p.CompanyID = p_CompanyID

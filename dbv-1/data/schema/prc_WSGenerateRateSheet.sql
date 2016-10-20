@@ -90,15 +90,6 @@ BEGIN
     AND tblCustomerTrunk.AccountID = p_CustomerID
     AND tblCustomerTrunk.Status = 1;
 
-
-  /*SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
-	 	SELECT MAX(EffectiveDate) as EffectiveDate
-		FROM
-		tblRateTableRate
-		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW()
-		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	)tbl;*/
-
   INSERT INTO tmp_CustomerRates_
       SELECT  RateID,
               Interval1,
@@ -113,7 +104,10 @@ BEGIN
           AND tblCustomerRate.Rate > 0
          AND tblCustomerRate.TrunkID = p_Trunk
          ORDER BY tblCustomerRate.CustomerID,tblCustomerRate.TrunkID,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
-
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
+	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates2_;
+	
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);
    DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
    AND  n1.RateId = n2.RateId;
@@ -125,13 +119,7 @@ BEGIN
 			tblRateTableRate.RateID,
          tblRateTableRate.Interval1,
          tblRateTableRate.IntervalN,
-         tblRateTableRate.Rate,
-         /*CASE WHEN v_NewA2ZAssign_ = 1   THEN
-         	v_RateTableAssignDate_
-         ELSE
-         	tblRateTableRate.EffectiveDate
-         END as EffectiveDate ,
-         */
+         tblRateTableRate.Rate,         
          tblRateTableRate.EffectiveDate,
          tblRateTableRate.updated_at
       FROM tblAccount
@@ -163,6 +151,7 @@ BEGIN
                       ) ) ) ) )
       ORDER BY tblRateTableRate.RateID,tblRateTableRate.EffectiveDate desc;
 
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate4_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);
    DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
    AND  n1.RateId = n2.RateId;
@@ -180,6 +169,7 @@ BEGIN
               WHERE  RateSheetID = v_lastRateSheetID_
           ORDER BY RateID,effectivedate desc;
 
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetDetail4_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateSheetDetail4_ as (select * from tmp_RateSheetDetail_);
    DELETE n1 FROM tmp_RateSheetDetail_ n1, tmp_RateSheetDetail4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
    AND  n1.RateId = n2.RateId;
@@ -202,11 +192,11 @@ BEGIN
              tbl.EffectiveDate
       FROM   (
 			SELECT
-				rt.RateID,
-         	rt.Interval1,
-            rt.IntervalN,
-            rt.Rate,
-            rt.EffectiveDate
+				rt.RateID,				
+				rt.Interval1,
+				rt.IntervalN,
+				rt.Rate,
+				rt.EffectiveDate
          FROM   tmp_RateTableRate_ rt
          LEFT JOIN tblRateSheet
          	ON tblRateSheet.RateSheetID =
@@ -218,7 +208,7 @@ BEGIN
 			UNION
 
 			SELECT
-				trc2.RateID,
+				trc2.RateID,            
             trc2.Interval1,
             trc2.IntervalN,
             trc2.Rate,
@@ -234,52 +224,6 @@ BEGIN
 			) AS tbl
       INNER JOIN tblRate
       	ON tbl.RateID = tblRate.RateID;
-
-      INSERT INTO tmp_RateSheetRate_
-      SELECT tbl.RateID,
-             description,
-             Code,
-             tbl.Interval1,
-             tbl.IntervalN,
-             tbl.Rate,
-             v_trunkDescription_,
-             'NO CHANGE',
-             tbl.EffectiveDate
-		FROM   (
-			SELECT
-				rt.RateID,
-            rt.Interval1,
-            rt.IntervalN,
-            rt.Rate,
-            rt.EffectiveDate
-         FROM tmp_RateTableRate_ rt
-			INNER JOIN tblRateSheet
-         	ON tblRateSheet.RateSheetID =
-         		v_lastRateSheetID_
-         INNER JOIN tmp_RateSheetDetail_ as  rsd3
-            ON rsd3.RateID = rt.RateID AND rsd3.RateSheetID = v_lastRateSheetID_
-
-         WHERE ( rt.updated_at < tblRateSheet.dategenerated  OR rt.updated_at IS NULL )
-
-         UNION
-
-			SELECT
-				trc3.RateID,
-            trc3.Interval1,
-            trc3.IntervalN,
-            trc3.Rate,
-            trc3.EffectiveDate
-			FROM   tmp_CustomerRates_ trc3
-         INNER JOIN tblRateSheet
-         	ON tblRateSheet.RateSheetID =
-            	v_lastRateSheetID_
-			INNER JOIN tmp_CloneRateSheetDetail_ as  rsd4
-         	ON rsd4.RateID = trc3.RateID
-            	AND rsd4.RateSheetID = v_lastRateSheetID_
-			WHERE ( trc3.LastModifiedDate < dategenerated OR trc3.LastModifiedDate IS NULL )
-      ) AS tbl
-             INNER JOIN tblRate
-                     ON tbl.RateID = tblRate.RateID;
 
       INSERT INTO tmp_RateSheetRate_
       SELECT tbl.RateID,
@@ -356,7 +300,6 @@ BEGIN
                              ON rsd5.RateID = rt.RateID
                                 AND rsd5.RateSheetID =
                                     v_lastRateSheetID_
-              WHERE  rt.updated_at > tblRateSheet.dategenerated
               UNION
               SELECT trc4.RateID,
                      description,
@@ -423,7 +366,7 @@ BEGIN
                              ON rsd6.RateID = trc4.RateID
                                 AND rsd6.RateSheetID =
                                     v_lastRateSheetID_
-              WHERE  trc4.LastModifiedDate > tblRateSheet.dategenerated) AS tbl ;
+				  ) AS tbl ;
 
       INSERT INTO tmp_RateSheetRate_
       SELECT tblRateSheetDetails.RateID,
@@ -449,7 +392,8 @@ BEGIN
                     ON TBL.RateID = tblRateSheetDetails.RateID
       WHERE  `change` != 'DELETE'
              AND TBL.RateID IS NULL ;
-
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetRate4_;	
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateSheetRate4_ as (select * from tmp_RateSheetRate_);
 	DELETE n1 FROM tmp_RateSheetRate_ n1, tmp_RateSheetRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
 	AND  n1.RateId = n2.RateId;

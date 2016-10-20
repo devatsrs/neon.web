@@ -1,37 +1,44 @@
 @extends('layout.main')
 @section('content')
-<div class="row">
-  <div class="tab-content">
-    <div class="tab-pane active" id="customer" >
-      <div class="col-md-12">
-        <form novalidate class="form-horizontal form-groups-bordered filter validate" method="post" id="crm_dashboard">
-          <div data-collapsed="0" class="panel panel-primary">
-            <div class="panel-heading">
-              <div class="panel-title">
-                <h3> Filter</h3>
-              </div>
-              <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
-            </div>
-            <div class="panel-body">
-              <div class="form-group"> @if(User::is_admin())
-                <label class="col-sm-1 control-label" for="field-1">User</label>
-                <div class="col-sm-6"> {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-                @else
-                <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
-                @endif
-                <label class="col-sm-1 control-label" for="field-1">Currency</label>
-                <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }} </div>
-              </div>
-              <p style="text-align: right;">
-                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
-              </p>
-            </div>
-          </div>
-        </form>
-      </div>
+
+    <div class="row">
+        <div id="customer" class="col-sm-12">
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="crm_dashboard">
+                <div data-collapsed="0" class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Filter
+                        </div>
+                        <div class="panel-options">
+                            <a data-rel="collapse" href="#">
+                                <i class="entypo-down-open"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group"> @if(User::is_admin())
+                                <label class="col-sm-1 control-label" for="field-1">User</label>
+                                <div class="col-sm-6"> {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+                            @else
+                                <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
+                            @endif
+                            <label class="col-sm-1 control-label" for="field-1">Currency</label>
+                            <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }} </div>
+                        </div>
+                        <p style="text-align: right;">
+                            <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+
     </div>
-  </div>
-</div>
+<?php
+if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardTasks',$CrmAllowedReports))
+{
+if(User::checkCategoryPermission('CrmDashboardTasks','View')){ ?>
+
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -41,7 +48,7 @@
         </div>
         <div id="UsersTasks" class="panel-options"> {{ Form::select('DueDateFilter', array("All"=>"All","duetoday"=>"Due Today","duesoon"=>"Due Soon","overdue"=>"Overdue"), 'All', array('id'=>'DueDateFilter','class'=>'select_gray')) }} <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+      <div class="panel-body white-bg" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
         <table class="table table-bordered datatable" id="taskGrid">
           <thead>
             <tr>
@@ -60,17 +67,71 @@
     </div>
   </div>
 </div>
+<?php } }  ?>
+    <?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardRecentAccount',$CrmAllowedReports))
+	{
+	 if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
+    <div class="row">
+    <div class="col-sm-12">
+            <div class="panel panel-primary panel-table">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <h3>Recent Accounts</h3>
+                        <span>Recently Added Accounts</span>
+                    </div>
+
+                    <div id="AccountsTab" class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body white-bg">
+                    <div class="dataTables_wrapper">
+                        <table id="accounts" class="table table-responsive">
+                        <thead>
+                        <tr>
+                            <th >Account Name</th>
+                            <th >Phone</th>
+                            <th >Email</th>
+                            <th >Created By</th>
+                            <th >Created</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+                    </table>
+                    </div>
+                    <?php if(User::checkCategoryPermission('Account','View')){?>
+                    <div class="text-right">
+                        <a href="{{URL::to('/accounts')}}" class="btn btn-primary text-right">View All</a>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+    </div>
+    </div>
+    <?php } }
+    ?>
+
 <div class="row">
+<?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesOpportunity',$CrmAllowedReports))
+	{
+ ?>
+@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
-      <div class="panel-heading">
+      <div class="panel-heading">      
         <div id="Sales" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
         <div class="panel-title forecase_title">
-          <h3>Sales</h3>
+          <h3>Sales by Opportunity</h3>
           <div class="SalesResult"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Sales">
+        </div>        
+      </div>
+      <div class="form_Sales panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales">
               <div class="form-group form-group-border-none">
                 <label for="Closingdate" class="col-sm-2 control-label ClosingdateLabel ">Close Date</label>
@@ -88,10 +149,15 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
     </div>
   </div>
+  @endif 
+  <?php } ?>
+  <?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardPipeline',$CrmAllowedReports))
+	{
+ ?>
+  @if(User::checkCategoryPermission('CrmDashboardPipeline','View'))
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
       <div class="panel-heading">
@@ -108,7 +174,14 @@
       </div>
     </div>
   </div>
+@endif 
+<?php } ?>
 </div>
+<?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardForecast',$CrmAllowedReports))
+	{
+ ?>
+ @if(User::checkCategoryPermission('CrmDashboardForecast','View'))
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary panel-table">
@@ -117,9 +190,9 @@
         <div class="panel-title forecase_title">
           <h3>Forecast</h3>
           <div class="ForecastResult"></div>
-        </div>
-        <div  class="clear clearfix">
-          <div class="form_Forecast">
+        </div>          
+      </div>
+      <div class="form_Forecast panel-body white-bg">
             <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Forecast">
               <div class="form-group form-group-border-none">
                 <label for="ClosingdateFortcast" class="col-sm-2 control-label ClosingdateLabel1 ">Close Date</label>
@@ -133,11 +206,49 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
+@endif 
+<?php } 
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesRevenue',$CrmAllowedReports))
+	{
+ ?>
+ @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
+<div class="row">
+<div class="col-sm-12">
+    <div class="panel panel-primary panel-table">
+      <div class="panel-heading">
+        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+        <div class="panel-title forecase_title">
+          <h3>Sales By Revenue</h3>
+          <div class="SalesResultManager"></div>
+        </div>          
+      </div>
+      <div class="form_Sales panel-body white-bg">
+            <form novalidate class="form-horizontal form-groups-bordered"  id="crm_dashboard_Sales_Manager">
+              <div class="form-group form-group-border-none">               
+                <div class="col-sm-8">
+                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                 <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>               
+                <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+               <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                </div>
+              </div>
+              <div class="text-center">
+                <div id="crmdSalesManager1" style="min-width: 310px; height: 400px; margin: 0 auto" class="crmdSalesManager1"></div>
+              </div>
+            </form> 
+          </div>
+    </div>
+    </div>
+</div>
+@endif 
+<?php } 
+if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmAllowedReports))
+{
+ ?>
+ @if(User::checkCategoryPermission('CrmDashboardOpportunities','View'))
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -147,7 +258,7 @@
         </div>
         <div id="UsersOpportunities" class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a> </div>
       </div>
-      <div class="panel-body">
+      <div class="panel-body white-bg">
         <table class="table table-bordered datatable" id="opportunityGrid">
           <thead>
             <tr>
@@ -170,28 +281,74 @@
   </div>
 </div>
 </div>
+@endif 
+<?php } ?>
 <div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
-@if(User::checkCategoryPermission('Task','Edit')) 
+
+@if(User::checkCategoryPermission('Task','Edit'))
 var task_edit = 1;
 @else 
 var task_edit = 0;
 @endif;
 
-@if(User::checkCategoryPermission('Opportunity','Edit')) 
+
+@if(User::checkCategoryPermission('Opportunity','Edit'))
 var Opportunity_edit = 1;
 @else 
 var Opportunity_edit = 0;
 @endif;
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesOpportunity',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')))
+var CrmDashboardSalesOpportunity = 1;
+@else 
+var CrmDashboardSalesOpportunity = 0;
+@endif;
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardPipeline',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardPipeline','View')))
+var CrmDashboardPipeline = 1;
+@else 
+var CrmDashboardPipeline = 0;
+@endif;
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardForecast',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardForecast','View')))
+var CrmDashboardForecast = 1;
+@else 
+var CrmDashboardForecast = 0;
+@endif;
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardOpportunities','View')))
+var CrmDashboardOpportunities = 1;
+@else 
+var CrmDashboardOpportunities = 0; 
+@endif;
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardRecentAccount',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardRecentAccount','View')))
+var CrmDashboardAccount = 1;
+@else 
+var CrmDashboardAccount = 0;
+@endif;
+
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardTasks',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardTasks','View')))
+var CrmDashboardTasks = 1;
+@else 
+var CrmDashboardTasks = 0;
+@endif;
+
+
+
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
-var OpportunityClose =  '{{Opportunity::Close}}';
+var OpportunityClose =  '{{Opportunity::Close}}'; 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesRevenue',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardSalesRevenue','View')))
+var RevenueReport = 1;
+@else 
+var RevenueReport = 0;
+@endif;
 </script> 
-<script src="https://code.highcharts.com/highcharts.js"></script> 
-<script src="https://code.highcharts.com/modules/data.js"></script> 
-<script src="https://code.highcharts.com/modules/exporting.js"></script> 
+<script src="{{ URL::asset('assets/js/highcharts.js') }}"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
 <style>
 #taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
@@ -270,6 +427,24 @@ var OpportunityClose =  '{{Opportunity::Close}}';
 		width:150px;
 	}
 	.white-bg{background:#fff none repeat scroll 0 0 !important; }
+	.managerLabel{
+		padding-left:0;
+		padding-right:0;
+		width:38px;
+	}
+	.click_revenue_diagram{
+		cursor:pointer !important; 
+		text-decoration:underline;
+		font-weight:bold;
+		pointer-events:auto !important;
+	}
+	.panel-heading{
+	border:none !important;
+	}
+    #customer .panel-heading{
+        border-bottom:1px solid transparent !important;
+        border-color:#ebebeb !important;
+    }
 </style>
 @stop
 @section('footer_ext')
@@ -319,7 +494,7 @@ var OpportunityClose =  '{{Opportunity::Close}}';
                   <div class="input-group" style="width: 100%;">
                     <div class="input-group-addon" style="padding: 0px; width: 85px;">
                       <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                      {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}} </div>
+                      {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}} </div>
                     <input type="text" name="FirstName" class="form-control" id="field-5">
                   </div>
                 </div>
@@ -360,13 +535,13 @@ var OpportunityClose =  '{{Opportunity::Close}}';
             <div class="col-md-6 margin-top-group pull-right">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Status</label>
-                <div class="col-sm-8 input-group"> {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8 input-group"> {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             <div class="col-md-6 margin-top pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Select Board*</label>
-                <div class="col-sm-8"> {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             <div class="col-md-6 margin-top pull-right">
@@ -445,7 +620,7 @@ var OpportunityClose =  '{{Opportunity::Close}}';
             <div class="col-md-6 margin-top pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             <div class="col-md-6 margin-top pull-right">
@@ -512,4 +687,25 @@ var OpportunityClose =  '{{Opportunity::Close}}';
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="UserRevenue" data-backdrop="static">
+        <div  class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">User Revenue</h4>
+                    </div>
+                    <div class="modal-body left-padding">                      
+                        <div id="UserRevenueTable" class="form-group"></div>                      
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
 @stop

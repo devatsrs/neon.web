@@ -15,7 +15,9 @@ class Account extends \Eloquent {
     const  DETAIL_CDR = 1;
     const  SUMMARY_CDR= 2;
     const  NO_CDR = 3;
-    public static $cdr_type = array(''=>'Select a CDR Type' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
+	
+	public static $SupportSlug	=	'support';
+    public static $cdr_type = array(''=>'Select' ,self::DETAIL_CDR => 'Detail CDR',self::SUMMARY_CDR=>'Summary CDR');
 
 
     public static $rules = array(
@@ -27,8 +29,28 @@ class Account extends \Eloquent {
         'CurrencyId' => 'required',
 
     );
+    /** add columns here to save in table  */
+    protected $fillable = array(
+        'AccountType','CompanyID','CurrencyId','Title','Owner',
+        'Number', 'AccountName', 'NamePrefix','FirstName','LastName',
+        'LeadStatus', 'Rating', 'LeadSource','Skype','EmailOptOut',
+        'Twitter', 'SecondaryEmail', 'Email','IsVendor','IsCustomer',
+        'IsReseller', 'Ownership', 'Website','Mobile','Phone',
+        'Fax', 'Employee', 'Description','Address1','Address2',
+        'Address3', 'City', 'State','PostCode','Country',
+        'RateEmail', 'BillingEmail', 'ResellerEmail','TechnicalEmail','VatNumber',
+        'Status', 'PaymentMethod', 'PaymentDetail','Converted','ConvertedDate',
+        'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
+        'created_at', 'created_by', 'updated_at','updated_by','password',
+        'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
+        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing'
+    );
 
-    public static $messages = array('CurrencyId.required' =>'The currency field is required');
+    public static $messages = array(
+        'CurrencyId.required' =>'The currency field is required',
+        'BillingCycleType.required' =>'Billing Cycle field is required',
+        'BillingCycleValue.required' =>'Billing Cycle Value field is required',
+    );
 
     public static $importrules = array(
         'selection.AccountName' => 'required'
@@ -121,7 +143,7 @@ class Account extends \Eloquent {
         $data['CompanyID']=User::get_companyID();
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
-            $row = array(""=> "Select an Account")+$row;
+            $row = array(""=> "Select")+$row;
         }
         return $row;
     }
@@ -141,9 +163,9 @@ class Account extends \Eloquent {
         }
         $data['CompanyID']=User::get_companyID();
         $result = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
-        $row = array(""=> "Select an Account");
+        $row = array(""=> "Select");
         if(!empty($result)){
-            $row = array(""=> "Select an Account")+$result;
+            $row = array(""=> "Select")+$result;
         }
         return $row;
     }
@@ -322,7 +344,7 @@ class Account extends \Eloquent {
                 $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
             }
         }else{
-            $ExpenseYearHTML = '<h3>NO DATA!!</h3>';
+            $ExpenseYearHTML = '<h4>No Data</h4>';
         }
 
         $response['customer'] =  implode(',',$customer);
@@ -333,5 +355,55 @@ class Account extends \Eloquent {
         $response['VendorActivity'] = account_expense_table($VendorExpense,'Vendor');
 
         return $response;
+    }
+	
+	public static function GetActiveTicketCategory(){
+		$TicketsShow	 =	0;
+        $companyID  	 = User::get_companyID();
+
+		$Support	 	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>Account::$SupportSlug])->first();	
+		//print_r($Support);
+		
+		if(count($Support)>0)
+		{
+						
+			$SupportSubcategory = Integration::select("*");
+			$SupportSubcategory->join('tblIntegrationConfiguration', function($join)
+			{
+				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
+	
+			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.ParentID"=>$Support->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			 $result = $SupportSubcategory->first();
+			 if(count($result)>0)
+			 {
+				return 1;
+			 }
+			 else
+			 {
+				return 0;
+			 }
+		}
+		else
+		{
+			return 0;	
+		}
+	}
+
+    public static function getAccountIDByName($Name){
+        $companyID  	 = User::get_companyID();
+        return  Account::where(["AccountName"=>$Name,"CompanyID" => $companyID])->pluck('AccountID');
+    }
+
+    public static function getVendorLastInvoiceDate($AccountID){
+        $LastInvoiceDate = '';
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
+        if(!empty($invoiceDetail)){
+            $LastInvoiceDate = $invoiceDetail->EndDate;
+        }else{
+            $account = Account::find($AccountID);
+            $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
+        }
+        return $LastInvoiceDate;
+
     }
 }

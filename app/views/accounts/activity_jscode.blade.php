@@ -1,7 +1,7 @@
 <?php //echo $message; exit; ?>
 <script type="text/javascript">
  
-
+var GUID			  =			'{{$data['GUID']}}';
 var show_popup		  = 	 	0;
 var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
@@ -18,6 +18,7 @@ Not_ask_delete_Note   = 		0;
 
 var account_id		  =			'{{$AccountID}}';
 var emailFileList	  =  		new Array();
+var emailFileListReply  =  		new Array();
 var token			  =			'{{$token}}';
 var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
@@ -34,8 +35,138 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				container.html(make);
 				container.find('.make-switch').bootstrapSwitch();
 			} 
-			
 	
+	$( document ).on("click",'.ticket_conversations' ,function(e) {
+		var data_fetch_id 		= 	$(this).attr('data_fetch_id');
+		var conversations_type	= 	$(this).attr('conversations_type');		
+		var url 				= 	baseurl + '/accounts/' + data_fetch_id + '/ajax_conversations';
+		 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'html',
+			async :false,
+			data:{s:1,conversations_type:conversations_type},
+			success: function(response){
+				$('#ticket-conversation #allComments').html(response);
+				$('#ticket-conversation').modal('show');
+			},
+		});
+	});
+	
+	$( document ).on("click",'.replyboxemail' ,function(e) {	
+		$(this).find('.replyboxhidden').toggle();
+	});
+	
+	$( document ).on("click",'.email_action' ,function(e) {			
+		var url 		   = 	 baseurl + '/emails/email_action';
+		var action_type    =     $(this).attr('action_type');
+		var email_number   =     $(this).attr('email_number');
+		
+		emailFileListReply = [];
+	   $('#info3').val('');
+	   $('#info4').val('');
+	   $("#EmailActionform").find('#emailattachment_sent').val('');
+	   $("#EmailActionform").find('.file_upload_span').remove();
+		
+		 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'html',
+			async :false,
+			data:{s:1,action_type:action_type,email_number:email_number,AccountID:account_id},
+			success: function(response){
+				$('#EmailAction-model .modal-content').html('');
+				$('#EmailAction-model .modal-content').html(response);				
+					var mod =  $(document).find('.EmailAction_box');
+					$('#EmailAction-model').modal('show');
+				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        			//mod.find('.message').show();
+				mod.find("select").select2({
+                    minimumResultsForSearch: -1
+                });
+				mod.find('.select2-container').css('visibility','visible');
+				setTimeout(function(){ 
+				mod.find('.message').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":true,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+						parser: function(html) {
+							return html;
+						}
+				});
+				 }, 500);
+				
+		    
+			},
+		});
+	});
+	
+
+	 $("#EmailActionform").submit(function (event) {
+		//////////////////////////          	
+			var email_url 	= 	"<?php echo URL::to('/accounts/'.$AccountID.'/activities/sendemail/api/');?>?scrol="+1;
+          	event.stopImmediatePropagation();
+            event.preventDefault();			
+			var formData = new FormData($('#EmailActionform')[0]);
+			console.log(rowData);
+			
+			$("#EmailAction-model").find('.btn-send-mail').addClass('disabled');  $("#EmailAction-model").find('.btn-send-mail').button('loading');
+			 $.ajax({
+                url: email_url,
+                type: 'POST',
+                dataType: 'html',
+				data:formData,
+				async :false,
+				cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response) {		
+			   $("#EmailAction-model").find('.btn-send-mail').button('reset');
+			   $("#EmailAction-model").find('.btn-send-mail').removeClass('disabled');			   
+ 	           if (isJson(response)) {				   
+					var response_json  =  JSON.parse(response);
+					
+					ShowToastr("error",response_json.message);
+				} else {
+					ShowToastr("success","Mail Successfully Sent."); 
+					//$('#EmailAction-model').hide();
+					$('#EmailAction-model').modal('hide'); 		
+					emailFileListReply = [];
+                   $('#info3').val('');
+                   $('#info4').val('');
+                   $("#EmailActionform").find('#emailattachment_sent').val('');
+				   $("#EmailActionform").find('.file_upload_span').remove();
+				   
+				}
+				
+      			},
+			});	
+		///////////////////////////////
+		 
+	 });
+	
+	
+	$( document ).on("click",'.mail_conversations' ,function(e) {
+		var ticket_id 		= 	$(this).attr('ticket_id');
+		var url 			= 	baseurl + '/accounts/' + ticket_id + '/ajax_conversations';
+		 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'html',
+			async :false,
+			data:{s:1},
+			success: function(response){
+				$('#ticket-conversation #allComments').html(response);
+				$('#ticket-conversation').modal('show');
+			},
+		});
+	});
 	$( document ).on("click",'.delete_task_link' ,function(e) {
 		
 	    var del_task_id  = $(this).attr('task-id');
@@ -109,8 +240,8 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 								account_id = $(this).attr("value");
 							}
 						});
-						$('#edit-task-form  [name="TaskStatus"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(status_id);
-						$('#edit-task-form [name="UsersIDs"]').select2('val', account_id);
+						$('#edit-task-form  [name="TaskStatus"]').val(status_id).trigger("change");
+						$('#edit-task-form [name="UsersIDs"]').val(account_id).trigger("change");
 						$('#edit-task-form #TaskID').val(edit_task_id);
 						$('#edit-task-form #KeyID').val(edit_key_id);
 						$('#edit-modal-task').modal('show');												
@@ -257,13 +388,14 @@ toastr.error(status, "Error", toastr_opts);
 		var per_scroll 		= 	{{$per_scroll}};
 		var per_scroll_inc  = 	per_scroll;
 		
-		  $("#email-from [name=email_template]").change(function(e){
-            var templateID = $(this).val();
+		$( document ).on("change",'.email_template' ,function(e) {
+            var templateID = $(this).val(); 
+			var parent_box = $(this).attr('parent_box'); 
             if(templateID>0) {
                 var url = baseurl + '/accounts/' + templateID + '/ajax_template';
                 $.get(url, function (data, status) {
-                    if (Status = "success") {
-                        editor_reset(data);
+                    if (Status = "success") {						
+                        editor_reset(data,parent_box);
                     } else {
                         toastr.error(status, "Error", toastr_opts);
                     }
@@ -271,14 +403,13 @@ toastr.error(status, "Error", toastr_opts);
             }
         });
 
-		        function editor_reset(data){
-				var doc = $('.mail-compose');
+		        function editor_reset(data,parent_box){
+				//var doc = $('.mail-compose');
+				var doc = $(document).find('.'+parent_box);
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 						
-								
-            var doc = $(".mail-compose");
-            if(!Array.isArray(data)){				
+	       if(!Array.isArray(data)){				
                 var EmailTemplate = data['EmailTemplate'];
                 doc.find('[name="Subject"]').val(EmailTemplate.Subject);
                 doc.find('.message').val(EmailTemplate.TemplateBody);
@@ -349,6 +480,7 @@ toastr.error(status, "Error", toastr_opts);
 					type: 'POST',
 					dataType: 'html',
 					async :false,
+					data:{GUID:GUID},
 					success: function(response1) {
 							if (isJson(response1)) {
 								
@@ -495,6 +627,14 @@ setTimeout(function() {
 				$('#filecontrole1').click();
 				
             });
+			
+			 $(document).on("click","#addReplyTtachment",function(ee){
+			 file_count++;                
+				//var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+				//$('.emai_attachments_span').html(html_img);
+				$('#filecontrole2').click();
+				
+            });
 
             $(document).on("click",".del_attachment",function(ee){
                 var url  =  baseurl + '/account/delete_actvity_attachment_file';
@@ -527,6 +667,37 @@ setTimeout(function() {
                 });
             });
 			
+			    $(document).on("click",".reply_del_attachment",function(ee){
+					var url  =  baseurl + '/account/delete_actvity_attachment_file';
+					var fileName   =  $(this).attr('del_file_name');
+					var attachmentsinfo = $('#info3').val();
+					if(!attachmentsinfo){
+						return true;
+					}
+					attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
+					$(this).parent().remove();
+					var fileIndex = emailFileListReply.indexOf(fileName);
+					var fileinfo = attachmentsinfo[fileIndex];
+					emailFileListReply.splice(fileIndex, 1);
+					attachmentsinfo.splice(fileIndex, 1);
+					$('#info3').val(JSON.stringify(attachmentsinfo));
+					$('#info4').val(JSON.stringify(attachmentsinfo));
+					$.ajax({
+						url: url,
+						type: 'POST',
+						dataType: 'json',
+						data:{file:fileinfo},
+						async :false,
+						success: function(response) {
+							if(response.status =='success'){
+	
+							}else{
+								toastr.error(response.message, "Error", toastr_opts);
+							}
+						}
+					});
+            });
+			
 
 
 $('#emai_attachments_form').submit(function(e) {
@@ -557,8 +728,36 @@ $('#emai_attachments_form').submit(function(e) {
         contentType: false,
         processData: false
     });
+});	
+	$('#emai_attachments_reply_form').submit(function(e) {
+	e.stopImmediatePropagation();
+    e.preventDefault();
 
+    var formData = new FormData(this);
+    var url = 	baseurl + '/account/upload_file?add_type=reply';
+    $.ajax({
+        url: url,  //Server script to process data
+        type: 'POST',
+        dataType: 'json',
+        success: function (response) {
+            console.log(response);
+            if(response.status =='success'){
+                $("#EmailActionform").find('.file-input-names').html(response.data.text);             
+                $('#info3').val(JSON.stringify(response.data.attachmentsinfo));
+				$('#info4').val(JSON.stringify(response.data.attachmentsinfo));
 
+            }else{
+                toastr.error(response.message, "Error", toastr_opts);
+            }
+        },
+        // Form data
+        data: formData,
+        //Options to tell jQuery not to process data or worry about content-type.
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+	
 });
 
 	function bytesToSize(filesize) {
@@ -610,67 +809,55 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 
             });
+			
+		 $(document).on('change','#filecontrole2',function(e){
+				e.stopImmediatePropagation();
+  				e.preventDefault();		
+                var files 			 		 =  e.target.files;				
+                var fileText 		 		 =  new Array();
+				var file_check				 =	1; 
+				var local_reply_array		 =  new Array();
+				///////
+	        var filesArr = Array.prototype.slice.call(files);
+		
+			filesArr.forEach(function(f) {     
+				var ext_current_file  = f.name.split('.').pop();
+				if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )			
+				{         
+					var name_file = f.name;
+					var index_file = emailFileListReply.indexOf(f.name);
+					if(index_file >-1 )
+					{
+						ShowToastr("error",f.name+" file already selected.");							
+					}
+					else if(bytesToSize(f.size))
+					{						
+						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");						
+						file_check = 0;
+						 return false;
+						
+					}else
+					{
+						//emailFileList.push(f.name);
+						local_reply_array.push(f.name);
+					}
+				}
+				else
+				{
+					ShowToastr("error",ext_current_file+" file type not allowed.");
+					
+				}
+        });
+        		if(local_reply_array.length>0 && file_check==1)
+				{	 emailFileListReply = emailFileListReply.concat(local_reply_array);
+   					$('#emai_attachments_reply_form').submit();
+				}
+
+            });
 				
 				
 			
 			//////////////
-        });
-        $("#check-lead").click(function () {
-            var checkVal = $("#check-lead").val();
-            if (checkVal == "No") {
-                $("#new-deal-fields-timeline").removeClass('no-display');
-                $("#exsiting-lead-timeline").addClass('no-display');
-            }
-            else if (checkVal == "Yes") {
-                $("#exsiting-lead-timeline").removeClass('no-display');
-                $("#new-deal-fields-timeline").addClass('no-display');
-            }
-        });
-        $("#lead-company").click(function () {
-
-            var companyName = $("#lead-company").val();
-            debugger;
-            if (companyName == "Code Desk") {
-
-                $('#lead-contact-list').append('<option>Abdul</option><option>Aamir</option>');
-
-                $("#lead-phone").val('123456');
-                $("#lead-email").val('contact@code-desk.com');
-            }
-            else if (companyName == "Wave-Tel") {
-                $('#lead-contact-list').append('<option>Sumera</option><option>Abubakar</option>');
-                $("#lead-phone").val('123456');
-                $("#lead-email").val('contact@wave-tel.com');
-            }
-        });
-        $("#deal-add").click(function () {
-
-            var dealName = $("#dealName").val();
-            var dealOwner = $("#dealOwner").val();
-            var checklead = $("#check-lead").val();
-            var dealCompany;
-            var dealContact;
-            var dealPhone;
-            var dealEmail;
-            if (checklead == "No") {
-                dealCompany = $("#dealCompany").val();
-                dealContact = $("#dealContact").val();
-                dealPhone = $("#dealPhone").val();
-                dealEmail = $("#dealEmail").val();
-
-            }
-            else if (checklead == "Yes") {
-                dealCompany = $("#lead-company").val();
-                dealContact = $("#lead-contact").val();
-                dealPhone = $("#lead-phone").val();
-                dealEmail = $("#lead-email").val();
-            }
-            var Html = '<div class="col-md-6" ><div class="board-column-item-inner deal" style="border: 1px solid #333; margin-top: 5px;"><div class="deal-details text-center"> <h6 class="m-top-0"><a href="#"> <strong>' + dealCompany + '</strong></a></h6><p><strong>' + dealName + '</strong></p><p><strong>Deal Owner:</strong> ' + dealOwner + '</p></div></div></div>'
-            $("#first-deal").append(Html);
-            var dialogDeal = document.getElementById('window-deal');
-            dialogDeal.close('destroy');
-
-
         });
         $("#notes-from").submit(function (event) {
             event.stopImmediatePropagation();
@@ -961,24 +1148,111 @@ $('#emai_attachments_form').submit(function(e) {
 		
 	
 		
-    </script> 
-    <style>
-#last_msg_loader{text-align:center;} .file-input-names{text-align:right; display:block;} ul.grid li div.headerSmall{min-height:31px;} ul.grid li div.box{height:auto;}
-ul.grid li div.blockSmall{min-height:20px;} ul.grid li div.cellNoSmall{min-height:20px;} ul.grid li div.action{position:inherit;}
-.col-md-3{padding-right:5px;}.big-col{padding-left:5px;}.box-min{margin-top:15px; min-height:225px;} .del_attachment{cursor:pointer;}  .no_margin_bt{margin-bottom:0;}
-#account-timeline ul li.follow::before{background:#f5f5f6 none repeat scroll 0 0;}
-
+    </script>
+<style>
+#last_msg_loader {
+	text-align: center;
+}
+.file-input-names {
+	text-align: right;
+	display: block;
+}
+ul.grid li div.headerSmall {
+	min-height: 31px;
+}
+ul.grid li div.box {
+	height: auto;
+}
+ul.grid li div.blockSmall {
+	min-height: 20px;
+}
+ul.grid li div.cellNoSmall {
+	min-height: 20px;
+}
+ul.grid li div.action {
+	position: inherit;
+}
+.col-md-3 {
+	padding-right: 5px;
+}
+.big-col {
+	padding-left: 5px;
+}
+.box-min {
+	margin-top: 15px;
+	min-height: 225px;
+}
+.del_attachment,.reply_del_attachment {
+	cursor: pointer;
+}
+.no_margin_bt {
+	margin-bottom: 0;
+}
+#account-timeline ul li.follow::before {
+	background: #f5f5f6 none repeat scroll 0 0;
+}
 /*.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{margin:0;right:93%;top:-27px; border-color:transparent #f1f1f1 #fff transparent; position:absolute; border-style:solid; border-width:14px;  content: " ";}*/
-.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before{ right: 100%;
-    border: solid transparent;
-    content: " ";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-right-color: #fff;
-    border-width: 10px;
-    top: 10px;}
- footer.main{clear:both;} .followup_task {margin-top:-30px;}
-#form_timeline_filter .radio + .radio, .checkbox + .checkbox{margin-top:0px !important; }
+.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before {
+	right: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-right-color: #fff;
+	border-width: 10px;
+	top: 10px;
+}
+footer.main {
+	clear: both;
+}
+.followup_task {
+	margin-top: -30px;
+}
+#form_timeline_filter .radio + .radio, .checkbox + .checkbox {
+	margin-top: 0px !important;
+}
+.cbp_tmtimeline > li.followup_task .cbp_tmlabel::before {
+	margin: 0;
+	right: 100%;
+	top: 10px; /*border-color:transparent #f1f1f1 #fff transparent;*/
+	position: absolute;
+	border-style: solid;
+	border-width: 14px;
+	content: " ";
+}
+footer.main {
+	clear: both;
+}
+.followup_task {
+	margin-top: -30px;
+}
+.color-red {
+	margin-left: 5px;
+}
+.ticket_conversations {
+	cursor: pointer;
+	text-decoration:underline;
+}
+.left-padding {
+	padding-left: 0px !important;
+}
+.mail_subject {
+	font-size: 14.4px !important;
+}
+.mail_message {
+	font-family: "Noto Sans", sans-serif !important;
+}
+.no-display {
+	overflow: auto;
+}
+.underline {
+	text-decoration: underline;
+}
+.email_action {
+	cursor: pointer;
+}
+.replyboxhidden{display:none; }
+.replyboxemail{width:100% !important; cursor:pointer;}
 </style>

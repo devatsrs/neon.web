@@ -69,7 +69,7 @@ function set_search_parameter(submit_form){
     $searchFilter.Admin   = $(submit_form).find("input[name='Admin']").val();
     $searchFilter.chart_type   = $(submit_form).find("input[name='chart_type']").val();
     $searchFilter.AccountID = $(submit_form).find("[name='AccountID']").val();
-    $searchFilter.GatewayID = $(submit_form).find("select[name='GatewayID']").val();
+    $searchFilter.CompanyGatewayID = $(submit_form).find("[name='CompanyGatewayID']").val();
     $searchFilter.CountryID = $(submit_form).find("[name='CountryID']").val();
     $searchFilter.Prefix = $(submit_form).find("input[name='Prefix']").val();
     $searchFilter.TrunkID = $(submit_form).find("[name='TrunkID']").val();
@@ -149,7 +149,7 @@ function loadBarChart(chart_type,submit_data){
                     }]
                 });
             }else{
-                $('.bar_chart_'+chart_type).html('NO DATA!!');
+                $('.bar_chart_'+chart_type).html('No Data');
             }
         }
     });
@@ -185,7 +185,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "Admin","value": $searchFilter.Admin},
                 {"name": "chart_type","value": $searchFilter.chart_type},
                 {"name": "AccountID","value": $searchFilter.AccountID},
-                {"name": "GatewayID","value": $searchFilter.GatewayID},
+                {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID},
                 {"name": "CountryID","value": $searchFilter.CountryID},
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
@@ -201,7 +201,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "Admin","value": $searchFilter.Admin},
                 {"name": "chart_type","value": $searchFilter.chart_type},
                 {"name": "AccountID","value": $searchFilter.AccountID},
-                {"name": "GatewayID","value": $searchFilter.GatewayID},
+                {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID},
                 {"name": "CountryID","value": $searchFilter.CountryID},
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
@@ -214,7 +214,31 @@ function loadTable(table_id,pageSize,$searchFilter){
         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
         "aaSorting": [[1, 'desc']],
         "aoColumns": [
-        {  "bSortable": true },  // 3 StartDate
+        {  "bSortable": true ,
+            mRender:function( id, type, full){
+                var output,chart_type_param;
+
+                if($searchFilter.chart_type == 'trunk' || $searchFilter.chart_type == 'prefix'){
+                    chart_type_param = $searchFilter.chart_type+'='+id+'&';
+                }
+                if($searchFilter.chart_type == 'gateway'){
+                    delete $searchFilter.CompanyGatewayID;
+                    chart_type_param = 'CompanyGatewayID='+full[6]+'&';
+                }
+                if($searchFilter.chart_type == 'account'){
+                    delete $searchFilter.AccountID;
+                    chart_type_param = 'AccountID='+full[6]+'&';
+                }
+                if($searchFilter.chart_type != 'destination') {
+                    output = '<a href="{url}" target="_blank" >{name}</a>';
+                    output = output.replace("{url}", cdr_url + '?' + chart_type_param + $.param($searchFilter));
+                    output = output.replace("{name}", id);
+                }else{
+                    output = id;
+                }
+                return output;
+            }
+        },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate

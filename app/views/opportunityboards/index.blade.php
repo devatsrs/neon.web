@@ -15,14 +15,14 @@
             <p style="text-align: right;">
                 @if(User::checkCategoryPermission('OpportunityBoard','Add'))
                 <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
-                    <i class="entypo-plus"></i>
+                    <i class="fa fa-line-chart"></i>
                     Add Opportunity Board
                 </a>
                 @endif
             </p>
             <div class="row">
                 <div class="col-md-12">
-                    <form id="opportunityboard_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                    <form id="opportunityboard_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
@@ -41,7 +41,7 @@
                                     <label for="field-1" class="col-sm-2 control-label">Active</label>
                                     <div class="col-sm-2">
                                         <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                                        {{ Form::select('Active', $active, '1', array("class"=>"form-control selectboxit")) }}
+                                        {{ Form::select('Active', $active, '1', array("class"=>"form-control select2 small")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">

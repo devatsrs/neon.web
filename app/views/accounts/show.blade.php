@@ -16,6 +16,9 @@
     <li>
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active">
         <strong>View Account</strong>
     </li>
@@ -206,19 +209,19 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 text-right">Tax Rate</label>
                         <div class="col-sm-4">
-                            {{ TaxRate::getTaxRate($account->TaxRateId)}}
+                            {{ TaxRate::getTaxRate(AccountBilling::getBillingKey($AccountBilling,'TaxRateId'))}}
                         </div>
                         <label for="field-1" class="col-sm-2 text-right">Billing Type*</label>
-                        @if(isset($account->BillingType))
+                        @if(isset($AccountBilling->BillingType))
                         <div class="col-sm-4">
-                            {{AccountApproval::$billing_type[$account->BillingType]}}
+                            {{AccountApproval::$billing_type[$AccountBilling->BillingType]}}
                         </div>
                         @endif
                     </div>
                     <div class="form-group clear">
                         <label for="field-1" class="col-sm-2 text-right">Billing Timezone*</label>
                         <div class="col-sm-4">
-                            {{$account->BillingTimezone}}
+                            {{AccountBilling::getBillingKey($AccountBilling,'BillingTimezone')}}
                         </div>
                     </div>
 

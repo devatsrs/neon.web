@@ -16,7 +16,8 @@ CREATE TABLE `tblRateTableRate` (
   UNIQUE KEY `IX_Unique_RateID_RateTableId_EffectiveDate` (`RateID`,`RateTableId`,`EffectiveDate`),
   KEY `FK_tblRateTableRate_tblRate` (`RateID`),
   KEY `XI_RateID_RatetableID` (`RateID`,`RateTableRateID`),
-  KEY `IX_RateTableId_RateID_EffectiveDate` (`RateTableId`,`RateID`,`EffectiveDate`),
   KEY `IX_RateTableId` (`RateTableId`),
+  KEY `IX_RateTableId_RateID_EffectiveDate` (`RateTableId`,`RateID`,`EffectiveDate`),
+  KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
   CONSTRAINT `FKtblratetablerate_tblrate_rateid` FOREIGN KEY (`RateID`) REFERENCES `tblRate` (`RateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -208,7 +208,7 @@
             <div class="col-md-6 pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             @endif
@@ -268,5 +268,32 @@
       </form>
     </div>
   </div>
+</div>
+<div class="modal fade" id="ticket-conversation" data-backdrop="static">
+        <div id="card-features-details" class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Conversations</h4>
+                    </div>
+                    <div class="modal-body left-padding">                      
+                        <div id="allComments" class="form-group"></div>                      
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>    
+    <div class="modal fade " id="EmailAction-model">
+     <form id="EmailActionform" method="post">     
+  <div class="modal-dialog EmailAction_box"  style="width: 70%;">
+    <div class="modal-content">     
+    </div>
+  </div>
+   </form>
 </div>
 @stop

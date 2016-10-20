@@ -12,9 +12,6 @@
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
-        <li>
-            <a href="{{URL::to('cronjobs')}}">Cron Job</a>
-        </li>
         <li class="active">
             <strong>Cron Job</strong>
         </li>
@@ -51,7 +48,7 @@
                             <label for="field-1" class="col-sm-1 control-label">Status</label>
                             <div class="col-sm-2">
 
-                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control selectboxit")) }}
+                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control select2 small")) }}
 
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>
@@ -142,7 +139,7 @@
                         $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is failing..." data-placement="top" class="badge badge-danger" data-toggle="tooltip">i</span>');
                     }
                     if(typeof data[7] != 'undefined' && data[7] == 0  ){ // 'Status'  InActive CronJob Gray color
-                        $(nRow).css('background-color', '#eaeaea');
+                        $(nRow).css('background-color', '#f5f5f6');
                         $(nRow).find("td:nth-child(3)").append('&nbsp;&nbsp; <span title="Cron Job is Disabled" data-placement="top" class="badge badge-warning" data-toggle="tooltip">i</span>');
                     }
 

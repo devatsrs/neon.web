@@ -106,7 +106,7 @@
                         <label for="field-1" class="col-sm-2 control-label">Default DashBoard</label>
 
                         <div class="col-sm-4">
-                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
@@ -169,30 +169,6 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Cron Job Email Setup
-                    </div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Rate Generation Emails (Multiple Email addresses with comma separated)</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="RateGenerationEmail" class="form-control" id="field-1" placeholder="Rate Generation Emails" value="{{$RateGenerationEmail}}" />
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Generation Emails (Multiple Email addresses with comma separated)</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="InvoiceGenerationEmail" class="form-control" id="field-1" placeholder="Invoice Generation Emails" value="{{$InvoiceGenerationEmail}}" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
                         Address Information
                     </div>
 
@@ -230,7 +206,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -246,112 +222,23 @@
                                 </div>
                             </div>
                             <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Billing Timezone</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('BillingTimezone', $timezones,$BillingTimezone,array("class"=>"form-control select2"))}}
-                                    </div>
-                                    <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"selectboxit"))}}
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                   <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
-                                   <div class="col-sm-4">
-                                       <div class="input-spinner">
-                                           <button type="button" class="btn btn-default">-</button>
-                                           {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
-                                           <button type="button" class="btn btn-default">+</button>
-                                       </div>
-                                   </div>
-                                   <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
-                                   <div class="col-sm-4">
-                                       <div class="input-spinner">
-                                           <button type="button" class="btn btn-default">-</button>
-                                           {{Form::text('PaymentDueInDays',$PaymentDueInDays,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                                           <button type="button" class="btn btn-default">+</button>
-                                       </div>
-                                   </div>
-                                </div>
-                                <div class="form-group">
-                                                    <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
-                                                    <div class="col-sm-4">
-                                                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType,array("class"=>"form-control select2"))}}
-                                                    </div>
-                                                    <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                                                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>
-                                                        <div class="col-sm-4">
-                                                            <?php $Days = array( ""=>"Please Start of Day",
-                                                                "monday"=>"Monday",
-                                                                "tuesday"=>"Tuesday",
-                                                                "wednesday"=>"Wednesday",
-                                                                "thursday"=>"Thursday",
-                                                                "friday"=>"Friday",
-                                                                "saturday"=>"Saturday",
-                                                                "sunday"=>"Sunday");?>
-                                                            {{Form::select('BillingCycleValue',$Days, $BillingCycleValue ,array("class"=>"form-control select2"))}}
-                                                        </div>
-                                                    </div>
-                                                    <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                                                    <label for="field-1" class="col-sm-2 control-label">Billing cycle - for Days</label>
-                                                        <div class="col-sm-4">
-                                                            {{Form::text('BillingCycleValue', $BillingCycleValue ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
-                                                        </div>
-                                                    </div>
-                                                    <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                                                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Monthly Anniversary Date</label>
-                                                        <div class="col-sm-4">
-                                                            {{Form::text('BillingCycleValue', $BillingCycleValue,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                <div class="form-group">
 
-                                        <label for="field-1" class="col-sm-2 control-label">Invoice Template</label>
-                                        <div class="col-sm-4">
-                                            {{Form::select('InvoiceTemplateID', $InvoiceTemplates, $InvoiceTemplateID,array("class"=>"form-control select2"))}}
-                                        </div>
-
+                                <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-
-                                    <label for="field-1" class="col-sm-2 control-label">Payment Request Email (Multiple Email addresses with comma separated)</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="PaymentRequestEmail" class="form-control" id="field-1" placeholder="Payment Request Emails" value="{{$company->PaymentRequestEmail}}" />
-                                    </div>
-
-                                    <label for="field-1" class="col-sm-2 control-label">Due Sheet Email</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" name="DueSheetEmail" class="form-control" id="field-1" placeholder="Due Sheet Email" value="{{$company->DueSheetEmail}}" />
-                                    </div>
-                                </div>
-                                <div class="form-group" >
-                                <label for="field-1" class="col-sm-2 control-label">SalesBoard Timezone</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('SalesTimeZone', $timezones,$SalesTimeZone,array("class"=>"form-control select2"))}}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
                                     <p class="make-switch switch-small">
                                         <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
                                     </p>
                                 </div>
-                                <div class="form-group" >
-                                    <label for="field-1" class="col-sm-2 control-label">Default Tax Rate</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('DefaultTextRate[]', $taxrates, (isset($DefaultTextRate)? explode(',',$DefaultTextRate) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
-                                    </div>
-                                </div>
-                                <div class="form-group">
+                                {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
                                     <div class="col-sm-10">
                                         <textarea type="text" name="RateSheetExcellNote" rows="5" class="form-control" id="field-1" placeholder="Rate Sheet Excell Note">{{$company->RateSheetExcellNote}}</textarea>
                                     </div>
-                                </div>
+                                </div>--}}
                             </div>
                         </div>
 
@@ -525,7 +412,7 @@
 						  //$('.SmtpResponse').html(Response.response);
 						  $('.model-title-set').html('Test Mail Settings');
 						  
-						},
+						}
 				});	
         
             	

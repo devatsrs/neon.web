@@ -48,6 +48,8 @@ BEGIN
 	
 	END WHILE;
 	
+	CALL prc_updateVendorUnbilledAmount(p_CompanyID);
+	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END

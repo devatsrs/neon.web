@@ -71,7 +71,7 @@
                <div class="form-group">
                 <div class="col-sm-12">
 
-
+                <div class="dataTables_wrapper">
                 	<table id="InvoiceTable" class="table table-bordered" style="margin-bottom: 0">
                 		<thead>
                 			<tr>
@@ -81,9 +81,9 @@
                                 <th width="10%" class="text-center">Unit Price</th>
                                 <th width="10%"  class="text-center">Quantity</th>
                                 <!--<th width="10%" >Discount</th>-->
-                                <th width="10%" >Tax Rate </th>
+                                <th width="15%" >Tax Rate </th>
                                 <th width="10%" >Tax</th>
-                                <th width="20%" class="text-right">Line Total</th>
+                                <th width="15%" class="text-right">Line Total</th>
                 			</tr>
                 		</thead>
 
@@ -102,10 +102,11 @@
                                         "selected"=>'',
                                         "value_key"=>"TaxRateID",
                                         "title_key"=>"Title",
-                                        "title_key"=>"Title",
                                         "data-title1"=>"data-amount",
                                         "data-value1"=>"Amount",
-                                        "class" =>"selectboxit TaxRateID",
+                                        "data-title2"=>"data-flatstatus",
+                                        "data-value2"=>"FlatStatus",
+                                        "class" =>"select2 small TaxRateID",
                                         ]
                                 )}}</td>
 
@@ -120,13 +121,13 @@
                 		</tbody>
 
                 	</table>
-
+                </div>
                 </div>
             </div>
                <div class="form-group">
-                <div class="col-sm-9">
+                <div class="col-md-6">
 
-                    <table  width="50%" >
+                    <table>
                         <tr>
                             <td><label for="field-1" class=" control-label">*Terms</label></td>
                         </tr>
@@ -148,7 +149,8 @@
                     </table>
 
                 </div>
-                <div class="col-sm-3">
+                <div class="col-md-3"></div>
+                <div class="col-md-3">
                     <table class="table table-bordered">
                     <tfoot>
                             <tr>
@@ -191,7 +193,7 @@ var invoice_id = '';
 
 var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('InvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::text('InvoiceDetail[Description][]','',array("class"=>"form-control descriptions"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
     // add_row_html += '<td class="text-center">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
-     add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","class" =>"selectboxit TaxRateID"])}}</td>';
+     add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 small TaxRateID"])}}</td>';
      add_row_html += '<td>{{Form::text('InvoiceDetail[TaxAmount][]','',array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
      add_row_html += '{{Form::hidden('InvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}}</td></tr>';

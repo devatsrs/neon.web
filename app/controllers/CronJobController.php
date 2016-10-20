@@ -147,11 +147,11 @@ class CronJobController extends \BaseController {
                 $day_limit= 2;
                 $rateGenerators = RateGenerator::rateGeneratorList($companyID);
                 if(!empty($rateGenerators)){
-                    $rateGenerators = array(""=> "Select a Rate Generator")+$rateGenerators;
+                    $rateGenerators = array(""=> "Select")+$rateGenerators;
                 }
                 $rateTables = RateTable::where(["CompanyId" => $companyID])->lists('RateTableName', 'RateTableId');
                 if(!empty($rateTables)){
-                    $rateTables = array(""=> "Select a Rate Table")+$rateTables;
+                    $rateTables = array(""=> "Select")+$rateTables;
                 }
             }else if($CronJobCommand->Command == 'autoinvoicereminder'){
                 $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
@@ -171,7 +171,9 @@ class CronJobController extends \BaseController {
 
     public function history($id){
         $JobTitle = CronJob::where("CronJobID",$id)->pluck("JobTitle");
-        return View::make('cronjob.history', compact('id','JobTitle'));
+        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $data['EndDateDefault']  	= 	date('Y-m-d');
+        return View::make('cronjob.history', compact('id','JobTitle','data'));
     }
     public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
@@ -179,10 +181,11 @@ class CronJobController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
+        $data['StartDate'] = !empty($data['StartTime'])?$data['StartDate'].' '.$data['StartTime']:$data['StartDate'];
+        $data['EndDate'] = !empty($data['EndTime'])?$data['EndDate'].' '.$data['EndTime']:$data['EndDate'];
         $columns = array('Title','CronJobStatus','Message','created_at');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetCronJobHistory (".$id.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-
+        $query = "call prc_GetCronJobHistory (".$id.",'".$data['StartDate']."','".$data['EndDate']."','".$data['Search']."','".$data['Status']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -286,7 +289,7 @@ class CronJobController extends \BaseController {
         $success = false;
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = getenv('PHPExePath') . " " . getenv('RMArtisanFileLocation') . " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            $command = CompanyConfiguration::get("PHPExePath"). " " .CompanyConfiguration::get("RMArtisanFileLocation"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
             $success = run_process($command);
         }
         if($success){

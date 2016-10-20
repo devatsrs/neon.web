@@ -65,13 +65,16 @@ BEGIN
          
         SET v_TrunkID_ = (SELECT TrunkID FROM tmp_trunks_ t WHERE t.RowNo = v_pointer_);
      
-        CALL prc_GetCustomerRate(v_companyid_,p_CustomerID,v_TrunkID_,null,null,null,p_Effective,1,0,0,0,'','',2);
+        CALL prc_GetCustomerRate(v_companyid_,p_CustomerID,v_TrunkID_,null,null,null,p_Effective,1,0,0,0,'','',-1);
         
         INSERT INTO tmp_customerrateall_
         SELECT * FROM tmp_customerrate_;
         
         SET v_pointer_ = v_pointer_ + 1;
     END WHILE;
+            
+        IF p_Effective = 'Now'		
+		  THEN	
             
         SELECT distinct 
                 IFNULL(RatePrefix, '') as `Rate Prefix` ,
@@ -91,6 +94,34 @@ BEGIN
                 0  as `Billing Cycle for Calling Card Prompt`
         FROM   tmp_customerrateall_
         ORDER BY `Rate Prefix`; 
+       
+		 END IF; 
+		 
+	 	IF p_Effective = 'Future'		
+		  THEN	
+            
+        SELECT distinct 
+        			 EffectiveDate as `Time of timing replace`,
+        			 'Append replace' as `Mode of timing replace`,
+                IFNULL(RatePrefix, '') as `Rate Prefix` ,
+                Concat(IFNULL(AreaPrefix,''), Code) as `Area Prefix` ,
+                'International' as `Rate Type` ,
+                Description  as `Area Name`,
+                Rate / 60  as `Billing Rate`,
+                IntervalN as `Billing Cycle`,
+                Rate as `Minute Cost` ,
+                'No Lock'  as `Lock Type`,
+                CASE WHEN Interval1 != IntervalN  
+               	 THEN Concat('0,', Rate, ',',Interval1)
+                ELSE 
+					 	 ''
+                END as `Section Rate`,
+                0 AS `Billing Rate for Calling Card Prompt`,
+                0  as `Billing Cycle for Calling Card Prompt`
+        FROM   tmp_customerrateall_
+        ORDER BY `Rate Prefix`; 
+       
+		 END IF;
    
    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

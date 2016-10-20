@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetailbyUsageHeaderID`( 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetailbyUsageHeaderID`(
 	p_UsageHeaderID INT
 
 )
@@ -34,8 +34,8 @@ BEGIN
 		cost,
 		connect_time,
 		disconnect_time
-	FROM RMCDR3.tblUsageDetails ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
+	FROM NeonCDRDev.tblUsageDetails ud
+	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE uh.AccountID is not null
 	AND  uh.UsageHeaderID = p_UsageHeaderID;

@@ -19,7 +19,7 @@ class CronJobHelper
 
         $success = false;
         if( !empty($Command) ) {
-            $command = env('PHPExePath') . " " . env('RMArtisanFileLocation') . " " . $Command . " " . $CompanyID . " " . $CronJobID ;
+            $command = CompanyConfiguration::get("PHPExePath"). " " . CompanyConfiguration::get("RMArtisanFileLocation") . " " . $Command . " " . $CompanyID . " " . $CronJobID ;
             if (getenv('APP_OS') == 'Linux') {
                 pclose(popen( $command . " &", "r"));
                 $success=true;

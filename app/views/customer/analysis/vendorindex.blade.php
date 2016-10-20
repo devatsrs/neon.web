@@ -34,10 +34,12 @@
                                     <div class="col-sm-2">
                                         <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                     </div>
+                                    @if(Session::get('customer') != 1)
                                     <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
+                                        {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                                     </div>
+                                    @endif
                                     <label class="col-sm-1 control-label" for="field-1">Country</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('CountryID',$Country,'', array("class"=>"select2")) }}
@@ -55,6 +57,7 @@
                                     @if(Session::get('customer') == 1)
                                         <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
                                         <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
+                                        <input type="hidden" name="CompanyGatewayID" value="0">
                                     @else
                                         <label class="col-sm-1 control-label" for="field-1">Account</label>
                                         <div class="col-sm-2">
@@ -86,7 +89,6 @@
                     <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                     <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
                     <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
-                    <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="destination" >
@@ -101,10 +103,6 @@
                         @include('vendoranalysis.trunk')
                         @include('vendoranalysis.trunk_grid')
                     </div>
-                    <div class="tab-pane" id="gateway" >
-                        @include('vendoranalysis.gateway')
-                        @include('vendoranalysis.gateway_grid')
-                    </div>
                 </div>
             </div>
         </div>
@@ -114,7 +112,7 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
         var $searchFilter = {};
-        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+        var toFixed = '{{get_round_decimal_places()}}';
         var table_name = '#destination_table';
         var chart_type = '#destination';
         jQuery(document).ready(function ($) {
@@ -125,9 +123,7 @@
                 $("#vendor_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
                 setTimeout(function(){
                     set_search_parameter($("#vendor_analysis"));
-                    if($('.bar_chart_'+$("#vendor_analysis").find("input[name='chart_type']").val()).html() == ''){
-                        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                    }
+                    reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
             });
             $("#vendor_analysis").submit(function(e) {

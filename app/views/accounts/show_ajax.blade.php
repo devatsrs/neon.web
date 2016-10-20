@@ -9,18 +9,20 @@
                 <span>Now</span>
                 <?php }else{ ?>
                 <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
-                <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+                <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
                 </span>
                 <?php } ?>
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-gold"> <i class="entypo-mail"></i> </div>
-              <div class="cbp_tmlabel normal_tag">  
-                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p>Subject: {{$rows['EmailSubject']}}</p>
+              <div class="cbp_tmlabel normal_tag"> 
+              <a email_number="{{$rows['AccountEmailLogID']}}" action_type="forward" class="pull-right edit-deal email_action" title="Forward"><i class="entypo-forward"></i></a>            
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="reply-all" class=" pull-right edit-deal email_action" title="Reply All"><i class="entypo-reply-all"></i></a>           
+         <a email_number="{{$rows['AccountEmailLogID']}}" action_type="reply" class="pull-right edit-deal email_action" title="Reply"><i class="entypo-reply"></i></a> 
+                <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>sent an email to</span> @if($rows['EmailToName']==$current_user_title) You @else {{$rows['EmailToName']}}  @endif <br> <p class="mail_subject">Subject: {{$rows['EmailSubject']}}</p>
 </h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   @if($rows['EmailCc'])<p>CC: {{$rows['EmailCc']}}</p>@endif
                   @if($rows['EmailBcc'])<p>BCC: {{$rows['EmailBcc']}}</p>@endif
-                  <p>Subject: {{$rows['EmailSubject']}}</p>
                   <?php
 	  if($rows['EmailAttachments']!='')
 	  {
@@ -52,7 +54,8 @@
 			}			
 	  }	 
 	   ?>
-                  <p>Messsage:<br>{{$rows['EmailMessage']}}. </p>
+                  <p class="mail_message">Messsage:<br>{{$rows['EmailMessage']}}</p><br>
+                  <p><a data_fetch_id="{{$rows['AccountEmailLogID']}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
                 </div>
               </div>
             </li>
@@ -63,7 +66,7 @@
                 <span>Now</span>
                 <?php }else{ ?>
                 <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
-                <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+                <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
                 </span>
                 <?php } ?>
               </time>
@@ -79,11 +82,7 @@
                  @else  <span> {{$rows['CreatedBy']}} assign @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> 
                  @endif
 </h2>
-                
-                
-                
-                
-                <div id="hidden-timeline-{{$key}}"  class="details no-display">
+               <div id="hidden-timeline-{{$key}}"  class="details no-display">
                   <p>Subject: {{$rows['TaskTitle']}}</p>
                   <p>Assign To: {{$rows['TaskName']}}</p>
                   <p>priority: {{$rows['TaskPriority']}}</p>
@@ -100,7 +99,7 @@
                 <span>Now</span>
                 <?php }else{ ?>
                 <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
-                <?php if(date("d",strtotime($rows['created_at'])) == date('d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+                <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
                 </span>
                 <?php } ?>
               </time>
@@ -114,6 +113,32 @@
                 </div>
               </div>
             </li>
-            @endif
+             @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Ticket)
+          <li id="timeline-{{$key}}" class="count-li timeline_ticket_entry">
+            <time class="cbp_tmtime" datetime="<?php echo date("Y-m-d h:i",strtotime($rows['created_at'])); ?>">
+              <?php if(date("Y-m-d h:i",strtotime($rows['created_at'])) == date('Y-m-d h:i')) { ?>
+              <span>Now</span>
+              <?php }else{ ?>
+              <span><?php echo date("h:i a",strtotime($rows['created_at']));  ?></span> <span>
+              <?php if(date("Y-m-d",strtotime($rows['created_at'])) == date('Y-m-d')){echo "Today";}else{echo date("Y-m-d",strtotime($rows['created_at']));} ?>
+              </span>
+              <?php } ?>
+            </time>
+            <div id_toggle="{{$key}}" class="cbp_tmicon bg-danger"><i class="entypo-ticket"></i></div>
+            <div class="cbp_tmlabel normal_tag">  
+              <h2 class="toggle_open" id_toggle="{{$key}}">Ticket<br><p>Subject: {{$rows['TicketSubject']}}</p></span></h2>
+              <div id="hidden-timeline-{{$key}}" class="details no-display">
+                <p>Status: {{$rows['TicketStatus']}}</p>
+                <p>Requester: {{$rows['RequestEmail']}}</p>
+                <p>Priority: {{$rows['TicketPriority']}}</p>
+                <p>Type: {{$rows['TicketType']}}</p>
+                <p>Group: {{$rows['TicketGroup']}}</p>
+                <p>Date Created: {{$rows['created_at']}}</p>
+                <p>Description: {{$rows['TicketDescription']}}</p>
+                <p><a data_fetch_id="{{$rows['TicketID']}}" conversations_type="ticket" class="ticket_conversations">View Ticket Conversations</a></p>
+              </div>
+            </div>
+          </li>
+          @endif
             <?php $key++;  } ?>
             @endif

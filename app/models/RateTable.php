@@ -28,7 +28,7 @@ class RateTable extends \Eloquent
             }else{
                 self::$rate_table_cache = RateTable::where(["Status" => 1, "CompanyID" => $company_id])->lists("RateTableName", "RateTableId");
             }
-            self::$rate_table_cache = array('' => "Select a Rate Table")+ self::$rate_table_cache;
+            self::$rate_table_cache = array('' => "Select")+ self::$rate_table_cache;
 
         }
 
@@ -51,7 +51,7 @@ class RateTable extends \Eloquent
         $data['CompanyID']=User::get_companyID();
         $data['Status'] = 1;
         $row = RateTable::where($data)->lists("RateTableName", "RateTableId");
-        $row = array(""=> "Select a Rate Table")+$row;
+        $row = array(""=> "Select")+$row;
         return $row;
     }
     public static function getCurrencyCode($RateTableId){

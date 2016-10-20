@@ -19,6 +19,8 @@ CREATE TABLE `tblPayment` (
   `RecallReasoan` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
   `RecallBy` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `BulkUpload` bit(1) DEFAULT b'0',
+  `InvoiceID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`PaymentID`),
-  KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`Status`,`CompanyID`)
+  KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`Status`,`CompanyID`),
+  KEY `IX_InvoiceNo` (`InvoiceNo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

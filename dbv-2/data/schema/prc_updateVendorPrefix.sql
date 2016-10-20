@@ -20,8 +20,8 @@ BEGIN
 	SELECT
 		TempVendorCDRID,
 		c.code AS prefix
-	FROM LocalRMCdr.' , p_tbltempusagedetail_name , ' ud
-	INNER JOIN LocalRatemanagement.tmp_vcodes_ c 
+	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
+	INNER JOIN NeonRMDev.tmp_vcodes_ c 
 	ON ud.ProcessID = ' , p_processId , '
 		AND ud.AccountID = ' , p_AccountID , '
 		AND ud.TrunkID = ' , p_TrunkID , '
@@ -40,8 +40,8 @@ BEGIN
 	SELECT
 		TempVendorCDRID,
 		c.code AS prefix
-	FROM LocalRMCdr.' , p_tbltempusagedetail_name , ' ud
-	INNER JOIN LocalRatemanagement.tmp_vcodes_ c 
+	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
+	INNER JOIN NeonRMDev.tmp_vcodes_ c 
 	ON ud.ProcessID = ' , p_processId , '
 		AND ud.AccountID = ' , p_AccountID , '
 		AND ud.TrunkID = ' , p_TrunkID , '
@@ -63,7 +63,7 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
-	SET @stm = CONCAT('UPDATE LocalRMCdr.' , p_tbltempusagedetail_name , ' tbl2
+	SET @stm = CONCAT('UPDATE NeonCDRDev.' , p_tbltempusagedetail_name , ' tbl2
 	INNER JOIN tmp_TempUsageDetail2_ tbl
 		ON tbl2.TempVendorCDRID = tbl.TempVendorCDRID
 	SET area_prefix = prefix

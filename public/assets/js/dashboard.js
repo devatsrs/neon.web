@@ -13,6 +13,9 @@ function loadDashboard(){
         /* get trunk data for today and display in three chart*/
         getReportData('trunk');
 
+        /* get trunk data for today and display in three chart*/
+        getReportData('account');
+
         /* get gateway data for today and display in three chart*/
         getReportData('gateway');
 
@@ -135,7 +138,7 @@ function getHourlyChart(){
                 });
                 $(".hourly-sales-cost").parent().find('h3').html('Sales '+data.TotalCost)
             }else{
-                $(".hourly-sales-cost").html('<h3>NO DATA!!</h3>');
+                $(".hourly-sales-cost").html('<h3>No Data</h3>');
             }
 
             if(parseInt(data.TotalMinutes) > 0) {
@@ -178,7 +181,7 @@ function getHourlyChart(){
                 });
                 $(".hourly-sales-minutes").parent().find('h3').html('Minutes '+data.TotalMinutes)
             }else{
-                $(".hourly-sales-minutes").html('<h3>NO DATA!!</h3>');
+                $(".hourly-sales-minutes").html('<h3>No Data</h3>');
             }
         }
     });

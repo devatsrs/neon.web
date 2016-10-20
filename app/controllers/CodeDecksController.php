@@ -23,7 +23,7 @@ class CodeDecksController extends \BaseController {
 
 
         $data['iDisplayStart'] +=1;
-        $columns = array('RateID','Country','Code','Description','Interval1','IntervalN','RateID');
+        $columns = array('RateID','ISO2','Country','Code','Description','Interval1','IntervalN','RateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query = "call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','0')";
@@ -243,15 +243,15 @@ class CodeDecksController extends \BaseController {
                 try{
                     $result = CodeDeck::find($id)->delete();
                     if ($result) {
-                        return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
+                        return Response::json(array("status" => "success", "message" => "Code Successfully Deleted"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Code."));
                     }
                 }catch (Exception $ex){
-                    return Response::json(array("status" => "failed", "message" => "CodeDeck is in Use, You cant delete this CodeDeck."));
+                    return Response::json(array("status" => "failed", "message" => "Code is in Use, You cant delete this Code."));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "CodeDeck is in Use, You cant delete this CodeDeck."));
+                return Response::json(array("status" => "failed", "message" => "Code is in Use, You cant delete this Code."));
             }
         }
     }
@@ -357,7 +357,7 @@ class CodeDecksController extends \BaseController {
             try {
                 $data = Input::all();
                 //$rateids = array_filter(explode(',',$data['CodeDecks']),'intval') ;
-                $rateids = $data['CodeDecks'];
+                $rateids = $data['CodeDecks']; // @TODO: this are codes not codedecks
                 $companyID = User::get_companyID();
                 $CodeDeckID = $data['CodeDeckID'];
 
@@ -367,15 +367,15 @@ class CodeDecksController extends \BaseController {
                     //echo $query;exit;
                     $result = DB::statement($query);
                     if ($result) {
-                        return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
+                        return Response::json(array("status" => "success", "message" => "Code Successfully Deleted"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Code."));
                     }
                 }else{
-                    return Response::json(array("status" => "failed", "message" => "Please select CodeDeck."));
+                    return Response::json(array("status" => "failed", "message" => "Please select Code."));
                 }
             } catch (Exception $ex) {
-                return Response::json(array("status" => "failed", "message" => "CodeDeck is in Use, You cant delete this CodeDeck."));
+                return Response::json(array("status" => "failed", "message" => "Code is in Use, You cant delete this Code."));
             }
 
     }
@@ -435,7 +435,7 @@ class CodeDecksController extends \BaseController {
     }
     public function base_datagrid(){
         $CompanyID = User::get_companyID();
-        $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId"]);
+        $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId","DefaultCodedeck"]);
         return Datatables::of($rate_tables)->make();
     }
     public function updatecodedeck($id){
@@ -499,5 +499,15 @@ class CodeDecksController extends \BaseController {
                     $sheet->fromArray($codedecks);
                 });
             })->download('xls');*/
+    }
+
+    public function setdefault($id){
+        $CompanyID = User::get_companyID();
+        BaseCodeDeck::where(["CompanyId" => $CompanyID])->update(array('DefaultCodedeck'=>0));
+        if (BaseCodeDeck::where(["CodeDeckId" => $id])->update(array('DefaultCodedeck'=>1))) {
+            return Response::json(array("status" => "success", "message" => "Code Decks Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Code Decks."));
+        }
     }
 }

@@ -2,8 +2,9 @@
 <script src="{{URL::to('/')}}/assets/js/jquery-1.11.0.min.js"></script>
 <script src="{{URL::to('/')}}/assets/js/toastr.js"></script>
 <script src="{{URL::to('/')}}/assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js"></script>
-<script src="{{URL::to('/')}}/assets/js/selectboxit/jquery.selectBoxIt.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/selectboxit/jquery.selectBoxIt.css">
+<script src="{{URL::to('/')}}/assets/js/select2/select2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/select2/select2-bootstrap.css">
+<link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/select2/select2.css">
 @section('content')
 <header class="x-title">
     <div class="payment-strip">
@@ -14,7 +15,7 @@
                         <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) Paid @else DUE @endif</div>
                     </div>
                     <div class="amount">
-                        <span class="overdue">{{number_format($Invoice->GrandTotal,$Account->RoundChargesAmount)}} {{$CurrencyCode}}</span>
+                        <span class="overdue">{{number_format($Invoice->GrandTotal,get_round_decimal_places($Invoice->AccountID))}} {{$CurrencyCode}}</span>
                     </div>
                 </div>
                 <div class="x-span4 pull-left" > <h1 class="text-center"><h1 class="text-center">Payment</h1></h1></div>
@@ -90,7 +91,7 @@
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Card Type*</label>
-                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"selectboxit")) }}
+                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                 </div>
             </div>
             <div class="col-md-12">
@@ -105,10 +106,10 @@
                         <label for="field-5" class="control-label">Expiry Date *</label>
                     </div>
                     <div class="col-md-4">
-                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"selectboxit")) }}
+                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
                     </div>
                     <div class="col-md-4">
-                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"selectboxit")) }}
+                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
                     </div>
                 </div>
             </div>
@@ -176,21 +177,39 @@ $(document).ready(function() {
         });
     });
 });
-if ($.isFunction($.fn.selectBoxIt))
+
+if ($.isFunction($.fn.select2))
 {
-    $("select.selectboxit").each(function(i, el)
+    $("select.select2").each(function(i, el)
     {
         var $this = $(el),
-            opts = {
-                showFirstOption: attrDefault($this, 'first-option', true),
-                'native': attrDefault($this, 'native', false),
-                defaultText: attrDefault($this, 'text', '')
-            };
-
-        $this.addClass('visible');
-        $this.selectBoxIt(opts);
+                opts = {
+                    allowClear: attrDefault($this, 'allowClear', false)
+                };
+        if($this.hasClass('small')){
+            opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+            opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+        }
+        $this.select2(opts);
+        if($this.hasClass('small')){
+            $this.select2('container').find('.select2-search').addClass ('hidden') ;
+        }
+        //$this.select2("open");
+    }).promise().done(function(){
+        $('.select2').css('visibility','visible');
     });
+
+
+    if ($.isFunction($.fn.perfectScrollbar))
+    {
+        $(".select2-results").niceScroll({
+            cursorcolor: '#d4d4d4',
+            cursorborder: '1px solid #ccc',
+            railpadding: {right: 3}
+        });
+    }
 }
+
 // Element Attribute Helper
 function attrDefault($el, data_var, default_val)
 {

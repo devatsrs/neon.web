@@ -94,7 +94,7 @@ $(document).ready(function(){
                                 $('#add-new-estimate-duration-form .save.btn').button('reset');
                                 if(response.status =='success'){
                                     $('#add-new-modal-estimate-duration').modal('hide');
-                                    $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
+                                    $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
                                     $row.find(".descriptions").val(response.product_description);
                                     $row.find(".Price").val(response.product_amount);
                                     $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -121,7 +121,7 @@ $(document).ready(function(){
                     getCalculateEstimateBySubscription(selected_product_type,productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
-                            $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
+                            $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
                             $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -144,7 +144,7 @@ $(document).ready(function(){
                     getCalculateEstimateByProduct('item',productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
-                            $row.find("select.TaxRateID").selectBoxIt().data("selectBox-selectBoxIt").selectOption(response.product_tax_rate_id);
+                            $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
                             $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -182,8 +182,8 @@ $(document).ready(function(){
         e.preventDefault();
         $('#EstimateTable > tbody').append(add_row_html);
 
-        $('select.selectboxit').addClass('visible');
-        $('select.selectboxit').selectBoxIt();
+        /*$('select.selectboxit').addClass('visible');
+        $('select.selectboxit').selectBoxIt();*/
 
         $('select.select2').addClass('visible');
         $('select.select2').select2();
@@ -241,14 +241,31 @@ $(document).ready(function(){
        // var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
 	 var  discount = 0;
         var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
-        var tax = parseFloat( (price * qty * taxAmount)/100 );
+        var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
+        if(flatstatus == 1){
+            var tax = parseFloat( ( taxAmount) );
+        }else{
+            var tax = parseFloat( (price * qty * taxAmount)/100 );
+        }
         obj.find('.TaxAmount').val(tax.toFixed(decimal_places));
         var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
 
         obj.find('.LineTotal').val(line_total.toFixed(decimal_places));
         calculate_total();
     }
+    $('select.TaxRateID').on( "change",function(e){
 
+        var taxTitle =  $(this).find(":selected").text() ;
+        //var taxTitle = $(".TaxRateID option:selected").text();
+
+        var rowCount = $('#EstimateTable tbody tr').length;
+        if(taxTitle =='Select a Tax Rate'){
+            taxTitle='VAT';
+        }else if(rowCount >1) {
+            taxTitle='Total Tax';
+        }
+        $(".product_tax_title").text(taxTitle);
+    });
 
     $(".send-estimate.btn").click( function (e) {
         $('#send-modal-estimate').find(".modal-body").html("Loading Content...");
@@ -266,6 +283,12 @@ $(document).ready(function(){
             ajax_json(url,data,function(response){
                 if ( typeof response.status != undefined &&  response.status == 'failed') {
                     toastr.error(response.message, "Error", toastr_opts);
+                    $("#Account_Address").html('');
+                    $("input[name=CurrencyCode]").val('');
+                    $("input[name=CurrencyID]").val('');
+                    $("input[name=InvoiceTemplateID]").val('');
+                    $("[name=Terms]").val('');
+                    $("[name=FooterTerm]").val('');
                 } else {
                     $("#Account_Address").html(response.Address);
                     $("input[name=CurrencyCode]").val(response.Currency);

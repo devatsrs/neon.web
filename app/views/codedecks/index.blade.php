@@ -95,15 +95,16 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="9%"><input type="checkbox" id="selectall" name="codedeck[]" class="" />
+        <th width="5%"><input type="checkbox" id="selectall" name="codedeck[]" class="" />
             <!--<button type="button" id="selectallbutton"  class="btn btn-primary btn-xs" title="Select All Codedeck" alt="Select All Codedeck"><i class="entypo-check"></i></button>-->
         </th>
-        <th width="17%" class="hide_country">Country</th>
-        <th width="20%">Code</th>
+        <th width="10%">ISO Code</th>
+        <th width="15%" class="hide_country">Country</th>
+        <th width="15%">Code</th>
         <th width="20%">Description</th>
-        <th width="7%">Interval 1</th>
-        <th width="7%">Interval N</th>
-        <th width="20%">Actions</th>
+        <th width="10%">Interval 1</th>
+        <th width="10%">Interval N</th>
+        <th width="15%">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -147,19 +148,20 @@ var postdata;
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[2, 'asc']],
-             "aoColumns":
+            "aaSorting": [[3, 'asc']],
+            "aoColumns":
             [
                 {"bSortable": false, //RateID
                     mRender: function(id, type, full) {
                         return '<div class="checkbox "><input type="checkbox" name="codedeck[]" value="' + id + '" class="rowcheckbox" ></div>';
                     }
                 },
-                {  "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
+                {  "bSortable": true }, //ISO Code
+                { "bSortable": true }, //Country
+                { "bSortable": true }, //Code
+                { "bSortable": true }, //Description
+                { "bSortable": true }, //Interval1
+                { "bSortable": true }, //IntervalN
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -169,11 +171,12 @@ var postdata;
                         edit_ = edit_.replace( '{id}', full[0] );
 
                         RateID = full[0];
-                        country = full[1];
-                        code = full[2];
-                        description = full[3];
-                        Interval1 = ( full[4] == null )? 1:full[4];
-                        IntervalN = ( full[5] == null )? 1:full[5];
+                        ISO_CODE = full[1];
+                        country = full[2];
+                        code = full[3];
+                        description = full[4];
+                        Interval1 = ( full[5] == null )? 1:full[5];
+                        IntervalN = ( full[6] == null )? 1:full[6];
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "RateID" value = "' + RateID + '" / >';
                         action += '<input type = "hidden"  name = "Country" value = "' + country + '" / >';
@@ -182,7 +185,7 @@ var postdata;
                         action += '<input type = "hidden"  name = "Interval1" value = "' +  Interval1 + '" / >' ;
                         action += '<input type = "hidden"  name = "IntervalN" value = "' +  IntervalN + '" / >' ;
                         action += '</div>';
-                        
+
                         <?php if(User::checkCategoryPermission('CodeDecks','Edit')){ ?>
                             action += '<a href="javascript:;" class="edit-codedeck btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                         <?php } ?>
@@ -374,6 +377,7 @@ var postdata;
             Codedecks[i++] = Codedeck;
         });
         if(Codedecks.length){
+            $("#bulk-edit-codedeck-form [name='CountryID']").select2().select2('val','');
             $('#bulk-edit-codedeck-form').trigger("reset");
             $('#modal-Codedeck').modal('show', {backdrop: 'static'});
         }

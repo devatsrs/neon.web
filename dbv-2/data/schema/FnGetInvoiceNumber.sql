@@ -3,10 +3,10 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `FnGetInvoiceNumber`(`p_account_id` I
     DETERMINISTIC
     COMMENT 'Return Next Invoice Number'
 BEGIN
-DECLARE lastin INT(11);
+DECLARE lastin VARCHAR(50);
 DECLARE found_val INT(11);
 
-set lastin = (select LastInvoiceNumber from tblInvoiceTemplate where InvoiceTemplateID = (select InvoiceTemplateID from Ratemanagement3.tblAccount where AccountID = p_account_id));
+set lastin = (select LastInvoiceNumber from tblInvoiceTemplate where InvoiceTemplateID = (select b.InvoiceTemplateID from NeonRMDev.tblAccountBilling ab inner join NeonRMDev.tblBillingClass b on b.BillingClassID = ab.BillingClassID where AccountID = p_account_id));
 
 set found_val = (select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber)=lastin);
 IF found_val>=1 then

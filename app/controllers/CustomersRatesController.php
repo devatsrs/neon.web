@@ -66,7 +66,7 @@ class CustomersRatesController extends \BaseController {
             $routine = CustomerTrunk::getRoutineDropdownIDList($id);
             $account_owners = User::getOwnerUsersbyRole();
             $trunks_routing =$trunks;
-            $trunks_routing[""] = 'Select a Routing plan';
+            $trunks_routing[""] = 'Select';
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
@@ -95,7 +95,7 @@ class CustomersRatesController extends \BaseController {
             $rate_tables =array();
             $rate_table = RateTable::where(["Status" => 1, "CompanyID" => $company_id,'CurrencyID'=>$Account->CurrencyId])->get();
             foreach($rate_table as $row){
-                $rate_tables[$row->TrunkID][$row->CodeDeckId][] = ['text'=>$row->RateTableName,'value'=>$row->RateTableId];
+                $rate_tables[$row->TrunkID][$row->CodeDeckId][] = ['id'=>$row->RateTableId,'text'=>$row->RateTableName];
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
@@ -507,13 +507,13 @@ class CustomersRatesController extends \BaseController {
     public function process_bulk_rate_update($id) {
         $data = Input::all();
         $company_id = User::get_companyID();
-        $data['customer'][] = $id;
-        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
         $rules = array('EffectiveDate' => 'required','Rate' => 'required', 'Trunk' => 'required',);
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $data['customer'][] = $id;
+        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
         $data['Country'] = $data['Country'] == ''?'NULL':$data['Country'];
         $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
         $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
@@ -591,9 +591,9 @@ class CustomersRatesController extends \BaseController {
 
     public function customerdownloadtype($id,$type){
         if($type=='Vos 3.2'){
-            $downloadtype = '<option value="">Select a Type</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
         }else{
-            $downloadtype = '<option value="">Select a Type</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
+            $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
         return $downloadtype;
     }

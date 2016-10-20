@@ -16,9 +16,10 @@ class Invoice extends \Eloquent {
     const PAID = 'paid';
     const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
+    const POST = 'post';
     //public static $invoice_status;
-    public static $invoice_type = array(''=>'Select an Invoice Type' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
-    public static $invoice_type_customer = array(''=>'Select an Invoice Type' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
+    public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
+    public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
 
     public static function getInvoiceEmailTemplate($data){
 
@@ -30,33 +31,6 @@ class Invoice extends \Eloquent {
         return $message;
     }
 
-    public static function getLastInvoiceDate($AccountID){
-
-        /**
-         *   Get EndDate from InvoiceDetail
-         *      Where ProductType is USAGE = Product::USAGE OR SUBSCRIPTION = Product::SUBSCRIPTION
-         */
-
-
-
-        if($AccountID > 0) {
-
-            $LastInvoiceDate = Account::where("AccountID",$AccountID)->pluck("LastInvoiceDate");
-            if(!empty($LastInvoiceDate)) {
-                return $LastInvoiceDate;
-            }
-
-            /*$LastInvoiceDate = Invoice::join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID')
-                ->where("tblInvoice.AccountID", $AccountID)
-                ->whereRaw("(tblInvoiceDetail.ProductType = " . Product::USAGE . ' OR ' . "tblInvoiceDetail.ProductType = " . Product::SUBSCRIPTION . ")")// Only take Invoice which has Usage Item
-                ->orderby("tblInvoiceDetail.EndDate","desc")
-                ->pluck("EndDate");
-
-            return strtotime("Y-m-d", strtotime( "+1 Day", $LastInvoiceDate));*/
-        }
-
-    }
-
     public static function getNextInvoiceDate($AccountID){
 
         /**
@@ -64,15 +38,11 @@ class Invoice extends \Eloquent {
         * */
 
         //set company billing timezone
-        $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
 
-        if($BillingTimezone != 'Invalid Key'){
-            date_default_timezone_set($BillingTimezone);
-        }
 
-        $Account = Account::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
+        $Account = AccountBilling::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
-        $BillingCycle = Account::select(["BillingCycleType","BillingCycleValue"])->where("AccountID",$AccountID)->first()->toArray();
+        $BillingCycle = AccountBilling::select(["BillingCycleType","BillingCycleValue"])->where("AccountID",$AccountID)->first()->toArray();
                         //"weekly"=>"Weekly", "monthly"=>"Monthly" , "daily"=>"Daily", "in_specific_days"=>"In Specific days", "monthly_anniversary"=>"Monthly anniversary");
 
         $NextInvoiceDate = "";
@@ -85,64 +55,7 @@ class Invoice extends \Eloquent {
             return '';
         }
 
-        if(isset($BillingCycle['BillingCycleType'])) {
-
-            switch ($BillingCycle['BillingCycleType']) {
-                case 'weekly':
-                    if (!empty($BillingCycle['BillingCycleValue'])) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("next " . $BillingCycle['BillingCycleValue'],$BillingStartDate));
-                    }
-                    break;
-                case 'monthly':
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
-                    break;
-                case 'daily':
-                        $NextInvoiceDate = date("Y-m-d", strtotime("+1 Days",$BillingStartDate));
-                    break;
-                case 'in_specific_days':
-                    if (!empty($BillingCycle['BillingCycleValue'])) {
-                            $NextInvoiceDate = date("Y-m-d", strtotime("+" . intval($BillingCycle['BillingCycleValue']) . " Day",$BillingStartDate));
-                    }
-                    break;
-                case 'monthly_anniversary':
-
-                    $day = date("d",  strtotime($BillingCycle['BillingCycleValue'])); // Date of Anivarsary
-                    $month = date("m",  $BillingStartDate); // Month of Last Invoice date or Start Date
-                    $year = date("Y",  $BillingStartDate); // Year of Last Invoice date or Start Date
-
-                    $newDate = strtotime($year . '-' . $month . '-' . $day);
-
-                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 month", $newDate ));
-
-                    break;
-                case 'fortnightly':
-                    $fortnightly_day = date("d", $BillingStartDate);
-                    if($fortnightly_day > 15){
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of next month ",$BillingStartDate));
-                    }else{
-                        $NextInvoiceDate = date("Y-m-16", $BillingStartDate);
-                    }
-                    break;
-                case 'quarterly':
-                    $quarterly_month = date("m", $BillingStartDate);
-                    if($quarterly_month < 4){
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of april ",$BillingStartDate));
-                    }else if($quarterly_month > 3 && $quarterly_month < 7) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of july ",$BillingStartDate));
-                    }else if($quarterly_month > 6 && $quarterly_month < 10) {
-                        $NextInvoiceDate = date("Y-m-d", strtotime("first day of october ",$BillingStartDate));
-                    }else if($quarterly_month > 9){
-                        $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
-                    }
-                    break;
-            }
-
-            $Timezone = Company::getCompanyTimeZone(0);
-            if(isset($Timezone) && $Timezone != ''){
-                date_default_timezone_set($Timezone);
-            }
-
-        }
+        $NextInvoiceDate = next_billing_date($BillingCycle['BillingCycleType'],$BillingCycle['BillingCycleValue'],$BillingStartDate);
 
         return $NextInvoiceDate;
 
@@ -152,19 +65,24 @@ class Invoice extends \Eloquent {
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
+            $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$InvoiceID)->orderby('InvoiceTaxRateID')->get();
             $Account = Account::find($Invoice->AccountID);
+            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplate = InvoiceTemplate::find($Account->InvoiceTemplateID);
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+            $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            RemoteSSH::run("chmod -R 777 " . getenv('UPLOAD_PATH'));
-            @chmod(getenv('UPLOAD_PATH'),0777);
-            $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            @mkdir($logo_path, 0777, true);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             @chmod($logo,0777);
 
@@ -173,7 +91,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -185,6 +103,7 @@ class Invoice extends \Eloquent {
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
+            RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name;
@@ -220,18 +139,34 @@ class Invoice extends \Eloquent {
     public static function get_invoice_status(){
         $Company = Company::find(User::get_companyID());
         $invoiceStatus = explode(',',$Company->InvoiceStatus);
-       $invoicearray = array(''=>'Select Invoice Status',self::DRAFT=>'Draft',self::SEND=>'Sent',self::AWAITING=>'Awaiting Approval',self::CANCEL=>'Cancel',self::PAID=>'Paid',self::PARTIALLY_PAID=>'Partially Paid');
+       $invoicearray = array(''=>'Select Invoice Status',self::DRAFT=>'Draft',self::SEND=>'Sent',self::AWAITING=>'Awaiting Approval',self::CANCEL=>'Cancel',self::PAID=>'Paid',self::PARTIALLY_PAID=>'Partially Paid',self::POST=>'Post');
         foreach($invoiceStatus as $status){
             $invoicearray[$status] = $status;
         }
         return $invoicearray;
     }
-    public static function getFullInvoiceNumber($Invoice,$Account){
+    /**
+     * not in use
+    */
+    public static function getFullInvoiceNumber($Invoice,$AccountBilling){
         $InvoiceNumberPrefix = '';
-        if(!empty($Account->InvoiceTemplateID)) {
-            $InvoiceNumberPrefix = InvoiceTemplate::find($Account->InvoiceTemplateID)->InvoiceNumberPrefix;
+        if(!empty($AccountBilling->InvoiceTemplateID)) {
+            $InvoiceNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->InvoiceNumberPrefix;
         }
         return $InvoiceNumberPrefix.$Invoice->InvoiceNumber;
     }
+
+    public static function getCookie($name,$val=''){
+        $cookie = 1;
+        if(isset($_COOKIE[$name])){
+            $cookie = $_COOKIE[$name];
+        }
+        return $cookie;
+    }
+
+    public static function setCookie($name,$value){
+        setcookie($name,$value,strtotime( '+30 days' ),'/');
+    }
+
 
 }

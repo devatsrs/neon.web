@@ -12,6 +12,7 @@ DECLARE v_OffSet_ int;
 		SELECT BoardName, `Status`, CreatedBy, BoardID 
 		FROM tblCRMBoards op 
 		WHERE (op.CompanyID = p_CompanyID) 
+			AND (op.BoardType = p_BoardType)
 			AND ( p_Status = 2 OR op.`Status` = p_Status) /* 2 for all */
 			AND (p_BoardName = '' OR op.BoardName like Concat('%',p_BoardName,'%'))
 			ORDER BY
@@ -48,7 +49,8 @@ DECLARE v_OffSet_ int;
 	THEN
 	SELECT BoardName, Status, CreatedBy, BoardID 
 		FROM tblCRMBoards op 
-		WHERE (op.CompanyID = p_CompanyID) 
+		WHERE (op.CompanyID = p_CompanyID)
+			AND (op.BoardType=p_BoardType) 
 			AND ( p_Status = 2 OR op.`Status` = p_Status)
 			AND (p_BoardName ='' OR `BoardName` like Concat('%',p_BoardName,'%'));
 	END IF;

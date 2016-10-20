@@ -9,7 +9,8 @@
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >
-            <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
                 <form novalidate="novalidate" class="form-horizontal form-groups-bordered filter validate" method="post" id="customer_analysis">
                     <div data-collapsed="0" class="panel panel-primary">
                         <div class="panel-heading">
@@ -32,7 +33,7 @@
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
+                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Country</label>
                                 <div class="col-sm-2">
@@ -79,11 +80,13 @@
                     </div>
                 </form>
             </div>
-            <div class="clear"></div>
+                <div class="clear"></div>
+            </div>
     <ul class="nav nav-tabs">
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
+        <li ><a href="#account" data-toggle="tab">Account</a></li>
         <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
     </ul>
     <div class="tab-content">
@@ -98,6 +101,10 @@
         <div class="tab-pane" id="trunk" >
             @include('analysis.trunk')
             @include('analysis.trunk_grid')
+        </div>
+        <div class="tab-pane" id="account" >
+            @include('analysis.account')
+            @include('analysis.account_grid')
         </div>
         <div class="tab-pane" id="gateway" >
             @include('analysis.gateway')
@@ -114,9 +121,10 @@
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
         var $searchFilter = {};
-        var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+        var toFixed = '{{get_round_decimal_places()}}';
         var table_name = '#destination_table';
         var chart_type = '#destination';
+        var cdr_url = "{{URL::to('cdr_show')}}";
         jQuery(document).ready(function ($) {
 
             $(".nav-tabs li a").click(function(){
@@ -125,9 +133,7 @@
                 $("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
                 setTimeout(function(){
                     set_search_parameter($("#customer_analysis"));
-                    if($('.bar_chart_'+$("#customer_analysis").find("input[name='chart_type']").val()).html() == ''){
-                        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                    }
+                    reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
             });
             $("#customer_analysis").submit(function(e) {

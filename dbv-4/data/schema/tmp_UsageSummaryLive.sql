@@ -16,5 +16,6 @@ CREATE TABLE `tmp_UsageSummaryLive` (
   `CountryID` int(11) DEFAULT NULL,
   KEY `tblUsageSummary_dim_date` (`DateID`),
   KEY `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
-  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`)
+  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),
+  KEY `IX_CompanyID` (`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

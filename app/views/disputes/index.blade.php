@@ -34,14 +34,14 @@
 
                 <label class="col-sm-1 control-label">Invoice Type</label>
               <div class="col-sm-2">
-                  {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"selectboxit"))}}
+                  {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"select2 small"))}}
               </div>
                 <label class="col-sm-1 control-label">Invoice No</label>
               <div class="col-sm-2">
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
             </div>
  
 
@@ -96,7 +96,7 @@
      var update_new_url;
      var postdata;
      var dispute_status = {{json_encode(Dispute::$Status);}};
-     var toFixed = '{{CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount')}}';
+     var toFixed = '{{get_round_decimal_places()}}';
 
      jQuery(document).ready(function ($) {
                     data_table = $("#table-4").dataTable({
@@ -292,8 +292,8 @@
                         ev.stopPropagation();
                         var response = new Array();
 
-                        $("#add-edit-dispute-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-dispute-form [name='AccountID']").val('').trigger("change");
+                        $("#add-edit-dispute-form [name='InvoiceType']").val('').trigger("change");
                         $('#add-edit-dispute-form').find("input, textarea, select").val("");
                         $('.file-input-name').text('');
 
@@ -302,22 +302,12 @@
                         var select = ['AccountID','InvoiceType'];
                         for(var i = 0 ; i< list_fields.length; i++){
                             field_value = cur_obj.find("input[name='"+list_fields[i]+"']").val();
-
                             if(select.indexOf(list_fields[i])!=-1){
-
                                 if($("#add-edit-dispute-form [name='"+list_fields[i]+"']").hasClass("select2")){
-
-                                    $("#add-edit-dispute-form [name='"+list_fields[i]+"']").select2().select2('val',field_value);
-
-                                }else if($("#add-edit-dispute-form [name='"+list_fields[i]+"']").hasClass("selectboxit")){
-
-                                    $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(field_value);
+                                    $("#add-edit-dispute-form [name='"+list_fields[i]+"']").val(field_value).trigger("change");
                                 }
-
-
                             }else{
                                 if(list_fields[i] != 'Attachment'){
-
                                     $("#add-edit-dispute-form [name='"+list_fields[i]+"']").val(field_value);
                                 }
                             }
@@ -396,8 +386,8 @@
                     $('#add-new-dispute').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-dispute-form').trigger("reset");
-                        $("#add-edit-dispute-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-dispute-form [name='InvoiceType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-dispute-form [name='AccountID']").val('').trigger("change");
+                        $("#add-edit-dispute-form [name='InvoiceType']").val('').trigger("change");
                         $('#add-edit-dispute-form').find("input, textarea, select").val("");
                         $('.file-input-name').text('');
                         $('#add-edit-modal-dispute h4').html('Add New Dispute');
@@ -567,7 +557,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice Type *<span id="currency"></span></label>
-                {{Form::select('InvoiceType',$InvoiceTypes,'',array("class"=>"selectboxit"))}}
+                {{Form::select('InvoiceType',$InvoiceTypes,'',array("class"=>"select2 small"))}}
             </div>
           </div>
             <div class="col-md-12">

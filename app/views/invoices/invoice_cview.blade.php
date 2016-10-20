@@ -25,14 +25,20 @@
           <div>
             <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) Paid @else DUE @endif</div>
           </div>
-          <div class="amount"> <span class="overdue"><?php if($Invoice->InvoiceStatus==Invoice::PAID){echo $CurrencySymbol.number_format($payment_log['paid_amount'],$Account->RoundChargesAmount);}elseif($Invoice->InvoiceStatus!=Invoice::PAID && $payment_log['paid_amount']>0){echo $CurrencySymbol.number_format($payment_log['due_amount'],$Account->RoundChargesAmount);}else{echo $CurrencySymbol.number_format($payment_log['total'],$Account->RoundChargesAmount);}  ?></span> </div>
+          <div class="amount"> <span class="overdue"><?php if($Invoice->InvoiceStatus==Invoice::PAID){echo $CurrencySymbol.number_format($payment_log['paid_amount'],get_round_decimal_places($Invoice->AccountID));}elseif($Invoice->InvoiceStatus!=Invoice::PAID && $payment_log['paid_amount']>0){echo $CurrencySymbol.number_format($payment_log['due_amount'],get_round_decimal_places($Invoice->AccountID));}else{echo $CurrencySymbol.number_format($payment_log['total'],get_round_decimal_places($Invoice->AccountID));}  ?></span> </div>
         </div>
         <div class="x-span4 pull-left" >
           <h1 class="text-center">Invoice</h1>
         </div>
-        <div class="x-span8 pull-right" style="margin-top:5px;"> @if(($Invoice->InvoiceStatus != Invoice::PAID) && is_authorize()) <a href="{{URL::to('invoice_payment', $Invoice->AccountID.'-'.$Invoice->InvoiceID);}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now </a>
-          <div class="pull-right"> &nbsp;</div>
+        <div class="x-span8 pull-right" style="margin-top:5px;">
+          @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_authorize()  ) )
+                <a href="{{URL::to('invoice_payment', $Invoice->AccountID.'-'.$Invoice->InvoiceID);}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now </a>
+                <div class="pull-right"> &nbsp;</div>
+          @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
+                {{$paypal_button}}
+                <div class="pull-right"> &nbsp;</div>
           @endif
+
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
           @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> </div>

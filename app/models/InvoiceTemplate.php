@@ -7,7 +7,7 @@ class InvoiceTemplate extends \Eloquent {
     protected $table = 'tblInvoiceTemplate';
     protected  $primaryKey = "InvoiceTemplateID";
     static protected  $enable_cache = false;
-    public static $invoice_date_format = array(''=>'Select a DateFormat','d-m-Y'=>'dd-mm-yyyy','m-d-Y'=>'mm-dd-yyyy');
+    public static $invoice_date_format = array(''=>'Select','d-m-Y'=>'dd-mm-yyyy','m-d-Y'=>'mm-dd-yyyy');
 
     static public function checkForeignKeyById($id) {
         $CompanyId = User::get_companyID();
@@ -27,7 +27,7 @@ class InvoiceTemplate extends \Eloquent {
         } else {
             $CompanyId = User::get_companyID();
             self::$cache['it_dropdown1_cache'] = InvoiceTemplate::where("CompanyId",$CompanyId)->lists('Name','InvoiceTemplateID');
-            self::$cache['it_dropdown1_cache'] = array('' => "Select an Invoice Template")+ self::$cache['it_dropdown1_cache'];
+            self::$cache['it_dropdown1_cache'] = array('' => "Select")+ self::$cache['it_dropdown1_cache'];
             Cache::forever('it_dropdown1_cache', array('it_dropdown1_cache' => self::$cache['it_dropdown1_cache']));
         }
 
@@ -36,7 +36,7 @@ class InvoiceTemplate extends \Eloquent {
     }
     public static function getAccountNextInvoiceNumber($AccountID){
 
-        $InvoiceTemplateID = Account::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
         if($InvoiceTemplateID > 0){
             return self::getNextInvoiceNumber($InvoiceTemplateID);
         }else{
@@ -56,7 +56,7 @@ class InvoiceTemplate extends \Eloquent {
 	public static function getAccountNextEstimateNumber($AccountID)
 	{
 
-        $InvoiceTemplateID = Account::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
         
 		if($InvoiceTemplateID > 0)
 		{

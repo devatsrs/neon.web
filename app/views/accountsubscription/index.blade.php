@@ -54,24 +54,27 @@
                                 </div>
         </div>
 
-        <table id="table-subscription" class="table table-bordered datatable">
-            <thead>
-            <tr>
-                <th width="5%">Subscription</th>
-                <th width="20%">Invoice Description</th>
-                <th width="5%">Qty</th>
-                <th width="10%">StartDate</th>
-                <th width="10%">EndDate</th>
-                <th width="5%">ActivationFee</th>
-                <th width="5%">DailyFee</th>
-                <th width="10%">WeeklyFee</th>
-                <th width="10%">MonthlyFee</th>
-                <th width="20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="dataTables_wrapper">
+            <table id="table-subscription" class="table table-bordered datatable">
+                <thead>
+                <tr>
+                    <th width="5%">No</th>
+                    <th width="5%">Subscription</th>
+                    <th width="20%">Invoice Description</th>
+                    <th width="5%">Qty</th>
+                    <th width="10%">StartDate</th>
+                    <th width="10%">EndDate</th>
+                    <th width="5%">ActivationFee</th>
+                    <th width="5%">DailyFee</th>
+                    <th width="5%">WeeklyFee</th>
+                    <th width="10%">MonthlyFee</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
         <script type="text/javascript">
             /**
             * JQuery Plugin for dataTable
@@ -97,7 +100,7 @@
         $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));
 });
 				
-                var list_fields  = ["Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+                var list_fields  = ["SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
@@ -133,16 +136,17 @@
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                                {  "bSortable": true },  // 0 Subscription Name
-                        {  "bSortable": true },  // 1 InvoiceDescription
-                        {  "bSortable": true },  // 2 Qty
-                        {  "bSortable": true },  // 3 StartDate
-                        {  "bSortable": true },  // 4 EndDate
-                        {  "bSortable": true },  // 5 ActivationFee
-                        {  "bSortable": true },  // 6 DailyFee
-                        {  "bSortable": true },  // 7 WeeklyFee
-                        {  "bSortable": true },  // 8 MonthlyFee
-                                {                        // 9 Action
+                                {  "bSortable": true },  // 0 Sequence NO
+                                {  "bSortable": true },  // 1 Subscription Name
+                        {  "bSortable": true },  // 2 InvoiceDescription
+                        {  "bSortable": true },  // 3 Qty
+                        {  "bSortable": true },  // 4 StartDate
+                        {  "bSortable": true },  // 5 EndDate
+                        {  "bSortable": true },  // 6 ActivationFee
+                        {  "bSortable": true },  // 7 DailyFee
+                        {  "bSortable": true },  // 8 WeeklyFee
+                        {  "bSortable": true },  // 9 MonthlyFee
+                                {                        // 10 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                  action = '<div class = "hiddenRowData" >';
@@ -290,65 +294,90 @@
                     <h4 class="modal-title">Subscription</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Subscription</label>
                             {{ Form::select('SubscriptionID', BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId) , '' , array("class"=>"select2")) }}
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Invoice Description</label>
-                            <input type="text" name="InvoiceDescription" class="form-control" value="" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Invoice Description</label>
+                                <input type="text" name="InvoiceDescription" class="form-control" value="" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Qty</label>
-                            <input type="text" name="Qty" class="form-control" value="" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">No</label>
+                                <input type="text" name="SequenceNo" class="form-control" placeholder="AUTO" value=""  />
+                            </div>
                         </div>
                     </div>
-                    <!-- -->
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="MonthlyFee" class="control-label">Monthly Fee</label>
-                           <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="WeeklyFee" class="control-label">Weekly Fee</label>
-                            <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
-                        </div>
-                    </div>
-                    
-                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="DailyFee" class="control-label">Daily Fee</label>
-                            <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
-                        </div>
-                    </div>
-                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="ActivationFee" class="control-label">Activation Fee</label>
-                            <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Qty</label>
+                                <input type="text" name="Qty" class="form-control" value="" />
+                            </div>
                         </div>
                     </div>
                     <!-- -->
-                    
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Start Date</label>
-                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="MonthlyFee" class="control-label">Monthly Fee</label>
+                               <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">End Date</label>
-                            <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="WeeklyFee" class="control-label">Weekly Fee</label>
+                                <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="row">
+                         <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="DailyFee" class="control-label">Daily Fee</label>
+                                <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="ActivationFee" class="control-label">Activation Fee</label>
+                                <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Start Date</label>
+                                <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">End Date</label>
+                                <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Exempt From Tax</label>
                             <div class="clear">
@@ -358,7 +387,7 @@
                             </div>
                         </div>
                     </div>
-
+                    </div>
                 </div>
                 <input type="hidden" name="AccountSubscriptionID">
                 <div class="modal-footer">
