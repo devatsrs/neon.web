@@ -18,7 +18,9 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <h3 class="mail-title"> Draft Mail</h3>      
+
+      <h3 class="mail-title"> Draft <span class="maildraftcounter count">({{$TotalDraft}})</span><br>
+      </h3>
       <!-- search -->
       <form method="get" role="form" id="mail-search" class="mail-search">
         <div class="input-group">
@@ -41,7 +43,10 @@
             <th colspan="4"> 
              <?php if(count($result)>0){ ?>
              <div class="hidden mail-select-options">Mark to Delete</div>
-              <div class="mail-pagination" colspan="2"><a action_type="Delete" action_value="1"  class="btn-apply mailaction btn btn-default">Delete</a> <strong>
+              <div class="mail-pagination" colspan="2">
+               
+              <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="glyphicon glyphicon-trash"></i> </a>
+              <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
                 <?php  echo $current+count($result); ?>
@@ -107,7 +112,7 @@
 
 </div>
 <style>
-.margin-left-mail{margin-right:15px;width:21%; }.btn-apply{margin-right:10px;}
+.margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}
 </style>
 <script>
 $(document).ready(function(e) {
@@ -118,7 +123,7 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/emailmessages/ajex_result';
-	var boxtype			=	'draftbox';
+	var boxtype			=	'{{$data['BoxType']}}';
 	var EmailCall		=	"{{Messages::Draft}}";
 	var SearchStr		=	'';
 	var actionbtn		=	 0;
@@ -181,6 +186,12 @@ $(document).ready(function(e) {
 								currentpage =  currentpage-1;
 							 } 		 console.log(currentpage);			 	
 							 replaceCheckboxes();
+							 var SidebarCounterInbox = $('#SidebarCounterInbox').val();
+							 var SidebarCounterDraft = $('#SidebarCounterDraft').val();							 
+							 $('.mailinboxcountersidebar').html(SidebarCounterInbox);
+							 $('.maildraftcountersidebar').html(SidebarCounterDraft);
+							 $('.mailinboxcounter').html('('+SidebarCounterInbox+')');
+							 $('.maildraftcounter').html('('+SidebarCounterDraft+')');	
 						}
 						else
 						{  
