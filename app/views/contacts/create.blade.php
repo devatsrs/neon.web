@@ -58,7 +58,7 @@
                                     ,array("class"=>"select2 small"))}}
                                 </div>
                                 <input type="text" name="FirstName" class="form-control"
-                                       value="{{Input::old('FirstName')}}"/>
+                                       value="@if(Input::old('FirstName')!=''){{Input::old('FirstName')}}@elseif(Input::get('name')!=''){{Input::get('name')}}@endif"/>
                             </div>
                         </div>
 
@@ -118,7 +118,7 @@
 
                         <div class="col-sm-4">
                             <input type="text" class="form-control" id="field-1" placeholder="" name="Email"
-                                   value="{{Input::old('Email')}}"/>
+                                   value="@if(Input::old('Email')!=''){{Input::old('Email')}}@elseif(Input::get('email')!=''){{Input::get('email')}}@endif"/>
                         </div>
 
                         <label class="col-sm-2 control-label">Department</label>

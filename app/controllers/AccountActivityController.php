@@ -180,7 +180,7 @@ class AccountActivityController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
-                unlink($array_file_data['filepath']);
+                @unlink($array_file_data['filepath']);
             }
             $data['file']		=	json_encode($FilesArray);
 		} 
@@ -223,7 +223,11 @@ class AccountActivityController extends \BaseController {
 				$parent_data 	=	 AccountEmailLog::find($parent_id);
 			}else{$parent_data = array();}
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
-			return View::make('accounts.emailaction', compact('response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail'));  			
+			
+			if($action_type=='forward'){ //attach current email attachments
+			$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths'],'reply');
+			}
+			return View::make('accounts.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext'));  			
 		}
         
 	}	

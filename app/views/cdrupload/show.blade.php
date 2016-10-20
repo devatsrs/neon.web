@@ -27,8 +27,8 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 
-.col-sm-e1{ padding-left:8px;padding-right:8px;}
-.col-sm-e12{padding-left:5px;padding-right:5px; width:11%;}
+.col-md-e1{ padding-left:8px;padding-right:8px;}
+.col-md-e12{padding-left:5px;padding-right:5px; width:11%;}
 </style>
 <!--
 <div class="row">
@@ -74,60 +74,60 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
+                                <label class="col-md-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
+                                <div class="col-md-2" style="padding-left:0; padding-right:0; width:10%;">
                                     <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?Input::get('StartDate'):'' }}" data-enddate="{{Input::get('StartDate')!=null?Input::get('StartDate'):date('Y-m-d') }}" />
                                 </div>
-                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
+                                <div class="col-md-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
-                                <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
+                                <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
+                                <div class="col-md-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
                                     <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?Input::get('EndDate'):'' }}" data-enddate="{{Input::get('EndDate')!=null?Input::get('EndDate'):date('Y-m-d') }}" />
                                 </div>
-                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
+                                <div class="col-md-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
-                                <div class="col-sm-2">
+                                <label for="field-1" class="col-md-2 control-label" style="width: 6%;">Currency</label>
+                                <div class="col-md-2">
                                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
-                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
+                                <label class="col-md-1 control-label small_label" for="field-1">Type</label>
+                                <div class="col-md-2" style="padding-right: 0px; width: 14%;">
                                     {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
              
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Gateway</label>
+                                <div class="col-md-2">
                                     {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                                 </div>
-                                <label class="col-sm-1 control-label" for="field-1">Account</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Account</label>
+                                <div class="col-md-2">
                                     {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
                                          
                             
-                               <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
-                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
+                               <label class="col-md-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
+                               <div class="col-md-1 col-md-e1" style="width: 10%;">
                                     <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
                                 </div>
-                                 <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
-                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
+                                 <label class="col-md-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
+                               <div class="col-md-1 col-md-e1" style="width: 10%;">
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div>
 
-                                <label for="field-1" class="col-sm-1 control-label" style="width: 4%;">Show</label>
-                                <div class="col-sm-2">
-                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'None Zero Cost'] ?>
+                                <label for="field-1" class="col-md-1 control-label" style="width: 4%;">Show</label>
+                                <div class="col-md-2">
+                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
                                     {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                 </div>
                             <div class="form-group">
-                                <label class="col-sm-1 control-label" for="field-1">Prefix</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Prefix</label>
+                                <div class="col-md-2">
                                     <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                                 </div>
                                 <?php
@@ -136,8 +136,8 @@
                                         $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
                                     }
                                 ?>
-                                <label class="col-sm-1 control-label" for="field-1">Trunk</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Trunk</label>
+                                <div class="col-md-2">
                                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
@@ -535,9 +535,13 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
         });
 
 
-        if (isxs()) {
-            $('#cdrfilter').find('.col-sm-1,.col-sm-2').each(function () {
+        if (isxs()|| is('tabletscreen')) {
+            $('#cdrfilter').find('.col-md-1,.col-md-2').each(function () {
                 $(this).removeAttr('style');
+                $(this).removeClass("small_label");
+            });
+            $('#cdrfilter').find('.small_fld').each(function () {
+                $(this).removeClass("small_fld");
             });
         }
 
