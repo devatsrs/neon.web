@@ -1,12 +1,3 @@
-<br/>
-@if(User::checkCategoryPermission('Alert','Add'))
-    <p style="text-align: right;">
-        <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
-            <i class="entypo-plus"></i>
-            Add Call Monitor Alert
-        </a>
-    </p>
-@endif
 <div class="row">
     <div class="col-md-12">
         <form id="call_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
@@ -37,6 +28,14 @@
         </form>
     </div>
 </div>
+@if(User::checkCategoryPermission('Alert','Add'))
+    <p style="text-align: right;">
+        <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
+            <i class="entypo-plus"></i>
+            Add Call Monitor Alert
+        </a>
+    </p>
+@endif
 <table class="table table-bordered datatable" id="table-6">
     <thead>
     <tr>
