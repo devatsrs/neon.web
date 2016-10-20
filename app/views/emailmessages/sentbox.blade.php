@@ -116,7 +116,7 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/emailmessages/ajex_result';
-	var boxtype			=	'sentbox';
+	var boxtype			=	'{{$data['BoxType']}}';
 	var EmailCall		=	"{{Messages::Sent}}";
 	var SearchStr		=	'';
 	$(document).on('click','.move_mail',function(){
@@ -176,8 +176,12 @@ $(document).ready(function(e) {
 							 else
 							 {
 								currentpage =  currentpage-1;
-							 } 		 console.log(currentpage);			 	
+							 } 			
 							 replaceCheckboxes();
+							 var SidebarCounterInbox = $('#SidebarCounterInbox').val();
+							 var SidebarCounterDraft = $('#SidebarCounterDraft').val();							 
+							 $('.mailinboxcountersidebar').html(SidebarCounterInbox);
+							 $('.maildraftcountersidebar').html(SidebarCounterDraft);
 						}
 						else
 						{

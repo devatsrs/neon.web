@@ -26,7 +26,7 @@ class MessagesController extends \BaseController {
 		
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
 		$companyID					= 	 User::get_companyID();
-		$boxtype					=	 isset($data['boxtype'])?$data['boxtype']:'inbox';
+		$boxtype					=	 isset($data['boxtype'])?$data['boxtype']:Messages::inbox;
 		$array						=  	 $this->GetResult($data);
 		$resultdata   				=  	 $array['resultdata'];	
 		$resultpage  				=  	 $array['resultpage'];			
@@ -34,7 +34,8 @@ class MessagesController extends \BaseController {
 		$totalResults 				=    $resultdata->data['TotalResults'][0]->totalcount; 
 		$iTotalDisplayRecords 		= 	 $resultpage['iTotalDisplayRecords'];
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
-		$TotalDraft					=	$resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
+		$TotalDraft					=	 $resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
+		$TotalUnreads				=	 $resultdata->data['totalcountInbox'][0]->totalcountInbox;
 		//echo "<pre>";		print_r($resultpage);			exit;
 		if(count($result)<1)
 		{
@@ -45,7 +46,7 @@ class MessagesController extends \BaseController {
 				return '';
 			}
 		} 
-       return   View::make('emailmessages.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft'));     
+       return   View::make('emailmessages.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads'));     
 	   
 	   //return array('currentpage'=>$data['currentpage'],"Body"=>$body,"result"=>count($result));
     
@@ -54,7 +55,7 @@ class MessagesController extends \BaseController {
     public function index() {        //inbox       
 		$data['EmailCall'] 			= 	 Messages::Received;
 		$data['iDisplayStart']  	= 	 0;
-		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+		$data['iDisplayLength'] 	= 	 5;
 		$companyID 					= 	 User::get_companyID();
 		$array						= 	 $this->GetResult($data);
 		$resultdata   				= 	 $array['resultdata'];	
@@ -66,7 +67,7 @@ class MessagesController extends \BaseController {
 		$TotalUnreads				=	 $resultdata->data['totalcountInbox'][0]->totalcountInbox;
 		$TotalDraft					=	 $resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
 		$data['currentpage'] 		= 	 0;
-		$data['BoxType']			=	 'inbox';
+		$data['BoxType']			=	 Messages::inbox;
 		
 		//echo "<pre>";		print_r($result);			exit;
         return View::make('emailmessages.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','TotalUnreads','TotalDraft'));  
@@ -88,7 +89,7 @@ class MessagesController extends \BaseController {
 		$TotalUnreads				=	 $resultdata->data['totalcountInbox'][0]->totalcountInbox;
 		$TotalDraft					=	 $resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
 		$data['currentpage'] 		= 	 0;
-		$data['BoxType']			=	 'sentbox';
+		$data['BoxType']			=	 Messages::sentbox;
 		//echo "<pre>";		print_r($result);			exit;
         return View::make('emailmessages.sentbox', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','TotalUnreads','TotalDraft'));	
 	}
@@ -99,8 +100,9 @@ class MessagesController extends \BaseController {
 		$isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;		
         $data['MsgLoggedUserID'] 	= 	User::get_userID();
 		$data['SearchStr']  		=	isset($data['SearchStr'])?$data['SearchStr']:'';
+		$data['unread']				=	isset($data['show_all_read'])?$data['show_all_read']:0;
 		
-	    $query = "call prc_GetAllEmailMessages (".$companyID.",".$data['MsgLoggedUserID'].",".$isAdmin .",".$data['EmailCall'].",'".trim($data['SearchStr'])."',".$data['iDisplayStart']." ,".$data['iDisplayLength'].")";     
+	    $query = "call prc_GetAllEmailMessages (".$companyID.",".$data['MsgLoggedUserID'].",".$isAdmin .",".$data['EmailCall'].",'".trim($data['SearchStr'])."',".$data['unread'].",".$data['iDisplayStart']." ,".$data['iDisplayLength'].")";     
 		
 		$resultdata   	=  DataTableSql::of($query)->getProcResult(array('ResultCurrentPage','TotalResults','totalcountInbox','TotalCountDraft'));	
 		$resultpage  	=  DataTableSql::of($query)->make(false);
@@ -153,14 +155,33 @@ class MessagesController extends \BaseController {
 			}
 		 $to  						=	isset($Emaildata->EmailTo)?Messages::GetAccountTtitlesFromEmail($Emaildata->EmailTo):$ToName; 
 		 $fromUser 					=	User::where(["EmailAddress" => $Emaildata->Emailfrom])->first(); 
-		 $from						=	!empty($Emaildata->EmailfromName)?$Emaildata->EmailfromName:isset($fromUser->FirstName)?$fromUser->FirstName.' '.$fromUser->LastName:$Emaildata->Emailfrom;
+		
+		 if(!empty($Emaildata->EmailfromName)){
+				$from = $Emaildata->EmailfromName;
+		 }else
+		 {
+		 	if(isset($fromUser->FirstName) && !empty($fromUser->FirstName)){
+				$from = 	$fromUser->FirstName.' '.$fromUser->LastName;	
+			}else{
+				$from = $Emaildata->Emailfrom;
+			}
+		 }
+
 		 
 		  $response_api_extensions 	=    Get_Api_file_extentsions();
 		  $response_extensions		=	 json_encode($response_api_extensions['allowed_extensions']);
 		  $random_token				=	 get_random_number();
 		  $max_file_size			=	 get_max_file_size();		
-		
-		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size'));
+		  if($Emaildata->EmailCall==Messages::Sent){
+			   $data['BoxType'] = Messages::sentbox;
+		  }
+		  
+		  if($Emaildata->EmailCall==Messages::Received){
+			$data['BoxType'] = Messages::inbox;
+		  }
+		  
+		 
+		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size','data'));
 	}
 		
 	public function Compose($id=0){
@@ -191,7 +212,8 @@ class MessagesController extends \BaseController {
 			 
 		}
 		
-		list($resultdata,$TotalUnreads,$iDisplayLength,$totalResults,$TotalDraft)   =  $array;		
+		list($resultdata,$TotalUnreads,$iDisplayLength,$totalResults,$TotalDraft)   =  $array;	
+		$data['BoxType'] = '';	 
 						
 		return View::make('emailmessages.compose', compact('data','TotalUnreads','iDisplayLength','totalResults','random_token','response_extensions','max_file_size','AllEmails','TotalDraft','Emaildata'));
 	}
@@ -253,7 +275,10 @@ class MessagesController extends \BaseController {
 				//$response 		 = 	$response->data;
 				//$response->type  = 	Task::Mail;			
 				//$response->LogID = 	$response->AccountEmailLogID;
-				return Response::json(array("status" => "success", "message" =>$response->data->message_sent));
+				$array						=		$this->GetDefaultCounterData(); //get default data for email side bar
+				list($resultdata,$TotalUnreads,$iDisplayLength,$totalResults,$TotalDraft)   =  $array;		
+				
+				return Response::json(array("status" => "success", "message" =>$response->data->message_sent,"unreadinbox"=>$TotalUnreads,"totaldraft"=>$TotalDraft));
 		}
 	}
 	
@@ -273,7 +298,7 @@ class MessagesController extends \BaseController {
 		$TotalUnreads				=	 $resultdata->data['totalcountInbox'][0]->totalcountInbox;
 		$TotalDraft					=	 $resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
 		$data['currentpage'] 		= 	 0;
-		$data['BoxType']			=	 'sentbox';
+		$data['BoxType']			=	 Messages::draftbox; 
 		//echo "<pre>";		print_r($result);			exit;
         return View::make('emailmessages.draft', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','TotalUnreads','TotalDraft'));	
 	
