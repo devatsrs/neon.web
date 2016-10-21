@@ -6,6 +6,9 @@
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
 .small-date-input{width:11%;}
+#selectcheckbox{
+    padding: 15px 10px;
+}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -285,7 +288,7 @@
                         },
                         "iDisplayLength": '{{Config::get('app.pageSize')}}',
                         "sPaginationType": "bootstrap",
-                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
                         "aoColumns": [
                             {
@@ -424,11 +427,28 @@
                                 $('.tohidden').addClass('hidden');
                                 $('#selectall').addClass('hidden');
                             }
+                            //select all record
+                            $('#selectallbutton').click(function(){
+                                if($('#selectallbutton').is(':checked')){
+                                    checked = 'checked=checked disabled';
+                                    $("#selectall").prop("checked", true).prop('disabled', true);
+                                    $('#table-4 tbody tr').each(function (i, el) {
+                                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                        $(this).addClass('selected');
+                                    });
+                                }else{
+                                    checked = '';
+                                    $("#selectall").prop("checked", false).prop('disabled', false);
+                                    $('#table-4 tbody tr').each(function (i, el) {
+                                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                        $(this).removeClass('selected');
+                                    });
+                                }
+                            });
                         }
 
                     });
-
-
+                    $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
                     // Replace Checboxes
                     $(".pagination a").click(function (ev) {
                         replaceCheckboxes();
@@ -498,6 +518,21 @@
 
                     $('#recall-payment-form').submit(function(e){
                         e.preventDefault();
+                        var SelectedIDs 		  =  $('#recall-payment-form [name="PaymentIDs"]').val();
+                        var criteria_ac			  =  '';
+
+                        if($('#selectallbutton').is(':checked')){
+                            criteria_ac = 'criteria';
+                            $('#recall-payment-form [name="criteria"]').val(JSON.stringify($searchFilter));
+                        }else{
+                            criteria_ac = 'selected';
+                        }
+
+                        if(SelectedIDs=='' || criteria_ac=='')
+                        {
+                            alert("Please select atleast one account.");
+                            return false;
+                        }
                         var formData = new FormData($('#recall-payment-form')[0]);
                         $.ajax({
                             url: $(this).attr("action"),
@@ -508,6 +543,7 @@
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
                                     $('#recall-modal-payment').modal('hide');
+                                    $('#selectallbutton').prop('checked',false);
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
@@ -889,8 +925,8 @@
 				"sAjaxSource": baseurl + "/payments/ajax_datagrid_total",
 				"iDisplayLength": '{{Config::get('app.pageSize')}}',
 				"sPaginationType": "bootstrap",
-				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-				"aaSorting": [[4, 'desc']],},
+				/*"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",*/
+				"aaSorting": [[4, 'desc']]},
 					success: function(response1) {
 						console.log("sum of result"+response1);
 
@@ -1336,6 +1372,7 @@
         </div>
         <div class="modal-footer">
           <input type="hidden" name="PaymentIDs" />
+            <input type="hidden" name="criteria" />
           <button type="submit" id="payment-recall"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Recall </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

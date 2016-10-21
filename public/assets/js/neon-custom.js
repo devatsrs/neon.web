@@ -680,23 +680,6 @@ toastr_opts = {
                 $('.select2').css('visibility','visible');
             });
 
-            /*select2.onSelect = (function(fn) {
-                return function(data, options) {
-                    var target;
-
-                    if (options != null) {
-                        target = $(options.target);
-                    }
-
-                    if (target && target.hasClass('select2-add')) {
-                        alert('click!');
-                    } else {
-                        return fn.apply(this, arguments);
-                    }
-                }
-            })(select2.onSelect);*/
-
-
             if ($.isFunction($.fn.perfectScrollbar))
             {
                 $(".select2-results").niceScroll({
