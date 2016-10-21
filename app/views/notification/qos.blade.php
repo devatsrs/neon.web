@@ -195,7 +195,7 @@
                 if(ele_name == 'AlertType'){
                     var selectBox = $("#billing-form [name='"+ele_name+"']");
                     selectBox.val(ele_val).trigger("change");
-                    selectBox.prop("readonly", true);
+                    selectBox.prop("disabled", true);
                 }else if(ele_name == 'CompanyGatewayID' || ele_name == 'CountryID' || ele_name == 'TrunkID' || ele_name == 'AccountID' || ele_name =='Time' || ele_name == 'StartTime'){
                     var selectBox = $("#billing-form [name='QosAlert["+ele_name+"]']");
                     selectBox.val(ele_val).trigger("change");
@@ -229,6 +229,7 @@
         });
 
         $("#billing-form").submit(function(e){
+            $("#billing-form [name='AlertType']").prop("disabled", false);
             e.preventDefault();
             var _url  = $(this).attr("action");
             submit_ajax_datatable(_url,$(this).serialize(),0,data_table_qos);

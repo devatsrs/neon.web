@@ -37,7 +37,9 @@ class NotificationController extends \BaseController {
         $trunks = Trunk::getTrunkDropdownIDList();
         $qos_alert_type  = Alert::$qos_alert_type;
         $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
-        return View::make('notification.index', compact('notificationType','gateway','Country','account','trunks','qos_alert_type','call_monitor_alert_type'));
+        $MultiCountry = $Country;
+        if(isset($MultiCountry[""])){unset($MultiCountry[""]);}
+        return View::make('notification.index', compact('notificationType','gateway','Country','account','trunks','qos_alert_type','call_monitor_alert_type','MultiCountry'));
     }
 
 
