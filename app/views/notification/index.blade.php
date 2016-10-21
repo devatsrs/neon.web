@@ -7,10 +7,10 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">Notifications/Alert</a>
+            <a href="javascript:void(0)">Notifications</a>
         </li>
     </ol>
-    <h3>Notifications/Alert</h3>
+    <h3>Notifications</h3>
 
     <ul class="nav nav-tabs">
         <li class="active"><a href="#notification" data-toggle="tab">Notification</a></li>
