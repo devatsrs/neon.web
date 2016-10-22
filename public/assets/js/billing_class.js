@@ -34,6 +34,7 @@ $("#call-billing-form [name='AlertType']").change(function(){
     $("#call-billing-form .custom_field").addClass('hidden');
     if($(this).val() == 'block_destination'){
         $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[ReminderEmail]']").parents('.row').removeClass('hidden');
     }else if($(this).val() == 'call_duration' || $(this).val() == 'call_cost' || $(this).val() == 'call_after_office'){
         $("#call-billing-form [name='CallAlert[AccountID]']").parents('.row').removeClass('hidden');
         if($(this).val() == 'call_duration'){

@@ -34,6 +34,14 @@
                     <div class="row custom_field">
                         <div class="col-md-12">
                             <div class="form-group">
+                                <label for="field-5" class="control-label">Send Email To</label>
+                                <input name="CallAlert[ReminderEmail]"  type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
                                 <label for="field-5" class="control-label">Account</label>
                                 {{ Form::select('CallAlert[AccountID]',$account,'', array("class"=>"select2")) }}
                             </div>
