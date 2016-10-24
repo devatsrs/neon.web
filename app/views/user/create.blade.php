@@ -96,6 +96,14 @@
                                    placeholder="Confirm Password" value="{{Input::old('password_confirmation')}}">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Job Notification</label>
+                        <div class="col-sm-6">
+                            <div class="make-switch switch-small">
+                                <input type="checkbox" name="JobNotification" checked="" value="0">
+                            </div>
+                        </div>
+                    </div>
                     {{--<div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Roles</label>
 
