@@ -6,8 +6,6 @@
     <li class="active"><strong>View Invoice Log ({{$invoice->InvoiceNumber}})</strong></li>
 </ol>
 
-<h3>Invoice No({{$invoice->InvoiceNumber}})</h3>
-
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
@@ -374,7 +372,7 @@
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         $('#recall-modal-payment').modal('hide');
-                        data_table.fnFilter('', 0);
+                        data_table_payments.fnFilter('', 0);
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
