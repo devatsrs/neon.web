@@ -10,6 +10,10 @@ class Messages extends \Eloquent {
 	const  Sent 			= 	0;
     const  Received			=   1;
     const  Draft 			= 	2;
+	
+	const  inbox			=	'inbox';
+	const  sentbox			=	'sentbox';
+	const  draftbox			=	'draftbox';
 
     public static function logMsgRecord($JobType, $options = "") {
 		              
@@ -77,5 +81,35 @@ class Messages extends \Eloquent {
 	
     }
 	
-
+	public static function GetAllSystemEmails()
+	{
+		 $array 		 =  [];
+		 
+		$AccountSearch   =  DB::table('tblAccount')->get(array("Email","BillingEmail"));
+		$ContactSearch 	 =  DB::table('tblContact')->get(array("Email"));	
+		
+		if(count($AccountSearch)>0){
+				foreach($AccountSearch as $AccountData){
+					if($AccountData->Email!='' && !in_array($AccountData->Email,$array))
+					{
+						$array[] =  $AccountData->Email;
+					}
+					if($AccountData->BillingEmail!=''  && !in_array($AccountData->BillingEmail,$array))
+					{
+						$array[] =  $AccountData->BillingEmail;
+					}
+				}
+		}
+		
+		if(count($ContactSearch)>0){
+				foreach($ContactSearch as $ContactData){
+					if($ContactData->Email!=''  && !in_array($ContactData->Email,$array))
+					{
+						$array[] =  $ContactData->Email;
+					}
+				}
+		}
+		//return  array_filter(array_unique($array));
+		return $array;
+    }
 }

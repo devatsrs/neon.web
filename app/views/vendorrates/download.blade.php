@@ -118,7 +118,7 @@
                 <label for="field-1" class="col-sm-3 control-label">Effective</label>
                 <div class="col-sm-5">
 
-                    <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
+                    <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective" id="fileeffective">
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
                         <option value="All">All</option>
@@ -168,6 +168,16 @@ jQuery(document).ready(function ($) {
                 //Options to tell jQuery not to process data or worry about content-type.
                 cache: false
             });
+
+            if($(this).val()=='Vos 3.2'){
+                $('#fileeffective').empty();
+                var html ='<option value="Now">Now</option><option value="Future">Future</option>';
+                $('#fileeffective').append(html);
+            }else{
+                $('#fileeffective').empty();
+                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="All">All</option>';
+                $('#fileeffective').append(html);
+            }
 
         }else{
             $('#filetype').empty();

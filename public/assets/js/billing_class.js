@@ -21,13 +21,17 @@ $('#PaymentReminderTable > tbody').on('click','.remove-row', function(e){
 });
 
 $("#billing-form [name='PaymentReminder[Time]']").change(function(){
-    console.log("jobtype" + $(this).val());
-    populateInterval($(this).val(),'PaymentReminder');
+    populateInterval($(this).val(),'PaymentReminder','billing-form');
 });
 
 $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
-    console.log("jobtype" + $(this).val());
-    populateInterval($(this).val(),'LowBalanceReminder');
+    populateInterval($(this).val(),'LowBalanceReminder','billing-form');
+});
+$("#billing-form [name='QosAlert[Time]']").change(function(){
+    populateInterval($(this).val(),'QosAlert','billing-form');
+});
+$("#call-billing-form [name='CallAlert[Time]']").change(function(){
+    populateInterval($(this).val(),'CallAlert','call-billing-form');
 });
 
 function rebind() {
@@ -71,20 +75,20 @@ function rebind() {
     });
 }
 
-function populateInterval(jobtype,form){
+function populateInterval(jobtype,form,formID){
 
-    //console.log("in populateJonInterval ");
-    $("#billing-form [name='"+form+"[Interval]']").addClass('visible');
-    var selectBox = $("#billing-form [name='"+form+"[Interval]']");
-    var selectBoxStartDay = $("#billing-form [name='"+form+"[StartDay]']");
-    $("#billing-form ."+form+"Day").hide();
-    var starttime = $("#billing-form .starttime");
+
+    $("#"+formID+" [name='"+form+"[Interval]']").addClass('visible');
+    var selectBox = $("#"+formID+" [name='"+form+"[Interval]']");
+    var selectBoxStartDay = $("#"+formID+" [name='"+form+"[StartDay]']");
+    $("#"+formID+" ."+form+"Day").hide();
+    var starttime = $("#"+formID+" .starttime");
     if(selectBox){
         selectBox.empty();
         selectBoxStartDay.empty();
         options = [];
         option = [];
-        // console.log("jobtype" + jobtype);
+
         if(jobtype == 'HOUR'){
             for(var i=1;i<'24';i++){
                 options.push(new Option(i+" Hour", i, true, true));
@@ -100,7 +104,7 @@ function populateInterval(jobtype,form){
             for(var i=1;i<'32';i++){
                 options.push(new Option(i+" Day", i, true, true));
             }
-            //console.log("jobtype" + jobtype);
+
             starttime.show();
         }else if(jobtype == 'MONTHLY'){
             for(var i=1;i<13;i++){
@@ -113,7 +117,7 @@ function populateInterval(jobtype,form){
             selectBoxStartDay.append(option);
             selectBoxStartDay.val(1).trigger('change');
 
-            $("#billing-form ."+form+"Day").show();
+            $("#"+formID+" ."+form+"Day").show();
             starttime.show();
         }
         options.sort();

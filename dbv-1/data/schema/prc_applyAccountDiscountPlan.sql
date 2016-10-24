@@ -2,6 +2,7 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_applyAccountDiscountP
 BEGIN
 	
 	DECLARE v_DiscountPlanID_ INT;
+	DECLARE v_AccountDiscountPlanID_ INT;
 	DECLARE v_StartDate DATE;
 	DECLARE v_EndDate DATE;
 	
@@ -19,6 +20,7 @@ BEGIN
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		TempUsageDetailID INT,
 		TotalSecond INT,
+		AccountDiscountPlanID INT,
 		DiscountID INT,
 		RemainingSecond INT,
 		Discount INT,
@@ -30,6 +32,7 @@ BEGIN
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		TempUsageDetailID INT,
 		TotalSecond INT,
+		AccountDiscountPlanID INT,
 		DiscountID INT,
 		RemainingSecond INT,
 		Discount INT,
@@ -38,7 +41,7 @@ BEGIN
 	);
 	
 	/* get discount plan id*/
-	SELECT DiscountPlanID,StartDate,EndDate INTO  v_DiscountPlanID_,v_StartDate,v_EndDate FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND 
+	SELECT AccountDiscountPlanID,DiscountPlanID,StartDate,EndDate INTO  v_AccountDiscountPlanID_,v_DiscountPlanID_,v_StartDate,v_EndDate FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND 
 	( (p_inbound = 0 AND Type = 1) OR  (p_inbound = 1 AND Type = 2 ) );
 	
 	/* get codes from discount destination group*/
@@ -86,13 +89,17 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 	
+	/* update account discount plan id*/
+	
+	UPDATE tmp_discountsecons_ SET AccountDiscountPlanID  = v_AccountDiscountPlanID_;
+	
 	/* update remaining minutes and discount */
 	UPDATE tmp_discountsecons_ d
 	INNER JOIN tblAccountDiscountPlan adp 
  		ON adp.AccountID = p_AccountID
 	INNER JOIN tblAccountDiscountScheme adc 
 		ON adc.AccountDiscountPlanID =  adp.AccountDiscountPlanID 
-		AND adc.DiscountID = d.DiscountID
+		AND adc.DiscountID = d.DiscountID AND adp.AccountDiscountPlanID = d.AccountDiscountPlanID
 	SET d.RemainingSecond = (adc.Threshold - adc.SecondsUsed),d.Discount=adc.Discount,d.Unlimited = adc.Unlimited;
 	
 	/* remove call which cross the threshold */
@@ -120,14 +127,15 @@ BEGIN
 	INNER JOIN(
 		SELECT 
 			MAX(TotalSecond) as SecondsUsed,
-			DiscountID 
+			DiscountID,
+			AccountDiscountPlanID 
 		FROM tmp_discountsecons_
 		WHERE ThresholdReached = 0
-		GROUP BY DiscountID
+		GROUP BY DiscountID,AccountDiscountPlanID
 	)d 
 	ON adc.DiscountID = d.DiscountID
 	SET adc.SecondsUsed = adc.SecondsUsed+d.SecondsUsed
-	WHERE adp.AccountID = p_AccountID;
+	WHERE adp.AccountID = p_AccountID AND adp.AccountDiscountPlanID = d.AccountDiscountPlanID;
 	
 
 	/* update call cost which reach threshold and update seconds also*/
@@ -143,7 +151,7 @@ BEGIN
 	 		ON adp.AccountID = ',p_AccountID,'
 	INNER JOIN tblAccountDiscountScheme adc 
 			ON adc.AccountDiscountPlanID =  adp.AccountDiscountPlanID 
-			AND adc.DiscountID = d.DiscountID
+			AND adc.DiscountID = d.DiscountID AND d.AccountDiscountPlanID = adp.AccountDiscountPlanID
 	SET ud.cost = cost*(TotalSecond - RemainingSecond)/billed_duration,adc.SecondsUsed = adc.SecondsUsed + billed_duration - (TotalSecond - RemainingSecond);
 	');
 	

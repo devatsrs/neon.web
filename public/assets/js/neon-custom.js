@@ -2919,3 +2919,11 @@ function rebuildSelect2(el,data,defualtText){
 		$(this).html(a);
 	});
 
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
