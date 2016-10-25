@@ -126,14 +126,14 @@ function populateInterval(jobtype,form,formID){
             for(var i=1;i<'32';i++){
                 option.push(new Option(i+" Day", i, true, true));
             }
-            option.sort();
+            //option.sort();
             selectBoxStartDay.append(option);
             selectBoxStartDay.val(1).trigger('change');
 
             $("#"+formID+" ."+form+"Day").show();
             starttime.show();
         }
-        options.sort();
+        //options.sort();
         selectBox.append(options);
         selectBox.val(1).trigger('change');
     }

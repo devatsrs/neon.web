@@ -66,13 +66,13 @@
                     <div class="row custom_field">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Open Time</label>
+                                <label for="field-5" class="control-label">Business Hour From</label>
                                 <input name="CallAlert[OpenTime]"  type="text" class="form-control timepicker starttime2"  data-minute-step="5" data-show-meridian="false" data-default-time="09:00:00" data-show-seconds="true" data-template="dropdown"/>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Close Time</label>
+                                <label for="field-5" class="control-label">Business Hour To</label>
                                 <input name="CallAlert[CloseTime]"  type="text" class="form-control timepicker starttime2"  data-minute-step="5" data-show-meridian="false" data-default-time="17:00:00" data-show-seconds="true" data-template="dropdown"/>
                             </div>
                         </div>

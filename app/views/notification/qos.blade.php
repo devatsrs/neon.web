@@ -169,10 +169,10 @@
             ev.preventDefault();
             $('#billing-form').trigger("reset");
             $('#add-qos-modal h4').html('Add Qos Alert');
-
+            var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
             $(".js-example-disabled").prop("disabled", false);
             $('#billing-form select').select2("val", "");
-
+            $("#billing-form [name='QosAlert[Day][]']").val(selected_days.split(',')).trigger('change');
             var selectBox = $("#billing-form [name='AlertType']");
             selectBox.val('').trigger("change");
             selectBox.prop("disabled", false);
