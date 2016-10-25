@@ -51,7 +51,7 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    var list_fields  = ["NotificationType","EmailAddresses","Status","created_at","CreatedBy","NotificationID"];
+    var list_fields_index  = ["NotificationType","EmailAddresses","Status","created_at","CreatedBy","NotificationID"];
     var NotificationType = JSON.parse('{{json_encode(Notification::$type)}}');
     var $search = {};
     var update_new_url;
@@ -99,8 +99,8 @@
                     "bSortable": false,
                     mRender: function (id, type, full) {
                         action = '<div class = "hiddenRowData" >';
-                        for (var i = 0; i < list_fields.length; i++) {
-                            action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + full[i] + '" / >';
+                        for (var i = 0; i < list_fields_index.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + list_fields_index[i] + '"       value = "' + full[i] + '" / >';
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Notification','Update'))
@@ -174,18 +174,18 @@
             $('#notification-form').attr("action",edit_url);
             $('#modal-notification h4').html('Edit Notification');
             var cur_obj = $(this).prev("div.hiddenRowData");
-            for(var i = 0 ; i< list_fields.length; i++){
-                $("#notification-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                if(list_fields[i] == 'NotificationType'){
-                    var selectBox = $("#notification-form [name='"+list_fields[i]+"']");
-                    selectBox.val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+            for(var i = 0 ; i< list_fields_index.length; i++){
+                $("#notification-form [name='"+list_fields_index[i]+"']").val(cur_obj.find("input[name='"+list_fields_index[i]+"']").val());
+                if(list_fields_index[i] == 'NotificationType'){
+                    var selectBox = $("#notification-form [name='"+list_fields_index[i]+"']");
+                    selectBox.val(cur_obj.find("input[name='"+list_fields_index[i]+"']").val()).trigger("change");
                     selectBox.prop("disabled", true);
                 }
-                if(list_fields[i] == 'Status') {
+                if(list_fields_index[i] == 'Status') {
                     if (cur_obj.find("input[name='Status']").val() == 1) {
-                        $("#notification-form [name='"+list_fields[i]+"']").prop('checked', true)
+                        $("#notification-form [name='"+list_fields_index[i]+"']").prop('checked', true)
                     } else {
-                        $("#notification-form [name='"+list_fields[i]+"']").prop('checked', false)
+                        $("#notification-form [name='"+list_fields_index[i]+"']").prop('checked', false)
                     }
                 }
             }

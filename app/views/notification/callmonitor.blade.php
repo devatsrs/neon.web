@@ -199,14 +199,13 @@
                 $("#call-billing-form [name='"+ele_name+"']").val(ele_val);
                 if(ele_name == 'AlertType'){
                     var selectBox = $("#call-billing-form [name='"+ele_name+"']");
+                    selectBox.prop("disabled", true);
                     selectBox.val(ele_val).trigger("change");
-                    selectBox.prop("readonly", true);
-                }else if(ele_name == 'Day') {
-                    $("#call-billing-form [name='CallAlert[Day][]']").val(ele_val.split(',')).trigger('change');
-                }else if(ele_name == 'Interval'){
-                    setTimeout(function(){
-                        $("#call-billing-form [name='CallAlert[Interval]']").val(ele_val).trigger('change');
-                    },5);
+                }else if(ele_name == 'BlacklistDestination') {
+                    $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").val(ele_val.split(',')).trigger('change');
+                }else if(ele_name == 'AccountID'){
+                    var selectBox = $("#call-billing-form [name='CallAlert["+ele_name+"]']");
+                    selectBox.val(ele_val).trigger("change");
                 }else if(ele_name == 'Status'){
                     if (ele_val == 1) {
                         $("#call-billing-form [name='"+ele_name+"']").prop('checked', true)
@@ -233,6 +232,7 @@
 
         $("#call-billing-form").submit(function(e){
             e.preventDefault();
+            $("#call-billing-form [name='AlertType']").prop("disabled", false);
             var _url  = $(this).attr("action");
             submit_ajax_datatable(_url,$(this).serialize(),0,data_table_call);
 

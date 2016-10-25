@@ -23,11 +23,57 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row custom_field">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Blacklist Destination</label>
-                                <input type="text" name="MaxDuration"  class="form-control"/>
+                                {{Form::select('CallAlert[BlacklistDestination][]',$MultiCountry,array(),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select Destination"))}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Send Email To</label>
+                                <input name="CallAlert[ReminderEmail]"  type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account</label>
+                                {{ Form::select('CallAlert[AccountID]',$account,'', array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Max. Duration(sec.)</label>
+                                <input name="CallAlert[Duration]"  type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Max. Cost</label>
+                                <input name="CallAlert[Cost]"  type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Open Time</label>
+                                <input name="CallAlert[OpenTime]"  type="text" class="form-control timepicker starttime2"  data-minute-step="5" data-show-meridian="false" data-default-time="09:00:00" data-show-seconds="true" data-template="dropdown"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Close Time</label>
+                                <input name="CallAlert[CloseTime]"  type="text" class="form-control timepicker starttime2"  data-minute-step="5" data-show-meridian="false" data-default-time="17:00:00" data-show-seconds="true" data-template="dropdown"/>
                             </div>
                         </div>
                     </div>
