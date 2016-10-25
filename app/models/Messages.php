@@ -10,6 +10,10 @@ class Messages extends \Eloquent {
 	const  Sent 			= 	0;
     const  Received			=   1;
     const  Draft 			= 	2;
+	
+	const  inbox			=	'inbox';
+	const  sentbox			=	'sentbox';
+	const  draftbox			=	'draftbox';
 
     public static function logMsgRecord($JobType, $options = "") {
 		              

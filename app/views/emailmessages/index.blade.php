@@ -20,7 +20,7 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <h3 class="mail-title"> Inbox <span class="count">({{$TotalUnreads}})</span><br>
+      <h3 class="mail-title"> Inbox <span class="mailinboxcounter count">({{$TotalUnreads}})</span><br>
       </h3>
       
       <!-- search -->
@@ -42,27 +42,28 @@
                 <input class="mail_select_checkbox" type="checkbox" />
               </div>
             </th>
-            <th colspan="4"> <div class="hidden mail-select-options">Mark as Read</div>           
-               <?php if(count($result)>0){ ?>
-              <div class="mail-pagination"> <a class="btn-apply mailaction btn btn-default">Apply</a>
-              <strong>
+            <th colspan="4"> <div class="mail-select-options"> <a show_all_read="0" class="btn-apply btn btn-blue show_all_read">All</a> <a show_all_read="1" class="btn-apply btn btn-default show_all_read">Unread</a> </div>
+              <?php if(count($result)>0){ ?>
+              <div class="mail-pagination">
+                <button type="button" class="btn btn-success mailaction tooltip-primary" data-toggle="tooltip" data-placement="top"  data-original-title="Apply"><i class="entypo-check"></i></button>
+                <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
                 <?php  echo $current+count($result); ?>
                 </strong> <span>of {{$totalResults}}</span>
                 <div class="btn-group">
-                  <?php if(count($result)>=$iDisplayLength){ ?>                   
+                  <?php if(count($result)>=$iDisplayLength){ ?>
                   <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
                   <?php } ?>
                 </div>
               </div>
               <div class="mail-pagination margin-left-mail">
-                  <select id="selectmailaction" name="selectmailaction" action_type="HasRead" class="select2 selectmailaction">
+                <select id="selectmailaction" name="selectmailaction" action_type="HasRead" class="select2 selectmailaction small">
                   <option value="">Select</option>
                   <option value="1">Mark as Read</option>
                   <option value="0">Mark as Unread</option>
-                  </select> 
-               </div>              
+                </select>
+              </div>
               <?php } ?>
             </th>
           </tr>
@@ -117,7 +118,7 @@
   </div>
 </div>
 <style>
-.margin-left-mail{margin-right:15px;width:21%; }.btn-apply{margin-right:10px;}
+.margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
 </style>
 <script>
 $(document).ready(function(e) {
@@ -128,9 +129,10 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/emailmessages/ajex_result';
-	var boxtype			=	'inbox';
+	var boxtype			=	'{{$data['BoxType']}}';
 	var EmailCall		=	"{{Messages::Received}}";
 	var SearchStr		=	'';
+	var show_all_read	=   0;
 	$(document).on('click','.move_mail',function(){
 		var clicktype = $(this).attr('movetype');	
         ShowResult(clicktype);
@@ -158,7 +160,7 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,boxtype:boxtype,SearchStr:SearchStr,EmailCall:EmailCall},
+					data:{currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,boxtype:boxtype,SearchStr:SearchStr,EmailCall:EmailCall,show_all_read:show_all_read},
 					success: function(response) {
 						if(response.length>0)
 						{
@@ -192,6 +194,12 @@ $(document).ready(function(e) {
 							 replaceCheckboxes();
 							 $(".select2").select2();
 							 $(".select2-container").css('visibility','visible');
+							 var SidebarCounterInbox = $('#SidebarCounterInbox').val();
+							 var SidebarCounterDraft = $('#SidebarCounterDraft').val();							 
+							 $('.mailinboxcountersidebar').html(SidebarCounterInbox);
+							 $('.maildraftcountersidebar').html(SidebarCounterDraft);
+							 $('.mailinboxcounter').html('('+SidebarCounterInbox+')');
+							 $('.maildraftcounter').html('('+SidebarCounterDraft+')');									
 						}
 						else
 						{ 					
@@ -268,6 +276,16 @@ $(document).ready(function(e) {
 	{
 		$(this).closest('tr')[this.checked ? 'addClass' : 'removeClass']('highlight');
 	});
+	
+	$(document).on('click','.show_all_read',function(e){
+         e.preventDefault();
+		 show_all_read = $(this).attr('show_all_read');
+		 currentpage = -1;
+		 $(this).removeClass('btn-default');
+		 $(this).addClass('btn-blue');
+		 ShowResult('next');
+		
+    });
 	
 });
 </script> 
