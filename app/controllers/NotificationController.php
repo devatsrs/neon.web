@@ -38,8 +38,14 @@ class NotificationController extends \BaseController {
         $qos_alert_type  = Alert::$qos_alert_type;
         $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
         $MultiCountry = $Country;
+        $Multiaccount = $account;
+        $Multitrunks = $trunks;
+        $Multigateway = $gateway;
         if(isset($MultiCountry[""])){unset($MultiCountry[""]);}
-        return View::make('notification.index', compact('notificationType','gateway','Country','account','trunks','qos_alert_type','call_monitor_alert_type','MultiCountry'));
+        if(isset($Multiaccount[""])){unset($Multiaccount[""]);}
+        if(isset($Multitrunks[""])){unset($Multitrunks[""]);}
+        if(isset($Multigateway[""])){unset($Multigateway[""]);}
+        return View::make('notification.index', compact('notificationType','gateway','Country','account','trunks','qos_alert_type','call_monitor_alert_type','MultiCountry','Multiaccount','Multitrunks','Multigateway'));
     }
 
 

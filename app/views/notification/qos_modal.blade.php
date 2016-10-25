@@ -41,20 +41,20 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Gateway</label>
-                                {{ Form::select('QosAlert[CompanyGatewayID]',$gateway,'', array("class"=>"select2")) }}
+                                {{ Form::select('QosAlert[CompanyGatewayID][]',$Multigateway,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('QosAlert[CountryID]',$Country,'', array("class"=>"select2")) }}
+                                {{ Form::select('QosAlert[CountryID][]',$MultiCountry,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select")) }}
                             </div>
                         </div>
                         <div class="clear"></div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Trunk</label>
-                                {{ Form::select('QosAlert[TrunkID]',$trunks,'', array("class"=>"select2")) }}
+                                {{ Form::select('QosAlert[TrunkID][]',$Multitrunks,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -67,7 +67,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Account</label>
-                                {{ Form::select('QosAlert[AccountID]',$account,'', array("class"=>"select2")) }}
+                                {{ Form::select('QosAlert[AccountID][]',$Multiaccount,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select Account")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
