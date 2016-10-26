@@ -1,9 +1,10 @@
 @extends('layout.main')
 @section('content')
-    <br />
+    <br/>
     <div class="row">
         <div class="col-sm-12">
-            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
+            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post"
+                  id="billing_filter">
                 <div data-collapsed="0" class="panel panel-primary">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -25,17 +26,24 @@
                                 </div>
                             @endif
                             <label class="col-sm-1 control-label" for="Startdate">Start date</label>
+
                             <div class="col-sm-2">
-                                <input type="text" name="Startdate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_startdate}}" data-enddate="{{date('Y-m-d')}}" />
+                                <input type="text" name="Startdate" class="form-control datepicker"
+                                       data-date-format="yyyy-mm-dd" value="{{$original_startdate}}"
+                                       data-enddate="{{date('Y-m-d')}}"/>
                             </div>
                             <label class="col-sm-1 control-label" for="field-1">End Date</label>
+
                             <div class="col-sm-2">
-                                <input type="text" name="Enddate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_enddate}}" data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}" />
+                                <input type="text" name="Enddate" class="form-control datepicker"
+                                       data-date-format="yyyy-mm-dd" value="{{$original_enddate}}"
+                                       data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}"/>
                             </div>
 
                         </div>
                         <p style="text-align: right;">
-                            <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
+                            <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit"
+                                    data-loading-text="Loading...">
                                 <i class="entypo-search"></i>Search
                             </button>
                         </p>
@@ -46,7 +54,7 @@
 
     </div>
     <div class="row">
-        <div class="col-sm-3">
+        <!--<div class="col-md-3">
             <div class="invoice_expsense panel panel-primary panel-table">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -65,7 +73,52 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-9">
+
+
+        <div class="clear visible-xs"></div>-->
+        <div class="col-sm-3 col-xs-6">
+            <div id="invoice_expense_total" class="tile-stats tile-white-red">
+                <!--<div class="icon"><i class="entypo-users"></i></div>-->
+                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="0">
+                    0
+                </div>
+                <h3>Total Outstanding</h3><span class="currency"></span>
+
+                <p>Overdue invoices last 365 days</p></div>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <div id="unpaid_invoice" class="tile-stats tile-orange">
+                <!--<div class="icon"><i class="entypo-mail"></i></div>-->
+                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">
+                    23
+                </div>
+                <h3><span class="number">16</span> unpaid invoices</h3><span class="currency"></span>
+
+                <p>Unpaid invoices last 365 days</p></div>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <div id="overdue_invoice" class="tile-stats tile-red">
+                <!--<div class="icon"><i class="entypo-users"></i></div>-->
+                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="0">
+                    83
+                </div>
+                <h3><span class="number">10</span> Overdue Invoices</h3><span class="currency"></span>
+
+                <p>Overdue invoices last 365 days</p></div>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <div id="paid_invoice" class="tile-stats tile-green">
+                <!--<div class="icon"><i class="entypo-chart-bar"></i></div>-->
+                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="600">
+                    $135
+                </div>
+                <h3><span class="number">5</span> Paid </h3><span class="currency"></span>
+
+                <p>Paid invoices for last 365 days</p></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
             <div class="invoice_expsense panel panel-primary panel-table">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -84,7 +137,6 @@
                 </div>
             </div>
         </div>
-
     </div>
     @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
         <div class="row">
@@ -96,7 +148,7 @@
                         </div>
 
                         <div class="panel-options">
-                            <form id="filter-form" name="filter-form" style="display: inline" >
+                            <form id="filter-form" name="filter-form" style="display: inline">
                                 {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
                                 {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
                                 {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
@@ -185,11 +237,11 @@
             var invoicestatus = {{$invoice_status_json}};
             $searchFilter.PaymentDate_StartDate = $('[name="Startdate"]').val();
             $searchFilter.PaymentDate_StartTime = '';
-            $searchFilter.PaymentDate_EndDate   = $('[name="Enddate"]').val();
-            $searchFilter.PaymentDate_EndTime   = '';
-            $searchFilter.CurrencyID 			= $('[name="CurrencyID"]').val();
+            $searchFilter.PaymentDate_EndDate = $('[name="Enddate"]').val();
+            $searchFilter.PaymentDate_EndTime = '';
+            $searchFilter.CurrencyID = $('[name="CurrencyID"]').val();
             $searchFilter.Type = 1;
-            var TotalSum=0;
+            var TotalSum = 0;
             var TotalPaymentSum = 0;
             var TotalPendingSum = 0;
             PaymentTable = $("#paymentTable").dataTable({
@@ -199,18 +251,18 @@
                 "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
                 "fnServerParams": function (aoData) {
                     aoData.push(
-                            {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID","value": $searchFilter.CurrencyID},
-                            {"name": "Type","value": $searchFilter.Type}
+                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                            {"name": "Type", "value": $searchFilter.Type}
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
-                            {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID","value": $searchFilter.CurrencyID},
-                            {"name": "Type","value": $searchFilter.Type},
-                            {"name":"Export","value":1}
+                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                            {"name": "Type", "value": $searchFilter.Type},
+                            {"name": "Export", "value": 1}
                     );
 
                 },
@@ -219,12 +271,12 @@
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[4, 'desc']],
                 "aoColumns": [
-                    {  "bSortable": true }, //0   Account Name
-                    {  "bSortable": true }, //1   Invoice No
-                    {  "bSortable": true }, //2   Amount
-                    {  "bSortable": true }, //3   PaymentDate
-                    {  "bSortable": true }, //4   Created by
-                    {  "bSortable": true }, //5   Notes
+                    {"bSortable": true}, //0   Account Name
+                    {"bSortable": true}, //1   Invoice No
+                    {"bSortable": true}, //2   Amount
+                    {"bSortable": true}, //3   PaymentDate
+                    {"bSortable": true}, //4   Created by
+                    {"bSortable": true}, //5   Notes
                 ],
                 "oTableTools": {
                     "aButtons": [
@@ -260,20 +312,20 @@
 
                     $('.tohidden').removeClass('hidden');
                     $('#selectall').removeClass('hidden');
-                    if($('#Recall_on_off').prop("checked")){
+                    if ($('#Recall_on_off').prop("checked")) {
                         $('.tohidden').addClass('hidden');
                         $('#selectall').addClass('hidden');
                     }
                 },
-                "fnServerData": function ( sSource, aoData, fnCallback ) {
+                "fnServerData": function (sSource, aoData, fnCallback) {
                     /* Add some extra data to the sender */
-                    $.getJSON( sSource, aoData, function (json) {
+                    $.getJSON(sSource, aoData, function (json) {
                         /* Do whatever additional processing you want on the callback, then tell DataTables */
                         TotalSum = json.Total.totalsum;
                         fnCallback(json)
                     });
                 },
-                "fnFooterCallback": function ( row, data, start, end, display ) {
+                "fnFooterCallback": function (row, data, start, end, display) {
                     if (end > 0) {
                         $(row).html('');
                         for (var i = 0; i < 2; i++) {
@@ -281,12 +333,12 @@
                             $(a).html('');
                             $(row).append(a);
                         }
-                        if(TotalSum) {
-                            $($(row).children().get(0)).attr('colspan',2);
+                        if (TotalSum) {
+                            $($(row).children().get(0)).attr('colspan', 2);
                             $($(row).children().get(0)).html('<strong>Total</strong>');
                             $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
                         }
-                    }else{
+                    } else {
                         $("#paymentTable").find('tfoot').find('tr').html('');
                     }
                 }
@@ -296,76 +348,78 @@
 
             invoiceTable = $("#invoiceTable").dataTable({
                 "bDestroy": true,
-                "bProcessing":true,
-                "bServerSide":true,
+                "bProcessing": true,
+                "bServerSide": true,
                 "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
                 "iDisplayLength": '{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[2, 'desc']],
-                "fnServerParams": function(aoData) {
+                "fnServerParams": function (aoData) {
                     aoData.push(
-                            {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID","value": $searchFilter.CurrencyID},
-                            {"name": "Type","value": $searchFilter.Type}
+                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                            {"name": "Type", "value": $searchFilter.Type}
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
-                            {"name": "PaymentDate_StartDate","value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID","value": $searchFilter.CurrencyID},
-                            {"name": "Type","value": $searchFilter.Type},
-                            {"name":"Export","value":1}
+                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                            {"name": "Type", "value": $searchFilter.Type},
+                            {"name": "Export", "value": 1}
                     );
                 },
-                "aoColumns":
-                        [
-                            // 0 AccountName
-                            {  "bSortable": true,
+                "aoColumns": [
+                    // 0 AccountName
+                    {
+                        "bSortable": true,
 
-                                mRender:function( id, type, full){
-                                    var output , account_url;
-                                    output = '<a href="{url}" target="_blank" >{account_name}';
-                                    if(full[11] ==''){
-                                        output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
-                                    }
-                                    output+= '</a>';
-                                    account_url = baseurl + "/accounts/"+ full[8] + "/show";
-                                    output = output.replace("{url}",account_url);
-                                    output = output.replace("{account_name}",id);
-                                    return output;
-                                }
+                        mRender: function (id, type, full) {
+                            var output, account_url;
+                            output = '<a href="{url}" target="_blank" >{account_name}';
+                            if (full[11] == '') {
+                                output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
+                            }
+                            output += '</a>';
+                            account_url = baseurl + "/accounts/" + full[8] + "/show";
+                            output = output.replace("{url}", account_url);
+                            output = output.replace("{account_name}", id);
+                            return output;
+                        }
 
-                            },  // 1 InvoiceNumber
-                            {  "bSortable": true,
+                    },  // 1 InvoiceNumber
+                    {
+                        "bSortable": true,
 
-                                mRender:function( id, type, full){
+                        mRender: function (id, type, full) {
 
-                                    var output , account_url;
-                                    if (full[0] != '{{Invoice::INVOICE_IN}}') {
-                                        output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                        account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
-                                        output = output.replace("{url}", account_url);
-                                        output = output.replace("{account_name}", id);
-                                    }else{
-                                        output = id;
-                                    }
-                                    return output;
-                                }
+                            var output, account_url;
+                            if (full[0] != '{{Invoice::INVOICE_IN}}') {
+                                output = '<a href="{url}" target="_blank"> ' + id + '</a>';
+                                account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
+                                output = output.replace("{url}", account_url);
+                                output = output.replace("{account_name}", id);
+                            } else {
+                                output = id;
+                            }
+                            return output;
+                        }
 
-                            },  // 2 IssueDate
-                            {  "bSortable": true },  // 3 IssueDate
-                            {  "bSortable": true },  //4 Invoice period
-                            {  "bSortable": true },  // 5 GrandTotal
-                            {  "bSortable": false },  // 6 PAID/OS
-                            {  "bSortable": true,
-                                mRender:function( id, type, full){
-                                    return invoicestatus[full[6]];
-                                }
+                    },  // 2 IssueDate
+                    {"bSortable": true},  // 3 IssueDate
+                    {"bSortable": true},  //4 Invoice period
+                    {"bSortable": true},  // 5 GrandTotal
+                    {"bSortable": false},  // 6 PAID/OS
+                    {
+                        "bSortable": true,
+                        mRender: function (id, type, full) {
+                            return invoicestatus[full[6]];
+                        }
 
-                            },  // 6 InvoiceStatus
-                        ],
+                    },  // 6 InvoiceStatus
+                ],
                 "oTableTools": {
                     "aButtons": [
                         {
@@ -382,10 +436,10 @@
                         }
                     ]
                 },
-                "fnDrawCallback": function() {
+                "fnDrawCallback": function () {
                     //get_total_grand(); //get result total
-                    $('#table-4 tbody tr').each(function(i, el) {
-                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $('#table-4 tbody tr').each(function (i, el) {
+                        if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                             if (checked != '') {
                                 $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
                                 $(this).addClass('selected');
@@ -398,22 +452,22 @@
                         }
                     });
                     //After Delete done
-                    FnDeleteInvoiceTemplateSuccess = function(response){
+                    FnDeleteInvoiceTemplateSuccess = function (response) {
 
                         if (response.status == 'success') {
-                            $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
-                            ShowToastr("success",response.message);
+                            $("#Note" + response.NoteID).parent().parent().fadeOut('fast');
+                            ShowToastr("success", response.message);
                             data_table.fnFilter('', 0);
-                        }else{
-                            ShowToastr("error",response.message);
+                        } else {
+                            ShowToastr("error", response.message);
                         }
                     }
                     //onDelete Click
-                    FnDeleteInvoiceTemplate = function(e){
+                    FnDeleteInvoiceTemplate = function (e) {
                         result = confirm("Are you Sure?");
-                        if(result){
-                            var id  = $(this).attr("data-id");
-                            showAjaxScript( baseurl + "/invoice/"+id+"/delete" ,"",FnDeleteInvoiceTemplateSuccess );
+                        if (result) {
+                            var id = $(this).attr("data-id");
+                            showAjaxScript(baseurl + "/invoice/" + id + "/delete", "", FnDeleteInvoiceTemplateSuccess);
                         }
                         return false;
                     }
@@ -421,25 +475,25 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    $('#selectallbutton').click(function(ev) {
-                        if($(this).is(':checked')){
+                    $('#selectallbutton').click(function (ev) {
+                        if ($(this).is(':checked')) {
                             checked = 'checked=checked disabled';
                             $("#selectall").prop("checked", true).prop('disabled', true);
-                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
-                                $('#table-4 tbody tr').each(function(i, el) {
-                                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (!$('#changeSelectedInvoice').hasClass('hidden')) {
+                                $('#table-4 tbody tr').each(function (i, el) {
+                                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
 
                                         $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
                                         $(this).addClass('selected');
                                     }
                                 });
                             }
-                        }else{
+                        } else {
                             checked = '';
                             $("#selectall").prop("checked", false).prop('disabled', false);
-                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
-                                $('#table-4 tbody tr').each(function(i, el) {
-                                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (!$('#changeSelectedInvoice').hasClass('hidden')) {
+                                $('#table-4 tbody tr').each(function (i, el) {
+                                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
 
                                         $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
                                         $(this).removeClass('selected');
@@ -449,9 +503,9 @@
                         }
                     });
                 },
-                "fnServerData": function ( sSource, aoData, fnCallback ) {
+                "fnServerData": function (sSource, aoData, fnCallback) {
                     /* Add some extra data to the sender */
-                    $.getJSON( sSource, aoData, function (json) {
+                    $.getJSON(sSource, aoData, function (json) {
                         /* Do whatever additional processing you want on the callback, then tell DataTables */
                         TotalSum = json.Total.totalsum;
                         TotalPaymentSum = json.Total.totalpaymentsum;
@@ -459,7 +513,7 @@
                         fnCallback(json)
                     });
                 },
-                "fnFooterCallback": function ( row, data, start, end, display ) {
+                "fnFooterCallback": function (row, data, start, end, display) {
                     if (end > 0) {
                         $(row).html('');
                         for (var i = 0; i < 3; i++) {
@@ -467,13 +521,13 @@
                             $(a).html('');
                             $(row).append(a);
                         }
-                        if(TotalSum) {
-                            $($(row).children().get(0)).attr('colspan',4);
+                        if (TotalSum) {
+                            $($(row).children().get(0)).attr('colspan', 4);
                             $($(row).children().get(0)).html('<strong>Total</strong>');
                             $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
-                            $($(row).children().get(2)).html('<strong>' + TotalPaymentSum +'/' + TotalPendingSum + '</strong>');
+                            $($(row).children().get(2)).html('<strong>' + TotalPaymentSum + '/' + TotalPendingSum + '</strong>');
                         }
-                    }else{
+                    } else {
                         $("#invoiceTable").find('tfoot').find('tr').html('');
                     }
                 }
@@ -481,25 +535,25 @@
             });
 
 
-            $(document).on('click','.paymentReceived,.totalInvoice,.totalOutstanding',function(e){
+            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding', function (e) {
                 e.preventDefault();
                 $searchFilter.PaymentDate_StartDate = $(this).attr('data-startdate');
                 $searchFilter.PaymentDate_StartTime = '';
-                $searchFilter.PaymentDate_EndDate   = $(this).attr('data-enddate');
-                $searchFilter.PaymentDate_EndTime   = '';
-                $searchFilter.CurrencyID 			= $(this).attr('data-currency');
-                if($(this).hasClass('paymentReceived')) {
+                $searchFilter.PaymentDate_EndDate = $(this).attr('data-enddate');
+                $searchFilter.PaymentDate_EndTime = '';
+                $searchFilter.CurrencyID = $(this).attr('data-currency');
+                if ($(this).hasClass('paymentReceived')) {
                     $searchFilter.Type = 1;
                     //PaymentTable.fnClearTable();
                     PaymentTable.fnFilter('', 0);
                     $('#modal-Payment').modal('show');
-                }else if($(this).hasClass('totalInvoice')){
+                } else if ($(this).hasClass('totalInvoice')) {
                     $searchFilter.Type = 2;
                     //invoiceTable.fnClearTable();
                     invoiceTable.fnFilter('', 0);
                     $('#modal-invoice h4').text('Total Invoices');
                     $('#modal-invoice').modal('show');
-                }else if($(this).hasClass('totalOutstanding')){
+                } else if ($(this).hasClass('totalOutstanding')) {
                     $searchFilter.Type = 3;
                     //invoiceTable.fnClearTable();
                     invoiceTable.fnFilter('', 0);
@@ -510,47 +564,63 @@
             });
         });
 
-        function reload_invoice_expense(){
+        function reload_invoice_expense() {
 
             var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
-            data = $('#billing_filter').serialize()+'&'+$('#filter-form').serialize();
-            loadingUnload('#invoice_expense_bar_chart',1);
-            $.get( get_url, data , function(response){
+            data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize();
+            loadingUnload('#invoice_expense_bar_chart', 1);
+            $.get(get_url, data, function (response) {
                 $(".search.btn").button('reset');
-                loadingUnload('#invoice_expense_bar_chart',0);
+                loadingUnload('#invoice_expense_bar_chart', 0);
                 $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
-            }, "html" );
+            }, "html");
 
             var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
-            loadingUnload('#invoice_expense_total',1);
-            $.get( get_url, data , function(response){
-                loadingUnload('#invoice_expense_total',0);
+            /*loadingUnload('#invoice_expense_total', 1);*/
+            $.get(get_url, data, function (response) {
+                /*loadingUnload('#invoice_expense_total', 0);*/
                 $(".search.btn").button('reset');
-                $("#invoice_expense_total").html(response);
-            }, "html" );
+                /*var totaldata = $('#invoice_expense_total .num').data();
+                totaldata.prefix = response.CurrencySymbol;
+                totaldata.end = response.TotalOutstanding;*/
+                $('#invoice_expense_total .currency').text(response.CurrencyCode);
+                $('#invoice_expense_total .num').text(response.CurrencySymbol+''+response.data.TotalOutstanding);
+
+                $('#unpaid_invoice .currency').text(response.CurrencyCode);
+                $('#unpaid_invoice .number').text(response.data.CountTotalUnpaidInvoices);
+                $('#unpaid_invoice .num').text(response.CurrencySymbol+''+response.data.TotalUnpaidInvoices);
+
+                $('#overdue_invoice .currency').text(response.CurrencyCode);
+                $('#overdue_invoice .number').text(response.data.CountTotalOverdueInvoices);
+                $('#overdue_invoice .num').text(response.CurrencySymbol+''+response.data.TotalOverdueInvoices);
+
+                $('#paid_invoice .currency').text(response.CurrencyCode);
+                $('#paid_invoice .number').text(response.data.CountTotalPaidInvoices);
+                $('#paid_invoice .num').text(response.CurrencySymbol+''+response.data.TotalPaidInvoices);
+            }, "json");
             pin_report();
             missingAccounts();
 
         }
 
 
-        function pin_title(){
-            if($("#filter-form [name='PinExt']").val() == 'pincode'){
+        function pin_title() {
+            if ($("#filter-form [name='PinExt']").val() == 'pincode') {
                 $('.pin_expsense').find('h3').html('Top Pincodes');
                 $('.pin_expsense_report').find('h3').html('Top Pincodes Detail Report');
             }
-            if($("#filter-form [name='PinExt']").val() == 'extension'){
+            if ($("#filter-form [name='PinExt']").val() == 'extension') {
                 $('.pin_expsense').find('h3').html('Top Extensions ');
                 $('.pin_expsense_report').find('h3').html('Top Extensions Detail Report');
 
             }
         }
-        function loadingUnload(table,bit){
+        function loadingUnload(table, bit) {
             var panel = jQuery(table).closest('.panel');
-            if(bit==1){
+            if (bit == 1) {
                 blockUI(panel);
                 panel.addClass('reloading');
-            }else{
+            } else {
                 unblockUI(panel);
                 panel.removeClass('reloading');
             }
@@ -560,7 +630,7 @@
             @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
             $("#pin_grid_main").addClass('hidden');
             loadingUnload('#pin_expense_bar_chart', 1);
-            data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() ;
+            data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize();
             pin_title();
             var get_url = baseurl + "/billing_dashboard/ajax_top_pincode";
             $.get(get_url, data, function (response) {
@@ -569,47 +639,49 @@
                 $("#pin_expense_bar_chart").html(response);
             }, "html");
             @endif
+
         }
-        $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="reload"]', function(e){
+        $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="reload"]', function (e) {
             e.preventDefault();
             var id = $(this).parents('.panel-primary').find('table').attr('id');
-            if(id=='missingAccounts'){
+            if (id == 'missingAccounts') {
                 missingAccounts();
             }
         });
-        $(function() {
+        $(function () {
             reload_invoice_expense();
             $("#filter-pin").hide();
-            $('#billing_filter').submit(function(e){
+            $('#billing_filter').submit(function (e) {
                 e.preventDefault();
                 reload_invoice_expense();
                 return false;
             });
-            $('#filter-form').submit(function(e){
+            $('#filter-form').submit(function (e) {
                 e.preventDefault();
                 pin_report();
                 return false;
             });
-            $("#pin_fiter").click(function(){
+            $("#pin_fiter").click(function () {
                 $("#filter-pin").slideToggle();
             });
-            $("#pin_size").change(function(){
+            $("#pin_size").change(function () {
                 pin_report();
             });
-            $("#Type").change(function(){
+            $("#Type").change(function () {
                 pin_report();
             });
-            $("#PinExt").change(function(){
+            $("#PinExt").change(function () {
                 pin_report();
             })
-            $("#company_gateway").change(function(){
+            $("#company_gateway").change(function () {
                 missingAccounts();
             });
         });
-        function missingAccounts(){
+
+        function missingAccounts() {
             var table = $('#missingAccounts');
-            loadingUnload(table,1);
-            var url = baseurl+'/dashboard/ajax_get_missing_accounts?CompanyGatewayID='+$("#company_gateway").val();
+            loadingUnload(table, 1);
+            var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();
             $.ajax({
                 url: url,  //Server script to process data
                 type: 'POST',
@@ -617,20 +689,20 @@
                 success: function (response) {
                     var accounts = response.missingAccounts;
                     html = '';
-                    table.parents('.panel-primary').find('.panel-title h3').html('Missing Gateway Accounts ('+accounts.length+')');
+                    table.parents('.panel-primary').find('.panel-title h3').html('Missing Gateway Accounts (' + accounts.length + ')');
                     table.find('tbody').html('');
-                    if(accounts.length > 0){
+                    if (accounts.length > 0) {
                         for (i = 0; i < accounts.length; i++) {
-                            html +='<tr>';
-                            html +='      <td>'+accounts[i]["AccountName"]+'</td>';
-                            html +='      <td>'+accounts[i]["Title"]+'</td>';
-                            html +='</tr>';
+                            html += '<tr>';
+                            html += '      <td>' + accounts[i]["AccountName"] + '</td>';
+                            html += '      <td>' + accounts[i]["Title"] + '</td>';
+                            html += '</tr>';
                         }
-                    }else{
+                    } else {
                         html = '<td colspan="3">No Records found.</td>';
                     }
                     table.find('tbody').html(html);
-                    loadingUnload(table,0);
+                    loadingUnload(table, 0);
                 },
                 //Options to tell jQuery not to process data or worry about content-type.
                 cache: false,
@@ -638,13 +710,13 @@
                 processData: false
             });
         }
-        function dataGrid(Pincode,Startdate,Enddate,PinExt,CurrencyID){
+        function dataGrid(Pincode, Startdate, Enddate, PinExt, CurrencyID) {
             $("#pin_grid_main").removeClass('hidden');
-            if(PinExt == 'pincode'){
-                $('.pin_expsense_report').find('h3').html('Pincode '+Pincode+' Detail Report');
+            if (PinExt == 'pincode') {
+                $('.pin_expsense_report').find('h3').html('Pincode ' + Pincode + ' Detail Report');
             }
-            if(PinExt == 'extension'){
-                $('.pin_expsense_report').find('h3').html('Extension'+Pincode+' Detail Report');
+            if (PinExt == 'extension') {
+                $('.pin_expsense_report').find('h3').html('Extension' + Pincode + ' Detail Report');
 
             }
             data_table = $("#pin_grid").dataTable({
@@ -668,7 +740,7 @@
                             {"name": "Enddate", "value": Enddate},
                             {"name": "PinExt", "value": PinExt},
                             {"name": "CurrencyID", "value": CurrencyID},
-                            {"name":"Export","value":1}
+                            {"name": "Export", "value": 1}
                     );
 
                 },
@@ -738,7 +810,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
                             Close
                         </button>
@@ -779,7 +851,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
                             Close
                         </button>

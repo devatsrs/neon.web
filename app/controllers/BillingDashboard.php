@@ -33,10 +33,11 @@ class BillingDashboard extends \BaseController {
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         $TotalOutstanding = 0;
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
-            $TotalOutstanding = $InvoiceExpenseResult[0]->TotalOutstanding;
+            /*$TotalOutstanding = $InvoiceExpenseResult[0]->TotalOutstanding;*/
+            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
 
-        return View::make('billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
+        /*return View::make('billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));*/
 
     }
     public function ajax_top_pincode(){
