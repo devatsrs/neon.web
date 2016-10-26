@@ -82,27 +82,28 @@
                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="0">
                     0
                 </div>
-                <h3>Total Outstanding</h3><span class="currency"></span>
-
-                <p>Overdue invoices last 365 days</p></div>
+                <h3>Total Outstanding</h3>
+                <h3 class="currency"></h3>
+                <p><!--Overdue invoices last 365 days--></p></div>
         </div>
         <div class="col-sm-3 col-xs-6">
             <div id="unpaid_invoice" class="tile-stats tile-orange">
                 <!--<div class="icon"><i class="entypo-mail"></i></div>-->
                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">
-                    23
+                    0
                 </div>
-                <h3><span class="number">16</span> unpaid invoices</h3><span class="currency"></span>
-
+                <h3><span class="number">16</span> unpaid invoices</h3>
+                <h3 class="currency"></h3>
                 <p>Unpaid invoices last 365 days</p></div>
         </div>
         <div class="col-sm-3 col-xs-6">
             <div id="overdue_invoice" class="tile-stats tile-red">
                 <!--<div class="icon"><i class="entypo-users"></i></div>-->
                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="0">
-                    83
+                    0
                 </div>
-                <h3><span class="number">10</span> Overdue Invoices</h3><span class="currency"></span>
+                <h3><span class="number">10</span> Overdue Invoices</h3>
+                <h3 class="currency"></h3>
 
                 <p>Overdue invoices last 365 days</p></div>
         </div>
@@ -110,10 +111,10 @@
             <div id="paid_invoice" class="tile-stats tile-green">
                 <!--<div class="icon"><i class="entypo-chart-bar"></i></div>-->
                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="600">
-                    $135
+                    0
                 </div>
-                <h3><span class="number">5</span> Paid </h3><span class="currency"></span>
-
+                <h3><span class="number">5</span> Paid </h3>
+                <h3 class="currency"></h3>
                 <p>Paid invoices for last 365 days</p></div>
         </div>
     </div>
@@ -583,18 +584,18 @@
                 /*var totaldata = $('#invoice_expense_total .num').data();
                 totaldata.prefix = response.CurrencySymbol;
                 totaldata.end = response.TotalOutstanding;*/
-                $('#invoice_expense_total .currency').text(response.CurrencyCode);
+                $('#invoice_expense_total .currency').text('('+response.CurrencyCode+')');
                 $('#invoice_expense_total .num').text(response.CurrencySymbol+''+response.data.TotalOutstanding);
 
-                $('#unpaid_invoice .currency').text(response.CurrencyCode);
+                $('#unpaid_invoice .currency').text('('+response.CurrencyCode+')');
                 $('#unpaid_invoice .number').text(response.data.CountTotalUnpaidInvoices);
                 $('#unpaid_invoice .num').text(response.CurrencySymbol+''+response.data.TotalUnpaidInvoices);
 
-                $('#overdue_invoice .currency').text(response.CurrencyCode);
+                $('#overdue_invoice .currency').text('('+response.CurrencyCode+')');
                 $('#overdue_invoice .number').text(response.data.CountTotalOverdueInvoices);
                 $('#overdue_invoice .num').text(response.CurrencySymbol+''+response.data.TotalOverdueInvoices);
 
-                $('#paid_invoice .currency').text(response.CurrencyCode);
+                $('#paid_invoice .currency').text('('+response.CurrencyCode+')');
                 $('#paid_invoice .number').text(response.data.CountTotalPaidInvoices);
                 $('#paid_invoice .num').text(response.CurrencySymbol+''+response.data.TotalPaidInvoices);
             }, "json");
