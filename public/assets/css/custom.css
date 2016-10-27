@@ -128,7 +128,23 @@ body {
     font-size: 15px;
     color:green;
 }
-
+.tile-stats .num{
+    font-size:20px;
+    font-weight:500;
+}
+.tile-stats h3{
+    font-size:15px;
+    margin-top:5px;
+}
+.tile-orange{
+    background:#E6AF32 none repeat scroll 0 0 !important;
+}
+.tile-red{
+    background:#E33D43 none repeat scroll 0 0 !important;
+}
+.tile-green{
+    background:#56B349 none repeat scroll 0 0 !important;
+}
 /*Abubakar End*/
 
 

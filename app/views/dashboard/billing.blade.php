@@ -1,5 +1,9 @@
 @extends('layout.main')
 @section('content')
+    <?php
+    $url = URL::to('invoice');
+    //http_build_query(['StartDate'=>isset($data['StartDate'])?$data['StartDate']:date('Y-m-d'),'EndDate'=>isset($data['EndDate'])?$data['EndDate']:date('Y-m-d')])
+    ?>
     <br/>
     <div class="row">
         <div class="col-sm-12">
@@ -54,68 +58,59 @@
 
     </div>
     <div class="row">
-        <!--<div class="col-md-3">
-            <div class="invoice_expsense panel panel-primary panel-table">
+        <div class="col-md-12">
+            <div class="panel panel-primary panel-table">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        <h3>Total Outstanding</h3>
-
+                        <h3>Invoices</h3>
                     </div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>
+                    <div id="UsersTasks" class="panel-options">
+                        <form id="filter-Invoiceform" name="filter-form" style="display: inline">
+                            {{ Form::select('date-span', array(6=>'6 months',12=>'12 months'), 1, array('id'=>'date-span','class'=>'select_gray')) }}
+                        </form>
+                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
+                        <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
+                        <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
                 </div>
-                <div class="panel-body">
-                    <div id="invoice_expense_total"></div>
+                <div id="invoice-widgets" class="panel-body white-bg">
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-white-red"><a target="_blank" class="undefined"
+                                                                  data-startdate="" data-enddate=""
+                                                                  data-currency="" href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <h3> Total Outstanding</h3></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
+                                                               data-startdate="" data-enddate=""
+                                                               data-currency="0" href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <h3>0 Unpaid invoices</h3></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                            data-enddate="" data-currency=""
+                                                            href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <h3>0 Overdue invoices</h3></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
+                                                              data-enddate="" data-currency=""
+                                                              href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <h3>0 Paid invoices</h3></a></div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-
-        <div class="clear visible-xs"></div>-->
-        <div class="col-sm-3 col-xs-6">
-            <div id="invoice_expense_total" class="tile-stats tile-white-red">
-                <!--<div class="icon"><i class="entypo-users"></i></div>-->
-                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="0">
-                    0
-                </div>
-                <h3>Total Outstanding</h3>
-                <h3 class="currency"></h3>
-                <p><!--Overdue invoices last 365 days--></p></div>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <div id="unpaid_invoice" class="tile-stats tile-orange">
-                <!--<div class="icon"><i class="entypo-mail"></i></div>-->
-                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">
-                    0
-                </div>
-                <h3><span class="number">16</span> unpaid invoices</h3>
-                <h3 class="currency"></h3>
-                <p>Unpaid invoices last 365 days</p></div>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <div id="overdue_invoice" class="tile-stats tile-red">
-                <!--<div class="icon"><i class="entypo-users"></i></div>-->
-                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="0">
-                    0
-                </div>
-                <h3><span class="number">10</span> Overdue Invoices</h3>
-                <h3 class="currency"></h3>
-
-                <p>Overdue invoices last 365 days</p></div>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <div id="paid_invoice" class="tile-stats tile-green">
-                <!--<div class="icon"><i class="entypo-chart-bar"></i></div>-->
-                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="600">
-                    0
-                </div>
-                <h3><span class="number">5</span> Paid </h3>
-                <h3 class="currency"></h3>
-                <p>Paid invoices for last 365 days</p></div>
         </div>
     </div>
     <div class="row">
@@ -143,17 +138,20 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
+                    <form id="filter-form" name="filter-form" style="display: inline">
                     <div class="panel-heading">
                         <div class="panel-title">
                             <h3>Top Pincodes</h3>
                         </div>
-
+                        <div class="pull-left">
+                        <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"
+                               data-format="YYYY-MM-DD" name="Closingdate" class="small-date-input daterange">
+                        </div>
                         <div class="panel-options">
-                            <form id="filter-form" name="filter-form" style="display: inline">
+
                                 {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
                                 {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
                                 {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
-                            </form>
 
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                             <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
@@ -161,6 +159,7 @@
                         </div>
 
                     </div>
+                    </form>
                     <div class="panel-body">
                         <div id="pin_expense_bar_chart"></div>
                     </div>
@@ -245,6 +244,7 @@
             var TotalSum = 0;
             var TotalPaymentSum = 0;
             var TotalPendingSum = 0;
+            var url = '{{$url}}';
             PaymentTable = $("#paymentTable").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
@@ -536,7 +536,7 @@
             });
 
 
-            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding', function (e) {
+            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding,.unpaid,.overdue,.paid', function (e) {
                 e.preventDefault();
                 $searchFilter.PaymentDate_StartDate = $(this).attr('data-startdate');
                 $searchFilter.PaymentDate_StartTime = '';
@@ -545,63 +545,46 @@
                 $searchFilter.CurrencyID = $(this).attr('data-currency');
                 if ($(this).hasClass('paymentReceived')) {
                     $searchFilter.Type = 1;
-                    //PaymentTable.fnClearTable();
                     PaymentTable.fnFilter('', 0);
                     $('#modal-Payment').modal('show');
                 } else if ($(this).hasClass('totalInvoice')) {
                     $searchFilter.Type = 2;
-                    //invoiceTable.fnClearTable();
                     invoiceTable.fnFilter('', 0);
                     $('#modal-invoice h4').text('Total Invoices');
                     $('#modal-invoice').modal('show');
                 } else if ($(this).hasClass('totalOutstanding')) {
                     $searchFilter.Type = 3;
-                    //invoiceTable.fnClearTable();
                     invoiceTable.fnFilter('', 0);
                     $('#modal-invoice h4').text('Total Outstanding');
+                    $('#modal-invoice').modal('show');
+                } else if ($(this).hasClass('unpaid')) {
+                    $searchFilter.Type = 4;
+                    invoiceTable.fnFilter('', 0);
+                    $('#modal-invoice h4').text('Unpaid Invoices');
+                    $('#modal-invoice').modal('show');
+                } else if ($(this).hasClass('overdue')) {
+                    $searchFilter.Type = 5;
+                    invoiceTable.fnFilter('', 0);
+                    $('#modal-invoice h4').text('Overdue Invoices');
+                    $('#modal-invoice').modal('show');
+                } else if ($(this).hasClass('paid')) {
+                    $searchFilter.Type = 6;
+                    invoiceTable.fnFilter('', 0);
+                    $('#modal-invoice h4').text('Paid Invoices');
                     $('#modal-invoice').modal('show');
                 }
 
             });
         });
 
+        $('#filter-Invoiceform [name="date-span"]').change(function () {
+            invoiceExpense();
+        });
+
         function reload_invoice_expense() {
-
-            var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
-            data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize();
-            loadingUnload('#invoice_expense_bar_chart', 1);
-            $.get(get_url, data, function (response) {
-                $(".search.btn").button('reset');
-                loadingUnload('#invoice_expense_bar_chart', 0);
-                $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
-            }, "html");
-
-            var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
-            /*loadingUnload('#invoice_expense_total', 1);*/
-            $.get(get_url, data, function (response) {
-                /*loadingUnload('#invoice_expense_total', 0);*/
-                $(".search.btn").button('reset');
-                /*var totaldata = $('#invoice_expense_total .num').data();
-                totaldata.prefix = response.CurrencySymbol;
-                totaldata.end = response.TotalOutstanding;*/
-                $('#invoice_expense_total .currency').text('('+response.CurrencyCode+')');
-                $('#invoice_expense_total .num').text(response.CurrencySymbol+''+response.data.TotalOutstanding);
-
-                $('#unpaid_invoice .currency').text('('+response.CurrencyCode+')');
-                $('#unpaid_invoice .number').text(response.data.CountTotalUnpaidInvoices);
-                $('#unpaid_invoice .num').text(response.CurrencySymbol+''+response.data.TotalUnpaidInvoices);
-
-                $('#overdue_invoice .currency').text('('+response.CurrencyCode+')');
-                $('#overdue_invoice .number').text(response.data.CountTotalOverdueInvoices);
-                $('#overdue_invoice .num').text(response.CurrencySymbol+''+response.data.TotalOverdueInvoices);
-
-                $('#paid_invoice .currency').text('('+response.CurrencyCode+')');
-                $('#paid_invoice .number').text(response.data.CountTotalPaidInvoices);
-                $('#paid_invoice .num').text(response.CurrencySymbol+''+response.data.TotalPaidInvoices);
-            }, "json");
+            invoiceExpense();
             pin_report();
             missingAccounts();
-
         }
 
 
@@ -641,6 +624,7 @@
             }, "html");
             @endif
 
+
         }
         $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="reload"]', function (e) {
             e.preventDefault();
@@ -678,6 +662,120 @@
                 missingAccounts();
             });
         });
+
+        function buildbox(option) {
+            html = '<div class="col-sm-3 col-xs-6">';
+            html += ' <div class="tile-stats ' + option['tileclass'] + '">';
+            html += '  <a target="_blank" class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
+            html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-prefix="' + option['prefix'] + '" data-postfix="" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
+            html += '    <h3>' + option['count'] + ' ' + option['type'] + '</h3>';
+            html += '  </a>';
+            html += ' </div>';
+            html += '</div>';
+            return html;
+        }
+
+        function titleState() {
+            $("#invoice-widgets .tile-stats").each(function (i, el) {
+                var $this = $(el),
+                        $num = $this.find('.num'),
+                        start = attrDefault($num, 'start', 0),
+                        end = attrDefault($num, 'end', 0),
+                        prefix = attrDefault($num, 'prefix', ''),
+                        postfix = attrDefault($num, 'postfix', ''),
+                        duration = attrDefault($num, 'duration', 1000),
+                        delay = attrDefault($num, 'delay', 1000);
+
+                if (start < end) {
+                    if (typeof scrollMonitor == 'undefined') {
+                        $num.html(prefix + end + postfix);
+                    }
+                    else {
+                        var tile_stats = scrollMonitor.create(el);
+
+                        tile_stats.fullyEnterViewport(function () {
+
+                            var o = {curr: start};
+
+                            TweenLite.to(o, duration / 1000, {
+                                curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
+                                    $num.html(prefix + Math.round(o.curr) + postfix);
+                                }
+                            });
+
+                            tile_stats.destroy()
+                        });
+                    }
+                }
+            });
+        }
+
+        function invoiceExpense() {
+            var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
+            data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() + '&' + $('#filter-Invoiceform').serialize();
+            var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+            loadingUnload('#invoice_expense_bar_chart', 1);
+            $.get(get_url, data, function (response) {
+                $(".search.btn").button('reset');
+                loadingUnload('#invoice_expense_bar_chart', 0);
+                $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
+            }, "html");
+
+            var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
+            $.get(get_url, data, function (response) {
+                var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+                var option = [];
+                var widgets = '';
+                var startDate = '';
+                var enddate = '{{date('Y-m-d')}}';
+                if ($('#filter-Invoiceform [name="date-span"]').val() == 6) {
+                    startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
+                } else {
+                    startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
+                }
+
+                $(".search.btn").button('reset');
+                option["prefix"] = response.CurrencySymbol;
+                option["startdate"] = startDate;
+                option["enddate"] = enddate;
+                option["currency"] = CurrencyID;
+                option["amount"] = response.data.TotalOutstanding;
+                option["end"] = response.data.TotalOutstanding;
+                option["tileclass"] = 'tile-white-red';
+                option["class"] = 'outstanding';
+                option["type"] = 'Total Outstanding';
+                option["count"] = '';
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalUnpaidInvoices;
+                option["end"] = response.data.TotalUnpaidInvoices;
+                option["tileclass"] = 'tile-orange';
+                option["class"] = 'unpaid';
+                option["type"] = 'Unpaid invoices';
+                option["count"] = response.data.CountTotalUnpaidInvoices;
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalOverdueInvoices;
+                option["end"] = response.data.TotalOverdueInvoices;
+                option["tileclass"] = 'tile-red';
+                option["class"] = 'overdue';
+                option["type"] = 'Overdue invoices';
+                option["count"] = response.data.CountTotalOverdueInvoices;
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalPaidInvoices;
+                option["end"] = response.data.TotalPaidInvoices;
+                option["tileclass"] = 'tile-green';
+                option["class"] = 'paid';
+                option["type"] = 'Paid invoices';
+                option["count"] = response.data.CountTotalPaidInvoices;
+                widgets += buildbox(option);
+
+                $('#invoice-widgets').html(widgets);
+
+                titleState();
+            }, "json");
+        }
 
         function missingAccounts() {
             var table = $('#missingAccounts');

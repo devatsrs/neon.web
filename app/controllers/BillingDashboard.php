@@ -10,7 +10,7 @@ class BillingDashboard extends \BaseController {
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
-        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0')";
+        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0',".$data['date-span'].")";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
         return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
@@ -29,7 +29,7 @@ class BillingDashboard extends \BaseController {
         }
         $companyID = User::get_companyID();
 
-        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','0')";
+        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','0',".$data['date-span'].")";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         $TotalOutstanding = 0;
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
@@ -48,8 +48,11 @@ class BillingDashboard extends \BaseController {
         $data['Type'] = empty($data['Type'])?1:$data['Type'];
         $data['PinExt'] = empty($data['PinExt'])?'pincode':$data['PinExt'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
-        $Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
-        $Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
+        $Closingdate		=	explode(' - ',$data['Closingdate']);
+        $Startdate			=   $Closingdate[0];
+        $Enddate			=	$Closingdate[1];
+        //$Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
+        //$Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
         $data['Startdate'] = trim($Startdate).' 23:59:59';
         $data['Enddate'] = trim($Enddate).' 23:59:59';
         if($data['Type'] == 2 && $data['PinExt'] == 'pincode'){
@@ -118,7 +121,7 @@ class BillingDashboard extends \BaseController {
         if($data['Type']==1) { //1 for Payment received.
             $columns = array('AccountName', 'InvoiceNo', 'Amount', 'PaymentType', 'PaymentDate', 'Status', 'CreatedBy', 'Notes');
             $sort_column = $columns[$data['iSortCol_0']];
-        }elseif($data['Type']==2 || $data['Type']==3){ //2 for Total Invoices
+        }elseif($data['Type']==2 || $data['Type']==3 || $data['Type']==4 || $data['Type']==5 || $data['Type']==6){ //2 for Total Invoices
             $columns = ['AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
             $sort_column = $columns[$data['iSortCol_0']];
         }
