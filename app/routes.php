@@ -58,6 +58,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
 	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
 
+	//notification
+	Route::any('customer/notification', 'NotificationCustomerController@index');
+	Route::any('/customer/alert/ajax_datagrid/{type}','NotificationCustomerController@ajax_datagrid');
+	Route::any('/customer/alert/store','NotificationCustomerController@store');
+	Route::any('/customer/alert/update/{id}','NotificationCustomerController@update');
+	Route::any('/customer/alert/delete/{id}','NotificationCustomerController@delete');
+
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
     Route::any('/roles/storerole', "RoleController@storerole");

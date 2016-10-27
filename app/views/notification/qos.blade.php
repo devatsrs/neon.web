@@ -199,7 +199,7 @@
                 }else if(ele_name =='Time' || ele_name == 'StartTime'){
                     var selectBox = $("#billing-form [name='QosAlert["+ele_name+"]']");
                     selectBox.val(ele_val).trigger("change");
-                }else if(ele_name == 'CompanyGatewayID' || ele_name == 'CountryID' || ele_name == 'TrunkID' || ele_name == 'AccountID' || ele_name == 'Day') {
+                }else if(ele_name == 'CompanyGatewayID' || ele_name == 'CountryID' || ele_name == 'TrunkID' || ele_name == 'AccountID' || ele_name == 'VAccountID' || ele_name == 'Day') {
                     $("#billing-form [name='QosAlert["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
                 }else if(ele_name == 'Interval'){
                     setTimeout(function(){

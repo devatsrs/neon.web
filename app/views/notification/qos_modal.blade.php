@@ -82,8 +82,14 @@
                         <div class="clear"></div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Account</label>
+                                <label for="field-5" class="control-label">Customer</label>
                                 {{ Form::select('QosAlert[AccountID][]',$Multiaccount,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select Account")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Vendor</label>
+                                {{ Form::select('QosAlert[VAccountID][]',$Multivendor,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select Account")) }}
                             </div>
                         </div>
 

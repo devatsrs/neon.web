@@ -406,4 +406,29 @@ class Account extends \Eloquent {
         return $LastInvoiceDate;
 
     }
+    public static function getCustomerIDList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsCustomer'=>1]);
+                $where->orwhereNull('IsCustomer');
+                $where->orwhereRaw('(IsCustomer = 0 AND IsVendor = 0)');
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
 }

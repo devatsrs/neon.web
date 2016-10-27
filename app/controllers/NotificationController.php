@@ -33,7 +33,8 @@ class NotificationController extends \BaseController {
         $notificationType = array(""=> "Select") + Notification::$type;
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $Country = Country::getCountryDropdownIDList();
-        $account = Account::getAccountIDList();
+        $account = Account::getCustomerIDList();
+        $accountvendor =Account::getAccountIDList(array('IsVendor'=>1));
         $trunks = Trunk::getTrunkDropdownIDList();
         $qos_alert_type  = Alert::$qos_alert_type;
         $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
@@ -41,11 +42,13 @@ class NotificationController extends \BaseController {
         $Multiaccount = $account;
         $Multitrunks = $trunks;
         $Multigateway = $gateway;
+        $Multivendor = $accountvendor;
         if(isset($MultiCountry[""])){unset($MultiCountry[""]);}
         if(isset($Multiaccount[""])){unset($Multiaccount[""]);}
         if(isset($Multitrunks[""])){unset($Multitrunks[""]);}
         if(isset($Multigateway[""])){unset($Multigateway[""]);}
-        return View::make('notification.index', compact('notificationType','gateway','Country','account','trunks','qos_alert_type','call_monitor_alert_type','MultiCountry','Multiaccount','Multitrunks','Multigateway'));
+        if(isset($Multivendor[""])){unset($Multivendor[""]);}
+        return View::make('notification.index', compact('notificationType','gateway','Country','account','trunks','qos_alert_type','call_monitor_alert_type','MultiCountry','Multiaccount','Multitrunks','Multigateway','Multivendor'));
     }
 
 

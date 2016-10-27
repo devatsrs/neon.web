@@ -23,7 +23,8 @@
         </div>
         <div class="tab-pane" id="qos" >
             @include('notification.qos')
-        </div><div class="tab-pane" id="callmonitor" >
+        </div>
+        <div class="tab-pane" id="callmonitor" >
             @include('notification.callmonitor')
         </div>
     </div>
