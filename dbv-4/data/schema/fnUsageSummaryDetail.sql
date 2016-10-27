@@ -1,5 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummaryDetail`(IN `p_CompanyID` int , IN `p_CompanyGatewayID` int , IN `p_AccountID` int , IN `p_CurrencyID` INT, IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT , IN `p_isAdmin` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummaryDetail`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` TEXT, IN `p_AccountID` TEXT, IN `p_CurrencyID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AreaPrefix` TEXT, IN `p_Trunk` TEXT, IN `p_CountryID` TEXT, IN `p_UserID` INT , IN `p_isAdmin` INT)
 BEGIN
+	
+	DECLARE i INTEGER;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
@@ -20,6 +22,19 @@ BEGIN
 			`AccountName` varchar(100),
 			INDEX `tblUsageSummary_dim_date` (`DateID`)
 	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_AreaPrefix_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_AreaPrefix_ (
+		`Code` Text NULL DEFAULT NULL
+	);
+    
+	SET i = 1;
+	REPEAT
+		INSERT INTO tmp_AreaPrefix_ ( Code)
+		SELECT NeonRMDev.FnStringSplit(p_AreaPrefix, ',', i) FROM tblDimDate WHERE NeonRMDev.FnStringSplit(p_AreaPrefix, ',', i) IS NOT NULL LIMIT 1;
+		SET i = i + 1;
+		UNTIL ROW_COUNT() = 0
+	END REPEAT;
 		
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
@@ -47,15 +62,19 @@ BEGIN
 		ON dt.TimeID = usd.TimeID
 	INNER JOIN NeonRMDev.tblAccount a
 		ON sh.AccountID = a.AccountID
+	LEFT JOIN NeonRMDev.tblTrunk t
+		ON t.Trunk = sh.Trunk
+	LEFT JOIN tmp_AreaPrefix_ ap 
+		ON sh.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
 	WHERE CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
-	AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
-	AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+	AND (p_AccountID = '' OR FIND_IN_SET(sh.AccountID,p_AccountID))
+	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-	AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-	AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-	AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
-	AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+	AND (p_Trunk = '' OR FIND_IN_SET(t.TrunkID,p_Trunk))
+	AND (p_CountryID = '' OR FIND_IN_SET(sh.CountryID,p_CountryID))
+	AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+	AND (p_AreaPrefix ='' OR ap.Code IS NOT NULL);
 		
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
@@ -83,14 +102,18 @@ BEGIN
 		ON dt.TimeID = usd.TimeID
 	INNER JOIN NeonRMDev.tblAccount a
 		ON sh.AccountID = a.AccountID
+	LEFT JOIN NeonRMDev.tblTrunk t
+		ON t.Trunk = sh.Trunk
+	LEFT JOIN tmp_AreaPrefix_ ap 
+		ON (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(ap.Code, '*', '%') )
 	WHERE CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
-	AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
-	AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+	AND (p_AccountID = '' OR FIND_IN_SET(sh.AccountID,p_AccountID))
+	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-	AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-	AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-	AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
-	AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+	AND (p_Trunk = '' OR FIND_IN_SET(t.TrunkID,p_Trunk))
+	AND (p_CountryID = '' OR FIND_IN_SET(sh.CountryID,p_CountryID))
+	AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+	AND (p_AreaPrefix ='' OR ap.Code IS NOT NULL);
 
 END

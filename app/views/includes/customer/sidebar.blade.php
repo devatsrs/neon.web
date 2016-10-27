@@ -95,6 +95,12 @@
             </a>
         </li>
         <li>
+            <a href="{{URL::to('customer/notification')}}">
+                <i class="fa fa-bullhorn"></i>
+                <span>Notifications</span>
+            </a>
+        </li>
+        <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="glyphicon glyphicon-user"></i>
                 <span>Profile</span>

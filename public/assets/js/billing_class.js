@@ -30,8 +30,21 @@ $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
 $("#billing-form [name='QosAlert[Time]']").change(function(){
     populateInterval($(this).val(),'QosAlert','billing-form');
 });
-$("#call-billing-form [name='CallAlert[Time]']").change(function(){
-    populateInterval($(this).val(),'CallAlert','call-billing-form');
+$("#call-billing-form [name='AlertType']").change(function(){
+    $("#call-billing-form .custom_field").addClass('hidden');
+    if($(this).val() == 'block_destination'){
+        $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[ReminderEmail]']").parents('.row').removeClass('hidden');
+    }else if($(this).val() == 'call_duration' || $(this).val() == 'call_cost' || $(this).val() == 'call_after_office'){
+        $("#call-billing-form [name='CallAlert[AccountID]']").parents('.row').removeClass('hidden');
+        if($(this).val() == 'call_duration'){
+            $("#call-billing-form [name='CallAlert[Duration]']").parents('.row').removeClass('hidden');
+        }else if($(this).val() == 'call_cost'){
+            $("#call-billing-form [name='CallAlert[Cost]']").parents('.row').removeClass('hidden');
+        }else if($(this).val() == 'call_after_office'){
+            $("#call-billing-form [name='CallAlert[OpenTime]']").parents('.row').removeClass('hidden');
+        }
+    }
 });
 
 function rebind() {
@@ -113,14 +126,14 @@ function populateInterval(jobtype,form,formID){
             for(var i=1;i<'32';i++){
                 option.push(new Option(i+" Day", i, true, true));
             }
-            option.sort();
+            //option.sort();
             selectBoxStartDay.append(option);
             selectBoxStartDay.val(1).trigger('change');
 
             $("#"+formID+" ."+form+"Day").show();
             starttime.show();
         }
-        options.sort();
+        //options.sort();
         selectBox.append(options);
         selectBox.val(1).trigger('change');
     }

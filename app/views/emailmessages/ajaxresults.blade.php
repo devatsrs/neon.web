@@ -1,16 +1,17 @@
 <table id="table-4" class="table mail-table">
   <thead>
     <tr>
-      <th width="5%"> <div class="@if($boxtype == 'sentbox')hidden @endif checkbox checkbox-replace">
+      <th width="5%"> <div class="@if($boxtype == Messages::sentbox)hidden @endif checkbox checkbox-replace">
           <input class="mail_select_checkbox" type="checkbox" />
         </div>
       </th>
-      <th colspan="4"> <?php if(count($result)>0){ ?>
-        <div class="hidden mail-select-options">@if($boxtype == 'inbox') Mark as Read @elseif($boxtype == 'draftbox') Mark to Delete @endif</div>
+      <th colspan="4">@if($boxtype == Messages::inbox)<div class="mail-select-options"> <a show_all_read="0" class="btn-apply btn @if(isset($data['show_all_read']) && $data['show_all_read']==0) btn-blue @else btn-default @endif show_all_read">All</a> <a show_all_read="1" class="btn-apply btn @if(isset($data['show_all_read']) && $data['show_all_read']==1) btn-blue @else btn-default @endif show_all_read">Unread</a> </div>@endif  
+       <?php if(count($result)>0){ ?>        
         <div class="mail-pagination">
-      @if($boxtype == 'inbox')  <a class="btn-apply mailaction btn btn-default">Apply</a> @endif
-      @if($boxtype == 'draftbox')  <a action_type="Delete" action_value="1"  class="btn-apply mailaction btn btn-default">Delete</a> @endif
-      
+      @if($boxtype == Messages::inbox)  <button type="button" class="btn btn-success mailaction tooltip-primary" data-toggle="tooltip" data-placement="top"  data-original-title="Apply"><i class="entypo-check"></i></button> @endif
+      @if($boxtype == Messages::draftbox)  
+      <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="glyphicon glyphicon-trash"></i> </a>
+       @endif
          <strong>
           <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
           -
@@ -31,7 +32,7 @@
             <?php } } ?>
           </div>
         </div>
-        @if($boxtype == 'inbox')
+        @if($boxtype == Messages::inbox)
          <div class="mail-pagination margin-left-mail">
                   <select id="selectmailaction" name="selectmailaction" action_type="HasRead" class="select2 selectmailaction">
                   <option value="">Select</option>
@@ -53,20 +54,20 @@
 			if(isset($result_data->EmailTo)){ //sentbox
 				$AccountName  =  Messages::GetAccountTtitlesFromEmail($result_data->EmailTo);
 			}
-			if($boxtype == 'draftbox'){
+			if($boxtype == Messages::draftbox){
 				$url = URL::to('/').'/emailmessages/'.$result_data->AccountEmailLogID.'/compose';
 			} else {
 				$url = URL::to('/').'/emailmessages/'.$result_data->AccountEmailLogID.'/detail';
 			}
 			 ?>
     <tr class="<?php if(isset($result_data->HasRead) && $result_data->HasRead==0){echo "unread";} ?>"><!-- new email class: unread -->
-      <td><div class="@if($boxtype == 'sentbox')hidden @endif checkbox checkbox-replace">
+      <td><div class="@if($boxtype == Messages::sentbox)hidden @endif checkbox checkbox-replace">
           <input value="<?php  echo $result_data->AccountEmailLogID; ?>" class="mailcheckboxes" type="checkbox" />
         </div></td>
       <td class="col-name"><a target="_blank" href="{{$url}}" class="col-name">
-        <?php if($boxtype=='inbox'){ echo ShortName($result_data->EmailfromName,30); }else{echo ShortName($AccountName,30);} ?>
+        <?php if($boxtype==Messages::inbox){ echo ShortName($result_data->EmailfromName,30); }else{echo ShortName($AccountName,30);} ?>
         </a></td>
-      <td class="col-subject"><a target="_blank" href="{{$url}}">@if($boxtype == 'inbox' && $result_data->AccountID==0)<span class="label label-info">Unmatched</span> @endif<?php echo ShortName($result_data->Subject,50); ?> </a></td>
+      <td class="col-subject"><a target="_blank" href="{{$url}}">@if($boxtype == Messages::inbox && $result_data->AccountID==0)<span class="label label-info">Unmatched</span> @endif<?php echo ShortName($result_data->Subject,50); ?> </a></td>
       <td class="col-options"><?php if(count($attachments)>0 && is_array($attachments)){ ?>
         <a target="_blank" href="{{$url}}"><i class="entypo-attach"></i></a>
         <?php } ?></td>
@@ -107,3 +108,5 @@
     </tr>
   </tfoot>
 </table>
+<input type="hidden" name="SidebarCounterInbox" id="SidebarCounterInbox" value="{{$TotalUnreads}}" />
+<input type="hidden" name="SidebarCounterDraft" id="SidebarCounterDraft" value="{{$TotalDraft}}" />

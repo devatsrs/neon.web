@@ -133,6 +133,8 @@ $(document).ready(function(e) {
 						ShowToastr("success",response.message); 			
 						document.getElementById('MailBoxCompose').reset();		
 						$('.select2-search-choice-close').click();
+						$('.mailinboxcountersidebar').html(response.unreadinbox);
+						$('.maildraftcountersidebar').html(response.totaldraft);						
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   

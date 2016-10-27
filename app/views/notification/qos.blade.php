@@ -169,10 +169,10 @@
             ev.preventDefault();
             $('#billing-form').trigger("reset");
             $('#add-qos-modal h4').html('Add Qos Alert');
-
+            var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
             $(".js-example-disabled").prop("disabled", false);
             $('#billing-form select').select2("val", "");
-
+            $("#billing-form [name='QosAlert[Day][]']").val(selected_days.split(',')).trigger('change');
             var selectBox = $("#billing-form [name='AlertType']");
             selectBox.val('').trigger("change");
             selectBox.prop("disabled", false);
@@ -195,12 +195,12 @@
                 if(ele_name == 'AlertType'){
                     var selectBox = $("#billing-form [name='"+ele_name+"']");
                     selectBox.val(ele_val).trigger("change");
-                    selectBox.prop("readonly", true);
-                }else if(ele_name == 'CompanyGatewayID' || ele_name == 'CountryID' || ele_name == 'TrunkID' || ele_name == 'AccountID' || ele_name =='Time' || ele_name == 'StartTime'){
+                    selectBox.prop("disabled", true);
+                }else if(ele_name =='Time' || ele_name == 'StartTime'){
                     var selectBox = $("#billing-form [name='QosAlert["+ele_name+"]']");
                     selectBox.val(ele_val).trigger("change");
-                }else if(ele_name == 'Day') {
-                    $("#billing-form [name='QosAlert[Day][]']").val(ele_val.split(',')).trigger('change');
+                }else if(ele_name == 'CompanyGatewayID' || ele_name == 'CountryID' || ele_name == 'TrunkID' || ele_name == 'AccountID' || ele_name == 'VAccountID' || ele_name == 'Day') {
+                    $("#billing-form [name='QosAlert["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
                 }else if(ele_name == 'Interval'){
                     setTimeout(function(){
                         $("#billing-form [name='QosAlert[Interval]']").val(ele_val).trigger('change');
@@ -229,6 +229,7 @@
         });
 
         $("#billing-form").submit(function(e){
+            $("#billing-form [name='AlertType']").prop("disabled", false);
             e.preventDefault();
             var _url  = $(this).attr("action");
             submit_ajax_datatable(_url,$(this).serialize(),0,data_table_qos);

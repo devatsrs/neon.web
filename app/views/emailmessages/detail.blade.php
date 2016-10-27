@@ -25,7 +25,10 @@
       <div class="mail-title"> {{$Emaildata->Subject}} <span class="label label-warning hidden">Friends</span> <span class="label label-info hidden">Sport</span> </div>
       
       <!-- links -->
-      <div class="mail-links"> <a action_type="reply" email_number="{{$Emaildata->AccountEmailLogID}}" class="btn btn-primary btn-icon email_action"> Reply <i class="entypo-reply"></i> </a> <a action_type="forward" email_number="{{$Emaildata->AccountEmailLogID}}" class="btn btn-default btn-icon email_action"> Forward <i class="entypo-forward"></i> </a> </div>
+      <div class="mail-links">
+       <a action_type="reply" email_number="{{$Emaildata->AccountEmailLogID}}" data-toggle="tooltip" data-placement="top"  data-original-title="Reply" class="btn btn-black email_action tooltip-primary"><i class="entypo-reply"></i> </a> 
+       <a action_type="forward" email_number="{{$Emaildata->AccountEmailLogID}}" data-toggle="tooltip" data-placement="top"  data-original-title="Forward" class="btn btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a>
+        </div>
     </div>
     <div class="mail-info">
       <div class="mail-sender dropdown"> <a class="dropdown-toggle clickable" data-toggle="dropdown" href=""> <span>{{$from}}</span> ({{$Emaildata->Emailfrom}}) to <span>{{$to}}</span> </a>
@@ -66,7 +69,7 @@
       </ul>
     </div>
     @endif
-    <div class="mail-reply">
+    <div class="hidden mail-reply">
       <div class="fake-form">
         <div> <a class="email_action clickable" action_type="reply" email_number="{{$Emaildata->AccountEmailLogID}}" >Reply</a> or <a class="email_action clickable" action_type="forward" email_number="{{$Emaildata->AccountEmailLogID}}">Forward</a> this message... </div>
       </div>
