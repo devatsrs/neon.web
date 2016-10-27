@@ -29,21 +29,6 @@
                                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                                 </div>
                             @endif
-                            <label class="col-sm-1 control-label" for="Startdate">Start date</label>
-
-                            <div class="col-sm-2">
-                                <input type="text" name="Startdate" class="form-control datepicker"
-                                       data-date-format="yyyy-mm-dd" value="{{$original_startdate}}"
-                                       data-enddate="{{date('Y-m-d')}}"/>
-                            </div>
-                            <label class="col-sm-1 control-label" for="field-1">End Date</label>
-
-                            <div class="col-sm-2">
-                                <input type="text" name="Enddate" class="form-control datepicker"
-                                       data-date-format="yyyy-mm-dd" value="{{$original_enddate}}"
-                                       data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}"/>
-                            </div>
-
                         </div>
                         <p style="text-align: right;">
                             <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit"
