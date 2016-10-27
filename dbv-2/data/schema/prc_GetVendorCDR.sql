@@ -35,7 +35,7 @@ BEGIN
 			uh.connect_time,
 			uh.disconnect_time,
 			uh.billed_duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.buying_cost,v_Round_)) AS buying_cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),uh.buying_cost) AS buying_cost,
 			uh.cli,
 			uh.cld,
 			uh.area_prefix,
@@ -54,8 +54,8 @@ BEGIN
 	 
 		SELECT
 			COUNT(*) AS totalcount,
-			ROUND(SUM(uh.billed_duration),v_Round_) as total_billed_duration,
-			ROUND(SUM(uh.buying_cost),v_Round_) as total_cost,
+			fnFormateDuration(SUM(uh.billed_duration)) as total_billed_duration,
+			SUM(uh.buying_cost) as total_cost,
 			v_CurrencyCode_ as CurrencyCode
 		FROM tmp_tblVendorUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
@@ -73,7 +73,7 @@ BEGIN
 			uh.connect_time,
 			uh.disconnect_time,        
 			uh.billed_duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.buying_cost,v_Round_)) AS Cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),uh.buying_cost) AS Cost,
 			uh.cli,
 			uh.cld,
 			uh.area_prefix,
