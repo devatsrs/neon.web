@@ -206,6 +206,12 @@
                 }else if(ele_name == 'AccountID'){
                     var selectBox = $("#call-billing-form [name='CallAlert["+ele_name+"]']");
                     selectBox.val(ele_val).trigger("change");
+                }else if(ele_name == 'EmailToAccount'){
+                    if (ele_val == 1) {
+                        $("#call-billing-form [name='CallAlert["+ele_name+"]']").prop('checked', true)
+                    } else {
+                        $("#call-billing-form [name='CallAlert["+ele_name+"]']").prop('checked', false)
+                    }
                 }else if(ele_name == 'Status'){
                     if (ele_val == 1) {
                         $("#call-billing-form [name='"+ele_name+"']").prop('checked', true)

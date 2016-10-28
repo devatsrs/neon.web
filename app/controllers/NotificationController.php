@@ -33,13 +33,19 @@ class NotificationController extends \BaseController {
         $notificationType = array(""=> "Select") + Notification::$type;
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $Country = Country::getCountryDropdownIDList();
-        $account = Account::getCustomerIDList();
+        $accountcustomer = Account::getCustomerIDList();
+        $account = Account::getAccountIDList();
         $accountvendor =Account::getAccountIDList(array('IsVendor'=>1));
         $trunks = Trunk::getTrunkDropdownIDList();
         $qos_alert_type  = Alert::$qos_alert_type;
-        $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
+        if((int)CompanyConfiguration::get('CUSTOMER_NOTIFICATION_DISPLAY') == 0){
+            $call_monitor_alert_type  = Alert::$call_blacklist_alert_type;
+        }else{
+            $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
+        }
+
         $MultiCountry = $Country;
-        $Multiaccount = $account;
+        $Multiaccount = $accountcustomer;
         $Multitrunks = $trunks;
         $Multigateway = $gateway;
         $Multivendor = $accountvendor;

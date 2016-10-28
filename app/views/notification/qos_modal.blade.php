@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Send Copy To</label>
+                                <label class="control-label">Send Email To</label>
                                 <input type="text" name="QosAlert[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="" />
                             </div>
                         </div>

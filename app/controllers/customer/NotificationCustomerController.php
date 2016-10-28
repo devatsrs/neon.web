@@ -95,6 +95,7 @@ class NotificationCustomerController extends \BaseController {
             if(!empty($error_message)){
                 return Response::json(array("status" => "failed", "message" =>$error_message));
             }
+            $data = self::convert_data($data)+$data;
             if ($Notification->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Notification Successfully Updated"));
             } else {
@@ -104,11 +105,11 @@ class NotificationCustomerController extends \BaseController {
 	}
 
 
-	public function delete($NotificationID)
+	public function delete($AlertID)
 	{
-        if( intval($NotificationID) > 0){
+        if( intval($AlertID) > 0){
             try{
-                $Notification = Notification::find($NotificationID);
+                $Notification = Alert::find($AlertID);
                 $result = $Notification->delete();
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Notification Successfully Deleted"));
