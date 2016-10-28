@@ -59,41 +59,41 @@
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
                 </div>
                 <div id="invoice-widgets" class="panel-body white-bg">
-                    <div class="col-sm-3 col-xs-6">
+                    <div class="col-sm-2 col-xs-6">
                         <div class="tile-stats tile-white-red"><a target="_blank" class="undefined"
                                                                   data-startdate="" data-enddate=""
                                                                   data-currency="" href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <h3> Total Outstanding</h3></a></div>
+                                <p> Total Outstanding</p></a></div>
                     </div>
-                    <div class="col-sm-3 col-xs-6">
+                    <div class="col-sm-2 col-xs-6">
                         <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
                                                                data-startdate="" data-enddate=""
                                                                data-currency="0" href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <h3>0 Unpaid invoices</h3></a></div>
+                                <p>0 Unpaid invoices</p></a></div>
                     </div>
-                    <div class="col-sm-3 col-xs-6">
+                    <div class="col-sm-2 col-xs-6">
                         <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
                                                             data-enddate="" data-currency=""
                                                             href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <h3>0 Overdue invoices</h3></a></div>
+                                <p>0 Overdue invoices</p></a></div>
                     </div>
-                    <div class="col-sm-3 col-xs-6">
+                    <div class="col-sm-2 col-xs-6">
                         <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
                                                               data-enddate="" data-currency=""
                                                               href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <h3>0 Paid invoices</h3></a></div>
+                                <p>0 Paid invoices</p></a></div>
                     </div>
                 </div>
             </div>
@@ -646,11 +646,11 @@
         });
 
         function buildbox(option) {
-            html = '<div class="col-sm-3 col-xs-6">';
+            html = '<div class="col-sm-2 col-xs-6">';
             html += ' <div class="tile-stats ' + option['tileclass'] + '">';
             html += '  <a target="_blank" class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
             html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-prefix="' + option['prefix'] + '" data-postfix="" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
-            html += '    <h3>' + option['count'] + ' ' + option['type'] + '</h3>';
+            html += '    <p>' + option['count'] + ' ' + option['type'] + '</p>';
             html += '  </a>';
             html += ' </div>';
             html += '</div>';
@@ -658,7 +658,7 @@
         }
 
         function titleState() {
-            $("#invoice-widgets .tile-stats").each(function (i, el) {
+            $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
                 var $this = $(el),
                         $num = $this.find('.num'),
                         start = attrDefault($num, 'start', 0),

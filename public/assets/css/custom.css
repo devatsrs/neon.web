@@ -130,15 +130,14 @@ body {
 }
 .tile-stats{
     padding:8px; !important;
+    margin-bottom:0px;
+
 }
 .tile-stats .num{
-    font-size:20px;
+    font-size:17px;
     font-weight:500;
 }
-.tile-stats h3{
-    font-size:15px;
-    margin-top:5px;
-}
+
 .tile-orange{
     background:#E6AF32 none repeat scroll 0 0 !important;
 }
