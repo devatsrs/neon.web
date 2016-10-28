@@ -649,7 +649,7 @@
         function buildbox(option) {
             html = '<div class="col-sm-2 col-xs-6">';
             html += ' <div class="tile-stats ' + option['tileclass'] + '">';
-            html += '  <a target="_blank" class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
+            html += '  <a class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
             html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-prefix="' + option['prefix'] + '" data-postfix="" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
             html += '    <p>' + option['count'] + ' ' + option['type'] + '</p>';
             html += '  </a>';
