@@ -48,17 +48,18 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-primary panel-table">
+            <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        <h3>Invoices</h3>
+                        Invoices
                     </div>
-                    <div id="UsersTasks" class="panel-options">
-                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                        <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
-                        <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                    </div>
                 </div>
-                <div id="invoice-widgets" class="panel-body white-bg">
+                <div id="invoice-widgets" class="panel-body">
                     <div class="col-sm-2 col-xs-6">
                         <div class="tile-stats tile-white-red"><a target="_blank" class="undefined"
                                                                   data-startdate="" data-enddate=""
@@ -494,9 +495,9 @@
                     /* Add some extra data to the sender */
                     $.getJSON(sSource, aoData, function (json) {
                         /* Do whatever additional processing you want on the callback, then tell DataTables */
-                        TotalSum = json.Total.totalsum;
-                        TotalPaymentSum = json.Total.totalpaymentsum;
-                        TotalPendingSum = json.Total.totalpendingsum;
+                        TotalSum =  json.Total.currencySymbol + json.Total.totalsum;
+                        TotalPaymentSum = json.Total.currencySymbol + json.Total.totalpaymentsum;
+                        TotalPendingSum = json.Total.currencySymbol + json.Total.totalpendingsum;
                         fnCallback(json)
                     });
                 },
