@@ -59,7 +59,6 @@ class NotificationCustomerController extends \BaseController {
 		$data = Input::all();
         $data["CreatedBy"] = User::get_user_full_name();
         $data['CompanyID'] = User::get_companyID();
-        $data['Status'] = isset($data['Status'])?1:0;
         $data['Name'] = Customer::get_accountName().' - '.Alert::$call_monitor_customer_alert_type[$data['AlertType']];
         $rules = Alert::$rules;
         $validator = Validator::make($data, $rules);
@@ -84,7 +83,6 @@ class NotificationCustomerController extends \BaseController {
             $data = Input::all();
             $Notification = Alert::find($AlertID);
             $data["ModifiedBy"] = User::get_user_full_name();
-            $data['Status'] = isset($data['Status'])?1:0;
             $rules = Alert::$rules;
             unset($rules['Name']);
             $validator = Validator::make($data, $rules);
