@@ -25,10 +25,14 @@
 
                             @if(User::is_admin())
                                 <label for="field-1" class="col-sm-1 control-label">Currency</label>
-                                <div class="col-sm-2">
+                                <div class="col-md-2">
                                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                                 </div>
                             @endif
+                                <label for="field-1" class="col-sm-1 control-label">Date</label>
+                                <div class="col-md-2">
+                                    {{ Form::select('date-span', array(6=>'6 months',12=>'12 months'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
+                                </div>
                         </div>
                         <p style="text-align: right;">
                             <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit"
@@ -50,9 +54,6 @@
                         <h3>Invoices</h3>
                     </div>
                     <div id="UsersTasks" class="panel-options">
-                        <form id="filter-Invoiceform" name="filter-form" style="display: inline">
-                            {{ Form::select('date-span', array(6=>'6 months',12=>'12 months'), 1, array('id'=>'date-span','class'=>'select_gray')) }}
-                        </form>
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
@@ -560,10 +561,6 @@
                 }
 
             });
-        });
-
-        $('#filter-Invoiceform [name="date-span"]').change(function () {
-            invoiceExpense();
         });
 
         function reload_invoice_expense() {
