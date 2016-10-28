@@ -9,8 +9,18 @@ class BillingDashboard extends \BaseController {
             $CurrencyID = $data["CurrencyID"];
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
+        if($data['date-span']==0){
+            $Closingdate		=	explode(' - ',$data['Closingdate']);
+            $Startdate			=   $Closingdate[0];
+            $Enddate			=	$Closingdate[1];
+            $data['Startdate'] = trim($Startdate).' 00:00:01';
+            $data['Enddate'] = trim($Enddate).' 23:59:59';
+        }else{
+            $data['Startdate'] = $data['date-span'];
+            $data['Enddate']=0;
+        }
         $companyID = User::get_companyID();
-        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0',".$data['date-span'].")";
+        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
         return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
@@ -27,9 +37,19 @@ class BillingDashboard extends \BaseController {
             $CurrencyCode = Currency::getCurrency($CurrencyID);
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
+        if($data['date-span']==0){
+            $Closingdate		=	explode(' - ',$data['Closingdate']);
+            $Startdate			=   $Closingdate[0];
+            $Enddate			=	$Closingdate[1];
+            $data['Startdate'] = trim($Startdate).' 00:00:01';
+            $data['Enddate'] = trim($Enddate).' 23:59:59';
+        }else{
+            $data['Startdate'] = $data['date-span'];
+            $data['Enddate']=0;
+        }
         $companyID = User::get_companyID();
 
-        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','0',".$data['date-span'].")";
+        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','0','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         $TotalOutstanding = 0;
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {

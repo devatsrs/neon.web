@@ -31,8 +31,12 @@
                             @endif
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
                                 <div class="col-md-2">
-                                    {{ Form::select('date-span', array(6=>'6 months',12=>'12 months'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
+                                    {{ Form::select('date-span', array(6=>'6 Months',12=>'12 Months',0=>'Custome Date'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
                                 </div>
+                            <div class="col-md-2 tobehidden hidden">
+                                <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"
+                                       data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
+                            </div>
                         </div>
                         <p style="text-align: right;">
                             <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit"
@@ -60,7 +64,7 @@
                     </div>
                 </div>
                 <div id="invoice-widgets" class="panel-body">
-                    <div class="col-sm-2 col-xs-6">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-white-red"><a target="_blank" class="undefined"
                                                                   data-startdate="" data-enddate=""
                                                                   data-currency="" href="javascript:void(0)">
@@ -69,7 +73,7 @@
                                 </div>
                                 <p> Total Outstanding</p></a></div>
                     </div>
-                    <div class="col-sm-2 col-xs-6">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
                                                                data-startdate="" data-enddate=""
                                                                data-currency="0" href="javascript:void(0)">
@@ -78,7 +82,7 @@
                                 </div>
                                 <p>0 Unpaid invoices</p></a></div>
                     </div>
-                    <div class="col-sm-2 col-xs-6">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
                                                             data-enddate="" data-currency=""
                                                             href="javascript:void(0)">
@@ -87,7 +91,7 @@
                                 </div>
                                 <p>0 Overdue invoices</p></a></div>
                     </div>
-                    <div class="col-sm-2 col-xs-6">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
                                                               data-enddate="" data-currency=""
                                                               href="javascript:void(0)">
@@ -129,10 +133,6 @@
                     <div class="panel-heading">
                         <div class="panel-title">
                             <h3>Top Pincodes</h3>
-                        </div>
-                        <div class="pull-left">
-                        <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"
-                               data-format="YYYY-MM-DD" name="Closingdate" class="small-date-input daterange">
                         </div>
                         <div class="panel-options">
 
@@ -521,7 +521,12 @@
                 }
 
             });
-
+            $('#billing_filter [name="date-span"]').change(function(){
+                $('.tobehidden').addClass('hidden');
+                if($(this).val()==0){
+                    $('.tobehidden').removeClass('hidden');
+                }
+            });
 
             $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding,.unpaid,.overdue,.paid', function (e) {
                 e.preventDefault();
@@ -647,7 +652,7 @@
         });
 
         function buildbox(option) {
-            html = '<div class="col-sm-2 col-xs-6">';
+            html = '<div class="col-sm-3 col-xs-6">';
             html += ' <div class="tile-stats ' + option['tileclass'] + '">';
             html += '  <a class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
             html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-prefix="' + option['prefix'] + '" data-postfix="" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
