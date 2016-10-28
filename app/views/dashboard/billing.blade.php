@@ -710,7 +710,7 @@
                 var widgets = '';
                 var startDate = '';
                 var enddate = '{{date('Y-m-d')}}';
-                if ($('#filter-Invoiceform [name="date-span"]').val() == 6) {
+                if ($('#billing_filter [name="date-span"]').val() == 6) {
                     startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
                 } else {
                     startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
