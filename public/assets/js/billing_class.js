@@ -34,9 +34,11 @@ $("#call-billing-form [name='AlertType']").change(function(){
     $("#call-billing-form .custom_field").addClass('hidden');
     if($(this).val() == 'block_destination'){
         $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").parents('.row').removeClass('hidden');
-        $("#call-billing-form [name='CallAlert[ReminderEmail]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form .ReminderEmail").html('Send Email To');
     }else if($(this).val() == 'call_duration' || $(this).val() == 'call_cost' || $(this).val() == 'call_after_office'){
         $("#call-billing-form [name='CallAlert[AccountID]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[EmailToAccount]']").parents('.col-md-6').removeClass('hidden');
+        $("#call-billing-form .ReminderEmail").html('Send Copy To');
         if($(this).val() == 'call_duration'){
             $("#call-billing-form [name='CallAlert[Duration]']").parents('.row').removeClass('hidden');
         }else if($(this).val() == 'call_cost'){

@@ -46,6 +46,14 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label ReminderEmail">Send Copy To</label>
+                                <input name="CallAlert[ReminderEmail]"  type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Active</label>
@@ -60,6 +68,7 @@
                     <div class="modal-footer">
                         <input type="hidden" name="AlertID" value="">
                         <input type="hidden" name="CallAlert[AccountID]" value="{{Customer::get_accountID()}}">
+                        <input type="hidden" name="CallAlert[EmailToAccount]" value="1">
                         <input type="hidden" name="AlertGroup" value="call">
                         <button type="submit" id="qos-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>

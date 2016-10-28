@@ -31,14 +31,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row custom_field">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Send Email To</label>
-                                <input name="CallAlert[ReminderEmail]"  type="text" class="form-control"/>
-                            </div>
-                        </div>
-                    </div>
+
                     <div class="row custom_field">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -78,12 +71,30 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label ReminderEmail">Send Email To</label>
+                                <input name="CallAlert[ReminderEmail]"  type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Active</label>
                                 <div class="clear">
                                     <p class="make-switch switch-small">
                                         <input type="checkbox" checked=""  name="Status" value="0">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 custom_field">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Email To Account</label>
+                                <div class="clear">
+                                    <p class="make-switch switch-small">
+                                        <input type="checkbox" checked=""  name="CallAlert[EmailToAccount]" value="0">
                                     </p>
                                 </div>
                             </div>

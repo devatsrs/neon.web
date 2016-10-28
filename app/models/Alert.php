@@ -10,6 +10,7 @@ class Alert extends \Eloquent {
     public static $qos_alert_type = array(''=>'Select','ACD'=>'ACD','ASR'=>'ASR');
     public static $call_monitor_alert_type = array(''=>'Select','block_destination'=>'Blacklisted Destination','call_duration'=>'Longest Call','call_cost'=>'Expensive Calls','call_after_office'=>'Call After Business Hour');
     public static $call_monitor_customer_alert_type = array(''=>'Select','call_duration'=>'Longest Call','call_cost'=>'Expensive Calls','call_after_office'=>'Call After Business Hour');
+    public static $call_blacklist_alert_type = array(''=>'Select','block_destination'=>'Blacklisted Destination');
 
     public static $rules = array(
         'AlertType'=>'required',
