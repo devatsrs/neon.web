@@ -171,6 +171,9 @@ return array(
         //Tracker
         'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider',
 
+        //Stripe
+        'Cartalyst\Stripe\Laravel\StripeServiceProvider',
+
     ),
 
     /*
@@ -246,6 +249,7 @@ return array(
         'CreditCard'      => 'Inacho\CreditCard',
         'Agent' => 'Jenssegers\Agent\Facades\Agent',
         'Tracker' => 'PragmaRX\Tracker\Vendor\Laravel\Facade',
+        'Stripe' => 'Cartalyst\Stripe\Laravel\Facades\Stripe',
     )
 
 

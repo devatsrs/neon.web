@@ -1070,8 +1070,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');
     Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
-    Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
+	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
+	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
