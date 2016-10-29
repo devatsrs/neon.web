@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getACD_ASR_Alert`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_AccountID` INT, IN `p_CurrencyID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getACD_ASR_Alert`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` TEXT, IN `p_AccountID` TEXT, IN `p_CurrencyID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AreaPrefix` TEXT, IN `p_Trunk` TEXT, IN `p_CountryID` TEXT)
 BEGIN
 	
 	DECLARE v_Round_ INT;

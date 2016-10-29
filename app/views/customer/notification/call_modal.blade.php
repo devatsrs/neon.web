@@ -10,33 +10,8 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="control-label">Name</label>
-                                <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
                                 <label class="control-label">Alert Type</label>
                                 {{ Form::select('AlertType', $call_monitor_alert_type, '', array("class"=>"select2")) }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row custom_field">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Blacklist Destination</label>
-                                {{Form::select('CallAlert[BlacklistDestination][]',$MultiCountry,array(),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select Destination"))}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row custom_field">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Account</label>
-                                {{ Form::select('CallAlert[AccountID]',$account,'', array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
@@ -73,7 +48,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label ReminderEmail">Send Email To</label>
+                                <label for="field-5" class="control-label ReminderEmail">Send Copy To</label>
                                 <input name="CallAlert[ReminderEmail]"  type="text" class="form-control"/>
                             </div>
                         </div>
@@ -89,19 +64,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 custom_field">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Email To Account</label>
-                                <div class="clear">
-                                    <p class="make-switch switch-small">
-                                        <input type="checkbox" checked=""  name="CallAlert[EmailToAccount]" value="0">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="AlertID" value="">
+                        <input type="hidden" name="CallAlert[AccountID]" value="{{Customer::get_accountID()}}">
+                        <input type="hidden" name="CallAlert[EmailToAccount]" value="1">
                         <input type="hidden" name="AlertGroup" value="call">
                         <button type="submit" id="qos-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>

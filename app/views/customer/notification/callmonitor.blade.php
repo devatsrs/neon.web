@@ -1,49 +1,15 @@
-<div class="row">
-    <div class="col-md-12">
-        <form id="call_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Type</label>
-                        <div class="col-sm-3">
-                            {{Form::select('AlertType',$call_monitor_alert_type,'',array("class"=>"select2"))}}
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" id="call_submit">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-@if(User::checkCategoryPermission('Alert','Add'))
-    <p style="text-align: right;">
-        <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
-            <i class="entypo-plus"></i>
-            Add Call Monitor Alert
-        </a>
-    </p>
-@endif
+<br/>
+<p style="text-align: right;">
+    <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
+        <i class="entypo-plus"></i>
+        Add Call Monitor Alert
+    </a>
+</p>
 <table class="table table-bordered datatable" id="table-6">
     <thead>
     <tr>
-        <th width="20%">Name</th>
         <th width="10%">Type</th>
         <th width="10%">Status</th>
-        <th width="10%">Low Value</th>
-        <th width="10%">High Value</th>
         <th width="10%">Last Updated</th>
         <th width="10%">Updated By</th>
         <th width="20%">Action</th>
@@ -53,15 +19,15 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    var list_fields  = ["Name","AlertType","Status","LowValue","HighValue","created_at","CreatedBy","AlertID","Settings"];
+    var list_fields  = ["AlertType","Status","created_at","CreatedBy","AlertID","Settings"];
     var CallAlertType = JSON.parse('{{json_encode($call_monitor_alert_type)}}');
     var $search = {};
     var update_new_url;
     var postdata;
-    var alert_add_url = baseurl + "/alert/store";
-    var alert_edit_url = baseurl + "/alert/update/{id}";
-    var alert_delete_url = baseurl + "/alert/delete/{id}";
-    var alert_datagrid_url = baseurl + "/alert/ajax_datagrid/type";
+    var alert_add_url = baseurl + "/customer/alert/store";
+    var alert_edit_url = baseurl + "/customer/alert/update/{id}";
+    var alert_delete_url = baseurl + "/customer/alert/delete/{id}";
+    var alert_datagrid_url = baseurl + "/customer/alert/ajax_datagrid/type";
     jQuery(document).ready(function ($) {
         $search.AlertType = $('#call_filter [name="AlertType"]').val();
         data_table_call = $("#table-6").dataTable({
@@ -89,7 +55,6 @@
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
             "aoColumns": [
-                {"bSortable": true},  // 0 Name
                 {"bSortable": true,mRender:function(id,type,full){
                     return CallAlertType[id];
                 }},  // 1 Type
@@ -101,8 +66,6 @@
                             return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
                     }
                 }, //2   Status
-                {"bSortable": true},  // 3 Created At
-                {"bSortable": true},  // 4 Created At
                 {"bSortable": true},  // 5 Created At
                 {"bSortable": true},  // 6 Created By
                 {                        // 7 Action
@@ -120,12 +83,12 @@
                             }
                         }
                         action += '</div>';
-                        @if(User::checkCategoryPermission('Alert','Update'))
+
                                 action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                        @endif
-                                @if(User::checkCategoryPermission('Alert','Delete'))
+
+
                                 action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
-                        @endif
+
                                 return action;
                     }
                 }
@@ -135,13 +98,13 @@
                     {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/alert/ajax_datagrid/xlsx",
+                        "sUrl": baseurl + "/customer/alert/ajax_datagrid/xlsx",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/alert/ajax_datagrid/csv",
+                        "sUrl": baseurl + "/customer/alert/ajax_datagrid/csv",
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
@@ -252,4 +215,4 @@
 
 </script>
 
-@include('notification.call_modal')
+@include('customer.notification.call_modal')
