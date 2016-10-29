@@ -17,6 +17,7 @@ class PaypalIpn
     var $amount;
     var $curreny_code;
     var $logo_url;
+    var $status;
 
 
     function __Construct(){
@@ -41,6 +42,7 @@ class PaypalIpn
                 $post = \Illuminate\Support\Facades\Input::all();
                 $this->ipn = $post;
             }
+            $this->status = true;
 
             return true;
 
@@ -51,7 +53,7 @@ class PaypalIpn
                 $post = \Illuminate\Support\Facades\Input::all();
                 $this->ipn = $post;
             }
-
+            $this->status = false;
             return false;
         }
 
@@ -218,5 +220,16 @@ class PaypalIpn
 
         return $form;
 
+    }
+
+    public function get_full_response(){
+
+        if(empty($this->ipn)){
+
+            $post = \Illuminate\Support\Facades\Input::all();
+
+            $this->ipn = $post;
+        }
+        return $this->ipn;
     }
 }
