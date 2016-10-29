@@ -61,6 +61,7 @@
     var alert_add_url = baseurl + "/alert/store";
     var alert_edit_url = baseurl + "/alert/update/{id}";
     var alert_delete_url = baseurl + "/alert/delete/{id}";
+    var alert_history_url = baseurl + "/alert/history?AlertID={id}";
     var alert_datagrid_url = baseurl + "/alert/ajax_datagrid/type";
     jQuery(document).ready(function ($) {
         $search.AlertType = $('#call_filter [name="AlertType"]').val();
@@ -121,11 +122,12 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Alert','Update'))
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
                         @endif
+                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
                                 return action;
                     }
                 }
