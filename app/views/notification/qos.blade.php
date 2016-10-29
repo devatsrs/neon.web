@@ -60,6 +60,7 @@
     var alert_add_url = baseurl + "/alert/store";
     var alert_edit_url = baseurl + "/alert/update/{id}";
     var alert_delete_url = baseurl + "/alert/delete/{id}";
+    var alert_history_url = baseurl + "/alert/history?AlertID={id}";
     var alert_datagrid_url = baseurl + "/alert/ajax_datagrid/type";
     jQuery(document).ready(function ($) {
         $search.AlertType = $('#qos_filter [name="AlertType"]').val();
@@ -121,6 +122,7 @@
                                 @if(User::checkCategoryPermission('Alert','Delete'))
                                 action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
                         @endif
+                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
                                 return action;
                     }
                 }

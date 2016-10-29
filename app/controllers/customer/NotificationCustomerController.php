@@ -107,6 +107,7 @@ class NotificationCustomerController extends \BaseController {
 	{
         if( intval($AlertID) > 0){
             try{
+                AlertLog::where('AlertID',$AlertID)->delete();
                 $Notification = Alert::find($AlertID);
                 $result = $Notification->delete();
                 if ($result) {

@@ -1014,6 +1014,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/alert/store','NotificationController@qos_store');
 	Route::any('/alert/update/{id}','NotificationController@qos_update');
 	Route::any('/alert/delete/{id}','NotificationController@qos_delete');
+	Route::any('/alert/history','NotificationController@history');
+	Route::any('/alert/history_grid/{type}','NotificationController@history_grid');
 
 });
 

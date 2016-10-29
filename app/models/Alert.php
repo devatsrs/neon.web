@@ -22,4 +22,10 @@ class Alert extends \Eloquent {
         'Settings','created_at','updated_at','UpdatedBy','CreatedBy'
     );
 
+    public static function getDropdownIDList($CompanyID){
+        $DropdownIDList = Alert::where(array("CompanyID"=>$CompanyID))->lists('Name', 'AlertID');
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
+
 }
