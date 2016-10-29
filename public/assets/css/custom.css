@@ -2447,3 +2447,7 @@ background:white none repeat scroll 0 0;
 .popover3 label{
     text-align: right;
 }
+.alert{
+    margin-bottom:10px;
+    padding:10px;
+}
