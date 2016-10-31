@@ -718,8 +718,14 @@
                 var enddate = '{{date('Y-m-d')}}';
                 if ($('#billing_filter [name="date-span"]').val() == 6) {
                     startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
-                } else {
+                } else if ($('#billing_filter [name="date-span"]').val() == 12) {
                     startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
+                } else{
+                    startDate = $('#billing_filter [name="Closingdate"]').val();
+                    var res = startDate.split(" - ");
+                    console.log(res);
+                    startDate = res[0]+' 00:00:01';
+                    enddate = res[1]+' 23:59:59';
                 }
 
                 $(".search.btn").button('reset');
