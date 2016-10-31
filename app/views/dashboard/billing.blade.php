@@ -107,18 +107,21 @@
     <div class="row">
         <div class="col-md-12">
             <div class="invoice_expsense panel panel-primary panel-table">
-                <div class="panel-heading">
+                <form id="invoiceExpensefilter-form" name="filter-form" style="display: inline">
+                    <div class="panel-heading">
                     <div class="panel-title">
                         <h3>Invoices & Expenses</h3>
 
                     </div>
 
                     <div class="panel-options">
+                        {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }}
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
                         <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
                     </div>
                 </div>
+                </form>
                 <div class="panel-body">
                     <div id="invoice_expense_bar_chart"></div>
                 </div>
@@ -569,8 +572,13 @@
             });
         });
 
+        $('#invoiceExpensefilter-form [name="ListType"]').change(function(){
+            invoiceExpense();
+        });
+
         function reload_invoice_expense() {
             invoiceExpense();
+            invoiceExpenseTotal();
             pin_report();
             missingAccounts();
         }
@@ -700,7 +708,7 @@
 
         function invoiceExpense() {
             var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
-            data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() + '&' + $('#filter-Invoiceform').serialize();
+            data = $('#billing_filter').serialize() + '&' + $('#invoiceExpensefilter-form').serialize();
             var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
             loadingUnload('#invoice_expense_bar_chart', 1);
             $.get(get_url, data, function (response) {
@@ -708,7 +716,10 @@
                 loadingUnload('#invoice_expense_bar_chart', 0);
                 $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
             }, "html");
+        }
 
+        function invoiceExpenseTotal(){
+            var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
             $.get(get_url, data, function (response) {
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();

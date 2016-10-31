@@ -20,7 +20,7 @@ class BillingDashboard extends \BaseController {
             $data['Enddate']=0;
         }
         $companyID = User::get_companyID();
-        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0','".$data['Startdate']."','".$data['Enddate']."')";
+        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0','".$data['Startdate']."','".$data['Enddate']."','".$data['ListType']."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
         return View::make('billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
