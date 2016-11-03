@@ -274,4 +274,28 @@ class Payment extends \Eloquent {
         } 
     }
 
+    public static function getPaymentByInvoice($InvoiceID){
+
+        $Invoice = Invoice::find($InvoiceID);
+
+        $query 				= 	"CALL `prc_getInvoicePayments`('".$InvoiceID."','".$Invoice->CompanyID."');";
+        $result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));
+
+        $payment_log = array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
+
+        if($Invoice->InvoiceStatus==Invoice::PAID){
+            // full payment done.
+            $paymentamount = 0;
+        }elseif($Invoice->InvoiceStatus!=Invoice::PAID && $payment_log['paid_amount']>0){
+            //partial payment.
+            $paymentamount = number_format($payment_log['due_amount'],get_round_decimal_places($Invoice->AccountID),'.','');
+        }else {
+            $paymentamount = number_format($payment_log['total'],get_round_decimal_places($Invoice->AccountID),'.','');
+        }
+
+        $final_log = array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount,"final_payment"=>$paymentamount);
+
+        return $final_log;
+    }
+
 }

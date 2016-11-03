@@ -31,11 +31,21 @@
           <h1 class="text-center">Invoice</h1>
         </div>
         <div class="x-span8 pull-right" style="margin-top:5px;">
+          <?php
+            /**
+             * helper function
+             * PaymentGatewayBase::get_cview_link();
+             */
+
+            ?>
           @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_authorize()  ) )
-                <a href="{{URL::to('invoice_payment', $Invoice->AccountID.'-'.$Invoice->InvoiceID);}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay Now </a>
+                <a href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Authorize');}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay With Authorize </a>
                 <div class="pull-right"> &nbsp;</div>
           @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
                 {{$paypal_button}}
+                <div class="pull-right"> &nbsp;</div>
+            @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_Stripe()  ) )
+                <a href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay With Stripe </a>
                 <div class="pull-right"> &nbsp;</div>
           @endif
 

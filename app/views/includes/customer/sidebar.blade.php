@@ -80,7 +80,7 @@
                 </li>
             </ul>
         </li>
-        @if(getenv('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
+        @if(CompanyConfiguration::get('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
                 <i class="fa fa-table"></i>
@@ -94,6 +94,14 @@
                 <span>Analysis</span>
             </a>
         </li>
+        @if(CompanyConfiguration::get('CUSTOMER_NOTIFICATION_DISPLAY') == 1)
+        <li>
+            <a href="{{URL::to('customer/notification')}}">
+                <i class="fa fa-bullhorn"></i>
+                <span>Notifications</span>
+            </a>
+        </li>
+        @endif
         <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="glyphicon glyphicon-user"></i>

@@ -19,6 +19,7 @@ class SiteIntegration{
  static    $paypalSlug			=	'paypal';
  static    $outlookcalenarSlug	=	'outlook';
  static    $QuickBookSlug		=	'quickbook';
+ static    $StripeSlug			=	'stripe';
 
  	public function __construct(){
 	

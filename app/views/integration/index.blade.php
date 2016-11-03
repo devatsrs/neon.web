@@ -160,7 +160,7 @@
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
-                <a>{{$subcategoriesData['Title']}}</a>
+                <a><b>{{$subcategoriesData['Title']}}</b></a>
               </label>
             </div>
             <?php 
@@ -337,6 +337,40 @@
         </div>
       </div>
       <!-- paypal end -->
+      <!-- stripe start -->
+        <?php
+        $StripeDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$StripeSlug);
+        $StripeData   = isset($StripeDbData->Settings)?json_decode($StripeDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$StripeDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Secret Key:</label>
+                        <input type="text"  class="form-control" name="SecretKey" value="{{isset($StripeData->SecretKey)?$StripeData->SecretKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Publishable Key:</label>
+                        <input type="text"  class="form-control" name="PublishableKey" value="{{isset($StripeData->PublishableKey)?$StripeData->PublishableKey:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:
+                            <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
+                        </label>
+                        <div id="stripeStatusDiv">
+                            <input id="StripeStatus" class="subcatstatus" Divid="stripeStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($StripeDbData->Status) && $StripeDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- stripe end -->
       <!-- Mandril start -->
        <?php 
 	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);

@@ -202,7 +202,7 @@
                 $("#add-new-config-form .JobStartDay").show();
                 starttime.show();
             }
-            options.sort();
+            //options.sort();
             selectBox.append(options);
             selectBox.val(1).trigger('change');
             @if(isset($commandconfigval->JobInterval))

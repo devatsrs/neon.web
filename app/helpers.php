@@ -318,7 +318,7 @@ function is_authorize(){
 function is_paypal(){
 
     $paypal = new PaypalIpn();
-    if($paypal){
+    if($paypal->status){
         return true;
     }
     return false;
@@ -1375,4 +1375,8 @@ function ShortName($title,$length=8){
 	}else{
 		return $title;
 	}
+}
+
+function is_Stripe(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
 }
