@@ -53,19 +53,9 @@
     <div class="row">
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Invoices
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>
-                </div>
                 <div id="invoice-widgets" class="panel-body">
                     <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-white-red"><a target="_blank" class="undefined"
+                        <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
                                                                   data-startdate="" data-enddate=""
                                                                   data-currency="" href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
@@ -99,6 +89,33 @@
                                      data-duration="1500" data-delay="1200">0
                                 </div>
                                 <p>0 Paid invoices</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
+                                                              data-enddate="" data-currency=""
+                                                              href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>0 Partially Paid invoices</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                              data-enddate="" data-currency=""
+                                                              href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>0 Pending Dispute</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
+                                                             data-enddate="" data-currency=""
+                                                             href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>0 Payment Received</p></a></div>
                     </div>
                 </div>
             </div>
@@ -410,6 +427,7 @@
                         }
 
                     },  // 6 InvoiceStatus
+                    {"bSortable": true}, //6   Overdue Aging
                 ],
                 "oTableTools": {
                     "aButtons": [
@@ -531,7 +549,7 @@
                 }
             });
 
-            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding,.unpaid,.overdue,.paid', function (e) {
+            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding,.unpaid,.overdue,.paid,.partiallypaid', function (e) {
                 e.preventDefault();
                 $searchFilter.PaymentDate_StartDate = $(this).attr('data-startdate');
                 $searchFilter.PaymentDate_StartTime = '';
@@ -566,6 +584,11 @@
                     $searchFilter.Type = 6;
                     invoiceTable.fnFilter('', 0);
                     $('#modal-invoice h4').text('Paid Invoices');
+                    $('#modal-invoice').modal('show');
+                }else if ($(this).hasClass('partiallypaid')) {
+                    $searchFilter.Type = 7;
+                    invoiceTable.fnFilter('', 0);
+                    $('#modal-invoice h4').text('Partially Paid Invoices');
                     $('#modal-invoice').modal('show');
                 }
 
@@ -746,7 +769,7 @@
                 option["currency"] = CurrencyID;
                 option["amount"] = response.data.TotalOutstanding;
                 option["end"] = response.data.TotalOutstanding;
-                option["tileclass"] = 'tile-white-red';
+                option["tileclass"] = 'tile-blue';
                 option["class"] = 'outstanding';
                 option["type"] = 'Total Outstanding';
                 option["count"] = '';
@@ -774,6 +797,30 @@
                 option["class"] = 'paid';
                 option["type"] = 'Paid invoices';
                 option["count"] = response.data.CountTotalPaidInvoices;
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalPartiallyPaidInvoices;
+                option["end"] = response.data.TotalPartiallyPaidInvoices;
+                option["tileclass"] = 'tile-cyan';
+                option["class"] = 'partiallypaid';
+                option["type"] = 'Partially Paid invoices';
+                option["count"] = response.data.CountTotalPartiallyPaidInvoices;
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalDispute;
+                option["end"] = response.data.TotalDispute;
+                option["tileclass"] = 'tile-aqua';
+                option["class"] = 'Pendingdispute';
+                option["type"] = 'Pending Dispute';
+                option["count"] = response.data.CountTotalDispute;
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalPayments;
+                option["end"] = response.data.TotalPayments;
+                option["tileclass"] = 'tile-purple';
+                option["class"] = 'paymentReceived';
+                option["type"] = 'Payments Received';
+                option["count"] = response.data.CountTotalPayment;
                 widgets += buildbox(option);
 
                 $('#invoice-widgets').html(widgets);
@@ -940,9 +987,10 @@
                                 <th width="10%">Invoice Number</th>
                                 <th width="15%">Issue Date</th>
                                 <th width="20%">Period</th>
-                                <th width="11%">Grand Total</th>
-                                <th width="12%">Paid/OS</th>
-                                <th width="12%">Status</th>
+                                <th width="10%">Grand Total</th>
+                                <th width="10%">Paid/OS</th>
+                                <th width="10%">Status</th>
+                                <th width="5%">Overdue Aging</th>
                             </tr>
                             </thead>
                             <tbody>

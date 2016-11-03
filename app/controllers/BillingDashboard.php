@@ -141,7 +141,7 @@ class BillingDashboard extends \BaseController {
         if($data['Type']==1) { //1 for Payment received.
             $columns = array('AccountName', 'InvoiceNo', 'Amount', 'PaymentType', 'PaymentDate', 'Status', 'CreatedBy', 'Notes');
             $sort_column = $columns[$data['iSortCol_0']];
-        }elseif($data['Type']==2 || $data['Type']==3 || $data['Type']==4 || $data['Type']==5 || $data['Type']==6){ //2 for Total Invoices
+        }elseif($data['Type']==2 || $data['Type']==3 || $data['Type']==4 || $data['Type']==5 || $data['Type']==6 || $data['Type']==7){ //2 for Total Invoices
             $columns = ['AccountName','InvoiceNumber','IssueDate','InvoicePeriod','GrandTotal','PendingAmount','InvoiceStatus','InvoiceID'];
             $sort_column = $columns[$data['iSortCol_0']];
         }
