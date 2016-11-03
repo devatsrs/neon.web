@@ -113,14 +113,31 @@ class AuthenticationController extends \BaseController
 
     public function deleteips($id){
         $data = Input::all();
+        $companyID = User::get_companyID();
+        $StartDate = '';
+        $EndDate = '';
+        $Confirm = 0;
+        if(isset($data['dates'])){
+            $dates = explode(' - ',$data['dates']);
+            $StartDate = $dates[0];
+            $EndDate = $dates[1];
+            $Confirm = 1;
+        }
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['AccountID'] . "','" . $data['ipclis'] . "','" . $data['isCustomerOrVendor'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
         $postIps = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
+        unset($data['dates']);
         $ips = [];
         if(!empty($accountAuthenticate)){
+            $recordFound = DataTableSql::of($query, 'sqlsrvcdr')->getProcResult(array('found'));
+            $status = $recordFound['found'][0]['Status'];
+            if($status>0){
+                return Response::json(array("status" => "check","check"=>1));
+            }
             if($isCustomerOrVendor=='Customer'){
                 $data['CustomerAuthRule'] = 'IP';
                 $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);
@@ -166,6 +183,10 @@ class AuthenticationController extends \BaseController
         }else{
             return Response::json(array("status" => "error","message" => "No Cli exist."));
         }
+    }
+
+    public function recordExist(){
+
     }
 
 }
