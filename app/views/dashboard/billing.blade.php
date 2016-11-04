@@ -825,7 +825,7 @@
                 option["amount"] = response.data.TotalPaymentsIn;
                 option["end"] = response.data.TotalPaymentsIn;
                 option["tileclass"] = 'tile-purple';
-                option["class"] = 'paymentReceived';
+                option["class"] = 'paymentReceived1';
                 option["type"] = 'Payments Received';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
