@@ -64,13 +64,22 @@
                                 <p> Total Outstanding</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
+                                                              data-enddate="" data-currency=""
+                                                              href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>Paid Amount</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
                                                                data-startdate="" data-enddate=""
                                                                data-currency="0" href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>0 Unpaid invoices</p></a></div>
+                                <p>Due Amount</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
@@ -79,34 +88,7 @@
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>0 Overdue invoices</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
-                                                              data-enddate="" data-currency=""
-                                                              href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>0 Paid invoices</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
-                                                              data-enddate="" data-currency=""
-                                                              href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>0 Partially Paid invoices</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
-                                                              data-enddate="" data-currency=""
-                                                              href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>0 Pending Dispute</p></a></div>
+                                <p>Overdue Amount</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
@@ -115,7 +97,34 @@
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>0 Payment Received</p></a></div>
+                                <p>Payment Received</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
+                                                               data-enddate="" data-currency=""
+                                                               href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>Payment Sent</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                             data-enddate="" data-currency=""
+                                                             href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>Pending Dispute</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
+                                                             data-enddate="" data-currency=""
+                                                             href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>Pending Eastimate</p></a></div>
                     </div>
                 </div>
             </div>
@@ -549,7 +558,7 @@
                 }
             });
 
-            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding,.unpaid,.overdue,.paid,.partiallypaid', function (e) {
+            $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding', function (e) {
                 e.preventDefault();
                 $searchFilter.PaymentDate_StartDate = $(this).attr('data-startdate');
                 $searchFilter.PaymentDate_StartTime = '';
@@ -590,6 +599,8 @@
                     invoiceTable.fnFilter('', 0);
                     $('#modal-invoice h4').text('Partially Paid Invoices');
                     $('#modal-invoice').modal('show');
+                }else if ($(this).hasClass('Pendingdispute')) {
+
                 }
 
             });
@@ -726,6 +737,10 @@
                         });
                     }
                 }
+
+                if($num.text().indexOf(prefix)==-1){
+                    $num.prepend(prefix);
+                }
             });
         }
 
@@ -775,36 +790,52 @@
                 option["count"] = '';
                 widgets += buildbox(option);
 
-                option["amount"] = response.data.TotalUnpaidInvoices;
-                option["end"] = response.data.TotalUnpaidInvoices;
-                option["tileclass"] = 'tile-orange';
-                option["class"] = 'unpaid';
-                option["type"] = 'Unpaid invoices';
-                option["count"] = response.data.CountTotalUnpaidInvoices;
-                widgets += buildbox(option);
-
-                option["amount"] = response.data.TotalOverdueInvoices;
-                option["end"] = response.data.TotalOverdueInvoices;
-                option["tileclass"] = 'tile-red';
-                option["class"] = 'overdue';
-                option["type"] = 'Overdue invoices';
-                option["count"] = response.data.CountTotalOverdueInvoices;
-                widgets += buildbox(option);
-
-                option["amount"] = response.data.TotalPaidInvoices;
-                option["end"] = response.data.TotalPaidInvoices;
+                option["amount"] = response.data.TotalPaidAmount;
+                option["end"] = response.data.TotalPaidAmount;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
-                option["type"] = 'Paid invoices';
-                option["count"] = response.data.CountTotalPaidInvoices;
+                option["type"] = 'Paid Amount';
+                /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
 
-                option["amount"] = response.data.TotalPartiallyPaidInvoices;
+                option["amount"] = response.data.TotalDueAmount;
+                option["end"] = response.data.TotalDueAmount;
+                option["tileclass"] = 'tile-orange';
+                option["class"] = 'due';
+                option["type"] = 'Due Amount';
+                /*option["count"] = response.data.CountTotalUnpaidInvoices;*/
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalOverdueAmount;
+                option["end"] = response.data.TotalOverdueAmount;
+                option["tileclass"] = 'tile-red';
+                option["class"] = 'overdue';
+                option["type"] = 'Overdue Amount';
+                /*option["count"] = response.data.CountTotalOverdueInvoices;*/
+                widgets += buildbox(option);
+
+                /*option["amount"] = response.data.TotalPartiallyPaidInvoices;
                 option["end"] = response.data.TotalPartiallyPaidInvoices;
                 option["tileclass"] = 'tile-cyan';
                 option["class"] = 'partiallypaid';
                 option["type"] = 'Partially Paid invoices';
                 option["count"] = response.data.CountTotalPartiallyPaidInvoices;
+                widgets += buildbox(option);*/
+
+                option["amount"] = response.data.TotalPaymentsIn;
+                option["end"] = response.data.TotalPaymentsIn;
+                option["tileclass"] = 'tile-purple';
+                option["class"] = 'paymentReceived';
+                option["type"] = 'Payments Received';
+                /*option["count"] = response.data.CountTotalPayment;*/
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalPaymentsOut;
+                option["end"] = response.data.TotalPaymentsOut;
+                option["tileclass"] = 'tile-cyan';
+                option["class"] = 'paymentsent';
+                option["type"] = 'Payments Sent';
+                /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
 
                 option["amount"] = response.data.TotalDispute;
@@ -812,15 +843,15 @@
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'Pendingdispute';
                 option["type"] = 'Pending Dispute';
-                option["count"] = response.data.CountTotalDispute;
+                /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
 
-                option["amount"] = response.data.TotalPayments;
-                option["end"] = response.data.TotalPayments;
-                option["tileclass"] = 'tile-purple';
-                option["class"] = 'paymentReceived';
-                option["type"] = 'Payments Received';
-                option["count"] = response.data.CountTotalPayment;
+                option["amount"] = response.data.TotalEstimate;
+                option["end"] = response.data.TotalEstimate;
+                option["tileclass"] = 'tile-pink';
+                option["class"] = 'Pendingestimate';
+                option["type"] = 'Pending Estimate';
+                /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
 
                 $('#invoice-widgets').html(widgets);
