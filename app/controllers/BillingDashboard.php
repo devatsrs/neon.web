@@ -19,6 +19,8 @@ class BillingDashboard extends \BaseController {
             $data['Startdate'] = $data['date-span'];
             $data['Enddate']=0;
         }
+
+        Cache::forever('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID(),$data['ListType']);
         $companyID = User::get_companyID();
         $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','0','".$data['Startdate']."','".$data['Enddate']."','".$data['ListType']."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
@@ -48,7 +50,6 @@ class BillingDashboard extends \BaseController {
             $data['Enddate']=0;
         }
         $companyID = User::get_companyID();
-
         $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','0','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         $TotalOutstanding = 0;
@@ -73,7 +74,7 @@ class BillingDashboard extends \BaseController {
         $Enddate			=	$Closingdate[1];
         //$Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
         //$Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
-        $data['Startdate'] = trim($Startdate).' 23:59:59';
+        $data['Startdate'] = trim($Startdate).' 00:00:01';
         $data['Enddate'] = trim($Enddate).' 23:59:59';
         if($data['Type'] == 2 && $data['PinExt'] == 'pincode'){
             $report_label = 'Pin Duration (in Sec) ';

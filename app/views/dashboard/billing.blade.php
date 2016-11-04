@@ -70,7 +70,16 @@
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>Paid Amount</p></a></div>
+                                <p>Invoice Send</p></a></div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
+                                                              data-enddate="" data-currency=""
+                                                              href="javascript:void(0)">
+                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                     data-duration="1500" data-delay="1200">0
+                                </div>
+                                <p>Invoice Received</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
@@ -141,7 +150,7 @@
                     </div>
 
                     <div class="panel-options">
-                        {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }}
+                        {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),$monthfilter,array("class"=>"select_gray","id"=>"ListType")) }}
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
                         <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
@@ -696,10 +705,10 @@
         function buildbox(option) {
             html = '<div class="col-sm-3 col-xs-6">';
             html += ' <div class="tile-stats ' + option['tileclass'] + '">';
-            html += '  <a class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
-            html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-prefix="' + option['prefix'] + '" data-postfix="" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
+            //html += '  <a class="' + option['class'] + '" data-startdate="' + option['startdate'] + '" data-enddate="' + option['enddate'] + '" data-currency="' + option['currency'] + '" href="javascript:void(0)">';
+            html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-prefix="' + option['prefix'] + '" data-postfix="" data-duration="1500" data-delay="1200" data-round="'+option['round']+'">' + option['amount'] + '</div>';
             html += '    <p>' + option['count'] + ' ' + option['type'] + '</p>';
-            html += '  </a>';
+            //html += '  </a>';
             html += ' </div>';
             html += '</div>';
             return html;
@@ -715,6 +724,7 @@
                         postfix = attrDefault($num, 'postfix', ''),
                         duration = attrDefault($num, 'duration', 1000),
                         delay = attrDefault($num, 'delay', 1000);
+                        round = attrDefault($num, 'round', 0);
 
                 if (start < end) {
                     if (typeof scrollMonitor == 'undefined') {
@@ -729,7 +739,7 @@
 
                             TweenLite.to(o, duration / 1000, {
                                 curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
-                                    $num.html(prefix + Math.round(o.curr) + postfix);
+                                    $num.html(prefix + o.curr.toFixed(2) + postfix);
                                 }
                             });
 
@@ -788,13 +798,22 @@
                 option["class"] = 'outstanding';
                 option["type"] = 'Total Outstanding';
                 option["count"] = '';
+                option["round"] = response.data.Round;
                 widgets += buildbox(option);
 
-                option["amount"] = response.data.TotalPaidAmount;
-                option["end"] = response.data.TotalPaidAmount;
+                option["amount"] = response.data.TotalInvoiceIn;
+                option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
-                option["type"] = 'Paid Amount';
+                option["type"] = 'Invoice In';
+                /*option["count"] = response.data.CountTotalPaidInvoices;*/
+                widgets += buildbox(option);
+
+                option["amount"] = response.data.TotalInvoiceOut;
+                option["end"] = response.data.TotalInvoiceOut;
+                option["tileclass"] = 'tile-plum';
+                option["class"] = 'paid';
+                option["type"] = 'Invoice Out';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
 
