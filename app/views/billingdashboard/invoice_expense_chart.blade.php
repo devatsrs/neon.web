@@ -51,7 +51,7 @@ $(function() {
                                     date = date.addDays(6);
                                     EndDate = date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
                                 @elseif($InvoiceExpenseRow->ftype=='Monthly')
-                                    var arr = row.x.split('-');
+                                    var arr = row.x.split('/');
                                     var date = new Date(arr[1], arr[0], 1);
                                     StartDate = date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
                                     date = new Date(arr[1], arr[0] + 1, 0);
