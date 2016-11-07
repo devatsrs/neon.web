@@ -23,12 +23,13 @@ class CompaniesController extends \BaseController {
             $LastPrefixNo = DB::table('tblGlobalSetting')->where(["Key" => 'Default_Customer_Trunk_Prefix'])->first();
             $company->CustomerAccountPrefix = $LastPrefixNo->Value;
         }
+        $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
         $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard', 'PincodeWidget'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard', 'PincodeWidget','RoundChargesAmount'));
 
     }
 
@@ -62,6 +63,8 @@ class CompaniesController extends \BaseController {
         unset($data['UseInBilling']);
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
         unset($data['DefaultDashboard']);
+        CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
+        unset($data['RoundChargesAmount']);
         CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
         unset($data['PincodeWidget']);
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);

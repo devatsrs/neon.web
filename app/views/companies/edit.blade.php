@@ -214,7 +214,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
-                                    Billing Setting
+                                    Setting
                                 </div>
 
                                 <div class="panel-options">
@@ -232,6 +232,16 @@
                                     <p class="make-switch switch-small">
                                         <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
                                     </p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Decimal Places (123.45) </label>
+                                    <div class="col-sm-4">
+                                        <div class="input-spinner">
+                                            <button type="button" class="btn btn-default">-</button>
+                                            {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                            <button type="button" class="btn btn-default">+</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
