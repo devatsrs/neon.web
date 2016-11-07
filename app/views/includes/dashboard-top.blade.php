@@ -19,6 +19,13 @@
 
             <li class="caret"></li>
 
+		 @if( User::checkCategoryPermission('Users','View'))
+        <li> <a href="{{Url::to('users')}}"><i class="fa fa-user-secret"></i>  <span>Users</span> </a> </li>
+        @endif
+        @if(User::is_admin())
+        <li> <a href="{{Url::to('roles')}}"><i class="fa fa-key"></i>  <span>User Roles</span> </a> </li>
+        @endif
+
             <li>
                 <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">
                     <i class="entypo-user"></i>
@@ -63,6 +70,7 @@
      </ul>
 </li>
 	<!-- Message Notifications -->
+@if(User::checkCategoryPermission('emailmessages','All'))    
 <li class="notifications msgs dropdown">
         
         <!-- Ajax Content here : Messages -->
@@ -73,7 +81,7 @@
          	</li>
        </ul>				
 </li>
-			
+ @endif			
 </ul>
 </div>
 <!-- Raw Links -->

@@ -235,7 +235,7 @@ class EstimatesController extends \BaseController {
                         $EstimateDetailData[$i]["CreatedBy"] 	= 	$CreatedBy;
 						$EstimateDetailData[$i]["Discount"] 	= 	0;
 						
-                        if($field == 'TaxRateID'){
+                       /* if($field == 'TaxRateID'){
                             $EstimateTaxRates[$i][$field] = $value;
                             $EstimateTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
                             $EstimateTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
@@ -243,7 +243,7 @@ class EstimatesController extends \BaseController {
                         }
                         if($field == 'TaxAmount'){
                             $EstimateTaxRates[$i][$field] = str_replace(",","",$value);
-                        }
+                        }*/
                         if(empty($EstimateDetailData[$i]['ProductID']))
 						{
                             unset($EstimateDetailData[$i]);
@@ -252,8 +252,16 @@ class EstimatesController extends \BaseController {
                     }
                 }
 				
-             
-				
+            	if(isset($data['Tax']) && is_array($data['Tax'])){
+					foreach($data['Tax'] as $j => $taxdata){
+						$EstimateTaxRates[$j]['TaxRateID'] 		= 	$j;
+						$EstimateTaxRates[$j]['Title'] 			= 	TaxRate::getTaxName($j);
+						$EstimateTaxRates[$j]["created_at"] 	= 	date("Y-m-d H:i:s");
+						$EstimateTaxRates[$j]["EstimateID"] 	= 	$Estimate->EstimateID;
+						$EstimateTaxRates[$j]["TaxAmount"] 		= 	$taxdata;
+					}
+				}
+				Log::info('EstimateTaxRates');  Log::info(print_r($EstimateTaxRates,true)); 
                 $EstimateTaxRates = merge_tax($EstimateTaxRates);
                 $EstimateLogData = array();
                 $EstimateLogData['EstimateID']= $Estimate->EstimateID;
@@ -394,7 +402,7 @@ class EstimatesController extends \BaseController {
                                 $EstimateDetailData[$i]["ModifiedBy"]  	= 	$CreatedBy;
 								$EstimateDetailData[$i]["Discount"] 	= 	0;
                                 
-                                if($field == 'TaxRateID'){
+                                /*if($field == 'TaxRateID'){
                                     $EstimateTaxRates[$i][$field] = $value;
                                     $EstimateTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
                                     $EstimateTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
@@ -402,7 +410,7 @@ class EstimatesController extends \BaseController {
                                 }
                                 if($field == 'TaxAmount'){
                                     $EstimateTaxRates[$i][$field] = str_replace(",","",$value);
-                                }
+                                }*/
 								if(isset($EstimateDetailData[$i]["EstimateDetailID"]))
 								{
                                     unset($EstimateDetailData[$i]["EstimateDetailID"]);
@@ -415,6 +423,17 @@ class EstimatesController extends \BaseController {
                                 $i++;
                             }
                         }
+						
+						if(isset($data['Tax']) && is_array($data['Tax'])){
+							foreach($data['Tax'] as $j => $taxdata){
+							$EstimateTaxRates[$j]['TaxRateID'] 		= 	$j;
+							$EstimateTaxRates[$j]['Title'] 			= 	TaxRate::getTaxName($j);
+							$EstimateTaxRates[$j]["created_at"] 	= 	date("Y-m-d H:i:s");
+							$EstimateTaxRates[$j]["EstimateID"] 	= 	$Estimate->EstimateID;
+							$EstimateTaxRates[$j]["TaxAmount"] 		= 	$taxdata;
+							}
+						}
+						Log::info('EstimateTaxRates');  Log::info(print_r($EstimateTaxRates,true)); 
 
                         $EstimateTaxRates = merge_tax($EstimateTaxRates);
                         if(!empty($EstimateTaxRates)) {

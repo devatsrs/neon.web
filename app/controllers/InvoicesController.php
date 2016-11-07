@@ -145,9 +145,9 @@ class InvoicesController extends \BaseController {
     public function create()
     {
 
-        $accounts = Account::getAccountIDList();
-        $products = Product::getProductDropdownList();
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice();
+        $accounts 	= 	Account::getAccountIDList();
+        $products 	= 	Product::getProductDropdownList();
+        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
         //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('invoices.create',compact('accounts','products','taxes'));
 
@@ -253,7 +253,7 @@ class InvoicesController extends \BaseController {
 
                 $InvoiceDetailData = $InvoiceTaxRates = array();
 
-                foreach($data["InvoiceDetail"] as $field => $detail){
+                foreach($data["InvoiceDetail"] as $field => $detail){ 
                     $i=0;
                     foreach($detail as $value){
                         if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
@@ -265,21 +265,32 @@ class InvoicesController extends \BaseController {
                         $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                         $InvoiceDetailData[$i]["CreatedBy"] = $CreatedBy;
-                        if($field == 'TaxRateID'){
+                       /* if($field == 'TaxRateID'){
                             $InvoiceTaxRates[$i][$field] = $value;
                             $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
                             $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
                             $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         }
-                        if($field == 'TaxAmount'){
+						if($field == 'TaxAmount'){
                             $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
                         }
                         if(empty($InvoiceDetailData[$i]['ProductID'])){
                             unset($InvoiceDetailData[$i]);
-                        }
+                        }*/
                         $i++;
                     }
-                }
+                } 
+				
+				if(isset($data['Tax']) && is_array($data['Tax'])){
+					foreach($data['Tax'] as $j => $taxdata){
+						$InvoiceTaxRates[$j]['TaxRateID'] 	= 	$j;
+						$InvoiceTaxRates[$j]['Title'] 		= 	TaxRate::getTaxName($j);
+						$InvoiceTaxRates[$j]["created_at"] 	= 	date("Y-m-d H:i:s");
+						$InvoiceTaxRates[$j]["InvoiceID"] 	= 	$Invoice->InvoiceID;
+						$InvoiceTaxRates[$j]["TaxAmount"] 	= 	$taxdata;
+					}
+				}
+				Log::info('InvoiceTaxRates');  Log::info(print_r($InvoiceTaxRates,true)); 
                 $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
@@ -290,8 +301,8 @@ class InvoicesController extends \BaseController {
                 if(!empty($InvoiceTaxRates)) {
                     InvoiceTaxRate::insert($InvoiceTaxRates);
                 }
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
-                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { Log::info('InvoiceID'); Log::info($Invoice->InvoiceID);
+                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); Log::info('pdf_path'); Log::info($pdf_path);
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
                         $error['status'] = 'failure';
@@ -322,7 +333,7 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function update($id){
-        $data = Input::all();
+        $data = Input::all(); Log::info('data');  Log::info(print_r($data,true)); 
         if(!empty($data) && $id > 0){
 
             $Invoice = Invoice::find($id);
@@ -391,7 +402,7 @@ class InvoicesController extends \BaseController {
                     if (isset($data["InvoiceDetail"])) {
                         foreach ($data["InvoiceDetail"] as $field => $detail) {
                             $i = 0;
-                            foreach ($detail as $value) {
+                            foreach ($detail as $value) {								
                                 if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
                                     $InvoiceDetailData[$i][$field] = str_replace(",","",$value);
                                 }else{
@@ -409,18 +420,39 @@ class InvoicesController extends \BaseController {
                                 if(empty($InvoiceDetailData[$i]['ProductID'])){
                                     unset($InvoiceDetailData[$i]);
                                 }
-                                if($field == 'TaxRateID'){
-                                    $InvoiceTaxRates[$i][$field] = $value;
-                                    $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
-                                    $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
-                                    $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
+                                /*if($field == 'TaxRateID'){
+									$txname = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j][$field] = $value;
+                                    $InvoiceTaxRates[$txname][$j]['Title'] = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceTaxRates[$txname][$j]["InvoiceID"] = $Invoice->InvoiceID;
+                                }
+								if($field == 'TaxRateID2'){
+									$txname = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j][$field] = $value;
+                                    $InvoiceTaxRates[$txname][$j]['Title'] = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceTaxRates[$txname][$j]["InvoiceID"] = $Invoice->InvoiceID;
                                 }
                                 if($field == 'TaxAmount'){
-                                    $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
-                                }
-                                $i++;
+                                    $InvoiceTaxRates[$txname][$field] = str_replace(",","",$value);
+                                }*/
+                                $i++;								
                             }
                         }
+						
+						if(isset($data['Tax']) && is_array($data['Tax'])){
+							foreach($data['Tax'] as $j => $taxdata)
+							{
+							 	$InvoiceTaxRates[$j]['TaxRateID'] 	= 	$j;
+                                $InvoiceTaxRates[$j]['Title'] 		= 	TaxRate::getTaxName($j);
+                                $InvoiceTaxRates[$j]["created_at"] 	= 	date("Y-m-d H:i:s");
+                                $InvoiceTaxRates[$j]["InvoiceID"] 	= 	$Invoice->InvoiceID;
+								$InvoiceTaxRates[$j]["TaxAmount"] 	= 	$taxdata;
+							}
+						}
+						
+						 Log::info('InvoiceTaxRates');  Log::info(print_r($InvoiceTaxRates,true)); 
                         $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                         if(!empty($InvoiceTaxRates)) {
                             InvoiceTaxRate::insert($InvoiceTaxRates);
@@ -714,7 +746,7 @@ class InvoicesController extends \BaseController {
     }
 
     //Generate Item Based Invoice PDF
-    public function generate_pdf($id){
+    public function generate_pdf($id){   
         if($id>0) {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
@@ -724,14 +756,14 @@ class InvoicesController extends \BaseController {
             $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
-                $as3url =  public_path("/assets/images/250x100.png");
+                $as3url =  public_path("/assets/images/250x100.png"); 
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
-            }
+            }  
             $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
-            RemoteSSH::run("chmod -R 777 " . $logo_path);
-            $logo = $logo_path  . '/'  . basename($as3url);
+            //RemoteSSH::run("chmod -R 777 " . $logo_path); 
+            $logo = $logo_path  . '/'  . basename($as3url); 
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
             $usage_data = array();
