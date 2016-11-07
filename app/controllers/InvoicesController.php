@@ -290,7 +290,7 @@ class InvoicesController extends \BaseController {
 						$InvoiceTaxRates[$j]["TaxAmount"] 	= 	$taxdata;
 					}
 				}
-				Log::info('InvoiceTaxRates');  Log::info(print_r($InvoiceTaxRates,true)); 
+				
                 $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
@@ -333,7 +333,7 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function update($id){
-        $data = Input::all(); Log::info('data');  Log::info(print_r($data,true)); 
+        $data = Input::all(); 
         if(!empty($data) && $id > 0){
 
             $Invoice = Invoice::find($id);
@@ -452,7 +452,6 @@ class InvoicesController extends \BaseController {
 							}
 						}
 						
-						 Log::info('InvoiceTaxRates');  Log::info(print_r($InvoiceTaxRates,true)); 
                         $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                         if(!empty($InvoiceTaxRates)) {
                             InvoiceTaxRate::insert($InvoiceTaxRates);

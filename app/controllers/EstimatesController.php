@@ -261,7 +261,6 @@ class EstimatesController extends \BaseController {
 						$EstimateTaxRates[$j]["TaxAmount"] 		= 	$taxdata;
 					}
 				}
-				Log::info('EstimateTaxRates');  Log::info(print_r($EstimateTaxRates,true)); 
                 $EstimateTaxRates = merge_tax($EstimateTaxRates);
                 $EstimateLogData = array();
                 $EstimateLogData['EstimateID']= $Estimate->EstimateID;
@@ -433,7 +432,6 @@ class EstimatesController extends \BaseController {
 							$EstimateTaxRates[$j]["TaxAmount"] 		= 	$taxdata;
 							}
 						}
-						Log::info('EstimateTaxRates');  Log::info(print_r($EstimateTaxRates,true)); 
 
                         $EstimateTaxRates = merge_tax($EstimateTaxRates);
                         if(!empty($EstimateTaxRates)) {
