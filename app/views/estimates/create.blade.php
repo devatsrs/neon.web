@@ -82,7 +82,7 @@
                                    <!-- <th width="10%" >Discount</th>-->
                                     <th width="15%" >Tax 1</th>
                                     <th width="15%" >Tax 2</th>
-                                    <th width="10%" >Tax</th>
+                                    <th width="10%" >Total Tax</th>
                                     <th width="10%" class="text-right">Line Total</th>
                                 </tr>
                             </thead>

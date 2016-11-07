@@ -172,6 +172,7 @@ $(document).ready(function(){
         }
     });
     $("#EstimateTable").delegate( '.Price , .Qty , .Discount, .TaxRateID , .TaxRateID2','change',function (e) {
+		
         var $this = $(this);
         var $row = $this.parents("tr");
         cal_line_total($row);
@@ -242,10 +243,8 @@ $(document).ready(function(){
 				 Tax_type[$this.val()]		 = 		tax;
 			 }
 			 Tax_type_title[$this.val()] = titleTax;
-			 //alert(Tax_type[$this.val()]);
         });
 		
-		//alert(Tax_type);
 	
 		$('.tax_rows_estimate').remove();
 		
