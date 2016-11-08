@@ -291,6 +291,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('email_template/{id}/edit', 'EmailTemplateController@edit');
     Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
     Route::any('email_template/store', 'EmailTemplateController@store');
+    Route::any('email_template/storetemplate', 'EmailTemplateController@storetemplate');
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 

@@ -653,42 +653,50 @@ toastr_opts = {
         {
             $(".select2").each(function(i, el)
             {
-                var $this = $(el),
-                    opts = {
-                        allowClear: attrDefault($this, 'allowClear', false),
-                        formatResult: function(item) {
-                            if(item.id=='select2-add'){
-                                return '<span class="select2-add" data-parent="'+$(item).attr('name')+'"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
-                            }
-                            return '<span class="select2-match"></span>'+ item.text ;
-                        }
-                    };
-                if($this.hasClass('small')){
-                    opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
-                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search');
-                }
-                if($this.hasClass('select2add')){
-                    $this.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
-                }
-
-                $this.select2(opts);
-                if($this.hasClass('small')){
-                    $this.select2('container').find('.select2-search').addClass ('hidden') ;
-                }
-                //$this.select2("open");
+                buildselect2(el);
             }).promise().done(function(){
                 $('.select2').css('visibility','visible');
             });
 
             if ($.isFunction($.fn.perfectScrollbar))
             {
-                $(".select2-results").niceScroll({
-                    cursorcolor: '#d4d4d4',
-                    cursorborder: '1px solid #ccc',
-                    railpadding: {right: 3}
-                });
+                nicescroll();
             }
 
+        }
+
+
+        function buildselect2(el){
+            var $this = $(el),
+                opts = {
+                    allowClear: attrDefault($this, 'allowClear', false),
+                    formatResult: function(item) {
+                        if(item.id=='select2-add'){
+                            return '<span class="select2-add" data-parent="'+$(item).attr('name')+'"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
+                        }
+                        return '<span class="select2-match"></span>'+ item.text ;
+                    }
+                };
+            if($this.hasClass('small')){
+                opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search');
+            }
+            if($this.hasClass('select2add')){
+                $this.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+            }
+
+            $this.select2(opts);
+            if($this.hasClass('small')){
+                $this.select2('container').find('.select2-search').addClass ('hidden') ;
+            }
+        }
+
+        function nicescroll(){
+            $(".select2-results").niceScroll({
+                cursorcolor: '#d4d4d4',
+                cursorborder: '1px solid #ccc',
+                railpadding: {right: 3}
+            });
         }
 
         function formatState (state) {
@@ -2904,6 +2912,9 @@ function rebuildSelect2(el,data,defualtText){
     }
     options.sort();
     el.append(options);
+    if(el.hasClass('select2add')){
+        el.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+    }
     el.trigger('change');
 }
 
