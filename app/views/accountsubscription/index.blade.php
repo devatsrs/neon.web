@@ -94,7 +94,7 @@
         weekly =  parseFloat(monthly / 30 * 7);
         daily = parseFloat(monthly / 30);
 
-        decimal_places = 2;
+        decimal_places = parseInt('{{$decimal_places}}');
 
         $("#subscription-form [name=WeeklyFee]").val(weekly.toFixed(decimal_places));
         $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));

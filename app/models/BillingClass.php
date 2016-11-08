@@ -31,5 +31,9 @@ class BillingClass extends \Eloquent
     public static function getAccounts($BillingClassID){
         return Account::join('tblAccountBilling','tblAccountBilling.AccountID','=','tblAccount.AccountID')->where('BillingClassID',$BillingClassID)->orderBy('AccountName')->get(['AccountName']);
     }
+	
+	 public static function getTaxRate($BillingClassID){
+        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('TaxRateID');
+    }
 
 }

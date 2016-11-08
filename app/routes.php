@@ -32,7 +32,7 @@ Route::group(array('before' => 'auth'), function () {
 
     Route::any('customer/account_statement', 'AccountStatementCustomerController@index');
     Route::any('customer/account_statement/payment', 'AccountStatementCustomerController@getPayment');
-    Route::any('customer/account_statement/ajax_datagrid', 'AccountStatementCustomerController@ajax_datagrid');
+   // Route::any('customer/account_statement/ajax_datagrid', 'AccountStatementCustomerController@ajax_datagrid');
     Route::any('customer/account_statement/exports/{type}', 'AccountStatementCustomerController@exports');
 
     //credit card
@@ -111,7 +111,7 @@ Route::group(array('before' => 'auth'), function () {
 	
 	
 	
-	Route::any('/monitor', "DashboardController@monitor_dashboard");
+	Route::any('/monitor', array('as' => 'monitor', 'uses' => 'DashboardController@monitor_dashboard'));
 	Route::any('/crmdashboard', "DashboardController@CrmDashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
@@ -440,7 +440,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::resource('jobs', 'JobsController');
 	Route::controller('jobs', 'JobsController');
 	
-	//msgs
+	//email msgs
 	Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
 	Route::any('/emailmessages', 'MessagesController@index');
 	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
@@ -455,8 +455,22 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
 	
 	
+	//Ticekts
+	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
+	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsController@TicketGroups'));
+	Route::any('/ticketgroups/add', "TicketsController@addGroups");
+	Route::any('/ticketgroups/store', "TicketsController@StoreGroups");
+	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsController@ajax_datagrid_groups");
+	Route::any('ticketgroups/ajax_datagrid_groups/{type}', 'TicketsController@ajax_datagrid_groups');
 	
 	
+	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
+	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
+	Route::any('/users/exports/{type}', 'UsersController@exports');
+	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
+	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
+	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+    Route::any('/users/tracker', 'UsersController@view_tracker');*/
 	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
