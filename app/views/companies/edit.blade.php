@@ -413,6 +413,7 @@
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
 					$('.btn_smtp_submit').button('reset');
+					$('.ValidateSmtp').removeAttr('disabled');
 						 if (Response.status == 'failed') {
 	                           toastr.error(Response.message, "Error", toastr_opts);
 							   return false;
