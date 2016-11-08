@@ -21,9 +21,10 @@ class TaxRate extends \Eloquent {
          * Tables To Check Foreign Key before Delete.
          * */
 
-        $hasInAccount = AccountBilling::where("TaxRateID",$id)->count();
+        $hasInBillingClass = BillingClass::whereRaw('FIND_IN_SET(?,TaxRateID)', [$id])->count();
+        $hasInInvoiceTaxRate = InvoiceTaxRate::where("TaxRateID",$id)->count();
 
-        if( intval($hasInAccount) > 0 ){
+        if( intval($hasInBillingClass) > 0 || intval($hasInInvoiceTaxRate) > 0 ){
             return true;
         }else{
             return false;
@@ -77,7 +78,7 @@ class TaxRate extends \Eloquent {
     public static function calculateProductTotalTaxAmount($AccountID,$amount,$qty,$decimal_places) {
 
         //Get Account TaxIDs
-        $TaxRateIDs = AccountBilling::where("AccountID",$AccountID)->pluck("TaxRateId");
+        $TaxRateIDs = AccountBilling::getTaxRate($AccountID);
 
         $SubTotal = $amount*$qty;
         $TotalTax = 0;
