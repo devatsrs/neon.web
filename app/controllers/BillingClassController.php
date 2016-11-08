@@ -38,6 +38,7 @@ class BillingClassController extends \BaseController {
             $accounts = BillingClass::getAccounts($id);
             $privacy = EmailTemplate::$privacy;
             $type = EmailTemplate::$Type;
+            //$accounts = BillingClass::getAccounts($id);
 
             return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{

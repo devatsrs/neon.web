@@ -52,7 +52,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Account Balance</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$SOA_Amount - $UnbilledAmount}}">
+                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$SOA_Amount}}">
                         </div>
                     </div>
                     <div class="form-group">

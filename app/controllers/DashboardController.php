@@ -150,12 +150,13 @@ class DashboardController extends BaseController {
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        $isAdmin = User::is_admin();
+        $isAdmin = 1;
         $where['Status'] = 1;
         $where['VerificationStatus'] = Account::VERIFIED;
         $where['CompanyID']=User::get_companyID();
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
+            $isAdmin = 0;
         }
         $agent = new Agent();
         $isDesktop = $agent->isDesktop();

@@ -61,6 +61,7 @@
     var alert_add_url = baseurl + "/alert/store";
     var alert_edit_url = baseurl + "/alert/update/{id}";
     var alert_delete_url = baseurl + "/alert/delete/{id}";
+    var alert_history_url = baseurl + "/alert/history?AlertID={id}";
     var alert_datagrid_url = baseurl + "/alert/ajax_datagrid/type";
     jQuery(document).ready(function ($) {
         $search.AlertType = $('#call_filter [name="AlertType"]').val();
@@ -121,11 +122,12 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Alert','Update'))
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
                         @endif
+                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
                                 return action;
                     }
                 }
@@ -199,14 +201,19 @@
                 $("#call-billing-form [name='"+ele_name+"']").val(ele_val);
                 if(ele_name == 'AlertType'){
                     var selectBox = $("#call-billing-form [name='"+ele_name+"']");
+                    selectBox.prop("disabled", true);
                     selectBox.val(ele_val).trigger("change");
-                    selectBox.prop("readonly", true);
-                }else if(ele_name == 'Day') {
-                    $("#call-billing-form [name='CallAlert[Day][]']").val(ele_val.split(',')).trigger('change');
-                }else if(ele_name == 'Interval'){
-                    setTimeout(function(){
-                        $("#call-billing-form [name='CallAlert[Interval]']").val(ele_val).trigger('change');
-                    },5);
+                }else if(ele_name == 'BlacklistDestination') {
+                    $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").val(ele_val.split(',')).trigger('change');
+                }else if(ele_name == 'AccountID'){
+                    var selectBox = $("#call-billing-form [name='CallAlert["+ele_name+"]']");
+                    selectBox.val(ele_val).trigger("change");
+                }else if(ele_name == 'EmailToAccount'){
+                    if (ele_val == 1) {
+                        $("#call-billing-form [name='CallAlert["+ele_name+"]']").prop('checked', true)
+                    } else {
+                        $("#call-billing-form [name='CallAlert["+ele_name+"]']").prop('checked', false)
+                    }
                 }else if(ele_name == 'Status'){
                     if (ele_val == 1) {
                         $("#call-billing-form [name='"+ele_name+"']").prop('checked', true)
@@ -233,6 +240,7 @@
 
         $("#call-billing-form").submit(function(e){
             e.preventDefault();
+            $("#call-billing-form [name='AlertType']").prop("disabled", false);
             var _url  = $(this).attr("action");
             submit_ajax_datatable(_url,$(this).serialize(),0,data_table_call);
 

@@ -185,6 +185,47 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "Paypal Settings Successfully Updated"));
 			}
+
+			if($data['secondcategory']=='Stripe')
+			{
+				$rules = array(
+					'SecretKey'	 => 'required',
+					'PublishableKey'	 => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}
+
+				$StripeData = array(
+					"SecretKey"=>$data['SecretKey'],
+					"PublishableKey"=>$data['PublishableKey']
+				);
+
+				$StripeDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($StripeDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($StripeData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$StripeDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($StripeData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Stripe Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email')

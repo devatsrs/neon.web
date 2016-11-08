@@ -69,6 +69,8 @@
                     </div>
             </div>
             <div class="tab-pane" id="tab2" >
+                <br/>
+                <br/>
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#invoice_tab" data-toggle="tab">Invoice</a></li>
                     <li ><a href="#account_tab" data-toggle="tab">Account</a></li>
@@ -85,7 +87,7 @@
                                                 <input type="checkbox" @if( isset($BillingClass->InvoiceReminderStatus) && $BillingClass->InvoiceReminderStatus == 1 )checked="" @endif name="InvoiceReminderStatus" value="1">
                                             </div>
                                         </div>
-                                        <label class="col-sm-2 control-label">Send To Account Manager</label>
+                                        <label class="col-sm-2 control-label">Send To Account Owner</label>
                                         <div class="col-sm-4">
                                             <div class="make-switch switch-small">
                                                 <input type="checkbox" @if( isset($InvoiceReminders->AccountManager) && $InvoiceReminders->AccountManager == 1 )checked="" @endif name="InvoiceReminder[AccountManager]" value="1">
@@ -155,7 +157,7 @@
                                                 <input type="checkbox" @if( isset($BillingClass->PaymentReminderStatus) && $BillingClass->PaymentReminderStatus == 1 )checked="" @endif name="PaymentReminderStatus" value="1">
                                             </div>
                                         </div>
-                                        <label class="col-sm-2 control-label">Send To Account Manager</label>
+                                        <label class="col-sm-2 control-label">Send To Account Owner</label>
                                         <div class="col-sm-4">
                                             <div class="make-switch switch-small">
                                                 <input type="checkbox" @if( isset($PaymentReminders->AccountManager) && $PaymentReminders->AccountManager == 1 )checked="" @endif name="PaymentReminder[AccountManager]" value="1">
@@ -173,9 +175,9 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="field-5" class="col-sm-2 control-label">Time</label>
+                                        <label for="field-5" class="col-sm-2 control-label">Period</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($PaymentReminders->Time)?$PaymentReminders->Time:''),array( "class"=>"select2 small"))}}
+                                            {{Form::select('PaymentReminder[Time]',array(""=>"Select run period","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($PaymentReminders->Time)?$PaymentReminders->Time:''),array( "class"=>"select2 small"))}}
                                         </div>
 
                                         <label for="field-5" class="col-sm-2 control-label">Interval</label>
@@ -216,7 +218,7 @@
                                         <input type="checkbox" @if( isset($BillingClass->LowBalanceReminderStatus) && $BillingClass->LowBalanceReminderStatus == 1 )checked="" @endif name="LowBalanceReminderStatus" value="1">
                                     </div>
                                 </div>
-                                <label class="col-sm-2 control-label">Send To Account Manager</label>
+                                <label class="col-sm-2 control-label">Send To Account Owner</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($LowBalanceReminder->AccountManager) && $LowBalanceReminder->AccountManager == 1 )checked="" @endif name="LowBalanceReminder[AccountManager]" value="1">
@@ -234,9 +236,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="field-5" class="col-sm-2 control-label">Time</label>
+                                <label for="field-5" class="col-sm-2 control-label">Period</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"select2 small"))}}
+                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select run period","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"select2 small"))}}
                                 </div>
 
                                 <label for="field-5" class="col-sm-2 control-label">Interval</label>

@@ -58,6 +58,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
 	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
 
+	//notification
+	Route::any('customer/notification', 'NotificationCustomerController@index');
+	Route::any('/customer/alert/ajax_datagrid/{type}','NotificationCustomerController@ajax_datagrid');
+	Route::any('/customer/alert/store','NotificationCustomerController@store');
+	Route::any('/customer/alert/update/{id}','NotificationCustomerController@update');
+	Route::any('/customer/alert/delete/{id}','NotificationCustomerController@delete');
+
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
     Route::any('/roles/storerole', "RoleController@storerole");
@@ -1010,6 +1017,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/alert/store','NotificationController@qos_store');
 	Route::any('/alert/update/{id}','NotificationController@qos_update');
 	Route::any('/alert/delete/{id}','NotificationController@qos_delete');
+	Route::any('/alert/history','NotificationController@history');
+	Route::any('/alert/history_grid/{type}','NotificationController@history_grid');
 
 });
 
@@ -1066,8 +1075,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');
     Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
-    Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
+	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
+	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
