@@ -805,7 +805,7 @@
                 option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
-                option["type"] = 'Invoice In';
+                option["type"] = 'Invoice Received';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
 
@@ -813,7 +813,7 @@
                 option["end"] = response.data.TotalInvoiceOut;
                 option["tileclass"] = 'tile-plum';
                 option["class"] = 'paid';
-                option["type"] = 'Invoice Out';
+                option["type"] = 'Invoice Send';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
 
