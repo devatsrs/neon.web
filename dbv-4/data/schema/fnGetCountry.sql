@@ -10,5 +10,5 @@ CREATE TEMPORARY TABLE IF NOT EXISTS `temptblCountry` (
 	INDEX tempCountry_Prefix(`Prefix`)
 );
 INSERT INTO temptblCountry(CountryID,Prefix,Country)
-SELECT CountryID,Prefix,Country FROM LocalRatemanagement.tblCountry;
+SELECT CountryID,Prefix,Country FROM NeonRMDev.tblCountry;
 END
