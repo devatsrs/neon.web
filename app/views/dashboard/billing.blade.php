@@ -70,7 +70,7 @@
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>Invoice Send</p></a></div>
+                                <p>Invoice Sent</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
@@ -813,7 +813,7 @@
                 option["end"] = response.data.TotalInvoiceOut;
                 option["tileclass"] = 'tile-plum';
                 option["class"] = 'paid';
-                option["type"] = 'Invoice Send';
+                option["type"] = 'Invoice Sent';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
 

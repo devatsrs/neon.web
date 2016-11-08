@@ -67,7 +67,7 @@
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>Invoice Send</p></a></div>
+                                <p>Invoice Sent</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
@@ -94,7 +94,7 @@
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                      data-duration="1500" data-delay="1200">0
                                 </div>
-                                <p>Payment Send</p></a></div>
+                                <p>Payment Sent</p></a></div>
                     </div>
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
@@ -284,7 +284,7 @@
                 option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
-                option["type"] = 'Invoice Send';
+                option["type"] = 'Invoice Sent';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
 
@@ -324,7 +324,7 @@
                 option["end"] = response.data.TotalPaymentsIn;
                 option["tileclass"] = 'tile-purple';
                 option["class"] = 'paymentReceived1';
-                option["type"] = 'Payments Send';
+                option["type"] = 'Payments Sent';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
 
