@@ -504,7 +504,8 @@ class EstimatesController extends \BaseController {
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
-                            $AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
+                            //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
+							$AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
 
                             $TaxRateAmount = $TaxRateId = 0;
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
