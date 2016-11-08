@@ -514,7 +514,12 @@ class InvoicesController extends \BaseController {
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
-                            $AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
+                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+							Log::info('AccountTaxRate');
+							Log::info(print_r($AccountTaxRate, true));
+							Log::info('TaxRates');
+							Log::info(print_r($TaxRates, true));
+							
                             //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
