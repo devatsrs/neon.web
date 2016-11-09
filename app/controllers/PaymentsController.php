@@ -37,7 +37,7 @@ class PaymentsController extends \BaseController {
 			{
 				$data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
 			}
-	
+
 			$data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
 			$columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
 			$sort_column = $columns[$data['iSortCol_0']];
@@ -273,10 +273,69 @@ class PaymentsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $where=[];
+        if(isset($data['criteria'])){
+            $criteria= json_decode($data['criteria'],true);
+            $criteria['p_paymentstart']			 =		'null';
+            $criteria['p_paymentend']			 =		'null';
+
+            if($criteria['PaymentDate_StartDate']!='' && $criteria['PaymentDate_StartDate']!='null' && $criteria['PaymentDate_StartTime']!='')
+            {
+                $criteria['p_paymentstart']		=	$criteria['PaymentDate_StartDate'].' '.$criteria['PaymentDate_StartTime'];
+            }
+
+            if($criteria['PaymentDate_EndDate']!='' && $criteria['PaymentDate_EndDate']!='null' && $criteria['PaymentDate_EndDate']!='')
+            {
+                $criteria['p_paymentend']			=	$criteria['PaymentDate_EndDate'].' '.$criteria['PaymentDate_EndTime'];
+            }
+
+            if($criteria['p_paymentstart']!='null' && $criteria['p_paymentend']=='null')
+            {
+                $criteria['p_paymentend'] 			= 	date("Y-m-d H:i:s");
+            }
+
+            if($criteria['p_paymentstart']=='null'){
+                $criteria['p_paymentstart'] = '';
+            }
+
+            if($criteria['p_paymentend']=='null'){
+                $criteria['p_paymentend'] = '';
+            }
+
+            $where['Recall'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
+
+            if(!empty($criteria['AccountID'])){
+                $where['AccountID'] = $criteria['AccountID'];
+            }
+            if(!empty($criteria['InvoiceNo'])){
+                $where['InvoiceNo'] = $criteria['InvoiceNo'];
+            }
+            if(!empty($criteria['Status'])){
+                $where['Status'] = $criteria['Status'];
+            }
+            if(!empty($criteria['type'])){
+                $where['PaymentType'] = $criteria['type'];
+            }
+            if(!empty($criteria['paymentmethod'])){
+                $where['PaymentMethod'] = $criteria['paymentmethod'];
+            }
+            if(!empty($criteria['CurrencyID'])){
+                $where['CurrencyID'] = $criteria['CurrencyID'];
+            }
+        }
+
         try {
             $PaymentIDs = !empty($data['PaymentIDs'])?explode(',',$data['PaymentIDs']):'';
             unset($data['PaymentIDs']);
-            if(is_array($PaymentIDs)){
+            unset($data['criteria']);
+            if(!empty($where)){
+                $Payments = Payment::where($where);
+                if(!empty($criteria['p_paymentstart']) && !empty($criteria['p_paymentend'])){
+                    $Payments->whereBetween('PaymentDate', array($criteria['p_paymentstart'], $criteria['p_paymentend']));
+                }
+                $result = $Payments->update($data);
+            }
+            elseif(is_array($PaymentIDs)){
                 $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
             }else{
                 if($id>0) {

@@ -338,6 +338,7 @@
         var acountipclitable;
         var type = 0;
         var isCustomerOrVendor=0;
+        var ipclis = '';
         var accountID = {{$account->AccountID}};
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
@@ -464,7 +465,7 @@
         });
         $("#form-addipcli-modal").submit(function(e){
             e.preventDefault();
-            var ipclis=$(this).find("[name='AccountIPCLI']").val().trim();
+            ipclis=$(this).find("[name='AccountIPCLI']").val().trim();
             if(type==0) {
                 var url = baseurl + '/accounts/' + accountID + '/addips';
             }else if(type==1){
@@ -565,7 +566,7 @@
                     }else{
                         var url = baseurl + "/accounts/"+accountID+"/deleteclis";
                     }
-                    var ipclis = SelectedIDs.join(",");
+                    ipclis = SelectedIDs.join(",");
                     $.ajax({
                         url: url,
                         type:'POST',
@@ -576,7 +577,10 @@
                                 createTable(response);
                                 $('.selectall').prop("checked", false);
                                 toastr.success(response.message,'Success', toastr_opts);
-                            }else{
+                            }else if (response.status == 'check') {
+                                $('#confirm-modal').modal('show');
+                            }
+                            else{
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                             $('#'+processing).addClass('hidden');
@@ -585,6 +589,29 @@
                     });
                 }
             }
+        });
+
+        $('#form-confirm-modal').submit(function(e){
+            e.preventDefault();
+            var url = baseurl + "/accounts/"+accountID+"/deleteips";
+            var dates = $('#form-confirm-modal [name="Closingdate"]').val();
+            $.ajax({
+                url: url,
+                type:'POST',
+                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,dates:dates},
+                datatype:'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        createTable(response);
+                        $('.selectall').prop("checked", false);
+                        toastr.success(response.message,'Success', toastr_opts);
+                    } else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                    $('.btn').button('reset');
+                }
+
+            });
         });
 
         function createTable(response){
@@ -675,6 +702,41 @@
                     <button type="submit" data-loading-text = "Loading..."  class="btn btn-primary btn-sm btn-icon icon-left">
                         <i class="entypo-floppy"></i>
                         Add
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirm-modal" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" id="form-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete Ips</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Account IP</label>
+                                <div class="col-sm-9">
+                                    <input value="{{date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'))}} - {{date('Y-m-d')}}" type="text" id="Closingdate"
+                                           data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" data-loading-text = "Loading..."  class="btn btn-primary btn-sm btn-icon icon-left">
+                        <i class="entypo-floppy"></i>
+                        Delete
                     </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                         <i class="entypo-cancel"></i>
