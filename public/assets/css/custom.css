@@ -500,7 +500,7 @@ em {
 }
 
 .multi-level{
-    background-color:#303641;
+    background-color:#000;
     border:1px solid #303641;
     color:#fff;
     left: none !important;
@@ -2371,7 +2371,8 @@ background-repeat:no-repeat;
     font-size:12px;
 }
 .dropdown-menu > li > a{
-    color:#7d8086;
+    /*color:#7d8086;*/
+    color:#fff;
     padding: 4px 8px;
 }
 
