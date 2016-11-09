@@ -1334,7 +1334,9 @@ class InvoicesController extends \BaseController {
 
         if(!empty($Invoice)) {
             //$data['GrandTotal'] = $Invoice->GrandTotal;
+            $Invoice = Invoice::find($Invoice->InvoiceID);
             $data['GrandTotal'] = $payment_log['final_payment'];
+            $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
             $authorize = new AuthorizeNet();
             $response = $authorize->pay_invoice($data);
             $Notes = '';
@@ -1344,7 +1346,6 @@ class InvoicesController extends \BaseController {
                 $Notes = isset($response->response->xml->messages->message->text) && $response->response->xml->messages->message->text != '' ? $response->response->xml->messages->message->text : $response->response_reason_text ;
             }
             if ($response->approved) {
-                $Invoice = Invoice::find($Invoice->InvoiceID);
                 $paymentdata = array();
                 $paymentdata['CompanyID'] = $Invoice->CompanyID;
                 $paymentdata['AccountID'] = $Invoice->AccountID;
