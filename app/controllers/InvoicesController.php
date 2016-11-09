@@ -145,9 +145,9 @@ class InvoicesController extends \BaseController {
     public function create()
     {
 
-        $accounts = Account::getAccountIDList();
-        $products = Product::getProductDropdownList();
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice();
+        $accounts 	= 	Account::getAccountIDList();
+        $products 	= 	Product::getProductDropdownList();
+        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
         //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('invoices.create',compact('accounts','products','taxes'));
 
@@ -253,7 +253,7 @@ class InvoicesController extends \BaseController {
 
                 $InvoiceDetailData = $InvoiceTaxRates = array();
 
-                foreach($data["InvoiceDetail"] as $field => $detail){
+                foreach($data["InvoiceDetail"] as $field => $detail){ 
                     $i=0;
                     foreach($detail as $value){
                         if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
@@ -265,21 +265,32 @@ class InvoicesController extends \BaseController {
                         $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                         $InvoiceDetailData[$i]["CreatedBy"] = $CreatedBy;
-                        if($field == 'TaxRateID'){
+                       /* if($field == 'TaxRateID'){
                             $InvoiceTaxRates[$i][$field] = $value;
                             $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
                             $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
                             $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         }
-                        if($field == 'TaxAmount'){
+						if($field == 'TaxAmount'){
                             $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
                         }
                         if(empty($InvoiceDetailData[$i]['ProductID'])){
                             unset($InvoiceDetailData[$i]);
-                        }
+                        }*/
                         $i++;
                     }
-                }
+                } 
+				
+				if(isset($data['Tax']) && is_array($data['Tax'])){
+					foreach($data['Tax'] as $j => $taxdata){
+						$InvoiceTaxRates[$j]['TaxRateID'] 	= 	$j;
+						$InvoiceTaxRates[$j]['Title'] 		= 	TaxRate::getTaxName($j);
+						$InvoiceTaxRates[$j]["created_at"] 	= 	date("Y-m-d H:i:s");
+						$InvoiceTaxRates[$j]["InvoiceID"] 	= 	$Invoice->InvoiceID;
+						$InvoiceTaxRates[$j]["TaxAmount"] 	= 	$taxdata;
+					}
+				}
+				
                 $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
@@ -290,8 +301,8 @@ class InvoicesController extends \BaseController {
                 if(!empty($InvoiceTaxRates)) {
                     InvoiceTaxRate::insert($InvoiceTaxRates);
                 }
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
-                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { Log::info('InvoiceID'); Log::info($Invoice->InvoiceID);
+                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); Log::info('pdf_path'); Log::info($pdf_path);
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
                         $error['status'] = 'failure';
@@ -322,7 +333,7 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function update($id){
-        $data = Input::all();
+        $data = Input::all(); 
         if(!empty($data) && $id > 0){
 
             $Invoice = Invoice::find($id);
@@ -391,7 +402,7 @@ class InvoicesController extends \BaseController {
                     if (isset($data["InvoiceDetail"])) {
                         foreach ($data["InvoiceDetail"] as $field => $detail) {
                             $i = 0;
-                            foreach ($detail as $value) {
+                            foreach ($detail as $value) {								
                                 if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
                                     $InvoiceDetailData[$i][$field] = str_replace(",","",$value);
                                 }else{
@@ -409,18 +420,38 @@ class InvoicesController extends \BaseController {
                                 if(empty($InvoiceDetailData[$i]['ProductID'])){
                                     unset($InvoiceDetailData[$i]);
                                 }
-                                if($field == 'TaxRateID'){
-                                    $InvoiceTaxRates[$i][$field] = $value;
-                                    $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
-                                    $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
-                                    $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
+                                /*if($field == 'TaxRateID'){
+									$txname = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j][$field] = $value;
+                                    $InvoiceTaxRates[$txname][$j]['Title'] = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceTaxRates[$txname][$j]["InvoiceID"] = $Invoice->InvoiceID;
+                                }
+								if($field == 'TaxRateID2'){
+									$txname = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j][$field] = $value;
+                                    $InvoiceTaxRates[$txname][$j]['Title'] = TaxRate::getTaxName($value);
+                                    $InvoiceTaxRates[$txname][$j]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceTaxRates[$txname][$j]["InvoiceID"] = $Invoice->InvoiceID;
                                 }
                                 if($field == 'TaxAmount'){
-                                    $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
-                                }
-                                $i++;
+                                    $InvoiceTaxRates[$txname][$field] = str_replace(",","",$value);
+                                }*/
+                                $i++;								
                             }
                         }
+						
+						if(isset($data['Tax']) && is_array($data['Tax'])){
+							foreach($data['Tax'] as $j => $taxdata)
+							{
+							 	$InvoiceTaxRates[$j]['TaxRateID'] 	= 	$j;
+                                $InvoiceTaxRates[$j]['Title'] 		= 	TaxRate::getTaxName($j);
+                                $InvoiceTaxRates[$j]["created_at"] 	= 	date("Y-m-d H:i:s");
+                                $InvoiceTaxRates[$j]["InvoiceID"] 	= 	$Invoice->InvoiceID;
+								$InvoiceTaxRates[$j]["TaxAmount"] 	= 	$taxdata;
+							}
+						}
+						
                         $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
                         if(!empty($InvoiceTaxRates)) {
                             InvoiceTaxRate::insert($InvoiceTaxRates);
@@ -483,8 +514,8 @@ class InvoicesController extends \BaseController {
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
-                            $AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
-                            //\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
+                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+							//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = 0;
                             $TaxRateTitle = 'VAT';
@@ -612,19 +643,26 @@ class InvoicesController extends \BaseController {
             $CurrencySymbol 	=  	Currency::getCurrencySymbol($Account->CurrencyId);
             //$companyID 			= 	User::get_companyID();
 			$companyID 			= 	$Account->CompanyId; // User::get_companyID();
+            /*
 			$query 				= 	"CALL `prc_getInvoicePayments`('".$id."','".$companyID."');";			
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
+            */
+
+            $payment_log = Payment::getPaymentByInvoice($id);
 
             $paypal_button = "";
-            if($paypal = new PaypalIpn()){
-
+            $paypal = new PaypalIpn();
+            if(!empty($paypal->status)){
                 $paypal->item_title =  Company::getName($Invoice->CompanyID).  ' Invoice #'.$Invoice->FullInvoiceNumber;
                 $paypal->item_number =  $Invoice->FullInvoiceNumber;
                 $paypal->curreny_code =  $CurrencyCode;
                 $paypal->curreny_code =  $CurrencyCode;
 
+                $paypal->amount = $payment_log['final_payment'];
+
                 //@TODO: this code is duplicate in view please centralize it.
+                /*
                 if($Invoice->InvoiceStatus==Invoice::PAID){
                     // full payment done.
                     $paypal->amount = 0;
@@ -633,7 +671,7 @@ class InvoicesController extends \BaseController {
                     $paypal->amount = number_format($payment_log['due_amount'],get_round_decimal_places($Invoice->AccountID),'.','');
                 }else {
                     $paypal->amount = number_format($payment_log['total'],get_round_decimal_places($Invoice->AccountID),'.','');
-                }
+                } */
 
                 $paypal_button = $paypal->get_paynow_button($Invoice->InvoiceID,$Invoice->AccountID);
             }
@@ -707,7 +745,7 @@ class InvoicesController extends \BaseController {
     }
 
     //Generate Item Based Invoice PDF
-    public function generate_pdf($id){
+    public function generate_pdf($id){   
         if($id>0) {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
@@ -717,14 +755,14 @@ class InvoicesController extends \BaseController {
             $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
-                $as3url =  public_path("/assets/images/250x100.png");
+                $as3url =  public_path("/assets/images/250x100.png"); 
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
-            }
+            }  
             $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
-            RemoteSSH::run("chmod -R 777 " . $logo_path);
-            $logo = $logo_path  . '/'  . basename($as3url);
+            //RemoteSSH::run("chmod -R 777 " . $logo_path); 
+            $logo = $logo_path  . '/'  . basename($as3url); 
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
             $usage_data = array();
@@ -1279,7 +1317,7 @@ class InvoicesController extends \BaseController {
         }
         exit;
     }
-    public function invoice_payment($id)
+    public function invoice_payment($id,$type)
     {
         $account_inv = explode('-', $id);
         if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0) {
@@ -1290,7 +1328,7 @@ class InvoicesController extends \BaseController {
             if (count($Invoice) > 0) {
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
                 $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
-                return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode'));
+                return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode','type'));
             }
         }
     }
@@ -1322,8 +1360,12 @@ class InvoicesController extends \BaseController {
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
         $account = Account::where(['AccountID'=>$AccountID])->first();
         $AccountBilling = AccountBilling::getBilling($AccountID);
+
+        $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
         if(!empty($Invoice)) {
-            $data['GrandTotal'] = $Invoice->GrandTotal;
+            //$data['GrandTotal'] = $Invoice->GrandTotal;
+            $data['GrandTotal'] = $payment_log['final_payment'];
             $authorize = new AuthorizeNet();
             $response = $authorize->pay_invoice($data);
             $Notes = '';
@@ -1357,12 +1399,13 @@ class InvoicesController extends \BaseController {
                 $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
                 $transactiondata['Transaction'] = $response->transaction_id;
                 $transactiondata['Notes'] = $Notes;
-                $transactiondata['Amount'] = floatval($Invoice->RemaingAmount);
+                $transactiondata['Amount'] = floatval($response->amount);
                 $transactiondata['Status'] = TransactionLog::SUCCESS;
                 $transactiondata['created_at'] = date('Y-m-d H:i:s');
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
+                $transactiondata['Reposnse'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
                 return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
@@ -1373,12 +1416,13 @@ class InvoicesController extends \BaseController {
                 $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
                 $transactiondata['Transaction'] = $response->transaction_id;
                 $transactiondata['Notes'] = $Notes;
-                $transactiondata['Amount'] = floatval($Invoice->RemaingAmount);
+                $transactiondata['Amount'] = floatval(0);
                 $transactiondata['Status'] = TransactionLog::FAILED;
                 $transactiondata['created_at'] = date('Y-m-d H:i:s');
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
+                $transactiondata['Reposnse'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 return Response::json(array("status" => "failed", "message" => $response->response_reason_text));
             }
@@ -1672,12 +1716,13 @@ class InvoicesController extends \BaseController {
                 $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
                 $transactiondata['Transaction'] = $paypal->get_response_var('txn_id');
                 $transactiondata['Notes'] = $Notes;
-                $transactiondata['Amount'] = floatval($Invoice->RemaingAmount);
+                $transactiondata['Amount'] = floatval($paypal->get_response_var('mc_gross'));
                 $transactiondata['Status'] = TransactionLog::SUCCESS;
                 $transactiondata['created_at'] = date('Y-m-d H:i:s');
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'Customer';
                 $transactiondata['ModifyBy'] = 'Customer';
+                $transactiondata['Reposnse'] = json_encode($paypal->get_full_response());
 
                 TransactionLog::insert($transactiondata);
 
@@ -1706,6 +1751,7 @@ class InvoicesController extends \BaseController {
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
+                $transactiondata['Reposnse'] = json_encode($paypal->get_full_response());
                 TransactionLog::insert($transactiondata);
 
                 $paypal->log();
@@ -1756,6 +1802,139 @@ class InvoicesController extends \BaseController {
 
         echo "<center>Opps. Payment Canceled, Please try again.</center>";
 
+    }
+
+    public function stripe_payment(){
+        $data = Input::all();
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+        $rules = array(
+            'CardNumber' => 'required|digits_between:13,19',
+            'ExpirationMonth' => 'required',
+            'ExpirationYear' => 'required',
+            'NameOnCard' => 'required',
+            'CVVNumber' => 'required | numeric | digits_between:3,4',
+            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+        );
+
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
+            return Response::json(array("status" => "failed", "message" => "Month must be after " . date("F")));
+        }
+        $card = CreditCard::validCreditCard($data['CardNumber']);
+        if ($card['valid'] == 0) {
+            return Response::json(array("status" => "failed", "message" => "Please enter valid card number"));
+        }
+
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        $data['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
+        if(empty($data['CurrencyCode'])){
+            return Response::json(array("status" => "failed", "message" => "No invoice currency avalable"));
+        }
+
+        if(!empty($Invoice)) {
+
+        $Invoice = Invoice::find($Invoice->InvoiceID);
+
+        $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
+        $data['Total'] = $payment_log['final_payment'];
+        $data['FullInvoiceNumber'] = $Invoice->FullInvoiceNumber;
+
+        $stripedata = array();
+        $stripedata['number'] = $data['CardNumber'];
+        $stripedata['exp_month'] = $data['ExpirationMonth'];
+        $stripedata['cvc'] = $data['CVVNumber'];
+        $stripedata['exp_year'] = $data['ExpirationYear'];
+        $stripedata['name'] = $data['NameOnCard'];
+
+        $stripedata['amount'] = $data['Total'];
+        $stripedata['currency'] = strtolower($data['CurrencyCode']);
+        $stripedata['description'] = $data['FullInvoiceNumber'].' (Invoice) Payment';
+
+        $stripepayment = new StripeBilling();
+
+        if(empty($stripepayment->status)){
+            return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+        }
+        $StripeResponse = array();
+
+        $StripeResponse = $stripepayment->create_charge($stripedata);
+
+        if ($StripeResponse['status'] == 'Success') {
+
+            // Add Payment
+            $paymentdata = array();
+            $paymentdata['CompanyID'] = $Invoice->CompanyID;
+            $paymentdata['AccountID'] = $AccountID;
+            $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+            $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+            $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+            $paymentdata['PaymentMethod'] = 'Stripe';
+            $paymentdata['CurrencyID'] = $Invoice->CurrencyID;
+            $paymentdata['PaymentType'] = 'Payment In';
+            $paymentdata['Notes'] = $StripeResponse['note'];
+            $paymentdata['Amount'] = $StripeResponse['amount'];
+            $paymentdata['Status'] = 'Approved';
+            $paymentdata['CreatedBy'] = 'Customer';
+            $paymentdata['ModifyBy'] = 'Customer';
+            $paymentdata['created_at'] = date('Y-m-d H:i:s');
+            $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+            Payment::insert($paymentdata);
+
+            \Illuminate\Support\Facades\Log::info("Payment done.");
+            \Illuminate\Support\Facades\Log::info($paymentdata);
+
+            // Add transaction
+            $transactiondata = array();
+            $transactiondata['CompanyID'] = $Invoice->CompanyID;
+            $transactiondata['AccountID'] = $AccountID;
+            $transactiondata['InvoiceID'] = (int)$Invoice->InvoiceID;
+            $transactiondata['Transaction'] = $StripeResponse['id'];
+            $transactiondata['Notes'] = $StripeResponse['note'];
+            $transactiondata['Amount'] = $StripeResponse['amount'];
+            $transactiondata['Status'] = TransactionLog::SUCCESS;
+            $transactiondata['created_at'] = date('Y-m-d H:i:s');
+            $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+            $transactiondata['CreatedBy'] = 'Customer';
+            $transactiondata['ModifyBy'] = 'Customer';
+            $transactiondata['Reposnse'] = json_encode($StripeResponse['response']);
+
+            TransactionLog::insert($transactiondata);
+
+            $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+
+            \Illuminate\Support\Facades\Log::info("Transaction done.");
+            \Illuminate\Support\Facades\Log::info($transactiondata);
+
+            return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
+
+        } else {
+
+            $transactiondata = array();
+            $transactiondata['CompanyID'] = $Invoice->CompanyID;
+            $transactiondata['AccountID'] = $AccountID;
+            $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+            $transactiondata['Transaction'] = '';
+            $transactiondata['Notes'] = $StripeResponse['error'];
+            $transactiondata['Amount'] = floatval(0);
+            $transactiondata['Status'] = TransactionLog::FAILED;
+            $transactiondata['created_at'] = date('Y-m-d H:i:s');
+            $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+            $transactiondata['CreatedBy'] = 'customer';
+            $transactiondata['ModifyBy'] = 'customer';
+            $transactiondata['ModifyBy'] = 'customer';
+            TransactionLog::insert($transactiondata);
+
+            return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+        }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+        }
     }
 
 }

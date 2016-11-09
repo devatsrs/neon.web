@@ -36,6 +36,7 @@
                 <div class="form-group">
                     <label for="field-5" class="control-label">Name on card*</label>
                     <input type="text" name="NameOnCard" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                    <input type="hidden" name="type" class="form-control" id="field-5" placeholder="" value="{{$type}}">
                 </div>
             </div>
             <!--<div class="col-md-12">
@@ -128,8 +129,8 @@
     </div>
 </form>
 </div>
-</div>
 <div class="col-md-4">&nbsp;</div>
+</div>
 <script>
 toastr_opts = {
     "closeButton": true,
@@ -153,7 +154,15 @@ $(document).ready(function() {
     $('#add-credit-card-form').submit(function(e) {
         e.preventDefault();
         $('#add-credit-card-form').find('[type="submit"]').attr('disabled', true);
-        var update_new_url =update_new_url = '{{URL::to('/')}}/pay_invoice';
+        var update_new_url;
+        var type = '{{$type}}';
+
+        if(type == 'Authorize'){
+            update_new_url = '{{URL::to('/')}}/pay_invoice';
+        }
+        if(type == 'Stripe'){
+            update_new_url = '{{URL::to('/')}}/stripe_payment';
+        }
         $.ajax({
                 url: update_new_url,  //Server script to process data
                 type: 'POST',

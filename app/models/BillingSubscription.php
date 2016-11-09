@@ -9,6 +9,9 @@ class BillingSubscription extends \Eloquent {
     public  $primaryKey = "SubscriptionID";
     static protected  $enable_cache = false;
     public static $cache = ["subscription_dropdown1_cache"];
+	
+	public static $Advance = array(''=>'All',0=>"Off",1=>"On");
+	
 
     static public function checkForeignKeyById($id) {
 

@@ -7,7 +7,7 @@ BEGIN
 
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
-	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,DATE(NOW()),DATE(NOW()),'','',0,p_UserID,p_isAdmin,2);
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,DATE(NOW()),CONCAT(DATE(NOW()),' 23:00:00'),'','',0,p_UserID,p_isAdmin,2);
 	
 	/* total cost */
 	SELECT ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_;

@@ -33,7 +33,7 @@ class BillingClassController extends \BaseController {
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
             $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
-            $accounts = BillingClass::getAccounts($id);
+            //$accounts = BillingClass::getAccounts($id);
 
             return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts'));
         }else{

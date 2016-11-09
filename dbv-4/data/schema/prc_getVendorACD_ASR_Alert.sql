@@ -8,11 +8,26 @@ BEGIN
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	
 	CALL fnUsageVendorSummaryDetail(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,0,1);
+
+	IF p_AccountID = ''
+	THEN
+		SELECT
+			IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , 
+			ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us;
+		
+	END IF;
 	
-	SELECT
-		IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , 
-		ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
-	FROM tmp_tblUsageVendorSummary_ us;
+	IF p_AccountID != ''
+	THEN
+		SELECT
+			IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , 
+			ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+			AccountID
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountID;
+	END IF;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END

@@ -33,13 +33,19 @@ class NotificationController extends \BaseController {
         $notificationType = array(""=> "Select") + Notification::$type;
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $Country = Country::getCountryDropdownIDList();
-        $account = Account::getCustomerIDList();
+        $accountcustomer = Account::getCustomerIDList();
+        $account = Account::getAccountIDList();
         $accountvendor =Account::getAccountIDList(array('IsVendor'=>1));
         $trunks = Trunk::getTrunkDropdownIDList();
         $qos_alert_type  = Alert::$qos_alert_type;
-        $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
+        if((int)CompanyConfiguration::get('CUSTOMER_NOTIFICATION_DISPLAY') == 0){
+            $call_monitor_alert_type  = Alert::$call_blacklist_alert_type;
+        }else{
+            $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
+        }
+
         $MultiCountry = $Country;
-        $Multiaccount = $account;
+        $Multiaccount = $accountcustomer;
         $Multitrunks = $trunks;
         $Multigateway = $gateway;
         $Multivendor = $accountvendor;
@@ -146,6 +152,30 @@ class NotificationController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data), true);
             Excel::create('Alert', function ($excel) use ($excel_data) {
                 $excel->sheet('Alert', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        return json_response_api($response,true,true,true);
+    }
+    public function history(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $alertType = array(""=> "Select") + Alert::$qos_alert_type+Alert::$call_monitor_alert_type;
+        $Alerts = Alert::getDropdownIDList($companyID);
+        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $data['EndDateDefault']  	= 	date('Y-m-d');
+
+        return View::make('notification.history', compact('alertType','Alerts','data'));
+    }
+    public function history_grid(){
+        $getdata = Input::all();
+        $response =  NeonAPI::request('alert/history',$getdata,false,false,false);
+        if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $excel_data = $response->data;
+            $excel_data = json_decode(json_encode($excel_data), true);
+            Excel::create('Alert History', function ($excel) use ($excel_data) {
+                $excel->sheet('Alert History', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
             })->download('xls');

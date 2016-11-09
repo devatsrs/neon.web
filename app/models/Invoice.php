@@ -61,7 +61,7 @@ class Invoice extends \Eloquent {
 
     }
 
-    public static  function generate_pdf($InvoiceID){
+    public static  function generate_pdf($InvoiceID){  
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
@@ -102,13 +102,13 @@ class Invoice extends \Eloquent {
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
-            }
-            RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            } Log::info('destination_dir'); Log::info($destination_dir);
+            //RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
-            $local_file = $destination_dir .  $file_name;
+            $local_file = $destination_dir .  $file_name; Log::info('local_file'); Log::info($local_file);
 
-            $local_htmlfile = $destination_dir .  $htmlfile_name;
+            $local_htmlfile = $destination_dir .  $htmlfile_name; Log::info('local_htmlfile'); Log::info($local_htmlfile);
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';

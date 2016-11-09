@@ -59,7 +59,6 @@ class NotificationCustomerController extends \BaseController {
 		$data = Input::all();
         $data["CreatedBy"] = User::get_user_full_name();
         $data['CompanyID'] = User::get_companyID();
-        $data['Status'] = isset($data['Status'])?1:0;
         $data['Name'] = Customer::get_accountName().' - '.Alert::$call_monitor_customer_alert_type[$data['AlertType']];
         $rules = Alert::$rules;
         $validator = Validator::make($data, $rules);
@@ -84,7 +83,6 @@ class NotificationCustomerController extends \BaseController {
             $data = Input::all();
             $Notification = Alert::find($AlertID);
             $data["ModifiedBy"] = User::get_user_full_name();
-            $data['Status'] = isset($data['Status'])?1:0;
             $rules = Alert::$rules;
             unset($rules['Name']);
             $validator = Validator::make($data, $rules);
@@ -95,6 +93,7 @@ class NotificationCustomerController extends \BaseController {
             if(!empty($error_message)){
                 return Response::json(array("status" => "failed", "message" =>$error_message));
             }
+            $data = self::convert_data($data)+$data;
             if ($Notification->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Notification Successfully Updated"));
             } else {
@@ -104,11 +103,12 @@ class NotificationCustomerController extends \BaseController {
 	}
 
 
-	public function delete($NotificationID)
+	public function delete($AlertID)
 	{
-        if( intval($NotificationID) > 0){
+        if( intval($AlertID) > 0){
             try{
-                $Notification = Notification::find($NotificationID);
+                AlertLog::where('AlertID',$AlertID)->delete();
+                $Notification = Alert::find($AlertID);
                 $result = $Notification->delete();
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Notification Successfully Deleted"));

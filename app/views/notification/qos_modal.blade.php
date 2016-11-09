@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Send Copy To</label>
+                                <label class="control-label">Send Email To</label>
                                 <input type="text" name="QosAlert[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="" />
                             </div>
                         </div>
@@ -97,8 +97,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Time</label>
-                                {{Form::select('QosAlert[Time]',array(""=>"Select run time","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
+                                <label for="field-5" class="control-label">Period</label>
+                                {{Form::select('QosAlert[Time]',array(""=>"Select run period","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">
