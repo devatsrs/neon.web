@@ -529,6 +529,7 @@ class VendorRatesController extends \BaseController
 
     }
     public function bulk_update_preference($id){
+        Log::info("vendor bulk update start : ". $id);
         $data = Input::all();
         if(empty($data['Preference'])){
             $data['Preference']='0';
@@ -549,7 +550,9 @@ class VendorRatesController extends \BaseController
             }
             $RateID = rtrim($RateID,',');*/
             try{
+                Log::info("prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','',".$data['Trunk'].",".$data['Preference'].",'".$username."',".$data['Country'].",".$data['Code'].",".$data['Description'].",1)");
                 DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','',".$data['Trunk'].",".$data['Preference'].",'".$username."',".$data['Country'].",".$data['Code'].",".$data['Description'].",1)");
+                Log::info("vendor bulk update end");
                 return Response::json(array("status" => "success", "message" => "Vendor Preference Updated Successfully"));
             }catch ( Exception $ex ){
                 return Response::json(array("status" => "failed", "message" => "Error Updating Vendor Preference."));
@@ -558,7 +561,9 @@ class VendorRatesController extends \BaseController
             $RateID = $data['RateID'];
             if(!empty($RateID)){
                 try{
+                    Log::info("prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Preference'].",'".$username."',null,null,null,0)");
                     DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Preference'].",'".$username."',null,null,null,0)");
+                    Log::info("vendor bulk update end");
                     return Response::json(array("status" => "success", "message" => "Vendor Preference Updated Successfully"));
                 }catch ( Exception $ex ){
                     return Response::json(array("status" => "failed", "message" => "Error Updating Vendor Preference."));

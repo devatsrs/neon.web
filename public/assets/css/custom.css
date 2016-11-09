@@ -2480,8 +2480,8 @@ background:white none repeat scroll 0 0;
 .label.label-info  {
     padding: 0.2em 0.6em 0.3em !important;
 }
-.popover-content {
-    color: #000000;
+.popover-content,.popover-title {
+   color: #fff;
 }
 .small_fld{
     width:80.6667%;

@@ -71,6 +71,13 @@ class AccountBilling extends \Eloquent {
         $BillingClassID = self::getBillingClassID($AccountID);
         return BillingClass::getInvoiceTemplateID($BillingClassID);
     }
+	
+	public static function getTaxRate($AccountID){
+        $BillingClassID = self::getBillingClassID($AccountID);
+        return BillingClass::getTaxRate($BillingClassID);
+    }
+	
+	
     public static function storeNextInvoicePeriod($AccountID,$BillingCycleType,$BillingCycleValue,$LastInvoiceDate,$NextInvoiceDate){
         $StartDate = $LastInvoiceDate;
         $EndDate = $NextInvoiceDate;

@@ -44,6 +44,8 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
 
     ];
 }
+
+$css[]  = 'assets/css/skins/black.css';
 ?>
 @foreach ($css as $addcss)
 @if( strstr($addcss,"http"))

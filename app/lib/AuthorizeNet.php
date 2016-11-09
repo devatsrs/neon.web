@@ -267,6 +267,7 @@ class AuthorizeNet {
         $request = new \AuthorizeNetCIM();
         $transaction->amount = $amount;
         $transaction->customerProfileId = $options->ProfileID;
+        $transaction->order->invoiceNumber = $options->InvoiceNumber;
         $transaction->customerPaymentProfileId = $options->PaymentProfileID;
 
         $response = $request->createCustomerProfileTransaction("AuthCapture", $transaction);
@@ -283,6 +284,7 @@ class AuthorizeNet {
                 'card_num' => $data['CardNumber'],
                 'exp_date' => $data['ExpirationMonth'].'/'.$data['ExpirationYear'],
                 'card_code' => $data['CVVNumber'],
+                'invoice_num' => $data['InvoiceNumber'],
                 //'first_name' => $data['FirstName'],
                 //'last_name' => $data['LastName'],
                 //'address' => $data['Address'],
