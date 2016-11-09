@@ -37,7 +37,7 @@ class RateGeneratorsController extends \BaseController {
                 'MaxRate',
                 'AddMargin',
                 'RateRuleMarginId',
-            ));
+            ))->orderBy('MinRate', 'ASC');
             return Datatables::of($rategenerator_margins)->make();
         }
 

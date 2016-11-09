@@ -224,10 +224,12 @@ class CronJobController extends \BaseController {
                 $data['Status'] = -1;
             }
         }
+        $data['Type'] = $data['Type']==''?0:$data['Type'];
+
         $companyID = User::get_companyID();
         $columns = array('Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".$data['Type'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         return DataTableSql::of($query)->make();
     }
 
