@@ -41,9 +41,10 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
 		"assets/js/perfectScroll/css/perfect-scrollbar.css",
 		"assets/js/odometer/themes/odometer-theme-default.css",	
 		"assets/js/daterangepicker/daterangepicker.css",
-        "assets/css/custom.css",
+        "assets/css/custom.css",		
     ];
 }
+$css[]  = 'assets/css/skins/black.css';
 ?>
 @foreach ($css as $addcss)
 @if( strstr($addcss,"http"))

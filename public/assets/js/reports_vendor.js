@@ -63,8 +63,14 @@ function getAnalysisData(chart_type,submitdata){
     });
 }
 function set_search_parameter(submit_form){
-    $searchFilter.StartDate = $(submit_form).find("input[name='StartDate']").val();
-    $searchFilter.EndDate = $(submit_form).find("input[name='EndDate']").val();
+    var start_time = '';
+    var end_time = '';
+    if($(submit_form).find("[name='StartHour']").attr('disabled') !== 'disabled'){
+        start_time = ' '+$(submit_form).find("[name='StartHour']").val()+':00:00';
+        end_time = ' '+$(submit_form).find("[name='EndHour']").val()+':00:00';
+    }
+    $searchFilter.StartDate = $(submit_form).find("input[name='StartDate']").val()+start_time;
+    $searchFilter.EndDate = $(submit_form).find("input[name='EndDate']").val()+end_time;
     $searchFilter.UserID = $(submit_form).find("[name='UserID']").val();
     $searchFilter.Admin   = $(submit_form).find("input[name='Admin']").val();
     $searchFilter.chart_type   = $(submit_form).find("input[name='chart_type']").val();

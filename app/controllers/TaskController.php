@@ -194,11 +194,11 @@ class TaskController extends \BaseController {
 				$key = $data['KeyID'];
 			}
 			unset($data['KeyID']);
-            $response = NeonAPI::request('task/'.$id.'/update_task',$data);
+            $response = NeonAPI::request('task/'.$id.'/update_task',$data); 
 			if(isset($data['required_data']) && $data['required_data']!=''){
 					$required_data = 1;
 			}
-			if($required_data==1){
+			if($required_data==1 && $response->status=='success'){ 			
 				$response = $response->data;
 				$response = $response[0];
 				$response->type = Task::Tasks;
