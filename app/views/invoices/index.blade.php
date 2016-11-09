@@ -380,7 +380,7 @@
                                     action += '<li><a class="icon-left"  target="_blank" href="' + invoice_preview + '"><i class="entypo-pencil"></i>View </a></li>';
                                 }
                                 if (invoice_log) {
-                                    action += '<li><a href="' + invoice_log + '" class="icon-left"><i class="entypo-pencil"></i>Log </a></li>';
+                                    action += '<li><a href="' + invoice_log + '" class="icon-left" target="_blank"><i class="entypo-pencil"></i>Log </a></li>';
                                 }
                                 if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Send')}}') {

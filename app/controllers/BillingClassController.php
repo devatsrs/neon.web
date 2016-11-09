@@ -14,7 +14,9 @@ class BillingClassController extends \BaseController {
         $taxrates = TaxRate::getTaxRateDropdownIDList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
         if(isset($taxrates[""])){unset($taxrates[""]);}
-        return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates'));
+        $privacy = EmailTemplate::$privacy;
+        $type = EmailTemplate::$Type;
+        return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
     public function edit($id) {
 
@@ -34,8 +36,11 @@ class BillingClassController extends \BaseController {
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
             $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
             //$accounts = BillingClass::getAccounts($id);
+            $privacy = EmailTemplate::$privacy;
+            $type = EmailTemplate::$Type;
+            
 
-            return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts'));
+            return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);
         }

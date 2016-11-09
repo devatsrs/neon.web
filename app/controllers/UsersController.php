@@ -270,6 +270,7 @@ class UsersController extends BaseController {
         $user_profile_data['Address3'] = $data['Address3'];
         $user_profile_data['Utc'] = $data['Utc'];
         $user_profile_data['updated_by'] = User::get_user_full_name();
+        $user_profile_data['JobNotification'] = $data['JobNotification'];
 
         if (!empty($data['Roles'])) {
             $user_data['Roles'] = implode(',', (array) $data['Roles']);
@@ -333,6 +334,16 @@ class UsersController extends BaseController {
             }
         }
         return View::make('user.users_dropdown', compact('users'));
+    }
+
+    public function job_notification($id, $status) {
+        if ($id > 0 && ( $status == 0 || $status == 1)) {
+            if (User::find($id)->update(["JobNotification" => $status, "updated_by" => User::get_user_full_name()])) {
+                return Response::json(array("status" => "success", "message" => "Status Successfully Changed"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Changing Status."));
+            }
+        }
     }
 
     public function view_tracker(){
