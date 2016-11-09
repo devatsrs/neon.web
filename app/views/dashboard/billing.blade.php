@@ -817,6 +817,7 @@
                 option["startdate"] = startDate;
                 option["enddate"] = enddate;
                 option["currency"] = CurrencyID;
+				option["count"] = '';
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalOutstanding;
                 option["end"] = response.data.TotalOutstanding;
