@@ -2486,3 +2486,6 @@ background:white none repeat scroll 0 0;
 .small_fld{
     width:80.6667%;
 }
+.input-group-addon {
+  color: #555 !important;
+}
