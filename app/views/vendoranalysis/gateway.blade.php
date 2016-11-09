@@ -1,3 +1,4 @@
+<div class="row">
 <div class="clear"></div>
 <div class="col-md-4">
 
@@ -103,3 +104,4 @@
 
 </div>
 <div class="clear"></div>
+</div>
