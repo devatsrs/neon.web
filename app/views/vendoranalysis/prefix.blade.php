@@ -1,3 +1,4 @@
+<div class="row">
 <div class="col-md-4">
 
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -102,3 +103,4 @@
 
 </div>
 <div class="clear"></div>
+</div>

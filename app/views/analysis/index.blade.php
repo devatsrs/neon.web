@@ -2,7 +2,7 @@
 @section('content')
 <br />
 {{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
-<div class="row">
+
     <ul class="nav nav-tabs">
         <li class="active"><a href="#">Customer</a></li>
         <li ><a href="{{ URL::to('/vendor_analysis') }}">Vendor</a></li>
@@ -24,10 +24,10 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Start Date</label>
-                                <div class="col-sm-1">
+                                <div class="col-sm-2">
                                     <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                                 </div>
-                                <div class="col-md-1">
+                                <div class="col-md-1 select_hour">
                                     <?php  $Hour  = array(
                                             '00'=>'00',
                                             '01'=>'01',
@@ -56,23 +56,20 @@
 
                                     );
                                     ?>
-                                    {{ Form::select('StartHour',$Hour,00, array("class"=>"select2")) }}
+                                    {{ Form::select('StartHour',$Hour,00, array("class"=>"select2",'title'=>"Hour","data-placeholder"=>"Select Hour")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">End Date</label>
-                                <div class="col-sm-1">
+                                <div class="col-sm-2">
                                     <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                 </div>
-                                <div class="col-md-1">
-                                    {{ Form::select('EndHour',$Hour,23, array("class"=>"select2")) }}
+                                <div class="col-md-1 select_hour">
+                                    {{ Form::select('EndHour',$Hour,23, array("class"=>"select2", 'title'=>"Hour","data-placeholder"=>"Select Hour")) }}
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">Gateway</label>
                                 <div class="col-sm-2">
                                     {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                                 </div>
-                                <label class="col-sm-1 control-label" for="field-1">Country</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('CountryID',$Country,'', array("class"=>"select2")) }}
-                                </div>
+
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-1 control-label" for="field-1">Prefix</label>
@@ -103,6 +100,12 @@
                             <input type="hidden" name="UserID" value="{{$UserID}}">
                             <input type="hidden" name="Admin" value="{{$isAdmin}}">
                             <input type="hidden" name="chart_type" value="destination">
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label" for="field-1">Country</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('CountryID',$Country,'', array("class"=>"select2")) }}
+                                </div>
                             </div>
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
@@ -147,7 +150,7 @@
     </div>
         </div>
     </div>
-</div>
+
 <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
 {{--<script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script>
 <script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>--}}
@@ -169,6 +172,21 @@
                     set_search_parameter($("#customer_analysis"));
                     reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
+            });
+            $(".datepicker").change(function(e) {
+                var start = new Date($("[name='StartDate']").val()),
+                        end   = new Date($("[name='EndDate']").val()),
+                        diff  = new Date(end - start),
+                        days  = diff/1000/60/60/24;
+                if(days > 0){
+                    $("[name='StartHour']").attr('disabled','disabled');
+                    $("[name='EndHour']").attr('disabled','disabled');
+                    $(".select_hour").hide();
+                }else{
+                    $("[name='EndHour']").removeAttr('disabled');
+                    $("[name='StartHour']").removeAttr('disabled');
+                    $(".select_hour").show();
+                }
             });
             $("#customer_analysis").submit(function(e) {
                 e.preventDefault();

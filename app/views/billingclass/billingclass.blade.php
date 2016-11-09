@@ -70,7 +70,6 @@
             </div>
             <div class="tab-pane" id="tab2" >
                 <br/>
-                <br/>
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#invoice_tab" data-toggle="tab">Invoice</a></li>
                     <li ><a href="#account_tab" data-toggle="tab">Account</a></li>
@@ -177,7 +176,7 @@
                                     <div class="form-group">
                                         <label for="field-5" class="col-sm-2 control-label">Period</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[Time]',array(""=>"Select run period","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($PaymentReminders->Time)?$PaymentReminders->Time:''),array( "class"=>"select2 small"))}}
+                                            {{Form::select('PaymentReminder[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($PaymentReminders->Time)?$PaymentReminders->Time:''),array( "class"=>"select2 small"))}}
                                         </div>
 
                                         <label for="field-5" class="col-sm-2 control-label">Interval</label>
@@ -238,7 +237,7 @@
                             <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Period</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select run period","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"select2 small"))}}
+                                    {{Form::select('LowBalanceReminder[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"select2 small"))}}
                                 </div>
 
                                 <label for="field-5" class="col-sm-2 control-label">Interval</label>
