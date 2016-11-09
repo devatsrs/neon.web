@@ -413,6 +413,7 @@
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
 					$('.btn_smtp_submit').button('reset');
+					$('.ValidateSmtp').removeAttr('disabled');
 						 if (Response.status == 'failed') {
 	                           toastr.error(Response.message, "Error", toastr_opts);
 							   return false;
@@ -443,7 +444,7 @@
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
 			  $('.model-title-set').html('Test Mail Settings');
 			  $('.ValidateSmtp').button('reset');
-
+			  $('.ValidateSmtp').removeAttr('disabled');
 		 });
 		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
