@@ -244,18 +244,31 @@ protected $server;
 	function GetMessageBody($msg){
 		$pos = strpos($msg,"<html");
 		if($pos !== false){ //html found		
-			$d = new \DOMDocument;
-			$mock = new \DOMDocument;
+		
+			$doc = new \DOMDocument();
 			libxml_use_internal_errors(true);
+			// load the HTML into the DomDocument object (this would be your source HTML)
+			$doc->loadHTML($msg);
+			
+			$this->removeElementsByTagName('script', $doc);
+			$this->removeElementsByTagName('style', $doc);
+			//removeElementsByTagName('link', $doc);
+			
+			// output cleaned html
+			$msg = $doc->saveHtml();
+		
+			/*$d = new \DOMDocument;
+			$mock = new \DOMDocument;
+			
 			$d->loadHTML($msg);
 			$body = $d->getElementsByTagName('body')->item(0);
 			foreach ($body->childNodes as $child){
 				$mock->appendChild($mock->importNode($child, true));
 			}			
-			$msg =  $mock->saveHTML();		
+			$msg =  $mock->saveHTML();	*/	
 		}
 		return $msg;
-	}	
+	}		
 	
 	static	function CheckConnection($server,$email,$password){
 		ini_set('safe_mode',0);
@@ -309,8 +322,15 @@ protected $server;
 				$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName.' ('. $Accountdata[0]->AccountName .')';							
 		}				
         
-		return array('MatchType'=>$MatchType,'MatchID'=>$MatchID,"AccountTitle"=>$AccountTitle,"AccountID"=>$AccountID);        
+		return array('MatchType'=>$MatchType,'MatchID'=>$MatchID,"AccountTitle"=>$AccountTitle,"AccountID"=>$AccountID);  
+	}
 	
+	function removeElementsByTagName($tagName, $document) {
+	  $nodeList = $document->getElementsByTagName($tagName);
+	  for ($nodeIdx = $nodeList->length; --$nodeIdx >= 0; ) {
+		$node = $nodeList->item($nodeIdx);
+		$node->parentNode->removeChild($node);
+	  }
 	}
 }
 ?>
