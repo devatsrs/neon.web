@@ -20,18 +20,12 @@
             <li class="caret"></li>
 
 		 @if( User::checkCategoryPermission('Users','View'))
-        <li> <a href="{{Url::to('users')}}"><i class="fa fa-user-secret"></i>  <span>Users</span> </a> </li>
+        <li> <a href="{{Url::to('users')}}">&nbsp;<i class="fa fa-user-secret"></i><span>Users</span> </a></li>
         @endif
         @if(User::is_admin())
-        <li> <a href="{{Url::to('roles')}}"><i class="fa fa-key"></i>  <span>User Roles</span> </a> </li>
+        <li> <a href="{{Url::to('roles')}}">&nbsp;<i class="fa fa-key"></i><span>User Roles</span></a></li>
         @endif
-
-            <li>
-                <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">
-                    <i class="entypo-user"></i>
-                    Edit Profile
-                </a>
-            </li>
+        <li><a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}"><i class="entypo-user"></i>Edit Profile</a></li>
 
             <!-- <li>
                  <a href="mailbox.html">
@@ -48,15 +42,10 @@
              </li>
 -->
 		@if(User::checkCategoryPermission('emailmessages','All'))
-        <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a> </li>
+        <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a></li>
       	@endif
 
-            <li>
-                <a href="{{URL::to('/jobs')}}">
-                    <i class="entypo-clipboard"></i>
-                    Jobs
-                </a>
-            </li>
+           <li><a href="{{URL::to('/jobs')}}"><i class="entypo-clipboard"></i>Jobs</a></li>
         </ul>
     </li>
 
@@ -85,7 +74,7 @@
          	</li>
        </ul>				
 </li>
- @endif			
+ @endif	
 </ul>
 </div>
 <!-- Raw Links -->

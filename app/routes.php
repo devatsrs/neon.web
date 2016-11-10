@@ -93,6 +93,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
     Route::any('/users/tracker', 'UsersController@view_tracker');
+    Route::any('/users/{id}/job_notification/{status}', 'UsersController@job_notification')->where('status', '(.[09]*)+');
 
 
 	//DashBoard
@@ -297,6 +298,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('email_template/{id}/edit', 'EmailTemplateController@edit');
     Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
     Route::any('email_template/store', 'EmailTemplateController@store');
+    Route::any('email_template/storetemplate', 'EmailTemplateController@storetemplate');
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 
@@ -750,6 +752,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/invoice_log/{id}', 'TransactionLogController@log');
     Route::any('/invoice_log/ajax_datagrid/{id}/{type}', 'TransactionLogController@ajax_datagrid');
     Route::any('/invoice_log/ajax_invoice_datagrid/{id}/{type}', 'TransactionLogController@ajax_invoice_datagrid');
+    Route::any('/invoice_log/ajax_payments_datagrid/{id}/{type}', 'TransactionLogController@ajax_payments_datagrid');
     Route::any('/invoice/generate', 'InvoicesController@generate');
 	Route::any('/invoice/ajax_datagrid/{type}', 'InvoicesController@ajax_datagrid');
 	Route::any('/invoice/ajax_datagrid_total', 'InvoicesController@ajax_datagrid_total');

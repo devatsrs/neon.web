@@ -120,6 +120,31 @@ body {
     border-color: #303641;
     cursor: default;
 }
+
+.select2-results .select2-add{
+    margin-left:-5px;
+}
+.select2-results .select2-add .entypo-plus-circled{
+    font-size: 15px;
+    color:green;
+}
+.tile-stats .num{
+    font-size:20px;
+    font-weight:500;
+}
+.tile-stats h3{
+    font-size:15px;
+    margin-top:5px;
+}
+.tile-orange{
+    background:#E6AF32 none repeat scroll 0 0 !important;
+}
+.tile-red{
+    background:#E33D43 none repeat scroll 0 0 !important;
+}
+.tile-green{
+    background:#56B349 none repeat scroll 0 0 !important;
+}
 /*Abubakar End*/
 
 
@@ -500,7 +525,7 @@ em {
 }
 
 .multi-level{
-    background-color:#303641;
+    background-color:#000;
     border:1px solid #303641;
     color:#fff;
     left: none !important;
@@ -2371,7 +2396,8 @@ background-repeat:no-repeat;
     font-size:12px;
 }
 .dropdown-menu > li > a{
-    color:#7d8086;
+    /*color:#7d8086;*/
+    color:#fff;
     padding: 4px 8px;
 }
 
@@ -2460,4 +2486,10 @@ background:white none repeat scroll 0 0;
 }
 .small_fld{
     width:80.6667%;
+}
+.input-group-addon {
+  color: #555 !important;
+}
+.dropdown-menu{
+background-color:#000 !important;
 }

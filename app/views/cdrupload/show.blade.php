@@ -76,17 +76,17 @@
                             <div class="form-group">
                                 <label class="col-md-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
                                 <div class="col-md-2" style="padding-left:0; padding-right:0; width:10%;">
-                                    <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?Input::get('StartDate'):'' }}" data-enddate="{{Input::get('StartDate')!=null?Input::get('StartDate'):date('Y-m-d') }}" />
+                                    <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-md-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00' ?substr(Input::get('StartDate'),11,8):'00:00:01'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
                                 <div class="col-md-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
-                                    <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?Input::get('EndDate'):'' }}" data-enddate="{{Input::get('EndDate')!=null?Input::get('EndDate'):date('Y-m-d') }}" />
+                                    <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):date('Y-m-d') }}" />
                                 </div>
                                 <div class="col-md-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label for="field-1" class="col-md-2 control-label" style="width: 6%;">Currency</label>
                                 <div class="col-md-2">

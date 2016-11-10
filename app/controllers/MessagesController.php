@@ -169,6 +169,7 @@ class MessagesController extends \BaseController {
 
 		 
 		  $response_api_extensions 	=    Get_Api_file_extentsions();
+		  if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
 		  $response_extensions		=	 json_encode($response_api_extensions['allowed_extensions']);
 		  $random_token				=	 get_random_number();
 		  $max_file_size			=	 get_max_file_size();		
@@ -184,12 +185,13 @@ class MessagesController extends \BaseController {
 		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size','data'));
 	}
 		
-	public function Compose($id=0){
+	public function Compose($id=0){ 
 		$Emaildata					=		array();
 		$data 						= 		Input::all();
 		$array						=		$this->GetDefaultCounterData(); //get default data for email side bar
 		$random_token				=	 	get_random_number();
-		$response_api_extensions 	=   	Get_Api_file_extentsions();
+		$response_api_extensions 	=   	Get_Api_file_extentsions(); 
+		if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); }		
 		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
 		$max_file_size				=		get_max_file_size();
 		$AllEmails 					= 		json_encode(Messages::GetAllSystemEmails()); 

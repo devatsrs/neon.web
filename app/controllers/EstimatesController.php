@@ -290,7 +290,7 @@ class EstimatesController extends \BaseController {
 
                     DB::connection('sqlsrv2')->commit();
 
-                    return Response::json(array("status" => "success", "message" => "Estimate Successfully Created",'LastID'=>$Estimate->EstimateID,'redirect' => URL::to('/estimates')));
+                    return Response::json(array("status" => "success", "message" => "Estimate Successfully Created",'LastID'=>$Estimate->EstimateID,'redirect' => URL::to('/estimate/'.$Estimate->EstimateID.'/edit')));
                 }
 				else
 				{
