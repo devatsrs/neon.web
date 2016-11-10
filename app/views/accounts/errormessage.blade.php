@@ -14,7 +14,7 @@
 @if(Account::AuthIP($Account) && ($Account->IsCustomer==1 || $Account->IsVendor==1))
     <div  class="row">
         <div class="col-md-12">
-            <div class="alert alert-danger">
+            <div class="alert alert-warning">
                 No IPs are setup under authentication rule.
             </div>
         </div>

@@ -411,6 +411,7 @@ class ImportsController extends \BaseController {
             $jobdata["Description"] = $jobType->Title ;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
@@ -504,6 +505,7 @@ class ImportsController extends \BaseController {
             $jobdata["Description"] = $jobType->Title ;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
 
             $JobID = Job::insertGetId($jobdata);

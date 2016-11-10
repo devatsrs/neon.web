@@ -25,7 +25,7 @@
 <div class="col-md-12">
 <form id="retention-form" method="post" class="form-horizontal form-groups-bordered validate">
 <div class="panel panel-primary" data-collapsed="0">
-<div class="panel-heading">
+<div class="panel-heading" style="min-height: 55px;">
                     <div class="panel-title" style="min-height: 55px;">
                         Data Retention (Days)
                         <br><span class="small">Blank (do not delete)</span>

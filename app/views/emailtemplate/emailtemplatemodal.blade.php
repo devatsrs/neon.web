@@ -49,7 +49,7 @@
                         data_table.fnFilter('', 0);
                     }else if($('#add-new-template-form [name="targetElement"]').val() != ''){
                         var targetElement = $($('#add-new-template-form [name="targetElement"]').val());
-                        rebuildSelect2(targetElement,response.data,'');
+                        rebuildSelect2(targetElement,response.data,'Select');
                     }
                 } else {
                     toastr.error(response.message, "Error", toastr_opts);
