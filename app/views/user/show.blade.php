@@ -167,7 +167,7 @@
                     $(this).button('reset');
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
-                        if ($(this).is(":checked")) {
+                        if ($('#UserStatus').is(":checked")) {
                             data_table.fnFilter(1, 0);  // 1st value 2nd column index
                         } else {
                             data_table.fnFilter(0, 0);
