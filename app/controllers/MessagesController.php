@@ -148,6 +148,7 @@ class MessagesController extends \BaseController {
 		 $TotalUnreads				=	$resultdata->data['totalcountInbox'][0]->totalcountInbox;	
 		 $TotalDraft				=	$resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
 		 $user 						=   User::find($Emaildata->UserID);  	
+		 $body						=	'';
 		 if($user)	{
 			$ToName					=	$user->FirstName.' '.$user->LastName; 
 		 } else{
@@ -181,7 +182,10 @@ class MessagesController extends \BaseController {
 			$data['BoxType'] = Messages::inbox;
 		  }
 		  $Imap = new Imap();
-		  $body =  $Imap->GetMessageBody($Emaildata->Message);
+		  
+		  if(!empty($Emaildata->Message)){
+				$body =  $Imap->GetMessageBody($Emaildata->Message);
+		  }
 		  
 		 
 		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size','data','body'));
