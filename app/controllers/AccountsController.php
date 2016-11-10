@@ -278,6 +278,7 @@ class AccountsController extends \BaseController {
             
 			//Backup code for getting extensions from api
 		   $response_api_extensions 	=   Get_Api_file_extentsions();
+		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
 		   
            //all users email address

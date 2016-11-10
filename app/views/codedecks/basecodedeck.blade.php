@@ -87,7 +87,7 @@ var postdata;
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )
                             if(full[4] == 0) {
-                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success btn-primary tooltip-primary" data-original-title="Set Default Codedeck" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
+                                action += ' <a data-id="' + id + '" class="default-codedecks btn btn-sm btn-success tooltip-primary" data-original-title="Set Default Codedeck" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-check"></i></a>';
                             }
                         @endif
 

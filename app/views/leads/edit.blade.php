@@ -366,7 +366,7 @@
 
 </script>
 
-@include('includes.ajax_submit_script', array('formID'=>'lead-from' , 'url' => ($url2)));
+@include('includes.ajax_submit_script', array('formID'=>'lead-from' , 'url' => ($url2)))
 @include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
 @stop
 

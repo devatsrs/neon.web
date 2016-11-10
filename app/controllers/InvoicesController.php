@@ -301,8 +301,8 @@ class InvoicesController extends \BaseController {
                 if(!empty($InvoiceTaxRates)) {
                     InvoiceTaxRate::insert($InvoiceTaxRates);
                 }
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { Log::info('InvoiceID'); Log::info($Invoice->InvoiceID);
-                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); Log::info('pdf_path'); Log::info($pdf_path);
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
+                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
                         $error['status'] = 'failure';
@@ -314,7 +314,7 @@ class InvoicesController extends \BaseController {
 
                     DB::connection('sqlsrv2')->commit();
 
-                    return Response::json(array("status" => "success", "message" => "Invoice Successfully Created",'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice')));
+                    return Response::json(array("status" => "success", "message" => "Invoice Successfully Created",'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice."));
