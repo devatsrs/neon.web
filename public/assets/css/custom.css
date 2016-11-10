@@ -2427,7 +2427,7 @@ background:white none repeat scroll 0 0;
     padding: 1px;
     text-align: left;
     white-space: normal;
-    background-color: #FFFFFF !important;
+    background-color: #000 !important;
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
     border: 1px solid #ccc;
