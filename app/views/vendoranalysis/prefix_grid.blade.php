@@ -1,3 +1,4 @@
+<div class="row">
 <div class="col-md-12">
 <table class="table table-bordered datatable" id="prefix_table">
     <thead>
@@ -19,3 +20,4 @@
     </tfoot>
 </table>
     </div>
+</div>

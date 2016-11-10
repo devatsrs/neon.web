@@ -2,7 +2,7 @@
 @section('content')
     <br />
     {{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
-    <div class="row">
+
         <ul class="nav nav-tabs">
             @if($is_customer == 1)
                 <li ><a href="{{ URL::to('customer/analysis') }}">Customer</a></li>
@@ -13,6 +13,7 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="customer" >
+                <div class="row">
                 <div class="col-md-12">
                     <form novalidate="novalidate" class="form-horizontal form-groups-bordered filter validate" method="post" id="vendor_analysis">
                         <div data-collapsed="0" class="panel panel-primary">
@@ -27,10 +28,10 @@
                             <div class="panel-body">
                                 <div class="form-group">
                                     <label class="col-sm-1 control-label" for="field-1">Start Date</label>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-2">
                                         <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-md-1 select_hour">
                                         <?php  $Hour  = array(
                                                 '00'=>'00',
                                                 '01'=>'01',
@@ -62,10 +63,10 @@
                                         {{ Form::select('StartHour',$Hour,00, array("class"=>"select2")) }}
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">End Date</label>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-2">
                                         <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-md-1 select_hour">
                                         {{ Form::select('EndHour',$Hour,23, array("class"=>"select2")) }}
                                     </div>
                                     @if(Session::get('customer') != 1)
@@ -119,6 +120,7 @@
                     </form>
                 </div>
                 <div class="clear"></div>
+                </div>
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                     <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
@@ -140,7 +142,7 @@
                 </div>
             </div>
         </div>
-    </div>
+
     <script src="{{ URL::asset('assets/js/reports_vendor.js') }}"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -159,6 +161,21 @@
                     set_search_parameter($("#vendor_analysis"));
                     reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
                 }, 10);
+            });
+            $(".datepicker").change(function(e) {
+                var start = new Date($("[name='StartDate']").val()),
+                        end   = new Date($("[name='EndDate']").val()),
+                        diff  = new Date(end - start),
+                        days  = diff/1000/60/60/24;
+                if(days > 0){
+                    $("[name='StartHour']").attr('disabled','disabled');
+                    $("[name='EndHour']").attr('disabled','disabled');
+                    $(".select_hour").hide();
+                }else{
+                    $("[name='EndHour']").removeAttr('disabled');
+                    $("[name='StartHour']").removeAttr('disabled');
+                    $(".select_hour").show();
+                }
             });
             $("#vendor_analysis").submit(function(e) {
                 e.preventDefault();

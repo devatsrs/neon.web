@@ -71,6 +71,12 @@
                             </div>
 
                         </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-1 control-label">Type</label>
+                            <div class="col-sm-2">
+                                {{ Form::select('CronJobCommandID', $commands, '', array("class"=>"select2")) }}
+                            </div>
+                        </div>
 
                         <p style="text-align: right;">
                             <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -117,6 +123,7 @@
             $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
             $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
             $searchFilter.AutoRefresh = $('#cronjob_filter [name="AutoRefresh"]').val();
+            $searchFilter.Type = $('#cronjob_filter [name="CronJobCommandID"]').val();
 
             data_table = $("#cronjobs").dataTable({
                 "bDestroy": true,
@@ -129,7 +136,7 @@
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {
                     //aoData.length = 0;
-                    aoData.push({"name": "Status", "value": $searchFilter.Status},{"name": "Title", "value": $searchFilter.Title},{"name": "Export", "value": 1});
+                    aoData.push({"name": "Status", "value": $searchFilter.Status},{"name": "Title", "value": $searchFilter.Title},{"name": "Type", "value": $searchFilter.Type},{"name": "Export", "value": 1});
                 },
                 "aaSorting": [[0, 'desc']],
                 "fnRowCallback": function( nRow, data, iDisplayIndex, iDisplayIndexFull ) {
@@ -284,6 +291,7 @@
 
                 $searchFilter.Status = $('#cronjob_filter [name="Status"]').val();
                 $searchFilter.Title = $('#cronjob_filter [name="Title"]').val();
+                $searchFilter.Type = $('#cronjob_filter [name="CronJobCommandID"]').val();
 
                 data_table.fnFilter('', 0);
 

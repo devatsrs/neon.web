@@ -142,7 +142,8 @@ BEGIN
 			ON dt.TimeID = usd.TimeID
 		INNER JOIN NeonRMDev.tblAccount a
 			ON sh.AccountID = a.AccountID
-		WHERE CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
+		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
+		AND ( DATEDIFF(p_StartDate,p_EndDate) !=  0 OR ( DATEDIFF(p_StartDate,p_EndDate) =  0 AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate))
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
@@ -178,7 +179,8 @@ BEGIN
 			ON dt.TimeID = usd.TimeID
 		INNER JOIN NeonRMDev.tblAccount a
 			ON sh.AccountID = a.AccountID
-		WHERE CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
+		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
+		AND ( DATEDIFF(p_StartDate,p_EndDate) !=  0 OR ( DATEDIFF(p_StartDate,p_EndDate) =  0 AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate))
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)

@@ -123,6 +123,18 @@ class AccountPaymentProfile extends \Eloquent
 
     public static function paynow($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID)
     {
+        $Invoices = explode(',', $Invoiceids);
+        $fullnumber = '';
+        if(count($Invoices)>0){
+            foreach($Invoices as $inv){
+                $AllInvoice = Invoice::find($inv);
+                $fullnumber.= $AllInvoice->FullInvoiceNumber.',';
+            }
+        }
+        if($fullnumber!=''){
+            $fullnumber = rtrim($fullnumber,',');
+        }
+
         $account = Account::find($AccountID);
         $AccountBilling = AccountBilling::getBilling($AccountID);
         $outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));
@@ -133,6 +145,7 @@ class AccountPaymentProfile extends \Eloquent
                 $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
                 $AccountPaymentProfileID = $CustomerProfile->AccountPaymentProfileID;
                 $options = json_decode($CustomerProfile->Options);
+                $options->InvoiceNumber = $fullnumber;
                 $transactionResponse = PaymentGateway::addTransaction($PaymentGateway, $outstanginamount, $options, $account, $AccountPaymentProfileID,$CreatedBy);
                 /**  Get All UnPaid  Invoice */
                 $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0)');

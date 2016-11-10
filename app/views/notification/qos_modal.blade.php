@@ -98,7 +98,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Period</label>
-                                {{Form::select('QosAlert[Time]',array(""=>"Select run period","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
+                                {{Form::select('QosAlert[Time]',array(""=>"Select","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">

@@ -13,7 +13,8 @@ BEGIN
 	THEN	
 			  DROP TEMPORARY TABLE IF EXISTS tblVendorRate_;
 			  CREATE TEMPORARY TABLE tblVendorRate_  (
-				RateID INT(11) 
+				RateID INT(11),
+				INDEX tmp_RateID (`RateID`) 
 			  );
 			  
 			  INSERT INTO tblVendorRate_
@@ -27,7 +28,8 @@ BEGIN
 	THEN	
 			DROP TEMPORARY TABLE IF EXISTS tblVendorRate_;
 			  CREATE TEMPORARY TABLE tblVendorRate_  (
-				RateID INT(11) 
+				RateID INT(11),
+				INDEX tmp_RateID (`RateID`) 
 			  );
   
 			INSERT INTO tblVendorRate_

@@ -1172,7 +1172,7 @@ function run_process($command) {
 }
 
 function Get_Api_file_extentsions($ajax=false){
-	
+
 	 if (Session::has("api_response_extensions")){
 		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
 		 return $response_extensions;
@@ -1186,9 +1186,9 @@ function Get_Api_file_extentsions($ajax=false){
 		}else{
 			
 			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
-				return	Redirect::to('/logout'); 	
+					return Redirect::to('/logout'); 	
 			}		
-			if(isset($response->error) && $response->error=='token_expired'){ Redirect::to('/login');}	
+			if(isset($response->error) && $response->error=='token_expired'){ return Redirect::to('/login');}	
 		}
 	}else{		
 		$response_extensions 		 = 	json_response_api($response,true,true); 

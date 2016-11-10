@@ -171,8 +171,8 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Name</th>
-        <th width="10%" >Owner</th>
+        <th width="15%" >Account Name</th>
+        <th width="10%" >Name</th>
         <th width="10%">Phone</th>
         <th width="8%">OS</th>
         <th width="5%">UA</th>
@@ -343,7 +343,7 @@
                                     popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
                                     popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
 
-                                    return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="" data-content="'+popup_html+'">' +id+ '</div>';
+                                    return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="aaa" data-content="'+popup_html+'">' +id+ '</div>';
                                 }else{
                                     return '';
                                 }
@@ -689,7 +689,7 @@
                 selector: '[data-toggle="popover"]',
                 trigger:'hover',
                 html:true,
-                template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+                template:'<div class="popover popover-primary" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
                 //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
             });
 

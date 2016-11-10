@@ -1,3 +1,4 @@
+<div class="row">
 <div class="col-md-12">
 <table class="table table-bordered datatable" id="destination_table">
     <thead>
@@ -18,4 +19,5 @@
     </tr>
     </tfoot>
 </table>
+</div>
 </div>

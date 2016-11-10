@@ -301,8 +301,8 @@ class InvoicesController extends \BaseController {
                 if(!empty($InvoiceTaxRates)) {
                     InvoiceTaxRate::insert($InvoiceTaxRates);
                 }
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { Log::info('InvoiceID'); Log::info($Invoice->InvoiceID);
-                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); Log::info('pdf_path'); Log::info($pdf_path);
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
+                    $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
                         $error['status'] = 'failure';
@@ -314,7 +314,7 @@ class InvoicesController extends \BaseController {
 
                     DB::connection('sqlsrv2')->commit();
 
-                    return Response::json(array("status" => "success", "message" => "Invoice Successfully Created",'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice')));
+                    return Response::json(array("status" => "success", "message" => "Invoice Successfully Created",'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice."));
@@ -1365,7 +1365,9 @@ class InvoicesController extends \BaseController {
 
         if(!empty($Invoice)) {
             //$data['GrandTotal'] = $Invoice->GrandTotal;
+            $Invoice = Invoice::find($Invoice->InvoiceID);
             $data['GrandTotal'] = $payment_log['final_payment'];
+            $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
             $authorize = new AuthorizeNet();
             $response = $authorize->pay_invoice($data);
             $Notes = '';
@@ -1375,7 +1377,6 @@ class InvoicesController extends \BaseController {
                 $Notes = isset($response->response->xml->messages->message->text) && $response->response->xml->messages->message->text != '' ? $response->response->xml->messages->message->text : $response->response_reason_text ;
             }
             if ($response->approved) {
-                $Invoice = Invoice::find($Invoice->InvoiceID);
                 $paymentdata = array();
                 $paymentdata['CompanyID'] = $Invoice->CompanyID;
                 $paymentdata['AccountID'] = $Invoice->AccountID;
