@@ -242,31 +242,20 @@ protected $server;
     }
 	
 	function GetMessageBody($msg){
-		$pos = strpos($msg,"<html");
-		if($pos !== false){ //html found		
-		
-			$doc = new \DOMDocument();
-			libxml_use_internal_errors(true);
-			// load the HTML into the DomDocument object (this would be your source HTML)
-			$doc->loadHTML($msg);
-			
-			$this->removeElementsByTagName('script', $doc);
-			$this->removeElementsByTagName('style', $doc);
-			//removeElementsByTagName('link', $doc);
-			
-			// output cleaned html
-			$msg = $doc->saveHtml();
-		
-			/*$d = new \DOMDocument;
-			$mock = new \DOMDocument;
-			
-			$d->loadHTML($msg);
-			$body = $d->getElementsByTagName('body')->item(0);
-			foreach ($body->childNodes as $child){
-				$mock->appendChild($mock->importNode($child, true));
-			}			
-			$msg =  $mock->saveHTML();	*/	
-		}
+		$doc = new \DOMDocument();
+		$mock = new \DOMDocument;
+		libxml_use_internal_errors(true);
+		// load the HTML into the DomDocument object (this would be your source HTML)
+		$doc->loadHTML($msg);		
+		$this->removeElementsByTagName('script', $doc);
+		$this->removeElementsByTagName('style', $doc); 
+		//removeElementsByTagName('link', $doc);
+		$body = $doc->getElementsByTagName('body')->item(0);
+		foreach ($body->childNodes as $child){
+			$mock->appendChild($mock->importNode($child, true));
+		}	
+		// output cleaned html
+		$msg = $mock->saveHtml();	
 		return $msg;
 	}		
 	
