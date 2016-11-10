@@ -410,6 +410,11 @@
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
+                            if($('#Recall_on_off').prop("checked")){
+                                $('#selectcheckbox').addClass('hidden');
+                            }else{
+                                $('#selectcheckbox').removeClass('hidden');
+                            }
                             $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
                                 var $this = $(el),
                                         $p = $this.closest('tr');
