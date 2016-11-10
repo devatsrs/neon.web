@@ -2900,6 +2900,9 @@ function isJson(str) {
 function rebuildSelect2(el,data,defualtText){
     el.empty();
     options = [];
+    if(defualtText.length > 0){
+        options.push(new Option(defualtText, '', true, true));
+    }
     $.each(data,function(key,value){
         if(typeof value == 'object'){
             key = value.id;
@@ -2907,9 +2910,6 @@ function rebuildSelect2(el,data,defualtText){
         }
         options.push(new Option(value, key, true, true));
     });
-    if(defualtText.length > 0){
-        options.push(new Option(defualtText, '', true, true));
-    }
     options.sort();
     el.append(options);
     if(el.hasClass('select2add')){

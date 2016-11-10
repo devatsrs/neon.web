@@ -126,7 +126,7 @@ class AuthenticationController extends \BaseController
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['AccountID'] . "','" . $data['ipclis'] . "','" . $data['isCustomerOrVendor'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
         $postIps = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
@@ -159,13 +159,30 @@ class AuthenticationController extends \BaseController
 
     public function deleteclis($id){
         $data = Input::all();
+        $companyID = User::get_companyID();
+        $StartDate = '';
+        $EndDate = '';
+        $Confirm = 0;
+        if(isset($data['dates'])){
+            $dates = explode(' - ',$data['dates']);
+            $StartDate = $dates[0];
+            $EndDate = $dates[1];
+            $Confirm = 1;
+        }
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
         $postClis = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
+        unset($data['dates']);
         if(!empty($accountAuthenticate)){
+            $recordFound = DataTableSql::of($query, 'sqlsrvcdr')->getProcResult(array('found'));
+            $status = $recordFound['found'][0]['Status'];
+            if($status>0){
+                return Response::json(array("status" => "check","check"=>1));
+            }
             if($isCustomerOrVendor=='Customer'){
                 $data['CustomerAuthRule'] = 'CLI';
                 $dbCLIs = explode(',', $accountAuthenticate->CustomerAuthValue);
