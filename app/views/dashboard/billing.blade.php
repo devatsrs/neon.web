@@ -902,7 +902,7 @@
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                 option["amount"] = response.data.Outstanding;
                 option["end"] = response.data.Outstanding;
-                option["tileclass"] = 'tile-orange';
+                option["tileclass"] = 'tile-brown';
                 option["class"] = 'paymentsent';
                 option["type"] = 'OutStanding For Selected Period';
                 /*option["count"] = response.data.CountTotalPayment;*/
