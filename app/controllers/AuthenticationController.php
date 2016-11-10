@@ -126,7 +126,7 @@ class AuthenticationController extends \BaseController
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['AccountID'] . "','" . $data['ipclis'] . "','" . $data['isCustomerOrVendor'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
         $postIps = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
@@ -172,7 +172,7 @@ class AuthenticationController extends \BaseController
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['AccountID'] . "','" . $data['ipclis'] . "','" . $data['isCustomerOrVendor'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
         $postClis = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
