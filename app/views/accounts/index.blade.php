@@ -689,7 +689,7 @@
                 selector: '[data-toggle="popover"]',
                 trigger:'hover',
                 html:true,
-                template:'<div class="popover popover-primary" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+                template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
                 //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
             });
 
