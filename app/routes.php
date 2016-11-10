@@ -32,7 +32,7 @@ Route::group(array('before' => 'auth'), function () {
 
     Route::any('customer/account_statement', 'AccountStatementCustomerController@index');
     Route::any('customer/account_statement/payment', 'AccountStatementCustomerController@getPayment');
-   // Route::any('customer/account_statement/ajax_datagrid', 'AccountStatementCustomerController@ajax_datagrid');
+    Route::any('customer/account_statement/ajax_datagrid', 'AccountStatementCustomerController@ajax_datagrid');
     Route::any('customer/account_statement/exports/{type}', 'AccountStatementCustomerController@exports');
 
     //credit card
