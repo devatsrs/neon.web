@@ -609,6 +609,7 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $('.btn').button('reset');
+                    $('#confirm-modal').modal('hide');
                 }
 
             });
@@ -724,7 +725,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">Account IP</label>
+                                <label class="col-sm-3 control-label">Date</label>
                                 <div class="col-sm-9">
                                     <input value="{{date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'))}} - {{date('Y-m-d')}}" type="text" id="Closingdate"
                                            data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
