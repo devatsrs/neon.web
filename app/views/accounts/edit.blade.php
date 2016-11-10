@@ -472,7 +472,7 @@
                             <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
                         @endif
 
-                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>" form-control select2 ".$hiden_class))}}
+                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
 
                     </div>
                     <div class="col-md-1">
