@@ -32,6 +32,7 @@ class Messages extends \Eloquent {
 		$data["Title"] 				= 	Account::getCompanyNameByID($data["AccountID"]) ;
 		$data["Description"] 		= 	Account::getCompanyNameByID($data["AccountID"]);
 		$data["CreatedBy"] 			= 	User::get_user_full_name();
+		$data["created_at"] 		= 	date('Y-m-d H:i:s');
 		$data["updated_at"] 		= 	date('Y-m-d H:i:s');
 
 		$validator 					= 	Validator::make($data, $rules);

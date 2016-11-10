@@ -180,9 +180,11 @@ class MessagesController extends \BaseController {
 		  if($Emaildata->EmailCall==Messages::Received){
 			$data['BoxType'] = Messages::inbox;
 		  }
+		  $Imap = new Imap();
+		  $body =  $Imap->GetMessageBody($Emaildata->Message);
 		  
 		 
-		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size','data'));
+		 return View::make('emailmessages.detail', compact('Emaildata','attachments',"TotalUnreads","to",'from','TotalDraft','response_extensions','random_token','max_file_size','data','body'));
 	}
 		
 	public function Compose($id=0){ 

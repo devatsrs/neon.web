@@ -199,7 +199,7 @@
           <div  class="col-md-12">
               <div class="input-group-btn pull-right" style="width:70px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       @if(User::can('Payments','Add'))
                       <li class="li_active">
                           <a id="add-new-payment" class="add-cli" type_ad="active" href="javascript:void(0);" >

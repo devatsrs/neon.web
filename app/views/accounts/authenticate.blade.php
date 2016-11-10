@@ -41,7 +41,7 @@
 @if($account->IsCustomer == 1 )
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="customer_detail">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="customer_detail">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -79,7 +79,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="customer-add-ip" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
@@ -129,7 +129,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="customer-add-cli" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
@@ -188,7 +188,7 @@
 @if($account->IsVendor == 1 )
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="vendor_detail">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="vendor_detail">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -226,7 +226,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="vendor-add-ip" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
@@ -277,7 +277,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="vendor-add-cli" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
