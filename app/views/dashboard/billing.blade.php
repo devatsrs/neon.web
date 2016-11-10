@@ -131,6 +131,16 @@
                                 <p>Payment Sent</p></a></div>
                     </div>
                     @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-orange">
+                                <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
+                                    <p>OutStanding For Selected Period</p>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
@@ -886,6 +896,15 @@
                 option["tileclass"] = 'tile-cyan';
                 option["class"] = 'paymentsent';
                 option["type"] = 'Payments Sent';
+                /*option["count"] = response.data.CountTotalPayment;*/
+                widgets += buildbox(option);
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
+                option["amount"] = response.data.Outstanding;
+                option["end"] = response.data.Outstanding;
+                option["tileclass"] = 'tile-cyan';
+                option["class"] = 'paymentsent';
+                option["type"] = 'OutStanding For Selected Period';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
