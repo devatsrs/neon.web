@@ -167,7 +167,11 @@
                     $(this).button('reset');
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
-                        data_table.fnFilter('', 0);
+                        if ($(this).is(":checked")) {
+                            data_table.fnFilter(1, 0);  // 1st value 2nd column index
+                        } else {
+                            data_table.fnFilter(0, 0);
+                        }
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
