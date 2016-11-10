@@ -294,7 +294,7 @@
 <script>
     var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
     add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td>{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 small form-control"))}}</td><tr>';
+    add_row_html_payment += '<td>{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control"))}}</td><tr>';
     var target = '';
     jQuery(document).ready(function ($) {
         $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
@@ -307,7 +307,7 @@
                 $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
                 @endif
             },5);
-        $('[name="PaymentReminder[TemplateID]"],[name="LowBalanceReminder[TemplateID]"]').on('select2-open', function(e) {
+        $(document).on('select2-open','.select2add' ,function(e) {
             target = $(e.target).attr('name');
             $('.select2-results .select2-add').parents('li').on('click', function(e) {
                 e.stopPropagation();
@@ -316,7 +316,7 @@
                 $("#add-new-template-form [name='TemplateID']").val('');
                 $("#add-new-template-form [name='Email_template_privacy']").val(0).trigger("change");
                 $("#add-new-template-form [name='Type']").val('').trigger("change");
-                $("#add-new-template-form [name='targetElement']").val('#billing-form [name="'+target+'"]');
+                $("#add-new-template-form [name='targetElement']").val('[name="'+target+'"]');
                 $('#add-new-modal-template h4').html('Add New template');
                 $('#add-new-modal-template').modal('show');
                 $('#billing-form [name="'+target+'"]').select2("close");
