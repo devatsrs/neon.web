@@ -41,7 +41,7 @@
       </div>
       <div class="mail-date"> <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($Emaildata->created_at))->diffForHumans();  ?> </div>
     </div>
-    <div class="mail-text">{{$Emaildata->Message}}</div>
+    <div class="mail-text">{{$body}}</div>
     @if(count($attachments)>0 && is_array($attachments))
     <div class="mail-attachments">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
