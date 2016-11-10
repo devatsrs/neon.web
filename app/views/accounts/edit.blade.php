@@ -766,9 +766,7 @@
         $('#billing_edit').on( "click",function(e){
             e.preventDefault();
             $('[name="BillingCycleType"]').removeClass('hidden');
-            $('[name="BillingCycleType"]').css('visibility','visible'):
             $('body').find(".billing_options_active").removeClass('hidden');
-            $('body').find(".billing_options_active").css('visibility','visible'):
             $('.billing_edit_text').addClass('hidden');
             $(this).addClass('hidden');
             return false;
