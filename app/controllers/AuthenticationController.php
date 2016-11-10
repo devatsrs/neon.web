@@ -133,9 +133,8 @@ class AuthenticationController extends \BaseController
         unset($data['dates']);
         $ips = [];
         if(!empty($accountAuthenticate)){
-            $recordFound = DataTableSql::of($query, 'sqlsrvcdr')->getProcResult(array('found'));
-            $status = $recordFound['found'][0]['Status'];
-            if($status>0){
+            $recordFound = DB::Connection('sqlsrvcdr')->select($query);
+            if($recordFound[0]->Status>0){
                 return Response::json(array("status" => "check","check"=>1));
             }
             if($isCustomerOrVendor=='Customer'){
@@ -178,9 +177,8 @@ class AuthenticationController extends \BaseController
         unset($data['isCustomerOrVendor']);
         unset($data['dates']);
         if(!empty($accountAuthenticate)){
-            $recordFound = DataTableSql::of($query, 'sqlsrvcdr')->getProcResult(array('found'));
-            $status = $recordFound['found'][0]['Status'];
-            if($status>0){
+            $recordFound = DB::Connection('sqlsrvcdr')->select($query);
+            if($recordFound[0]->Status>0){
                 return Response::json(array("status" => "check","check"=>1));
             }
             if($isCustomerOrVendor=='Customer'){
