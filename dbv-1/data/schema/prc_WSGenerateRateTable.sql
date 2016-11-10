@@ -75,7 +75,9 @@ GenerateRateTable:BEGIN
 		  code VARCHAR(50) COLLATE utf8_unicode_ci,
 		  rate DECIMAL(18, 6),
 		  ConnectionFee DECIMAL(18, 6),
-		  INDEX tmp_Rates_code (`code`)
+		  INDEX tmp_Rates_code (`code`) ,
+  	     UNIQUE KEY `unique_code` (`code`)
+
 		);
 		DROP TEMPORARY TABLE IF EXISTS tmp_Rates2_;
 		CREATE TEMPORARY TABLE tmp_Rates2_  (
@@ -662,7 +664,7 @@ now take only where  MaxMatchRank =  1
                               INNER JOIN tmp_dupVRatesstage2_ vr2
                                 ON (vr.RowCode = vr2.RowCode AND  vr.FinalRankNumber = vr2.FinalRankNumber);
 
-                    INSERT INTO tmp_Rates_
+                    INSERT IGNORE INTO tmp_Rates_
                     SELECT RowCode,
 				CASE WHEN rule_mgn.RateRuleId is not null
 				THEN
@@ -681,7 +683,7 @@ now take only where  MaxMatchRank =  1
 
 	         ELSE -- AVERAGE
 
-	           INSERT INTO tmp_Rates_
+	           INSERT IGNORE INTO tmp_Rates_
 				SELECT RowCode,
 						CASE WHEN rule_mgn.AddMargin is not null
 						THEN
