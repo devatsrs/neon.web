@@ -214,7 +214,7 @@ $('#add-new-billing_subscription').click(function(ev){
     $('#add-new-modal-billing_subscription h4').html('Add New Subscription');
     $('#add-new-modal-billing_subscription').modal('show');
     $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
-    $("#add-new-billing_subscription-form select[name=CurrencyID]").val('No').trigger("change");
+    $("#add-new-billing_subscription-form select[name=CurrencyID]").val('').trigger("change");
 
 });
 $('table tbody').on('click','.edit-billing_subscription',function(e){
