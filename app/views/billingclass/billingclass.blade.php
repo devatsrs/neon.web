@@ -319,7 +319,7 @@
                 $("#add-new-template-form [name='targetElement']").val('#billing-form [name="'+target+'"]');
                 $('#add-new-modal-template h4').html('Add New template');
                 $('#add-new-modal-template').modal('show');
-                $('[name="PaymentReminder[TemplateID]"]').select2("close");
+                $('#billing-form [name="'+target+'"]').select2("close");
             });
         });
     });
