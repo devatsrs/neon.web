@@ -60,6 +60,7 @@ class CDRController extends BaseController {
                 $jobdata["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
                 $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
                 $jobdata["updated_at"] = date('Y-m-d H:i:s');
                 $JobID = Job::insertGetId($jobdata);
                 /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -121,6 +122,7 @@ class CDRController extends BaseController {
                 $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
                 $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
                 $jobdata["updated_at"] = date('Y-m-d H:i:s');
                 $JobID = Job::insertGetId($jobdata);
                 /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -285,6 +287,7 @@ class CDRController extends BaseController {
         $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
         $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
         $jobdata["Options"] = json_encode($data);
+        $jobdata["created_at"] = date('Y-m-d H:i:s');
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if ($JobID) {
@@ -394,6 +397,7 @@ class CDRController extends BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -629,6 +633,7 @@ class CDRController extends BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];

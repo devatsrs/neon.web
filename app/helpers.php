@@ -540,6 +540,7 @@ function bulk_mail($type,$data){
     $jobdata["OutputFilePath"] = $fullPath;
     $jobdata["CreatedBy"] = User::get_user_full_name();
     $jobdata["updated_at"] = date('Y-m-d H:i:s');
+    $jobdata["created_at"] = date('Y-m-d H:i:s');
     $JobID = Job::insertGetId($jobdata);
     if($type=='CD'){
         $jobtext = 'ratesheet';
