@@ -54,8 +54,7 @@ $(function() {
                                     var arr = row.x.split('/');
                                     var date = new Date(arr[1], arr[0], 1);
                                     StartDate = date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
-                                    var date2 = new Date(arr[1], arr[0] + 1, 1);
-                                    date2 = date2.addDays(-1);
+                                    var date2 = new Date(arr[1], (parseInt(arr[0])+parseInt(1)), 0);
                                     EndDate = date2.getFullYear()+'-'+date2.getMonth()+'-'+date2.getDate();
                                 @elseif($InvoiceExpenseRow->ftype=='Yearly')
                                     StartDate = row.x+'-01-01';
