@@ -13,15 +13,53 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.06</h1>
+    <h1>NEON - 4.07</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.06</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.07</strong></div>
 </p>
 </div>
 
+<h2>
+    <span class="label label-success">4.07</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>11-11-2016</h4>
+                    01. Added Integration with QuickBook , Stripe and PayPal.<br>
+                    02. Added Accept/Reject/Comments button on Estimate so that customer can accept/reject estimate or add comments against it.<br>
+                    03. Added QOS alert (ACD/ASR).<br>
+                    04. Added Call monitoring alert (Blacklisted Destinations/Longest Calls/Expensive Calls/Calls outside business hours).<br>
+                    05. Added Analysis by Account under Monitor dashboard and Analysis.<br>
+                    06. Added Translation rule at Gateway level.<br>
+                    07. Added Base code deck option.<br>
+                    08. Added option to specify Tax1 and Tax2 in Invoices/Estimates and Additional Charges.<br>
+                    09. Added payments view option under Invoice log. From invoice page you can see all payments against the invoice.<br>
+                    10. Improved Billing dashboard.<br>
+                    11. Improved responsiveness.<br>
+                    12. Fixed Invoice No filter on Invoice and Payments page. Now you will be able to do wild card search.<br>
+                    13. Changed Sorting under Rate Generator -> Margin to Min Rate ASC.<br>
+                    14. Added option to switch ON and OFF Job notifications.<br>
+                    15. Fixed issue with Code Deck country update.<br>
+                    16. Fixed issue with Previous balance on the invoice.<br>
+                    17. Added Vendor Unbilled Usage and Account Exposure under Credit Control.<br>
+                    18. Improved Account Card.<br>
+                    19. Added Email Tracking and Mailbox.<br>
+                    20. Added Payment Reminders.<br>
+                    21. Added Low Balance Reminders.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.06</span> &nbsp; Version Highlights
 </h2>
@@ -52,10 +90,11 @@
     </div>
 
 </div>
-
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.05</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -77,11 +116,12 @@
     </div>
 
 </div>
-
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.04</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -118,10 +158,12 @@
     </div>
 
 </div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.03</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -150,9 +192,12 @@
 
 </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.02</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -186,9 +231,12 @@
 
 </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.01</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -205,11 +253,12 @@
 
  </div>
 
-
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.00</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -235,9 +284,12 @@
 
  </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.03</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -257,9 +309,13 @@
 </ul>
  </div>
  </div>
+
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.02</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -282,6 +338,9 @@
 </ul>
  </div>
  </div>
+
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.01</span> &nbsp; Version Highlights
 </h2>
@@ -302,6 +361,8 @@
 </ul>
  </div>
  </div>
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.00</span> &nbsp; Version Highlights
 </h2>
@@ -349,4 +410,5 @@
 </ul>
  </div>
  </div>
+<div class="clear"></div>
 @stop
