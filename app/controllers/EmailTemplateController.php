@@ -99,9 +99,9 @@ class EmailTemplateController extends \BaseController {
         }
         unset($data['Email_template_privacy']);
         unset($data['targetElement']);
-        if (EmailTemplate::create($data)) {
-            $emailTemplates = EmailTemplate::getTemplateArray();
-            return Response::json(array("status" => "success", "message" => "Template Successfully Created","data"=>$emailTemplates));
+        if ($obj = EmailTemplate::create($data)) {
+            $emailTemplates = EmailTemplate::getTemplateArray(['select'=>0]);
+            return Response::json(array("status" => "success", "message" => "Template Successfully Created","data"=>$emailTemplates,"newcreated"=>$obj));
         }
 
 

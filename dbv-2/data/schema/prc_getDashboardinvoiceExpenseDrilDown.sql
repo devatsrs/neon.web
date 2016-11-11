@@ -229,7 +229,8 @@ BEGIN
       	SELECT COUNT(*) AS totalcount,
 					ROUND(COALESCE(SUM(GrandTotal),0),v_Round_) as totalsum, 
 					ROUND(COALESCE(SUM(TotalPayment),0),v_Round_) totalpaymentsum,
-					ROUND(COALESCE(SUM(PendingAmount),0),v_Round_) totalpendingsum 
+					ROUND(COALESCE(SUM(PendingAmount),0),v_Round_) totalpendingsum,
+					v_CurrencyCode_ as currencySymbol
 			FROM tmp_Invoices_;
       	
 		END IF;

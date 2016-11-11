@@ -16,7 +16,11 @@ class DashboardCustomerController extends BaseController {
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
         }
-        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter'));
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
+        if(!empty($BillingDashboardWidgets)) {
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+        }
+        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }
     public function invoice_expense_chart(){
         $data = Input::all();
