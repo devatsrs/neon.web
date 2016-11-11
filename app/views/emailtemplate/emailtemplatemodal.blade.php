@@ -52,9 +52,13 @@
                         if(targetElement.length>0){
                             $.each(targetElement,function(key,el){
                                 rebuildSelect2($(el),response.data,'Select');
+                                $(el).val(response.newcreated.TemplateID);
+                                $(el).trigger('change');
                             });
                         }else{
                             rebuildSelect2(targetElement,response.data,'Select');
+                            $(el).val(response.newcreated.TemplateID);
+                            $(el).trigger('change');
                         }
                     }
                 } else {

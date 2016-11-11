@@ -2911,6 +2911,7 @@ function rebuildSelect2(el,data,defualtText){
     if(defualtText.length > 0){
         options.push(new Option(defualtText, '', true, true));
     }
+    options.sort();
     options.reverse();
     el.append(options);
     if(el.hasClass('select2add')){

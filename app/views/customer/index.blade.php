@@ -42,99 +42,120 @@
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
                 <div id="invoice-widgets" class="panel-body">
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
-                                                             data-startdate="" data-enddate=""
-                                                             data-currency="" href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p> Total Outstanding</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
-                                                              data-enddate="" data-currency=""
-                                                              href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Invoice Received</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Invoice Sent</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
-                                                               data-startdate="" data-enddate=""
-                                                               data-currency="0" href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Due Amount</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
-                                                            data-enddate="" data-currency=""
-                                                            href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Overdue Amount</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
-                                                               data-enddate="" data-currency=""
-                                                               href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Payment Sent</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Payment Received</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-brown">
-                            <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
-                                <p>Outstanding For Selected Period</p>
-                            </a>
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
+                                                                 data-startdate="" data-enddate=""
+                                                                 data-currency="" href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p> Total Outstanding</p></a></div>
                         </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Pending Dispute</p></a></div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Pending Eastimate</p></a></div>
-                    </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
+                                                                  data-enddate="" data-currency=""
+                                                                  href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Invoice Sent</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Invoice Received</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
+                                                                   data-startdate="" data-enddate=""
+                                                                   data-currency="0" href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Due Amount</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                                data-enddate="" data-currency=""
+                                                                href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Overdue Amount</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
+                                                                   data-enddate="" data-currency=""
+                                                                   href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Payment Received</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Payment Sent</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-orange">
+                                <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
+                                    <p>OutStanding For Selected Period</p>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Pending Dispute</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Pending Eastimate</p></a></div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
     <div class="row">
         <div class="col-sm-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -159,8 +180,9 @@
         </div>
 
     </div>
+    @endif
     <input name="CurrencyID" type="hidden" value="{{$account->CurrencyId}}">
-    @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
