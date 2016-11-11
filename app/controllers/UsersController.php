@@ -110,6 +110,7 @@ class UsersController extends BaseController {
         }else{
             unset($data['password']);
         }
+        $data['JobNotification'] = isset($data['JobNotification'])?1:0;
         unset($data['password_confirmation']);
         if ($user->update($data)) {
             Cache::forget('user_defaults');
@@ -270,7 +271,6 @@ class UsersController extends BaseController {
         $user_profile_data['Address3'] = $data['Address3'];
         $user_profile_data['Utc'] = $data['Utc'];
         $user_profile_data['updated_by'] = User::get_user_full_name();
-        $user_profile_data['JobNotification'] = $data['JobNotification'];
 
         if (!empty($data['Roles'])) {
             $user_data['Roles'] = implode(',', (array) $data['Roles']);

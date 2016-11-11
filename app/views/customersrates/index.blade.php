@@ -132,7 +132,7 @@
                 <div class="input-group-btn pull-right" style="width:70px;">
                     @if( User::checkCategoryPermission('CustomersRates','Edit,ClearRate'))
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                         @if(User::checkCategoryPermission('CustomersRates','Edit'))
                         <li><a class="generate_rate create" id="bulk_set_cust_rate" href="javascript:;" style="width:100%">
                                 Bulk update

@@ -5,9 +5,14 @@
     $(document).ready(function ($) {
         $('#add-new-template-form').submit(function(e){
             e.preventDefault();
-            var url = baseurl + '/email_template/storetemplate';
-            ajax_update(url,$('#add-new-template-form').serialize());
-        })
+            var templateID = $("#add-new-template-form [name='TemplateID']").val();
+            if( typeof templateID != 'undefined' && templateID != ''){
+                update_new_url = baseurl + '/email_template/'+templateID+'/update';
+            }else{
+                update_new_url = baseurl + '/email_template/store';
+            }
+            ajax_update(update_new_url,$('#add-new-template-form').serialize());
+        });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
             var modal = $(this);
@@ -49,7 +54,17 @@
                         data_table.fnFilter('', 0);
                     }else if($('#add-new-template-form [name="targetElement"]').val() != ''){
                         var targetElement = $($('#add-new-template-form [name="targetElement"]').val());
-                        rebuildSelect2(targetElement,response.data,'');
+                        if(targetElement.length>0){
+                            $.each(targetElement,function(key,el){
+                                rebuildSelect2($(el),response.data,'Select');
+                                $(el).val(response.newcreated.TemplateID);
+                                $(el).trigger('change');
+                            });
+                        }else{
+                            rebuildSelect2(targetElement,response.data,'Select');
+                            $(el).val(response.newcreated.TemplateID);
+                            $(el).trigger('change');
+                        }
                     }
                 } else {
                     toastr.error(response.message, "Error", toastr_opts);

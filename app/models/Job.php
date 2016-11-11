@@ -75,6 +75,7 @@ class Job extends \Eloquent {
                 $JobFile_data_["HttpPath"] = 0;
                 $JobFile_data_["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
                 $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
                 $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
 
                 $validator = Validator::make($JobFile_data_, $rules);
@@ -116,6 +117,7 @@ class Job extends \Eloquent {
                     $data["HttpPath"] = 0;
                     $data["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
                     $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
                     $data["updated_at"] = date('Y-m-d H:i:s');
                     $validator = Validator::make($data, $rules);
 
@@ -197,6 +199,7 @@ class Job extends \Eloquent {
                 $JobFile_data_["HttpPath"] = 0;
                 $JobFile_data_["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
                 $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
                 $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
 
                 $validator = Validator::make($JobFile_data_, $rules_);
@@ -240,6 +243,7 @@ class Job extends \Eloquent {
                     $data["HttpPath"] = 0;
                     $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
                     $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
                     $data["updated_at"] = date('Y-m-d H:i:s');
 
                     $validator = Validator::make($data, $rules);
@@ -304,6 +308,7 @@ class Job extends \Eloquent {
                 $JobFile_data_["HttpPath"] = 0;
                 $JobFile_data_["Options"] =  '';
                 $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
                 $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
 
                 $validator = Validator::make($JobFile_data_, $rules_);
@@ -346,6 +351,7 @@ class Job extends \Eloquent {
                     $data["HttpPath"] = 0;
                     $data["Options"] =  '';
                     $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
                     $data["updated_at"] = date('Y-m-d H:i:s');
 
                     $validator = Validator::make($data, $rules);
@@ -433,6 +439,7 @@ class Job extends \Eloquent {
                 $JobFile_data_["HttpPath"] = 0;
                 $JobFile_data_["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
                 $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
                 $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
 
                 $validator = Validator::make($JobFile_data_, $rules);
@@ -473,6 +480,7 @@ class Job extends \Eloquent {
                     $data["HttpPath"] = 0;
                     $data["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
                     $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
                     $data["updated_at"] = date('Y-m-d H:i:s');
                     $validator = Validator::make($data, $rules);
 
@@ -547,6 +555,7 @@ class Job extends \Eloquent {
                 $JobFile_data_["HttpPath"] = 0;
                 $JobFile_data_["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
                 $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
                 $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
 
                 $validator = Validator::make($JobFile_data_, $rules);
@@ -579,6 +588,7 @@ class Job extends \Eloquent {
                     $data["HttpPath"] = 0;
                     $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
                     $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
                     $data["updated_at"] = date('Y-m-d H:i:s');
 
                     $validator = Validator::make($data, $rules);
@@ -668,6 +678,7 @@ class Job extends \Eloquent {
                 $JobFile_data_["HttpPath"] = 0;
                 $JobFile_data_["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
                 $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
                 $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
 
                 $validator = Validator::make($JobFile_data_, $rules);
@@ -709,6 +720,7 @@ class Job extends \Eloquent {
                     $data["HttpPath"] = 0;
                     $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
                     $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
                     $data["updated_at"] = date('Y-m-d H:i:s');
 
                     $validator = Validator::make($data, $rules);
@@ -1190,6 +1202,7 @@ class Job extends \Eloquent {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '' .  ' For ' . $AccountName;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($options);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
 

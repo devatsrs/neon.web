@@ -25,6 +25,8 @@ class EmailTemplate extends \Eloquent {
         }
     }
     public static function getTemplateArray($data=array()){
+        $select =  isset($data['select'])?$data['select']:1;
+        unset($data['select']);
         $data['CompanyID']=User::get_companyID();
         $EmailTemplate = EmailTemplate::where($data);
         if(!isset($data['UserID'])){
@@ -32,7 +34,7 @@ class EmailTemplate extends \Eloquent {
         }
         $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
 
-        if(!empty($row)){
+        if(!empty($row) && $select==1){
             $row = array(""=> "Select")+$row;
         }
         return $row;

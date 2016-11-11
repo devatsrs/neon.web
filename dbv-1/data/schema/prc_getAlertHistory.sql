@@ -11,11 +11,15 @@ BEGIN
 		SELECT
 			tblAlert.Name,
 			tblAlert.AlertType,
-			tblAlertLog.send_at
+			tblAlertLog.send_at,
+			AccountEmailLog.Subject,
+			AccountEmailLog.Message
 		FROM tblAlert
 		INNER JOIN tblAlertLog 
 			ON tblAlert.AlertID = tblAlertLog.AlertID
-		WHERE CompanyID = p_CompanyID
+		INNER JOIN AccountEmailLog 
+			ON tblAlertLog.AccountEmailLogID = AccountEmailLog.AccountEmailLogID
+		WHERE tblAlert.CompanyID = p_CompanyID
 			AND (p_AlertID = 0 OR tblAlert.AlertID = p_AlertID)
 			AND (p_AlertType = '' OR tblAlert.AlertType = p_AlertType)
 			AND tblAlertLog.send_at BETWEEN p_StartDate and p_EndDate

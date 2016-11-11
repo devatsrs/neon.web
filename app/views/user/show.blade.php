@@ -73,10 +73,10 @@
                                 action =  '';
                                 if (full[5] == "1") {
                                     active_ = "{{ URL::to('/users/{id}/job_notification/0')}}";
-                                    notification_link = ' <button href="' + active_ + '" title="Job Notification desctivate"  class="btn change_notification btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
+                                    notification_link = ' <button href="' + active_ + '" title="Job Notification" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification"  class="btn change_notification btn-success btn-sm popover-primary" data-loading-text="Loading..."><i class="glyphicon glyphicon-time"></i></button>';
                                 } else {
                                     active_ = "{{ URL::to('/users/{id}/job_notification/1')}}";
-                                    notification_link = ' <button href="' + active_ + '"  title="Job Notification activate"   class="btn change_notification btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
+                                    notification_link = ' <button href="' + active_ + '"  title="Job Notification"  data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification"  class="btn change_notification btn-danger btn-sm popover-primary" data-loading-text="Loading..."><i class="glyphicon glyphicon-time"></i></button>';
                                 }
                                 <?php if(User::checkCategoryPermission('Users','Edit')){ ?>
                                     action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
@@ -102,6 +102,26 @@
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
+            },
+            "fnDrawCallback": function() {
+                $('#table-4 .popover-primary').each(function(i, el) {
+                    var $this = $(el),
+                            placement = attrDefault($this, 'placement', 'right'),
+                            trigger = attrDefault($this, 'trigger', 'click'),
+                            popover_class = $this.hasClass('popover-secondary') ? 'popover-secondary' : ($this.hasClass('popover-primary') ? 'popover-primary' : ($this.hasClass('popover-default') ? 'popover-default' : ''));
+
+                    $this.popover({
+                        placement: placement,
+                        trigger: trigger
+                    });
+
+                    $this.on('shown.bs.popover', function(ev)
+                    {
+                        var $popover = $this.next();
+
+                        $popover.addClass(popover_class);
+                    });
+                });
             }
 
         });
@@ -147,7 +167,11 @@
                     $(this).button('reset');
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
-                        data_table.fnFilter('', 0);
+                        if ($('#UserStatus').is(":checked")) {
+                            data_table.fnFilter(1, 0);  // 1st value 2nd column index
+                        } else {
+                            data_table.fnFilter(0, 0);
+                        }
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
@@ -160,6 +184,7 @@
             });
             return false;
         });
+
 
     });
 
