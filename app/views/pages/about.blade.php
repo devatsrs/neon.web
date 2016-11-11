@@ -59,7 +59,7 @@
     </div>
 
 </div>
-
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.06</span> &nbsp; Version Highlights
 </h2>
@@ -90,10 +90,11 @@
     </div>
 
 </div>
-
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.05</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -115,11 +116,12 @@
     </div>
 
 </div>
-
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.04</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -156,10 +158,12 @@
     </div>
 
 </div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.03</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -188,9 +192,12 @@
 
 </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.02</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -224,9 +231,12 @@
 
 </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.01</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -243,11 +253,12 @@
 
  </div>
 
-
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.00</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -273,9 +284,12 @@
 
  </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.03</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -295,9 +309,13 @@
 </ul>
  </div>
  </div>
+
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.02</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -320,6 +338,9 @@
 </ul>
  </div>
  </div>
+
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.01</span> &nbsp; Version Highlights
 </h2>
@@ -340,6 +361,8 @@
 </ul>
  </div>
  </div>
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.00</span> &nbsp; Version Highlights
 </h2>
@@ -387,4 +410,5 @@
 </ul>
  </div>
  </div>
+<div class="clear"></div>
 @stop
