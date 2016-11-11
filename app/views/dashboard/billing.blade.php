@@ -7,7 +7,7 @@
     <br/>
     <div class="row">
         <div class="col-sm-12">
-            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post"
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post"
                   id="billing_filter">
                 <div data-collapsed="0" class="panel panel-primary">
                     <div class="panel-heading">
@@ -469,7 +469,7 @@
                         }
 
                     },  // 6 InvoiceStatus
-                    {"bSortable": true}, //6   Overdue Aging
+                    /*{"bSortable": true},*/ //6   Overdue Aging
                 ],
                 "oTableTools": {
                     "aButtons": [
@@ -1074,7 +1074,7 @@
                                 <th width="10%">Grand Total</th>
                                 <th width="10%">Paid/OS</th>
                                 <th width="10%">Status</th>
-                                <th width="5%">Overdue Aging</th>
+                                <!--<th width="5%">Overdue Aging</th>-->
                             </tr>
                             </thead>
                             <tbody>
