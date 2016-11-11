@@ -8,9 +8,9 @@ $('#save_billing').on("click",function(e){
 $('#payment-add-row').on('click', function(e){
     e.preventDefault();
     $('#PaymentReminderTable > tbody').append(add_row_html_payment);
-
-    $('select.select2').addClass('visible');
-    $('select.select2').select2();
+    var selectBox = $('#PaymentReminderTable select.select2').last();
+    selectBox.addClass('visible');
+    buildselect2(selectBox);
     rebind();
 });
 

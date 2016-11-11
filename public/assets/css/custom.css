@@ -107,7 +107,7 @@ body {
 
 
 .pull-right-xs .dropdown-menu{
-    width:333px !important;
+   /* width:333px !important;*/
     right:-16px;
 }
 .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter{
@@ -2427,7 +2427,7 @@ background:white none repeat scroll 0 0;
     padding: 1px;
     text-align: left;
     white-space: normal;
-    background-color: #FFFFFF !important;
+    background-color: #000 !important;
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
     border: 1px solid #ccc;
@@ -2490,6 +2490,90 @@ background:white none repeat scroll 0 0;
 .input-group-addon {
   color: #555 !important;
 }
-.dropdown-menu{
+/*.dropdown-menu{
 background-color:#000 !important;
+}*/
+.dropdown-menu.dropdown-green {
+  background-color: #00a651;
+  border-color: #009247;
+}
+.dropdown-menu.dropdown-green > li > a {
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-green > li:hover a {
+  background-color: #008d45;
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-green .divider,
+.dropdown-menu.dropdown-green .divider:hover {
+  height: 1px;
+  margin: 7.5px 0;
+  overflow: hidden;
+  background-color: #009247;
+}
+.dropdown-menu.dropdown-red {
+  background-color: #d42020;
+  border-color: #b51b1b;
+}
+.dropdown-menu.dropdown-red > li > a {
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-red > li:hover a {
+  background-color: #be1d1d;
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-red .divider,
+.dropdown-menu.dropdown-red .divider:hover {
+  height: 1px;
+  margin: 7.5px 0;
+  overflow: hidden;
+  background-color: #b51b1b;
+}
+.dropdown-menu.dropdown-blue {
+  background-color: #0072bc;
+  border-color: #0063a3;
+}
+.dropdown-menu.dropdown-blue > li > a {
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-blue > li:hover a {
+  background-color: #0063a3;
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-blue .divider,
+.dropdown-menu.dropdown-blue .divider:hover {
+  height: 1px;
+  margin: 7.5px 0;
+  overflow: hidden;
+  background-color: #0063a3;
+}
+
+.dropdown-menu.dropdown-red {
+  background-color: #d42020;
+  border-color: #b51b1b;
+}
+.dropdown-menu.dropdown-red > li > a {
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-red > li:hover a {
+  background-color: #be1d1d;
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-red .divider,
+.dropdown-menu.dropdown-red .divider:hover {
+  height: 1px;
+  margin: 7.5px 0;
+  overflow: hidden;
+  background-color: #b51b1b;
+}
+.dropdown-menu.dropdown-black {
+  background-color: #000000;
+  border-color: #454545;
+}
+.dropdown-menu.dropdown-black > li > a {
+  color: #ffffff;
+}
+.dropdown-menu.dropdown-black > li:hover a {
+  background-color: #383838;
+  color: #ffffff;
 }

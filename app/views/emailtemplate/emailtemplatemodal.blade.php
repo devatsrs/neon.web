@@ -49,7 +49,17 @@
                         data_table.fnFilter('', 0);
                     }else if($('#add-new-template-form [name="targetElement"]').val() != ''){
                         var targetElement = $($('#add-new-template-form [name="targetElement"]').val());
-                        rebuildSelect2(targetElement,response.data,'');
+                        if(targetElement.length>0){
+                            $.each(targetElement,function(key,el){
+                                rebuildSelect2($(el),response.data,'Select');
+                                $(el).val(response.newcreated.TemplateID);
+                                $(el).trigger('change');
+                            });
+                        }else{
+                            rebuildSelect2(targetElement,response.data,'Select');
+                            $(el).val(response.newcreated.TemplateID);
+                            $(el).trigger('change');
+                        }
                     }
                 } else {
                     toastr.error(response.message, "Error", toastr_opts);

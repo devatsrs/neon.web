@@ -133,10 +133,10 @@
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-orange">
+                            <div class="tile-stats tile-brown">
                                 <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
-                                    <p>OutStanding For Selected Period</p>
+                                    <p>Outstanding For Selected Period</p>
                                 </a>
                             </div>
                         </div>
@@ -172,7 +172,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="invoice_expsense panel panel-primary panel-table">
-
+                <form id="invoiceExpensefilter-form" name="filter-form">
                     <div class="panel-heading">
                     <div class="panel-title">
                         <h3>Invoices & Expenses</h3>
@@ -180,14 +180,15 @@
                     </div>
 
                     <div class="panel-options">
-                        <form id="invoiceExpensefilter-form" name="filter-form">
+
                         {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),$monthfilter,array("class"=>"select_gray","id"=>"ListType")) }}
-                        </form>
+
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
                         <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
                     </div>
                 </div>
+                </form>
 
                 <div class="panel-body">
                     <div id="invoice_expense_bar_chart"></div>
@@ -838,15 +839,6 @@
                 option["round"] = response.data.Round;
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalInvoiceIn;
-                option["end"] = response.data.TotalInvoiceIn;
-                option["tileclass"] = 'tile-green';
-                option["class"] = 'paid';
-                option["type"] = 'Invoice Received';
-                /*option["count"] = response.data.CountTotalPaidInvoices;*/
-                widgets += buildbox(option);
-                @endif
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalInvoiceOut;
                 option["end"] = response.data.TotalInvoiceOut;
@@ -856,6 +848,16 @@
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
                 @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
+                option["amount"] = response.data.TotalInvoiceIn;
+                option["end"] = response.data.TotalInvoiceIn;
+                option["tileclass"] = 'tile-green';
+                option["class"] = 'paid';
+                option["type"] = 'Invoice Received';
+                /*option["count"] = response.data.CountTotalPaidInvoices;*/
+                widgets += buildbox(option);
+                @endif
+
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalDueAmount;
                 option["end"] = response.data.TotalDueAmount;
@@ -902,9 +904,9 @@
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                 option["amount"] = response.data.Outstanding;
                 option["end"] = response.data.Outstanding;
-                option["tileclass"] = 'tile-orange';
+                option["tileclass"] = 'tile-brown';
                 option["class"] = 'paymentsent';
-                option["type"] = 'OutStanding For Selected Period';
+                option["type"] = 'Outstanding For Selected Period';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif

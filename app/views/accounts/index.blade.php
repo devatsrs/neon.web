@@ -109,7 +109,7 @@
     <div  class="col-md-12">
         <div class="input-group-btn pull-right" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                 @if(User::checkCategoryPermission('Account','Email'))
                 <li>
                     <a href="javascript:void(0)" class="sendemail">
@@ -689,7 +689,7 @@
                 selector: '[data-toggle="popover"]',
                 trigger:'hover',
                 html:true,
-                template:'<div class="popover popover-primary" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+                template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
                 //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
             });
 
