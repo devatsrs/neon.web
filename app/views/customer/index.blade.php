@@ -109,7 +109,7 @@
                         <div class="tile-stats tile-brown">
                             <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
-                                <p>OutStanding For Selected Period</p>
+                                <p>Outstanding For Selected Period</p>
                             </a>
                         </div>
                     </div>
@@ -348,7 +348,7 @@
                 option["end"] = response.data.Outstanding;
                 option["tileclass"] = 'tile-brown';
                 option["class"] = 'paymentsent';
-                option["type"] = 'OutStanding For Selected Period';
+                option["type"] = 'Outstanding For Selected Period';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
 

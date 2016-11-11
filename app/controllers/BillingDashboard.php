@@ -13,7 +13,7 @@ class BillingDashboard extends \BaseController {
             $Closingdate		=	explode(' - ',$data['Closingdate']);
             $Startdate			=   $Closingdate[0];
             $Enddate			=	$Closingdate[1];
-            $data['Startdate'] = trim($Startdate).' 00:00:01';
+            $data['Startdate'] = trim($Startdate).' 00:00:00';
             $data['Enddate'] = trim($Enddate).' 23:59:59';
         }else{
             $data['Startdate'] = $data['date-span'];
@@ -43,7 +43,7 @@ class BillingDashboard extends \BaseController {
             $Closingdate		=	explode(' - ',$data['Closingdate']);
             $Startdate			=   $Closingdate[0];
             $Enddate			=	$Closingdate[1];
-            $data['Startdate'] = trim($Startdate).' 00:00:01';
+            $data['Startdate'] = trim($Startdate).' 00:00:00';
             $data['Enddate'] = trim($Enddate).' 23:59:59';
         }else{
             $data['Startdate'] = $data['date-span'];
@@ -77,7 +77,7 @@ class BillingDashboard extends \BaseController {
             $Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
             $Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
         }
-        $data['Startdate'] = trim($Startdate).' 00:00:01';
+        $data['Startdate'] = trim($Startdate).' 00:00:00';
         $data['Enddate'] = trim($Enddate).' 23:59:59';
         if($data['Type'] == 2 && $data['PinExt'] == 'pincode'){
             $report_label = 'Pin Duration (in Sec) ';
