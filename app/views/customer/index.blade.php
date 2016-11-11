@@ -42,7 +42,6 @@
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
                 <div id="invoice-widgets" class="panel-body">
-
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
