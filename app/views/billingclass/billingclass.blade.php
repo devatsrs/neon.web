@@ -317,7 +317,6 @@
                 $("#add-new-template-form [name='TemplateID']").val('');
                 $("#add-new-template-form [name='Email_template_privacy']").val(0).trigger("change");
                 $("#add-new-template-form [name='Type']").val('').trigger("change");
-                $("#add-new-template-form [name='targetElement']").val('[name="'+target+'"]');
                 $('#add-new-modal-template h4').html('Add New template');
                 $('#add-new-modal-template').modal('show');
                 $('#billing-form [name="'+target+'"]').select2("close");

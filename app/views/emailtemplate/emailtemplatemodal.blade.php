@@ -133,7 +133,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="hidden" name="targetElement" />
+
                         <button type="submit" id="template-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
