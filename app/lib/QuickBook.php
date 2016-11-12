@@ -455,8 +455,8 @@ class QuickBook {
 				if(!empty($customers) && count($customers)>0){
 					foreach ($customers as $Customer){
 						//print('Customer Id=' . $Customer->getId() . ' is named: ' . $Customer->getFullyQualifiedName() . '<br>');
-
-						if(!empty($Customer->getId())){
+						$cid = $Customer->getId();
+						if(!empty($cid)){
 
 							$id = $Customer->getId();
 							$id = str_replace('{-','',$id);
@@ -683,8 +683,8 @@ class QuickBook {
 
 					foreach ((array)$customers as $Customer){
 						//print('Customer Id=' . $Customer->getId() . ' is named: ' . $Customer->getFullyQualifiedName() . '<br>');
-
-						if(!empty($Customer->getId())){
+						$cid = $Customer->getId();
+						if(!empty($cid)){
 
 							$id = $Customer->getId();
 							$id = str_replace('{-','',$id);
