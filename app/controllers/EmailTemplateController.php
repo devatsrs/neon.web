@@ -62,8 +62,8 @@ class EmailTemplateController extends \BaseController {
             $data['userID'] = User::get_userID();
         }
         unset($data['Email_template_privacy']);
-        if (EmailTemplate::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Template Successfully Created"));
+        if ($obj = EmailTemplate::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
         }
@@ -72,40 +72,7 @@ class EmailTemplateController extends \BaseController {
         //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * POST /accounts
-     *
-     * @return Response
-     */
-    public function storetemplate() {
 
-        $data = Input::all();
-        $companyID = User::get_companyID();
-        $data['CompanyID'] = $companyID;
-        $data['CreatedBy'] = User::get_user_full_name();
-        $rules = [
-            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,NULL,TemplateID,CompanyID,".$companyID,
-            "Subject" => "required",
-            "TemplateBody"=>"required"
-        ];
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
-            $data['userID'] = User::get_userID();
-        }
-        unset($data['Email_template_privacy']);
-        if ($obj = EmailTemplate::create($data)) {
-            $emailTemplates = EmailTemplate::getTemplateArray(['select'=>0]);
-            return Response::json(array("status" => "success", "message" => "Template Successfully Created","data"=>$emailTemplates,"newcreated"=>$obj));
-        }
-
-
-        //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
-    }
 
     /**
      * Show the form for editing the specified resource.
