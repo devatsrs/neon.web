@@ -2477,6 +2477,11 @@ background:white none repeat scroll 0 0;
     margin-bottom:10px;
     padding:10px;
 }
+.alert-warning {
+    background-color: #ffefa4;
+    border-color: #ffd78a;
+    color: #574802;
+}
 
 .label.label-info  {
     padding: 0.2em 0.6em 0.3em !important;

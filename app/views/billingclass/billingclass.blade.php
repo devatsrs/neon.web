@@ -133,7 +133,7 @@
 
                                                             </td>
                                                             <td>
-                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 small form-control"))}}
+                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 select2add small form-control add-new-template-dp"))}}
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -170,7 +170,7 @@
                                         </div>
                                         <label class="col-sm-2 control-label">Template</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control"))}}
+                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp"))}}
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -231,7 +231,7 @@
                                 </div>
                                 <label class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 select2add small form-control"))}}
+                                    {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp"))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -292,9 +292,8 @@
 </form>
 </div>
 <script>
-    var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td>{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control"))}}</td><tr>';
+    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control"))}}';
+
     var target = '';
     jQuery(document).ready(function ($) {
         $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
@@ -309,6 +308,8 @@
             },5);
         $(document).on('select2-open','.select2add' ,function(e) {
             target = $(e.target).attr('name');
+            $('.add-new-template-dp').attr('data-active',0);
+            $(e.target).attr('data-active',1);
             $('.select2-results .select2-add').parents('li').on('click', function(e) {
                 e.stopPropagation();
                 $(this).parents();
